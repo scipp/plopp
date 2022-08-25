@@ -54,9 +54,9 @@ class Mesh:
         self._vmin = np.inf
         self._vmax = np.NINF
 
-        self._cmap = get_cmap(cmap)
+        self._cmap = _get_cmap(cmap)
         self._cax = cax
-        self._mask_cmap = get_cmap(masks_cmap)
+        self._mask_cmap = _get_cmap(masks_cmap)
         self._norm_flag = norm
         self._norm_func = None
 
