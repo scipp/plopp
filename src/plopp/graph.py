@@ -3,6 +3,7 @@
 
 from html import escape
 
+
 def _make_graphviz_digraph(*args, **kwargs):
     try:
         from graphviz import Digraph
