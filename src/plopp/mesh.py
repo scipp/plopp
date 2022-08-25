@@ -1,16 +1,29 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ... import broadcast, DataArray
 from .limits import find_limits, fix_empty_range
-from .tools import get_cmap
-from ...utils import name_with_unit
+from .tools import name_with_unit
 
+from scipp import broadcast, DataArray
+from copy import copy
 from functools import reduce
-from matplotlib.colors import Normalize, LogNorm
+from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
 from matplotlib.pyplot import colorbar
+from matplotlib import cm
 import numpy as np
 from typing import Any
+
+
+def _get_cmap(name: str = 'viridis'):
+
+    try:
+        cmap = copy(cm.get_cmap(name))
+    except ValueError:
+        cmap = LinearSegmentedColormap.from_list("tmp", [name, name])
+
+    # cmap.set_under(config['plot']['params']["under_color"])
+    # cmap.set_over(config['plot']['params']["over_color"])
+    return cmap
 
 
 class Mesh:

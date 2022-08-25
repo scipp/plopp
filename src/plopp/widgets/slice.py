@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .... import DataArray
-from ....utils import value_to_string
+from ..tools import value_to_string
 from ..view import View
 from ..model import node
 
+from scipp import DataArray
 import ipywidgets as ipw
 from typing import Callable
 

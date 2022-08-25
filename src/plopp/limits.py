@@ -1,10 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ... import scalar, Variable, log10
-from ... import abs as abs_
-from ... import DType
-
+from scipp import scalar, Variable, log10, DType, abs as abs_
 import numpy as np
 from typing import Tuple
 

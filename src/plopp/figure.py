@@ -1,17 +1,30 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ... import config, DataArray
-from .tools import fig_to_pngbytes, parse_kwargs
+from .tools import name_with_unit, parse_kwargs
 from .toolbar import Toolbar
 from .mesh import Mesh
 from .line import Line
-from ...utils import name_with_unit
 from .view import View
 
 import ipywidgets as ipw
+from io import BytesIO
 import matplotlib.pyplot as plt
 from typing import Any, Tuple
+from scipp import DataArray
+
+
+def fig_to_pngbytes(fig: Any):
+    """
+    Convert figure to png image bytes.
+    We also close the figure to prevent it from showing up again in
+    cells further down the notebook.
+    """
+    buf = BytesIO()
+    fig.savefig(buf, format='png')
+    # plt.close(fig)
+    buf.seek(0)
+    return buf.getvalue()
 
 
 class SideBar(list):
@@ -52,11 +65,13 @@ class Figure(View):
 
         self._children = {}
 
-        cfg = config['plot']
         if self._ax is None:
             if figsize is None:
-                figsize = (cfg['width'] / cfg['dpi'], cfg['height'] / cfg['dpi'])
-            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=cfg['dpi'])
+                width = 600
+                height = 400
+                dpi = 96
+                figsize = (width / dpi, height / dpi)
+            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=dpi)
             self._fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
             if self.is_widget():
                 self._fig.canvas.toolbar_visible = False

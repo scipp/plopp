@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from typing import Union, Dict
 from .model import input_node
 from .figure import Figure
-from ... import Variable, DataArray, Dataset, arange
-from ...typing import VariableLike
+
+from scipp import Variable, DataArray, Dataset, arange
+from scipp.typing import VariableLike
+from typing import Union, Dict
 import numpy as np
 
 
