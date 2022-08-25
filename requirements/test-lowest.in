@@ -1,0 +1,5 @@
+python-dateutil
+scipp==0.12.4
+scipy
+h5py
+pytest
