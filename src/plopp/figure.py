@@ -126,10 +126,7 @@ class Figure(View):
         If not, convert the plot to a png image and place inside an ipywidgets
         Image container.
         """
-        # self.render()
-
         canvas = self._fig.canvas if self.is_widget() else self._to_image()
-
         return ipw.VBox([
             self.top_bar.to_widget(),
             ipw.HBox([self.left_bar.to_widget(), canvas,
