@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from scipp import DataArray
 from ..tools import value_to_string
 from ..view import View
 from ..model import node
+from ..displayable import Displayable
 
-from scipp import DataArray
 import ipywidgets as ipw
 from typing import Callable
 
@@ -16,7 +17,7 @@ class SliceView(View):
         super().__init__(*nodes)
         self._labels = {dim: ipw.Label() for dim in dims}
 
-    def _to_widget(self) -> ipw.Widget:
+    def to_widget(self) -> ipw.Widget:
         self.render()
         return ipw.VBox(list(self._labels.values()))
 
@@ -37,7 +38,7 @@ class SliceView(View):
             self._update(new_coords=new_values.meta)
 
 
-class SliceWidget:
+class SliceWidget(Displayable):
     """
     Widgets containing a slider for each of the input's dimensions, as well as
     buttons to modify the currently displayed axes.
@@ -66,23 +67,17 @@ class SliceWidget:
 
             self.controls[dim] = {'continuous': continuous_update, 'slider': slider}
 
-        for index, dim in enumerate(self._slider_dims):
+        for dim in self._slider_dims:
             row = list(self.controls[dim].values())
             self._container.append(ipw.HBox(row))
 
-    def _ipython_display_(self):
-        """
-        IPython display representation for Jupyter notebooks.
-        """
-        return self._to_widget()._ipython_display_()
-
-    def _to_widget(self) -> ipw.Widget:
+    def to_widget(self) -> ipw.Widget:
         """
         Gather all widgets in a single container box.
         """
         out = ipw.VBox(self._container)
         if self.view is not None:
-            out = ipw.HBox([out, self.view._to_widget()])
+            out = ipw.HBox([out, self.view.to_widget()])
         return out
 
     def observe(self, callback: Callable, **kwargs):

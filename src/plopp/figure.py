@@ -1,39 +1,24 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .tools import name_with_unit, parse_kwargs
+from .displayable import Displayable
+from .tools import number_to_variable, name_with_unit
 from .toolbar import Toolbar
 from .mesh import Mesh
 from .line import Line
 from .view import View
 
-import ipywidgets as ipw
 from io import BytesIO
+import ipywidgets as ipw
 import matplotlib.pyplot as plt
+from scipp import config, DataArray, to_unit
 from typing import Any, Tuple
-from scipp import DataArray
 
 
-def fig_to_pngbytes(fig: Any):
-    """
-    Convert figure to png image bytes.
-    We also close the figure to prevent it from showing up again in
-    cells further down the notebook.
-    """
-    buf = BytesIO()
-    fig.savefig(buf, format='png')
-    # plt.close(fig)
-    buf.seek(0)
-    return buf.getvalue()
+class SideBar(list, Displayable):
 
-
-class SideBar(list):
-
-    def _ipython_display_(self):
-        return self._to_widget()._ipython_display_()
-
-    def _to_widget(self):
-        return ipw.VBox([child._to_widget() for child in self])
+    def to_widget(self):
+        return ipw.VBox([child.to_widget() for child in self])
 
 
 class Figure(View):
@@ -42,36 +27,41 @@ class Figure(View):
                  *nodes,
                  ax: Any = None,
                  figsize: Tuple[float, ...] = None,
-                 title: str = "",
+                 title: str = None,
                  grid: bool = False,
                  vmin=None,
                  vmax=None,
                  norm='linear',
                  aspect='auto',
                  scale=None,
+                 cbar=True,
+                 errorbars=True,
+                 mask_color='black',
+                 crop=None,
                  **kwargs):
 
         super().__init__(*nodes)
 
         self._fig = None
-        self._closed = False
         self._ax = ax
         self._user_vmin = vmin
         self._user_vmax = vmax
         self._norm = norm
         self._scale = {} if scale is None else scale
+        self._crop = {} if crop is None else crop
+        self._cbar = cbar
+        self._title = title
+        self._errorbars = errorbars
+        self._mask_color = mask_color
         self._kwargs = kwargs
         self._dims = {}
-
         self._children = {}
 
+        cfg = config['plot']
         if self._ax is None:
             if figsize is None:
-                width = 600
-                height = 400
-                dpi = 96
-                figsize = (width / dpi, height / dpi)
-            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=dpi)
+                figsize = (cfg['width'] / cfg['dpi'], cfg['height'] / cfg['dpi'])
+            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=cfg['dpi'])
             self._fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
             if self.is_widget():
                 self._fig.canvas.toolbar_visible = False
@@ -79,7 +69,6 @@ class Figure(View):
         else:
             self._fig = self._ax.get_figure()
 
-        self._ax.set_title(title)
         self._ax.set_aspect(aspect)
         self._ax.grid(grid)
 
@@ -94,6 +83,8 @@ class Figure(View):
 
         self._legend = 0
         self._new_artist = False
+
+        self.render()
 
     def _make_toolbar(self):
         toolbar = Toolbar()
@@ -128,23 +119,22 @@ class Figure(View):
         """
         return hasattr(self._fig.canvas, "on_widget_constructed")
 
-    def _to_widget(self) -> ipw.Widget:
+    def to_widget(self) -> ipw.Widget:
         """
         Convert the Matplotlib figure to a widget. If the ipympl (widget)
         backend is in use, return the custom toolbar and the figure canvas.
         If not, convert the plot to a png image and place inside an ipywidgets
         Image container.
         """
-        self.render()
+        # self.render()
 
-        canvas = self._fig.canvas if (self.is_widget()
-                                      and not self._closed) else self._to_image()
+        canvas = self._fig.canvas if self.is_widget() else self._to_image()
 
         return ipw.VBox([
-            self.top_bar._to_widget(),
-            ipw.HBox([self.left_bar._to_widget(), canvas,
-                      self.right_bar._to_widget()]),
-            self.bottom_bar._to_widget()
+            self.top_bar.to_widget(),
+            ipw.HBox([self.left_bar.to_widget(), canvas,
+                      self.right_bar.to_widget()]),
+            self.bottom_bar.to_widget()
         ])
 
     def _to_image(self) -> ipw.Image:
@@ -153,9 +143,10 @@ class Figure(View):
         """
         width, height = self._fig.get_size_inches()
         dpi = self._fig.get_dpi()
-        return ipw.Image(value=fig_to_pngbytes(self._fig),
-                         width=width * dpi,
-                         height=height * dpi)
+        buf = BytesIO()
+        self._fig.savefig(buf, format='png')
+        buf.seek(0)
+        return ipw.Image(value=buf.getvalue(), width=width * dpi, height=height * dpi)
 
     def _autoscale(self):
         global_xmin = None
@@ -164,7 +155,7 @@ class Figure(View):
         global_ymax = None
         xscale = self._ax.get_xscale()
         yscale = self._ax.get_yscale()
-        for key, child in self._children.items():
+        for child in self._children.values():
             xmin, xmax, ymin, ymax = child.get_limits(xscale=xscale, yscale=yscale)
             if isinstance(child, Line):
                 if self._user_vmin is not None:
@@ -183,20 +174,12 @@ class Figure(View):
         self._ax.set_ylim(global_ymin, global_ymax)
 
     def draw(self):
-        """
-        """
-        if self._new_artist:
-            if self._legend > 0:
-                self._ax.legend()
-            self._new_artist = False
-        self._draw_canvas()
-
-    def _draw_canvas(self):
         self._fig.canvas.draw_idle()
 
     def home_view(self, *_):
         self._autoscale()
-        self._draw_canvas()
+        self.crop(**self._crop)
+        self.draw()
 
     def pan_view(self, *_):
         self._fig.canvas.toolbar.pan()
@@ -211,13 +194,13 @@ class Figure(View):
         swap_scales = {"linear": "log", "log": "linear"}
         self._ax.set_xscale(swap_scales[self._ax.get_xscale()])
         self._autoscale()
-        self._draw_canvas()
+        self.draw()
 
     def toggle_yaxis_scale(self, *_):
         swap_scales = {"linear": "log", "log": "linear"}
         self._ax.set_yscale(swap_scales[self._ax.get_yscale()])
         self._autoscale()
-        self._draw_canvas()
+        self.draw()
 
     def savefig(self, filename: str = None):
         """
@@ -233,7 +216,7 @@ class Figure(View):
         new_values = self._graph_nodes[node_id].request_data()
         self._update(new_values=new_values, key=node_id)
 
-    def _update(self, new_values: DataArray, key: str):
+    def _update(self, new_values: DataArray, key: str, draw: bool = True):
         """
         Update image array with new values.
         """
@@ -245,10 +228,20 @@ class Figure(View):
                 line = Line(ax=self._ax,
                             data=new_values,
                             number=len(self._children),
-                            **parse_kwargs(self._kwargs, name=new_values.name))
+                            **{
+                                **{
+                                    'errorbars': self._errorbars,
+                                    'mask_color': self._mask_color
+                                },
+                                **self._kwargs
+                            })
                 self._children[key] = line
-                self._legend += bool(line.label)
-                self._dims['x'] = new_values.dim
+                if line.label:
+                    self._ax.legend()
+                self._dims['x'] = {
+                    'dim': new_values.dim,
+                    'unit': new_values.meta[new_values.dim].unit
+                }
                 self._ax.set_ylabel(name_with_unit(var=new_values.data, name=""))
                 # TODO: this is not great, involves implementation details of the
                 # toolbar. However, setting the yscale of the axis manually would mean
@@ -263,28 +256,57 @@ class Figure(View):
                                            vmin=self._user_vmin,
                                            vmax=self._user_vmax,
                                            norm=self._norm,
-                                           **parse_kwargs(self._kwargs,
-                                                          name=new_values.name))
-                self._dims.update({"x": new_values.dims[1], "y": new_values.dims[0]})
+                                           crop=self._crop,
+                                           **{
+                                               **{
+                                                   'cbar': self._cbar,
+                                               },
+                                               **self._kwargs
+                                           })
+                self._dims.update({
+                    "x": {
+                        'dim': new_values.dims[1],
+                        'unit': new_values.meta[new_values.dims[1]].unit
+                    },
+                    "y": {
+                        'dim': new_values.dims[0],
+                        'unit': new_values.meta[new_values.dims[0]].unit
+                    }
+                })
                 if new_values.dims[0] in self._scale:
                     self.toolbar.members['toggle_yaxis_scale'].value = self._scale[
-                        self._dims['y']] == 'log'
+                        self._dims['y']['dim']] == 'log'
                 self._ax.set_ylabel(
-                    name_with_unit(var=new_values.meta[self._dims['y']]))
+                    name_with_unit(var=new_values.meta[self._dims['y']['dim']]))
+                if self._title is None:
+                    self._ax.set_title(new_values.name)
 
-            self._ax.set_xlabel(name_with_unit(var=new_values.meta[self._dims['x']]))
-            if self._dims['x'] in self._scale:
+            self._ax.set_xlabel(
+                name_with_unit(var=new_values.meta[self._dims['x']['dim']]))
+            if self._dims['x']['dim'] in self._scale:
                 self.toolbar.members['toggle_xaxis_scale'].value = self._scale[
-                    self._dims['x']] == 'log'
+                    self._dims['x']['dim']] == 'log'
 
         else:
             self._children[key].update(new_values=new_values)
 
-        self.draw()
+        if draw:
+            self.draw()
+
+    def crop(self, **kwargs):
+        for dim, lims in kwargs.items():
+            for xy in self._dims:
+                if dim == self._dims[xy]['dim']:
+                    getattr(self._ax, f'set_{xy}lim')(*[
+                        to_unit(number_to_variable(lims[m]),
+                                unit=self._dims[xy]['unit']).value
+                        for m in ('min', 'max') if m in lims
+                    ])
 
     def render(self):
         for node in self._graph_nodes.values():
             new_values = node.request_data()
-            self._update(new_values=new_values, key=node.id)
+            self._update(new_values=new_values, key=node.id, draw=False)
         self._autoscale()
-        self._draw_canvas()
+        self.crop(**self._crop)
+        self.draw()

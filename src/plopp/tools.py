@@ -1,16 +1,31 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from scipp import scalar, concat, midpoints
 
-def parse_kwargs(kwargs, name):
-    out = {}
-    for key, value in kwargs.items():
-        if isinstance(value, dict):
-            if name in value:
-                out[key] = value[name]
-        else:
-            out[key] = value
-    return out
+
+def to_bin_edges(x, dim):
+    """
+    Convert array centers to edges
+    """
+    idim = x.dims.index(dim)
+    if x.shape[idim] < 2:
+        half = scalar(0.5, unit=x.unit)
+        return concat([x[dim, 0:1] - half, x[dim, 0:1] + half], dim)
+    else:
+        center = midpoints(x, dim=dim)
+        # Note: use range of 0:1 to keep dimension dim in the slice to avoid
+        # switching round dimension order in concatenate step.
+        left = center[dim, 0:1] - (x[dim, 1] - x[dim, 0])
+        right = center[dim, -1] + (x[dim, -1] - x[dim, -2])
+        return concat([left, center, right], dim)
+
+
+def number_to_variable(x):
+    """
+    Convert the input int or float to a variable.
+    """
+    return scalar(x, unit=None) if isinstance(x, (int, float)) else x
 
 
 def name_with_unit(var=None, name=None, log=False):
@@ -45,4 +60,4 @@ def value_to_string(val, precision=3):
         text = "{}".format(val)
         if len(text) > precision + 2 + (text[0] == '-'):
             text = "{val:.{prec}f}".format(val=val, prec=precision)
-    return text
+    return

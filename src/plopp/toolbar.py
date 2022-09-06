@@ -3,6 +3,7 @@
 
 import ipywidgets as ipw
 from typing import Callable
+from .displayable import Displayable
 
 
 class ToggleButtons(ipw.ToggleButtons):
@@ -21,7 +22,7 @@ class ToggleButtons(ipw.ToggleButtons):
         self._current_value = self.value
 
 
-class Toolbar:
+class Toolbar(Displayable):
     """
     Custom toolbar with additional buttons for controlling log scales and
     normalization, and with back/forward buttons removed.
@@ -30,20 +31,13 @@ class Toolbar:
     def __init__(self):
         self._dims = None
         self.controller = None
-        self.container = ipw.VBox()
         self.members = {}
 
-    def _ipython_display_(self):
-        """
-        IPython display representation for Jupyter notebooks.
-        """
-        return self._to_widget()._ipython_display_()
-
-    def _to_widget(self) -> ipw.Widget:
+    def to_widget(self) -> ipw.Widget:
         """
         Return the VBox container
         """
-        return self.container
+        return ipw.VBox(tuple(self.members.values()))
 
     def add_button(self, name: str, callback: Callable, **kwargs):
         """
@@ -52,7 +46,6 @@ class Toolbar:
         button = ipw.Button(**self._parse_button_args(**kwargs))
         button.on_click(callback)
         self.members[name] = button
-        self._update_container()
 
     def add_togglebutton(self,
                          name: str,
@@ -72,7 +65,6 @@ class Toolbar:
                                   **kwargs)
         button.observe(callback, names='value')
         self.members[name] = button
-        self._update_container()
 
     def add_togglebuttons(self, name: str, callback: Callable, value=None, **kwargs):
         """
@@ -93,14 +85,6 @@ class Toolbar:
                                 **kwargs)
         buttons.observe(callback, names='value')
         self.members[name] = buttons
-        self._update_container()
-
-    def _update_container(self):
-        """
-        Update the container's children according to the buttons in the
-        members.
-        """
-        self.container.children = tuple(self.members.values())
 
     def _parse_button_args(self, layout: dict = None, **kwargs) -> dict:
         """
