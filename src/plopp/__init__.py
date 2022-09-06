@@ -13,3 +13,9 @@ from .model import Node, node, input_node
 from .figure import Figure
 from . import widgets
 from .wrappers import plot
+
+from scipp import Variable, DataArray, Dataset
+
+setattr(Variable, 'plot', plot)
+setattr(DataArray, 'plot', plot)
+setattr(Dataset, 'plot', plot)
