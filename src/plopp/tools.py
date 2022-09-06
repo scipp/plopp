@@ -60,4 +60,4 @@ def value_to_string(val, precision=3):
         text = "{}".format(val)
         if len(text) > precision + 2 + (text[0] == '-'):
             text = "{val:.{prec}f}".format(val=val, prec=precision)
-    return
+    return text

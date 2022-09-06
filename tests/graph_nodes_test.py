@@ -2,8 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 import scipp as sc
-from scipp.experimental.plotting import Plot, Figure, widgets, input_node, node
-from scipp.experimental.plotting.widgets import widget_node
+from plopp import Plot, Figure, widgets, input_node, node
+from plopp.widgets import widget_node
 from factory import make_dense_data_array, make_dense_dataset
 import ipywidgets as ipw
 
