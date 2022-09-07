@@ -8,7 +8,7 @@ plopp
       </br></br>
    </span>
 
-**plopp** is the new data visualization framework for the Scipp project.
+**plopp** is the new data visualization framework for the `Scipp <https://scipp.github.io>`_ project.
 
 News
 ----
