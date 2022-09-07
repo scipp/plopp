@@ -14,8 +14,15 @@ from .figure import Figure
 from . import widgets
 from .wrappers import plot
 
-from scipp import Variable, DataArray, Dataset
 
-setattr(Variable, 'plot', plot)
-setattr(DataArray, 'plot', plot)
-setattr(Dataset, 'plot', plot)
+def patch_scipp():
+    """
+    Running this replaces the legacy `plot` function from Scipp with the plopp `plot`
+    wrapper. This patches both the Variable, DataArray, Dataset class methods, as well
+    as the main `plot` function in the Scipp module.
+    """
+    import scipp as sc
+    setattr(sc.Variable, 'plot', plot)
+    setattr(sc.DataArray, 'plot', plot)
+    setattr(sc.Dataset, 'plot', plot)
+    setattr(sc, 'plot', plot)
