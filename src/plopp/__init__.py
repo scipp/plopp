@@ -17,9 +17,9 @@ from .wrappers import plot
 
 def patch_scipp():
     """
-    Running this replaces the `plot` function from Scipp with the plopp `plot`
-    wrapper. This patches both the Variable, DataArray, Dataset classes, as well
-    as the main `plot` function in the Scipp module.
+    Running this replaces the `plot` function from Scipp with the plopp `plot` wrapper.
+    This patches the Variable, DataArray, Dataset classes, as well as the main `plot`
+    function in the Scipp module.
     """
     import scipp as sc
     setattr(sc.Variable, 'plot', plot)
