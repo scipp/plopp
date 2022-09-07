@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .displayable import Displayable
+from .io import fig_to_pngbytes
 from .tools import number_to_variable, name_with_unit
 from .toolbar import Toolbar
 from .mesh import Mesh
@@ -11,7 +12,7 @@ from .view import View
 from io import BytesIO
 import ipywidgets as ipw
 import matplotlib.pyplot as plt
-from scipp import config, DataArray, to_unit
+from scipp import DataArray, to_unit
 from typing import Any, Tuple
 
 
@@ -57,13 +58,15 @@ class Figure(View):
         self._dims = {}
         self._children = {}
 
-        cfg = config['plot']
+        # cfg = config['plot']
         if self._ax is None:
+            dpi = 300
             if figsize is None:
-                figsize = (cfg['width'] / cfg['dpi'], cfg['height'] / cfg['dpi'])
-            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=cfg['dpi'])
+                figsize = (1000 / dpi, 700 / dpi)
+            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=dpi)
+            # self._fig, self._ax = plt.subplots(1, 1, figsize=figsize)
             self._fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
-            if self.is_widget():
+            if self._is_widget():
                 self._fig.canvas.toolbar_visible = False
                 self._fig.canvas.header_visible = False
         else:
@@ -78,7 +81,7 @@ class Figure(View):
         self.top_bar = SideBar()
 
         self.toolbar = self._make_toolbar()
-        if self.is_widget():
+        if self._is_widget():
             self.left_bar.append(self.toolbar)
 
         self._legend = 0
@@ -112,12 +115,25 @@ class Figure(View):
                            tooltip="Save")
         return toolbar
 
-    def is_widget(self) -> bool:
+    def _is_widget(self) -> bool:
         """
         Check whether we are using the Matplotlib widget backend or not.
         "on_widget_constructed" is an attribute specific to `ipywidgets`.
         """
         return hasattr(self._fig.canvas, "on_widget_constructed")
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        """
+        Mimebundle display representation for jupyter notebooks.
+        """
+        if self._is_widget():
+            return self.to_widget()._repr_mimebundle_()
+        else:
+            # return {'text/plain': 'Figure', 'image/png': fig_to_pngbytes(self._fig)}
+            return {
+                'text/plain': 'Figure',
+                'image/svg+xml': fig_to_pngbytes(self._fig, form='svg').decode()
+            }
 
     def to_widget(self) -> ipw.Widget:
         """
@@ -126,24 +142,21 @@ class Figure(View):
         If not, convert the plot to a png image and place inside an ipywidgets
         Image container.
         """
-        canvas = self._fig.canvas if self.is_widget() else self._to_image()
+        if self._is_widget():
+            canvas = self._fig.canvas
+        else:
+            width, height = self._fig.get_size_inches()
+            dpi = self._fig.get_dpi()
+            canvas = ipw.Image(value=fig_to_pngbytes(self._fig),
+                               width=width * dpi,
+                               height=height * dpi)
+
         return ipw.VBox([
             self.top_bar.to_widget(),
             ipw.HBox([self.left_bar.to_widget(), canvas,
                       self.right_bar.to_widget()]),
             self.bottom_bar.to_widget()
         ])
-
-    def _to_image(self) -> ipw.Image:
-        """
-        Convert the Matplotlib figure to a static image.
-        """
-        width, height = self._fig.get_size_inches()
-        dpi = self._fig.get_dpi()
-        buf = BytesIO()
-        self._fig.savefig(buf, format='png')
-        buf.seek(0)
-        return ipw.Image(value=buf.getvalue(), width=width * dpi, height=height * dpi)
 
     def _autoscale(self):
         global_xmin = None
