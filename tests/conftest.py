@@ -7,7 +7,7 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def select_plotting_backend():
+def reset_mpl_defaults():
     matplotlib.rcdefaults()
     matplotlib.use('Agg')
 
