@@ -17,8 +17,10 @@ from .graph import show_graph
 from .plot import Plot
 from .model import Node, node, input_node
 from .figure import Figure
-from . import widgets
 from .wrappers import plot
+
+from . import data
+from . import widgets
 
 
 def patch_scipp():

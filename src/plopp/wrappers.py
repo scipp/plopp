@@ -32,8 +32,10 @@ def _convert_if_not_none(x, unit):
     return x
 
 
-def _preprocess(obj, crop):
+def _preprocess(obj, crop, name=''):
     out = _to_data_array(obj)
+    if not out.name:
+        out.name = name
     crop = {} if crop is None else crop
     for dim, sl in crop.items():
         # If we plainly slice using label values, we can miss the first and last points
@@ -123,7 +125,10 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
         **kwargs
     }
     if isinstance(obj, (dict, Dataset)):
-        nodes = [input_node(_preprocess(item, crop=crop)) for item in obj.values()]
+        nodes = [
+            input_node(_preprocess(item, crop=crop, name=name))
+            for name, item in obj.items()
+        ]
         return Figure(*nodes, **all_args)
     else:
         return Figure(input_node(_preprocess(obj, crop=crop)), **all_args)

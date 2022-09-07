@@ -138,3 +138,7 @@ def test_kwarg_as_dict():
     p = pp.plot(ds, color={'a': 'red', 'b': 'black'})
     assert _get_line(p, 0).get_color() == 'red'
     assert _get_line(p, 1).get_color() == 'black'
+    da = make_dense_data_array(ndim=1)
+    p = pp.plot({'a': da, 'b': 0.2 * da}, color={'a': 'red', 'b': 'black'})
+    assert _get_line(p, 0).get_color() == 'red'
+    assert _get_line(p, 1).get_color() == 'black'
