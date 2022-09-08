@@ -6,7 +6,7 @@ from typing import Callable
 
 from .displayable import Displayable
 
-STYLE_LAYOUT = {"layout": {"width": "34px", "padding": "0px 0px 0px 0px"}}
+LAYOUT_STYLE = {"layout": {"width": "34px", "padding": "0px 0px 0px 0px"}}
 
 
 class ButtonTool:
@@ -16,7 +16,7 @@ class ButtonTool:
         Create a new button with a callback that is called when the button is clicked.
         """
         from ipywidgets import Button
-        self.widget = Button(**{**STYLE_LAYOUT, **kwargs})
+        self.widget = Button(**{**LAYOUT_STYLE, **kwargs})
         self._callback = callback
         self.widget.on_click(self)
 
@@ -34,7 +34,7 @@ class ToggleTool:
         function.
         """
         from ipywidgets import Button
-        self.widget = Button(**{**STYLE_LAYOUT, **kwargs})
+        self.widget = Button(**{**LAYOUT_STYLE, **kwargs})
         self._callback = callback
         self.widget.on_click(self)
         self._value = value

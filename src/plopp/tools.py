@@ -2,7 +2,6 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from scipp import scalar, concat, midpoints
-from matplotlib import get_backend
 
 
 def to_bin_edges(x, dim):
@@ -62,10 +61,3 @@ def value_to_string(val, precision=3):
         if len(text) > precision + 2 + (text[0] == '-'):
             text = "{val:.{prec}f}".format(val=val, prec=precision)
     return text
-
-
-def using_widget_backend():
-    """
-    Return `True` if the widget/ipympl matplotlib backend is currently in use.
-    """
-    return 'ipympl' in get_backend()

@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .model import input_node
-from .figure import figure
+from .figure import figure, Figure
 from .tools import number_to_variable
 
 from scipp import Variable, DataArray, Dataset, arange, to_unit
@@ -61,7 +61,7 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
          title: str = None,
          vmin: Variable = None,
          vmax: Variable = None,
-         **kwargs):
+         **kwargs) -> Figure:
     """Plot a Scipp object.
 
     Parameters
