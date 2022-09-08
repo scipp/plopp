@@ -207,7 +207,7 @@ class FigureInteractive(Axes):
 
     def logx(self):
         super().logx()
-        self.toolbar.logx()
+        self.toolbar.logx(disconnect=True)
         # swap_scales = {"linear": "log", "log": "linear"}
         # self._ax.set_xscale(swap_scales[self._ax.get_xscale()])
         # self._autoscale()
@@ -215,7 +215,7 @@ class FigureInteractive(Axes):
 
     def logy(self):
         super().logy()
-        self.toolbar.logy()
+        self.toolbar.logy(disconnect=True)
         # swap_scales = {"linear": "log", "log": "linear"}
         # self._ax.set_yscale(swap_scales[self._ax.get_yscale()])
         # self._autoscale()

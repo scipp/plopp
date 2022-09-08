@@ -45,14 +45,18 @@ class ToggleTool:
     def __init__(self, callback: Callable, value: bool = False, **kwargs):
         """
         """
-        from ipywidgets import ToggleButton
-        self.widget = ToggleButton(value=value, **{**STYLE_LAYOUT, **kwargs})
+        from ipywidgets import Button
+        self.widget = Button(**{**STYLE_LAYOUT, **kwargs})
         self._callback = callback
-        self.widget.observe(self._execute, names='value')
+        self.widget.on_click(self._execute)
         # return Tool(widget=tb, callback=callback)
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self):
+        # if disconnect:
+        #     self.widget.unobserve_all()
         self.widget.value = not self.widget.value
+        # if disconnect:
+        #     self.widget.observe(self._execute, names='value')
 
     def _execute(self, *args, **kwargs):
         self._callback()
