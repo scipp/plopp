@@ -30,13 +30,13 @@ class ButtonTool:
         from ipywidgets import Button
         self.widget = Button(**{**STYLE_LAYOUT, **kwargs})
         self._callback = callback
-        self.widget.on_click(self._execute)
+        self.widget.on_click(self)
         # return Tool(widget=b, callback=callback)
 
     def __call__(self, *args, **kwargs):
-        self.widget.click()
+        #     self.widget.click()
 
-    def _execute(self, *args, **kwargs):
+        # def _execute(self, *args, **kwargs):
         self._callback()
 
 
@@ -48,18 +48,37 @@ class ToggleTool:
         from ipywidgets import Button
         self.widget = Button(**{**STYLE_LAYOUT, **kwargs})
         self._callback = callback
-        self.widget.on_click(self._execute)
-        # return Tool(widget=tb, callback=callback)
+        self.widget.on_click(self)
+        self._value = value
 
-    def __call__(self):
+    def __call__(self, *args, **kwargs):
+        self._toggle()
+        self._callback()
         # if disconnect:
         #     self.widget.unobserve_all()
-        self.widget.value = not self.widget.value
+        # self.widget.value = not self.widget.value
         # if disconnect:
         #     self.widget.observe(self._execute, names='value')
 
-    def _execute(self, *args, **kwargs):
-        self._callback()
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, val):
+        self._value = val
+        self._update_color()
+
+    def _update_color(self):
+        self.widget.button_style = 'info' if self.value else ''
+
+    def _toggle(self):
+        self.value = not self.value
+        self._update_color()
+
+    # def _execute(self, *args, **kwargs):
+    #     self._toggle()
+    #     self._callback()
 
 
 TOOL_LIBRARY = {
