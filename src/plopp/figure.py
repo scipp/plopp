@@ -1,16 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from matplotlib import get_backend
-
-# SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
-
 from .tools import number_to_variable, name_with_unit
 from .mesh import Mesh
 from .line import Line
 from .view import View
 
+from matplotlib import get_backend
 import matplotlib.pyplot as plt
 from scipp import DataArray, to_unit
 from typing import Any, Tuple

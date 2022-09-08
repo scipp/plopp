@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 import scipp as sc
-from plopp import Plot, Figure, widgets, input_node, node
+from plopp import Plot, figure, widgets, input_node, node
 from plopp.widgets import widget_node
 from factory import make_dense_data_array, make_dense_dataset
 import ipywidgets as ipw
@@ -20,14 +20,14 @@ def hide_masks(data_array, masks):
 def test_single_1d_line():
     da = make_dense_data_array(ndim=1)
     n = input_node(da)
-    _ = Figure(n)
+    _ = figure(n)
 
 
 def test_two_1d_lines():
     ds = make_dense_dataset(ndim=1)
     a = input_node(ds['a'])
     b = input_node(ds['b'])
-    _ = Figure(a, b)
+    _ = figure(a, b)
 
 
 def test_difference_of_two_1d_lines():
@@ -40,13 +40,13 @@ def test_difference_of_two_1d_lines():
         return x - y
 
     c = diff(a, b)
-    _ = Figure(a, b, c)
+    _ = figure(a, b, c)
 
 
 def test_2d_image():
     da = make_dense_data_array(ndim=2)
     a = input_node(da)
-    _ = Figure(a)
+    _ = figure(a)
 
 
 def test_2d_image_smoothing_slider():
@@ -59,7 +59,7 @@ def test_2d_image_smoothing_slider():
     from scipp.ndimage import gaussian_filter
     smooth_node = node(gaussian_filter)(a, sigma=sigma_node)
 
-    fig = Figure(smooth_node)
+    fig = figure(smooth_node)
     Plot([fig, sl])
     sl.value = 5
 
@@ -75,7 +75,7 @@ def test_2d_image_with_masks():
     w = widget_node(widget)
 
     masks_node = hide_masks(a, w)
-    fig = Figure(masks_node)
+    fig = figure(masks_node)
     Plot([fig, widget])
     widget.toggle_all_button.value = False
 
@@ -94,7 +94,7 @@ def test_two_1d_lines_with_masks():
 
     node_masks_a = hide_masks(a, w)
     node_masks_b = hide_masks(b, w)
-    fig = Figure(node_masks_a, node_masks_b)
+    fig = figure(node_masks_a, node_masks_b)
     Plot([fig, widget])
     widget.toggle_all_button.value = False
 
@@ -105,8 +105,8 @@ def test_node_sum_data_along_y():
 
     s = node(sc.sum, dim='yy')(a)
 
-    fig1 = Figure(a)
-    fig2 = Figure(s)
+    fig1 = figure(a)
+    fig2 = figure(s)
     Plot([[fig1, fig2]])
 
 
@@ -119,7 +119,7 @@ def test_slice_3d_cube():
     slice_node = widgets.slice_dims(a, w)
     sl.make_view(slice_node)
 
-    fig = Figure(slice_node)
+    fig = figure(slice_node)
     Plot([fig, sl])
     sl.controls["zz"]["slider"].value = 10
 
@@ -132,12 +132,12 @@ def test_3d_image_slicer_with_connected_side_histograms():
 
     sliced = widgets.slice_dims(a, w)
     sl.make_view(sliced)
-    fig = Figure(sliced)
+    fig = figure(sliced)
 
     histx = node(sc.sum, dim='xx')(sliced)
     histy = node(sc.sum, dim='yy')(sliced)
 
-    fx = Figure(histx)
-    fy = Figure(histy)
+    fx = figure(histx)
+    fy = figure(histy)
     Plot([[fx, fy], fig, sl])
     sl.controls["zz"]["slider"].value = 10
