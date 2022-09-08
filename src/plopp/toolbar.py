@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from dataclasses import dataclass
 from functools import partial
-from typing import Any, Callable
+from typing import Callable
 
 from .displayable import Displayable
 

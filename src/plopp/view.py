@@ -3,7 +3,6 @@
 
 from abc import ABC, abstractmethod
 import uuid
-from .displayable import Displayable
 
 
 class View(ABC):
