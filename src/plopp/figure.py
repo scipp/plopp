@@ -118,6 +118,9 @@ class Figure(View):
         """
         self._fig.savefig(filename, bbox_inches="tight")
 
+    def show(self):
+        self._fig.show()
+
     def notify_view(self, message):
         node_id = message["node_id"]
         new_values = self._graph_nodes[node_id].request_data()
