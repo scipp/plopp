@@ -2,8 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 import scipp as sc
-from plopp import Plot, figure, widgets, input_node, node
-from plopp.widgets import widget_node
+from plopp import Plot, figure, input_node, node
+from plopp.widgets import widget_node, Checkboxes, SliceWidget, slice_dims
 from factory import make_dense_data_array, make_dense_dataset
 import ipywidgets as ipw
 
@@ -71,7 +71,7 @@ def test_2d_image_with_masks():
 
     a = input_node(da)
 
-    widget = widgets.Checkboxes(da.masks.keys())
+    widget = Checkboxes(da.masks.keys())
     w = widget_node(widget)
 
     masks_node = hide_masks(a, w)
@@ -89,7 +89,7 @@ def test_two_1d_lines_with_masks():
     a = input_node(ds['a'])
     b = input_node(ds['b'])
 
-    widget = widgets.Checkboxes(list(ds['a'].masks.keys()) + list(ds['b'].masks.keys()))
+    widget = Checkboxes(list(ds['a'].masks.keys()) + list(ds['b'].masks.keys()))
     w = widget_node(widget)
 
     node_masks_a = hide_masks(a, w)
@@ -113,10 +113,10 @@ def test_node_sum_data_along_y():
 def test_slice_3d_cube():
     da = make_dense_data_array(ndim=3)
     a = input_node(da)
-    sl = widgets.SliceWidget(da, ['zz'])
+    sl = SliceWidget(da, ['zz'])
     w = widget_node(sl)
 
-    slice_node = widgets.slice_dims(a, w)
+    slice_node = slice_dims(a, w)
     sl.make_view(slice_node)
 
     fig = figure(slice_node)
@@ -127,10 +127,10 @@ def test_slice_3d_cube():
 def test_3d_image_slicer_with_connected_side_histograms():
     da = make_dense_data_array(ndim=3)
     a = input_node(da)
-    sl = widgets.SliceWidget(da, ['zz'])
+    sl = SliceWidget(da, ['zz'])
     w = widget_node(sl)
 
-    sliced = widgets.slice_dims(a, w)
+    sliced = slice_dims(a, w)
     sl.make_view(sliced)
     fig = figure(sliced)
 
