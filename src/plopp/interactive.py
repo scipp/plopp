@@ -14,7 +14,7 @@ class SideBar(list, Displayable):
         return ipw.VBox([child.to_widget() for child in self])
 
 
-class InteractiveFig(Figure):
+class InteractiveFig(Figure, Displayable):
 
     def _post_init(self):
 
@@ -39,12 +39,6 @@ class InteractiveFig(Figure):
         self._fig.canvas.header_visible = False
         self.left_bar.append(self.toolbar)
 
-    def _repr_mimebundle_(self, include=None, exclude=None):
-        """
-        Mimebundle display representation for jupyter notebooks.
-        """
-        return self.to_widget()._repr_mimebundle_(include=include, exclude=exclude)
-
     def to_widget(self) -> ipw.Widget:
         """
         Convert the Matplotlib figure to a widget.
@@ -64,11 +58,13 @@ class InteractiveFig(Figure):
         self.draw()
 
     def pan(self):
-        if self._fig.canvas.toolbar.mode == "Zoom":
+        if self._fig.canvas.toolbar.mode == 'zoom rect':
             self.toolbar.zoom()
         self._fig.canvas.toolbar.pan()
 
     def zoom(self):
+        if self._fig.canvas.toolbar.mode == 'pan/zoom':
+            self.toolbar.pan()
         self._fig.canvas.toolbar.zoom()
 
     def save(self):
