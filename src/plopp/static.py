@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .figure import Figure
-from .io import fig_to_pngbytes
+from .io import fig_to_bytes
 
 
 class StaticFig(Figure):
@@ -13,7 +13,7 @@ class StaticFig(Figure):
         """
         return {
             'text/plain': 'Figure',
-            'image/svg+xml': fig_to_pngbytes(self._fig, form='svg').decode()
+            'image/svg+xml': fig_to_bytes(self._fig, form='svg').decode()
         }
 
     def to_widget(self):
@@ -26,7 +26,7 @@ class StaticFig(Figure):
         import ipywidgets as ipw
         width, height = self._fig.get_size_inches()
         dpi = self._fig.get_dpi()
-        canvas = ipw.Image(value=fig_to_pngbytes(self._fig),
+        canvas = ipw.Image(value=fig_to_bytes(self._fig),
                            width=width * dpi,
                            height=height * dpi)
         return ipw.VBox([

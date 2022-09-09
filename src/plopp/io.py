@@ -4,9 +4,9 @@
 from io import BytesIO
 
 
-def fig_to_pngbytes(fig, form='png'):
+def fig_to_bytes(fig, form='png'):
     """
-    Convert a Matplotlib figure to png bytes.
+    Convert a Matplotlib figure to png (default) or svg bytes.
     """
     buf = BytesIO()
     fig.savefig(buf, format=form)
