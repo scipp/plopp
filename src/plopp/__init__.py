@@ -10,8 +10,7 @@ plt.ioff()
 from .graph import show_graph
 from .plot import Plot
 from .model import Node, node, input_node
-from .figure import Figure
-from . import widgets
+from .figure import figure
 from .wrappers import plot
 
 

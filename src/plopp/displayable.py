@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ipywidgets import Widget
+try:
+    from ipywidgets import Widget
+except ImportError:
+    Widget = None
 
 
 class Displayable:
