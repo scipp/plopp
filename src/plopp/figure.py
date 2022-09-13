@@ -1,24 +1,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .displayable import Displayable
 from .tools import number_to_variable, name_with_unit
-from .toolbar import Toolbar
 from .mesh import Mesh
 from .line import Line
 from .view import View
 
-from io import BytesIO
-import ipywidgets as ipw
+from matplotlib import get_backend
 import matplotlib.pyplot as plt
-from scipp import config, DataArray, to_unit
+from scipp import DataArray, to_unit
 from typing import Any, Tuple
-
-
-class SideBar(list, Displayable):
-
-    def to_widget(self):
-        return ipw.VBox([child.to_widget() for child in self])
 
 
 class Figure(View):
@@ -57,93 +48,26 @@ class Figure(View):
         self._dims = {}
         self._children = {}
 
-        cfg = config['plot']
         if self._ax is None:
             if figsize is None:
-                figsize = (cfg['width'] / cfg['dpi'], cfg['height'] / cfg['dpi'])
-            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=cfg['dpi'])
+                figsize = (6, 4)
+            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize
+                                               # , dpi=200
+                                               )
             self._fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
-            if self.is_widget():
-                self._fig.canvas.toolbar_visible = False
-                self._fig.canvas.header_visible = False
         else:
             self._fig = self._ax.get_figure()
 
         self._ax.set_aspect(aspect)
         self._ax.grid(grid)
-
-        self.left_bar = SideBar()
-        self.right_bar = SideBar()
-        self.bottom_bar = SideBar()
-        self.top_bar = SideBar()
-
-        self.toolbar = self._make_toolbar()
-        if self.is_widget():
-            self.left_bar.append(self.toolbar)
-
         self._legend = 0
         self._new_artist = False
 
+        self._post_init()
         self.render()
 
-    def _make_toolbar(self):
-        toolbar = Toolbar()
-        toolbar.add_button(name="home_view",
-                           callback=self.home_view,
-                           icon="home",
-                           tooltip="Autoscale view")
-        toolbar.add_togglebutton(name="pan_view",
-                                 callback=self.pan_view,
-                                 icon="arrows",
-                                 tooltip="Pan")
-        toolbar.add_togglebutton(name="zoom_view",
-                                 callback=self.zoom_view,
-                                 icon="search-plus",
-                                 tooltip="Zoom")
-        toolbar.add_togglebutton(name='toggle_xaxis_scale',
-                                 callback=self.toggle_xaxis_scale,
-                                 description="logx")
-        toolbar.add_togglebutton(name="toggle_yaxis_scale",
-                                 callback=self.toggle_yaxis_scale,
-                                 description="logy")
-        toolbar.add_button(name="save_view",
-                           callback=self.save_view,
-                           icon="save",
-                           tooltip="Save")
-        return toolbar
-
-    def is_widget(self) -> bool:
-        """
-        Check whether we are using the Matplotlib widget backend or not.
-        "on_widget_constructed" is an attribute specific to `ipywidgets`.
-        """
-        return hasattr(self._fig.canvas, "on_widget_constructed")
-
-    def to_widget(self) -> ipw.Widget:
-        """
-        Convert the Matplotlib figure to a widget. If the ipympl (widget)
-        backend is in use, return the custom toolbar and the figure canvas.
-        If not, convert the plot to a png image and place inside an ipywidgets
-        Image container.
-        """
-        canvas = self._fig.canvas if self.is_widget() else self._to_image()
-        return ipw.VBox([
-            self.top_bar.to_widget(),
-            ipw.HBox([self.left_bar.to_widget(), canvas,
-                      self.right_bar.to_widget()]),
-            self.bottom_bar.to_widget()
-        ])
-
-    def _to_image(self) -> ipw.Image:
-        """
-        Convert the Matplotlib figure to a static image.
-        """
-        width, height = self._fig.get_size_inches()
-        dpi = self._fig.get_dpi()
-        buf = BytesIO()
-        self._fig.savefig(buf, format='png')
-        buf.seek(0)
-        return ipw.Image(value=buf.getvalue(), width=width * dpi, height=height * dpi)
+    def _post_init(self):
+        return
 
     def _autoscale(self):
         global_xmin = None
@@ -173,27 +97,13 @@ class Figure(View):
     def draw(self):
         self._fig.canvas.draw_idle()
 
-    def home_view(self, *_):
-        self._autoscale()
-        self.crop(**self._crop)
-        self.draw()
-
-    def pan_view(self, *_):
-        self._fig.canvas.toolbar.pan()
-
-    def zoom_view(self, *_):
-        self._fig.canvas.toolbar.zoom()
-
-    def save_view(self, *_):
-        self._fig.canvas.toolbar.save_figure()
-
-    def toggle_xaxis_scale(self, *_):
+    def logx(self):
         swap_scales = {"linear": "log", "log": "linear"}
         self._ax.set_xscale(swap_scales[self._ax.get_xscale()])
         self._autoscale()
         self.draw()
 
-    def toggle_yaxis_scale(self, *_):
+    def logy(self):
         swap_scales = {"linear": "log", "log": "linear"}
         self._ax.set_yscale(swap_scales[self._ax.get_yscale()])
         self._autoscale()
@@ -207,6 +117,9 @@ class Figure(View):
         directory where the script or notebook is running.
         """
         self._fig.savefig(filename, bbox_inches="tight")
+
+    def show(self):
+        self._fig.show()
 
     def notify_view(self, message):
         node_id = message["node_id"]
@@ -240,12 +153,8 @@ class Figure(View):
                     'unit': new_values.meta[new_values.dim].unit
                 }
                 self._ax.set_ylabel(name_with_unit(var=new_values.data, name=""))
-                # TODO: this is not great, involves implementation details of the
-                # toolbar. However, setting the yscale of the axis manually would mean
-                # we need to update the value of the 'logy' button depending on the
-                # value of self._norm, and updating that value would trigger a callback
-                # which would draw the axes a second time.
-                self.toolbar.members['toggle_yaxis_scale'].value = self._norm == 'log'
+                if self._ax.get_yscale() != self._norm:
+                    self.logy()
 
             elif new_values.ndim == 2:
                 self._children[key] = Mesh(ax=self._ax,
@@ -270,9 +179,9 @@ class Figure(View):
                         'unit': new_values.meta[new_values.dims[0]].unit
                     }
                 })
-                if new_values.dims[0] in self._scale:
-                    self.toolbar.members['toggle_yaxis_scale'].value = self._scale[
-                        self._dims['y']['dim']] == 'log'
+                if (self._dims['y']['dim'] in self._scale) and (
+                        self._ax.get_yscale() != self._scale[self._dims['y']['dim']]):
+                    self.logy()
                 self._ax.set_ylabel(
                     name_with_unit(var=new_values.meta[self._dims['y']['dim']]))
                 if self._title is None:
@@ -280,9 +189,9 @@ class Figure(View):
 
             self._ax.set_xlabel(
                 name_with_unit(var=new_values.meta[self._dims['x']['dim']]))
-            if self._dims['x']['dim'] in self._scale:
-                self.toolbar.members['toggle_xaxis_scale'].value = self._scale[
-                    self._dims['x']['dim']] == 'log'
+            if (self._dims['x']['dim'] in self._scale) and (
+                    self._ax.get_xscale() != self._scale[self._dims['x']['dim']]):
+                self.logx()
 
         else:
             self._children[key].update(new_values=new_values)
@@ -307,3 +216,12 @@ class Figure(View):
         self._autoscale()
         self.crop(**self._crop)
         self.draw()
+
+
+def figure(*args, **kwargs):
+    if 'ipympl' in get_backend():
+        from .interactive import InteractiveFig
+        return InteractiveFig(*args, **kwargs)
+    else:
+        from .static import StaticFig
+        return StaticFig(*args, **kwargs)

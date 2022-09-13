@@ -3,10 +3,9 @@
 
 from abc import ABC, abstractmethod
 import uuid
-from .displayable import Displayable
 
 
-class View(ABC, Displayable):
+class View(ABC):
 
     def __init__(self, *nodes):
         self.id = str(uuid.uuid1())

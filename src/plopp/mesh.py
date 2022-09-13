@@ -76,7 +76,7 @@ class Mesh:
 
         self._make_mesh(**kwargs)
 
-    def _make_mesh(self, shading='auto', **kwargs):
+    def _make_mesh(self, shading='auto', rasterized=True, **kwargs):
         x = self._data.meta[self._dims['x']]
         if not self._data.meta.is_edges(self._dims['x']):
             x = to_bin_edges(x, dim=self._dims['x'])
@@ -88,6 +88,7 @@ class Mesh:
                                          self._data.data.values,
                                          cmap=self._cmap,
                                          shading=shading,
+                                         rasterized=rasterized,
                                          **kwargs)
         if self._cbar:
             self._cbar = colorbar(self._mesh,
