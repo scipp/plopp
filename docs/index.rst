@@ -32,3 +32,9 @@ Get in touch
    :hidden:
 
    line-plot
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   image-plot

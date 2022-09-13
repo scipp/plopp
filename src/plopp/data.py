@@ -7,18 +7,14 @@ import scipp as sc
 dim_list = ['xx', 'yy', 'zz', 'time', 'temperature']
 
 
-def scalar_variable(with_variance=False, dtype='float64', unit='counts'):
+def scalar_variable(with_variance=False, dtype='float64', unit='m/s'):
     var = sc.scalar(10.0 * np.random.rand(), unit=unit, dtype=dtype)
     if with_variance:
         var.variance = np.random.rand()
     return var
 
 
-def array_variable(ndim=1,
-                   with_variance=False,
-                   dims=None,
-                   dtype='float64',
-                   unit='counts'):
+def array_variable(ndim=1, with_variance=False, dims=None, dtype='float64', unit='m/s'):
 
     shapes = np.arange(50, 0, -10)[:ndim]
     if dims is None:
@@ -41,7 +37,7 @@ def scalar_data_array(with_variance=False,
                       mask=False,
                       attr=False,
                       dtype='float64',
-                      unit='counts'):
+                      unit='m/s'):
 
     data = scalar_variable(with_variance=with_variance, dtype=dtype, unit=unit)
 
@@ -68,7 +64,7 @@ def dense_data_array(ndim=1,
                      ragged=False,
                      dims=None,
                      dtype='float64',
-                     unit='counts'):
+                     unit='m/s'):
 
     coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K']))
 
