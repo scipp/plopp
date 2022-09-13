@@ -2,3 +2,4 @@ flake8
 nbstripout
 toml
 yapf
+tox

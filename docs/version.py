@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+
 import sys
 from typing import List
 from packaging.version import parse, Version, LegacyVersion
@@ -15,6 +18,7 @@ def _get_releases(repo: str, organization: str = 'scipp') -> List[Version]:
 
 
 class VersionInfo:
+
     def __init__(self, repo: str, organization: str = 'scipp'):
         self._releases = _get_releases(repo=repo, organization=organization)
 
