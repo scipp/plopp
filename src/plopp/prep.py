@@ -3,11 +3,8 @@
 
 from .tools import number_to_variable
 
-from scipp import Variable, DataArray, Dataset, arange, to_unit
-from scipp.typing import VariableLike
-import inspect
+from scipp import Variable, DataArray, arange, to_unit
 from numpy import ndarray
-from typing import Union, Dict, Literal
 
 
 def _to_data_array(obj):

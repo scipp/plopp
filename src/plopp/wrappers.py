@@ -4,9 +4,8 @@
 from .figure import Figure
 from .model import input_node
 from .prep import preprocess
-from .tools import number_to_variable
 
-from scipp import Variable, DataArray, Dataset, arange, to_unit
+from scipp import Variable, Dataset
 from scipp.typing import VariableLike
 import inspect
 from matplotlib import get_backend
