@@ -1,0 +1,112 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash -l {0}  # required for conda env
+
+jobs:
+  build_conda:
+    name: Conda build
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          fetch-depth: 0  # history required so cmake can determine version
+
+      - uses: conda-incubator/setup-miniconda@v2
+      - run: conda install --yes conda-build
+      - run: conda build --channel conda-forge --channel scipp --python=3.8 --no-anaconda-upload --override-channels --output-folder conda/package conda
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: conda-package-noarch
+          path: conda/package/*/plopp*.tar.bz2
+
+  build_wheels:
+    name: Wheels
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # history required so setuptools_scm can determine version
+
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r requirements/wheels.txt
+
+      - name: Build wheels
+        run: python -m build
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+  upload_packages:
+    name: Deploy packages
+    needs: [build_conda, build_wheels]
+    runs-on: ubuntu-20.04
+    if: github.event_name == 'release' && github.event.action == 'published'
+
+    steps:
+      - uses: actions/download-artifact@v2
+      - uses: conda-incubator/setup-miniconda@v2
+      - run: conda install -c conda-forge --yes anaconda-client
+      - run: anaconda --token ${{ secrets.ANACONDATOKEN }} upload --user scipp --label main $(ls conda-package-*/*/*.tar.bz2)
+      - uses: actions/setup-python@v3
+
+      - uses: pypa/gh-action-pypi-publish@v1.5.1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+
+  manage-versions:
+    name: Manage Versions
+    runs-on: ubuntu-20.04
+    outputs:
+      version-new: ${{ steps.version.outputs.new }}
+      version-replaced: ${{ steps.version.outputs.replaced }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: 3.8
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r requirements/ci.txt
+      - name: Set outputs
+        id: version
+        run: |
+          echo "::set-output name=new::$(python docs/version.py --repo=plopp --version=${GITHUB_REF_NAME} --action=is-new)"
+          echo "::set-output name=replaced::$(python docs/version.py --repo=plopp --version=${GITHUB_REF_NAME} --action=get-replaced)"
+
+  replaced-docs:
+    needs: [upload_packages, manage-versions]
+    if: github.event_name == 'release' && github.event.action == 'published' && needs.manage-versions.outputs.version-new == 'True'
+    uses: ./.github/workflows/docs.yml
+    with:
+      publish: true
+      version: ${{ needs.manage-versions.outputs.version-replaced }}
+    secrets: inherit
+
+  docs:
+    needs: upload_packages
+    uses: ./.github/workflows/docs.yml
+    with:
+      publish: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+      version: ${{ github.ref_name }}
+    secrets: inherit

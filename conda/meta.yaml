@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+
+package:
+  name: plopp
+  version: {{ GIT_DESCRIBE_TAG }}
+source:
+  path: ..
+
+requirements:
+  build:
+    - setuptools
+    - setuptools_scm
+  run:
+    - python>=3.8
+    - python-dateutil
+    - scipp
+    - matplotlib
+
+test:
+  imports:
+    - plopp
+  requires:
+    - pytest
+    - ipywidgets
+    - scipy
+  source_files:
+    - tests/
+  commands:
+    - python -m pytest tests
+
+build:
+  noarch: python
+  script:
+    - pip install .
+
+about:
+  home: https://github.com/scipp/plopp
+  license: BSD-3-Clause
+  summary: A plotting library for Scipp
+  description: A plotting library for Scipp
+  dev_url: https://github.com/scipp/plopp
+  doc_url: https://scipp.github.io/plopp
