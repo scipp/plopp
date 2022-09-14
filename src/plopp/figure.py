@@ -6,7 +6,6 @@ from .mesh import Mesh
 from .line import Line
 from .view import View
 
-from matplotlib import get_backend
 import matplotlib.pyplot as plt
 from scipp import DataArray, to_unit
 from typing import Any, Tuple
@@ -216,12 +215,3 @@ class Figure(View):
         self._autoscale()
         self.crop(**self._crop)
         self.draw()
-
-
-def figure(*args, **kwargs):
-    if 'ipympl' in get_backend():
-        from .interactive import InteractiveFig
-        return InteractiveFig(*args, **kwargs)
-    else:
-        from .static import StaticFig
-        return StaticFig(*args, **kwargs)
