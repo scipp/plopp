@@ -200,7 +200,7 @@ if outdated:
         "style='color:white;text-decoration:underline;'"
         ">latest</a> version. ⚠️")
 
-html_logo = "_static/plopp-logo-2.svg"
+html_logo = "_static/logo.svg"
 html_favicon = "_static/favicon.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
