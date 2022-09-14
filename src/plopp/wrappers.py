@@ -30,6 +30,7 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
          crop: Dict[str, Dict[str, Variable]] = None,
          errorbars: bool = True,
          grid: bool = False,
+         ignore_size: bool = False,
          mask_color: str = 'black',
          norm: Literal['linear', 'log'] = 'linear',
          scale: Dict[str, str] = None,
@@ -63,6 +64,9 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
         Show errorbars in 1d plots if `True`.
     grid:
         Show grid if `True`.
+    ignore_size:
+        If `True`, skip the check that prevents the rendering of very large data
+        objects.
     mask_color:
         Color of masks in 1d plots.
     norm:
@@ -93,15 +97,18 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
     """
     _, _, _, listed_args = inspect.getargvalues(inspect.currentframe())
     all_args = {
-        **{k: v
-           for k, v in listed_args.items() if k not in ('obj', 'kwargs')},
+        **{
+            k: v
+            for k, v in listed_args.items() if k not in ('obj', 'ignore_size', 'kwargs')
+        },
         **kwargs
     }
     if isinstance(obj, (dict, Dataset)):
         nodes = [
-            input_node(preprocess(item, crop=crop, name=name))
+            input_node(preprocess(item, crop=crop, name=name, ignore_size=ignore_size))
             for name, item in obj.items()
         ]
         return figure(*nodes, **all_args)
     else:
-        return figure(input_node(preprocess(obj, crop=crop)), **all_args)
+        return figure(input_node(preprocess(obj, crop=crop, ignore_size=ignore_size)),
+                      **all_args)

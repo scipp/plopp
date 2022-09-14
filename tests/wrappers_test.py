@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-import scipp as sc
 import numpy as np
 from factory import make_dense_data_array, make_dense_dataset
 import plopp as pp
+import pytest
+import scipp as sc
 
 
 def test_plot_ndarray():
@@ -56,3 +57,16 @@ def test_plot_coord_with_no_unit():
     da = sc.data.table_xyz(100).bin(x=10).bins.mean()
     da.coords['x'].unit = None
     pp.plot(da)
+
+
+def test_plot_rejects_large_input():
+    with pytest.raises(ValueError) as e1d:
+        pp.plot(np.random.random(2_000_000))
+    assert "Attempting to plot data that exceeds reasonable limits" in str(e1d)
+    with pytest.raises(ValueError) as e2d:
+        pp.plot(np.random.random((6000, 5000)))
+    assert "Attempting to plot data that exceeds reasonable limits" in str(e2d)
+
+
+def test_plot_ignore_size_disables_size_check():
+    pp.plot(np.random.random(1_000_001), ignore_size=True)
