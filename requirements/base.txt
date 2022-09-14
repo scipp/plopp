@@ -27,7 +27,7 @@ graphlib-backport==1.0.3
     # via scipp
 ipydatawidgets==4.3.2
     # via pythreejs
-ipykernel==6.15.2
+ipykernel==6.15.3
     # via ipywidgets
 ipython==8.5.0
     # via
