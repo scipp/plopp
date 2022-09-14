@@ -48,28 +48,28 @@ def add_buttons(
         "icon": "fa fa-caret-down",
         "text": "Related projects"
     })
-    # releases = version_info.minor_releases(first='0.1')
-    # if outdated:
-    #     current = f"{long_version} (outdated)"
-    #     latest = "latest"
-    #     entries = ['.'.join(long_version.split('.')[:2])]
-    # else:
-    #     current = f"{long_version} (latest)"
-    #     latest = f"{releases[0]} (latest)"
-    #     entries = releases[1:]
-    # lines = [{"type": "link", "text": latest, "url": f"{base}/{project}"}]
-    # for r in entries:
-    #     lines.append({
-    #         "type": "link",
-    #         "text": f"{r}",
-    #         "url": f"{base}/{project}/release/{r}"
-    #     })
-    # header_buttons.append({
-    #     "type": "group",
-    #     "buttons": lines,
-    #     "icon": "fa fa-caret-down",
-    #     "text": current
-    # })
+    releases = version_info.minor_releases(first='0.0.1')
+    if outdated:
+        current = f"{long_version} (outdated)"
+        latest = "latest"
+        entries = ['.'.join(long_version.split('.')[:2])]
+    else:
+        current = f"{long_version} (latest)"
+        latest = f"{releases[0]} (latest)"
+        entries = releases[1:]
+    lines = [{"type": "link", "text": latest, "url": f"{base}/{project}"}]
+    for r in entries:
+        lines.append({
+            "type": "link",
+            "text": f"{r}",
+            "url": f"{base}/{project}/release/{r}"
+        })
+    header_buttons.append({
+        "type": "group",
+        "buttons": lines,
+        "icon": "fa fa-caret-down",
+        "text": current
+    })
 
 
 sphinx_book_theme.add_launch_buttons = add_buttons
