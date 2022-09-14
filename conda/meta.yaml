@@ -22,6 +22,8 @@ test:
     - plopp
   requires:
     - pytest
+    - ipywidgets
+    - scipy
   source_files:
     - tests/
   commands:
