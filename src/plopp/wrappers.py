@@ -1,52 +1,27 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from .figure import Figure
 from .model import input_node
-from .figure import figure, Figure
-from .tools import number_to_variable
+from .prep import preprocess
 
-from scipp import Variable, DataArray, Dataset, arange, to_unit
+from scipp import Variable, Dataset
 from scipp.typing import VariableLike
 import inspect
-import numpy as np
+from matplotlib import get_backend
 from typing import Union, Dict, Literal
 
 
-def _to_data_array(obj):
-    out = obj
-    if isinstance(out, np.ndarray):
-        dims = [f"axis-{i}" for i in range(len(out.shape))]
-        out = Variable(dims=dims, values=out)
-    if isinstance(out, Variable):
-        out = DataArray(data=out)
-    out = out.copy(deep=False)
-    for dim, size in out.sizes.items():
-        if dim not in out.meta:
-            out.coords[dim] = arange(dim, size, unit=None)
-    return out
-
-
-def _convert_if_not_none(x, unit):
-    if x is not None:
-        return to_unit(number_to_variable(x), unit=unit)
-    return x
-
-
-def _preprocess(obj, crop):
-    out = _to_data_array(obj)
-    crop = {} if crop is None else crop
-    for dim, sl in crop.items():
-        # If we plainly slice using label values, we can miss the first and last points
-        # that lie just outside the selected range, but whose pixels are still visible
-        # on the figure (this mostly arises in the case of a 2d image with no bin-edge
-        # coord). Therefore, we convert the value-based range to slicing indices, and
-        # then extend the lower and upper bounds by 1.
-        smin = _convert_if_not_none(sl.get('min'), unit=out.meta[dim].unit)
-        smax = _convert_if_not_none(sl.get('max'), unit=out.meta[dim].unit)
-        start = max(out[dim, :smin].sizes[dim] - 1, 0)
-        width = out[dim, smin:smax].sizes[dim]
-        out = out[dim, start:start + width + 2]
-    return out
+def figure(*args, **kwargs):
+    """
+    Make a figure that is either static or interactive depending on the backend in use.
+    """
+    if 'ipympl' in get_backend():
+        from .interactive import InteractiveFig
+        return InteractiveFig(*args, **kwargs)
+    else:
+        from .static import StaticFig
+        return StaticFig(*args, **kwargs)
 
 
 def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
@@ -123,7 +98,10 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
         **kwargs
     }
     if isinstance(obj, (dict, Dataset)):
-        nodes = [input_node(_preprocess(item, crop=crop)) for item in obj.values()]
+        nodes = [
+            input_node(preprocess(item, crop=crop, name=name))
+            for name, item in obj.items()
+        ]
         return figure(*nodes, **all_args)
     else:
-        return figure(input_node(_preprocess(obj, crop=crop)), **all_args)
+        return figure(input_node(preprocess(obj, crop=crop)), **all_args)

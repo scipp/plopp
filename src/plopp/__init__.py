@@ -3,6 +3,12 @@
 
 # flake8: noqa E402, F401
 
+import importlib.metadata
+try:
+    __version__ = importlib.metadata.version(__package__ or __name__)
+except importlib.metadata.PackageNotFoundError:
+    __version__ = "0.0.0"
+
 import matplotlib.pyplot as plt
 
 plt.ioff()
@@ -10,8 +16,10 @@ plt.ioff()
 from .graph import show_graph
 from .plot import Plot
 from .model import Node, node, input_node
-from .figure import figure
-from .wrappers import plot
+from .wrappers import plot, figure
+
+from . import data
+from . import widgets
 
 
 def patch_scipp():

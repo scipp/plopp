@@ -5,37 +5,33 @@
 #
 #    pip-compile-multi
 #
-attrs==21.4.0
+attrs==22.1.0
     # via jsonschema
-fastjsonschema==2.15.3
+fastjsonschema==2.16.1
     # via nbformat
-flake8==4.0.1
+flake8==5.0.4
     # via -r requirements/static.in
-importlib-resources==5.7.1
-    # via jsonschema
-jsonschema==4.4.0
+jsonschema==4.16.0
     # via nbformat
-jupyter-core==4.10.0
+jupyter-core==4.11.1
     # via nbformat
-mccabe==0.6.1
+mccabe==0.7.0
     # via flake8
-nbformat==5.3.0
+nbformat==5.5.0
     # via nbstripout
-nbstripout==0.5.0
+nbstripout==0.6.0
     # via -r requirements/static.in
-pycodestyle==2.8.0
+pycodestyle==2.9.1
     # via flake8
-pyflakes==2.4.0
+pyflakes==2.5.0
     # via flake8
 pyrsistent==0.18.1
     # via jsonschema
 toml==0.10.2
     # via -r requirements/static.in
-traitlets==5.1.1
+traitlets==5.4.0
     # via
     #   jupyter-core
     #   nbformat
 yapf==0.32.0
     # via -r requirements/static.in
-zipp==3.8.0
-    # via importlib-resources
