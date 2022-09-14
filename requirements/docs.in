@@ -6,4 +6,3 @@ sphinx
 sphinx-autodoc-typehints==1.18.3  # later versions require sphinx >=5 which is incompatible with current sphinx-book-theme
 sphinx-book-theme
 sphinx-copybutton
-tox
