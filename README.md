@@ -1,4 +1,4 @@
-<img src="docs/_static/logo.svg" width="60%" />
+<img src="docs/_static/logo.svg" width="50%" />
 
 [![PyPI version](https://badge.fury.io/py/plopp.svg)](https://pypi.org/project/plopp)
 [![Anaconda-Server Badge](https://anaconda.org/scipp/plopp/badges/installer/conda.svg)](https://conda.anaconda.org/scipp)
