@@ -81,7 +81,7 @@ class Mesh:
     def _axis_2d_coord(self):
         return int(self._data.meta[self._dims['y']].ndim == 2)
 
-    def _maybe_repeat_data_array(self, array):
+    def _maybe_repeat_values(self, array):
         if self._no_2d_coord():
             return array.values
         axis = self._axis_2d_coord()
@@ -90,7 +90,7 @@ class Mesh:
 
     def _from_data_array_to_pcolormesh(self):
         xy = {k: coord_as_bin_edges(self._data, self._dims[k]) for k in 'xy'}
-        z = self._maybe_repeat_data_array(self._data.data)
+        z = self._maybe_repeat_values(self._data.data)
 
         if self._no_2d_coord():
             return xy['x'].values, xy['y'].values, z
@@ -161,10 +161,10 @@ class Mesh:
         self._mesh.set_clim(self._vmin, self._vmax)
 
     def _set_mesh_colors(self):
-        flat_values = self._maybe_repeat_data_array(self._data.data).flatten()
+        flat_values = self._maybe_repeat_values(self._data.data).flatten()
         rgba = self._cmap(self._norm_func(flat_values))
         if len(self._data.masks) > 0:
-            one_mask = self._maybe_repeat_data_array(
+            one_mask = self._maybe_repeat_values(
                 broadcast(reduce(lambda a, b: a | b, self._data.masks.values()),
                           dims=self._data.dims,
                           shape=self._data.shape)).flatten()
