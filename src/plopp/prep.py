@@ -28,7 +28,7 @@ def _convert_if_not_none(x, unit):
 
 
 def _check_input_data_size(obj):
-    limits = {1: 1_000_000, 2: 5000 * 5000}
+    limits = {1: 5_000_000, 2: 5000 * 5000}
     if obj.ndim not in limits:
         raise ValueError("plot can only handle 1d and 2d data.")
     if (size := prod(obj.shape)) > limits[obj.ndim]:
