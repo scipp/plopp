@@ -6,6 +6,7 @@ from ..tools import value_to_string
 from ..view import View
 from ..model import node
 from ..displayable import Displayable
+from .togglematrix import ToggleButtonMatrix
 
 import ipywidgets as ipw
 from typing import Callable
@@ -51,21 +52,26 @@ class SliceWidget(Displayable):
         self.controls = {}
         self.view = None
 
-        for dim in dims:
+        self._buttons = ToggleButtonMatrix(dims=data_array.dims, selected=dims)
+
+        for ind, dim in enumerate(dims):
             slider = ipw.IntSlider(step=1,
-                                   description=dim,
                                    min=0,
                                    max=data_array.sizes[dim],
                                    continuous_update=True,
-                                   readout=True,
-                                   layout={"width": "400px"})
+                                   readout=False,
+                                   layout={"width": "200px"})
             continuous_update = ipw.Checkbox(value=True,
                                              description="Continuous update",
                                              indent=False,
                                              layout={"width": "20px"})
             ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
 
-            self.controls[dim] = {'continuous': continuous_update, 'slider': slider}
+            self.controls[dim] = {
+                'buttons': self._buttons[ind].to_widget(),
+                'continuous': continuous_update,
+                'slider': slider
+            }
 
         for dim in self._slider_dims:
             row = list(self.controls[dim].values())
@@ -83,23 +89,29 @@ class SliceWidget(Displayable):
     def observe(self, callback: Callable, **kwargs):
         for dim in self.controls:
             self.controls[dim]['slider'].observe(callback, **kwargs)
+        # self._buttons.on_click(callback)
 
     @property
     def value(self) -> dict:
-        return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
+        out = {
+            self._buttons[ind].value: self.controls[dim]['slider'].value
+            for ind, dim in enumerate(self._slider_dims)
+        }
+        print(out)
+        return out
 
     def make_view(self, *nodes):
+        return
         self.view = SliceView(self._slider_dims, *nodes)
 
 
 @node
 def slice_dims(data_array: DataArray, slices: dict) -> DataArray:
     """
-    Slice the data along dimension sliders that are not disabled for all
-    entries in the dict of data arrays, and return a dict of 1d value
-    arrays for data values, variances, and masks.
+    Slice the data according to input slices.
     """
     out = data_array
     for dim, sl in slices.items():
         out = out[dim, sl]
+    print("out.sizes", out.sizes)
     return out

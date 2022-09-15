@@ -119,6 +119,7 @@ class Line:
         """
         x = data["values"]["x"]
         y = data["values"]["y"]
+        print(x, y)
         hist = len(x) != len(y)
         if hist:
             data["values"]["y"] = np.concatenate((y[0:1], y))
