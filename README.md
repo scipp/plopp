@@ -9,6 +9,10 @@
 
 Plotting library based on scipp.
 
+## Documentation
+
+The documentation for `plopp` can be found at https://scipp.github.io/plopp.
+
 ## Installation
 
 ### Using pip
