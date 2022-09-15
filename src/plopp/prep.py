@@ -31,9 +31,10 @@ def _check_input_data_size(obj):
     limits = {1: 1_000_000, 2: 5000 * 5000}
     if obj.ndim not in limits:
         raise ValueError("plot can only handle 1d and 2d data.")
-    if prod(obj.shape) > limits[obj.ndim]:
-        raise ValueError("Attempting to plot data that exceeds reasonable limits. "
-                         "To disable this check, use `ignore_size=True`")
+    if (size := prod(obj.shape)) > limits[obj.ndim]:
+        raise ValueError(f"Plotting data of size {size} may take very long or use an "
+                         "excessive amount of memory. This is therefore disabled by "
+                         "default. To bypass this check, use `ignore_size=True`.")
 
 
 def preprocess(obj, crop=None, name='', ignore_size=False):
