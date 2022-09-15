@@ -3,7 +3,8 @@
 
 from .figure import Figure
 from .model import input_node
-from .prep import preprocess
+from .plot import Plot
+from .prep import check_size, preprocess
 
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
@@ -12,11 +13,18 @@ from matplotlib import get_backend
 from typing import Union, Dict, Literal
 
 
+def _is_interactive_backend():
+    """
+    Return `True` if the current backend used by Matplotlib is the widget backend.
+    """
+    return 'ipympl' in get_backend()
+
+
 def figure(*args, **kwargs):
     """
     Make a figure that is either static or interactive depending on the backend in use.
     """
-    if 'ipympl' in get_backend():
+    if _is_interactive_backend():
         from .interactive import InteractiveFig
         return InteractiveFig(*args, **kwargs)
     else:
@@ -105,10 +113,35 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
     }
     if isinstance(obj, (dict, Dataset)):
         nodes = [
-            input_node(preprocess(item, crop=crop, name=name, ignore_size=ignore_size))
-            for name, item in obj.items()
+            input_node(
+                check_size(preprocess(item, crop=crop, name=name),
+                           ignore_size=ignore_size)) for name, item in obj.items()
         ]
         return figure(*nodes, **all_args)
     else:
-        return figure(input_node(preprocess(obj, crop=crop, ignore_size=ignore_size)),
-                      **all_args)
+        return figure(
+            input_node(check_size(preprocess(obj, crop=crop), ignore_size=ignore_size)),
+            **all_args)
+
+
+def slicer(obj, dims=None, *, crop=None):
+    if not _is_interactive_backend():
+        raise RuntimeError("The slicer can only be used with the interactive widget "
+                           "backend. Use `%matplotlib widget` at the start of your "
+                           "notebook.")
+    from plopp.widgets import widget_node, SliceWidget, slice_dims
+    da = preprocess(obj, crop=crop)
+    a = input_node(da)
+
+    if dims is None:
+        dims = da.dims[2:]
+    if isinstance(dims, int):
+        dims = da.dims[-dims:]
+    sl = SliceWidget(da, dims=dims)
+    w = widget_node(sl)
+
+    slice_node = slice_dims(a, w)
+    sl.make_view(slice_node)
+
+    fig = figure(slice_node)
+    return Plot([fig, sl])
