@@ -111,10 +111,12 @@ class Mesh:
                                       sizes={
                                           **xy[dim_2d].sizes,
                                           **xy[dim_1d].sizes
-                                      }).values
+                                      }).transpose(self._data.dims).values
         out = {
-            'xy'[axis - 1]: np.repeat(broadcasted_coord, 2, axis=axis)[clip],
-            'xy'[axis]: np.repeat(xy[dim_2d].values, 2, axis=axis)
+            'xy'[axis - 1]:
+            np.repeat(broadcasted_coord, 2, axis=axis)[clip],
+            'xy'[axis]:
+            np.repeat(xy[dim_2d].transpose(self._data.dims).values, 2, axis=axis)
         }
         return out['x'], out['y'], z
 
