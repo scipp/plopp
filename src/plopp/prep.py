@@ -4,7 +4,7 @@
 from .tools import number_to_variable
 
 from scipp import Variable, DataArray, arange, to_unit
-from numpy import ndarray
+from numpy import ndarray, prod
 
 
 def _to_data_array(obj):
@@ -27,7 +27,17 @@ def _convert_if_not_none(x, unit):
     return x
 
 
-def preprocess(obj, crop=None, name=''):
+def _check_input_data_size(obj):
+    limits = {1: 1_000_000, 2: 2500 * 2500}
+    if obj.ndim not in limits:
+        raise ValueError("plot can only handle 1d and 2d data.")
+    if prod(obj.shape) > limits[obj.ndim]:
+        raise ValueError(f"Plotting data of size {obj.shape} may take very long or use "
+                         "an excessive amount of memory. This is therefore disabled by "
+                         "default. To bypass this check, use `ignore_size=True`.")
+
+
+def preprocess(obj, crop=None, name='', ignore_size=False):
     out = _to_data_array(obj)
     if not out.name:
         out.name = name
@@ -43,4 +53,6 @@ def preprocess(obj, crop=None, name=''):
         start = max(out[dim, :smin].sizes[dim] - 1, 0)
         width = out[dim, smin:smax].sizes[dim]
         out = out[dim, start:start + width + 2]
+    if not ignore_size:
+        _check_input_data_size(out)
     return out
