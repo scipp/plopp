@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .limits import find_limits, fix_empty_range
-from .tools import to_bin_edges, name_with_unit
+from .tools import coord_as_bin_edges, name_with_unit
 
 from copy import copy
 from functools import reduce
@@ -41,12 +41,10 @@ class Mesh:
                  vmin=None,
                  vmax=None,
                  cbar=True,
-                 crop=None,
                  **kwargs):
 
         self._ax = ax
         self._data = data
-        self._crop = crop if crop is not None else {}
         self._dims = {'x': self._data.dims[1], 'y': self._data.dims[0]}
 
         self._xlabel = None
@@ -91,13 +89,7 @@ class Mesh:
         return np.repeat(self._data.data.values, 2, axis=axis)[slice_data]
 
     def _from_data_array_to_pcolormesh(self):
-        xy = {
-            k: self._data.meta[self._dims[k]]
-            if self._data.meta.is_edges(self._dims[k], dim=self._dims[k]) else
-            to_bin_edges(self._data.meta[self._dims[k]], dim=self._dims[k])
-            for k in 'xy'
-        }
-
+        xy = {k: coord_as_bin_edges(self._data, self._dims[k]) for k in 'xy'}
         z = self._maybe_repeat_data_array(self._data.data)
 
         if self._no_2d_coord():
@@ -207,7 +199,7 @@ class Mesh:
 
     def get_limits(self, xscale, yscale):
         xmin, xmax = fix_empty_range(
-            find_limits(self._data.meta[self._dims['x']], scale=xscale))
+            find_limits(coord_as_bin_edges(self._data, self._dims['x']), scale=xscale))
         ymin, ymax = fix_empty_range(
-            find_limits(self._data.meta[self._dims['y']], scale=yscale))
+            find_limits(coord_as_bin_edges(self._data, self._dims['y']), scale=yscale))
         return xmin, xmax, ymin, ymax

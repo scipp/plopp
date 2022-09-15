@@ -4,10 +4,16 @@
 from scipp import scalar, concat, midpoints
 
 
-def to_bin_edges(x, dim):
+def coord_as_bin_edges(da, key, dim=None):
     """
-    Convert array centers to edges
+    If coordinate `key` in DataArray da is already bin edges, return it unchanged.
+    If it is midpoints, return as bin edges.
     """
+    if dim is None:
+        dim = key
+    x = da.meta[key]
+    if da.meta.is_edges(key, dim=dim):
+        return x
     idim = x.dims.index(dim)
     if x.shape[idim] < 2:
         half = scalar(0.5, unit=x.unit)

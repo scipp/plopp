@@ -2,8 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
-from factory import make_dense_data_array, make_dense_dataset
 import plopp as pp
+from plopp.data import dense_data_array, dense_dataset
 import pytest
 import scipp as sc
 
@@ -17,8 +17,8 @@ def test_plot_variable():
 
 
 def test_plot_data_array():
-    pp.plot(make_dense_data_array(ndim=1))
-    da = make_dense_data_array(ndim=2)
+    pp.plot(dense_data_array(ndim=1))
+    da = dense_data_array(ndim=2)
     pp.plot(da)
     pp.plot(da)
 
@@ -30,7 +30,7 @@ def test_plot_data_array_missing_coords():
 
 
 def test_plot_dataset():
-    ds = make_dense_dataset(ndim=1)
+    ds = dense_dataset(ndim=1)
     pp.plot(ds)
 
 
@@ -43,7 +43,7 @@ def test_plot_dict_of_variables():
 
 
 def test_plot_dict_of_data_arrays():
-    ds = make_dense_dataset(ndim=1)
+    ds = dense_dataset(ndim=1)
     pp.plot({'a': ds['a'], 'b': ds['b']})
 
 
@@ -74,6 +74,15 @@ def test_plot_ignore_size_disables_size_check():
 
 
 def test_plot_2d_coord():
-    da = make_dense_data_array(ndim=2, ragged=True)
+    da = dense_data_array(ndim=2, ragged=True)
     pp.plot(da)
     pp.plot(da.transpose())
+
+
+def test_plot_2d_coord_limits():
+    p = pp.plot(dense_data_array(ndim=2, ragged=True))
+    assert np.array_equal(p._ax.get_xlim(), [-0.5, 88.5])
+    assert np.array_equal(p._ax.get_ylim(), [-0.5, 49.5])
+    p = pp.plot(dense_data_array(ndim=2, ragged=True, binedges=True))
+    assert np.array_equal(p._ax.get_xlim(), [0.0, 89.0])
+    assert np.array_equal(p._ax.get_ylim(), [0.0, 50.0])
