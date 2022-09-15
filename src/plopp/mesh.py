@@ -76,16 +76,53 @@ class Mesh:
 
         self._make_mesh(**kwargs)
 
+    def _no_2d_coord(self):
+        return 2 not in (self._data.meta[self._dims['x']].ndim,
+                         self._data.meta[self._dims['y']].ndim)
+
+    def _axis_2d_coord(self):
+        return int(self._data.meta[self._dims['y']].ndim == 2)
+
+    def _maybe_repeat_data_array(self, array):
+        if self._no_2d_coord():
+            return array.values
+        axis = self._axis_2d_coord()
+        slice_data = (slice(-1), slice(None))[::1 - (2 * axis)]
+        return np.repeat(self._data.data.values, 2, axis=axis)[slice_data]
+
+    def _from_data_array_to_pcolormesh(self):
+        xy = {
+            k: self._data.meta[self._dims[k]]
+            if self._data.meta.is_edges(self._dims[k], dim=self._dims[k]) else
+            to_bin_edges(self._data.meta[self._dims[k]], dim=self._dims[k])
+            for k in 'xy'
+        }
+
+        z = self._maybe_repeat_data_array(self._data.data)
+
+        if self._no_2d_coord():
+            return xy['x'].values, xy['y'].values, z
+
+        axis = self._axis_2d_coord()
+        dim_1d, dim_2d = ('y', 'x')[::1 - (2 * axis)]
+        clip = (slice(1, -1), slice(None))[::1 - (2 * axis)]
+        # Broadcast 1d coord to 2d
+        broadcasted_coord = broadcast(xy[dim_1d],
+                                      sizes={
+                                          **xy[dim_2d].sizes,
+                                          **xy[dim_1d].sizes
+                                      }).values
+        out = {
+            'xy'[axis - 1]: np.repeat(broadcasted_coord, 2, axis=axis)[clip],
+            'xy'[axis]: np.repeat(xy[dim_2d].values, 2, axis=axis)
+        }
+        return out['x'], out['y'], z
+
     def _make_mesh(self, shading='auto', rasterized=True, **kwargs):
-        x = self._data.meta[self._dims['x']]
-        if not self._data.meta.is_edges(self._dims['x']):
-            x = to_bin_edges(x, dim=self._dims['x'])
-        y = self._data.meta[self._dims['y']]
-        if not self._data.meta.is_edges(self._dims['y']):
-            y = to_bin_edges(y, dim=self._dims['y'])
-        self._mesh = self._ax.pcolormesh(x.values,
-                                         y.values,
-                                         self._data.data.values,
+        x, y, z = self._from_data_array_to_pcolormesh()
+        self._mesh = self._ax.pcolormesh(x,
+                                         y,
+                                         z,
                                          cmap=self._cmap,
                                          shading=shading,
                                          rasterized=rasterized,
@@ -130,12 +167,13 @@ class Mesh:
         self._mesh.set_clim(self._vmin, self._vmax)
 
     def _set_mesh_colors(self):
-        flat_values = self._data.values.flatten()
+        flat_values = self._maybe_repeat_data_array(self._data.data).flatten()
         rgba = self._cmap(self._norm_func(flat_values))
         if len(self._data.masks) > 0:
-            one_mask = broadcast(reduce(lambda a, b: a | b, self._data.masks.values()),
-                                 dims=self._data.dims,
-                                 shape=self._data.shape).values.flatten()
+            one_mask = self._maybe_repeat_data_array(
+                broadcast(reduce(lambda a, b: a | b, self._data.masks.values()),
+                          dims=self._data.dims,
+                          shape=self._data.shape)).flatten()
             rgba[one_mask] = self._mask_cmap(self._norm_func(flat_values[one_mask]))
         self._mesh.set_facecolors(rgba)
 
