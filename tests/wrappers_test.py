@@ -71,3 +71,9 @@ def test_plot_rejects_large_input():
 
 def test_plot_ignore_size_disables_size_check():
     pp.plot(np.random.random(1_100_000), ignore_size=True)
+
+
+def test_plot_2d_coord():
+    da = make_dense_data_array(ndim=2, ragged=True)
+    pp.plot(da)
+    pp.plot(da.transpose())
