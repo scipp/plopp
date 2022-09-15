@@ -1,24 +1,37 @@
-*****
-Plopp
-*****
-
 .. raw:: html
 
-   <span style="font-size:1.2em;font-style:italic;color:#5a5a5a">
-      Plotting library for Scipp
-      </br></br>
-   </span>
+   <div style="display: block; margin-left: auto; margin-right: auto; width: 60%;">
+      <img src="_static/logo.svg" width="100%" />
+   </div>
+   <style> .transparent {opacity:0; font-size:16px} </style>
 
-**plopp** is the new data visualization framework for the `Scipp <https://scipp.github.io>`_ project.
+.. role:: transparent
+
+:transparent:`Plopp`
+********************
+
+**Plopp** is the new data visualization framework for the `Scipp <https://scipp.github.io>`_ project.
 
 Installation
 ============
+
+Using pip
+---------
 
 You can install from ``pip`` using
 
 .. code-block:: sh
 
    pip install plopp
+
+Using conda
+-----------
+
+You can install from ``conda`` using
+
+.. code-block:: sh
+
+   conda install -c conda-forge -c scipp plopp
 
 Get in touch
 ============
