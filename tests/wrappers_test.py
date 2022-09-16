@@ -77,12 +77,3 @@ def test_plot_2d_coord():
     da = dense_data_array(ndim=2, ragged=True)
     pp.plot(da)
     pp.plot(da.transpose())
-
-
-def test_plot_2d_coord_limits():
-    p = pp.plot(dense_data_array(ndim=2, ragged=True))
-    assert np.array_equal(p._ax.get_xlim(), [-0.5, 88.5])
-    assert np.array_equal(p._ax.get_ylim(), [-0.5, 49.5])
-    p = pp.plot(dense_data_array(ndim=2, ragged=True, binedges=True))
-    assert np.array_equal(p._ax.get_xlim(), [0.0, 89.0])
-    assert np.array_equal(p._ax.get_ylim(), [0.0, 50.0])
