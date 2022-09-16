@@ -47,6 +47,7 @@ class Mesh:
         self._ax = ax
         self._data = data
         self._crop = crop if crop is not None else {}
+        self._dims = {'x': self._data.dims[1], 'y': self._data.dims[0]}
 
         self._xlabel = None
         self._ylabel = None
@@ -64,7 +65,6 @@ class Mesh:
 
         self._mesh = None
         self._cbar = cbar
-        self._kwargs = kwargs
 
         self._extend = "neither"
         if (vmin is not None) and (vmax is not None):
@@ -74,10 +74,9 @@ class Mesh:
         elif vmax is not None:
             self._extend = "max"
 
-        self._make_mesh(**self._kwargs)
+        self._make_mesh(**kwargs)
 
     def _make_mesh(self, shading='auto', rasterized=True, **kwargs):
-        self._dims = {'x': self._data.dims[1], 'y': self._data.dims[0]}
         x = self._data.meta[self._dims['x']]
         if not self._data.meta.is_edges(self._dims['x']):
             x = to_bin_edges(x, dim=self._dims['x'])
@@ -104,7 +103,6 @@ class Mesh:
             self._cbar.ax.set_picker(5)
             self._ax.figure.canvas.mpl_connect('pick_event', self.toggle_norm)
             self._cbar.ax.yaxis.set_label_coords(-1.1, 0.5)
-            self._cax = self._cbar.ax
         self._mesh.set_array(None)
         self._set_norm()
         self._set_mesh_colors()
@@ -145,15 +143,10 @@ class Mesh:
         """
         Update image array with new values.
         """
-        dims = self._data.dims
         self._data = new_values
-        if new_values.dims != dims:
-            self._mesh.remove()
-            self._make_mesh(**self._kwargs)
-        else:
-            self._rescale_colormap()
-            self._set_clim()
-            self._set_mesh_colors()
+        self._rescale_colormap()
+        self._set_clim()
+        self._set_mesh_colors()
 
     def _set_norm(self):
         func = dict(linear=Normalize, log=LogNorm)[self._norm_flag]

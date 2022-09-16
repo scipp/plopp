@@ -6,7 +6,6 @@ from ..tools import value_to_string
 from ..view import View
 from ..model import node
 from ..displayable import Displayable
-from .togglematrix import ToggleButtonMatrix
 
 import ipywidgets as ipw
 from typing import Callable
@@ -25,8 +24,8 @@ class SliceView(View):
     def _update(self, new_coords):
         for dim, lab in self._labels.items():
             if dim in new_coords:
-                lab.value = value_to_string(new_coords[dim].values) + str(
-                    new_coords[dim].unit)
+                lab.value = value_to_string(
+                    new_coords[dim].values) + f" [{new_coords[dim].unit}]"
 
     def notify_view(self, message):
         node_id = message["node_id"]
@@ -52,26 +51,22 @@ class SliceWidget(Displayable):
         self.controls = {}
         self.view = None
 
-        self._buttons = ToggleButtonMatrix(dims=data_array.dims, selected=dims)
-
-        for ind, dim in enumerate(dims):
+        for dim in dims:
             slider = ipw.IntSlider(step=1,
+                                   description=dim,
                                    min=0,
                                    max=data_array.sizes[dim],
                                    continuous_update=True,
                                    readout=False,
-                                   layout={"width": "200px"})
+                                   layout={"width": "200px"},
+                                   style={'description_width': 'initial'})
             continuous_update = ipw.Checkbox(value=True,
-                                             description="Continuous update",
+                                             tooltip="Continuous update",
                                              indent=False,
                                              layout={"width": "20px"})
             ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
 
-            self.controls[dim] = {
-                'buttons': self._buttons[ind].to_widget(),
-                'continuous': continuous_update,
-                'slider': slider
-            }
+            self.controls[dim] = {'continuous': continuous_update, 'slider': slider}
 
         for dim in self._slider_dims:
             row = list(self.controls[dim].values())
@@ -89,19 +84,12 @@ class SliceWidget(Displayable):
     def observe(self, callback: Callable, **kwargs):
         for dim in self.controls:
             self.controls[dim]['slider'].observe(callback, **kwargs)
-        # self._buttons.on_click(callback)
 
     @property
     def value(self) -> dict:
-        out = {
-            self._buttons[ind].value: self.controls[dim]['slider'].value
-            for ind, dim in enumerate(self._slider_dims)
-        }
-        print(out)
-        return out
+        return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
 
     def make_view(self, *nodes):
-        return
         self.view = SliceView(self._slider_dims, *nodes)
 
 
@@ -113,5 +101,4 @@ def slice_dims(data_array: DataArray, slices: dict) -> DataArray:
     out = data_array
     for dim, sl in slices.items():
         out = out[dim, sl]
-    print("out.sizes", out.sizes)
     return out

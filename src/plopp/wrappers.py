@@ -124,7 +124,40 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
             **all_args)
 
 
-def slicer(obj, dims=None, *, crop=None):
+def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
+           dims: Union[List[str], int] = None,
+           *,
+           crop: Dict[str, Dict[str, Variable]] = None,
+           **kwargs) -> Plot:
+    """
+    Plot a multi-dimensional object by slicing one or more of the dimensions.
+    This will produce one slider per sliced dimension, below the figure.
+
+    Parameters
+    ----------
+    obj:
+        The object to be plotted. Possible inputs are:
+        - Variable
+        - Dataset
+        - DataArray
+        - numpy ndarray
+    dims:
+        The dimensions to be sliced. This can either be a list of dims,
+        e.g. `['x', 'y']`, or an integer. In the latter case, the last `dims` number of
+        dimensions are sliced out.
+    crop:
+        Set the axis limits. Limits should be given as a dict with one entry per
+        dimension to be cropped. Each entry should be a nested dict containing scalar
+        values for `'min'` and/or `'max'`. Example:
+        `da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})`
+    **kwargs:
+        See :py:func:`plopp.plot` for the full list of figure customization arguments.
+
+    Returns
+    -------
+    :
+        A :class:`Plot` which will contain a :class:`Figure` and slider widgets.
+    """
     if not _is_interactive_backend():
         raise RuntimeError("The slicer can only be used with the interactive widget "
                            "backend. Use `%matplotlib widget` at the start of your "
@@ -137,11 +170,10 @@ def slicer(obj, dims=None, *, crop=None):
         dims = da.dims[2:]
     if isinstance(dims, int):
         dims = da.dims[-dims:]
+
     sl = SliceWidget(da, dims=dims)
     w = widget_node(sl)
-
     slice_node = slice_dims(a, w)
     sl.make_view(slice_node)
-
-    fig = figure(slice_node)
+    fig = figure(slice_node, **{**{'crop': crop}, **kwargs})
     return Plot([fig, sl])
