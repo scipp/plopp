@@ -10,7 +10,7 @@ from scipp import Variable, Dataset
 from scipp.typing import VariableLike
 import inspect
 from matplotlib import get_backend
-from typing import Union, Dict, Literal
+from typing import Union, Dict, Literal, List
 
 
 def _is_interactive_backend():
