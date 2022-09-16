@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from scipp import scalar, concat, midpoints
+import uuid
 
 
 def coord_as_bin_edges(da, key, dim=None):
@@ -33,7 +34,7 @@ def repeat(x, dim, n):
     along dimension `dim`.
     """
     index = x.dims.index(dim) + 1
-    dummy_dim = '_'
+    dummy_dim = uuid.uuid4().hex
     new_dims = list(x.dims)
     new_dims.insert(index, dummy_dim)
     new_shape = list(x.shape)
