@@ -27,6 +27,21 @@ def coord_as_bin_edges(da, key, dim=None):
         return concat([left, center, right], dim)
 
 
+def repeat(x, dim, n):
+    """
+    Equivalent of Numpy's `repeat` function: repeat the values of a variable `n` times
+    along dimension `dim`.
+    """
+    index = x.dims.index(dim) + 1
+    dummy_dim = '_'
+    new_dims = list(x.dims)
+    new_dims.insert(index, dummy_dim)
+    new_shape = list(x.shape)
+    new_shape.insert(index, n)
+    return x.broadcast(dims=new_dims, shape=new_shape).flatten(dims=[dim, dummy_dim],
+                                                               to=dim)
+
+
 def number_to_variable(x):
     """
     Convert the input int or float to a variable.

@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .limits import find_limits, fix_empty_range
-from .tools import coord_as_bin_edges, name_with_unit
+from .tools import coord_as_bin_edges, name_with_unit, repeat
 
 from copy import copy
 from functools import reduce
@@ -74,42 +74,52 @@ class Mesh:
 
         self._make_mesh(**kwargs)
 
-    def _no_2d_coord(self):
-        return 2 not in (self._data.meta[self._dims['x']].ndim,
-                         self._data.meta[self._dims['y']].ndim)
+    def _find_dim_of_2d_coord(self):
+        for xy in 'xy':
+            if self._data.meta[self._dims[xy]].ndim == 2:
+                return (xy, self._dims[xy])
 
-    def _axis_2d_coord(self):
-        return int(self._data.meta[self._dims['y']].ndim == 2)
+    def _get_dims_of_1d_and_2d_coords(self):
+        dim_2d = self._find_dim_of_2d_coord()
+        if dim_2d is None:
+            return None, None
+        axis_1d = (set('xy') - set(dim_2d[0])).pop()
+        dim_1d = (axis_1d, self._dims[axis_1d])
+        return dim_1d, dim_2d
 
     def _maybe_repeat_values(self, array):
-        if self._no_2d_coord():
+        dim_1d, dim_2d = self._get_dims_of_1d_and_2d_coords()
+        if dim_2d is None:
             return array.values
-        axis = self._axis_2d_coord()
-        slice_data = (slice(-1), slice(None))[::1 - (2 * axis)]
-        return np.repeat(self._data.data.values, 2, axis=axis)[slice_data]
+        return repeat(self._data.data, dim=dim_1d[1], n=2)[dim_1d[1], :-1].values
 
     def _from_data_array_to_pcolormesh(self):
         xy = {k: coord_as_bin_edges(self._data, self._dims[k]) for k in 'xy'}
         z = self._maybe_repeat_values(self._data.data)
 
-        if self._no_2d_coord():
+        dim_1d, dim_2d = self._get_dims_of_1d_and_2d_coords()
+        if dim_2d is None:
             return xy['x'].values, xy['y'].values, z
 
-        axis = self._axis_2d_coord()
-        dim_1d, dim_2d = ('y', 'x')[::1 - (2 * axis)]
-        clip = (slice(1, -1), slice(None))[::1 - (2 * axis)]
-        # Broadcast 1d coord to 2d
-        broadcasted_coord = broadcast(xy[dim_1d],
-                                      sizes={
-                                          **xy[dim_2d].sizes,
-                                          **xy[dim_1d].sizes
-                                      }).transpose(self._data.dims).values
+        # Broadcast 1d coord to 2d and repeat along 1d dim
+        broadcasted_coord = repeat(broadcast(xy[dim_1d[0]],
+                                             sizes={
+                                                 **xy[dim_2d[0]].sizes,
+                                                 **xy[dim_1d[0]].sizes
+                                             }).transpose(self._data.dims),
+                                   dim=dim_1d[1],
+                                   n=2)
+
+        # Repeat 2d coord along 1d dim
+        repeated_coord = repeat(xy[dim_2d[0]].transpose(self._data.dims),
+                                dim=dim_1d[1],
+                                n=2)
+
         out = {
-            'xy'[axis - 1]:
-            np.repeat(broadcasted_coord, 2, axis=axis)[clip],
-            'xy'[axis]:
-            np.repeat(xy[dim_2d].transpose(self._data.dims).values, 2, axis=axis)
+            dim_1d[0]: broadcasted_coord[dim_1d[1], 1:-1].values,
+            dim_2d[0]: repeated_coord.values
         }
+
         return out['x'], out['y'], z
 
     def _make_mesh(self, shading='auto', rasterized=True, **kwargs):
