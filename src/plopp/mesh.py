@@ -83,7 +83,7 @@ class Mesh:
         dim_2d = self._find_dim_of_2d_coord()
         if dim_2d is None:
             return None, None
-        axis_1d = (set('xy') - set(dim_2d[0])).pop()
+        axis_1d = 'xy'.replace(dim_2d[0], '')
         dim_1d = (axis_1d, self._dims[axis_1d])
         return dim_1d, dim_2d
 
