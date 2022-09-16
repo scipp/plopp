@@ -91,7 +91,7 @@ class Mesh:
         dim_1d, dim_2d = self._get_dims_of_1d_and_2d_coords()
         if dim_2d is None:
             return array.values
-        return repeat(self._data.data, dim=dim_1d[1], n=2)[dim_1d[1], :-1].values
+        return repeat(array, dim=dim_1d[1], n=2)[dim_1d[1], :-1].values
 
     def _from_data_array_to_pcolormesh(self):
         xy = {k: coord_as_bin_edges(self._data, self._dims[k]) for k in 'xy'}

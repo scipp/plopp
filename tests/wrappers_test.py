@@ -77,3 +77,9 @@ def test_plot_2d_coord():
     da = dense_data_array(ndim=2, ragged=True)
     pp.plot(da)
     pp.plot(da.transpose())
+
+
+def test_plot_2d_coord_with_mask():
+    da = pp.data.dense_data_array(ndim=2, ragged=True)
+    da.masks['negative'] = da.data < sc.scalar(0, unit='m/s')
+    pp.plot(da)
