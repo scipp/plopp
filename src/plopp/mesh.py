@@ -102,6 +102,8 @@ class Mesh:
             return xy['x'].values, xy['y'].values, z
 
         # Broadcast 1d coord to 2d and repeat along 1d dim
+        # TODO: It may be more efficient here to first repeat and then broadcast, but
+        # the current order is simpler in implementation.
         broadcasted_coord = repeat(broadcast(xy[dim_1d[0]],
                                              sizes={
                                                  **xy[dim_2d[0]].sizes,
