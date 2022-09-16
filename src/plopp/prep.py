@@ -27,9 +27,7 @@ def _convert_if_not_none(x, unit):
     return x
 
 
-def check_size(obj, ignore_size=False):
-    if ignore_size:
-        return
+def _check_size(obj):
     limits = {1: 1_000_000, 2: 2500 * 2500}
     if obj.ndim not in limits:
         raise ValueError("plot can only handle 1d and 2d data.")
@@ -39,7 +37,7 @@ def check_size(obj, ignore_size=False):
                          "default. To bypass this check, use `ignore_size=True`.")
 
 
-def preprocess(obj, crop=None, name=''):
+def preprocess(obj, crop=None, name='', ignore_size=False):
     out = _to_data_array(obj)
     if not out.name:
         out.name = name
@@ -55,4 +53,6 @@ def preprocess(obj, crop=None, name=''):
         start = max(out[dim, :smin].sizes[dim] - 1, 0)
         width = out[dim, smin:smax].sizes[dim]
         out = out[dim, start:start + width + 2]
+    if not ignore_size:
+        _check_size(out)
     return out

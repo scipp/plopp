@@ -4,7 +4,7 @@
 from .figure import Figure
 from .model import input_node
 from .plot import Plot
-from .prep import check_size, preprocess
+from .prep import preprocess
 
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
@@ -113,15 +113,13 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
     }
     if isinstance(obj, (dict, Dataset)):
         nodes = [
-            input_node(
-                check_size(preprocess(item, crop=crop, name=name),
-                           ignore_size=ignore_size)) for name, item in obj.items()
+            input_node(preprocess(item, crop=crop, name=name, ignore_size=ignore_size))
+            for name, item in obj.items()
         ]
         return figure(*nodes, **all_args)
     else:
-        return figure(
-            input_node(check_size(preprocess(obj, crop=crop), ignore_size=ignore_size)),
-            **all_args)
+        return figure(input_node(preprocess(obj, crop=crop, ignore_size=ignore_size)),
+                      **all_args)
 
 
 def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
@@ -163,7 +161,7 @@ def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
                            "backend. Use `%matplotlib widget` at the start of your "
                            "notebook.")
     from plopp.widgets import widget_node, SliceWidget, slice_dims
-    da = preprocess(obj, crop=crop)
+    da = preprocess(obj, crop=crop, ignore_size=True)
     a = input_node(da)
 
     if dims is None:
