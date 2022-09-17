@@ -8,6 +8,38 @@ from .toolbar import Toolbar
 import ipywidgets as ipw
 
 
+def _running_in_jupyter() -> bool:
+    """
+    Detect whether Python is running in Jupyter.
+
+    Note that this includes not only Jupyter notebooks
+    but also Jupyter console and qtconsole.
+    """
+    try:
+        from IPython import get_ipython
+        import ipykernel.zmqshell
+    except ImportError:
+        # Cannot be Jupyter if IPython is not installed.
+        return False
+
+    return isinstance(get_ipython(), ipykernel.zmqshell.ZMQInteractiveShell)
+
+
+def _is_sphinx_build():
+    """
+    Returns `True` if we are running inside a sphinx documentation build.
+    """
+    if not running_in_jupyter():
+        return False
+    from IPython import get_ipython
+    ipy = get_ipython()
+    cfg = ipy.config
+    meta = cfg["Session"]["metadata"]
+    if hasattr(meta, "to_dict"):
+        meta = meta.to_dict()
+    return meta.get("scipp_sphinx_build", False)
+
+
 class SideBar(list, Displayable):
 
     def to_widget(self):
@@ -43,6 +75,11 @@ class InteractiveFig(Figure, Displayable):
         """
         Convert the Matplotlib figure to a widget.
         """
+        if self.is_widget() and (not is_sphinx_build()):
+            return ipw.HBox([self.toolbar._to_widget(), self.fig.canvas])
+        else:
+            return self._to_image()
+
         return ipw.VBox([
             self.top_bar.to_widget(),
             ipw.HBox([
