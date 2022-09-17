@@ -13,6 +13,7 @@ testpaths = "tests"
 filterwarnings = [
   "error",
   "ignore::UserWarning",
+  "ignore::PendingDeprecationWarning",
 ]
 
 [tool.mypy]
