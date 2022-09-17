@@ -13,7 +13,7 @@ testpaths = "tests"
 filterwarnings = [
   "error",
   "ignore::UserWarning",
-  "ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning",
+  "ignore::PendingDeprecationWarning",
 ]
 
 [tool.mypy]
