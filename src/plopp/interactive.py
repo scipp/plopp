@@ -29,7 +29,7 @@ def _is_sphinx_build():
     """
     Returns `True` if we are running inside a sphinx documentation build.
     """
-    if not running_in_jupyter():
+    if not _running_in_jupyter():
         return False
     from IPython import get_ipython
     ipy = get_ipython()
@@ -75,17 +75,11 @@ class InteractiveFig(Figure, Displayable):
         """
         Convert the Matplotlib figure to a widget.
         """
-        if self.is_widget() and (not is_sphinx_build()):
-            return ipw.HBox([self.toolbar._to_widget(), self.fig.canvas])
-        else:
-            return self._to_image()
-
+        canvas = self._to_image() if _is_sphinx_build() else self._fig.canvas
         return ipw.VBox([
             self.top_bar.to_widget(),
-            ipw.HBox([
-                self.left_bar.to_widget(), self._fig.canvas,
-                self.right_bar.to_widget()
-            ]),
+            ipw.HBox([self.left_bar.to_widget(), canvas,
+                      self.right_bar.to_widget()]),
             self.bottom_bar.to_widget()
         ])
 
