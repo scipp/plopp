@@ -165,7 +165,7 @@ def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
     a = input_node(da)
 
     if dims is None:
-        dims = da.dims[2:]
+        dims = da.dims[2 if da.ndim > 2 else 1:]
     if isinstance(dims, int):
         dims = da.dims[-dims:]
 
