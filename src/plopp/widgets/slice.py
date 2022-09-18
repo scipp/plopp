@@ -10,32 +10,31 @@ from ..displayable import Displayable
 import ipywidgets as ipw
 from typing import Callable
 
+# class SliceView(View):
 
-class SliceView(View):
+#     def __init__(self, dims, *nodes):
+#         super().__init__(*nodes)
+#         self._labels = {dim: ipw.Label() for dim in dims}
 
-    def __init__(self, dims, *nodes):
-        super().__init__(*nodes)
-        self._labels = {dim: ipw.Label() for dim in dims}
+#     def to_widget(self) -> ipw.Widget:
+#         self.render()
+#         return ipw.VBox(list(self._labels.values()))
 
-    def to_widget(self) -> ipw.Widget:
-        self.render()
-        return ipw.VBox(list(self._labels.values()))
+#     def _update(self, new_coords):
+#         for dim, lab in self._labels.items():
+#             if dim in new_coords:
+#                 lab.value = value_to_string(new_coords[dim].values) + str(
+#                     new_coords[dim].unit)
 
-    def _update(self, new_coords):
-        for dim, lab in self._labels.items():
-            if dim in new_coords:
-                lab.value = value_to_string(new_coords[dim].values) + str(
-                    new_coords[dim].unit)
+#     def notify_view(self, message):
+#         node_id = message["node_id"]
+#         new_values = self._graph_nodes[node_id].request_data()
+#         self._update(new_values.meta)
 
-    def notify_view(self, message):
-        node_id = message["node_id"]
-        new_values = self._graph_nodes[node_id].request_data()
-        self._update(new_values.meta)
-
-    def render(self):
-        for n in self._graph_nodes.values():
-            new_values = n.request_data()
-            self._update(new_coords=new_values.meta)
+#     def render(self):
+#         for n in self._graph_nodes.values():
+#             new_values = n.request_data()
+#             self._update(new_coords=new_values.meta)
 
 
 class SliceWidget(ipw.VBox):
@@ -45,6 +44,7 @@ class SliceWidget(ipw.VBox):
     """
 
     def __init__(self, data_array, dims: list):
+        print("INIIIIT")
 
         self._container = []
         self._slider_dims = dims
@@ -73,7 +73,7 @@ class SliceWidget(ipw.VBox):
                 'label': label,
                 'coord': data_array.meta[dim]
             }
-            # slider.observe(self._update_label, names='value')
+            slider.observe(self._update_label, names='value')
             children.append(ipw.HBox([continuous_update, slider, label]))
 
         super().__init__(children)
@@ -97,7 +97,7 @@ class SliceWidget(ipw.VBox):
         self.controls[dim]['label'].value = value_to_string(
             coord[dim, change['new']].values) + str(coord.unit)
 
-    def observe(self, callback: Callable, **kwargs):
+    def observe(self, callback: Callable, ignored, **kwargs):
         for dim in self.controls:
             self.controls[dim]['slider'].observe(callback, **kwargs)
 
