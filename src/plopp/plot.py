@@ -1,26 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .displayable import Displayable
+from ipywidgets import VBox, HBox
 
 
-def _maybe_to_widget(view):
-    return view.to_widget() if hasattr(view, "to_widget") else view
-
-
-class Plot(Displayable):
+class Plot(VBox):
 
     def __init__(self, views):
         self.views = views
-
-    def to_widget(self):
-        """
-        """
-        import ipywidgets as ipw
-        out = []
+        children = []
         for view in self.views:
-            if isinstance(view, (list, tuple)):
-                out.append(ipw.HBox([_maybe_to_widget(v) for v in view]))
-            else:
-                out.append(_maybe_to_widget(view))
-        return ipw.VBox(out)
+            children.append(HBox(view) if isinstance(view, (list, tuple)) else view)
+        return super().__init__(children)

@@ -38,7 +38,7 @@ class SliceView(View):
             self._update(new_coords=new_values.meta)
 
 
-class SliceWidget(Displayable):
+class SliceWidget(ipw.VBox):
     """
     Widgets containing a slider for each of the input's dimensions, as well as
     buttons to modify the currently displayed axes.
@@ -50,6 +50,7 @@ class SliceWidget(Displayable):
         self._slider_dims = dims
         self.controls = {}
         self.view = None
+        children = []
 
         for dim in dims:
             slider = ipw.IntSlider(step=1,
@@ -63,22 +64,38 @@ class SliceWidget(Displayable):
                                              description="Continuous update",
                                              indent=False,
                                              layout={"width": "20px"})
+            label = ipw.Label()
             ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
 
-            self.controls[dim] = {'continuous': continuous_update, 'slider': slider}
+            self.controls[dim] = {
+                'continuous': continuous_update,
+                'slider': slider,
+                'label': label,
+                'coord': data_array.meta[dim]
+            }
+            # slider.observe(self._update_label, names='value')
+            children.append(ipw.HBox([continuous_update, slider, label]))
 
-        for dim in self._slider_dims:
-            row = list(self.controls[dim].values())
-            self._container.append(ipw.HBox(row))
+        super().__init__(children)
 
-    def to_widget(self) -> ipw.Widget:
-        """
-        Gather all widgets in a single container box.
-        """
-        out = ipw.VBox(self._container)
-        if self.view is not None:
-            out = ipw.HBox([out, self.view.to_widget()])
-        return out
+        # for dim in self._slider_dims:
+        #     row = list(self.controls[dim].values())
+        #     self._container.append(ipw.HBox(row))
+
+    # def to_widget(self) -> ipw.Widget:
+    #     """
+    #     Gather all widgets in a single container box.
+    #     """
+    #     out = ipw.VBox(self._container)
+    #     if self.view is not None:
+    #         out = ipw.HBox([out, self.view.to_widget()])
+    #     return out
+
+    def _update_label(self, change):
+        dim = change['owner'].description
+        coord = self.controls[dim]['coord']
+        self.controls[dim]['label'].value = value_to_string(
+            coord[dim, change['new']].values) + str(coord.unit)
 
     def observe(self, callback: Callable, **kwargs):
         for dim in self.controls:
@@ -88,8 +105,8 @@ class SliceWidget(Displayable):
     def value(self) -> dict:
         return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
 
-    def make_view(self, *nodes):
-        self.view = SliceView(self._slider_dims, *nodes)
+    # def make_view(self, *nodes):
+    #     self.view = SliceView(self._slider_dims, *nodes)
 
 
 @node

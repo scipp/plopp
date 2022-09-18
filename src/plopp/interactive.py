@@ -5,26 +5,37 @@ from .displayable import Displayable
 from .figure import Figure
 from .toolbar import Toolbar
 
-import ipywidgets as ipw
+# import ipywidgets as ipw
+from ipywidgets import VBox, HBox
+
+# class SideBar(Displayable):
+#     def __init__(self, *args, **kwargs):
+#         self._children = list(*args, **kwargs)
+#         super().__init__(self._children)
+
+#     # def to_widget(self):
+#     #     return VBox([child.to_widget() for child in self])
 
 
-class SideBar(list, Displayable):
+class InteractiveFig(Figure, VBox):
 
-    def to_widget(self):
-        return ipw.VBox([child.to_widget() for child in self])
+    def __init__(self, *args, **kwargs):
 
-
-class InteractiveFig(Figure, Displayable):
+        Figure.__init__(self, *args, **kwargs)
+        VBox.__init__(self, [
+            self.top_bar,
+            HBox([self.left_bar, self._fig.canvas, self.right_bar]), self.bottom_bar
+        ])
 
     def _post_init(self):
 
         self._fig.canvas.toolbar_visible = False
         self._fig.canvas.header_visible = False
 
-        self.left_bar = SideBar()
-        self.right_bar = SideBar()
-        self.bottom_bar = SideBar()
-        self.top_bar = SideBar()
+        self.left_bar = VBox()
+        self.right_bar = VBox()
+        self.bottom_bar = HBox()
+        self.top_bar = HBox()
 
         self.toolbar = Toolbar(
             tools={
@@ -37,20 +48,20 @@ class InteractiveFig(Figure, Displayable):
             })
         self._fig.canvas.toolbar_visible = False
         self._fig.canvas.header_visible = False
-        self.left_bar.append(self.toolbar)
+        self.left_bar.children = tuple([self.toolbar])
 
-    def to_widget(self) -> ipw.Widget:
-        """
-        Convert the Matplotlib figure to a widget.
-        """
-        return ipw.VBox([
-            self.top_bar.to_widget(),
-            ipw.HBox([
-                self.left_bar.to_widget(), self._fig.canvas,
-                self.right_bar.to_widget()
-            ]),
-            self.bottom_bar.to_widget()
-        ])
+    # def to_widget(self) -> Widget:
+    #     """
+    #     Convert the Matplotlib figure to a widget.
+    #     """
+    #     return VBox([
+    #         self.top_bar.to_widget(),
+    #         HBox([
+    #             self.left_bar.to_widget(), self._fig.canvas,
+    #             self.right_bar.to_widget()
+    #         ]),
+    #         self.bottom_bar.to_widget()
+    #     ])
 
     def home(self):
         self._autoscale()

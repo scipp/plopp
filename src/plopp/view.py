@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import uuid
 
 
-class View(ABC):
+class View:
 
     def __init__(self, *nodes):
         self.id = str(uuid.uuid1())

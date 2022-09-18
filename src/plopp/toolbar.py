@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from ipywidgets import Button, VBox
 from functools import partial
 from typing import Callable
 
@@ -33,7 +34,7 @@ class ToggleTool:
         cases, we need to toggle the button color without triggering the callback
         function.
         """
-        from ipywidgets import Button
+        # from ipywidgets import Button
         self.widget = Button(**{**LAYOUT_STYLE, **kwargs})
         self._callback = callback
         self.widget.on_click(self)
@@ -70,7 +71,7 @@ TOOL_LIBRARY = {
 }
 
 
-class Toolbar(Displayable):
+class Toolbar(VBox):
     """
     Custom toolbar with additional buttons for controlling log scales and
     normalization, and with back/forward buttons removed.
@@ -82,10 +83,11 @@ class Toolbar(Displayable):
             tool = TOOL_LIBRARY[key](callback=callback)
             setattr(self, key, tool)
             self._widgets[key] = tool.widget
+        super().__init__(tuple(self._widgets.values()))
 
-    def to_widget(self):
-        """
-        Return the VBox container
-        """
-        from ipywidgets import VBox
-        return VBox(tuple(self._widgets.values()))
+    # def to_widget(self):
+    #     """
+    #     Return the VBox container
+    #     """
+    #     from ipywidgets import VBox
+    #     return VBox(tuple(self._widgets.values()))
