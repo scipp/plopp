@@ -3,7 +3,6 @@
 
 from .figure import Figure
 from .model import input_node, widget_node
-from .plot import Plot
 from .prep import preprocess
 
 from scipp import Variable, Dataset
@@ -120,7 +119,7 @@ def slicer(obj: Union[VariableLike, ndarray],
            keep: List[str] = None,
            *,
            crop: Dict[str, Dict[str, Variable]] = None,
-           **kwargs) -> Plot:
+           **kwargs):
     """
     Plot a multi-dimensional object by slicing one or more of the dimensions.
     This will produce one slider per sliced dimension, below the figure.
@@ -145,13 +144,13 @@ def slicer(obj: Union[VariableLike, ndarray],
     Returns
     -------
     :
-        A :class:`Plot` which will contain a :class:`Figure` and slider widgets.
+        A :class:`Box` which will contain a :class:`Figure` and slider widgets.
     """
     if not _is_interactive_backend():
         raise RuntimeError("The slicer can only be used with the interactive widget "
                            "backend. Use `%matplotlib widget` at the start of your "
                            "notebook.")
-    from plopp.widgets import SliceWidget, slice_dims
+    from plopp.widgets import SliceWidget, slice_dims, Box
     da = preprocess(obj, crop=crop, ignore_size=True)
     a = input_node(da)
 
@@ -161,4 +160,4 @@ def slicer(obj: Union[VariableLike, ndarray],
     w = widget_node(sl)
     slice_node = slice_dims(a, w)
     fig = figure(slice_node, **{**{'crop': crop}, **kwargs})
-    return Plot([fig, sl])
+    return Box([fig, sl])

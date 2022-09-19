@@ -4,5 +4,6 @@
 # flake8: noqa: F401
 
 # from .masks import MaskWidget, hide_masks
+from .box import Box
 from .checkboxes import Checkboxes
 from .slice import SliceWidget, slice_dims
