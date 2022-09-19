@@ -16,7 +16,6 @@ class ButtonTool:
         """
         Create a new button with a callback that is called when the button is clicked.
         """
-        from ipywidgets import Button
         self.widget = Button(**{**LAYOUT_STYLE, **kwargs})
         self._callback = callback
         self.widget.on_click(self)
@@ -34,7 +33,6 @@ class ToggleTool:
         cases, we need to toggle the button color without triggering the callback
         function.
         """
-        # from ipywidgets import Button
         self.widget = Button(**{**LAYOUT_STYLE, **kwargs})
         self._callback = callback
         self.widget.on_click(self)
@@ -84,10 +82,3 @@ class Toolbar(VBox):
             setattr(self, key, tool)
             self._widgets[key] = tool.widget
         super().__init__(tuple(self._widgets.values()))
-
-    # def to_widget(self):
-    #     """
-    #     Return the VBox container
-    #     """
-    #     from ipywidgets import VBox
-    #     return VBox(tuple(self._widgets.values()))

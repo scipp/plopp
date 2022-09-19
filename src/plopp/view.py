@@ -17,7 +17,3 @@ class View:
     @abstractmethod
     def notify_view(self, _):
         return
-
-    @abstractmethod
-    def to_widget(self):
-        return

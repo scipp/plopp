@@ -5,16 +5,7 @@ from .displayable import Displayable
 from .figure import Figure
 from .toolbar import Toolbar
 
-# import ipywidgets as ipw
 from ipywidgets import VBox, HBox
-
-# class SideBar(Displayable):
-#     def __init__(self, *args, **kwargs):
-#         self._children = list(*args, **kwargs)
-#         super().__init__(self._children)
-
-#     # def to_widget(self):
-#     #     return VBox([child.to_widget() for child in self])
 
 
 class InteractiveFig(Figure, VBox):
@@ -49,19 +40,6 @@ class InteractiveFig(Figure, VBox):
         self._fig.canvas.toolbar_visible = False
         self._fig.canvas.header_visible = False
         self.left_bar.children = tuple([self.toolbar])
-
-    # def to_widget(self) -> Widget:
-    #     """
-    #     Convert the Matplotlib figure to a widget.
-    #     """
-    #     return VBox([
-    #         self.top_bar.to_widget(),
-    #         HBox([
-    #             self.left_bar.to_widget(), self._fig.canvas,
-    #             self.right_bar.to_widget()
-    #         ]),
-    #         self.bottom_bar.to_widget()
-    #     ])
 
     def home(self):
         self._autoscale()
