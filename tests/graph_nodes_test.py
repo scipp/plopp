@@ -2,8 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 import scipp as sc
-from plopp import Plot, figure, input_node, node
-from plopp.widgets import widget_node, Checkboxes, SliceWidget, slice_dims
+from plopp import Plot, figure, node, input_node, widget_node
+from plopp.widgets import Checkboxes, SliceWidget, slice_dims
 from plopp.data import dense_data_array, dense_dataset
 import ipywidgets as ipw
 
@@ -60,7 +60,7 @@ def test_2d_image_smoothing_slider():
     smooth_node = node(gaussian_filter)(a, sigma=sigma_node)
 
     fig = figure(smooth_node)
-    Plot([fig, sl])
+    Plot([fig.to_widget(), sl])
     sl.value = 5
 
 
@@ -76,7 +76,7 @@ def test_2d_image_with_masks():
 
     masks_node = hide_masks(a, w)
     fig = figure(masks_node)
-    Plot([fig, widget])
+    Plot([fig.to_widget(), widget])
     widget.toggle_all_button.value = False
 
 
@@ -95,7 +95,7 @@ def test_two_1d_lines_with_masks():
     node_masks_a = hide_masks(a, w)
     node_masks_b = hide_masks(b, w)
     fig = figure(node_masks_a, node_masks_b)
-    Plot([fig, widget])
+    Plot([fig.to_widget(), widget])
     widget.toggle_all_button.value = False
 
 
@@ -107,7 +107,7 @@ def test_node_sum_data_along_y():
 
     fig1 = figure(a)
     fig2 = figure(s)
-    Plot([[fig1, fig2]])
+    Plot([[fig1.to_widget(), fig2.to_widget()]])
 
 
 def test_slice_3d_cube():
@@ -120,7 +120,7 @@ def test_slice_3d_cube():
     sl.make_view(slice_node)
 
     fig = figure(slice_node)
-    Plot([fig, sl])
+    Plot([fig.to_widget(), sl])
     sl.controls["zz"]["slider"].value = 10
 
 
@@ -139,5 +139,5 @@ def test_3d_image_slicer_with_connected_side_histograms():
 
     fx = figure(histx)
     fy = figure(histy)
-    Plot([[fx, fy], fig, sl])
+    Plot([[fx.to_widget(), fy.to_widget()], fig.to_widget(), sl])
     sl.controls["zz"]["slider"].value = 10

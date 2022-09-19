@@ -5,36 +5,9 @@ from scipp import DataArray
 from ..tools import value_to_string
 from ..view import View
 from ..model import node
-from ..displayable import Displayable
 
 import ipywidgets as ipw
 from typing import Callable
-
-# class SliceView(View):
-
-#     def __init__(self, dims, *nodes):
-#         super().__init__(*nodes)
-#         self._labels = {dim: ipw.Label() for dim in dims}
-
-#     def to_widget(self) -> ipw.Widget:
-#         self.render()
-#         return ipw.VBox(list(self._labels.values()))
-
-#     def _update(self, new_coords):
-#         for dim, lab in self._labels.items():
-#             if dim in new_coords:
-#                 lab.value = value_to_string(new_coords[dim].values) + str(
-#                     new_coords[dim].unit)
-
-#     def notify_view(self, message):
-#         node_id = message["node_id"]
-#         new_values = self._graph_nodes[node_id].request_data()
-#         self._update(new_values.meta)
-
-#     def render(self):
-#         for n in self._graph_nodes.values():
-#             new_values = n.request_data()
-#             self._update(new_coords=new_values.meta)
 
 
 def _coord_to_string(coord):
@@ -51,8 +24,6 @@ class SliceWidget(ipw.VBox):
     """
 
     def __init__(self, data_array, dims: list):
-        # print("INIIIIT")
-
         self._container = []
         self._slider_dims = dims
         self.controls = {}
@@ -86,34 +57,23 @@ class SliceWidget(ipw.VBox):
 
         super().__init__(children)
 
-        # for dim in self._slider_dims:
-        #     row = list(self.controls[dim].values())
-        #     self._container.append(ipw.HBox(row))
-
-    # def to_widget(self) -> ipw.Widget:
-    #     """
-    #     Gather all widgets in a single container box.
-    #     """
-    #     out = ipw.VBox(self._container)
-    #     if self.view is not None:
-    #         out = ipw.HBox([out, self.view.to_widget()])
-    #     return out
-
     def _update_label(self, change):
         dim = change['owner'].description
         coord = self.controls[dim]['coord'][dim, change['new']]
         self.controls[dim]['label'].value = _coord_to_string(coord)
 
-    # def observe(self, callback: Callable, ignored, **kwargs):
-    #     for dim in self.controls:
-    #         self.controls[dim]['slider'].observe(callback, **kwargs)
+    def watch(self, callback: Callable, **kwargs):
+        """
+        TODO: Cannot name this method 'observe' when inheriting from HBox, so we name
+        it 'watch' instead (see https://bit.ly/3SggPVS). We need to be careful that
+        widgets don't get a method named 'watch' in the future.
+        """
+        for dim in self.controls:
+            self.controls[dim]['slider'].observe(callback, **kwargs)
 
     @property
     def value(self) -> dict:
         return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
-
-    # def make_view(self, *nodes):
-    #     self.view = SliceView(self._slider_dims, *nodes)
 
 
 @node
