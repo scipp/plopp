@@ -5,3 +5,4 @@
 
 from .graph import show_graph
 from .model import Node, node, input_node, widget_node
+from .view import View

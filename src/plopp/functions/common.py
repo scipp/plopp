@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..tools import number_to_variable
+from ..core.utils import number_to_variable
 
 from matplotlib import get_backend
 from numpy import ndarray, prod

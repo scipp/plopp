@@ -3,7 +3,7 @@
 
 from .common import is_interactive_backend, preprocess
 from .figure import figure
-from ..model import input_node, widget_node
+from ..core import input_node, widget_node
 
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike

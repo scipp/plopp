@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .limits import find_limits, fix_empty_range
-from .tools import coord_as_bin_edges, name_with_unit, repeat
+from ..core.limits import find_limits, fix_empty_range
+from ..core.utils import coord_as_bin_edges, name_with_unit, repeat
 
 from copy import copy
 from functools import reduce

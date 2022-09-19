@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .figure import figure
-from ..model import input_node, widget_node
+from ..core import input_node, widget_node
 from .common import preprocess
 
 from scipp import Variable, Dataset

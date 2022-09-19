@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .limits import find_limits, fix_empty_range, delta
+from ..core.limits import find_limits, fix_empty_range, delta
 
 from scipp import DataArray, stddevs
 from functools import reduce

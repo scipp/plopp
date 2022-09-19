@@ -13,8 +13,7 @@ import matplotlib.pyplot as plt
 
 plt.ioff()
 
-from .graph import show_graph
-from .model import Node, node, input_node, widget_node
+from .core import Node, node, input_node, widget_node, show_graph
 from .functions import figure, plot, slicer
 
 from . import data
