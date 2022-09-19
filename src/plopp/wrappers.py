@@ -123,7 +123,7 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
 
 
 def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
-           dims: Union[List[str], int] = None,
+           keep: List[str] = None,
            *,
            crop: Dict[str, Dict[str, Variable]] = None,
            **kwargs) -> Plot:
@@ -139,10 +139,11 @@ def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
         - Dataset
         - DataArray
         - numpy ndarray
-    dims:
-        The dimensions to be sliced. This can either be a list of dims,
-        e.g. `['x', 'y']`, or an integer. In the latter case, the last `dims` number of
-        dimensions are sliced out.
+    keep:
+        The dimensions to be kept, all remaining dimensions will be sliced. This should
+        be a list of dims. If no dims are provided, the last dim will be kept in the
+        case of a 2-dimensional input, while the last two dims will be kept in the case
+        of higher dimensional inputs.
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped. Each entry should be a nested dict containing scalar
@@ -164,11 +165,9 @@ def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
     da = preprocess(obj, crop=crop, ignore_size=True)
     a = input_node(da)
 
-    if dims is None:
-        dims = da.dims[2 if da.ndim > 2 else 1:]
-    if isinstance(dims, int):
-        dims = da.dims[-dims:]
-
+    if keep is None:
+        keep = da.dims[-(2 if da.ndim > 2 else 1):]
+    dims = list(set(da.dims) - set(keep))
     sl = SliceWidget(da, dims=dims)
     w = widget_node(sl)
     slice_node = slice_dims(a, w)
