@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .figure import Figure
+from .fig import Figure
 from .toolbar import Toolbar
 
 from ipywidgets import VBox, HBox
