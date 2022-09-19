@@ -4,7 +4,7 @@
 import scipp as sc
 from plopp import Plot, figure, input_node, node
 from plopp.widgets import widget_node, Checkboxes, SliceWidget, slice_dims
-from factory import make_dense_data_array, make_dense_dataset
+from plopp.data import dense_data_array, dense_dataset
 import ipywidgets as ipw
 
 
@@ -18,20 +18,20 @@ def hide_masks(data_array, masks):
 
 
 def test_single_1d_line():
-    da = make_dense_data_array(ndim=1)
+    da = dense_data_array(ndim=1)
     n = input_node(da)
     _ = figure(n)
 
 
 def test_two_1d_lines():
-    ds = make_dense_dataset(ndim=1)
+    ds = dense_dataset(ndim=1)
     a = input_node(ds['a'])
     b = input_node(ds['b'])
     _ = figure(a, b)
 
 
 def test_difference_of_two_1d_lines():
-    ds = make_dense_dataset(ndim=1)
+    ds = dense_dataset(ndim=1)
     a = input_node(ds['a'])
     b = input_node(ds['b'])
 
@@ -44,13 +44,13 @@ def test_difference_of_two_1d_lines():
 
 
 def test_2d_image():
-    da = make_dense_data_array(ndim=2)
+    da = dense_data_array(ndim=2)
     a = input_node(da)
     _ = figure(a)
 
 
 def test_2d_image_smoothing_slider():
-    da = make_dense_data_array(ndim=2)
+    da = dense_data_array(ndim=2)
     a = input_node(da)
 
     sl = ipw.IntSlider(min=1, max=10)
@@ -65,8 +65,8 @@ def test_2d_image_smoothing_slider():
 
 
 def test_2d_image_with_masks():
-    da = make_dense_data_array(ndim=2)
-    da.masks['m1'] = da.data < sc.scalar(0.0, unit='counts')
+    da = dense_data_array(ndim=2)
+    da.masks['m1'] = da.data < sc.scalar(0.0, unit='m/s')
     da.masks['m2'] = da.coords['xx'] > sc.scalar(30., unit='m')
 
     a = input_node(da)
@@ -81,7 +81,7 @@ def test_2d_image_with_masks():
 
 
 def test_two_1d_lines_with_masks():
-    ds = make_dense_dataset()
+    ds = dense_dataset()
     ds['a'].masks['m1'] = ds['a'].coords['xx'] > sc.scalar(40.0, unit='m')
     ds['a'].masks['m2'] = ds['a'].data < ds['b'].data
     ds['b'].masks['m1'] = ds['b'].coords['xx'] < sc.scalar(5.0, unit='m')
@@ -100,7 +100,7 @@ def test_two_1d_lines_with_masks():
 
 
 def test_node_sum_data_along_y():
-    da = make_dense_data_array(ndim=2, binedges=True)
+    da = dense_data_array(ndim=2, binedges=True)
     a = input_node(da)
 
     s = node(sc.sum, dim='yy')(a)
@@ -111,7 +111,7 @@ def test_node_sum_data_along_y():
 
 
 def test_slice_3d_cube():
-    da = make_dense_data_array(ndim=3)
+    da = dense_data_array(ndim=3)
     a = input_node(da)
     sl = SliceWidget(da, ['zz'])
     w = widget_node(sl)
@@ -125,7 +125,7 @@ def test_slice_3d_cube():
 
 
 def test_3d_image_slicer_with_connected_side_histograms():
-    da = make_dense_data_array(ndim=3)
+    da = dense_data_array(ndim=3)
     a = input_node(da)
     sl = SliceWidget(da, ['zz'])
     w = widget_node(sl)
