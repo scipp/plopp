@@ -3,7 +3,6 @@
 
 from scipp import DataArray
 from ..tools import value_to_string
-from ..view import View
 from ..model import node
 
 import ipywidgets as ipw

@@ -5,8 +5,6 @@ from ipywidgets import Button, VBox
 from functools import partial
 from typing import Callable
 
-from .displayable import Displayable
-
 LAYOUT_STYLE = {"layout": {"width": "34px", "padding": "0px 0px 0px 0px"}}
 
 
