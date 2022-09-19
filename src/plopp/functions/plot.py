@@ -3,7 +3,7 @@
 
 from .figure import figure
 from ..model import input_node, widget_node
-from ..prep import preprocess
+from .common import preprocess
 
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
