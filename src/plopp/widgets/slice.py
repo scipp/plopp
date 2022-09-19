@@ -37,6 +37,13 @@ from typing import Callable
 #             self._update(new_coords=new_values.meta)
 
 
+def _coord_to_string(coord):
+    out = value_to_string(coord.values)
+    if coord.unit is not None:
+        out += f" [{coord.unit}]"
+    return out
+
+
 class SliceWidget(ipw.VBox):
     """
     Widgets containing a slider for each of the input's dimensions, as well as
@@ -44,7 +51,7 @@ class SliceWidget(ipw.VBox):
     """
 
     def __init__(self, data_array, dims: list):
-        print("INIIIIT")
+        # print("INIIIIT")
 
         self._container = []
         self._slider_dims = dims
@@ -53,25 +60,26 @@ class SliceWidget(ipw.VBox):
         children = []
 
         for dim in dims:
+            coord = data_array.meta[dim]
             slider = ipw.IntSlider(step=1,
                                    description=dim,
                                    min=0,
                                    max=data_array.sizes[dim],
                                    continuous_update=True,
-                                   readout=True,
-                                   layout={"width": "400px"})
+                                   readout=False,
+                                   layout={"width": "200px"})
             continuous_update = ipw.Checkbox(value=True,
                                              description="Continuous update",
                                              indent=False,
                                              layout={"width": "20px"})
-            label = ipw.Label()
+            label = ipw.Label(value=_coord_to_string(coord[dim, 0]))
             ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
 
             self.controls[dim] = {
                 'continuous': continuous_update,
                 'slider': slider,
                 'label': label,
-                'coord': data_array.meta[dim]
+                'coord': coord
             }
             slider.observe(self._update_label, names='value')
             children.append(ipw.HBox([continuous_update, slider, label]))
@@ -93,13 +101,12 @@ class SliceWidget(ipw.VBox):
 
     def _update_label(self, change):
         dim = change['owner'].description
-        coord = self.controls[dim]['coord']
-        self.controls[dim]['label'].value = value_to_string(
-            coord[dim, change['new']].values) + str(coord.unit)
+        coord = self.controls[dim]['coord'][dim, change['new']]
+        self.controls[dim]['label'].value = _coord_to_string(coord)
 
-    def observe(self, callback: Callable, ignored, **kwargs):
-        for dim in self.controls:
-            self.controls[dim]['slider'].observe(callback, **kwargs)
+    # def observe(self, callback: Callable, ignored, **kwargs):
+    #     for dim in self.controls:
+    #         self.controls[dim]['slider'].observe(callback, **kwargs)
 
     @property
     def value(self) -> dict:
