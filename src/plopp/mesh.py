@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .limits import find_limits, fix_empty_range
-from .tools import to_bin_edges, name_with_unit
+from .tools import coord_as_bin_edges, name_with_unit, repeat
 
 from copy import copy
 from functools import reduce
@@ -41,12 +41,10 @@ class Mesh:
                  vmin=None,
                  vmax=None,
                  cbar=True,
-                 crop=None,
                  **kwargs):
 
         self._ax = ax
         self._data = data
-        self._crop = crop if crop is not None else {}
         self._dims = {'x': self._data.dims[1], 'y': self._data.dims[0]}
 
         self._xlabel = None
@@ -76,16 +74,61 @@ class Mesh:
 
         self._make_mesh(**kwargs)
 
+    def _find_dim_of_2d_coord(self):
+        for xy in 'xy':
+            if self._data.meta[self._dims[xy]].ndim == 2:
+                return (xy, self._dims[xy])
+
+    def _get_dims_of_1d_and_2d_coords(self):
+        dim_2d = self._find_dim_of_2d_coord()
+        if dim_2d is None:
+            return None, None
+        axis_1d = 'xy'.replace(dim_2d[0], '')
+        dim_1d = (axis_1d, self._dims[axis_1d])
+        return dim_1d, dim_2d
+
+    def _maybe_repeat_values(self, array):
+        dim_1d, dim_2d = self._get_dims_of_1d_and_2d_coords()
+        if dim_2d is None:
+            return array.values
+        return repeat(array, dim=dim_1d[1], n=2)[dim_1d[1], :-1].values
+
+    def _from_data_array_to_pcolormesh(self):
+        xy = {k: coord_as_bin_edges(self._data, self._dims[k]) for k in 'xy'}
+        z = self._maybe_repeat_values(self._data.data)
+
+        dim_1d, dim_2d = self._get_dims_of_1d_and_2d_coords()
+        if dim_2d is None:
+            return xy['x'].values, xy['y'].values, z
+
+        # Broadcast 1d coord to 2d and repeat along 1d dim
+        # TODO: It may be more efficient here to first repeat and then broadcast, but
+        # the current order is simpler in implementation.
+        broadcasted_coord = repeat(broadcast(xy[dim_1d[0]],
+                                             sizes={
+                                                 **xy[dim_2d[0]].sizes,
+                                                 **xy[dim_1d[0]].sizes
+                                             }).transpose(self._data.dims),
+                                   dim=dim_1d[1],
+                                   n=2)
+
+        # Repeat 2d coord along 1d dim
+        repeated_coord = repeat(xy[dim_2d[0]].transpose(self._data.dims),
+                                dim=dim_1d[1],
+                                n=2)
+
+        out = {
+            dim_1d[0]: broadcasted_coord[dim_1d[1], 1:-1].values,
+            dim_2d[0]: repeated_coord.values
+        }
+
+        return out['x'], out['y'], z
+
     def _make_mesh(self, shading='auto', rasterized=True, **kwargs):
-        x = self._data.meta[self._dims['x']]
-        if not self._data.meta.is_edges(self._dims['x']):
-            x = to_bin_edges(x, dim=self._dims['x'])
-        y = self._data.meta[self._dims['y']]
-        if not self._data.meta.is_edges(self._dims['y']):
-            y = to_bin_edges(y, dim=self._dims['y'])
-        self._mesh = self._ax.pcolormesh(x.values,
-                                         y.values,
-                                         self._data.data.values,
+        x, y, z = self._from_data_array_to_pcolormesh()
+        self._mesh = self._ax.pcolormesh(x,
+                                         y,
+                                         z,
                                          cmap=self._cmap,
                                          shading=shading,
                                          rasterized=rasterized,
@@ -130,12 +173,13 @@ class Mesh:
         self._mesh.set_clim(self._vmin, self._vmax)
 
     def _set_mesh_colors(self):
-        flat_values = self._data.values.flatten()
+        flat_values = self._maybe_repeat_values(self._data.data).flatten()
         rgba = self._cmap(self._norm_func(flat_values))
         if len(self._data.masks) > 0:
-            one_mask = broadcast(reduce(lambda a, b: a | b, self._data.masks.values()),
-                                 dims=self._data.dims,
-                                 shape=self._data.shape).values.flatten()
+            one_mask = self._maybe_repeat_values(
+                broadcast(reduce(lambda a, b: a | b, self._data.masks.values()),
+                          dims=self._data.dims,
+                          shape=self._data.shape)).flatten()
             rgba[one_mask] = self._mask_cmap(self._norm_func(flat_values[one_mask]))
         self._mesh.set_facecolors(rgba)
 
@@ -167,7 +211,7 @@ class Mesh:
 
     def get_limits(self, xscale, yscale):
         xmin, xmax = fix_empty_range(
-            find_limits(self._data.meta[self._dims['x']], scale=xscale))
+            find_limits(coord_as_bin_edges(self._data, self._dims['x']), scale=xscale))
         ymin, ymax = fix_empty_range(
-            find_limits(self._data.meta[self._dims['y']], scale=yscale))
+            find_limits(coord_as_bin_edges(self._data, self._dims['y']), scale=yscale))
         return xmin, xmax, ymin, ymax
