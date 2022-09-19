@@ -2,12 +2,19 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from scipp import scalar, concat, midpoints
+import uuid
 
 
-def to_bin_edges(x, dim):
+def coord_as_bin_edges(da, key, dim=None):
     """
-    Convert array centers to edges
+    If coordinate `key` in DataArray da is already bin edges, return it unchanged.
+    If it is midpoints, return as bin edges.
     """
+    if dim is None:
+        dim = key
+    x = da.meta[key]
+    if da.meta.is_edges(key, dim=dim):
+        return x
     idim = x.dims.index(dim)
     if x.shape[idim] < 2:
         half = scalar(0.5, unit=x.unit)
@@ -19,6 +26,21 @@ def to_bin_edges(x, dim):
         left = center[dim, 0:1] - (x[dim, 1] - x[dim, 0])
         right = center[dim, -1] + (x[dim, -1] - x[dim, -2])
         return concat([left, center, right], dim)
+
+
+def repeat(x, dim, n):
+    """
+    Equivalent of Numpy's `repeat` function: repeat the values of a variable `n` times
+    along dimension `dim`.
+    """
+    index = x.dims.index(dim) + 1
+    dummy_dim = uuid.uuid4().hex
+    new_dims = list(x.dims)
+    new_dims.insert(index, dummy_dim)
+    new_shape = list(x.shape)
+    new_shape.insert(index, n)
+    return x.broadcast(dims=new_dims, shape=new_shape).flatten(dims=[dim, dummy_dim],
+                                                               to=dim)
 
 
 def number_to_variable(x):
