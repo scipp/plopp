@@ -5,11 +5,10 @@ from .common import is_interactive_backend, preprocess
 from .figure import figure
 from ..core import input_node, widget_node
 
-from scipp import Variable, Dataset
+from scipp import Variable
 from scipp.typing import VariableLike
-import inspect
 from numpy import ndarray
-from typing import Union, Dict, Literal, List
+from typing import Union, Dict, List
 
 
 def slicer(obj: Union[VariableLike, ndarray],
