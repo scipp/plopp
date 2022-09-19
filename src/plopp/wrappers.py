@@ -10,6 +10,7 @@ from scipp import Variable, Dataset
 from scipp.typing import VariableLike
 import inspect
 from matplotlib import get_backend
+from numpy import ndarray
 from typing import Union, Dict, Literal, List
 
 
@@ -32,7 +33,7 @@ def figure(*args, **kwargs):
         return StaticFig(*args, **kwargs)
 
 
-def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
+def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
          aspect: Literal['auto', 'equal'] = 'auto',
          cbar: bool = True,
          crop: Dict[str, Dict[str, Variable]] = None,
@@ -51,14 +52,7 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
     Parameters
     ----------
     obj:
-        The object to be plotted. Possible inputs are:
-        - Variable
-        - Dataset
-        - DataArray
-        - numpy ndarray
-        - dict of Variables
-        - dict of DataArrays
-        - dict of numpy ndarrays
+        The object to be plotted.
     aspect:
         Aspect ratio for the axes.
     cbar:
@@ -122,7 +116,7 @@ def plot(obj: Union[VariableLike, Dict[str, VariableLike]],
                       **all_args)
 
 
-def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
+def slicer(obj: Union[VariableLike, ndarray],
            keep: List[str] = None,
            *,
            crop: Dict[str, Dict[str, Variable]] = None,
@@ -134,11 +128,7 @@ def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
     Parameters
     ----------
     obj:
-        The object to be plotted. Possible inputs are:
-        - Variable
-        - Dataset
-        - DataArray
-        - numpy ndarray
+        The object to be plotted.
     keep:
         The dimensions to be kept, all remaining dimensions will be sliced. This should
         be a list of dims. If no dims are provided, the last dim will be kept in the
@@ -167,8 +157,7 @@ def slicer(obj: Union[VariableLike, Dict[str, VariableLike]],
 
     if keep is None:
         keep = da.dims[-(2 if da.ndim > 2 else 1):]
-    dims = list(set(da.dims) - set(keep))
-    sl = SliceWidget(da, dims=dims)
+    sl = SliceWidget(da, dims=list(set(da.dims) - set(keep)))
     w = widget_node(sl)
     slice_node = slice_dims(a, w)
     sl.make_view(slice_node)
