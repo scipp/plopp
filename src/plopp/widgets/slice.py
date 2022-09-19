@@ -62,11 +62,7 @@ class SliceWidget(ipw.VBox):
         coord = self.controls[dim]['coord'][dim, change['new']]
         self.controls[dim]['label'].value = _coord_to_string(coord)
 
-    def _plopp_observe(self, callback: Callable, **kwargs):
-        """
-        TODO: Cannot name this method 'observe' when inheriting from HBox, so we name
-        it '_plopp_observe' instead (see https://bit.ly/3SggPVS).
-        """
+    def _plopp_observe_(self, callback: Callable, **kwargs):
         for dim in self.controls:
             self.controls[dim]['slider'].observe(callback, **kwargs)
 

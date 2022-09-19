@@ -41,11 +41,7 @@ class Checkboxes(ipw.HBox):
 
         super().__init__(to_hbox)
 
-    def _plopp_observe(self, callback: Callable, **kwargs):
-        """
-        TODO: Cannot name this method 'observe' when inheriting from HBox, so we name
-        it '_plopp_observe' instead (see https://bit.ly/3SggPVS).
-        """
+    def _plopp_observe_(self, callback: Callable, **kwargs):
         for chbx in self.checkboxes.values():
             chbx.observe(callback, **kwargs)
 
