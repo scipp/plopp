@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .tools import number_to_variable, name_with_unit
+from .io import fig_to_bytes
 from .mesh import Mesh
 from .line import Line
 from .view import View
@@ -67,6 +68,15 @@ class Figure(View):
 
     def _post_init(self):
         return
+
+    def _to_image(self):
+        from ipywidgets import Image
+        width, height = self._fig.get_size_inches()
+        dpi = self._fig.get_dpi()
+        return Image(value=fig_to_bytes(self._fig),
+                     width=width * dpi,
+                     height=height * dpi,
+                     format='png')
 
     def _autoscale(self):
         global_xmin = None

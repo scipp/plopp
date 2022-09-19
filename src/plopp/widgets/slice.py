@@ -37,9 +37,10 @@ class SliceWidget(ipw.VBox):
                                    max=data_array.sizes[dim],
                                    continuous_update=True,
                                    readout=False,
-                                   layout={"width": "200px"})
+                                   layout={"width": "200px"},
+                                   style={'description_width': 'initial'})
             continuous_update = ipw.Checkbox(value=True,
-                                             description="Continuous update",
+                                             tooltip="Continuous update",
                                              indent=False,
                                              layout={"width": "20px"})
             label = ipw.Label(value=_coord_to_string(coord[dim, 0]))
@@ -77,9 +78,7 @@ class SliceWidget(ipw.VBox):
 @node
 def slice_dims(data_array: DataArray, slices: dict) -> DataArray:
     """
-    Slice the data along dimension sliders that are not disabled for all
-    entries in the dict of data arrays, and return a dict of 1d value
-    arrays for data values, variances, and masks.
+    Slice the data according to input slices.
     """
     out = data_array
     for dim, sl in slices.items():
