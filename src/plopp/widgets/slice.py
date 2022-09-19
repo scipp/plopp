@@ -24,8 +24,8 @@ class SliceView(View):
     def _update(self, new_coords):
         for dim, lab in self._labels.items():
             if dim in new_coords:
-                lab.value = value_to_string(new_coords[dim].values) + str(
-                    new_coords[dim].unit)
+                lab.value = value_to_string(
+                    new_coords[dim].values) + f" [{new_coords[dim].unit}]"
 
     def notify_view(self, message):
         node_id = message["node_id"]
@@ -57,10 +57,11 @@ class SliceWidget(Displayable):
                                    min=0,
                                    max=data_array.sizes[dim],
                                    continuous_update=True,
-                                   readout=True,
-                                   layout={"width": "400px"})
+                                   readout=False,
+                                   layout={"width": "200px"},
+                                   style={'description_width': 'initial'})
             continuous_update = ipw.Checkbox(value=True,
-                                             description="Continuous update",
+                                             tooltip="Continuous update",
                                              indent=False,
                                              layout={"width": "20px"})
             ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
@@ -95,9 +96,7 @@ class SliceWidget(Displayable):
 @node
 def slice_dims(data_array: DataArray, slices: dict) -> DataArray:
     """
-    Slice the data along dimension sliders that are not disabled for all
-    entries in the dict of data arrays, and return a dict of 1d value
-    arrays for data values, variances, and masks.
+    Slice the data according to input slices.
     """
     out = data_array
     for dim, sl in slices.items():

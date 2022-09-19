@@ -51,3 +51,9 @@ Get in touch
    :hidden:
 
    image-plot
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   slicer-plot
