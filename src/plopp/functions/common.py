@@ -1,10 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .tools import number_to_variable
+from ..core.utils import number_to_variable
 
-from scipp import Variable, DataArray, arange, to_unit
+from matplotlib import get_backend
 from numpy import ndarray, prod
+from scipp import Variable, DataArray, arange, to_unit
+
+
+def is_interactive_backend():
+    """
+    Return `True` if the current backend used by Matplotlib is the widget backend.
+    """
+    return 'ipympl' in get_backend()
 
 
 def _to_data_array(obj):

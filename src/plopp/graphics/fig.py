@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .tools import number_to_variable, name_with_unit
+from ..core.utils import number_to_variable, name_with_unit
+from ..core import View
 from .io import fig_to_bytes
 from .mesh import Mesh
 from .line import Line
-from .view import View
 
 import matplotlib.pyplot as plt
 from scipp import DataArray, to_unit

@@ -2,8 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from scipp import DataArray
-from ..tools import value_to_string
-from ..model import node
+from ..core.utils import value_to_string
+from ..core import node
 
 import ipywidgets as ipw
 from typing import Callable
