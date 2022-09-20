@@ -41,7 +41,6 @@ class Figure(View):
         self._scale = {} if scale is None else scale
         self._crop = {} if crop is None else crop
         self._cbar = cbar
-        self._title = title
         self._errorbars = errorbars
         self._mask_color = mask_color
         self._kwargs = kwargs
@@ -51,14 +50,13 @@ class Figure(View):
         if self._ax is None:
             if figsize is None:
                 figsize = (6, 4)
-            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize
-                                               # , dpi=200
-                                               )
+            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=96)
             self._fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
         else:
             self._fig = self._ax.get_figure()
 
         self._ax.set_aspect(aspect)
+        self._ax.set_title(title)
         self._ax.grid(grid)
         self._legend = 0
         self._new_artist = False
@@ -192,7 +190,7 @@ class Figure(View):
                     self.logy()
                 self._ax.set_ylabel(
                     name_with_unit(var=new_values.meta[self._dims['y']['dim']]))
-                if self._title is None:
+                if not self._ax.get_title():
                     self._ax.set_title(new_values.name)
 
             self._ax.set_xlabel(
