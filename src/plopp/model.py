@@ -52,3 +52,14 @@ def node(func, *args, **kwargs):
 
 def input_node(obj):
     return Node(lambda: obj)
+
+
+def widget_node(widget):
+    n = Node(func=lambda: widget.value)
+    # TODO: Our custom widgets have a '_plopp_observe' method instead of 'observe'
+    # because inheriting from VBox causes errors when overriding the 'observe' method
+    # (see https://bit.ly/3SggPVS).
+    func = widget._plopp_observe_ if hasattr(widget,
+                                             '_plopp_observe_') else widget.observe
+    func(n.notify_children, names="value")
+    return n

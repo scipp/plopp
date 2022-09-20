@@ -14,12 +14,10 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 from .graph import show_graph
-from .plot import Plot
-from .model import Node, node, input_node
+from .model import Node, node, input_node, widget_node
 from .wrappers import plot, figure, slicer
 
 from . import data
-from . import widgets
 
 
 def patch_scipp():
