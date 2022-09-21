@@ -39,7 +39,8 @@ def delta(low, high, dx, scale):
     Compute fractional delta from low and high value, using linear or log scaling.
     """
     if scale == "log":
-        out = 10**(dx * log10(high / low))
+        val = 10**(dx * log10(high / low.to(unit=high.unit)))
+        out = scalar(val.value, unit=high.unit)
     else:
         out = dx * (high - low)
     if low.dtype == DType.datetime64:
