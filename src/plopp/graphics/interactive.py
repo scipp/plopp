@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .fig import Figure
-from .toolbar import Toolbar
+from ..widgets import Toolbar
 
 from ipywidgets import VBox, HBox
 
@@ -81,12 +81,12 @@ class InteractiveFig(Figure, VBox):
         self.crop(**self._crop)
         self.draw()
 
-    def pan(self):
+    def pan(self, *_):
         if self._fig.canvas.toolbar.mode == 'zoom rect':
             self.toolbar.zoom()
         self._fig.canvas.toolbar.pan()
 
-    def zoom(self):
+    def zoom(self, *_):
         if self._fig.canvas.toolbar.mode == 'pan/zoom':
             self.toolbar.pan()
         self._fig.canvas.toolbar.zoom()
@@ -94,10 +94,10 @@ class InteractiveFig(Figure, VBox):
     def save(self):
         self._fig.canvas.toolbar.save_figure()
 
-    def logx(self):
+    def logx(self, *_):
         super().logx()
         self.toolbar.logx.value = self._ax.get_xscale() == 'log'
 
-    def logy(self):
+    def logy(self, *_):
         super().logy()
         self.toolbar.logy.value = self._ax.get_yscale() == 'log'

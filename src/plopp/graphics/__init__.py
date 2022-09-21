@@ -5,4 +5,3 @@
 
 from .interactive import InteractiveFig
 from .static import StaticFig
-from .toolbar import Toolbar

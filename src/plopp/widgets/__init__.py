@@ -7,3 +7,5 @@
 from .box import Box
 from .checkboxes import Checkboxes
 from .slice import SliceWidget, slice_dims
+from .toolbar import Toolbar
+from .tools import ButtonTool, ToggleTool, PointsTool
