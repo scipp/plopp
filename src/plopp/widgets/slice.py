@@ -23,7 +23,6 @@ class SliceWidget(ipw.VBox):
     """
 
     def __init__(self, data_array, dims: list):
-        self._container = []
         self._slider_dims = dims
         self.controls = {}
         self.view = None
@@ -34,7 +33,7 @@ class SliceWidget(ipw.VBox):
             slider = ipw.IntSlider(step=1,
                                    description=dim,
                                    min=0,
-                                   max=data_array.sizes[dim],
+                                   max=data_array.sizes[dim] - 1,
                                    continuous_update=True,
                                    readout=False,
                                    layout={"width": "200px"},
