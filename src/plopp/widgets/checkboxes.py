@@ -11,27 +11,27 @@ class Checkboxes(ipw.HBox):
     Widget providing a list of checkboxes, along with a button to toggle them all.
     """
 
-    def __init__(self, entries: list, description=""):
+    def __init__(self, entries: list, description="", value=True):
         self.checkboxes = {}
         self._lock = False
-        self._description = ipw.Label(value=description)
+        self.description = ipw.Label(value=description)
 
         for key in entries:
-            self.checkboxes[key] = ipw.Checkbox(value=True,
+            self.checkboxes[key] = ipw.Checkbox(value=value,
                                                 description=f"{escape(key)}",
                                                 indent=False,
                                                 layout={"width": "initial"})
 
         to_hbox = [
-            self._description,
+            self.description,
             ipw.HBox(list(self.checkboxes.values()),
                      layout=ipw.Layout(flex_flow='row wrap'))
         ]
 
-        if len(self.checkboxes):
+        if len(self.checkboxes) > 1:
             # Add a master button to control all masks in one go
-            self.toggle_all_button = ipw.ToggleButton(value=True,
-                                                      description="De-select all",
+            self.toggle_all_button = ipw.ToggleButton(value=value,
+                                                      description="Toggle all",
                                                       disabled=False,
                                                       button_style="",
                                                       layout={"width": "initial"})
