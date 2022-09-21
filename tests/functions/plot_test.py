@@ -157,30 +157,31 @@ def test_kwarg_scale_2d():
 
 def test_kwarg_crop_1d_min_max():
     da = dense_data_array(ndim=1)
-    p = pp.plot(da,
-                crop={'xx': {
-                    'min': scalar(20, unit='m'),
-                    'max': scalar(40, unit='m')
-                }})
+    p = pp.plot(
+        da,
+        crop={'xx': {
+            'min': sc.scalar(20, unit='m'),
+            'max': sc.scalar(40, unit='m')
+        }})
     assert np.array_equal(p._ax.get_xlim(), [20, 40])
 
 
 def test_kwarg_crop_1d_min_only():
     da = dense_data_array(ndim=1)
-    p = pp.plot(da, crop={'xx': {'min': scalar(20, unit='m')}})
+    p = pp.plot(da, crop={'xx': {'min': sc.scalar(20, unit='m')}})
     assert p._ax.get_xlim()[0] == 20
 
 
 def test_kwarg_crop_1d_min_conversion():
     da = dense_data_array(ndim=1)
-    p = pp.plot(da, crop={'xx': {'min': scalar(200, unit='cm')}})
+    p = pp.plot(da, crop={'xx': {'min': sc.scalar(200, unit='cm')}})
     assert p._ax.get_xlim()[0] == 2
 
 
 def test_kwarg_crop_1d_with_no_unit():
     da = dense_data_array(ndim=1)
     del da.coords['xx']
-    p = pp.plot(da, crop={'xx': {'min': scalar(20, unit=None)}})
+    p = pp.plot(da, crop={'xx': {'min': sc.scalar(20, unit=None)}})
     assert p._ax.get_xlim()[0] == 20
     p = pp.plot(da, crop={'xx': {'min': 20}})
     assert p._ax.get_xlim()[0] == 20
@@ -193,11 +194,11 @@ def test_kwarg_crop_2d():
     p = pp.plot(da,
                 crop={
                     'xx': {
-                        'min': scalar(20, unit='m')
+                        'min': sc.scalar(20, unit='m')
                     },
                     'yy': {
-                        'min': scalar(10, unit='m'),
-                        'max': scalar(4000, unit='cm')
+                        'min': sc.scalar(10, unit='m'),
+                        'max': sc.scalar(4000, unit='cm')
                     }
                 })
     assert p._ax.get_xlim()[0] == 20
