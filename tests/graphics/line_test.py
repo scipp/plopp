@@ -3,14 +3,9 @@
 
 from plopp.data import dense_data_array
 from plopp.graphics.line import Line
-import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
-
-
-def make_axes():
-    fig, ax = plt.subplots()
-    return ax
+from common import make_axes
 
 
 def test_line_creation():
