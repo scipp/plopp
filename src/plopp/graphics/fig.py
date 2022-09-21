@@ -131,9 +131,9 @@ class Figure(View):
     def notify_view(self, message):
         node_id = message["node_id"]
         new_values = self._graph_nodes[node_id].request_data()
-        self._update(new_values=new_values, key=node_id)
+        self.update(new_values=new_values, key=node_id)
 
-    def _update(self, new_values: DataArray, key: str, draw: bool = True):
+    def update(self, new_values: DataArray, key: str, draw: bool = True):
         """
         Update image array with new values.
         """
@@ -218,7 +218,7 @@ class Figure(View):
     def render(self):
         for node in self._graph_nodes.values():
             new_values = node.request_data()
-            self._update(new_values=new_values, key=node.id, draw=False)
+            self.update(new_values=new_values, key=node.id, draw=False)
         self._autoscale()
         self.crop(**self._crop)
         self.draw()

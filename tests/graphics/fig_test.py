@@ -7,7 +7,7 @@ from plopp.graphics.line import Line
 from plopp.graphics.mesh import Mesh
 import scipp as sc
 from common import make_axes
-from dataclasses import dataclass
+import pytest
 
 
 def test_figure_creation():
@@ -65,9 +65,16 @@ def test_fig_update_3d_raises():
 
 def test_figure_crop():
     fig = Figure(ax=make_axes())
-    da = dense_data_array(ndim=2)
+    da = dense_data_array(ndim=2, binedges=True)
     key = 'data2d'
     fig.update(da, key=key)
+    fig._autoscale()
     assert fig._ax.get_xlim() == (da.meta['xx'].min().value, da.meta['xx'].max().value)
     assert fig._ax.get_ylim() == (da.meta['yy'].min().value, da.meta['yy'].max().value)
-    fig.crop()
+    xmin = sc.scalar(2.1, unit='m')
+    xmax = sc.scalar(102.0, unit='m')
+    ymin = sc.scalar(5.5, unit='m')
+    ymax = sc.scalar(22.3, unit='m')
+    fig.crop(xx={'min': xmin, 'max': xmax}, yy={'min': ymin, 'max': ymax})
+    assert fig._ax.get_xlim() == (xmin.value, xmax.value)
+    assert fig._ax.get_ylim() == (ymin.value, ymax.value)
