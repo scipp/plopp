@@ -80,9 +80,9 @@ def inspector(obj: Union[VariableLike, ndarray],
         pnode.remove()
         n.remove()
 
-    pts = PointsTool(ax=f2d._ax)
+    pts = PointsTool(ax=f2d._ax, tooltip='Add inspector points')
     pts.points.on_create = make_node
     pts.points.on_vertex_move = update_node
     pts.points.on_remove = remove_node
     f2d.toolbar['inspect'] = pts
-    return Box([sl, f2d, f1d])
+    return Box([[f2d, f1d], sl])

@@ -64,7 +64,7 @@ class PointsTool(ToggleTool):
         self.points = Points(ax=ax, autostart=False)
         super().__init__(callback=self.start_stop,
                          value=value,
-                         icon='line-chart',
+                         icon='crosshairs',
                          **kwargs)
 
     def start_stop(self, value):
