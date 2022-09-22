@@ -4,7 +4,6 @@
 from ipywidgets import Button, VBox
 from typing import Callable
 import ipywidgets as ipw
-from mpltoolbox import Points
 
 LAYOUT_STYLE = {"layout": {"width": "34px", "padding": "0px 0px 0px 0px"}}
 
@@ -61,6 +60,7 @@ class ToggleTool:
 class PointsTool(ToggleTool):
 
     def __init__(self, value=False, ax=None, **kwargs):
+        from mpltoolbox import Points
         self.points = Points(ax=ax, autostart=False)
         super().__init__(callback=self.start_stop,
                          value=value,

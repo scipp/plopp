@@ -9,9 +9,9 @@ class View:
 
     def __init__(self, *nodes):
         self.id = str(uuid.uuid1())
-        self._graph_nodes = {}
+        self.graph_nodes = {}
         for node in nodes:
-            self._graph_nodes[node.id] = node
+            self.graph_nodes[node.id] = node
             node.add_view(self)
 
     @abstractmethod

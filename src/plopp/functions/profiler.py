@@ -50,7 +50,7 @@ def profiler(obj: Union[VariableLike, ndarray],
         event_nodes[event_node.id] = event_node
         change['artist'].nodeid = event_node.id
         profile_node = slice_dims(a, event_node)
-        prof._graph_nodes[profile_node.id] = profile_node
+        prof.graph_nodes[profile_node.id] = profile_node
         profile_node.add_view(prof)
         prof.render()
 
@@ -63,7 +63,8 @@ def profiler(obj: Union[VariableLike, ndarray],
         }
         n.notify_children(change)
 
-    f.toolbar['profile'] = PointsTool(ax=f._ax)
-    f.toolbar['profile'].points.on_create = make_new_node
-    f.toolbar['profile'].points.on_vertex_move = update_node
+    pts = PointsTool(ax=f._ax)
+    pts.points.on_create = make_new_node
+    pts.points.on_vertex_move = update_node
+    f.toolbar['profile'] = pts
     return Box([sl, f, prof])

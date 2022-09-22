@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from plopp import Node, node, View
+import pytest
 
 
 class SimpleView(View):
@@ -27,6 +28,8 @@ def test_two_nodes_notify_children():
     b = node(lambda x: x - 2)(x=a)
     av = SimpleView(a)
     bv = SimpleView(b)
+    assert av in a.views
+    assert bv in b.views
 
     msg = 'hello from b'
     b.notify_children(message=msg)
@@ -75,7 +78,7 @@ class DataView(View):
 
     def notify_view(self, message):
         node_id = message["node_id"]
-        self.data = self._graph_nodes[node_id].request_data()
+        self.data = self.graph_nodes[node_id].request_data()
 
 
 def test_two_children_request_data():
@@ -91,3 +94,34 @@ def test_two_children_request_data():
     assert av.data == 5
     assert bv.data == 3
     assert cv.data == 7
+
+
+def test_remove_node():
+    a = Node(lambda: 5)
+    b = node(lambda x: x - 2)(x=a)
+    c = node(lambda x: x + 2)(x=a)
+    av = DataView(a)
+    bv = DataView(b)
+    cv = DataView(c)
+    assert 'x' in b.kwparents
+    assert a is b.kwparents['x']
+    assert b in a.children
+    assert c in a.children
+    assert bv in b.views
+    b.remove()
+    assert bv not in b.views
+    assert b not in a.children
+    assert c in a.children
+    assert cv in c.views
+
+
+def test_cannot_remove_node_with_children():
+    a = Node(lambda: 5)
+    b = node(lambda x: x - 2)(x=a)
+    av = DataView(a)
+    bv = DataView(b)
+    with pytest.raises(RuntimeError) as e:
+        a.remove()
+    assert "Cannot delete node" in str(e.value)
+    assert b in a.children
+    assert av in a.views
