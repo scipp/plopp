@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 from .core import Node, node, input_node, widget_node, show_graph, View
-from .functions import figure, plot, slicer, profiler
+from .functions import figure, plot, slicer, inspector
 
 from . import data
 

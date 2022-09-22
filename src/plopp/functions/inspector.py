@@ -14,14 +14,14 @@ from typing import Union, Dict, List
 import uuid
 
 
-def profiler(obj: Union[VariableLike, ndarray],
-             dim: str = None,
-             *,
-             crop: Dict[str, Dict[str, Variable]] = None,
-             **kwargs):
+def inspector(obj: Union[VariableLike, ndarray],
+              dim: str = None,
+              *,
+              crop: Dict[str, Dict[str, Variable]] = None,
+              **kwargs):
     """
     """
-    require_interactive_backend('profiler')
+    require_interactive_backend('inspector')
 
     from plopp.widgets import SliceWidget, slice_dims, Box
     from mpltoolbox import Points
@@ -40,11 +40,11 @@ def profiler(obj: Union[VariableLike, ndarray],
     w = widget_node(sl)
 
     slice_node = slice_dims(a, w)
-    f = figure(slice_node)
-    xdim = f._dims['x']['dim']
-    ydim = f._dims['y']['dim']
+    f2d = figure(slice_node)
+    xdim = f2d._dims['x']['dim']
+    ydim = f2d._dims['y']['dim']
 
-    prof = figure()
+    f1d = figure()
 
     event_nodes = {}
 
@@ -57,10 +57,10 @@ def profiler(obj: Union[VariableLike, ndarray],
             })
         event_nodes[event_node.id] = event_node
         change['artist'].nodeid = event_node.id
-        profile_node = slice_dims(a, event_node)
-        prof.graph_nodes[profile_node.id] = profile_node
-        profile_node.add_view(prof)
-        prof.render()
+        inspect_node = slice_dims(a, event_node)
+        f1d.graph_nodes[inspect_node.id] = inspect_node
+        inspect_node.add_view(f1d)
+        f1d.render()
 
     def update_node(change):
         event = change['event']
@@ -75,14 +75,14 @@ def profiler(obj: Union[VariableLike, ndarray],
         artist = change['artist']
         n = event_nodes[change['artist'].nodeid]
         pnode = n.children[0]
-        prof._children[pnode.id].remove()
-        prof.draw()
+        f1d._children[pnode.id].remove()
+        f1d.draw()
         pnode.remove()
         n.remove()
 
-    pts = PointsTool(ax=f._ax)
+    pts = PointsTool(ax=f2d._ax)
     pts.points.on_create = make_node
     pts.points.on_vertex_move = update_node
     pts.points.on_remove = remove_node
-    f.toolbar['profile'] = pts
-    return Box([sl, f, prof])
+    f2d.toolbar['inspect'] = pts
+    return Box([sl, f2d, f1d])
