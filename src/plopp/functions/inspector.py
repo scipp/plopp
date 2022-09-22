@@ -10,8 +10,7 @@ from ..widgets import PointsTool
 from scipp import Variable, scalar
 from scipp.typing import VariableLike
 from numpy import ndarray
-from typing import Union, Dict, List
-import uuid
+from typing import Union, Dict
 
 
 def inspector(obj: Union[VariableLike, ndarray],
@@ -24,7 +23,6 @@ def inspector(obj: Union[VariableLike, ndarray],
     require_interactive_backend('inspector')
 
     from plopp.widgets import SliceWidget, slice_dims, Box
-    from mpltoolbox import Points
     da = preprocess(obj, crop=crop, ignore_size=True)
 
     a = input_node(da)
@@ -72,7 +70,6 @@ def inspector(obj: Union[VariableLike, ndarray],
         n.notify_children(change)
 
     def remove_node(change):
-        artist = change['artist']
         n = event_nodes[change['artist'].nodeid]
         pnode = n.children[0]
         f1d._children[pnode.id].remove()

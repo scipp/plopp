@@ -3,7 +3,7 @@
 
 from .tools import ButtonTool, ToggleTool
 
-from ipywidgets import Button, VBox
+from ipywidgets import VBox
 from functools import partial
 
 TOOL_LIBRARY = {

@@ -100,7 +100,6 @@ def test_remove_node():
     a = Node(lambda: 5)
     b = node(lambda x: x - 2)(x=a)
     c = node(lambda x: x + 2)(x=a)
-    av = DataView(a)
     bv = DataView(b)
     cv = DataView(c)
     assert 'x' in b.kwparents
@@ -119,7 +118,6 @@ def test_cannot_remove_node_with_children():
     a = Node(lambda: 5)
     b = node(lambda x: x - 2)(x=a)
     av = DataView(a)
-    bv = DataView(b)
     with pytest.raises(RuntimeError) as e:
         a.remove()
     assert "Cannot delete node" in str(e.value)
