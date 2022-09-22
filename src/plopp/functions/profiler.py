@@ -41,6 +41,8 @@ def profiler(obj: Union[VariableLike, ndarray],
 
     slice_node = slice_dims(a, w)
     f = figure(slice_node)
+    xdim = f._dims['x']['dim']
+    ydim = f._dims['y']['dim']
 
     prof = figure()
 
@@ -50,8 +52,8 @@ def profiler(obj: Union[VariableLike, ndarray],
         event = change['event']
         event_node = Node(
             func=lambda: {
-                'xx': scalar(event.xdata, unit=da.meta['xx'].unit),
-                'yy': scalar(event.ydata, unit=da.meta['yy'].unit)
+                xdim: scalar(event.xdata, unit=da.meta[xdim].unit),
+                ydim: scalar(event.ydata, unit=da.meta[ydim].unit)
             })
         event_nodes[event_node.id] = event_node
         change['artist'].nodeid = event_node.id
@@ -64,8 +66,8 @@ def profiler(obj: Union[VariableLike, ndarray],
         event = change['event']
         n = event_nodes[change['artist'].nodeid]
         n.func = lambda: {
-            'xx': scalar(event.xdata, unit=da.meta['xx'].unit),
-            'yy': scalar(event.ydata, unit=da.meta['yy'].unit)
+            xdim: scalar(event.xdata, unit=da.meta[xdim].unit),
+            ydim: scalar(event.ydata, unit=da.meta[ydim].unit)
         }
         n.notify_children(change)
 
