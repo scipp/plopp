@@ -38,6 +38,8 @@ def profiler(obj: Union[VariableLike, ndarray],
 
     prof = figure()
 
+    event_nodes = {}
+
     def make_new_node(change):
         event = change['event']
         event_node = Node(
@@ -45,11 +47,23 @@ def profiler(obj: Union[VariableLike, ndarray],
                 'xx': scalar(event.xdata, unit=da.meta['xx'].unit),
                 'yy': scalar(event.ydata, unit=da.meta['yy'].unit)
             })
+        event_nodes[event_node.id] = event_node
+        change['artist'].nodeid = event_node.id
         profile_node = slice_dims(a, event_node)
-        prof._graph_nodes[str(uuid.uuid1())] = profile_node
+        prof._graph_nodes[profile_node.id] = profile_node
         profile_node.add_view(prof)
         prof.render()
 
+    def update_node(change):
+        event = change['event']
+        n = event_nodes[change['artist'].nodeid]
+        n.func = lambda: {
+            'xx': scalar(event.xdata, unit=da.meta['xx'].unit),
+            'yy': scalar(event.ydata, unit=da.meta['yy'].unit)
+        }
+        n.notify_children(change)
+
     f.toolbar['profile'] = PointsTool(ax=f._ax)
     f.toolbar['profile'].points.on_create = make_new_node
+    f.toolbar['profile'].points.on_vertex_move = update_node
     return Box([sl, f, prof])
