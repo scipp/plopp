@@ -57,3 +57,9 @@ Get in touch
    :hidden:
 
    slicer-plot
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   inspector-plot
