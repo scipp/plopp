@@ -4,6 +4,7 @@
 from .common import require_interactive_backend, preprocess
 from .figure import figure
 from ..core import input_node, widget_node, Node
+from ..core.utils import coord_as_bin_edges
 from ..widgets import PointsTool
 
 from scipp import Variable, scalar
@@ -30,6 +31,11 @@ def profiler(obj: Union[VariableLike, ndarray],
 
     if dim is None:
         dim = da.dims[-1]
+
+    # Convert dimension coords to bin edges
+    for d in (set(da.dims) - set([dim])):
+        da.coords[d] = coord_as_bin_edges(da, d)
+
     sl = SliceWidget(da, dims=[dim])
     w = widget_node(sl)
 
@@ -40,7 +46,7 @@ def profiler(obj: Union[VariableLike, ndarray],
 
     event_nodes = {}
 
-    def make_new_node(change):
+    def make_node(change):
         event = change['event']
         event_node = Node(
             func=lambda: {
@@ -63,8 +69,18 @@ def profiler(obj: Union[VariableLike, ndarray],
         }
         n.notify_children(change)
 
+    def remove_node(change):
+        artist = change['artist']
+        n = event_nodes[change['artist'].nodeid]
+        pnode = n.children[0]
+        prof._children[pnode.id].remove()
+        prof.draw()
+        pnode.remove()
+        n.remove()
+
     pts = PointsTool(ax=f._ax)
-    pts.points.on_create = make_new_node
+    pts.points.on_create = make_node
     pts.points.on_vertex_move = update_node
+    pts.points.on_remove = remove_node
     f.toolbar['profile'] = pts
     return Box([sl, f, prof])

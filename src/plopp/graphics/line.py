@@ -203,3 +203,9 @@ class Line:
             ymax = ymax + deltay
 
         return xmin, xmax, ymin, ymax
+
+    def remove(self):
+        self._line.remove()
+        self._mask.remove()
+        if self._error is not None:
+            self._error.remove()
