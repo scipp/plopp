@@ -23,7 +23,7 @@ entrypoints==0.4
     # via jupyter-client
 executing==1.0.0
     # via stack-data
-fonttools==4.37.2
+fonttools==4.37.3
     # via matplotlib
 graphlib-backport==1.0.3
     # via scipp
@@ -100,7 +100,7 @@ pythreejs==2.4.1
     # via -r requirements/base.in
 pyyaml==6.0
     # via confuse
-pyzmq==24.0.0
+pyzmq==24.0.1
     # via
     #   ipykernel
     #   jupyter-client

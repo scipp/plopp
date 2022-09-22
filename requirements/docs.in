@@ -1,6 +1,7 @@
 -r base.in
 ipympl
 ipywidgets
+mpltoolbox
 nbsphinx
 requests
 sphinx
