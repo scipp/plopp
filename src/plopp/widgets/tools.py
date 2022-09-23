@@ -37,7 +37,7 @@ class ToggleTool:
 
     def __call__(self, *args, **kwargs):
         self._toggle()
-        self._callback(self.value)
+        self._callback()
 
     @property
     def value(self):
@@ -66,8 +66,8 @@ class PointsTool(ToggleTool):
                          icon='crosshairs',
                          **kwargs)
 
-    def start_stop(self, value):
-        if value:
+    def start_stop(self):
+        if self.value:
             self.points.start()
         else:
             self.points.stop()

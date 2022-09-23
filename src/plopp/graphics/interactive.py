@@ -81,12 +81,12 @@ class InteractiveFig(Figure, VBox):
         self.crop(**self._crop)
         self.draw()
 
-    def pan(self, *_):
+    def pan(self):
         if self._fig.canvas.toolbar.mode == 'zoom rect':
             self.toolbar.zoom()
         self._fig.canvas.toolbar.pan()
 
-    def zoom(self, *_):
+    def zoom(self):
         if self._fig.canvas.toolbar.mode == 'pan/zoom':
             self.toolbar.pan()
         self._fig.canvas.toolbar.zoom()
@@ -94,10 +94,10 @@ class InteractiveFig(Figure, VBox):
     def save(self):
         self._fig.canvas.toolbar.save_figure()
 
-    def logx(self, *_):
+    def logx(self):
         super().logx()
         self.toolbar.logx.value = self._ax.get_xscale() == 'log'
 
-    def logy(self, *_):
+    def logy(self):
         super().logy()
         self.toolbar.logy.value = self._ax.get_yscale() == 'log'
