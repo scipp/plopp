@@ -9,7 +9,7 @@ from ..widgets import PointsTool
 
 import scipp as sc
 from numpy import ndarray
-from typing import Union, Dict, List, Literal
+from typing import Union, Dict, Literal
 
 
 class InspectorEventHandler:
