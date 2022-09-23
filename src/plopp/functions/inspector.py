@@ -10,15 +10,48 @@ from ..widgets import PointsTool
 from scipp import Variable, scalar
 from scipp.typing import VariableLike
 from numpy import ndarray
-from typing import Union, Dict
+from typing import Union, Dict, List
 
 
 def inspector(obj: Union[VariableLike, ndarray],
-              dim: str = None,
+              keep: List[str] = None,
               *,
               crop: Dict[str, Dict[str, Variable]] = None,
               **kwargs):
     """
+    Plot a three-dimensional object by slicing one of the dimensions.
+    This will produce a two-dimensional image figure, with a slider below.
+    In addition, a 'inspection' tool is available in the toolbar which allows to place
+    markers on the image which perform slicing at that position along the third
+    dimension and displays the resulting one-dimensional slice on the right hand side
+    figure.
+
+    Controls:
+    - Left-click to make new point
+    - Left-click and hold on point to move point
+    - Middle-click to delete point
+
+    Parameters
+    ----------
+    obj:
+        The object to be plotted.
+    keep:
+        The dimensions to be kept, all remaining dimensions will be sliced. This should
+        be a list of dims. If no dims are provided, the last dim will be kept in the
+        case of a 2-dimensional input, while the last two dims will be kept in the case
+        of higher dimensional inputs.
+    crop:
+        Set the axis limits. Limits should be given as a dict with one entry per
+        dimension to be cropped. Each entry should be a nested dict containing scalar
+        values for `'min'` and/or `'max'`. Example:
+        `da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})`
+    **kwargs:
+        See :py:func:`plopp.plot` for the full list of figure customization arguments.
+
+    Returns
+    -------
+    :
+        A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
     require_interactive_backend('inspector')
 
@@ -27,18 +60,18 @@ def inspector(obj: Union[VariableLike, ndarray],
 
     a = input_node(da)
 
-    if dim is None:
-        dim = da.dims[-1]
+    if keep is None:
+        keep = da.dims[-(2 if da.ndim > 2 else 1):]
 
     # Convert dimension coords to bin edges
-    for d in (set(da.dims) - set([dim])):
+    for d in keep:
         da.coords[d] = coord_as_bin_edges(da, d)
 
-    sl = SliceWidget(da, dims=[dim])
+    sl = SliceWidget(da, dims=list(set(da.dims) - set(keep)))
     w = widget_node(sl)
 
     slice_node = slice_dims(a, w)
-    f2d = figure(slice_node)
+    f2d = figure(slice_node, **{**{'crop': crop}, **kwargs})
     xdim = f2d._dims['x']['dim']
     ydim = f2d._dims['y']['dim']
 

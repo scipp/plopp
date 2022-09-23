@@ -60,7 +60,7 @@ class PointsTool(ToggleTool):
 
     def __init__(self, value=False, ax=None, **kwargs):
         from mpltoolbox import Points
-        self.points = Points(ax=ax, autostart=False)
+        self.points = Points(ax=ax, autostart=False, mec='w')
         super().__init__(callback=self.start_stop,
                          value=value,
                          icon='crosshairs',
