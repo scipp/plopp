@@ -12,6 +12,53 @@ from numpy import ndarray
 from typing import Union, Dict, List, Literal
 
 
+class InspectorEventHandler:
+
+    def __init__(self, data_array, root_node, fig1d, fig2d):
+        self._data_array = data_array
+        self._root_node = root_node
+        self._fig1d = fig1d
+        self._event_nodes = {}
+        self._xdim = fig2d._dims['x']['dim']
+        self._ydim = fig2d._dims['y']['dim']
+
+    def make_node(self, change):
+        from plopp.widgets import slice_dims
+        event = change['event']
+        event_node = Node(
+            func=lambda: {
+                self._xdim:
+                sc.scalar(event.xdata, unit=self._data_array.meta[self._xdim].unit),
+                self._ydim:
+                sc.scalar(event.ydata, unit=self._data_array.meta[self._ydim].unit)
+            })
+        self._event_nodes[event_node.id] = event_node
+        change['artist'].nodeid = event_node.id
+        inspect_node = slice_dims(self._root_node, event_node)
+        self._fig1d.graph_nodes[inspect_node.id] = inspect_node
+        inspect_node.add_view(self._fig1d)
+        self._fig1d.render()
+
+    def update_node(self, change):
+        event = change['event']
+        n = self._event_nodes[change['artist'].nodeid]
+        n.func = lambda: {
+            self._xdim: sc.scalar(event.xdata,
+                                  unit=self._data_array.meta[self._xdim].unit),
+            self._ydim: sc.scalar(event.ydata,
+                                  unit=self._data_array.meta[self._ydim].unit)
+        }
+        n.notify_children(change)
+
+    def remove_node(self, change):
+        n = self._event_nodes[change['artist'].nodeid]
+        pnode = n.children[0]
+        self._fig1d._children[pnode.id].remove()
+        self._fig1d.draw()
+        pnode.remove()
+        n.remove()
+
+
 def inspector(obj: Union[sc.typing.VariableLike, ndarray],
               dim: str = None,
               *,
@@ -62,9 +109,7 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
                          f'three-dimensional data, found {obj.ndim} dims.')
     require_interactive_backend('inspector')
 
-    from plopp.widgets import SliceWidget, slice_dims, Box
     da = preprocess(obj, crop=crop, ignore_size=True)
-
     a = input_node(da)
     if dim is None:
         dim = da.dims[-1]
@@ -75,46 +120,12 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
 
     op_node = node(getattr(sc, operation), dim=dim)(a)
     f2d = figure(op_node, **{**{'crop': crop}, **kwargs})
-    xdim = f2d._dims['x']['dim']
-    ydim = f2d._dims['y']['dim']
-
     f1d = figure()
-    event_nodes = {}
-
-    def make_node(change):
-        event = change['event']
-        event_node = Node(
-            func=lambda: {
-                xdim: sc.scalar(event.xdata, unit=da.meta[xdim].unit),
-                ydim: sc.scalar(event.ydata, unit=da.meta[ydim].unit)
-            })
-        event_nodes[event_node.id] = event_node
-        change['artist'].nodeid = event_node.id
-        inspect_node = slice_dims(a, event_node)
-        f1d.graph_nodes[inspect_node.id] = inspect_node
-        inspect_node.add_view(f1d)
-        f1d.render()
-
-    def update_node(change):
-        event = change['event']
-        n = event_nodes[change['artist'].nodeid]
-        n.func = lambda: {
-            xdim: sc.scalar(event.xdata, unit=da.meta[xdim].unit),
-            ydim: sc.scalar(event.ydata, unit=da.meta[ydim].unit)
-        }
-        n.notify_children(change)
-
-    def remove_node(change):
-        n = event_nodes[change['artist'].nodeid]
-        pnode = n.children[0]
-        f1d._children[pnode.id].remove()
-        f1d.draw()
-        pnode.remove()
-        n.remove()
-
+    ev_handler = InspectorEventHandler(data_array=da, root_node=a, fig1d=f1d, fig2d=f2d)
     pts = PointsTool(ax=f2d._ax, tooltip='Add inspector points')
-    pts.points.on_create = make_node
-    pts.points.on_vertex_move = update_node
-    pts.points.on_remove = remove_node
+    pts.points.on_create = ev_handler.make_node
+    pts.points.on_vertex_move = ev_handler.update_node
+    pts.points.on_remove = ev_handler.remove_node
     f2d.toolbar['inspect'] = pts
+    from plopp.widgets import Box
     return Box([[f2d, f1d]])
