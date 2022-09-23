@@ -20,6 +20,18 @@ class Node:
         for parent in chain(self.parents, self.kwparents.values()):
             parent.add_child(self)
 
+    def remove(self):
+        if self.children:
+            raise RuntimeError(
+                f"Cannot delete node because it has children {self.children}.")
+        for view in self.views:
+            del view.graph_nodes[self.id]
+        for parent in chain(self.parents, self.kwparents.values()):
+            parent.children.remove(self)
+        self.views.clear()
+        self.parents.clear()
+        self.kwparents.clear()
+
     def request_data(self):
         args = (parent.request_data() for parent in self.parents)
         kwargs = {key: parent.request_data() for key, parent in self.kwparents.items()}

@@ -5,4 +5,5 @@
 
 from .figure import figure
 from .plot import plot
+from .inspector import inspector
 from .slicer import slicer

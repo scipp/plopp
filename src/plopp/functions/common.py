@@ -15,6 +15,13 @@ def is_interactive_backend():
     return 'ipympl' in get_backend()
 
 
+def require_interactive_backend(func):
+    if not is_interactive_backend():
+        raise RuntimeError(f"The {func} can only be used with the interactive widget "
+                           "backend. Use `%matplotlib widget` at the start of your "
+                           "notebook.")
+
+
 def _to_data_array(obj):
     out = obj
     if isinstance(out, ndarray):

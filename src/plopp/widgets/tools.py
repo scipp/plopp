@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ipywidgets import Button, VBox
-from functools import partial
+from ipywidgets import Button
 from typing import Callable
 
 LAYOUT_STYLE = {"layout": {"width": "34px", "padding": "0px 0px 0px 0px"}}
@@ -57,26 +56,18 @@ class ToggleTool:
         self._update_color()
 
 
-TOOL_LIBRARY = {
-    'home': partial(ButtonTool, icon="home", tooltip="Autoscale view"),
-    'pan': partial(ToggleTool, icon="arrows", tooltip="Pan"),
-    'zoom': partial(ToggleTool, icon="search-plus", tooltip="Zoom"),
-    'logx': partial(ToggleTool, description="logx", tooltip="Toggle X axis scale"),
-    'logy': partial(ToggleTool, description="logy", tooltip="Toggle Y axis scale"),
-    'save': partial(ButtonTool, icon="save", tooltip="Save figure")
-}
+class PointsTool(ToggleTool):
 
+    def __init__(self, value=False, ax=None, **kwargs):
+        from mpltoolbox import Points
+        self.points = Points(ax=ax, autostart=False, mec='w')
+        super().__init__(callback=self.start_stop,
+                         value=value,
+                         icon='crosshairs',
+                         **kwargs)
 
-class Toolbar(VBox):
-    """
-    Custom toolbar with additional buttons for controlling log scales and
-    normalization, and with back/forward buttons removed.
-    """
-
-    def __init__(self, tools=None):
-        self._widgets = {}
-        for key, callback in tools.items():
-            tool = TOOL_LIBRARY[key](callback=callback)
-            setattr(self, key, tool)
-            self._widgets[key] = tool.widget
-        super().__init__(tuple(self._widgets.values()))
+    def start_stop(self):
+        if self.value:
+            self.points.start()
+        else:
+            self.points.stop()

@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .fig import Figure
-from .toolbar import Toolbar
+from ..widgets import Toolbar
 
 from ipywidgets import VBox, HBox
 

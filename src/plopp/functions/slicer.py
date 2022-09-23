@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .common import is_interactive_backend, preprocess
+from .common import require_interactive_backend, preprocess
 from .figure import figure
 from ..core import input_node, widget_node
 
@@ -42,10 +42,8 @@ def slicer(obj: Union[VariableLike, ndarray],
     :
         A :class:`Box` which will contain a :class:`Figure` and slider widgets.
     """
-    if not is_interactive_backend():
-        raise RuntimeError("The slicer can only be used with the interactive widget "
-                           "backend. Use `%matplotlib widget` at the start of your "
-                           "notebook.")
+    require_interactive_backend('slicer')
+
     from plopp.widgets import SliceWidget, slice_dims, Box
     da = preprocess(obj, crop=crop, ignore_size=True)
     a = input_node(da)
