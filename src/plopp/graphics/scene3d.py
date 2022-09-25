@@ -20,12 +20,13 @@ from ipywidgets import VBox, HBox
 
 class Scene3d(View, VBox):
 
-    def __init__(self, *nodes, dim='position', figsize=(700, 500), **kwargs):
+    def __init__(self, *nodes, figsize=(700, 500), **kwargs):
 
         # super().__init__(*nodes)
         View.__init__(self, *nodes)
 
-        self._dim = dim
+        # self._dim = dim
+        self._kwargs = kwargs
         self._children = {}
         self.outline = None
         self.axticks = None
@@ -97,29 +98,29 @@ class Scene3d(View, VBox):
         """
         if key not in self._children:
             # self._new_artist = True
-            self._children[key] = PointCloud(data=new_values, dim=self._dim)
+            self._children[key] = PointCloud(data=new_values, **self._kwargs)
             limits = self._children[key].get_limits()
-            center = sc.concat(limits, dim='x').fold('x', sizes={
-                'x': 3,
-                'y': 2
-            }).mean('y')
-            outline = self._make_outline(limits=limits, center=center)
+            # center = sc.concat(limits, dim='x').fold('x', sizes={
+            #     'x': 3,
+            #     'y': 2
+            # }).mean('y')
+            self.outline = Outline(limits=limits)
             self.scene.add(self._children[key].points)
-            self.scene.add(outline)
+            self.scene.add(self.outline)
         else:
             self._children[key].update(new_values=new_values)
 
-    def _make_outline(self, limits, center):
-        """
-        Make a wireframe cube with tick labels
-        """
-        box_geometry = p3.BoxBufferGeometry(width=(limits[1] - limits[0]).value,
-                                            height=(limits[3] - limits[2]).value,
-                                            depth=(limits[5] - limits[4]).value)
-        edges = p3.EdgesGeometry(box_geometry)
-        return p3.LineSegments(geometry=edges,
-                               material=p3.LineBasicMaterial(color='#000000'),
-                               position=center.values.tolist())
+    # def _make_outline(self, limits, center):
+    #     """
+    #     Make a wireframe cube with tick labels
+    #     """
+    #     box_geometry = p3.BoxBufferGeometry(width=(limits[1] - limits[0]).value,
+    #                                         height=(limits[3] - limits[2]).value,
+    #                                         depth=(limits[5] - limits[4]).value)
+    #     edges = p3.EdgesGeometry(box_geometry)
+    #     return p3.LineSegments(geometry=edges,
+    #                            material=p3.LineBasicMaterial(color='#000000'),
+    #                            position=center.values.tolist())
 
     def render(self):
         for node in self.graph_nodes.values():
