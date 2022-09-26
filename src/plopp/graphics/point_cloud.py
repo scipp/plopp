@@ -3,10 +3,15 @@
 
 from ..core.limits import find_limits, fix_empty_range
 from .color_mapper import ColorMapper
+from .io import fig_to_bytes
 
 import numpy as np
 import scipp as sc
 from matplotlib import cm
+import matplotlib.pyplot as plt
+from matplotlib.colorbar import ColorbarBase
+import io
+from PIL import Image
 
 
 class PointCloud:
@@ -25,6 +30,7 @@ class PointCloud:
         Make a point cloud using pythreejs
         """
         import pythreejs as p3
+        import ipywidgets as ipw
         self.color_mapper = ColorMapper(cmap=cmap,
                                         masks_cmap=masks_cmap,
                                         norm=norm,
@@ -52,7 +58,20 @@ class PointCloud:
 
         # self.scalar_map = cm.ScalarMappable(cmap='viridis')
         self._set_norm()
+
+        self.colorbar = ipw.Image()
+
         self.update(new_values=data)
+
+        # self.click_picker = p3.Picker(controlling=self.cbar, event='dblclick')
+
+        # When the point selected by the picker changes, trigger our function:
+        # self.click_picker.observe(self.toggle_norm, names=['point'])
+
+        # Update figure:
+        # renderer.controls = renderer.controls + [click_picker]
+        # self.cbar = p3.LineSegments(geometry=p3.PlaneGeometry(width=0.1, height=0.4),
+        #                             material=p3.MeshBasicMaterial(color='red')))
 
     def _set_points_colors(self):
         # colors = self.scalar_map.to_rgba(self._data.values)[..., :3]
@@ -72,9 +91,40 @@ class PointCloud:
         #     self.point_clouds["cut"].geometry.attributes["color"].array = colors[
         #         self.cut_surface_indices]
 
+    def _update_colorbar(self):
+        height_inches = 6
+        cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=96)
+        cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 0.94])
+        _ = ColorbarBase(cbar_ax,
+                         cmap=self.color_mapper.cmap,
+                         norm=self.color_mapper.norm_func)
+        # if not isinstance(self.scalar_map.norm, LogNorm):
+        #     _.formatter.set_useOffset(False)
+        cbar_ax.set_ylabel(self._data.unit)
+        # TODO If we set this position it is clipped somewhere. For now we
+        # leave the default, which places unit to the right of the colorbar.
+        # cbar_ax.yaxis.set_label_coords(-0.9, 0.5)
+        # buf = io.BytesIO()
+        # cbar_fig.savefig(buf, format='png')
+        # plt.close(cbar_fig)
+        # cbar_image = fig_to_pngbytes(cbar_fig)
+
+        self.colorbar.value = fig_to_bytes(cbar_fig)
+        plt.close(cbar_fig)
+        # image = Image.open(buf)
+        # image
+
+        # self.cbar.material.map = p3.DataTexture(
+        #     data=np.array(image, dtype='float32')[..., :3] / 255.0,
+        #     format="RGBFormat",
+        #     type="FloatType",
+        # )
+        # return np.flipud(np.array(image, dtype='float32')[..., :3] / 255.0)
+
     def update(self, new_values):
         self._data = new_values
         self.color_mapper.rescale(data=new_values.data)
+        self._update_colorbar()
         self._set_points_colors()
 
     def _set_norm(self):
@@ -84,6 +134,7 @@ class PointCloud:
         self.color_mapper.toggle_norm()
         self._set_norm()
         self._set_points_colors()
+        self._update_colorbar()
 
     def get_limits(self):
         coord = self._data.meta[self._dim]

@@ -21,7 +21,7 @@ from ipywidgets import VBox, HBox
 
 class Scene3d(View, VBox):
 
-    def __init__(self, *nodes, figsize=(700, 500), title=None, **kwargs):
+    def __init__(self, *nodes, figsize=(800, 500), title=None, **kwargs):
 
         import pythreejs as p3
 
@@ -101,16 +101,25 @@ class Scene3d(View, VBox):
         """
         if key not in self._children:
             # self._new_artist = True
-            print(self._kwargs)
-            self._children[key] = PointCloud(data=new_values, **self._kwargs)
+            # print(self._kwargs)
+            pts = PointCloud(data=new_values, **self._kwargs)
+            self._children[key] = pts
             limits = self._children[key].get_limits()
             # center = sc.concat(limits, dim='x').fold('x', sizes={
             #     'x': 3,
             #     'y': 2
             # }).mean('y')
             self.outline = Outline(limits=limits)
-            self.scene.add(self._children[key].points)
+            self.scene.add(pts.points)
             self.scene.add(self.outline.all)
+            self.right_bar.children = list(self.right_bar.children) + [pts.colorbar]
+
+            # self.camera.add(self._children[key].cbar)
+            # self.camera.near = 0.01
+            # self._children[key].cbar.position = [0.6, 0, -1]
+            # self.renderer.controls = self.renderer.controls + [
+            #     self._children[key].click_picker
+            # ]
         else:
             self._children[key].update(new_values=new_values)
 
