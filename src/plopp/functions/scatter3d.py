@@ -12,7 +12,6 @@ from typing import Union, Dict, Literal
 
 def scatter3d(obj: Union[VariableLike, ndarray],
               dim: str = 'position',
-              cbar: bool = True,
               norm: Literal['linear', 'log'] = 'linear',
               title: str = None,
               vmin: Variable = None,
@@ -24,7 +23,6 @@ def scatter3d(obj: Union[VariableLike, ndarray],
     from ..graphics import Scene3d
     return Scene3d(input_node(preprocess(obj, ignore_size=True)),
                    dim=dim,
-                   cbar=cbar,
                    norm=norm,
                    title=title,
                    vmin=vmin,

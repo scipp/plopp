@@ -12,7 +12,7 @@ from copy import copy
 import numpy as np
 
 
-def _get_cmap(name):
+def _get_cmap(name, nan_color=None):
 
     try:
         cmap = copy(cm.get_cmap(name))
@@ -20,6 +20,8 @@ def _get_cmap(name):
         cmap = LinearSegmentedColormap.from_list("tmp", [name, name])
     # cmap.set_under(config['plot']['params']["under_color"])
     # cmap.set_over(config['plot']['params']["over_color"])
+    if nan_color is not None:
+        cmap.set_bad(color=nan_color)
     return cmap
 
 
@@ -30,9 +32,10 @@ class ColorMapper:
                  masks_cmap: str = 'gray',
                  norm: str = "linear",
                  vmin=None,
-                 vmax=None):
-        self.cmap = _get_cmap(cmap)
-        self.mask_cmap = _get_cmap(masks_cmap)
+                 vmax=None,
+                 nan_color=None):
+        self.cmap = _get_cmap(cmap, nan_color=nan_color)
+        self.mask_cmap = _get_cmap(masks_cmap, nan_color=nan_color)
         self.user_vmin = vmin
         self.user_vmax = vmax
         self.vmin = np.inf

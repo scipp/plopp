@@ -2,8 +2,10 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
+from ..core.utils import name_with_unit
 from .color_mapper import ColorMapper
 from .io import fig_to_bytes
+from ..widgets import ToggleTool
 
 import numpy as np
 import scipp as sc
@@ -18,14 +20,14 @@ class PointCloud:
 
     def __init__(self,
                  data,
+                 cbar,
                  dim='position',
                  pixel_size=1,
                  cmap: str = None,
                  masks_cmap: str = "gray",
                  norm: str = "linear",
                  vmin=None,
-                 vmax=None,
-                 cbar=None):
+                 vmax=None):
         """
         Make a point cloud using pythreejs
         """
@@ -35,7 +37,8 @@ class PointCloud:
                                         masks_cmap=masks_cmap,
                                         norm=norm,
                                         vmin=vmin,
-                                        vmax=vmax)
+                                        vmax=vmax,
+                                        nan_color="#f0f0f0")
         self._data = data
         self._dim = dim
         positions = self._data.meta[self._dim].values
@@ -59,9 +62,20 @@ class PointCloud:
         # self.scalar_map = cm.ScalarMappable(cmap='viridis')
         self._set_norm()
 
-        self.colorbar = ipw.Image()
+        self.colorbar = {
+            'image':
+            ipw.Image(),
+            'button':
+            ToggleTool(self.toggle_norm,
+                       value=norm == 'log',
+                       description='log',
+                       tooltip='Toggle data norm').widget
+        }
 
         self.update(new_values=data)
+        self._update_colorbar()
+
+        cbar.children = list(cbar.children) + list(self.colorbar.values())
 
         # self.click_picker = p3.Picker(controlling=self.cbar, event='dblclick')
 
@@ -100,7 +114,8 @@ class PointCloud:
                          norm=self.color_mapper.norm_func)
         # if not isinstance(self.scalar_map.norm, LogNorm):
         #     _.formatter.set_useOffset(False)
-        cbar_ax.set_ylabel(self._data.unit)
+        # cbar_ax.set_ylabel(self._data.unit)
+        cbar_ax.set_ylabel(name_with_unit(self._data.data, name=self._data.name))
         # TODO If we set this position it is clipped somewhere. For now we
         # leave the default, which places unit to the right of the colorbar.
         # cbar_ax.yaxis.set_label_coords(-0.9, 0.5)
@@ -109,7 +124,7 @@ class PointCloud:
         # plt.close(cbar_fig)
         # cbar_image = fig_to_pngbytes(cbar_fig)
 
-        self.colorbar.value = fig_to_bytes(cbar_fig)
+        self.colorbar['image'].value = fig_to_bytes(cbar_fig)
         plt.close(cbar_fig)
         # image = Image.open(buf)
         # image
@@ -123,14 +138,16 @@ class PointCloud:
 
     def update(self, new_values):
         self._data = new_values
+        old_bounds = [self.color_mapper.vmin, self.color_mapper.vmax]
         self.color_mapper.rescale(data=new_values.data)
-        self._update_colorbar()
+        if old_bounds != [self.color_mapper.vmin, self.color_mapper.vmax]:
+            self._update_colorbar()
         self._set_points_colors()
 
     def _set_norm(self):
         self.color_mapper.set_norm(data=self._data.data)
 
-    def toggle_norm(self, event):
+    def toggle_norm(self):
         self.color_mapper.toggle_norm()
         self._set_norm()
         self._set_points_colors()

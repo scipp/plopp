@@ -41,30 +41,42 @@ def _make_sprite(string, position, color="black", size=1.0):
 
 class Outline(p3.Group):
 
-    def __init__(self, limits=None, tick_size=None):
+    def __init__(self, limits, tick_size=None):
         """
         Make a point cloud using pythreejs
         """
-        self.box = None
-        self.ticks = None
-        self.labels = None
+        # self.box = None
+        # self.ticks = None
+        # self.labels = None
 
-        if limits is None:
-            limits = [sc.array(dims=[dim], values=[0, 1]) for dim in 'xyz']
+        # if lim<<<<mits = [sc.array(dims=[dim], values=[0, 1]) for dim in 'xyz']
 
-        self.tick_size = tick_size
-        if self.tick_size is None:
-            self.tick_size = 0.05 * np.mean(
-                [_get_delta(limits, axis=i) for i in range(3)])
+        # self.tick_size = tick_size
+
+        center = [var.mean().value for var in limits]
+        if tick_size is None:
+            tick_size = 0.05 * np.mean([_get_delta(limits, axis=i) for i in range(3)])
+
+        self.box = p3.LineSegments(geometry=_make_geometry(limits),
+                                   material=p3.LineBasicMaterial(color='#000000'),
+                                   position=center)
+
+        self.ticks = self._make_ticks(limits=limits, center=center, tick_size=tick_size)
+        self.labels = self._make_labels(limits=limits,
+                                        center=center,
+                                        tick_size=tick_size)
+        # print(ticks, labels)
+        # self.all.add(ticks)
+        # self.all.add(box)
 
         super().__init__()
 
-        self.update(limits=limits)
-        # # self.aadd = p3.Group()
-        # for obj in (self.box, self.ticks, self.labels):
-        #     self.add(obj)
+        # self.all = p3.Group()
+        # self.update(limits=limits)
+        for obj in (self.box, self.ticks, self.labels):
+            self.add(obj)
 
-    def _make_ticks(self, limits, center):
+    def _make_ticks(self, limits, center, tick_size):
         """
         Create ticklabels on outline edges
         """
@@ -79,10 +91,10 @@ class Outline(p3.Group):
                     ticks_group.add(
                         _make_sprite(string=value_to_string(tick, precision=1),
                                      position=tick_pos.tolist(),
-                                     size=self.tick_size))
+                                     size=tick_size))
         return ticks_group
 
-    def _make_labels(self, limits, center):
+    def _make_labels(self, limits, center, tick_size):
         """
         Create ticklabels on outline edges
         """
@@ -97,23 +109,6 @@ class Outline(p3.Group):
                              position=(np.roll([1, 0, 0], axis) * center[axis] +
                                        (1.0 + delta) * _get_offsets(limits, axis, 0) -
                                        delta * _get_offsets(limits, axis, 1)).tolist(),
-                             size=self.tick_size * 0.3 * len(axis_label)))
+                             size=tick_size * 0.3 * len(axis_label)))
 
         return labels_group
-
-    def update(self, limits):
-        center = [var.mean().value for var in limits]
-        self.add(
-            p3.LineSegments(geometry=_make_geometry(limits),
-                            material=p3.LineBasicMaterial(color='#000000'),
-                            position=center))
-        self.add(self._make_ticks(limits=limits, center=center))
-        self.add(self._make_labels(limits=limits, center=center))
-
-    @property
-    def visible(self):
-        return self.all.visible
-
-    @visible.setter
-    def visible(self, val):
-        self.all.visible = val
