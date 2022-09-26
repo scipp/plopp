@@ -2,9 +2,10 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range, delta
+from ..core.utils import merge_masks
 
 import scipp as sc
-from functools import reduce
+# from functools import reduce
 import numpy as np
 from numpy.typing import ArrayLike
 from typing import Tuple
@@ -139,7 +140,7 @@ class Line:
         if self._data.variances is not None:
             data["variances"]["e"] = sc.stddevs(self._data.data).values
         if len(self._data.masks):
-            one_mask = reduce(lambda a, b: a | b, self._data.masks.values()).values
+            one_mask = merge_masks(self._data.masks).values
             data["mask"] = {
                 "y": np.where(one_mask, data["values"]["y"], None).astype(np.float32)
             }

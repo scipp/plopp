@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
+from ..core.utils import merge_masks
 
 from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
 from matplotlib.pyplot import colorbar
@@ -25,7 +26,6 @@ def _get_cmap(name):
 class ColorMapper:
 
     def __init__(self,
-                 data: sc.DataArray,
                  cmap: str = 'viridis',
                  masks_cmap: str = 'gray',
                  norm: str = "linear",
@@ -59,14 +59,14 @@ class ColorMapper:
         self.norm_func.vmin = self.vmin
         self.norm_func.vmax = self.vmax
 
-    def rgba(self, data: sc.Variable):
+    def rgba(self, data: sc.DataArray):
         """
-        Return rgba values given a variable.
+        Return rgba values given a data array.
         """
         out = self.cmap(self.norm_func(data.values))
         if data.masks:
-            msk = next(iter(data.masks.values())).values
-            out[msk] = self.mask_cmap(self.norm_func(data.values[msk]))
+            one_mask = merge_masks(data.masks).values
+            out[one_mask] = self.mask_cmap(self.norm_func(data.values[one_mask]))
         return out
 
     def set_norm(self, data):

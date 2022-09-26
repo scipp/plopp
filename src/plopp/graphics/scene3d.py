@@ -14,14 +14,16 @@ from typing import Any, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 from typing import Any, Tuple
-import pythreejs as p3
+# import pythreejs as p3
 
 from ipywidgets import VBox, HBox
 
 
 class Scene3d(View, VBox):
 
-    def __init__(self, *nodes, figsize=(700, 500), **kwargs):
+    def __init__(self, *nodes, figsize=(700, 500), title=None, **kwargs):
+
+        import pythreejs as p3
 
         # super().__init__(*nodes)
         View.__init__(self, *nodes)
@@ -99,6 +101,7 @@ class Scene3d(View, VBox):
         """
         if key not in self._children:
             # self._new_artist = True
+            print(self._kwargs)
             self._children[key] = PointCloud(data=new_values, **self._kwargs)
             limits = self._children[key].get_limits()
             # center = sc.concat(limits, dim='x').fold('x', sizes={

@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import coord_as_bin_edges, name_with_unit, repeat
+from ..core.utils import coord_as_bin_edges, name_with_unit, repeat, merge_masks
 from .color_mapper import ColorMapper
 
 from functools import reduce
@@ -77,8 +77,7 @@ class Mesh:
                  cbar=True,
                  **kwargs):
 
-        self.color_mapper = ColorMapper(data=data,
-                                        cmap=cmap,
+        self.color_mapper = ColorMapper(cmap=cmap,
                                         masks_cmap=masks_cmap,
                                         norm=norm,
                                         vmin=vmin,
@@ -147,7 +146,7 @@ class Mesh:
             data=self._data.data, coords=self._bin_edge_coords))
         if self._data.masks:
             to_mapper.masks['one_mask'] = _maybe_repeat_values(
-                data=sc.broadcast(reduce(lambda a, b: a | b, self._data.masks.values()),
+                data=sc.broadcast(merge_masks(self._data.masks),
                                   dims=self._data.dims,
                                   shape=self._data.shape),
                 coords=self._bin_edge_coords)

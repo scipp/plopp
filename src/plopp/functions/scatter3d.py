@@ -6,7 +6,6 @@ from .common import preprocess
 
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
-import inspect
 from numpy import ndarray
 from typing import Union, Dict, Literal
 
@@ -23,10 +22,12 @@ def scatter3d(obj: Union[VariableLike, ndarray],
     """
     """
     from ..graphics import Scene3d
-    _, _, _, listed_args = inspect.getargvalues(inspect.currentframe())
-    all_args = {
-        **{k: v
-           for k, v in listed_args.items() if k not in ('obj', 'dim', 'kwargs')},
-        **kwargs
-    }
-    return Scene3d(input_node(preprocess(obj, ignore_size=True)), dim=dim, **all_args)
+    return Scene3d(input_node(preprocess(obj, ignore_size=True)),
+                   dim=dim,
+                   cbar=cbar,
+                   norm=norm,
+                   title=title,
+                   vmin=vmin,
+                   vmax=vmax,
+                   cmap=cmap,
+                   **kwargs)

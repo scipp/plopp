@@ -2,8 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
+from .color_mapper import ColorMapper
 
-import pythreejs as p3
 import numpy as np
 import scipp as sc
 from matplotlib import cm
@@ -11,10 +11,25 @@ from matplotlib import cm
 
 class PointCloud:
 
-    def __init__(self, data, dim='position', pixel_size=1, **kwargs):
+    def __init__(self,
+                 data,
+                 dim='position',
+                 pixel_size=1,
+                 cmap: str = None,
+                 masks_cmap: str = "gray",
+                 norm: str = "linear",
+                 vmin=None,
+                 vmax=None,
+                 cbar=None):
         """
         Make a point cloud using pythreejs
         """
+        import pythreejs as p3
+        self.color_mapper = ColorMapper(cmap=cmap,
+                                        masks_cmap=masks_cmap,
+                                        norm=norm,
+                                        vmin=vmin,
+                                        vmax=vmax)
         self._data = data
         self._dim = dim
         positions = self._data.meta[self._dim].values
@@ -35,11 +50,13 @@ class PointCloud:
                                           transparent=True)
         self.points = p3.Points(geometry=self.geometry, material=self.material)
 
-        self.scalar_map = cm.ScalarMappable(cmap='viridis')
+        # self.scalar_map = cm.ScalarMappable(cmap='viridis')
+        self._set_norm()
         self.update(new_values=data)
 
-    def _update_colors(self):
-        colors = self.scalar_map.to_rgba(self._data.values)[..., :3]
+    def _set_points_colors(self):
+        # colors = self.scalar_map.to_rgba(self._data.values)[..., :3]
+        colors = self.color_mapper.rgba(self._data)[..., :3]
         # self._unit = array.unit
 
         # if 'mask' in new_values:
@@ -49,15 +66,24 @@ class PointCloud:
         #         array.values[masks_inds])[..., :3]
         #     colors[masks_inds] = masks_colors
 
-        colors = colors.astype('float32')
-        self.geometry.attributes["color"].array = colors
+        # colors = colors.astype('float32')
+        self.geometry.attributes["color"].array = colors.astype('float32')
         # if "cut" in self.point_clouds:
         #     self.point_clouds["cut"].geometry.attributes["color"].array = colors[
         #         self.cut_surface_indices]
 
     def update(self, new_values):
         self._data = new_values
-        self._update_colors()
+        self.color_mapper.rescale(data=new_values.data)
+        self._set_points_colors()
+
+    def _set_norm(self):
+        self.color_mapper.set_norm(data=self._data.data)
+
+    def toggle_norm(self, event):
+        self.color_mapper.toggle_norm()
+        self._set_norm()
+        self._set_points_colors()
 
     def get_limits(self):
         coord = self._data.meta[self._dim]
