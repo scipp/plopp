@@ -5,10 +5,7 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import coord_as_bin_edges, name_with_unit, repeat, merge_masks
 from .color_mapper import ColorMapper
 
-from functools import reduce
-from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
 from matplotlib.pyplot import colorbar
-from matplotlib import cm
 import numpy as np
 import scipp as sc
 from typing import Any

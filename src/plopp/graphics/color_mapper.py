@@ -5,7 +5,6 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
 
 from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
-from matplotlib.pyplot import colorbar
 from matplotlib import cm
 import scipp as sc
 from copy import copy

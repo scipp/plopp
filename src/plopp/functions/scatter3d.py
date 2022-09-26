@@ -4,10 +4,10 @@
 from ..core import input_node
 from .common import preprocess
 
-from scipp import Variable, Dataset
+from scipp import Variable
 from scipp.typing import VariableLike
 from numpy import ndarray
-from typing import Union, Dict, Literal
+from typing import Union, Literal
 
 
 def scatter3d(obj: Union[VariableLike, ndarray],

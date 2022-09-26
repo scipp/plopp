@@ -9,11 +9,8 @@ from ..widgets import ToggleTool
 
 import numpy as np
 import scipp as sc
-from matplotlib import cm
 import matplotlib.pyplot as plt
 from matplotlib.colorbar import ColorbarBase
-import io
-from PIL import Image
 
 
 class PointCloud:
@@ -59,9 +56,7 @@ class PointCloud:
                                           transparent=True)
         self.points = p3.Points(geometry=self.geometry, material=self.material)
 
-        # self.scalar_map = cm.ScalarMappable(cmap='viridis')
         self._set_norm()
-
         self.colorbar = {
             'image':
             ipw.Image(),
@@ -71,39 +66,13 @@ class PointCloud:
                        description='log',
                        tooltip='Toggle data norm').widget
         }
-
         self.update(new_values=data)
         self._update_colorbar()
-
         cbar.children = list(cbar.children) + list(self.colorbar.values())
 
-        # self.click_picker = p3.Picker(controlling=self.cbar, event='dblclick')
-
-        # When the point selected by the picker changes, trigger our function:
-        # self.click_picker.observe(self.toggle_norm, names=['point'])
-
-        # Update figure:
-        # renderer.controls = renderer.controls + [click_picker]
-        # self.cbar = p3.LineSegments(geometry=p3.PlaneGeometry(width=0.1, height=0.4),
-        #                             material=p3.MeshBasicMaterial(color='red')))
-
     def _set_points_colors(self):
-        # colors = self.scalar_map.to_rgba(self._data.values)[..., :3]
         colors = self.color_mapper.rgba(self._data)[..., :3]
-        # self._unit = array.unit
-
-        # if 'mask' in new_values:
-        #     # We change the colors of the points in-place where masks are True
-        #     masks_inds = np.where(new_values['mask'].values)
-        #     masks_colors = self.masks_scalar_map.to_rgba(
-        #         array.values[masks_inds])[..., :3]
-        #     colors[masks_inds] = masks_colors
-
-        # colors = colors.astype('float32')
         self.geometry.attributes["color"].array = colors.astype('float32')
-        # if "cut" in self.point_clouds:
-        #     self.point_clouds["cut"].geometry.attributes["color"].array = colors[
-        #         self.cut_surface_indices]
 
     def _update_colorbar(self):
         height_inches = 5
@@ -112,29 +81,9 @@ class PointCloud:
         _ = ColorbarBase(cbar_ax,
                          cmap=self.color_mapper.cmap,
                          norm=self.color_mapper.norm_func)
-        # if not isinstance(self.scalar_map.norm, LogNorm):
-        #     _.formatter.set_useOffset(False)
-        # cbar_ax.set_ylabel(self._data.unit)
         cbar_ax.set_ylabel(name_with_unit(self._data.data, name=self._data.name))
-        # TODO If we set this position it is clipped somewhere. For now we
-        # leave the default, which places unit to the right of the colorbar.
-        # cbar_ax.yaxis.set_label_coords(-0.9, 0.5)
-        # buf = io.BytesIO()
-        # cbar_fig.savefig(buf, format='png')
-        # plt.close(cbar_fig)
-        # cbar_image = fig_to_pngbytes(cbar_fig)
-
         self.colorbar['image'].value = fig_to_bytes(cbar_fig)
         plt.close(cbar_fig)
-        # image = Image.open(buf)
-        # image
-
-        # self.cbar.material.map = p3.DataTexture(
-        #     data=np.array(image, dtype='float32')[..., :3] / 255.0,
-        #     format="RGBFormat",
-        #     type="FloatType",
-        # )
-        # return np.flipud(np.array(image, dtype='float32')[..., :3] / 255.0)
 
     def update(self, new_values):
         self._data = new_values

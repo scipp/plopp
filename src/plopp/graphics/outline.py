@@ -1,13 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import value_to_string
 
 import pythreejs as p3
 import numpy as np
 from matplotlib import ticker
-import scipp as sc
 
 
 def _get_delta(x, axis):
@@ -42,16 +40,6 @@ def _make_sprite(string, position, color="black", size=1.0):
 class Outline(p3.Group):
 
     def __init__(self, limits, tick_size=None):
-        """
-        Make a point cloud using pythreejs
-        """
-        # self.box = None
-        # self.ticks = None
-        # self.labels = None
-
-        # if lim<<<<mits = [sc.array(dims=[dim], values=[0, 1]) for dim in 'xyz']
-
-        # self.tick_size = tick_size
 
         center = [var.mean().value for var in limits]
         if tick_size is None:
@@ -65,14 +53,8 @@ class Outline(p3.Group):
         self.labels = self._make_labels(limits=limits,
                                         center=center,
                                         tick_size=tick_size)
-        # print(ticks, labels)
-        # self.all.add(ticks)
-        # self.all.add(box)
 
         super().__init__()
-
-        # self.all = p3.Group()
-        # self.update(limits=limits)
         for obj in (self.box, self.ticks, self.labels):
             self.add(obj)
 
@@ -99,7 +81,6 @@ class Outline(p3.Group):
         Create ticklabels on outline edges
         """
         labels_group = p3.Group()
-        # iden = np.identity(3, dtype=np.float32)
         for axis in range(3):
             axis_label = f'{limits[axis].dim} [{limits[axis].unit}]'
             # Offset labels 5% beyond axis ticks to reduce overlap
