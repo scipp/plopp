@@ -3,6 +3,7 @@
 
 from ..core.utils import number_to_variable, name_with_unit
 from ..core import View
+from ..widgets import Toolbar
 from .io import fig_to_bytes
 from .point_cloud import PointCloud
 from .outline import Outline
@@ -65,7 +66,9 @@ class Scene3d(View, VBox):
                                     width=width,
                                     height=height)
 
-        self.left_bar = VBox()
+        self.toolbar = Toolbar(tools={'home': self.home})
+
+        self.left_bar = VBox([self.toolbar])
         self.right_bar = VBox()
         self.bottom_bar = HBox()
         self.top_bar = HBox()
@@ -134,6 +137,8 @@ class Scene3d(View, VBox):
     #     return p3.LineSegments(geometry=edges,
     #                            material=p3.LineBasicMaterial(color='#000000'),
     #                            position=center.values.tolist())
+    def home(self):
+        return
 
     def render(self):
         for node in self.graph_nodes.values():

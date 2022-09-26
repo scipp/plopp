@@ -12,6 +12,7 @@ TOOL_LIBRARY = {
     'zoom': partial(ToggleTool, icon="search-plus", tooltip="Zoom"),
     'logx': partial(ToggleTool, description="logx", tooltip="Toggle X axis scale"),
     'logy': partial(ToggleTool, description="logy", tooltip="Toggle Y axis scale"),
+    'log': partial(ToggleTool, description="log", tooltip="Toggle data norm"),
     'save': partial(ButtonTool, icon="save", tooltip="Save figure")
 }
 

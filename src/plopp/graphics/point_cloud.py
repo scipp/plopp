@@ -92,7 +92,7 @@ class PointCloud:
         #         self.cut_surface_indices]
 
     def _update_colorbar(self):
-        height_inches = 6
+        height_inches = 5
         cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=96)
         cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 0.94])
         _ = ColorbarBase(cbar_ax,
