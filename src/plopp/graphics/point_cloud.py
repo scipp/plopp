@@ -5,12 +5,13 @@ from ..core.limits import find_limits, fix_empty_range
 
 import pythreejs as p3
 import numpy as np
+import scipp as sc
 from matplotlib import cm
 
 
 class PointCloud:
 
-    def __init__(self, data, dim='position', pixel_size=1):
+    def __init__(self, data, dim='position', pixel_size=1, **kwargs):
         """
         Make a point cloud using pythreejs
         """
@@ -63,4 +64,6 @@ class PointCloud:
         xmin, xmax = fix_empty_range(find_limits(coord.fields.x))
         ymin, ymax = fix_empty_range(find_limits(coord.fields.y))
         zmin, zmax = fix_empty_range(find_limits(coord.fields.z))
-        return xmin, xmax, ymin, ymax, zmin, zmax
+        return (sc.concat([xmin, xmax], dim=f'{self._dim}.x'),
+                sc.concat([ymin, ymax], dim=f'{self._dim}.y'),
+                sc.concat([zmin, zmax], dim=f'{self._dim}.z'))

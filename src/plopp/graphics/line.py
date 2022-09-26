@@ -3,7 +3,7 @@
 
 from ..core.limits import find_limits, fix_empty_range, delta
 
-from scipp import DataArray, stddevs
+import scipp as sc
 from functools import reduce
 import numpy as np
 from numpy.typing import ArrayLike
@@ -137,7 +137,7 @@ class Line:
         data["values"]["x"] = self._data.meta[self._dim].values
         data["values"]["y"] = self._data.values
         if self._data.variances is not None:
-            data["variances"]["e"] = stddevs(self._data.data).values
+            data["variances"]["e"] = sc.stddevs(self._data.data).values
         if len(self._data.masks):
             one_mask = reduce(lambda a, b: a | b, self._data.masks.values()).values
             data["mask"] = {
@@ -145,7 +145,7 @@ class Line:
             }
         return self._preprocess_hist(data)
 
-    def update(self, new_values: DataArray):
+    def update(self, new_values: sc.DataArray):
         """
         Update the x and y positions of the data points when a new data slice
         is received for display.
@@ -202,7 +202,7 @@ class Line:
             ymin = ymin - deltay
             ymax = ymax + deltay
 
-        return xmin, xmax, ymin, ymax
+        return (sc.concat([xmin, xmax], dim=self._dim), sc.concat([ymin, ymax], dim=''))
 
     def remove(self):
         self._line.remove()

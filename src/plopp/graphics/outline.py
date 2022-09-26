@@ -2,13 +2,14 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
+from ..core.utils import value_to_string
 
 import pythreejs as p3
 import numpy as np
-from matplotlib import cm
+from matplotlib import ticker
 
 
-def _make_axis_tick(self, string, position, color="black", size=1.0):
+def _make_sprite(string, position, color="black", size=1.0):
     """
     Make a text-based sprite for axis tick
     """
@@ -20,64 +21,79 @@ def _make_axis_tick(self, string, position, color="black", size=1.0):
     return p3.Sprite(material=sm, position=position, scale=[size, size, size])
 
 
+def _get_delta(x, axis):
+    return (x[axis][1] - x[axis][0]).value
+
+
+def _get_offsets(limits, axis, ind):
+    offsets = np.array([limits[i][ind].value for i in range(3)])
+    offsets[axis] = 0
+    return offsets
+
+
 class Outline:
 
-    def __init__(self, limits):
+    def __init__(self, limits, tick_size=None):
         """
         Make a point cloud using pythreejs
         """
-        center = sc.concat(limits, dim='x').fold('x', sizes={'x': 3, 'y': 2}).mean('y')
+        # center = sc.concat(limits, dim='x').fold('x', sizes={'x': 3, 'y': 2}).mean('y')
+        if tick_size is None:
+            tick_size = 0.05 * np.mean([_get_delta(limits, axis=i) for i in range(3)])
 
-        self._geometry = p3.BoxBufferGeometry(width=(limits[1] - limits[0]).value,
-                                              height=(limits[3] - limits[2]).value,
-                                              depth=(limits[5] - limits[4]).value)
+        center = [var.mean().value for var in limits]
+
+        self._geometry = p3.BoxBufferGeometry(width=_get_delta(limits, axis=0),
+                                              height=_get_delta(limits, axis=1),
+                                              depth=_get_delta(limits, axis=2))
         self._edges = p3.EdgesGeometry(self._geometry)
-        self.line = p3.LineSegments(geometry=self._edges,
-                                    material=p3.LineBasicMaterial(color='#000000'),
-                                    position=center.values.tolist())
-        self.ticks = self._generate_axis_ticks_and_labels(limits)
+        self.box = p3.LineSegments(geometry=self._edges,
+                                   material=p3.LineBasicMaterial(color='#000000'),
+                                   position=center)
+        self.ticks = self._make_ticks(limits=limits, center=center, tick_size=tick_size)
+        self.labels = self._make_labels(limits=limits,
+                                        center=center,
+                                        tick_size=tick_size)
+        self.all = p3.Group()
+        for obj in (self.box, self.ticks, self.labels):
+            self.all.add(obj)
 
-    def _generate_axis_ticks_and_labels(self, *, limits, box_size, components):
+    def _make_ticks(self, limits, center, tick_size):
         """
         Create ticklabels on outline edges
         """
-        # if self.tick_size is None:
-        tick_size = 0.05 * np.mean(box_size)
-        ticks_and_labels = p3.Group()
+        ticks_group = p3.Group()
         iden = np.identity(3, dtype=np.float32)
         ticker_ = ticker.MaxNLocator(5)
-        lims = {x: limits[x] for x in "xyz"}
-
-        def get_offsets(dim, ind):
-            if dim == 'x':
-                return np.array([0, limits['y'][ind], limits['z'][ind]])
-            if dim == 'y':
-                return np.array([limits['x'][ind], 0, limits['z'][ind]])
-            if dim == 'z':
-                return np.array([limits['x'][ind], limits['y'][ind], 0])
-
-        for axis, (x, dim) in enumerate(zip('xyz', components)):
-            ticks = ticker_.tick_values(lims[x][0], lims[x][1])
+        for axis in range(3):
+            ticks = ticker_.tick_values(limits[axis][0].value, limits[axis][1].value)
             for tick in ticks:
-                if lims[x][0] <= tick <= lims[x][1]:
-                    tick_pos = iden[axis] * tick + get_offsets(x, 0)
-                    ticks_and_labels.add(
-                        self._make_axis_tick(string=value_to_string(tick, precision=1),
-                                             position=tick_pos.tolist(),
-                                             size=self.tick_size))
-            coord = components[dim]
-            axis_label = f'{dim} [{coord.unit}]' if self.axlabels[
-                x] is None else self.axlabels[x]
+                if limits[axis][0].value <= tick <= limits[axis][1].value:
+                    tick_pos = iden[axis] * tick + _get_offsets(limits, axis, 0)
+                    ticks_group.add(
+                        _make_sprite(string=value_to_string(tick, precision=1),
+                                     position=tick_pos.tolist(),
+                                     size=tick_size))
+        return ticks_group
+
+    def _make_labels(self, limits, center, tick_size):
+        """
+        Create ticklabels on outline edges
+        """
+        labels_group = p3.Group()
+        # iden = np.identity(3, dtype=np.float32)
+        for axis in range(3):
+            axis_label = f'{limits[axis].dim} [{limits[axis].unit}]'
             # Offset labels 5% beyond axis ticks to reduce overlap
             delta = 0.05
-            ticks_and_labels.add(
-                self._make_axis_tick(string=axis_label,
-                                     position=(iden[axis] * 0.5 * np.sum(limits[x]) +
-                                               (1.0 + delta) * get_offsets(x, 0) -
-                                               delta * get_offsets(x, 1)).tolist(),
-                                     size=self.tick_size * 0.3 * len(axis_label)))
+            labels_group.add(
+                _make_sprite(string=axis_label,
+                             position=(np.roll([1, 0, 0], axis) * center[axis] +
+                                       (1.0 + delta) * _get_offsets(limits, axis, 0) -
+                                       delta * _get_offsets(limits, axis, 1)).tolist(),
+                             size=tick_size * 0.3 * len(axis_label)))
 
-        return ticks_and_labels
+        return labels_group
 
     def _update_colors(self):
         colors = self.scalar_map.to_rgba(self._data.values)[..., :3]

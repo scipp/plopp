@@ -10,7 +10,7 @@ from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
 from matplotlib.pyplot import colorbar
 from matplotlib import cm
 import numpy as np
-from scipp import broadcast, DataArray
+import scipp as sc
 from typing import Any
 
 
@@ -104,11 +104,11 @@ class Mesh:
         # Broadcast 1d coord to 2d and repeat along 1d dim
         # TODO: It may be more efficient here to first repeat and then broadcast, but
         # the current order is simpler in implementation.
-        broadcasted_coord = repeat(broadcast(xy[dim_1d[0]],
-                                             sizes={
-                                                 **xy[dim_2d[0]].sizes,
-                                                 **xy[dim_1d[0]].sizes
-                                             }).transpose(self._data.dims),
+        broadcasted_coord = repeat(sc.broadcast(xy[dim_1d[0]],
+                                                sizes={
+                                                    **xy[dim_2d[0]].sizes,
+                                                    **xy[dim_1d[0]].sizes
+                                                }).transpose(self._data.dims),
                                    dim=dim_1d[1],
                                    n=2)
 
@@ -177,13 +177,13 @@ class Mesh:
         rgba = self._cmap(self._norm_func(flat_values))
         if len(self._data.masks) > 0:
             one_mask = self._maybe_repeat_values(
-                broadcast(reduce(lambda a, b: a | b, self._data.masks.values()),
-                          dims=self._data.dims,
-                          shape=self._data.shape)).flatten()
+                sc.broadcast(reduce(lambda a, b: a | b, self._data.masks.values()),
+                             dims=self._data.dims,
+                             shape=self._data.shape)).flatten()
             rgba[one_mask] = self._mask_cmap(self._norm_func(flat_values[one_mask]))
         self._mesh.set_facecolors(rgba)
 
-    def update(self, new_values: DataArray):
+    def update(self, new_values: sc.DataArray):
         """
         Update image array with new values.
         """
@@ -214,4 +214,5 @@ class Mesh:
             find_limits(coord_as_bin_edges(self._data, self._dims['x']), scale=xscale))
         ymin, ymax = fix_empty_range(
             find_limits(coord_as_bin_edges(self._data, self._dims['y']), scale=yscale))
-        return xmin, xmax, ymin, ymax
+        return (sc.concat([xmin, xmax], dim=self._dims['x']),
+                sc.concat([ymin, ymax], dim=self._dims['y']))

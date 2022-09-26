@@ -5,6 +5,7 @@ from ..core.utils import number_to_variable, name_with_unit
 from ..core import View
 from .io import fig_to_bytes
 from .point_cloud import PointCloud
+from .outline import Outline
 
 import scipp as sc
 from typing import Any, Tuple
@@ -106,7 +107,7 @@ class Scene3d(View, VBox):
             # }).mean('y')
             self.outline = Outline(limits=limits)
             self.scene.add(self._children[key].points)
-            self.scene.add(self.outline)
+            self.scene.add(self.outline.all)
         else:
             self._children[key].update(new_values=new_values)
 
