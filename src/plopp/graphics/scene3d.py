@@ -42,8 +42,10 @@ class Scene3d(View, VBox):
         # Add red/green/blue axes helper
         self.axes_3d = p3.AxesHelper()
 
+        self.outline = Outline()
+
         # Create the pythreejs scene
-        self.scene = p3.Scene(children=[self.camera, self.axes_3d],
+        self.scene = p3.Scene(children=[self.camera, self.axes_3d, self.outline],
                               background="#f0f0f0")
 
         # Add camera controller
@@ -112,10 +114,10 @@ class Scene3d(View, VBox):
             #     'x': 3,
             #     'y': 2
             # }).mean('y')
-            self.outline = Outline(limits=limits)
+            self.outline.update(limits=limits)
             self.scene.add(pts.points)
-            self.scene.add(self.outline.all)
-            self.right_bar.children = list(self.right_bar.children) + [pts.colorbar]
+            # self.scene.add(self.outline.all)
+            # self.right_bar.children = list(self.right_bar.children) + [pts.colorbar]
 
             # self.camera.add(self._children[key].cbar)
             # self.camera.near = 0.01
@@ -137,6 +139,30 @@ class Scene3d(View, VBox):
     #     return p3.LineSegments(geometry=edges,
     #                            material=p3.LineBasicMaterial(color='#000000'),
     #                            position=center.values.tolist())
+
+    # def _get_limits(self):
+    #     global_xmin = None
+    #     global_xmax = None
+    #     global_ymin = None
+    #     global_ymax = None
+    #     xscale = self._ax.get_xscale()
+    #     yscale = self._ax.get_yscale()
+    #     for child in self._children.values():
+    #         xlims, ylims = child.get_limits(xscale=xscale, yscale=yscale)
+    #         if isinstance(child, Line):
+    #             if self._user_vmin is not None:
+    #                 ylims[0] = self._user_vmin
+    #             if self._user_vmax is not None:
+    #                 ylims[1] = self._user_vmax
+    #         if global_xmin is None or xlims[0].value < global_xmin:
+    #             global_xmin = xlims[0].value
+    #         if global_xmax is None or xlims[1].value > global_xmax:
+    #             global_xmax = xlims[1].value
+    #         if global_ymin is None or ylims[0].value < global_ymin:
+    #             global_ymin = ylims[0].value
+    #         if global_ymax is None or ylims[1].value > global_ymax:
+    #             global_ymax = ylims[1].value
+
     def home(self):
         return
 
