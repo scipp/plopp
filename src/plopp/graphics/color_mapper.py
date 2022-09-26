@@ -31,7 +31,6 @@ class ColorMapper:
                  norm: str = "linear",
                  vmin=None,
                  vmax=None):
-        # self._data = None
         self.cmap = _get_cmap(cmap)
         self.mask_cmap = _get_cmap(masks_cmap)
         self.user_vmin = vmin
@@ -43,6 +42,7 @@ class ColorMapper:
 
     def rescale(self, data):
         """
+        Re-compute the min and max range of values, given new values.
         """
         vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm_flag))
         if self.user_vmin is not None:
@@ -59,27 +59,10 @@ class ColorMapper:
         self.norm_func.vmin = self.vmin
         self.norm_func.vmax = self.vmax
 
-    # def _update_colors(self, data):
-    #     # flat_values = self._maybe_repeat_values(self._data.data).flatten()
-    #     self._rgba = self._cmap(self._norm_func(data.values))
-    #     if data.masks:
-    #         msk = next(iter(data.masks.values())).values
-    #         self._rgba[msk] = self._mask_cmap(self._norm_func(data.values[msk]))
-    #     # if len(self._data.masks) > 0:
-    #     #     one_mask = self._maybe_repeat_values(
-    #     #         sc.broadcast(reduce(lambda a, b: a | b, self._data.masks.values()),
-    #     #                      dims=self._data.dims,
-    #     #                      shape=self._data.shape)).flatten()
-    #     #     rgba[one_mask] = self._mask_cmap(self._norm_func(flat_values[one_mask]))
-    #     # self._mesh.set_facecolors(rgba)
-
-    def rgba(self, data: sc.DataArray):
+    def rgba(self, data: sc.Variable):
         """
-        Update image array with new values.
+        Return rgba values given a variable.
         """
-        # self._data = new_values
-        # self._rescale_colormap(data=new_values)
-        # self._update_colors(data=new_values)
         out = self.cmap(self.norm_func(data.values))
         if data.masks:
             msk = next(iter(data.masks.values())).values
@@ -87,16 +70,17 @@ class ColorMapper:
         return out
 
     def set_norm(self, data):
+        """
+        Set the norm of the color mapper and update the min/max values.
+        """
         func = dict(linear=Normalize, log=LogNorm)[self.norm_flag]
         self.norm_func = func()
         self.rescale(data=data)
-        # self._mesh.set_norm(self._norm_func)
-        # self._set_clim()
 
     def toggle_norm(self):
+        """
+        Toggle the norm flag, between `linear` and `log`.
+        """
         self.norm_flag = "log" if self.norm_flag == "linear" else "linear"
         self.vmin = np.inf
         self.vmax = np.NINF
-        # self.set_norm(data=data)
-        # self._set_mesh_colors()
-        # self._ax.figure.canvas.draw_idle()
