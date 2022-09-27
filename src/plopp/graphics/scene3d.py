@@ -24,8 +24,9 @@ class Scene3d(View, VBox):
         self._children = {}
         self.outline = None
         self.axticks = None
+        self._figsize = figsize
 
-        width, height = figsize
+        width, height = self._figsize
 
         self.camera = p3.PerspectiveCamera(position=[20, 0, 0], aspect=width / height)
         self.camera_backup = {}
@@ -99,7 +100,10 @@ class Scene3d(View, VBox):
         Update image array with new values.
         """
         if key not in self._children:
-            pts = PointCloud(data=new_values, cbar=self.right_bar, **self._kwargs)
+            pts = PointCloud(data=new_values,
+                             cbar=self.right_bar,
+                             figsize=self._figsize,
+                             **self._kwargs)
             self._children[key] = pts
             self.scene.add(pts.points)
             limits = pts.get_limits()

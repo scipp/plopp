@@ -16,9 +16,13 @@ from matplotlib.colorbar import ColorbarBase
 class PointCloud:
 
     def __init__(self,
+                 *,
+                 x,
+                 y,
+                 z,
                  data,
                  cbar,
-                 dim='position',
+                 figsize,
                  pixel_size=1,
                  cmap: str = None,
                  masks_cmap: str = "gray",
@@ -37,15 +41,22 @@ class PointCloud:
                                         vmax=vmax,
                                         nan_color="#f0f0f0")
         self._data = data
-        self._dim = dim
-        positions = self._data.meta[self._dim].values
+        self._x = x
+        self._y = y
+        self._z = z
+        self._figsize = figsize
+
         self.geometry = p3.BufferGeometry(
             attributes={
                 'position':
-                p3.BufferAttribute(array=positions.astype('float32')),
+                p3.BufferAttribute(array=np.array([
+                    self._data.meta[self._x].values.astype('float32'), self._data.meta[
+                        self._y].values.astype('float32'), self._data.meta[
+                            self._z].values.astype('float32')
+                ]).T),
                 'color':
-                p3.BufferAttribute(
-                    array=np.ones([positions.shape[0], 3], dtype='float32'))
+                p3.BufferAttribute(array=np.ones([self._data.meta[self._x].shape[0], 3],
+                                                 dtype='float32'))
             })
 
         pixel_ratio = 1.0  # config['plot']['pixel_ratio']
@@ -75,9 +86,10 @@ class PointCloud:
         self.geometry.attributes["color"].array = colors.astype('float32')
 
     def _update_colorbar(self):
-        height_inches = 5
-        cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=96)
-        cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 0.94])
+        dpi = 96
+        height_inches = 0.89 * self._figsize[1] / dpi
+        cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=dpi)
+        cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
         _ = ColorbarBase(cbar_ax,
                          cmap=self.color_mapper.cmap,
                          norm=self.color_mapper.norm_func)
@@ -103,10 +115,9 @@ class PointCloud:
         self._update_colorbar()
 
     def get_limits(self):
-        coord = self._data.meta[self._dim]
-        xmin, xmax = fix_empty_range(find_limits(coord.fields.x))
-        ymin, ymax = fix_empty_range(find_limits(coord.fields.y))
-        zmin, zmax = fix_empty_range(find_limits(coord.fields.z))
-        return (sc.concat([xmin, xmax], dim=f'{self._dim}.x'),
-                sc.concat([ymin, ymax], dim=f'{self._dim}.y'),
-                sc.concat([zmin, zmax], dim=f'{self._dim}.z'))
+        xmin, xmax = fix_empty_range(find_limits(self._data.meta[self._x]))
+        ymin, ymax = fix_empty_range(find_limits(self._data.meta[self._y]))
+        zmin, zmax = fix_empty_range(find_limits(self._data.meta[self._z]))
+        return (sc.concat([xmin, xmax],
+                          dim=self._x), sc.concat([ymin, ymax], dim=self._y),
+                sc.concat([zmin, zmax], dim=self._z))
