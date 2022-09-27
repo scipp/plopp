@@ -3,8 +3,6 @@
 
 from ..core import View
 from ..widgets import Toolbar
-from .point_cloud import PointCloud
-from .outline import Outline
 
 import scipp as sc
 from copy import copy
@@ -99,6 +97,9 @@ class Scene3d(View, VBox):
         """
         Update image array with new values.
         """
+        from .point_cloud import PointCloud
+        from .outline import Outline
+
         if key not in self._children:
             pts = PointCloud(data=new_values,
                              cbar=self.right_bar,

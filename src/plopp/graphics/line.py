@@ -197,8 +197,8 @@ class Line:
             xmax = xmax + deltax
         deltay = delta(ymin, ymax, 0.03, yscale)
         if yscale == "log":
-            ymin = ymin / deltay
-            ymax = ymax * deltay
+            ymin = ymin / deltay.value
+            ymax = ymax * deltay.value
         else:
             ymin = ymin - deltay
             ymax = ymax + deltay
