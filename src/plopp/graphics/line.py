@@ -190,8 +190,8 @@ class Line:
         # Add padding
         deltax = delta(xmin, xmax, 0.03, xscale)
         if xscale == "log":
-            xmin = xmin / deltax
-            xmax = xmax * deltax
+            xmin = xmin / deltax.value
+            xmax = xmax * deltax.value
         else:
             xmin = xmin - deltax
             xmax = xmax + deltax
