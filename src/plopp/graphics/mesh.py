@@ -67,7 +67,7 @@ class Mesh:
                  data,
                  cax: Any = None,
                  cmap: str = None,
-                 masks_cmap: str = "gray",
+                 mask_cmap: str = "gray",
                  norm: str = "linear",
                  vmin=None,
                  vmax=None,
@@ -75,7 +75,7 @@ class Mesh:
                  **kwargs):
 
         self.color_mapper = ColorMapper(cmap=cmap,
-                                        masks_cmap=masks_cmap,
+                                        mask_cmap=mask_cmap,
                                         norm=norm,
                                         vmin=vmin,
                                         vmax=vmax)

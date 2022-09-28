@@ -28,13 +28,13 @@ class ColorMapper:
 
     def __init__(self,
                  cmap: str = 'viridis',
-                 masks_cmap: str = 'gray',
+                 mask_cmap: str = 'gray',
                  norm: str = "linear",
                  vmin=None,
                  vmax=None,
                  nan_color=None):
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
-        self.mask_cmap = _get_cmap(masks_cmap, nan_color=nan_color)
+        self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin
         self.user_vmax = vmax
         self.vmin = np.inf

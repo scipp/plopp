@@ -25,7 +25,7 @@ class PointCloud:
                  figsize,
                  pixel_size=1,
                  cmap: str = None,
-                 masks_cmap: str = "gray",
+                 mask_cmap: str = "gray",
                  norm: str = "linear",
                  vmin=None,
                  vmax=None):
@@ -35,7 +35,7 @@ class PointCloud:
         import pythreejs as p3
         import ipywidgets as ipw
         self.color_mapper = ColorMapper(cmap=cmap,
-                                        masks_cmap=masks_cmap,
+                                        mask_cmap=mask_cmap,
                                         norm=norm,
                                         vmin=vmin,
                                         vmax=vmax,

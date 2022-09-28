@@ -37,31 +37,31 @@ def test_mesh_creation_ragged_coord():
 def test_mesh_get_limits():
     da = dense_data_array(ndim=2, binedges=True)
     mesh = Mesh(ax=make_axes(), data=da)
-    xmin, xmax, ymin, ymax = mesh.get_limits(xscale='linear', yscale='linear')
-    assert xmin == da.meta['xx'].min()
-    assert xmax == da.meta['xx'].max()
-    assert ymin == da.meta['yy'].min()
-    assert ymax == da.meta['yy'].max()
+    xlims, ylims = mesh.get_limits(xscale='linear', yscale='linear')
+    assert xlims[0] == da.meta['xx'].min()
+    assert xlims[1] == da.meta['xx'].max()
+    assert ylims[0] == da.meta['yy'].min()
+    assert ylims[1] == da.meta['yy'].max()
 
 
 def test_mesh_get_limits_log():
     da = dense_data_array(ndim=2, binedges=True)
     mesh = Mesh(ax=make_axes(), data=da)
-    xmin, xmax, ymin, ymax = mesh.get_limits(xscale='log', yscale='log')
-    assert xmin == da.meta['xx'][1]
-    assert xmax == da.meta['xx'].max()
-    assert ymin == da.meta['yy'][1]
-    assert ymax == da.meta['yy'].max()
+    xlims, ylims = mesh.get_limits(xscale='log', yscale='log')
+    assert xlims[0] == da.meta['xx'][1]
+    assert xlims[1] == da.meta['xx'].max()
+    assert ylims[0] == da.meta['yy'][1]
+    assert ylims[1] == da.meta['yy'].max()
 
 
 def test_mesh_get_limits_midpoints():
     da = dense_data_array(ndim=2)
     mesh = Mesh(ax=make_axes(), data=da)
-    xmin, xmax, ymin, ymax = mesh.get_limits(xscale='linear', yscale='linear')
-    assert xmin < da.meta['xx'].min()
-    assert xmax > da.meta['xx'].max()
-    assert ymin < da.meta['yy'].min()
-    assert ymax > da.meta['yy'].max()
+    xlims, ylims = mesh.get_limits(xscale='linear', yscale='linear')
+    assert xlims[0] < da.meta['xx'].min()
+    assert xlims[1] > da.meta['xx'].max()
+    assert ylims[0] < da.meta['yy'].min()
+    assert ylims[1] > da.meta['yy'].max()
 
 
 def test_toggle_norm():
