@@ -18,16 +18,18 @@ def scatter3d(da: sc.DataArray,
               title: str = None,
               vmin: sc.Variable = None,
               vmax: sc.Variable = None,
-              cmap: str = None):
+              cmap: str = None,
+              **kwargs):
     """Make a three-dimensional scatter plot.
 
     To specify the positions of the scatter points, you can use:
-    - a single coordinate inside the supplied data array that has dtype `vector3`
-      (use the `dim` parameter to specify the name of the coordinate).
-    - three coordinates from the data array, whose names are specified using the
-      `x`, `y`, and `z` arguments.
 
-    Note that if `dim` is used, `x`, `y`, and `z` must all be `None`.
+    - a single coordinate inside the supplied data array that has dtype ``vector3``
+      (use the ``dim`` parameter to specify the name of the coordinate).
+    - three coordinates from the data array, whose names are specified using the
+      ``x``, ``y``, and ``z`` arguments.
+
+    Note that if ``dim`` is used, ``x``, ``y``, and ``z`` must all be ``None``.
 
     Parameters
     ----------
@@ -42,9 +44,9 @@ def scatter3d(da: sc.DataArray,
     dim:
         The name of the vector coordinate that is to be used for the positions.
     norm:
-        Set to 'log' for a logarithmic colorscale.
+        Set to ``'log'`` for a logarithmic colorscale.
     figsize:
-        The size of the 3d rendering area, in pixels: `(width, height)`.
+        The size of the 3d rendering area, in pixels: ``(width, height)``.
     title:
         The figure title.
     vmin:
@@ -82,4 +84,5 @@ def scatter3d(da: sc.DataArray,
                    title=title,
                    vmin=vmin,
                    vmax=vmax,
-                   cmap=cmap)
+                   cmap=cmap,
+                   **kwargs)

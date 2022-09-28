@@ -67,7 +67,7 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
               **kwargs):
     """
     Inspector takes in a three-dimensional input and applies a reduction operation
-    (`sum` by default) along one of the dimensions specified by `dim`.
+    (``sum`` by default) along one of the dimensions specified by ``dim``.
     It displays the result as a two-dimensional image.
     In addition, an 'inspection' tool is available in the toolbar which allows to place
     markers on the image which perform slicing at that position to retain only the third
@@ -90,12 +90,12 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
         data will be used.
     operation:
         The operation to apply along the third (undisplayed) dimension specified by
-        `dim`.
+        ``dim``.
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped. Each entry should be a nested dict containing scalar
-        values for `'min'` and/or `'max'`. Example:
-        `da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})`
+        values for ``'min'`` and/or ``'max'``. Example:
+        ``da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})``
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
 

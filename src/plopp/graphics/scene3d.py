@@ -12,7 +12,7 @@ from ipywidgets import VBox, HBox
 
 class Scene3d(View, VBox):
 
-    def __init__(self, *nodes, figsize=(800, 500), title=None, **kwargs):
+    def __init__(self, *nodes, figsize=(600, 400), title=None, **kwargs):
 
         import pythreejs as p3
 
