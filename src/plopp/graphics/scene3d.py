@@ -26,7 +26,7 @@ class Scene3d(View, VBox):
 
         width, height = self._figsize
 
-        self.camera = p3.PerspectiveCamera(position=[20, 0, 0], aspect=width / height)
+        self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
         self.outline = None

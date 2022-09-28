@@ -5,6 +5,7 @@ from plopp.data import dense_data_array
 from plopp.graphics.fig import Figure
 from plopp.graphics.line import Line
 from plopp.graphics.mesh import Mesh
+from plopp import input_node
 import scipp as sc
 from common import make_axes
 import pytest
@@ -43,6 +44,7 @@ def test_fig_update_1d():
     key = 'data1d'
     fig.update(da, key=key)
     assert isinstance(fig._children[key], Line)
+    assert sc.identical(fig._children[key]._data, da)
 
 
 def test_fig_update_2d():
@@ -52,6 +54,7 @@ def test_fig_update_2d():
     key = 'data2d'
     fig.update(da, key=key)
     assert isinstance(fig._children[key], Mesh)
+    assert sc.identical(fig._children[key]._data, da)
 
 
 def test_fig_update_3d_raises():
@@ -61,6 +64,13 @@ def test_fig_update_3d_raises():
     with pytest.raises(ValueError) as e:
         fig.update(da, key=key)
     assert str(e.value) == "Figure can only be used to plot 1-D and 2-D data."
+
+
+def test_fig_create_with_node():
+    da = dense_data_array(ndim=1)
+    fig = Figure(input_node(da), ax=make_axes())
+    assert len(fig._children) == 1
+    assert sc.identical(list(fig._children.values())[0]._data, da)
 
 
 def test_figure_crop():
