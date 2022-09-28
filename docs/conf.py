@@ -48,7 +48,7 @@ def add_buttons(
         "icon": "fa fa-caret-down",
         "text": "Related projects"
     })
-    releases = version_info.minor_releases(first='0.0.1')
+    releases = version_info.minor_releases(first='0.1')
     if outdated:
         current = f"{long_version} (outdated)"
         latest = "latest"
