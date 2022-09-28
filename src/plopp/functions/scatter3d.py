@@ -30,7 +30,7 @@ def scatter3d(obj: Union[sc.typing.VariableLike, ndarray],
     if dim is not None:
         if any((x, y, z)):
             raise ValueError(f'If dim ({dim}) is defined, all of '
-                             f'x ({x}), y ({y}), and z ({z}) must be None')
+                             f'x ({x}), y ({y}), and z ({z}) must be None.')
         coords = {
             (x := f'{dim}.x'): da.meta[dim].fields.x,
             (y := f'{dim}.y'): da.meta[dim].fields.y,
