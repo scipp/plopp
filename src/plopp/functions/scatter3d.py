@@ -6,26 +6,62 @@ from .common import preprocess
 
 import scipp as sc
 from numpy import ndarray
-from typing import Union, Literal
+from typing import Union, Literal, Tuple
 
 
-def scatter3d(obj: Union[sc.typing.VariableLike, ndarray],
+def scatter3d(da: sc.DataArray,
               *,
               x: str = None,
               y: str = None,
               z: str = None,
               dim: str = None,
+              figsize: Tuple[Union[int, float]] = None,
               norm: Literal['linear', 'log'] = 'linear',
               title: str = None,
               vmin: sc.Variable = None,
               vmax: sc.Variable = None,
-              cmap: str = None,
-              **kwargs):
-    """
+              cmap: str = None):
+    """Make a three-dimensional scatter plot.
+
+    To specify the positions of the scatter points, you can use:
+    - a single coordinate inside the supplied data array that has dtype `vector3`
+      (use the `dim` parameter to specify the name of the coordinate).
+    - three coordinates from the data array, whose names are specified using the
+      `x`, `y`, and `z` arguments.
+
+    Note that if `dim` is used, `x`, `y`, and `z` must all be `None`.
+
+    Parameters
+    ----------
+    da:
+        The data array containing the data and the coordinates.
+    x:
+        The name of the coordinate that is to be used for the X positions.
+    y:
+        The name of the coordinate that is to be used for the Y positions.
+    z:
+        The name of the coordinate that is to be used for the Z positions.
+    dim:
+        The name of the vector coordinate that is to be used for the positions.
+    norm:
+        Set to 'log' for a logarithmic colorscale.
+    figsize:
+        The size of the 3d rendering area, in pixels: `(width, height)`.
+    title:
+        The figure title.
+    vmin:
+        Lower bound for the colorscale.
+    vmax:
+        Upper bound for the colorscale.
+    cmap:
+        The name of the colormap.
+
+    Returns
+    -------
+    :
+        A three-dimensional interactive scatter plot.
     """
     from ..graphics import Scene3d
-
-    da = preprocess(obj, ignore_size=True)
 
     if dim is not None:
         if any((x, y, z)):
@@ -48,5 +84,4 @@ def scatter3d(obj: Union[sc.typing.VariableLike, ndarray],
                    title=title,
                    vmin=vmin,
                    vmax=vmax,
-                   cmap=cmap,
-                   **kwargs)
+                   cmap=cmap)
