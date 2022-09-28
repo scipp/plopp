@@ -5,8 +5,6 @@ from plopp.data import dense_data_array
 from plopp.graphics.color_mapper import ColorMapper
 import scipp as sc
 import numpy as np
-from common import make_axes
-from dataclasses import dataclass
 from matplotlib.colors import Normalize, LogNorm
 
 
@@ -24,7 +22,6 @@ def test_creation():
 
 
 def test_toggle_norm():
-    from matplotlib.colors import Normalize, LogNorm
     mapper = ColorMapper()
     assert mapper.norm_flag == 'linear'
     mapper.toggle_norm()

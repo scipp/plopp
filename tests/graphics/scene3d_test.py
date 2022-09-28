@@ -7,7 +7,6 @@ from plopp.graphics.point_cloud import PointCloud
 from plopp import input_node
 import scipp as sc
 from copy import copy
-import pytest
 
 
 def test_creation():

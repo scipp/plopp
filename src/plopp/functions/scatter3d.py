@@ -2,10 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core import input_node
-from .common import preprocess
 
 import scipp as sc
-from numpy import ndarray
 from typing import Union, Literal, Tuple
 
 
