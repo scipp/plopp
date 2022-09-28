@@ -5,7 +5,6 @@ from ..core.limits import find_limits, fix_empty_range, delta
 from ..core.utils import merge_masks
 
 import scipp as sc
-# from functools import reduce
 import numpy as np
 from numpy.typing import ArrayLike
 from typing import Tuple
