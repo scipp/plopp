@@ -5,11 +5,12 @@ from .common import require_interactive_backend, preprocess
 from .figure import figure
 from ..core import input_node, node, Node, widget_node
 from ..core.utils import coord_as_bin_edges
-from ..widgets import PointsTool
+from ..widgets import PointsTool, ColorTool
 
 import scipp as sc
 from numpy import ndarray
 from typing import Union, Dict, Literal
+from matplotlib.colors import to_hex
 
 
 class LineSaveTool:
@@ -20,8 +21,10 @@ class LineSaveTool:
         self._slider_node = slider_node
         self._fig = fig
         self._copy_nodes = {}
-        self.widget = ipw.Button(description='Save line')
-        self.widget.on_click(self.save_line)
+        self.button = ipw.Button(description='Save line')
+        self.button.on_click(self.save_line)
+        self.container = ipw.VBox()
+        self.widget = ipw.VBox([self.button, self.container])
 
     def save_line(self, change):
         from plopp.widgets import slice_dims
@@ -30,6 +33,8 @@ class LineSaveTool:
         self._fig.graph_nodes[line_node.id] = line_node
         line_node.add_view(self._fig)
         self._fig.render()
+        self.container.children = self.container.children + (ColorTool(
+            text='line1', color=to_hex(self._fig._children[line_node.id].color)), )
 
     # def update_node(self, change):
     #     event = change['event']

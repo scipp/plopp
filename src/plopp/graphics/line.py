@@ -209,3 +209,13 @@ class Line:
         self._mask.remove()
         if self._error is not None:
             self._error.remove()
+
+    @property
+    def color(self):
+        return self._line.get_color()
+
+    @color.setter
+    def color(self, val):
+        self._line.set_color(val)
+        if self._error is not None:
+            self._error.set_color(val)
