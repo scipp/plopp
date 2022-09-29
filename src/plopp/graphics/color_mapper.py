@@ -17,8 +17,8 @@ def _get_cmap(name, nan_color=None):
         cmap = copy(colormaps[name])
     except ValueError:
         cmap = LinearSegmentedColormap.from_list("tmp", [name, name])
-    # cmap.set_under(config['plot']['params']["under_color"])
-    # cmap.set_over(config['plot']['params']["over_color"])
+    # TODO: we need to set under and over values for the cmap with
+    # `cmap.set_under` and `cmap.set_over`. Ideally these should come from a config?
     if nan_color is not None:
         cmap.set_bad(color=nan_color)
     return cmap
