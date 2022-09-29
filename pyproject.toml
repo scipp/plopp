@@ -13,7 +13,6 @@ testpaths = "tests"
 filterwarnings = [
   "error",
   "ignore::UserWarning",
-  "ignore::PendingDeprecationWarning",
   'ignore:\n            Sentinel is not a public part of the traitlets API:DeprecationWarning',]
 
 [tool.mypy]
