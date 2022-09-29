@@ -18,7 +18,7 @@ def scatter3d(da: sc.DataArray,
               title: str = None,
               vmin: sc.Variable = None,
               vmax: sc.Variable = None,
-              cmap: str = None,
+              cmap: str = 'viridis',
               **kwargs):
     """Make a three-dimensional scatter plot.
 

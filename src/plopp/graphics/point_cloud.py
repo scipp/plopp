@@ -15,20 +15,21 @@ from matplotlib.colorbar import ColorbarBase
 
 class PointCloud:
 
-    def __init__(self,
-                 *,
-                 x,
-                 y,
-                 z,
-                 data,
-                 cbar,
-                 figsize,
-                 pixel_size=1,
-                 cmap: str = None,
-                 mask_cmap: str = "gray",
-                 norm: str = "linear",
-                 vmin=None,
-                 vmax=None):
+    def __init__(
+            self,
+            *,
+            x,
+            y,
+            z,
+            data,
+            cbar,
+            figsize,
+            pixel_size=1,  # TODO: pixel_size should have units
+            cmap: str = 'viridis',
+            mask_cmap: str = 'gray',
+            norm: str = 'linear',
+            vmin=None,
+            vmax=None):
         """
         Make a point cloud using pythreejs
         """
@@ -59,7 +60,8 @@ class PointCloud:
                                                  dtype='float32'))
             })
 
-        pixel_ratio = 1.0  # config['plot']['pixel_ratio']
+        # TODO: a device pixel_ratio should probably be read from a config file
+        pixel_ratio = 1.0
         # Note that an additional factor of 2.5 (obtained from trial and error) seems to
         # be required to get the sizes right in the scene.
         self.material = p3.PointsMaterial(vertexColors='VertexColors',

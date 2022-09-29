@@ -66,9 +66,9 @@ class Mesh:
                  ax,
                  data,
                  cax: Any = None,
-                 cmap: str = None,
-                 mask_cmap: str = "gray",
-                 norm: str = "linear",
+                 cmap: str = 'viridis',
+                 mask_cmap: str = 'gray',
+                 norm: str = 'linear',
                  vmin=None,
                  vmax=None,
                  cbar=True,
@@ -98,13 +98,13 @@ class Mesh:
         self._mesh = None
         self._cbar = cbar
 
-        self._extend = "neither"
+        self._extend = 'neither'
         if (vmin is not None) and (vmax is not None):
-            self._extend = "both"
+            self._extend = 'both'
         elif vmin is not None:
-            self._extend = "min"
+            self._extend = 'min'
         elif vmax is not None:
-            self._extend = "max"
+            self._extend = 'max'
 
         self._make_mesh(**kwargs)
 

@@ -5,7 +5,7 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
 
 from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
-from matplotlib import cm
+from matplotlib import colormaps
 import scipp as sc
 from copy import copy
 import numpy as np
@@ -14,7 +14,7 @@ import numpy as np
 def _get_cmap(name, nan_color=None):
 
     try:
-        cmap = copy(cm.get_cmap(name))
+        cmap = copy(colormaps[name])
     except ValueError:
         cmap = LinearSegmentedColormap.from_list("tmp", [name, name])
     # cmap.set_under(config['plot']['params']["under_color"])
