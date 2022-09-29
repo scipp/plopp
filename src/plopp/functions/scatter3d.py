@@ -12,7 +12,7 @@ def scatter3d(da: sc.DataArray,
               x: str = None,
               y: str = None,
               z: str = None,
-              dim: str = None,
+              pos: str = None,
               figsize: Tuple[Union[int, float]] = None,
               norm: Literal['linear', 'log'] = 'linear',
               title: str = None,
@@ -25,11 +25,11 @@ def scatter3d(da: sc.DataArray,
     To specify the positions of the scatter points, you can use:
 
     - a single coordinate inside the supplied data array that has dtype ``vector3``
-      (use the ``dim`` parameter to specify the name of the coordinate).
+      (use the ``pos`` parameter to specify the name of the coordinate).
     - three coordinates from the data array, whose names are specified using the
       ``x``, ``y``, and ``z`` arguments.
 
-    Note that if ``dim`` is used, ``x``, ``y``, and ``z`` must all be ``None``.
+    Note that if ``pos`` is used, ``x``, ``y``, and ``z`` must all be ``None``.
 
     Parameters
     ----------
@@ -41,7 +41,7 @@ def scatter3d(da: sc.DataArray,
         The name of the coordinate that is to be used for the Y positions.
     z:
         The name of the coordinate that is to be used for the Z positions.
-    dim:
+    pos:
         The name of the vector coordinate that is to be used for the positions.
     norm:
         Set to ``'log'`` for a logarithmic colorscale.
@@ -63,14 +63,14 @@ def scatter3d(da: sc.DataArray,
     """
     from ..graphics import Scene3d
 
-    if dim is not None:
+    if pos is not None:
         if any((x, y, z)):
-            raise ValueError(f'If dim ({dim}) is defined, all of '
+            raise ValueError(f'If pos ({pos}) is defined, all of '
                              f'x ({x}), y ({y}), and z ({z}) must be None.')
         coords = {
-            (x := f'{dim}.x'): da.meta[dim].fields.x,
-            (y := f'{dim}.y'): da.meta[dim].fields.y,
-            (z := f'{dim}.z'): da.meta[dim].fields.z
+            (x := f'{pos}.x'): da.meta[pos].fields.x,
+            (y := f'{pos}.y'): da.meta[pos].fields.y,
+            (z := f'{pos}.z'): da.meta[pos].fields.z
         }
     else:
         coords = {k: da.meta[k] for k in (x, y, z)}
