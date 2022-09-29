@@ -74,11 +74,10 @@ class PointsTool(ToggleTool):
 
 
 class ColorTool(ipw.HBox):
-    """
-    """
 
     def __init__(self, text, color):
-        self.text = ipw.Label(value=text)
+        layout = ipw.Layout(display="flex", justify_content="flex-end", width='150px')
+        self.text = ipw.Label(value=text, layout=layout)
         self.color = ipw.ColorPicker(concise=True,
                                      value=color,
                                      description='',

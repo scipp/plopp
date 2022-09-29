@@ -3,14 +3,16 @@
 
 from .common import require_interactive_backend, preprocess
 from .figure import figure
-from ..core import input_node, node, Node, widget_node
-from ..core.utils import coord_as_bin_edges
-from ..widgets import PointsTool, ColorTool
+from ..core import input_node, widget_node
+from ..core.utils import coord_to_string
+from ..widgets import ColorTool
 
+from functools import partial
 import scipp as sc
 from numpy import ndarray
 from typing import Union, Dict, Literal
 from matplotlib.colors import to_hex
+import uuid
 
 
 class LineSaveTool:
@@ -20,40 +22,39 @@ class LineSaveTool:
         self._data_node = data_node
         self._slider_node = slider_node
         self._fig = fig
-        self._copy_nodes = {}
+        self._lines = {}
         self.button = ipw.Button(description='Save line')
-        self.button.on_click(self.save_line)
+        self.button.on_click(self._save_line)
         self.container = ipw.VBox()
-        self.widget = ipw.VBox([self.button, self.container])
+        self.widget = ipw.VBox([self.button, self.container], layout={'width': '500px'})
 
-    def save_line(self, change):
-        from plopp.widgets import slice_dims
-        line_node = input_node(self._data_node.request_data())
-        self._copy_nodes[line_node.id] = line_node
-        self._fig.graph_nodes[line_node.id] = line_node
-        line_node.add_view(self._fig)
-        self._fig.render()
-        self.container.children = self.container.children + (ColorTool(
-            text='line1', color=to_hex(self._fig._children[line_node.id].color)), )
+    def _update_container(self):
+        self.container.children = [line['tool'] for line in self._lines.values()]
 
-    # def update_node(self, change):
-    #     event = change['event']
-    #     n = self._event_nodes[change['artist'].nodeid]
-    #     n.func = lambda: {
-    #         self._xdim: sc.scalar(event.xdata,
-    #                               unit=self._data_array.meta[self._xdim].unit),
-    #         self._ydim: sc.scalar(event.ydata,
-    #                               unit=self._data_array.meta[self._ydim].unit)
-    #     }
-    #     n.notify_children(change)
+    def _save_line(self, change):
+        line_id = uuid.uuid4().hex
+        data = self._data_node.request_data()
+        self._fig.update(data, key=line_id)
+        slice_values = self._slider_node.request_data()
+        text = ', '.join(f'{k}: {coord_to_string(data.meta[k])}'
+                         for k, it in slice_values.items())
+        line = self._fig._children[line_id]
+        tool = ColorTool(text=text, color=to_hex(line.color))
+        self._lines[line_id] = {'line': line, 'tool': tool}
+        self._update_container()
+        tool.color.observe(partial(self._change_line_color, line_id=line_id),
+                           names='value')
+        tool.button.on_click(partial(self._remove_line, line_id=line_id))
 
-    # def remove_node(self, change):
-    #     n = self._event_nodes[change['artist'].nodeid]
-    #     pnode = n.children[0]
-    #     self._fig1d._children[pnode.id].remove()
-    #     self._fig1d.draw()
-    #     pnode.remove()
-    #     n.remove()
+    def _change_line_color(self, change, line_id):
+        self._lines[line_id].color = change.new
+        self._fig.draw()
+
+    def _remove_line(self, change, line_id):
+        self._lines[line_id]['line'].remove()
+        self._fig.draw()
+        del self._lines[line_id]
+        self._update_container()
 
 
 def superplot(obj: Union[sc.typing.VariableLike, ndarray],

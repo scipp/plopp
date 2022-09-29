@@ -83,3 +83,10 @@ def value_to_string(val, precision=3):
         if len(text) > precision + 2 + (text[0] == '-'):
             text = "{val:.{prec}f}".format(val=val, prec=precision)
     return text
+
+
+def coord_to_string(coord):
+    out = value_to_string(coord.values)
+    if coord.unit is not None:
+        out += f" [{coord.unit}]"
+    return out
