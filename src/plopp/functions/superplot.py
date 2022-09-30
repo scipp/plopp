@@ -2,15 +2,14 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
-from .figure import figure
-from ..core import input_node, widget_node
+from .slicer import Slicer
 from ..core.utils import coord_to_string
 from ..widgets import ColorTool
 
 from functools import partial
 import scipp as sc
 from numpy import ndarray
-from typing import Union, Dict, Literal
+from typing import Union, Dict
 from matplotlib.colors import to_hex
 import uuid
 
@@ -47,7 +46,7 @@ class LineSaveTool:
         tool.button.on_click(partial(self._remove_line, line_id=line_id))
 
     def _change_line_color(self, change, line_id):
-        self._lines[line_id].color = change.new
+        self._lines[line_id]['line'].color = change.new
         self._fig.draw()
 
     def _remove_line(self, change, line_id):
@@ -60,22 +59,43 @@ class LineSaveTool:
 def superplot(obj: Union[sc.typing.VariableLike, ndarray],
               keep: str = None,
               *,
-              operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
-              crop: Dict[str, Dict[str, sc.Variable]] = None,
+              crop: Dict[str, Dict[str, Variable]] = None,
               **kwargs):
     """
+    Plot a multi-dimensional object as a one-dimensional line, slicing all but one
+    dimension. This will produce one slider per sliced dimension, below the figure.
+    In addition, a tool for saving the currently displayed line is added on the right
+    hand side of the figure.
+
+    Parameters
+    ----------
+    obj:
+        The object to be plotted.
+    keep:
+        The single dimension to be kept, all remaining dimensions will be sliced.
+        This should be a single string. If no dim is provided, the last/inner dim will
+        be kept.
+    crop:
+        Set the axis limits. Limits should be given as a dict with one entry per
+        dimension to be cropped. Each entry should be a nested dict containing scalar
+        values for `'min'` and/or `'max'`. Example:
+        `da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})`
+    **kwargs:
+        See :py:func:`plopp.plot` for the full list of line customization arguments.
+
+    Returns
+    -------
+    :
+        A :class:`Box` which will contain a :class:`Figure`, slider widgets and a tool
+        to save/delete lines.
     """
-    require_interactive_backend('slicer')
-
-    from plopp.widgets import SliceWidget, slice_dims, Box
+    require_interactive_backend('superplot')
     da = preprocess(obj, crop=crop, ignore_size=True)
-    a = input_node(da)
-
     if keep is None:
         keep = da.dims[-1]
-    sl = SliceWidget(da, dims=list(set(da.dims) - set([keep])))
-    w = widget_node(sl)
-    slice_node = slice_dims(a, w)
-    fig = figure(slice_node, **{**{'crop': crop}, **kwargs})
-    save_tool = LineSaveTool(data_node=slice_node, slider_node=w, fig=fig)
-    return Box([[fig, save_tool.widget], sl])
+    sl = Slicer(da=da, keep=[keep], crop=crop, **kwargs)
+    save_tool = LineSaveTool(data_node=sl.slice_node,
+                             slider_node=sl.slider_node,
+                             fig=sl.fig)
+    from plopp.widgets import Box
+    return Box([[sl.fig, save_tool.widget], sl.slider])
