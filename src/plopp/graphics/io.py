@@ -9,6 +9,6 @@ def fig_to_bytes(fig, form='png'):
     Convert a Matplotlib figure to png (default) or svg bytes.
     """
     buf = BytesIO()
-    fig.savefig(buf, format=form)
+    fig.savefig(buf, format=form, bbox_inches='tight')
     buf.seek(0)
     return buf.getvalue()

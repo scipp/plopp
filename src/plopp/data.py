@@ -119,42 +119,14 @@ def dense_dataset(entries=None, **kwargs):
     return ds
 
 
-def binned_data_array(ndim=1, with_variance=False, masks=False):
-
-    N = 50
-    M = 10
-
-    values = 10.0 * np.random.random(N)
-
-    da = sc.DataArray(data=sc.array(dims=['position'],
-                                    unit=sc.units.counts,
-                                    values=values),
-                      coords={
-                          'position':
-                          sc.array(dims=['position'],
-                                   values=['site-{}'.format(i) for i in range(N)])
-                      })
-
-    if with_variance:
-        da.variances = values
-
-    bin_list = {}
-    for i in range(ndim):
-        dim = dim_list[i]
-        da.coords[dim] = sc.array(dims=['position'],
-                                  unit=sc.units.m,
-                                  values=np.random.random(N))
-        bin_list[dim] = sc.array(dims=[dim],
-                                 unit=sc.units.m,
-                                 values=np.linspace(0.1, 0.9, M - i))
-
-    binned = sc.bin(da, bin_list)
-
-    if masks:
-        # Make a checkerboard mask, see https://stackoverflow.com/a/51715491
-        binned.masks["mask"] = sc.array(dims=binned.dims,
-                                        values=(np.indices(binned.shape).sum(axis=0) %
-                                                2).astype(bool),
-                                        unit=None)
-
-    return binned
+def scatter_data(npoints=500, scale=10.0):
+    position = scale * np.random.normal(size=[npoints, 3])
+    values = np.linalg.norm(position, axis=1)
+    vec = sc.vectors(dims=['row'], unit='m', values=position)
+    return sc.DataArray(data=sc.array(dims=['row'], values=values, unit='K'),
+                        coords={
+                            'position': vec,
+                            'x': vec.fields.x,
+                            'y': vec.fields.y,
+                            'z': vec.fields.z
+                        })

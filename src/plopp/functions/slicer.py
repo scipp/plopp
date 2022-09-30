@@ -32,8 +32,8 @@ def slicer(obj: Union[VariableLike, ndarray],
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped. Each entry should be a nested dict containing scalar
-        values for `'min'` and/or `'max'`. Example:
-        `da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})`
+        values for ``'min'`` and/or ``'max'``. Example:
+        ``da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})``
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
 
