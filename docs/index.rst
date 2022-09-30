@@ -41,25 +41,19 @@ Get in touch
 - Report bugs (including unclear, missing, or wrong documentation!), suggest features or view the source code `on GitHub <https://github.com/scipp/plopp>`_.
 
 .. toctree::
-   :maxdepth: 2
+   :caption: User Guide
+   :maxdepth: 3
    :hidden:
 
-   line-plot
+   user-guide/line-plot
+   user-guide/image-plot
+   user-guide/slicer-plot
+   user-guide/inspector-plot
+   user-guide/scatter3d-plot
 
 .. toctree::
-   :maxdepth: 2
+   :caption: Reference
+   :maxdepth: 3
    :hidden:
 
-   image-plot
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   slicer-plot
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   inspector-plot
+   reference

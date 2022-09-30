@@ -3,6 +3,7 @@
 
 from scipp import scalar, concat, midpoints
 import uuid
+from functools import reduce
 
 
 def coord_as_bin_edges(da, key, dim=None):
@@ -83,6 +84,13 @@ def value_to_string(val, precision=3):
         if len(text) > precision + 2 + (text[0] == '-'):
             text = "{val:.{prec}f}".format(val=val, prec=precision)
     return text
+
+
+def merge_masks(masks):
+    """
+    Combine all masks into a single one using the OR operation.
+    """
+    return reduce(lambda a, b: a | b, masks.values())
 
 
 def coord_to_string(coord):

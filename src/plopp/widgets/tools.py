@@ -34,6 +34,7 @@ class ToggleTool:
         self._callback = callback
         self.widget.on_click(self)
         self._value = value
+        self._update_color()
 
     def __call__(self, *args, **kwargs):
         self._toggle()

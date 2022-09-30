@@ -6,5 +6,6 @@
 from .figure import figure
 from .plot import plot
 from .inspector import inspector
+from .scatter3d import scatter3d
 from .slicer import slicer
 from .superplot import superplot
