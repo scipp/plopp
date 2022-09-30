@@ -4,7 +4,6 @@
 from plopp.data import dense_data_array
 from plopp.functions.slicer import Slicer
 import scipp as sc
-import pytest
 
 
 def test_creation_keep_two_dims():

@@ -23,14 +23,14 @@ class LineSaveTool:
         self._fig = fig
         self._lines = {}
         self.button = ipw.Button(description='Save line')
-        self.button.on_click(self._save_line)
+        self.button.on_click(self.save_line)
         self.container = ipw.VBox()
         self.widget = ipw.VBox([self.button, self.container], layout={'width': '500px'})
 
     def _update_container(self):
         self.container.children = [line['tool'] for line in self._lines.values()]
 
-    def _save_line(self, change):
+    def save_line(self, change=None):
         line_id = uuid.uuid4().hex
         data = self._data_node.request_data()
         self._fig.update(data, key=line_id)
@@ -41,15 +41,15 @@ class LineSaveTool:
         tool = ColorTool(text=text, color=to_hex(line.color))
         self._lines[line_id] = {'line': line, 'tool': tool}
         self._update_container()
-        tool.color.observe(partial(self._change_line_color, line_id=line_id),
+        tool.color.observe(partial(self.change_line_color, line_id=line_id),
                            names='value')
-        tool.button.on_click(partial(self._remove_line, line_id=line_id))
+        tool.button.on_click(partial(self.remove_line, line_id=line_id))
 
-    def _change_line_color(self, change, line_id):
-        self._lines[line_id]['line'].color = change.new
+    def change_line_color(self, change, line_id):
+        self._lines[line_id]['line'].color = change['new']
         self._fig.draw()
 
-    def _remove_line(self, change, line_id):
+    def remove_line(self, change, line_id):
         self._lines[line_id]['line'].remove()
         self._fig.draw()
         del self._lines[line_id]
