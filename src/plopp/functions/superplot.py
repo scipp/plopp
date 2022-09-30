@@ -25,7 +25,7 @@ class LineSaveTool:
         self.button = ipw.Button(description='Save line')
         self.button.on_click(self.save_line)
         self.container = ipw.VBox()
-        self.widget = ipw.VBox([self.button, self.container], layout={'width': '500px'})
+        self.widget = ipw.VBox([self.button, self.container], layout={'width': '350px'})
 
     def _update_container(self):
         self.container.children = [line['tool'] for line in self._lines.values()]
