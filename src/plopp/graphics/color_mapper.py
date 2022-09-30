@@ -4,8 +4,8 @@
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
 
+import matplotlib as mpl
 from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
-from matplotlib import colormaps
 import scipp as sc
 from copy import copy
 import numpy as np
@@ -14,8 +14,11 @@ import numpy as np
 def _get_cmap(name, nan_color=None):
 
     try:
-        cmap = copy(colormaps[name])
-    except ValueError:
+        if hasattr(mpl, 'colormaps'):
+            cmap = copy(mpl.colormaps[name])
+        else:
+            cmap = mpl.cm.get_cmap(name)
+    except (KeyError, ValueError):
         cmap = LinearSegmentedColormap.from_list("tmp", [name, name])
     # TODO: we need to set under and over values for the cmap with
     # `cmap.set_under` and `cmap.set_over`. Ideally these should come from a config?

@@ -15,7 +15,7 @@ requirements:
     - python >=3.8
     - python-dateutil
     - scipp
-    - matplotlib >=3.5
+    - matplotlib
 
 test:
   imports:
