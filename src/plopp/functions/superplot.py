@@ -59,7 +59,7 @@ class LineSaveTool:
 def superplot(obj: Union[sc.typing.VariableLike, ndarray],
               keep: str = None,
               *,
-              crop: Dict[str, Dict[str, Variable]] = None,
+              crop: Dict[str, Dict[str, sc.Variable]] = None,
               **kwargs):
     """
     Plot a multi-dimensional object as a one-dimensional line, slicing all but one
