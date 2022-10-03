@@ -11,14 +11,15 @@ import numpy as np
 class Cut3dTool(ipw.HBox):
 
     def __init__(self,
+                 *nodes,
                  limits,
                  direction,
                  value: bool = False,
                  color='red',
                  linewidth=1.5,
-                 on_activate=None,
-                 on_deactivate=None,
-                 on_move=None,
+                 # on_activate=None,
+                 # on_deactivate=None,
+                 # on_move=None,
                  **kwargs):
         """
         """
@@ -51,18 +52,27 @@ class Cut3dTool(ipw.HBox):
         self.button.observe(self.toggle, names='value')
         self.slider.observe(self.move, names='value')
 
-        self._on_activate = on_activate
-        self._on_deactivate = on_deactivate
-        self._on_move = on_move
+        self._nodes = nodes[0]
+
+        # self._on_activate = on_activate
+        # self._on_deactivate = on_deactivate
+        # self._on_move = on_move
 
         super().__init__([self.button, self.slider])
 
     def toggle(self, change):
         self.outline.visible = change['new']
         self.slider.disabled = not change['new']
+        if change['new']:
+            self._add_node()
 
     def move(self, value):
         pos = list(self.outline.position)
         axis = 'xyz'.index(self._direction)
         pos[axis] = value['new']
         self.outline.position = pos
+
+    def _add_node(self):
+        self.pos_node = Node(lambda: (sc.scalar(self.slider.value, unit='m'))
+        self.select_node = node(lambda da, pos: da[])(x=b, y=d)
+        e.add_view(bv)

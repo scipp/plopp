@@ -90,20 +90,21 @@ class Figure(View):
                     ylims[0] = self._user_vmin
                 if self._user_vmax is not None:
                     ylims[1] = self._user_vmax
-            if xmin is None or xlims[0].value < xmin:
-                xmin = xlims[0].value
-            if xmax is None or xlims[1].value > xmax:
-                xmax = xlims[1].value
-            if ymin is None or ylims[0].value < ymin:
-                ymin = ylims[0].value
-            if ymax is None or ylims[1].value > ymax:
-                ymax = ylims[1].value
-        return xmin, xmax, ymin, ymax
+            if xmin is None or xlims[0] < xmin:
+                xmin = xlims[0]
+            if xmax is None or xlims[1] > xmax:
+                xmax = xlims[1]
+            if ymin is None or ylims[0] < ymin:
+                ymin = ylims[0]
+            if ymax is None or ylims[1] > ymax:
+                ymax = ylims[1]
+        return (sc.concat([xmin, xmax], dim=self._dims['x']),
+                sc.concat([ymin, ymax], dim=self._dims['y']))
 
     def _autoscale(self):
-        xmin, xmax, ymin, ymax = self.get_limits()
-        self._ax.set_xlim(xmin, xmax)
-        self._ax.set_ylim(ymin, ymax)
+        xlims, ylims = self.get_limits()
+        self._ax.set_xlim(xlims[0].value, xlims[1].value)
+        self._ax.set_ylim(ylims[0].value, ylims[1].value)
 
     def draw(self):
         self._fig.canvas.draw_idle()

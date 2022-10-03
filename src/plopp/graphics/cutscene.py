@@ -12,18 +12,21 @@ from ipywidgets import VBox, HBox
 
 class CutScene(Scene3d):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *nodes, **kwargs):
+        super().__init__(*nodes, **kwargs)
         limits = self.get_limits()
-        self.cut_x = Cut3dTool(direction='x',
+        self.cut_x = Cut3dTool(*nodes,
+                               direction='x',
                                limits=limits,
                                description='X',
                                icon='cube')
-        self.cut_y = Cut3dTool(direction='y',
+        self.cut_y = Cut3dTool(*nodes,
+                               direction='y',
                                limits=limits,
                                description='Y',
                                icon='cube')
-        self.cut_z = Cut3dTool(direction='z',
+        self.cut_z = Cut3dTool(*nodes,
+                               direction='z',
                                limits=limits,
                                description='Z',
                                icon='cube')
