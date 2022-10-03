@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ipywidgets import Button
+from ipywidgets import Button, ToggleButton
 from typing import Callable
+import numpy as np
 
 LAYOUT_STYLE = {"layout": {"width": "34px", "padding": "0px 0px 0px 0px"}}
 
@@ -72,3 +73,39 @@ class PointsTool(ToggleTool):
             self.points.start()
         else:
             self.points.stop()
+
+
+class CutTool:
+
+    def __init__(self, limits, direction, value: bool = False, color='black', **kwargs):
+        """
+        """
+        import pythreejs as p3
+        self.widget = ToggleButton(value=value, **{**LAYOUT_STYLE, **kwargs})
+        self._limits = limits
+        self._direction = direction
+        w_axis = 2 if self._direction == 'x' else 0
+        h_axis = 2 if self._direction == 'y' else 1
+        width = (limits[w_axis][1] - limits[w_axis][0]).value
+        height = (limits[h_axis][1] - limits[h_axis][0]).value
+
+        self.outline = p3.LineSegments(geometry=p3.EdgesGeometry(
+            p3.PlaneBufferGeometry(width=width, height=height)),
+                                       material=p3.LineBasicMaterial(color=color))
+        if self._direction == 'x':
+            self.outline.rotateY(0.5 * np.pi)
+        if self._direction == 'y':
+            self.outline.rotateX(0.5 * np.pi)
+
+        self.outline.visible = value
+
+        self.widget.observe(self.toggle)
+
+    def toggle(self, change):
+        self.outline.visible = change['new']
+
+    def move(self, value):
+        pos = list(self.outline.position)
+        axis = 'xyz'.index(self._direction)
+        pos[axis] = value['new']
+        self.outline.position = pos
