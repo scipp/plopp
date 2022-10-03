@@ -76,11 +76,11 @@ class Figure(View):
                      height=height * dpi,
                      format='png')
 
-    def _autoscale(self):
-        global_xmin = None
-        global_xmax = None
-        global_ymin = None
-        global_ymax = None
+    def get_limits(self):
+        xmin = None
+        xmax = None
+        ymin = None
+        ymax = None
         xscale = self._ax.get_xscale()
         yscale = self._ax.get_yscale()
         for child in self._children.values():
@@ -90,16 +90,20 @@ class Figure(View):
                     ylims[0] = self._user_vmin
                 if self._user_vmax is not None:
                     ylims[1] = self._user_vmax
-            if global_xmin is None or xlims[0].value < global_xmin:
-                global_xmin = xlims[0].value
-            if global_xmax is None or xlims[1].value > global_xmax:
-                global_xmax = xlims[1].value
-            if global_ymin is None or ylims[0].value < global_ymin:
-                global_ymin = ylims[0].value
-            if global_ymax is None or ylims[1].value > global_ymax:
-                global_ymax = ylims[1].value
-        self._ax.set_xlim(global_xmin, global_xmax)
-        self._ax.set_ylim(global_ymin, global_ymax)
+            if xmin is None or xlims[0].value < xmin:
+                xmin = xlims[0].value
+            if xmax is None or xlims[1].value > xmax:
+                xmax = xlims[1].value
+            if ymin is None or ylims[0].value < ymin:
+                ymin = ylims[0].value
+            if ymax is None or ylims[1].value > ymax:
+                ymax = ylims[1].value
+        return xmin, xmax, ymin, ymax
+
+    def _autoscale(self):
+        xmin, xmax, ymin, ymax = self.get_limits()
+        self._ax.set_xlim(xmin, xmax)
+        self._ax.set_ylim(ymin, ymax)
 
     def draw(self):
         self._fig.canvas.draw_idle()

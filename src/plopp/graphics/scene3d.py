@@ -165,3 +165,26 @@ class Scene3d(View, VBox):
 
     def toggle_axes3d(self):
         self.axes_3d.visible = not self.axes_3d.visible
+
+    def get_limits(self):
+        xmin = None
+        xmax = None
+        ymin = None
+        ymax = None
+        zmin = None
+        zmax = None
+        for child in self._children.values():
+            xlims, ylims, zlims = child.get_limits()
+            if xmin is None or xlims[0].value < xmin:
+                xmin = xlims[0].value
+            if xmax is None or xlims[1].value > xmax:
+                xmax = xlims[1].value
+            if ymin is None or ylims[0].value < ymin:
+                ymin = ylims[0].value
+            if ymax is None or ylims[1].value > ymax:
+                ymax = ylims[1].value
+            if zmin is None or zlims[0].value < zmin:
+                zmin = zlims[0].value
+            if zmax is None or zlims[1].value > zmax:
+                zmax = zlims[1].value
+        return xmin, xmax, ymin, ymax, zmin, zmax
