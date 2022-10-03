@@ -23,6 +23,7 @@ test:
   requires:
     - pytest
     - ipywidgets
+    - pythreejs
     - scipy
   source_files:
     - tests/
