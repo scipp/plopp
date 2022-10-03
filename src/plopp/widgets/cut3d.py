@@ -2,34 +2,41 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .styling import BUTTON_LAYOUT
+from ..core import Node, node
 
 import ipywidgets as ipw
 from typing import Callable
 import numpy as np
+import scipp as sc
 
 
 class Cut3dTool(ipw.HBox):
 
-    def __init__(self,
-                 *nodes,
-                 limits,
-                 direction,
-                 value: bool = False,
-                 color='red',
-                 linewidth=1.5,
-                 # on_activate=None,
-                 # on_deactivate=None,
-                 # on_move=None,
-                 **kwargs):
+    def __init__(
+            self,
+            *nodes,
+            limits,
+            direction,
+            view,
+            value: bool = False,
+            color='red',
+            linewidth=1.5,
+            # on_activate=None,
+            # on_deactivate=None,
+            # on_move=None,
+            **kwargs):
         """
         """
         import pythreejs as p3
         self._limits = limits
         self._direction = direction
+        axis = 'xyz'.index(self._direction)
+        self._dim = self._limits[axis].dim
+        self._view = view
         w_axis = 2 if self._direction == 'x' else 0
         h_axis = 2 if self._direction == 'y' else 1
-        width = limits[w_axis * 2 + 1] - limits[w_axis * 2]
-        height = limits[h_axis * 2 + 1] - limits[h_axis * 2]
+        width = (self._limits[w_axis][1] - self._limits[w_axis][0]).value
+        height = (self._limits[h_axis][1] - self._limits[h_axis][0]).value
 
         self.outline = p3.LineSegments(
             geometry=p3.EdgesGeometry(p3.PlaneBufferGeometry(width=width,
@@ -43,9 +50,8 @@ class Cut3dTool(ipw.HBox):
         self.outline.visible = value
 
         self.button = ipw.ToggleButton(value=value, **{**BUTTON_LAYOUT, **kwargs})
-        axis = 'xyz'.index(self._direction)
-        self.slider = ipw.FloatSlider(min=limits[axis * 2],
-                                      max=limits[axis * 2 + 1],
+        self.slider = ipw.FloatSlider(min=limits[axis][0].value,
+                                      max=limits[axis][1].value,
                                       layout={'width': '200px'},
                                       disabled=not value)
         self.slider.step = (self.slider.max - self.slider.min) / 100
@@ -53,6 +59,7 @@ class Cut3dTool(ipw.HBox):
         self.slider.observe(self.move, names='value')
 
         self._nodes = nodes[0]
+        print(self._nodes)
 
         # self._on_activate = on_activate
         # self._on_deactivate = on_deactivate
@@ -73,6 +80,11 @@ class Cut3dTool(ipw.HBox):
         self.outline.position = pos
 
     def _add_node(self):
-        self.pos_node = Node(lambda: (sc.scalar(self.slider.value, unit='m'))
-        self.select_node = node(lambda da, pos: da[])(x=b, y=d)
-        e.add_view(bv)
+        self.pos_node = Node(lambda: sc.scalar(self.slider.value, unit='m'))
+        self.select_node = node(lambda da, pos: da[sc.abs(da.meta[
+            self._dim] - pos) < sc.scalar(5., unit='m')])(da=self._nodes,
+                                                          pos=self.pos_node)
+        print(self.select_node.request_data())
+        self.select_node.add_view(self._view)
+        print('self._view.graph_nodes', self._view.graph_nodes)
+        self._view.render()

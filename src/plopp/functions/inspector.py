@@ -35,7 +35,7 @@ class InspectorEventHandler:
         self._event_nodes[event_node.id] = event_node
         change['artist'].nodeid = event_node.id
         inspect_node = slice_dims(self._root_node, event_node)
-        self._fig1d.graph_nodes[inspect_node.id] = inspect_node
+        # self._fig1d.graph_nodes[inspect_node.id] = inspect_node
         inspect_node.add_view(self._fig1d)
         self._fig1d.render()
 

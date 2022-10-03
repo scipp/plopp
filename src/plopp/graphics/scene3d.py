@@ -12,13 +12,13 @@ from ipywidgets import VBox, HBox
 
 class Scene3d(View, VBox):
 
-    def __init__(self, *nodes, figsize=(600, 400), title=None, **kwargs):
+    def __init__(self, *nodes, figsize=(600, 400), title=None):
 
         import pythreejs as p3
 
         View.__init__(self, *nodes)
 
-        self._kwargs = kwargs
+        # self._kwargs = kwargs
         self._children = {}
         self.outline = None
         self.axticks = None
@@ -93,29 +93,29 @@ class Scene3d(View, VBox):
         new_values = self.graph_nodes[node_id].request_data()
         self.update(new_values=new_values, key=node_id)
 
-    def update(self, new_values: sc.DataArray, key: str):
-        """
-        Update image array with new values.
-        """
-        from .point_cloud import PointCloud
-        from .outline import Outline
+    # def update(self, new_values: sc.DataArray, key: str):
+    #     """
+    #     Update image array with new values.
+    #     """
+    #     from .point_cloud import PointCloud
+    #     from .outline import Outline
 
-        if key not in self._children:
-            pts = PointCloud(data=new_values,
-                             cbar=self.right_bar,
-                             figsize=self._figsize,
-                             **self._kwargs)
-            self._children[key] = pts
-            self.scene.add(pts.points)
-            limits = pts.get_limits()
-            if self.outline is not None:
-                self.scene.remove(self.outline)
-            self.outline = Outline(limits=limits)
-            self.scene.add(self.outline)
-            self._update_camera(limits=limits)
-            self.axes_3d.scale = [self.camera.far] * 3
-        else:
-            self._children[key].update(new_values=new_values)
+    #     if key not in self._children:
+    #         pts = PointCloud(data=new_values,
+    #                          cbar=self.right_bar,
+    #                          figsize=self._figsize,
+    #                          **self._kwargs)
+    #         self._children[key] = pts
+    #         self.scene.add(pts.points)
+    #         limits = pts.get_limits()
+    #         if self.outline is not None:
+    #             self.scene.remove(self.outline)
+    #         self.outline = Outline(limits=limits)
+    #         self.scene.add(self.outline)
+    #         self._update_camera(limits=limits)
+    #         self.axes_3d.scale = [self.camera.far] * 3
+    #     else:
+    #         self._children[key].update(new_values=new_values)
 
     def render(self):
         for node in self.graph_nodes.values():
@@ -166,25 +166,31 @@ class Scene3d(View, VBox):
     def toggle_axes3d(self):
         self.axes_3d.visible = not self.axes_3d.visible
 
-    def get_limits(self):
-        xmin = None
-        xmax = None
-        ymin = None
-        ymax = None
-        zmin = None
-        zmax = None
-        for child in self._children.values():
-            xlims, ylims, zlims = child.get_limits()
-            if xmin is None or xlims[0].value < xmin:
-                xmin = xlims[0].value
-            if xmax is None or xlims[1].value > xmax:
-                xmax = xlims[1].value
-            if ymin is None or ylims[0].value < ymin:
-                ymin = ylims[0].value
-            if ymax is None or ylims[1].value > ymax:
-                ymax = ylims[1].value
-            if zmin is None or zlims[0].value < zmin:
-                zmin = zlims[0].value
-            if zmax is None or zlims[1].value > zmax:
-                zmax = zlims[1].value
-        return xmin, xmax, ymin, ymax, zmin, zmax
+    # def get_limits(self):
+    #     xmin = None
+    #     xmax = None
+    #     ymin = None
+    #     ymax = None
+    #     zmin = None
+    #     zmax = None
+    #     for child in self._children.values():
+    #         xlims, ylims, zlims = child.get_limits()
+    #         if xmin is None or xlims[0].value < xmin:
+    #             xmin = xlims[0].value
+    #         if xmax is None or xlims[1].value > xmax:
+    #             xmax = xlims[1].value
+    #         if ymin is None or ylims[0].value < ymin:
+    #             ymin = ylims[0].value
+    #         if ymax is None or ylims[1].value > ymax:
+    #             ymax = ylims[1].value
+    #         if zmin is None or zlims[0].value < zmin:
+    #             zmin = zlims[0].value
+    #         if zmax is None or zlims[1].value > zmax:
+    #             zmax = zlims[1].value
+    #     return (sc.concat([xmin, xmax], dim=self._dims['x']),
+    #             sc.concat([ymin, ymax], dim=self._dims['y']))
+    #     # return *[
+    #     #     reduce(lambda x, y: f(x, y),
+    #     #            [child.get_limits()[i][j] for child in self._children.values()])
+    #     #     for i in range(3) for j, f in enumerate([min, max])
+    #     # ]

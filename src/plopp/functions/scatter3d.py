@@ -13,7 +13,7 @@ def scatter3d(da: sc.DataArray,
               y: str = None,
               z: str = None,
               pos: str = None,
-              figsize: Tuple[Union[int, float]] = None,
+              figsize: Tuple[Union[int, float]] = (600, 400),
               norm: Literal['linear', 'log'] = 'linear',
               title: str = None,
               vmin: sc.Variable = None,
@@ -61,7 +61,7 @@ def scatter3d(da: sc.DataArray,
     :
         A three-dimensional interactive scatter plot.
     """
-    from ..graphics import Scene3d
+    from ..graphics import ScatterScene
 
     if pos is not None:
         if any((x, y, z)):
@@ -75,15 +75,15 @@ def scatter3d(da: sc.DataArray,
     else:
         coords = {k: da.meta[k] for k in (x, y, z)}
 
-    return Scene3d(input_node(sc.DataArray(data=da.data, masks=da.masks,
-                                           coords=coords)),
-                   x=x,
-                   y=y,
-                   z=z,
-                   figsize=figsize,
-                   norm=norm,
-                   title=title,
-                   vmin=vmin,
-                   vmax=vmax,
-                   cmap=cmap,
-                   **kwargs)
+    return ScatterScene(input_node(
+        sc.DataArray(data=da.data, masks=da.masks, coords=coords)),
+                        x=x,
+                        y=y,
+                        z=z,
+                        figsize=figsize,
+                        norm=norm,
+                        title=title,
+                        vmin=vmin,
+                        vmax=vmax,
+                        cmap=cmap,
+                        **kwargs)

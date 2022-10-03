@@ -6,3 +6,4 @@
 from .interactive import InteractiveFig
 from .static import StaticFig
 from .scene3d import Scene3d
+from .scatter_scene import ScatterScene

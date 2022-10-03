@@ -29,7 +29,8 @@ class PointCloud:
             mask_cmap: str = 'gray',
             norm: str = 'linear',
             vmin=None,
-            vmax=None):
+            vmax=None,
+            opacity=1):
         """
         Make a point cloud using pythreejs
         """
@@ -66,7 +67,8 @@ class PointCloud:
         # be required to get the sizes right in the scene.
         self.material = p3.PointsMaterial(vertexColors='VertexColors',
                                           size=2.5 * pixel_size * pixel_ratio,
-                                          transparent=True)
+                                          transparent=True,
+                                          opacity=opacity)
         self.points = p3.Points(geometry=self.geometry, material=self.material)
 
         self._set_norm()

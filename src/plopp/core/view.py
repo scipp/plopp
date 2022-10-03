@@ -11,7 +11,7 @@ class View:
         self.id = str(uuid.uuid1())
         self.graph_nodes = {}
         for node in nodes:
-            self.graph_nodes[node.id] = node
+            # self.graph_nodes[node.id] = node
             node.add_view(self)
 
     @abstractmethod
