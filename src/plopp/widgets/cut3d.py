@@ -16,6 +16,9 @@ class Cut3dTool(ipw.HBox):
                  value: bool = False,
                  color='red',
                  linewidth=1.5,
+                 on_activate=None,
+                 on_deactivate=None,
+                 on_move=None,
                  **kwargs):
         """
         """
@@ -42,15 +45,21 @@ class Cut3dTool(ipw.HBox):
         axis = 'xyz'.index(self._direction)
         self.slider = ipw.FloatSlider(min=limits[axis * 2],
                                       max=limits[axis * 2 + 1],
-                                      layout={'width': '200px'})
+                                      layout={'width': '200px'},
+                                      disabled=not value)
         self.slider.step = (self.slider.max - self.slider.min) / 100
         self.button.observe(self.toggle, names='value')
         self.slider.observe(self.move, names='value')
+
+        self._on_activate = on_activate
+        self._on_deactivate = on_deactivate
+        self._on_move = on_move
 
         super().__init__([self.button, self.slider])
 
     def toggle(self, change):
         self.outline.visible = change['new']
+        self.slider.disabled = not change['new']
 
     def move(self, value):
         pos = list(self.outline.position)
