@@ -4,7 +4,6 @@
 from ..core import View
 from ..widgets import Toolbar
 
-import scipp as sc
 from copy import copy
 import numpy as np
 from ipywidgets import VBox, HBox
@@ -21,9 +20,9 @@ class Fig3d(View, VBox):
         self._children = {}
         self.outline = None
         self.axticks = None
-        self._figsize = figsize
+        # self._figsize = figsize
 
-        width, height = self._figsize
+        width, height = figsize
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}

@@ -161,15 +161,16 @@ class Mesh:
         self._set_mesh_colors()
 
     def _set_norm(self):
-        self.color_mapper.set_norm(data=self._data.data)
-        self._mesh.set_norm(self.color_mapper.norm_func)
+        self.color_mapper.set_norm(data=self._data)
+        self._mesh.set_norm(self.color_mapper.norm)
         self._set_clim()
 
     def toggle_norm(self, event):
         if event.artist is not self._cbar.ax:
             return
         self.color_mapper.toggle_norm()
-        self._set_norm()
+        # self._set_norm()
+        self._set_clim()
         self._ax.figure.canvas.draw_idle()
 
     def get_limits(self, xscale, yscale):

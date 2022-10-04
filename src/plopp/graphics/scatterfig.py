@@ -2,12 +2,9 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .fig3d import Fig3d
-from ..core import View
-from ..widgets import Toolbar, Cut3dTool
+from ..widgets import Cut3dTool
 
 import scipp as sc
-from copy import copy
-import numpy as np
 import ipywidgets as ipw
 
 
@@ -70,14 +67,15 @@ class ScatterFig(Fig3d):
         if key not in self._children:
             if colormapper is not None:
                 colormapper = self._children[colormapper].color_mapper
-            pts = PointCloud(data=new_values,
-                             x=self._x,
-                             y=self._y,
-                             z=self._z,
-                             colormapper=colormapper,
-                             cbar=self.right_bar,
-                             figsize=self._figsize,
-                             **self._kwargs)
+            pts = PointCloud(
+                data=new_values,
+                x=self._x,
+                y=self._y,
+                z=self._z,
+                colormapper=colormapper,
+                # cbar=self.right_bar,
+                # figsize=self._figsize,
+                **self._kwargs)
             self._children[key] = pts
             self.scene.add(pts.points)
             if colormapper is None:
@@ -88,6 +86,8 @@ class ScatterFig(Fig3d):
                 self.scene.add(self.outline)
                 self._update_camera(limits=limits)
                 self.axes_3d.scale = [self.camera.far] * 3
+                self.right_bar.children = list(
+                    self.right_bar.children) + [pts.color_mapper.widget]
         else:
             self._children[key].update(new_values=new_values)
 
