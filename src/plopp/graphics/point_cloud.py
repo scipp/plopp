@@ -83,7 +83,8 @@ class PointCloud:
         }
         self.update(new_values=data)
         self._update_colorbar()
-        cbar.children = list(cbar.children) + list(self.colorbar.values())
+        if cbar:
+            cbar.children = list(cbar.children) + list(self.colorbar.values())
 
     def _set_points_colors(self):
         colors = self.color_mapper.rgba(self._data)[..., :3]
@@ -125,3 +126,12 @@ class PointCloud:
         return (sc.concat([xmin, xmax],
                           dim=self._x), sc.concat([ymin, ymax], dim=self._y),
                 sc.concat([zmin, zmax], dim=self._z))
+
+    @property
+    def opacity(self):
+        return self.material.opacity
+
+    @opacity.setter
+    def opacity(self, val):
+        self.material.opacity = val
+        self.material.depthTest = val > 0.5

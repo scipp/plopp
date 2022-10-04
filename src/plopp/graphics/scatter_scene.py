@@ -13,7 +13,15 @@ from ipywidgets import VBox, HBox
 
 class ScatterScene(Scene3d):
 
-    def __init__(self, *nodes, x, y, z, figsize=(600, 400), title=None, **kwargs):
+    def __init__(self,
+                 *nodes,
+                 x,
+                 y,
+                 z,
+                 figsize=(600, 400),
+                 title=None,
+                 cbar=None,
+                 **kwargs):
 
         self._x = x
         self._y = y
@@ -45,7 +53,12 @@ class ScatterScene(Scene3d):
             self.bottom_bar.children) + [self.cut_x, self.cut_y, self.cut_z]
         self.scene.add([self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
 
-    def update(self, new_values: sc.DataArray, key: str):
+        self._original_children = list(self._children.keys())
+        self.cut_x.button.observe(self._toggle_opacity, names='value')
+        self.cut_y.button.observe(self._toggle_opacity, names='value')
+        self.cut_z.button.observe(self._toggle_opacity, names='value')
+
+    def update(self, new_values: sc.DataArray, key: str, from_cut=False):
         """
         Update image array with new values.
         """
@@ -58,22 +71,23 @@ class ScatterScene(Scene3d):
                              x=self._x,
                              y=self._y,
                              z=self._z,
-                             cbar=self.right_bar,
+                             cbar=False if from_cut else self.right_bar,
                              figsize=self._figsize,
                              **self._kwargs)
             self._children[key] = pts
             self.scene.add(pts.points)
-            limits = pts.get_limits()
-            if self.outline is not None:
-                self.scene.remove(self.outline)
-            self.outline = Outline(limits=limits)
-            self.scene.add(self.outline)
-            self._update_camera(limits=limits)
-            self.axes_3d.scale = [self.camera.far] * 3
+            if not from_cut:
+                limits = self.get_limits()
+                if self.outline is not None:
+                    self.scene.remove(self.outline)
+                self.outline = Outline(limits=limits)
+                self.scene.add(self.outline)
+                self._update_camera(limits=limits)
+                self.axes_3d.scale = [self.camera.far] * 3
         else:
             self._children[key].update(new_values=new_values)
 
-        self._kwargs['opacity'] = 1.0
+        # self._kwargs['opacity'] = 1.0
 
     def get_limits(self):
         xmin = None
@@ -104,3 +118,9 @@ class ScatterScene(Scene3d):
         #            [child.get_limits()[i][j] for child in self._children.values()])
         #     for i in range(3) for j, f in enumerate([min, max])
         # ]
+
+    def _toggle_opacity(self, change):
+        opacity = 0.05 if any([self.cut_x.value, self.cut_y.value, self.cut_z.value
+                               ]) else 1.0
+        for name in self._original_children:
+            self._children[name].opacity = opacity
