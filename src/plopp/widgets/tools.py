@@ -73,3 +73,16 @@ class PointsTool(ToggleTool):
             self.points.start()
         else:
             self.points.stop()
+
+
+class ColorTool(ipw.HBox):
+
+    def __init__(self, text, color):
+        layout = ipw.Layout(display="flex", justify_content="flex-end", width='150px')
+        self.text = ipw.Label(value=text, layout=layout)
+        self.color = ipw.ColorPicker(concise=True,
+                                     value=color,
+                                     description='',
+                                     layout={'width': "30px"})
+        self.button = ipw.Button(icon='times', **BUTTON_LAYOUT)
+        super().__init__([self.text, self.color, self.button])

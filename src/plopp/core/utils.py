@@ -91,3 +91,14 @@ def merge_masks(masks):
     Combine all masks into a single one using the OR operation.
     """
     return reduce(lambda a, b: a | b, masks.values())
+
+
+def coord_element_to_string(coord):
+    """
+    Convert a slice of a coordinate containing a single value (or two values in the
+    case of a bin-edge coordinate) to a string.
+    """
+    out = value_to_string(coord.values)
+    if coord.unit is not None:
+        out += f" [{coord.unit}]"
+    return out
