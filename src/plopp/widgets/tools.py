@@ -5,7 +5,6 @@ from .styling import BUTTON_LAYOUT
 
 import ipywidgets as ipw
 from typing import Callable
-import numpy as np
 
 
 class ButtonTool:

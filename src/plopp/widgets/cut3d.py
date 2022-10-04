@@ -4,9 +4,7 @@
 from .styling import BUTTON_LAYOUT
 from ..core import Node, node
 
-from itertools import chain
 import ipywidgets as ipw
-from typing import Callable
 import numpy as np
 import scipp as sc
 import asyncio

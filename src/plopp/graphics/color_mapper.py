@@ -54,18 +54,6 @@ class ColorMapper:
         self.unit = None
         self.name = None
 
-        # if colorbar:
-        #     import ipywidgets as ipw
-        #     self.colorbar = {
-        #         'image':
-        #         ipw.Image(),
-        #         'button':
-        #         ToggleTool(self.toggle_norm,
-        #                    value=norm == 'log',
-        #                    description='log',
-        #                    tooltip='Toggle data norm').widget
-        #     }
-
     @property
     def widget(self):
         import ipywidgets as ipw
@@ -114,7 +102,6 @@ class ColorMapper:
     def rescale(self, data):
         old_bounds = np.array([self._vmin, self._vmax])
         self.autoscale(data=data, scale=self._norm)
-        # self.color_mapper.rescale(data=new_values.data)
         if (self.colorbar is not None) and not np.allclose(
                 old_bounds, np.array([self._vmin, self._vmax])):
             self._update_colorbar()
@@ -135,25 +122,15 @@ class ColorMapper:
         """
         self.unit = data.unit
         self.name = data.name
-        # func = dict(linear=Normalize, log=LogNorm)[self.norm]
-        # self.normalizer = func()
         self.autoscale(data=data.data, scale='linear')
         self.autoscale(data=data.data, scale='log')
-        # self._update_colorbar()
         self.notify()
-
-        # old_bounds = [self.color_mapper.vmin, self.color_mapper.vmax]
-        # self.color_mapper.rescale(data=new_values.data)
-        # if old_bounds != [self.color_mapper.vmin, self.color_mapper.vmax]:
-        #     self._update_colorbar()
 
     def toggle_norm(self):
         """
         Toggle the norm flag, between `linear` and `log`.
         """
         self._norm = "log" if self._norm == "linear" else "linear"
-        # self._vmin = np.inf
-        # self._vmax = np.NINF
         self.notify()
         if self.colorbar is not None:
             self._update_colorbar()

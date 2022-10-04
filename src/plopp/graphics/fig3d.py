@@ -20,7 +20,6 @@ class Fig3d(View, VBox):
         self._children = {}
         self.outline = None
         self.axticks = None
-        # self._figsize = figsize
 
         width, height = figsize
 

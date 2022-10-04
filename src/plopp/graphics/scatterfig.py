@@ -67,15 +67,12 @@ class ScatterFig(Fig3d):
         if key not in self._children:
             if colormapper is not None:
                 colormapper = self._children[colormapper].color_mapper
-            pts = PointCloud(
-                data=new_values,
-                x=self._x,
-                y=self._y,
-                z=self._z,
-                colormapper=colormapper,
-                # cbar=self.right_bar,
-                # figsize=self._figsize,
-                **self._kwargs)
+            pts = PointCloud(data=new_values,
+                             x=self._x,
+                             y=self._y,
+                             z=self._z,
+                             colormapper=colormapper,
+                             **self._kwargs)
             self._children[key] = pts
             self.scene.add(pts.points)
             if colormapper is None:
