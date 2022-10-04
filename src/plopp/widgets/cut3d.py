@@ -102,14 +102,27 @@ class Cut3dTool(ipw.HBox):
         self.button = ipw.ToggleButton(value=value, **{**BUTTON_LAYOUT, **kwargs})
         self.slider = ipw.FloatSlider(min=limits[axis][0].value,
                                       max=limits[axis][1].value,
-                                      layout={'width': '200px'},
-                                      disabled=not value)
+                                      layout={'width': '150px'},
+                                      disabled=not value,
+                                      readout=False)
         self.slider.step = (self.slider.max - self.slider.min) * self.thickness * 0.5
+        self.readout = ipw.FloatText(disabled=not value,
+                                     layout={'width': '70px'},
+                                     step=self.slider.step)
+        self.unit_label = ipw.Label(f'[{self._unit}]')
+        ipw.jslink((self.slider, "value"), (self.readout, "value"))
 
+        # Note: when making small buttons, the description stays in the middle of
+        # some pre-defined baseline, and they get cropped. Instead, we use some
+        # carefully chosen unicode characters whose top parts look like a '+' and '-'.
         layout = {'width': '20px', 'height': '12px', 'padding': '0px'}
-        self.button_plus = ipw.Button(description='\u1429', layout=layout)
+        self.button_plus = ipw.Button(description='\u1429',
+                                      layout=layout,
+                                      disabled=not value)
         self.button_plus.style.font_size = '38px'
-        self.button_minus = ipw.Button(description='\u039e', layout=layout)
+        self.button_minus = ipw.Button(description='\u039e',
+                                       layout=layout,
+                                       disabled=not value)
         self.button_minus.style.font_size = '25px'
 
         self.button.observe(self.toggle, names='value')
@@ -127,13 +140,16 @@ class Cut3dTool(ipw.HBox):
         # self._on_deactivate = on_deactivate
         # self._on_move = on_move
 
-        super().__init__(
-            [self.button,
-             ipw.VBox([self.button_plus, self.button_minus]), self.slider])
+        super().__init__([
+            self.button,
+            ipw.VBox([self.button_plus, self.button_minus]), self.slider, self.readout,
+            self.unit_label
+        ])
 
     def toggle(self, change):
         self.outline.visible = change['new']
-        self.slider.disabled = not change['new']
+        for widget in (self.slider, self.button_plus, self.button_minus, self.readout):
+            widget.disabled = not change['new']
         if change['new']:
             self._add_cut()
         else:

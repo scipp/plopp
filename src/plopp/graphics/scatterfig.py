@@ -8,7 +8,7 @@ from ..widgets import Toolbar, Cut3dTool
 import scipp as sc
 from copy import copy
 import numpy as np
-from ipywidgets import VBox, HBox
+import ipywidgets as ipw
 
 
 class ScatterFig(Fig3d):
@@ -49,8 +49,10 @@ class ScatterFig(Fig3d):
                                view=self,
                                description='Z',
                                icon='cube')
-        self.bottom_bar.children = list(
-            self.bottom_bar.children) + [self.cut_x, self.cut_y, self.cut_z]
+        space = ipw.HTML('&nbsp;&nbsp;&nbsp;&nbsp;')
+        self.bottom_bar.children = list(self.bottom_bar.children) + [
+            self.cut_x, space, self.cut_y, space, self.cut_z
+        ]
         self.scene.add([self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
 
         self._original_children = list(self._children.keys())
