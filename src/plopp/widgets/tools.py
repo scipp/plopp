@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ipywidgets import Button
+import ipywidgets as ipw
 from typing import Callable
 
 LAYOUT_STYLE = {"layout": {"width": "34px", "padding": "0px 0px 0px 0px"}}
@@ -13,7 +13,7 @@ class ButtonTool:
         """
         Create a new button with a callback that is called when the button is clicked.
         """
-        self.widget = Button(**{**LAYOUT_STYLE, **kwargs})
+        self.widget = ipw.Button(**{**LAYOUT_STYLE, **kwargs})
         self._callback = callback
         self.widget.on_click(self)
 
@@ -30,7 +30,7 @@ class ToggleTool:
         cases, we need to toggle the button color without triggering the callback
         function.
         """
-        self.widget = Button(**{**LAYOUT_STYLE, **kwargs})
+        self.widget = ipw.Button(**{**LAYOUT_STYLE, **kwargs})
         self._callback = callback
         self.widget.on_click(self)
         self._value = value
@@ -72,3 +72,16 @@ class PointsTool(ToggleTool):
             self.points.start()
         else:
             self.points.stop()
+
+
+class ColorTool(ipw.HBox):
+
+    def __init__(self, text, color):
+        layout = ipw.Layout(display="flex", justify_content="flex-end", width='150px')
+        self.text = ipw.Label(value=text, layout=layout)
+        self.color = ipw.ColorPicker(concise=True,
+                                     value=color,
+                                     description='',
+                                     layout={'width': "30px"})
+        self.button = ipw.Button(icon='times', **LAYOUT_STYLE)
+        super().__init__([self.text, self.color, self.button])

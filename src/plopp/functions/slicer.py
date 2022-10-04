@@ -5,10 +5,36 @@ from .common import require_interactive_backend, preprocess
 from .figure import figure
 from ..core import input_node, widget_node
 
-from scipp import Variable
+from scipp import Variable, DataArray
 from scipp.typing import VariableLike
 from numpy import ndarray
 from typing import Union, Dict, List
+
+
+class Slicer:
+
+    def __init__(self,
+                 da: DataArray,
+                 keep: List[str] = None,
+                 *,
+                 crop: Dict[str, Dict[str, Variable]] = None,
+                 **kwargs):
+
+        from plopp.widgets import SliceWidget, slice_dims
+
+        self.data_node = input_node(da)
+
+        if keep is None:
+            keep = da.dims[-(2 if da.ndim > 2 else 1):]
+
+        if len(keep) == 0:
+            raise ValueError(
+                'Slicer plot: the list of dims to be kept cannot be empty.')
+
+        self.slider = SliceWidget(da, dims=list(set(da.dims) - set(keep)))
+        self.slider_node = widget_node(self.slider)
+        self.slice_node = slice_dims(self.data_node, self.slider_node)
+        self.fig = figure(self.slice_node, **{**{'crop': crop}, **kwargs})
 
 
 def slicer(obj: Union[VariableLike, ndarray],
@@ -43,15 +69,7 @@ def slicer(obj: Union[VariableLike, ndarray],
         A :class:`Box` which will contain a :class:`Figure` and slider widgets.
     """
     require_interactive_backend('slicer')
-
-    from plopp.widgets import SliceWidget, slice_dims, Box
     da = preprocess(obj, crop=crop, ignore_size=True)
-    a = input_node(da)
-
-    if keep is None:
-        keep = da.dims[-(2 if da.ndim > 2 else 1):]
-    sl = SliceWidget(da, dims=list(set(da.dims) - set(keep)))
-    w = widget_node(sl)
-    slice_node = slice_dims(a, w)
-    fig = figure(slice_node, **{**{'crop': crop}, **kwargs})
-    return Box([fig, sl])
+    from plopp.widgets import Box
+    sl = Slicer(da=da, keep=keep, crop=crop, **kwargs)
+    return Box([sl.fig, sl.slider])

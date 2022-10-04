@@ -21,4 +21,5 @@ Plotting
    plot
    slicer
    inspector
+   superplot
    scatter3d
