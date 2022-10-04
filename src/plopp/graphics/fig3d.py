@@ -10,7 +10,7 @@ import numpy as np
 from ipywidgets import VBox, HBox
 
 
-class Scene3d(View, VBox):
+class Fig3d(View, VBox):
 
     def __init__(self, *nodes, figsize=(600, 400), title=None):
 

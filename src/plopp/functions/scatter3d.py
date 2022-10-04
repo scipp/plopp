@@ -61,7 +61,7 @@ def scatter3d(da: sc.DataArray,
     :
         A three-dimensional interactive scatter plot.
     """
-    from ..graphics import ScatterScene
+    from ..graphics import ScatterFig
 
     if pos is not None:
         if any((x, y, z)):
@@ -75,15 +75,15 @@ def scatter3d(da: sc.DataArray,
     else:
         coords = {k: da.meta[k] for k in (x, y, z)}
 
-    return ScatterScene(input_node(
+    return ScatterFig(input_node(
         sc.DataArray(data=da.data, masks=da.masks, coords=coords)),
-                        x=x,
-                        y=y,
-                        z=z,
-                        figsize=figsize,
-                        norm=norm,
-                        title=title,
-                        vmin=vmin,
-                        vmax=vmax,
-                        cmap=cmap,
-                        **kwargs)
+                      x=x,
+                      y=y,
+                      z=z,
+                      figsize=figsize,
+                      norm=norm,
+                      title=title,
+                      vmin=vmin,
+                      vmax=vmax,
+                      cmap=cmap,
+                      **kwargs)

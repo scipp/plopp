@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .scene3d import Scene3d
+from .fig3d import Fig3d
 from ..core import View
 from ..widgets import Toolbar, Cut3dTool
 
@@ -11,7 +11,7 @@ import numpy as np
 from ipywidgets import VBox, HBox
 
 
-class ScatterScene(Scene3d):
+class ScatterFig(Fig3d):
 
     def __init__(self,
                  *nodes,
@@ -66,7 +66,6 @@ class ScatterScene(Scene3d):
         from .outline import Outline
 
         if key not in self._children:
-            print("New point cloud", key)
             if colormapper is not None:
                 colormapper = self._children[colormapper].color_mapper
             pts = PointCloud(data=new_values,
@@ -90,9 +89,10 @@ class ScatterScene(Scene3d):
         else:
             self._children[key].update(new_values=new_values)
 
-        # self._kwargs['opacity'] = 1.0
-
     def get_limits(self):
+        """
+        Get global limits for all the point clouds in the scene.
+        """
         xmin = None
         xmax = None
         ymin = None
@@ -116,18 +116,20 @@ class ScatterScene(Scene3d):
         return (sc.concat([xmin, xmax],
                           dim=self._x), sc.concat([ymin, ymax], dim=self._y),
                 sc.concat([zmin, zmax], dim=self._z))
-        # return *[
-        #     reduce(lambda x, y: f(x, y),
-        #            [child.get_limits()[i][j] for child in self._children.values()])
-        #     for i in range(3) for j, f in enumerate([min, max])
-        # ]
 
     def _toggle_opacity(self, change):
+        """
+        If any cut is active, set the opacity of the original children (not the cuts) to
+        a low value. If all cuts are inactive, set the opacity back to 1.
+        """
         opacity = 0.05 if any([self.cut_x.value, self.cut_y.value, self.cut_z.value
                                ]) else 1.0
         for name in self._original_children:
             self._children[name].opacity = opacity
 
     def remove(self, key):
+        """
+        Remove a point cloud from the scene.
+        """
         self.scene.remove(self._children[key].points)
         del self._children[key]

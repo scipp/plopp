@@ -78,8 +78,8 @@ class Cut3dTool(ipw.HBox):
         self._direction = direction
         axis = 'xyz'.index(self._direction)
         self._dim = self._limits[axis].dim
+        self._unit = self._limits[axis].unit
         self._view = view
-        # self._view_children = self._view._children.copy()
 
         w_axis = 2 if self._direction == 'x' else 0
         h_axis = 2 if self._direction == 'y' else 1
@@ -94,18 +94,29 @@ class Cut3dTool(ipw.HBox):
             self.outline.rotateY(0.5 * np.pi)
         if self._direction == 'y':
             self.outline.rotateX(0.5 * np.pi)
-
         self.outline.visible = value
+
+        self.thickness = 0.01
+        self._thickness_step = self.thickness * 0.25
 
         self.button = ipw.ToggleButton(value=value, **{**BUTTON_LAYOUT, **kwargs})
         self.slider = ipw.FloatSlider(min=limits[axis][0].value,
                                       max=limits[axis][1].value,
                                       layout={'width': '200px'},
                                       disabled=not value)
-        self.slider.step = (self.slider.max - self.slider.min) / 100
+        self.slider.step = (self.slider.max - self.slider.min) * self.thickness * 0.5
+
+        layout = {'width': '20px', 'height': '12px', 'padding': '0px'}
+        self.button_plus = ipw.Button(description='\u1429', layout=layout)
+        self.button_plus.style.font_size = '38px'
+        self.button_minus = ipw.Button(description='\u039e', layout=layout)
+        self.button_minus.style.font_size = '25px'
+
         self.button.observe(self.toggle, names='value')
         self.slider.observe(self.move, names='value')
         self.slider.observe(self.update_cut, names='value')
+        self.button_plus.on_click(self.increase_thickness)
+        self.button_minus.on_click(self.decrease_thickness)
 
         self._nodes = nodes
         self.pos_nodes = {}
@@ -116,7 +127,9 @@ class Cut3dTool(ipw.HBox):
         # self._on_deactivate = on_deactivate
         # self._on_move = on_move
 
-        super().__init__([self.button, self.slider])
+        super().__init__(
+            [self.button,
+             ipw.VBox([self.button_plus, self.button_minus]), self.slider])
 
     def toggle(self, change):
         self.outline.visible = change['new']
@@ -140,10 +153,12 @@ class Cut3dTool(ipw.HBox):
 
     def _add_cut(self):
         for n in self._nodes:
-            self.pos_nodes[n.id] = Node(lambda: sc.scalar(self.slider.value, unit='m'))
+            self.pos_nodes[n.id] = Node(
+                lambda: sc.scalar(self.slider.value, unit=self._unit))
+            delta = (self.slider.max - self.slider.min) * self.thickness
             self.select_nodes[n.id] = node(lambda da, pos: da[sc.abs(da.meta[
-                self._dim] - pos) < sc.scalar(10., unit='m')])(da=n,
-                                                               pos=self.pos_nodes[n.id])
+                self._dim] - pos) < sc.scalar(delta, unit=self._unit)])(
+                    da=n, pos=self.pos_nodes[n.id])
             # print(self.select_node.request_data())
             self.select_nodes[n.id].add_view(self._view)
             # print('self._view.graph_nodes', self._view.graph_nodes)
@@ -167,3 +182,13 @@ class Cut3dTool(ipw.HBox):
     @property
     def value(self):
         return self.button.value
+
+    def increase_thickness(self, change):
+        self.thickness = self.thickness + self._thickness_step
+        self._remove_cut()
+        self._add_cut()
+
+    def decrease_thickness(self, change):
+        self.thickness = max(self.thickness - self._thickness_step, 0)
+        self._remove_cut()
+        self._add_cut()
