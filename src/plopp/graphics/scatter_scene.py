@@ -127,3 +127,7 @@ class ScatterScene(Scene3d):
                                ]) else 1.0
         for name in self._original_children:
             self._children[name].opacity = opacity
+
+    def remove(self, key):
+        self.scene.remove(self._children[key].points)
+        del self._children[key]

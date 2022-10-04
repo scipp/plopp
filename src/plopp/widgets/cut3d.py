@@ -4,6 +4,7 @@
 from .styling import BUTTON_LAYOUT
 from ..core import Node, node
 
+from itertools import chain
 import ipywidgets as ipw
 from typing import Callable
 import numpy as np
@@ -62,7 +63,9 @@ class Cut3dTool(ipw.HBox):
         self.button.observe(self.toggle, names='value')
         self.slider.observe(self.move, names='value')
 
-        self._nodes = nodes[0]
+        self._nodes = nodes
+        self.pos_nodes = {}
+        self.select_nodes = {}
         # print(self._nodes)
 
         # self._on_activate = on_activate
@@ -76,6 +79,8 @@ class Cut3dTool(ipw.HBox):
         self.slider.disabled = not change['new']
         if change['new']:
             self._add_node()
+        else:
+            self._remove_node()
             # self._make_points_transparent()
             # for child in self._view_children.values():
             #     child.opacity = 0.1
@@ -89,16 +94,25 @@ class Cut3dTool(ipw.HBox):
         self.outline.position = pos
 
     def _add_node(self):
-        self.pos_node = Node(lambda: sc.scalar(self.slider.value, unit='m'))
-        self.select_node = node(lambda da, pos: da[sc.abs(da.meta[
-            self._dim] - pos) < sc.scalar(10., unit='m')])(da=self._nodes,
-                                                           pos=self.pos_node)
-        # print(self.select_node.request_data())
-        self.select_node.add_view(self._view)
-        # print('self._view.graph_nodes', self._view.graph_nodes)
-        self._view.update(self.select_node.request_data(),
-                          key=self.select_node.id,
-                          colormapper=self._nodes.id)
+        for n in self._nodes:
+            self.pos_nodes[n.id] = Node(lambda: sc.scalar(self.slider.value, unit='m'))
+            self.select_nodes[n.id] = node(lambda da, pos: da[sc.abs(da.meta[
+                self._dim] - pos) < sc.scalar(10., unit='m')])(da=n,
+                                                               pos=self.pos_nodes[n.id])
+            # print(self.select_node.request_data())
+            self.select_nodes[n.id].add_view(self._view)
+            # print('self._view.graph_nodes', self._view.graph_nodes)
+            self._view.update(self.select_nodes[n.id].request_data(),
+                              key=self.select_nodes[n.id].id,
+                              colormapper=n.id)
+
+    def _remove_node(self):
+        for key in self.pos_nodes:
+            self._view.remove(self.select_nodes[key].id)
+            self.select_nodes[key].remove()
+            self.pos_nodes[key].remove()
+        self.pos_nodes.clear()
+        self.select_nodes.clear()
 
     @property
     def value(self):
