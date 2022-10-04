@@ -9,7 +9,6 @@ import ipywidgets as ipw
 from typing import Callable
 import numpy as np
 import scipp as sc
-
 import asyncio
 
 
@@ -56,21 +55,15 @@ def debounce(wait):
 
 class Cut3dTool(ipw.HBox):
 
-    def __init__(
-            self,
-            *nodes,
-            limits,
-            direction,
-            view,
-            # make_points_transparent,
-            # maybe_make_points_opaque,
-            value: bool = False,
-            color='red',
-            linewidth=1.5,
-            # on_activate=None,
-            # on_deactivate=None,
-            # on_move=None,
-            **kwargs):
+    def __init__(self,
+                 *nodes,
+                 limits,
+                 direction,
+                 view,
+                 value: bool = False,
+                 color='red',
+                 linewidth=1.5,
+                 **kwargs):
         """
         """
         import pythreejs as p3
@@ -134,11 +127,6 @@ class Cut3dTool(ipw.HBox):
         self._nodes = nodes
         self.pos_nodes = {}
         self.select_nodes = {}
-        # print(self._nodes)
-
-        # self._on_activate = on_activate
-        # self._on_deactivate = on_deactivate
-        # self._on_move = on_move
 
         super().__init__([
             self.button,
@@ -154,11 +142,6 @@ class Cut3dTool(ipw.HBox):
             self._add_cut()
         else:
             self._remove_cut()
-            # self._make_points_transparent()
-            # for child in self._view_children.values():
-            #     child.opacity = 0.1
-        # else:
-        # self._maybe_make_points_opaque()
 
     def move(self, value):
         pos = list(self.outline.position)
@@ -175,9 +158,7 @@ class Cut3dTool(ipw.HBox):
             self.select_nodes[n.id] = node(lambda da, pos: da[sc.abs(da.meta[
                 self._dim] - pos) < sc.scalar(delta, unit=self._unit)])(
                     da=n, pos=self.pos_nodes[n.id])
-            # print(self.select_node.request_data())
             self.select_nodes[n.id].add_view(self._view)
-            # print('self._view.graph_nodes', self._view.graph_nodes)
             self._view.update(self.select_nodes[n.id].request_data(),
                               key=self.select_nodes[n.id].id,
                               colormapper=n.id)

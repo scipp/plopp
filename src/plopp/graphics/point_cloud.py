@@ -38,7 +38,6 @@ class PointCloud:
         import pythreejs as p3
         import ipywidgets as ipw
 
-        # self._own_colormapper = False
         if colormapper is None:
             self.color_mapper = ColorMapper(cmap=cmap,
                                             mask_cmap=mask_cmap,
@@ -52,7 +51,6 @@ class PointCloud:
             self.color_mapper = colormapper
             self.color_mapper.add_notify(self._set_points_colors)
             self._cbar = False
-            # self._own_colormapper = True
         self._data = data
         self._x = x
         self._y = y
@@ -132,7 +130,6 @@ class PointCloud:
     def toggle_norm(self):
         self.color_mapper.toggle_norm()
         self._set_norm()
-        # self._set_points_colors()
         self._update_colorbar()
 
     def get_limits(self):
