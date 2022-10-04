@@ -58,7 +58,7 @@ class ScatterScene(Scene3d):
         self.cut_y.button.observe(self._toggle_opacity, names='value')
         self.cut_z.button.observe(self._toggle_opacity, names='value')
 
-    def update(self, new_values: sc.DataArray, key: str, from_cut=False):
+    def update(self, new_values: sc.DataArray, key: str, colormapper=None):
         """
         Update image array with new values.
         """
@@ -67,16 +67,19 @@ class ScatterScene(Scene3d):
 
         if key not in self._children:
             print("New point cloud", key)
+            if colormapper is not None:
+                colormapper = self._children[colormapper].color_mapper
             pts = PointCloud(data=new_values,
                              x=self._x,
                              y=self._y,
                              z=self._z,
-                             cbar=False if from_cut else self.right_bar,
+                             colormapper=colormapper,
+                             cbar=self.right_bar,
                              figsize=self._figsize,
                              **self._kwargs)
             self._children[key] = pts
             self.scene.add(pts.points)
-            if not from_cut:
+            if colormapper is None:
                 limits = self.get_limits()
                 if self.outline is not None:
                     self.scene.remove(self.outline)

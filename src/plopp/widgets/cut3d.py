@@ -98,7 +98,7 @@ class Cut3dTool(ipw.HBox):
         # print('self._view.graph_nodes', self._view.graph_nodes)
         self._view.update(self.select_node.request_data(),
                           key=self.select_node.id,
-                          from_cut=True)
+                          colormapper=self._nodes.id)
 
     @property
     def value(self):

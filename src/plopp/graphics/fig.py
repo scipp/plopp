@@ -8,7 +8,7 @@ from .mesh import Mesh
 from .line import Line
 
 import matplotlib.pyplot as plt
-from scipp import DataArray, to_unit
+import scipp as sc
 from typing import Any, Tuple
 
 
@@ -98,8 +98,8 @@ class Figure(View):
                 ymin = ylims[0]
             if ymax is None or ylims[1] > ymax:
                 ymax = ylims[1]
-        return (sc.concat([xmin, xmax], dim=self._dims['x']),
-                sc.concat([ymin, ymax], dim=self._dims['y']))
+        return (sc.concat([xmin, xmax], dim=self._dims['x']['dim']),
+                sc.concat([ymin, ymax], dim=self._dims['y']['dim']))
 
     def _autoscale(self):
         xlims, ylims = self.get_limits()
@@ -138,7 +138,7 @@ class Figure(View):
         new_values = self.graph_nodes[node_id].request_data()
         self.update(new_values=new_values, key=node_id)
 
-    def update(self, new_values: DataArray, key: str, draw: bool = True):
+    def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
         Update image array with new values.
         """
@@ -215,8 +215,8 @@ class Figure(View):
             for xy in self._dims:
                 if dim == self._dims[xy]['dim']:
                     getattr(self._ax, f'set_{xy}lim')(*[
-                        to_unit(number_to_variable(lims[m]),
-                                unit=self._dims[xy]['unit']).value
+                        sc.to_unit(number_to_variable(lims[m]),
+                                   unit=self._dims[xy]['unit']).value
                         for m in ('min', 'max') if m in lims
                     ])
 

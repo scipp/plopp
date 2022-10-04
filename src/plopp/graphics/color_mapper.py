@@ -30,12 +30,14 @@ def _get_cmap(name, nan_color=None):
 class ColorMapper:
 
     def __init__(self,
+                 notify_on_change,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: str = "linear",
                  vmin=None,
                  vmax=None,
-                 nan_color=None):
+                 nan_color=None,
+                 colorbar=False):
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin
@@ -44,6 +46,19 @@ class ColorMapper:
         self.vmax = np.NINF
         self.norm_flag = norm
         self.norm_func = None
+        self._notify_on_change = [notify_on_change]
+
+        if colorbar:
+            import ipywidgets as ipw
+            self.colorbar = {
+                'image':
+                ipw.Image(),
+                'button':
+                ToggleTool(self.toggle_norm,
+                           value=norm == 'log',
+                           description='log',
+                           tooltip='Toggle data norm').widget
+            }
 
     def rescale(self, data):
         """
@@ -81,6 +96,7 @@ class ColorMapper:
         func = dict(linear=Normalize, log=LogNorm)[self.norm_flag]
         self.norm_func = func()
         self.rescale(data=data)
+        self.notify()
 
     def toggle_norm(self):
         """
@@ -89,3 +105,10 @@ class ColorMapper:
         self.norm_flag = "log" if self.norm_flag == "linear" else "linear"
         self.vmin = np.inf
         self.vmax = np.NINF
+
+    def add_notify(self, callback):
+        self._notify_on_change.append(callback)
+
+    def notify(self):
+        for callback in self._notify_on_change:
+            callback()

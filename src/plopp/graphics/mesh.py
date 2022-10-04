@@ -78,7 +78,8 @@ class Mesh:
                                         mask_cmap=mask_cmap,
                                         norm=norm,
                                         vmin=vmin,
-                                        vmax=vmax)
+                                        vmax=vmax,
+                                        notify_on_change=self._set_mesh_colors)
 
         self._ax = ax
         self._data = data
@@ -133,7 +134,7 @@ class Mesh:
             self._cbar.ax.yaxis.set_label_coords(-1.1, 0.5)
         self._mesh.set_array(None)
         self._set_norm()
-        self._set_mesh_colors()
+        # self._set_mesh_colors()
 
     def _set_clim(self):
         self._mesh.set_clim(self.color_mapper.vmin, self.color_mapper.vmax)
@@ -170,7 +171,7 @@ class Mesh:
             return
         self.color_mapper.toggle_norm()
         self._set_norm()
-        self._set_mesh_colors()
+        # self._set_mesh_colors()
         self._ax.figure.canvas.draw_idle()
 
     def get_limits(self, xscale, yscale):

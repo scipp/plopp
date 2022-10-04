@@ -24,6 +24,7 @@ class PointCloud:
             data,
             cbar,
             figsize,
+            colormapper=None,
             pixel_size=1,  # TODO: pixel_size should have units
             cmap: str = 'viridis',
             mask_cmap: str = 'gray',
@@ -36,12 +37,22 @@ class PointCloud:
         """
         import pythreejs as p3
         import ipywidgets as ipw
-        self.color_mapper = ColorMapper(cmap=cmap,
-                                        mask_cmap=mask_cmap,
-                                        norm=norm,
-                                        vmin=vmin,
-                                        vmax=vmax,
-                                        nan_color="#f0f0f0")
+
+        # self._own_colormapper = False
+        if colormapper is None:
+            self.color_mapper = ColorMapper(cmap=cmap,
+                                            mask_cmap=mask_cmap,
+                                            norm=norm,
+                                            vmin=vmin,
+                                            vmax=vmax,
+                                            nan_color="#f0f0f0",
+                                            notify_on_change=self._set_points_colors)
+            self._cbar = cbar
+        else:
+            self.color_mapper = colormapper
+            self.color_mapper.add_notify(self._set_points_colors)
+            self._cbar = False
+            # self._own_colormapper = True
         self._data = data
         self._x = x
         self._y = y
@@ -71,20 +82,24 @@ class PointCloud:
                                           opacity=opacity)
         self.points = p3.Points(geometry=self.geometry, material=self.material)
 
-        self._set_norm()
-        self.colorbar = {
-            'image':
-            ipw.Image(),
-            'button':
-            ToggleTool(self.toggle_norm,
-                       value=norm == 'log',
-                       description='log',
-                       tooltip='Toggle data norm').widget
-        }
+        if self._cbar:
+            self._set_norm()
+            self.colorbar = {
+                'image':
+                ipw.Image(),
+                'button':
+                ToggleTool(self.toggle_norm,
+                           value=norm == 'log',
+                           description='log',
+                           tooltip='Toggle data norm').widget
+            }
+
         self.update(new_values=data)
-        self._update_colorbar()
-        if cbar:
-            cbar.children = list(cbar.children) + list(self.colorbar.values())
+
+        if self._cbar:
+            self._update_colorbar()
+            self._cbar.children = list(self._cbar.children) + list(
+                self.colorbar.values())
 
     def _set_points_colors(self):
         colors = self.color_mapper.rgba(self._data)[..., :3]
@@ -104,10 +119,11 @@ class PointCloud:
 
     def update(self, new_values):
         self._data = new_values
-        old_bounds = [self.color_mapper.vmin, self.color_mapper.vmax]
-        self.color_mapper.rescale(data=new_values.data)
-        if old_bounds != [self.color_mapper.vmin, self.color_mapper.vmax]:
-            self._update_colorbar()
+        if self._cbar:
+            old_bounds = [self.color_mapper.vmin, self.color_mapper.vmax]
+            self.color_mapper.rescale(data=new_values.data)
+            if old_bounds != [self.color_mapper.vmin, self.color_mapper.vmax]:
+                self._update_colorbar()
         self._set_points_colors()
 
     def _set_norm(self):
@@ -116,7 +132,7 @@ class PointCloud:
     def toggle_norm(self):
         self.color_mapper.toggle_norm()
         self._set_norm()
-        self._set_points_colors()
+        # self._set_points_colors()
         self._update_colorbar()
 
     def get_limits(self):
