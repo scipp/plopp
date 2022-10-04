@@ -10,6 +10,49 @@ from typing import Callable
 import numpy as np
 import scipp as sc
 
+import asyncio
+
+
+class Timer:
+
+    def __init__(self, timeout, callback):
+        self._timeout = timeout
+        self._callback = callback
+
+    async def _job(self):
+        await asyncio.sleep(self._timeout)
+        self._callback()
+
+    def start(self):
+        self._task = asyncio.ensure_future(self._job())
+
+    def cancel(self):
+        self._task.cancel()
+
+
+def debounce(wait):
+    """ Decorator that will postpone a function's
+        execution until after `wait` seconds
+        have elapsed since the last time it was invoked. """
+
+    def decorator(fn):
+        timer = None
+
+        def debounced(*args, **kwargs):
+            nonlocal timer
+
+            def call_it():
+                fn(*args, **kwargs)
+
+            if timer is not None:
+                timer.cancel()
+            timer = Timer(wait, call_it)
+            timer.start()
+
+        return debounced
+
+    return decorator
+
 
 class Cut3dTool(ipw.HBox):
 
@@ -62,6 +105,7 @@ class Cut3dTool(ipw.HBox):
         self.slider.step = (self.slider.max - self.slider.min) / 100
         self.button.observe(self.toggle, names='value')
         self.slider.observe(self.move, names='value')
+        self.slider.observe(self.update_cut, names='value')
 
         self._nodes = nodes
         self.pos_nodes = {}
@@ -78,9 +122,9 @@ class Cut3dTool(ipw.HBox):
         self.outline.visible = change['new']
         self.slider.disabled = not change['new']
         if change['new']:
-            self._add_node()
+            self._add_cut()
         else:
-            self._remove_node()
+            self._remove_cut()
             # self._make_points_transparent()
             # for child in self._view_children.values():
             #     child.opacity = 0.1
@@ -92,8 +136,9 @@ class Cut3dTool(ipw.HBox):
         axis = 'xyz'.index(self._direction)
         pos[axis] = value['new']
         self.outline.position = pos
+        self._remove_cut()
 
-    def _add_node(self):
+    def _add_cut(self):
         for n in self._nodes:
             self.pos_nodes[n.id] = Node(lambda: sc.scalar(self.slider.value, unit='m'))
             self.select_nodes[n.id] = node(lambda da, pos: da[sc.abs(da.meta[
@@ -106,13 +151,18 @@ class Cut3dTool(ipw.HBox):
                               key=self.select_nodes[n.id].id,
                               colormapper=n.id)
 
-    def _remove_node(self):
+    def _remove_cut(self):
         for key in self.pos_nodes:
             self._view.remove(self.select_nodes[key].id)
             self.select_nodes[key].remove()
             self.pos_nodes[key].remove()
         self.pos_nodes.clear()
         self.select_nodes.clear()
+
+    @debounce(0.3)
+    def update_cut(self, change):
+        if self.value:
+            self._add_cut()
 
     @property
     def value(self):
