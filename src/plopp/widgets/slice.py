@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from scipp import DataArray
-from ..core.utils import coord_to_string
+from ..core.utils import coord_element_to_string
 from ..core import node
 
 import ipywidgets as ipw
@@ -35,7 +35,7 @@ class SliceWidget(ipw.VBox):
                                              tooltip="Continuous update",
                                              indent=False,
                                              layout={"width": "20px"})
-            label = ipw.Label(value=coord_to_string(coord[dim, 0]))
+            label = ipw.Label(value=coord_element_to_string(coord[dim, 0]))
             ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
 
             self.controls[dim] = {
@@ -52,7 +52,7 @@ class SliceWidget(ipw.VBox):
     def _update_label(self, change):
         dim = change['owner'].description
         coord = self.controls[dim]['coord'][dim, change['new']]
-        self.controls[dim]['label'].value = coord_to_string(coord)
+        self.controls[dim]['label'].value = coord_element_to_string(coord)
 
     def _plopp_observe_(self, callback: Callable, **kwargs):
         for dim in self.controls:

@@ -3,7 +3,7 @@
 
 from .common import require_interactive_backend, preprocess
 from .slicer import Slicer
-from ..core.utils import coord_to_string
+from ..core.utils import coord_element_to_string
 from ..widgets import ColorTool
 
 from functools import partial
@@ -35,7 +35,7 @@ class LineSaveTool:
         data = self._data_node.request_data()
         self._fig.update(data, key=line_id)
         slice_values = self._slider_node.request_data()
-        text = ', '.join(f'{k}: {coord_to_string(data.meta[k])}'
+        text = ', '.join(f'{k}: {coord_element_to_string(data.meta[k])}'
                          for k, it in slice_values.items())
         line = self._fig._children[line_id]
         tool = ColorTool(text=text, color=to_hex(line.color))
