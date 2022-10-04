@@ -86,7 +86,8 @@ class Cut3dTool(ipw.HBox):
         if self._direction == 'y':
             self.outline.rotateX(0.5 * np.pi)
 
-        self.outline.position = [var.mean().value for var in self._limits]
+        center = [var.mean().value for var in self._limits]
+        self.outline.position = center
         self.outline.visible = value
 
         self.thickness = 0.01
@@ -95,6 +96,7 @@ class Cut3dTool(ipw.HBox):
         self.button = ipw.ToggleButton(value=value, **{**BUTTON_LAYOUT, **kwargs})
         self.slider = ipw.FloatSlider(min=limits[axis][0].value,
                                       max=limits[axis][1].value,
+                                      value=center[axis],
                                       layout={'width': '150px'},
                                       disabled=not value,
                                       readout=False)
