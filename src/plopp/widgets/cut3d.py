@@ -85,6 +85,8 @@ class Cut3dTool(ipw.HBox):
             self.outline.rotateY(0.5 * np.pi)
         if self._direction == 'y':
             self.outline.rotateX(0.5 * np.pi)
+
+        self.outline.position = [var.mean().value for var in self._limits]
         self.outline.visible = value
 
         self.thickness = 0.01
@@ -109,11 +111,13 @@ class Cut3dTool(ipw.HBox):
         layout = {'width': '20px', 'height': '12px', 'padding': '0px'}
         self.button_plus = ipw.Button(description='\u1429',
                                       layout=layout,
-                                      disabled=not value)
+                                      disabled=not value,
+                                      tooltip='Increase cut thickness')
         self.button_plus.style.font_size = '38px'
         self.button_minus = ipw.Button(description='\u039e',
                                        layout=layout,
-                                       disabled=not value)
+                                       disabled=not value,
+                                       tooltip='Decrease cut thickness')
         self.button_minus.style.font_size = '25px'
 
         self.button.observe(self.toggle, names='value')
