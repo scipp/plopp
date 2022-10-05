@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from plopp import Node, node, View
+from functools import partial
 import pytest
 
 
@@ -94,6 +95,34 @@ def test_two_children_request_data():
     assert av.data == 5
     assert bv.data == 3
     assert cv.data == 7
+
+
+def test_data_request_is_cached():
+    global log
+    log = ''
+
+    def log_and_call(n, f, x=None):
+        global log
+        log += n
+        if x is None:
+            return f()
+        else:
+            return f(x)
+
+    a = Node(partial(log_and_call, n='a', f=lambda: 5))
+    b = node(partial(log_and_call, n='b', f=lambda x: x - 2))(x=a)
+    c = node(partial(log_and_call, n='c', f=lambda x: x + 2))(x=a)
+    d = node(partial(log_and_call, n='d', f=lambda x: x**2))(x=c)
+    av = DataView(a)
+    bv = DataView(b)
+    cv = DataView(c)
+    dv = DataView(d)
+
+    a.notify_children(message='hello from a')
+    assert log == 'abcd'  # 'a' should only appear once in the log
+    log = ''
+    c.notify_children(message='hello from c')
+    assert log == 'cd'  # 'c' requests data from 'a' but 'a' is cached so no 'a' in log
 
 
 def test_remove_node():
