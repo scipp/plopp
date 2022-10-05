@@ -107,20 +107,15 @@ class Cut3dTool(ipw.HBox):
         self.unit_label = ipw.Label(f'[{self._unit}]')
         ipw.jslink((self.slider, "value"), (self.readout, "value"))
 
-        # Note: when making small buttons, the description stays in the middle of
-        # some pre-defined baseline, and they get cropped. Instead, we use some
-        # carefully chosen unicode characters whose top parts look like a '+' and '-'.
-        layout = {'width': '20px', 'height': '12px', 'padding': '0px'}
-        self.button_plus = ipw.Button(description='\u1429',
+        layout = {'width': '12px', 'padding': '0px'}
+        self.button_plus = ipw.Button(icon='plus',
                                       layout=layout,
                                       disabled=not value,
                                       tooltip='Increase cut thickness')
-        self.button_plus.style.font_size = '38px'
-        self.button_minus = ipw.Button(description='\u039e',
+        self.button_minus = ipw.Button(icon='minus',
                                        layout=layout,
                                        disabled=not value,
                                        tooltip='Decrease cut thickness')
-        self.button_minus.style.font_size = '25px'
 
         self.button.observe(self.toggle, names='value')
         self.slider.observe(self.move, names='value')
@@ -133,8 +128,7 @@ class Cut3dTool(ipw.HBox):
         self.select_nodes = {}
 
         super().__init__([
-            self.button,
-            ipw.VBox([self.button_plus, self.button_minus]), self.slider, self.readout,
+            self.button, self.button_plus, self.button_minus, self.slider, self.readout,
             self.unit_label
         ])
 
