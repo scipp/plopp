@@ -113,10 +113,10 @@ def test_data_request_is_cached():
     b = node(partial(log_and_call, n='b', f=lambda x: x - 2))(x=a)
     c = node(partial(log_and_call, n='c', f=lambda x: x + 2))(x=a)
     d = node(partial(log_and_call, n='d', f=lambda x: x**2))(x=c)
-    av = DataView(a)
-    bv = DataView(b)
-    cv = DataView(c)
-    dv = DataView(d)
+    av = DataView(a)  # noqa: F841
+    bv = DataView(b)  # noqa: F841
+    cv = DataView(c)  # noqa: F841
+    dv = DataView(d)  # noqa: F841
 
     a.notify_children(message='hello from a')
     assert log == 'abcd'  # 'a' should only appear once in the log
