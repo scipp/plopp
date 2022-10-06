@@ -6,7 +6,6 @@ from plopp.graphics.point_cloud import PointCloud
 
 import numpy as np
 import scipp as sc
-import ipywidgets as ipw
 
 
 def test_creation():

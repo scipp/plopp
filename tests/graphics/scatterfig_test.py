@@ -6,7 +6,6 @@ from plopp.graphics.scatterfig import ScatterFig
 from plopp.graphics.point_cloud import PointCloud
 from plopp import input_node
 import scipp as sc
-from copy import copy
 
 
 def test_creation():

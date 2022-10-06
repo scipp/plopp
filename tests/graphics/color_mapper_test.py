@@ -122,7 +122,7 @@ def test_colorbar_updated_on_rescale():
     mapper = ColorMapper(notify_on_change=lambda: None)
 
     mapper.set_norm(data=da)
-    w = mapper.widget
+    _ = mapper.widget
     old_image = mapper.colorbar['image'].value
     old_image_array = bytearray(old_image)
 
