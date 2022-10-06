@@ -48,7 +48,6 @@ class ScatterFig(Fig3d):
                                icon='cube')
         space = ipw.HTML('&nbsp;&nbsp;&nbsp;&nbsp;')
         self.cutter = ipw.HBox([self.cut_x, space, self.cut_y, space, self.cut_z])
-        self.cutter.layout.display = "none"
         self.bottom_bar.children = list(self.bottom_bar.children) + [self.cutter]
         self.scene.add([self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
 
@@ -56,11 +55,6 @@ class ScatterFig(Fig3d):
         self.cut_x.button.observe(self._toggle_opacity, names='value')
         self.cut_y.button.observe(self._toggle_opacity, names='value')
         self.cut_z.button.observe(self._toggle_opacity, names='value')
-
-        self.toolbar['cutter'] = ToggleTool(self._show_hide_cut_controls,
-                                            value=False,
-                                            icon='layer-group',
-                                            tooltip='Show/hide cut controls')
 
     def update(self, new_values: sc.DataArray, key: str, colormapper=None):
         """
@@ -137,6 +131,3 @@ class ScatterFig(Fig3d):
         """
         self.scene.remove(self._children[key].points)
         del self._children[key]
-
-    def _show_hide_cut_controls(self):
-        self.cutter.layout.display = None if self.toolbar['cutter'].value else 'none'
