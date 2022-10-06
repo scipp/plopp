@@ -68,16 +68,16 @@ def test_toggle_norm():
     from matplotlib.colors import Normalize, LogNorm
     da = dense_data_array(ndim=2)
     mesh = Mesh(ax=make_axes(), data=da)
-    assert mesh.color_mapper.norm_flag == 'linear'
-    assert isinstance(mesh.color_mapper.norm_func, Normalize)
+    assert mesh.color_mapper._norm == 'linear'
+    assert isinstance(mesh.color_mapper.norm, Normalize)
 
     @dataclass
     class Event:
         artist = mesh._cbar.ax
 
     mesh.toggle_norm(event=Event())
-    assert mesh.color_mapper.norm_flag == 'log'
-    assert isinstance(mesh.color_mapper.norm_func, LogNorm)
+    assert mesh.color_mapper._norm == 'log'
+    assert isinstance(mesh.color_mapper.norm, LogNorm)
 
 
 def test_mesh_update():
