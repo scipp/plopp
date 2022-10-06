@@ -19,6 +19,7 @@ class Node:
         self.kwparents = dict(kwparents)
         for parent in chain(self.parents, self.kwparents.values()):
             parent.add_child(self)
+        self._data = None
 
     def remove(self):
         if self.children:
@@ -33,9 +34,14 @@ class Node:
         self.kwparents.clear()
 
     def request_data(self):
-        args = (parent.request_data() for parent in self.parents)
-        kwargs = {key: parent.request_data() for key, parent in self.kwparents.items()}
-        return self.func(*args, **kwargs)
+        if self._data is None:
+            args = (parent.request_data() for parent in self.parents)
+            kwargs = {
+                key: parent.request_data()
+                for key, parent in self.kwparents.items()
+            }
+            self._data = self.func(*args, **kwargs)
+        return self._data
 
     def add_child(self, child):
         self.children.append(child)
@@ -44,6 +50,7 @@ class Node:
         self.views.append(view)
 
     def notify_children(self, message):
+        self._data = None
         self.notify_views(message)
         for child in self.children:
             child.notify_children(message)
