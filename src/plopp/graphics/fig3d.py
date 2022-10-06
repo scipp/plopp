@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core import View
-from ..widgets import Toolbar
+from ..widgets import Toolbar, HBar, VBar
 
 from copy import copy
 import numpy as np
@@ -46,10 +46,10 @@ class Fig3d(View, VBox):
                 'axes': self.toggle_axes3d
             })
 
-        self.left_bar = VBox([self.toolbar])
-        self.right_bar = VBox()
-        self.bottom_bar = HBox()
-        self.top_bar = HBox()
+        self.left_bar = VBar([self.toolbar])
+        self.right_bar = VBar()
+        self.bottom_bar = HBar()
+        self.top_bar = HBar()
 
         self.render()
 

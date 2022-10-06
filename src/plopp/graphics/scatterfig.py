@@ -3,6 +3,7 @@
 
 from .fig3d import Fig3d
 from ..widgets import Cut3dTool, ToggleTool
+from ..widgets.styling import BUTTON_LAYOUT
 
 import scipp as sc
 import ipywidgets as ipw
@@ -24,6 +25,7 @@ class ScatterFig(Fig3d):
         self._y = y
         self._z = z
         self._kwargs = kwargs
+        self._figheight = figsize[1]
 
         super().__init__(*nodes, figsize=figsize, title=title)
 
@@ -48,8 +50,24 @@ class ScatterFig(Fig3d):
                                icon='cube')
         space = ipw.HTML('&nbsp;&nbsp;&nbsp;&nbsp;')
         self.cutter = ipw.HBox([self.cut_x, space, self.cut_y, space, self.cut_z])
-        self.bottom_bar.children = list(self.bottom_bar.children) + [self.cutter]
+        self.bottom_bar.add(self.cutter)
         self.scene.add([self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
+
+        self.opacity_slider = ipw.FloatSlider(min=0,
+                                              max=0.5,
+                                              step=0.01,
+                                              description='\u03b1',
+                                              orientation='vertical',
+                                              disabled=True,
+                                              value=0.03,
+                                              layout={
+                                                  **BUTTON_LAYOUT['layout'],
+                                                  **{
+                                                      'height': '150px'
+                                                  }
+                                              })
+        self.opacity_slider.observe(self._update_opacity, names='value')
+        self.left_bar.add(self.opacity_slider)
 
         self._original_children = list(self._children.keys())
         self.cut_x.button.observe(self._toggle_opacity, names='value')
@@ -84,6 +102,8 @@ class ScatterFig(Fig3d):
                 self.axes_3d.scale = [self.camera.far] * 3
                 self.right_bar.children = list(
                     self.right_bar.children) + [pts.color_mapper.widget]
+                pts.color_mapper.colorbar[
+                    'image'].layout.height = f'{0.91 * self._figheight}px'
         else:
             self._children[key].update(new_values=new_values)
 
@@ -120,10 +140,17 @@ class ScatterFig(Fig3d):
         If any cut is active, set the opacity of the original children (not the cuts) to
         a low value. If all cuts are inactive, set the opacity back to 1.
         """
-        opacity = 0.05 if any([self.cut_x.value, self.cut_y.value, self.cut_z.value
-                               ]) else 1.0
+        active_cut = any([self.cut_x.value, self.cut_y.value, self.cut_z.value])
+        self.opacity_slider.disabled = not active_cut
+        opacity = self.opacity_slider.value if active_cut else 1.0
+        self._update_opacity({'new': opacity})
+
+    def _update_opacity(self, change):
+        """
+        Update the opacity of the original children (not the cuts).
+        """
         for name in self._original_children:
-            self._children[name].opacity = opacity
+            self._children[name].opacity = change['new']
 
     def remove(self, key):
         """
