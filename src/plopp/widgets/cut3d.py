@@ -11,6 +11,10 @@ import asyncio
 
 
 class Timer:
+    """
+    From:
+    https://ipywidgets.readthedocs.io/en/8.0.2/examples/Widget%20Events.html#Debouncing
+    """
 
     def __init__(self, timeout, callback):
         self._timeout = timeout
@@ -28,9 +32,14 @@ class Timer:
 
 
 def debounce(wait):
-    """ Decorator that will postpone a function's
-        execution until after `wait` seconds
-        have elapsed since the last time it was invoked. """
+    """
+    Decorator that will postpone a function's
+    execution until after `wait` seconds
+    have elapsed since the last time it was invoked.
+
+    From:
+    https://ipywidgets.readthedocs.io/en/8.0.2/examples/Widget%20Events.html#Debouncing
+    """
 
     def decorator(fn):
         timer = None
