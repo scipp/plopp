@@ -18,7 +18,7 @@ def _make_graphviz_digraph(*args, **kwargs):
 def _add_graph_edges(dot, node, inventory, hide_views):
     name = node.id
     inventory.append(name)
-    dot.node(name, label=escape(str(node.func)))
+    dot.node(name, label=escape(str(node.func)) + '\nid = ' + name)
     for child in node.children:
         key = child.id
         if key not in inventory:
