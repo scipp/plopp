@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .fig3d import Fig3d
-from ..widgets import Cut3dTool, ToggleTool
+from ..widgets import Cut3dTool
 from ..widgets.styling import BUTTON_LAYOUT
 
 import scipp as sc

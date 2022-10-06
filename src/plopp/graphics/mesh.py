@@ -169,7 +169,6 @@ class Mesh:
         if event.artist is not self._cbar.ax:
             return
         self.color_mapper.toggle_norm()
-        # self._set_norm()
         self._set_clim()
         self._ax.figure.canvas.draw_idle()
 
