@@ -100,10 +100,10 @@ class ColorMapper:
         self.normalizer[scale].vmax = self._vmax[scale]
 
     def rescale(self, data):
-        old_bounds = np.array([self._vmin, self._vmax])
+        old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data, scale=self._norm)
         if (self.colorbar is not None) and not np.allclose(
-                old_bounds, np.array([self._vmin, self._vmax])):
+                old_bounds, np.array([self.vmin, self.vmax])):
             self._update_colorbar()
 
     def rgba(self, data: sc.DataArray):
