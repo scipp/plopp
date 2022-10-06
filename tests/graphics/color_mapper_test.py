@@ -123,8 +123,13 @@ def test_colorbar_updated_on_rescale():
 
     mapper.set_norm(data=da)
     w = mapper.widget
-    old_image = bytearray(mapper.colorbar['image'].value)
+    old_image = mapper.colorbar['image'].value
+    old_image_array = bytearray(old_image)
+
+    # Update with the same values should not make a new colorbar image
+    mapper.rescale(data=da)
+    assert old_image is mapper.colorbar['image'].value
 
     const = 2.3
     mapper.rescale(data=da * const)
-    assert old_image != bytearray(mapper.colorbar['image'].value)
+    assert old_image_array != bytearray(mapper.colorbar['image'].value)
