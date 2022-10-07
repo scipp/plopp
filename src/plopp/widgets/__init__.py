@@ -8,4 +8,4 @@ from .checkboxes import Checkboxes
 from .slice import SliceWidget, slice_dims
 from .toolbar import Toolbar, HBar, VBar
 from .tools import ButtonTool, ToggleTool, PointsTool, ColorTool
-from .cut3d import Cut3dTool
+from .cut3d import Cut3dTool, TriCutTool

@@ -141,3 +141,6 @@ class Fig3d(View, VBox):
 
     def toggle_axes3d(self):
         self.axes_3d.visible = not self.axes_3d.visible
+
+    def add(self, obj):
+        self.scene.add(obj)

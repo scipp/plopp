@@ -63,10 +63,9 @@ def debounce(wait):
 class Cut3dTool(ipw.HBox):
 
     def __init__(self,
-                 *nodes,
+                 view,
                  limits,
                  direction,
-                 view,
                  value: bool = False,
                  color='red',
                  linewidth=1.5,
@@ -132,7 +131,7 @@ class Cut3dTool(ipw.HBox):
         self.button_plus.on_click(self.increase_thickness)
         self.button_minus.on_click(self.decrease_thickness)
 
-        self._nodes = nodes
+        self._nodes = self._view.graph_nodes
         self.select_nodes = {}
 
         super().__init__([
@@ -157,7 +156,7 @@ class Cut3dTool(ipw.HBox):
         self._remove_cut()
 
     def _add_cut(self):
-        for n in self._nodes:
+        for n in list(self._nodes.values()):
             da = n.request_data()
             delta = sc.scalar((self.slider.max - self.slider.min) * self.thickness,
                               unit=self._unit)
@@ -194,3 +193,66 @@ class Cut3dTool(ipw.HBox):
         self.thickness = max(self.thickness - self._thickness_step, 0)
         self._remove_cut()
         self._add_cut()
+
+
+class TriCutTool(ipw.HBox):
+
+    def __init__(self, fig):
+
+        self._fig = fig
+        # nodes = self._fig.graph_nodes
+        limits = self._fig.get_limits()
+
+        self.cut_x = Cut3dTool(view=self._fig,
+                               direction='x',
+                               limits=limits,
+                               description='X',
+                               icon='cube')
+        self.cut_y = Cut3dTool(view=self._fig,
+                               direction='y',
+                               limits=limits,
+                               description='Y',
+                               icon='cube')
+        self.cut_z = Cut3dTool(view=self._fig,
+                               direction='z',
+                               limits=limits,
+                               description='Z',
+                               icon='cube')
+        space = ipw.HTML('&nbsp;&nbsp;&nbsp;&nbsp;')
+
+        self._fig.add([self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
+
+        self.opacity_slider = ipw.FloatSlider(min=0,
+                                              max=0.5,
+                                              step=0.01,
+                                              description='\u03b1',
+                                              orientation='vertical',
+                                              disabled=True,
+                                              value=0.03,
+                                              layout={
+                                                  **BUTTON_LAYOUT['layout'],
+                                                  **{
+                                                      'height': '150px'
+                                                  }
+                                              })
+        self.opacity_slider.observe(self._set_opacity, names='value')
+        # self.left_bar.add(self.opacity_slider)
+
+        self.cut_x.button.observe(self._toggle_opacity, names='value')
+        self.cut_y.button.observe(self._toggle_opacity, names='value')
+        self.cut_z.button.observe(self._toggle_opacity, names='value')
+
+        super().__init__([self.cut_x, space, self.cut_y, space, self.cut_z])
+
+    def _toggle_opacity(self, change):
+        """
+        If any cut is active, set the opacity of the original children (not the cuts) to
+        a low value. If all cuts are inactive, set the opacity back to 1.
+        """
+        active_cut = any([self.cut_x.value, self.cut_y.value, self.cut_z.value])
+        self.opacity_slider.disabled = not active_cut
+        opacity = self.opacity_slider.value if active_cut else 1.0
+        self._set_opacity({'new': opacity})
+
+    def _set_opacity(self, change):
+        self._fig.set_opacity(change['new'])

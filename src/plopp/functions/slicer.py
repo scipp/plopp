@@ -20,7 +20,7 @@ class Slicer:
                  crop: Dict[str, Dict[str, Variable]] = None,
                  **kwargs):
 
-        from plopp.widgets import SliceWidget, slice_dims
+        from ..widgets import SliceWidget, slice_dims
 
         self.data_node = input_node(da)
 
@@ -70,6 +70,6 @@ def slicer(obj: Union[VariableLike, ndarray],
     """
     require_interactive_backend('slicer')
     da = preprocess(obj, crop=crop, ignore_size=True)
-    from plopp.widgets import Box
+    from ..widgets import Box
     sl = Slicer(da=da, keep=keep, crop=crop, **kwargs)
     return Box([sl.fig, sl.slider])

@@ -20,50 +20,52 @@ class ScatterFig(Fig3d):
 
         super().__init__(*nodes, figsize=figsize, title=title)
 
-        limits = self.get_limits()
-        self.cut_x = Cut3dTool(*nodes,
-                               direction='x',
-                               limits=limits,
-                               view=self,
-                               description='X',
-                               icon='cube')
-        self.cut_y = Cut3dTool(*nodes,
-                               direction='y',
-                               limits=limits,
-                               view=self,
-                               description='Y',
-                               icon='cube')
-        self.cut_z = Cut3dTool(*nodes,
-                               direction='z',
-                               limits=limits,
-                               view=self,
-                               description='Z',
-                               icon='cube')
-        space = ipw.HTML('&nbsp;&nbsp;&nbsp;&nbsp;')
-        self.cutter = ipw.HBox([self.cut_x, space, self.cut_y, space, self.cut_z])
-        self.bottom_bar.add(self.cutter)
-        self.scene.add([self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
-
-        self.opacity_slider = ipw.FloatSlider(min=0,
-                                              max=0.5,
-                                              step=0.01,
-                                              description='\u03b1',
-                                              orientation='vertical',
-                                              disabled=True,
-                                              value=0.03,
-                                              layout={
-                                                  **BUTTON_LAYOUT['layout'],
-                                                  **{
-                                                      'height': '150px'
-                                                  }
-                                              })
-        self.opacity_slider.observe(self._update_opacity, names='value')
-        self.left_bar.add(self.opacity_slider)
-
         self._original_children = list(self._children.keys())
-        self.cut_x.button.observe(self._toggle_opacity, names='value')
-        self.cut_y.button.observe(self._toggle_opacity, names='value')
-        self.cut_z.button.observe(self._toggle_opacity, names='value')
+
+        # limits = self.get_limits()
+        # self.cut_x = Cut3dTool(*nodes,
+        #                        direction='x',
+        #                        limits=limits,
+        #                        view=self,
+        #                        description='X',
+        #                        icon='cube')
+        # self.cut_y = Cut3dTool(*nodes,
+        #                        direction='y',
+        #                        limits=limits,
+        #                        view=self,
+        #                        description='Y',
+        #                        icon='cube')
+        # self.cut_z = Cut3dTool(*nodes,
+        #                        direction='z',
+        #                        limits=limits,
+        #                        view=self,
+        #                        description='Z',
+        #                        icon='cube')
+        # space = ipw.HTML('&nbsp;&nbsp;&nbsp;&nbsp;')
+        # self.cutter = ipw.HBox([self.cut_x, space, self.cut_y, space, self.cut_z])
+        # self.bottom_bar.add(self.cutter)
+        # self.scene.add([self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
+
+        # self.opacity_slider = ipw.FloatSlider(min=0,
+        #                                       max=0.5,
+        #                                       step=0.01,
+        #                                       description='\u03b1',
+        #                                       orientation='vertical',
+        #                                       disabled=True,
+        #                                       value=0.03,
+        #                                       layout={
+        #                                           **BUTTON_LAYOUT['layout'],
+        #                                           **{
+        #                                               'height': '150px'
+        #                                           }
+        #                                       })
+        # self.opacity_slider.observe(self._update_opacity, names='value')
+        # self.left_bar.add(self.opacity_slider)
+
+        # self._original_children = list(self._children.keys())
+        # self.cut_x.button.observe(self._toggle_opacity, names='value')
+        # self.cut_y.button.observe(self._toggle_opacity, names='value')
+        # self.cut_z.button.observe(self._toggle_opacity, names='value')
 
     def update(self, new_values: sc.DataArray, key: str, colormapper=None):
         """
@@ -125,26 +127,26 @@ class ScatterFig(Fig3d):
                           dim=self._x), sc.concat([ymin, ymax], dim=self._y),
                 sc.concat([zmin, zmax], dim=self._z))
 
-    def _toggle_opacity(self, change):
-        """
-        If any cut is active, set the opacity of the original children (not the cuts) to
-        a low value. If all cuts are inactive, set the opacity back to 1.
-        """
-        active_cut = any([self.cut_x.value, self.cut_y.value, self.cut_z.value])
-        self.opacity_slider.disabled = not active_cut
-        opacity = self.opacity_slider.value if active_cut else 1.0
-        self._update_opacity({'new': opacity})
+    # def _toggle_opacity(self, change):
+    #     """
+    #     If any cut is active, set the opacity of the original children (not the cuts) to
+    #     a low value. If all cuts are inactive, set the opacity back to 1.
+    #     """
+    #     active_cut = any([self.cut_x.value, self.cut_y.value, self.cut_z.value])
+    #     self.opacity_slider.disabled = not active_cut
+    #     opacity = self.opacity_slider.value if active_cut else 1.0
+    #     self._update_opacity({'new': opacity})
 
-    def _update_opacity(self, change):
+    def set_opacity(self, alpha):
         """
         Update the opacity of the original children (not the cuts).
         """
         for name in self._original_children:
-            self._children[name].opacity = change['new']
+            self._children[name].opacity = alpha
 
     def remove(self, key):
         """
-        Remove a point cloud from the scene.
+        Remove an object from the scene.
         """
         self.scene.remove(self._children[key].points)
         del self._children[key]

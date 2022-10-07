@@ -97,5 +97,5 @@ def superplot(obj: Union[sc.typing.VariableLike, ndarray],
     save_tool = LineSaveTool(data_node=sl.slice_node,
                              slider_node=sl.slider_node,
                              fig=sl.fig)
-    from plopp.widgets import Box
+    from ..widgets import Box
     return Box([[sl.fig, save_tool.widget], sl.slider])

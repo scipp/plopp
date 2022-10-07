@@ -23,7 +23,7 @@ class InspectorEventHandler:
         self._ydim = fig2d._dims['y']['dim']
 
     def make_node(self, change):
-        from plopp.widgets import slice_dims
+        from ..widgets import slice_dims
         event = change['event']
         event_node = Node(
             func=lambda: {
@@ -126,5 +126,5 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
     pts.points.on_vertex_move = ev_handler.update_node
     pts.points.on_remove = ev_handler.remove_node
     f2d.toolbar['inspect'] = pts
-    from plopp.widgets import Box
+    from ..widgets import Box
     return Box([[f2d, f1d]])
