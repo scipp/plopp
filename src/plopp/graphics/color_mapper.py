@@ -80,6 +80,20 @@ class ColorMapper:
         self.colorbar['image'].value = fig_to_bytes(cbar_fig)
         plt.close(cbar_fig)
 
+        # dpi = 200
+        # # height_px = 600
+        # height_inches = 6
+        # cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=dpi)
+        # cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
+        # _ = ColorbarBase(cbar_ax, cmap=self.cmap, norm=self.norm)
+        # cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
+        # cbar_fig.canvas.toolbar_visible = False
+        # cbar_fig.canvas.header_visible = False
+        # cbar_fig.canvas.footer_visible
+        # cbar_fig.tight_layout()
+        # # self.colorbar['image'].value = fig_to_bytes(cbar_fig)
+        # # plt.close(cbar_fig)
+
     def autoscale(self, data, scale):
         """
         Re-compute the min and max range of values, given new values.
