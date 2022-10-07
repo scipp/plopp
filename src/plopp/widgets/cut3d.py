@@ -133,7 +133,6 @@ class Cut3dTool(ipw.HBox):
         self.button_minus.on_click(self.decrease_thickness)
 
         self._nodes = nodes
-        self.pos_nodes = {}
         self.select_nodes = {}
 
         super().__init__([
@@ -159,23 +158,22 @@ class Cut3dTool(ipw.HBox):
 
     def _add_cut(self):
         for n in self._nodes:
-            self.pos_nodes[n.id] = Node(
-                lambda: sc.scalar(self.slider.value, unit=self._unit))
-            delta = (self.slider.max - self.slider.min) * self.thickness
-            self.select_nodes[n.id] = node(lambda da, pos: da[sc.abs(da.meta[
-                self._dim] - pos) < sc.scalar(delta, unit=self._unit)])(
-                    da=n, pos=self.pos_nodes[n.id])
-            self.select_nodes[n.id].add_view(self._view)
-            self._view.update(self.select_nodes[n.id].request_data(),
-                              key=self.select_nodes[n.id].id,
-                              colormapper=n.id)
+            da = n.request_data()
+            delta = sc.scalar((self.slider.max - self.slider.min) * self.thickness,
+                              unit=self._unit)
+            pos = sc.scalar(self.slider.value, unit=self._unit)
+            selection = sc.abs(da.meta[self._dim] - pos) < delta
+            if selection.sum().value > 0:
+                self.select_nodes[n.id] = node(lambda da: da[selection])(da=n)
+                self.select_nodes[n.id].add_view(self._view)
+                self._view.update(self.select_nodes[n.id].request_data(),
+                                  key=self.select_nodes[n.id].id,
+                                  colormapper=n.id)
 
     def _remove_cut(self):
-        for key in self.pos_nodes:
-            self._view.remove(self.select_nodes[key].id)
-            self.select_nodes[key].remove()
-            self.pos_nodes[key].remove()
-        self.pos_nodes.clear()
+        for n in self.select_nodes.values():
+            self._view.remove(n.id)
+            n.remove()
         self.select_nodes.clear()
 
     @debounce(0.3)
