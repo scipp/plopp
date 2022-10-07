@@ -119,7 +119,8 @@ def dense_dataset(entries=None, **kwargs):
     return ds
 
 
-def scatter_data(npoints=500, scale=10.0):
+def scatter_data(npoints=500, scale=10.0, seed=1):
+    np.random.seed(seed)
     position = scale * np.random.normal(size=[npoints, 3])
     values = np.linalg.norm(position, axis=1)
     vec = sc.vectors(dims=['row'], unit='m', values=position)
