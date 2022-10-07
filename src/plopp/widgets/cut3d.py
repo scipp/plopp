@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .styling import BUTTON_LAYOUT
-from ..core import Node, node
+from ..core import node
 
 import ipywidgets as ipw
 import numpy as np
