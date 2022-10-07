@@ -11,7 +11,7 @@ from ipywidgets import VBox, HBox
 
 class Fig3d(View, VBox):
 
-    def __init__(self, *nodes, figsize=(600, 400), title=None):
+    def __init__(self, *nodes, figsize=None, title=None):
 
         import pythreejs as p3
 
@@ -21,7 +21,10 @@ class Fig3d(View, VBox):
         self.outline = None
         self.axticks = None
 
+        if figsize is None:
+            figsize = (600, 400)
         width, height = figsize
+        self._figheight = height
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}

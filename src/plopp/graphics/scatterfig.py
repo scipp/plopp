@@ -11,21 +11,12 @@ import ipywidgets as ipw
 
 class ScatterFig(Fig3d):
 
-    def __init__(self,
-                 *nodes,
-                 x,
-                 y,
-                 z,
-                 figsize=(600, 400),
-                 title=None,
-                 cbar=None,
-                 **kwargs):
+    def __init__(self, *nodes, x, y, z, figsize=None, title=None, cbar=None, **kwargs):
 
         self._x = x
         self._y = y
         self._z = z
         self._kwargs = kwargs
-        self._figheight = figsize[1]
 
         super().__init__(*nodes, figsize=figsize, title=title)
 
