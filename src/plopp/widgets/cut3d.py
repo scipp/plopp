@@ -61,6 +61,15 @@ def debounce(wait):
 
 
 class Cut3dTool(ipw.HBox):
+    """
+    A tool that provides a slider to extract a plane of points in a three-dimensional
+    scatter plot, and add it to the scene as an opaque cut. The slider controls the
+    position of the slice. When the slider is dragged, the red outline of the cut is
+    moved at the same time, while the actual point cloud gets updated less frequently
+    using a debounce mechanism.
+
+    The tool also has two buttons +/- to increase/decrease the thickness of the cut.
+    """
 
     def __init__(self,
                  view,
@@ -202,6 +211,10 @@ class Cut3dTool(ipw.HBox):
 
 
 class TriCutTool(ipw.HBox):
+    """
+    A collection of :class:`Cut3dTool`s to make spatial cuts in the X, Y, and Z
+    directions on a three-dimensional scatter plot.
+    """
 
     def __init__(self, fig):
 
