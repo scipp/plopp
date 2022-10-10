@@ -7,3 +7,4 @@ from .interactive import InteractiveFig
 from .static import StaticFig
 from .fig3d import Fig3d
 from .scatterfig import ScatterFig
+from .color_mapper import ColorMapper

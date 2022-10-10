@@ -4,6 +4,7 @@
 from .figure import figure
 from ..core import input_node
 from .common import preprocess
+from ..graphics import ColorMapper
 
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
@@ -84,12 +85,19 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         },
         **kwargs
     }
-    if isinstance(obj, (dict, Dataset)):
-        nodes = [
-            input_node(preprocess(item, crop=crop, name=name, ignore_size=ignore_size))
-            for name, item in obj.items()
-        ]
-        return figure(*nodes, **all_args)
-    else:
-        return figure(input_node(preprocess(obj, crop=crop, ignore_size=ignore_size)),
-                      **all_args)
+    # if isinstance(obj, (dict, Dataset)):
+    #     nodes = [
+    #         input_node(preprocess(item, crop=crop, name=name, ignore_size=ignore_size))
+    #         for name, item in obj.items()
+    #     ]
+    #     return figure(*nodes, **all_args)
+    # else:
+    #     return figure(input_node(preprocess(obj, crop=crop, ignore_size=ignore_size)),
+    #                   **all_args)
+
+    a = input_node(preprocess(obj, crop=crop, ignore_size=ignore_size))
+    if obj.ndim > 1:
+        cm = ColorMapper()
+        b = pp.Node(func=lambda: cm)
+        c = pp.node(lambda x, y: y(x))(x=a, y=b)
+    return figure(c)

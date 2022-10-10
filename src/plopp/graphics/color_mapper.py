@@ -34,7 +34,7 @@ def _get_cmap(name, nan_color=None):
 class ColorMapper:
 
     def __init__(self,
-                 notify_on_change,
+                 notify_on_change=None,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: str = "linear",
@@ -46,18 +46,30 @@ class ColorMapper:
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin
         self.user_vmax = vmax
-        self._vmin = {'linear': np.inf, 'log': np.inf}
-        self._vmax = {'linear': np.NINF, 'log': np.NINF}
-        self._norm = norm
-        self.normalizer = {'linear': Normalize(), 'log': LogNorm()}
+        # self._vmin = {'linear': np.inf, 'log': np.inf}
+        # self._vmax = {'linear': np.NINF, 'log': np.NINF}
+        self.vmin = np.inf
+        self.vmax = np.NINF
+        self.norm = norm
+        # self.normalizer = {'linear': Normalize(), 'log': LogNorm()}
+        self.normalizer = Normalize() if self.norm == "linear" else LogNorm()
         self._notify_on_change = [notify_on_change]
         self.colorbar = None
         self.unit = None
         self.name = None
         self._figheight = figheight
 
-    @property
-    def widget(self):
+    def __call__(self, data: sc.DataArray):
+        """
+        Return rgba values given a data array.
+        """
+        colors = self.cmap(self.normalizer(data.values))
+        if data.masks:
+            one_mask = merge_masks(data.masks).values
+            colors[one_mask] = self.mask_cmap(self.normalizer(data.values[one_mask]))
+        return sc.DataArray(coords=data.coords, data=)
+
+    def to_widget(self):
         import ipywidgets as ipw
         self.colorbar = {
             'image':
@@ -84,41 +96,38 @@ class ColorMapper:
         self.colorbar['image'].value = fig_to_bytes(cbar_fig, form='svg').decode()
         plt.close(cbar_fig)
 
-    def autoscale(self, data, scale):
+    def autoscale(self, data=None):
         """
         Re-compute the min and max range of values, given new values.
         """
-        vmin, vmax = fix_empty_range(find_limits(data, scale=scale))
+        if data is not None:
+            self._data = data
+        old_bounds = np.array([self.vmin, self.vmax])
+        vmin, vmax = fix_empty_range(find_limits(self._data, scale=self._norm))
         if self.user_vmin is not None:
             assert self.user_vmin.unit == data.unit
-            self._vmin[scale] = self.user_vmin.value
-        elif vmin.value < self._vmin[scale]:
-            self._vmin[scale] = vmin.value
+            self.vmin = self.user_vmin.value
+        elif vmin.value < self.vmin:
+            self.vmin = vmin.value
         if self.user_vmax is not None:
             assert self.user_vmax.unit == data.unit
-            self._vmax[scale] = self.user_vmax.value
-        elif vmax.value > self._vmax[scale]:
-            self._vmax[scale] = vmax.value
+            self.vmax = self.user_vmax.value
+        elif vmax.value > self.vmax:
+            self.vmax = vmax.value
 
-        self.normalizer[scale].vmin = self._vmin[scale]
-        self.normalizer[scale].vmax = self._vmax[scale]
+        self.normalizer.vmin = self._vmin
+        self.normalizer.vmax = self._vmax
 
-    def rescale(self, data):
-        old_bounds = np.array([self.vmin, self.vmax])
-        self.autoscale(data=data, scale=self._norm)
         if (self.colorbar is not None) and not np.allclose(
                 old_bounds, np.array([self.vmin, self.vmax])):
             self._update_colorbar()
 
-    def rgba(self, data: sc.DataArray):
-        """
-        Return rgba values given a data array.
-        """
-        out = self.cmap(self.norm(data.values))
-        if data.masks:
-            one_mask = merge_masks(data.masks).values
-            out[one_mask] = self.mask_cmap(self.norm(data.values[one_mask]))
-        return out
+    # def rescale(self, data):
+    #     old_bounds = np.array([self.vmin, self.vmax])
+    #     self.autoscale(data=data, scale=self._norm)
+    #     if (self.colorbar is not None) and not np.allclose(
+    #             old_bounds, np.array([self.vmin, self.vmax])):
+    #         self._update_colorbar()
 
     def set_norm(self, data):
         """
@@ -128,14 +137,17 @@ class ColorMapper:
         self.name = data.name
         self.autoscale(data=data.data, scale='linear')
         self.autoscale(data=data.data, scale='log')
-        self.notify()
+        # self.notify()
 
     def toggle_norm(self):
         """
         Toggle the norm flag, between `linear` and `log`.
         """
-        self._norm = "log" if self._norm == "linear" else "linear"
-        self.notify()
+        self.norm = "log" if self.norm == "linear" else "linear"
+        self.normalizer = Normalize() if self.norm == "linear" else LogNorm()
+        # print(self._vmin, self._vmax)
+        # print(self.norm.vmin, self.norm.vmax)
+        # self.notify()
         if self.colorbar is not None:
             self._update_colorbar()
 
@@ -146,14 +158,14 @@ class ColorMapper:
         for callback in self._notify_on_change:
             callback()
 
-    @property
-    def vmin(self):
-        return self._vmin[self._norm]
+    # @property
+    # def vmin(self):
+    #     return self._vmin[self._norm]
 
-    @property
-    def vmax(self):
-        return self._vmax[self._norm]
+    # @property
+    # def vmax(self):
+    #     return self._vmax[self._norm]
 
-    @property
-    def norm(self):
-        return self.normalizer[self._norm]
+    # @property
+    # def norm(self):
+    #     return self.normalizer[self._norm]

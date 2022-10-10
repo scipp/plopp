@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
-from .color_mapper import ColorMapper
+# from .color_mapper import ColorMapper
 
 import numpy as np
 import scipp as sc
@@ -11,38 +11,24 @@ import scipp as sc
 class PointCloud:
 
     def __init__(
-            self,
-            *,
-            x,
-            y,
-            z,
-            data,
-            figheight,
-            colormapper=None,
-            pixel_size=1,  # TODO: pixel_size should have units
-            cmap: str = 'viridis',
-            mask_cmap: str = 'gray',
-            norm: str = 'linear',
-            vmin=None,
-            vmax=None,
-            opacity=1):
+        self,
+        *,
+        x,
+        y,
+        z,
+        data,
+        colormapper,
+        pixel_size=1,  # TODO: pixel_size should have units
+        # cmap: str = 'viridis',
+        # mask_cmap: str = 'gray',
+        # norm: str = 'linear',
+        # vmin=None,
+        # vmax=None,
+        opacity=1):
         """
         Make a point cloud using pythreejs
         """
         import pythreejs as p3
-
-        if colormapper is None:
-            self.color_mapper = ColorMapper(cmap=cmap,
-                                            mask_cmap=mask_cmap,
-                                            norm=norm,
-                                            vmin=vmin,
-                                            vmax=vmax,
-                                            nan_color="#f0f0f0",
-                                            notify_on_change=self._set_points_colors,
-                                            figheight=figheight)
-        else:
-            self.color_mapper = colormapper
-            self.color_mapper.add_notify(self._set_points_colors)
 
         self._data = data
         self._x = x
@@ -58,8 +44,8 @@ class PointCloud:
                             self._z].values.astype('float32')
                 ]).T),
                 'color':
-                p3.BufferAttribute(array=np.ones([self._data.meta[self._x].shape[0], 3],
-                                                 dtype='float32'))
+                p3.BufferAttribute(array=np.zeros(
+                    [self._data.meta[self._x].shape[0], 3], dtype='float32'))
             })
 
         # TODO: a device pixel_ratio should probably be read from a config file
@@ -72,7 +58,20 @@ class PointCloud:
                                           opacity=opacity)
         self.points = p3.Points(geometry=self.geometry, material=self.material)
 
-        self.color_mapper.set_norm(data=self._data)
+        # if colormapper is None:
+        #     self.color_mapper = ColorMapper(cmap=cmap,
+        #                                     mask_cmap=mask_cmap,
+        #                                     norm=norm,
+        #                                     vmin=vmin,
+        #                                     vmax=vmax,
+        #                                     nan_color="#f0f0f0",
+        #                                     notify_on_change=self._set_points_colors,
+        #                                     figheight=figheight)
+        # else:
+        #     self.color_mapper = colormapper
+        #     self.color_mapper.add_notify(self._set_points_colors)
+
+        # self.color_mapper.set_norm(data=self._data)
 
     def _set_points_colors(self):
         colors = self.color_mapper.rgba(self._data)[..., :3]

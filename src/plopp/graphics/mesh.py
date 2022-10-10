@@ -74,12 +74,12 @@ class Mesh:
                  cbar=True,
                  **kwargs):
 
-        self.color_mapper = ColorMapper(cmap=cmap,
-                                        mask_cmap=mask_cmap,
-                                        norm=norm,
-                                        vmin=vmin,
-                                        vmax=vmax,
-                                        notify_on_change=self._set_mesh_colors)
+        # self.color_mapper = ColorMapper(cmap=cmap,
+        #                                 mask_cmap=mask_cmap,
+        #                                 norm=norm,
+        #                                 vmin=vmin,
+        #                                 vmax=vmax,
+        #                                 notify_on_change=self._set_mesh_colors)
 
         self._ax = ax
         self._data = data

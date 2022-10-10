@@ -20,11 +20,12 @@ class Fig3d(View, VBox):
         self._children = {}
         self.outline = None
         self.axticks = None
+        self.figsize = figsize
 
-        if figsize is None:
-            figsize = (600, 400)
-        width, height = figsize
-        self._figheight = height
+        if self.figsize is None:
+            self.figsize = (600, 400)
+        width, height = self.figsize
+        # self._figheight = height
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}

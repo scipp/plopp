@@ -8,37 +8,65 @@ import scipp as sc
 
 class ScatterFig(Fig3d):
 
-    def __init__(self, *nodes, x, y, z, figsize=None, title=None, cbar=None, **kwargs):
+    def __init__(self,
+                 *nodes,
+                 x,
+                 y,
+                 z,
+                 figsize=None,
+                 title=None,
+                 cmap=None,
+                 mask_cmap=None,
+                 norm=None,
+                 vmin=None,
+                 vmax=None,
+                 **kwargs):
 
         self._x = x
         self._y = y
         self._z = z
         self._kwargs = kwargs
 
+        self.colormapper = ColorMapper(cmap=cmap,
+                                       mask_cmap=mask_cmap,
+                                       norm=norm,
+                                       vmin=vmin,
+                                       vmax=vmax,
+                                       nan_color="#f0f0f0",
+                                       figheight=self.figsize[1])
+        self.right_bar.add(self.colormapper.to_widget)
+        self.colormapper.colorbar['button'].on_click()
+
+        self._original_children = [n.id for n in nodes]
+
         super().__init__(*nodes, figsize=figsize, title=title)
 
-        self._original_children = list(self._children.keys())
+        # self._original_children = list(self._children.keys())
 
-    def update(self, new_values: sc.DataArray, key: str, colormapper=None):
+    def update(self, new_values: sc.DataArray, key: str):
         """
         Update image array with new values.
         """
         from .point_cloud import PointCloud
         from .outline import Outline
 
+        if key in self._original_children:
+            self.colormapper.autoscale(new_values)
+
         if key not in self._children:
-            if colormapper is not None:
-                colormapper = self._children[colormapper].color_mapper
-            pts = PointCloud(data=new_values,
-                             x=self._x,
-                             y=self._y,
-                             z=self._z,
-                             colormapper=colormapper,
-                             figheight=self._figheight,
-                             **self._kwargs)
+            # if colormapper is not None:
+            #     colormapper = self._children[colormapper].color_mapper
+            pts = PointCloud(
+                data=new_values,
+                x=self._x,
+                y=self._y,
+                z=self._z,
+                colormapper=self.colormapper,
+                # figheight=self._figheight,
+                **self._kwargs)
             self._children[key] = pts
             self.scene.add(pts.points)
-            if colormapper is None:
+            if key in self._original_children:
                 limits = self.get_limits()
                 if self.outline is not None:
                     self.scene.remove(self.outline)
@@ -46,7 +74,6 @@ class ScatterFig(Fig3d):
                 self.scene.add(self.outline)
                 self._update_camera(limits=limits)
                 self.axes_3d.scale = [self.camera.far] * 3
-                self.right_bar.add(pts.color_mapper.widget)
         else:
             self._children[key].update(new_values=new_values)
 
