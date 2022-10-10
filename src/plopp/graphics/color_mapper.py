@@ -54,12 +54,7 @@ class ColorMapper:
         self.colorbar = None
         self.unit = None
         self.name = None
-
-        dpi = 96
-        height_inches = 0.9 * figheight / dpi
-        with plt.ioff():
-            self.cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
-            self.cbar_ax = self.cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
+        self._figheight = figheight
 
     @property
     def widget(self):
@@ -91,16 +86,17 @@ class ColorMapper:
         return ipw.VBox(list(self.colorbar.values()))
 
     def _update_colorbar(self):
-        # dpi = 96
-        # height_px = 600
-        # height_inches = 0.89 * height_px / dpi
-        # cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=dpi)
-        # cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
-        self.cbar_ax.clear()
-        _ = ColorbarBase(self.cbar_ax, cmap=self.cmap, norm=self.norm)
-        self.cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
-        self.colorbar['image'].value = fig_to_bytes(self.cbar_fig, form='svg').decode()
-        # plt.close(cbar_fig)
+        # Choose a dpi that makes the sizes in inches (mpl colorbar) and pixels
+        # (pythreejs renderer) match.
+        dpi = 100
+        # Additional shrinking factor to make space for the 'log' toggle button
+        height_inches = 0.88 * self._figheight / dpi
+        cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
+        cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
+        _ = ColorbarBase(cbar_ax, cmap=self.cmap, norm=self.norm)
+        cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
+        self.colorbar['image'].value = fig_to_bytes(cbar_fig, form='svg').decode()
+        plt.close(cbar_fig)
 
         # dpi = 200
         # # height_px = 600
