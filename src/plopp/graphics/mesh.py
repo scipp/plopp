@@ -112,13 +112,14 @@ class Mesh:
     def _make_mesh(self, shading='auto', rasterized=True, **kwargs):
         x, y, z = _from_data_array_to_pcolormesh(data=self._data.data,
                                                  coords=self._bin_edge_coords)
-        self._mesh = self._ax.pcolormesh(x.values,
-                                         y.values,
-                                         z.values,
-                                         cmap=self.color_mapper.cmap,
-                                         shading=shading,
-                                         rasterized=rasterized,
-                                         **kwargs)
+        self._mesh = self._ax.pcolormesh(
+            x.values,
+            y.values,
+            z.values,
+            # cmap=self.color_mapper.cmap,
+            shading=shading,
+            rasterized=rasterized,
+            **kwargs)
         if self._cbar:
             self._cbar = colorbar(self._mesh,
                                   ax=self._ax,

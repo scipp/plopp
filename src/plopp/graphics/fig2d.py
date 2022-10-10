@@ -15,9 +15,20 @@ from typing import Any, Tuple
 
 class Figure2d(Figure):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 *args,
+                 cmap: str = 'viridis',
+                 mask_cmap: str = 'gray',
+                 norm: str = 'linear',
+                 vmin=None,
+                 vmax=None,
+                 **kwargs):
 
-        self.colormapper = ColorMapper()
+        self.colormapper = ColorMapper(cmap=cmap,
+                                       mask_cmap=mask_cmap,
+                                       norm=norm,
+                                       vmin=vmin,
+                                       vmax=vmax)
 
         super().__init__(*args, **kwargs)
 
@@ -27,6 +38,9 @@ class Figure2d(Figure):
         """
         if new_values.ndim != 2:
             raise ValueError("Figure can only be used to plot 2-D data.")
+
+        self.colormapper.update(new_values)
+
         if key not in self._children:
             self._children[key] = Mesh(ax=self._ax,
                                        data=new_values,

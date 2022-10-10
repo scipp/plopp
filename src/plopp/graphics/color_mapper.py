@@ -58,16 +58,7 @@ class ColorMapper:
         self.unit = None
         self.name = None
         self._figheight = figheight
-
-    def __call__(self, data: sc.DataArray):
-        """
-        Return rgba values given a data array.
-        """
-        colors = self.cmap(self.normalizer(data.values))
-        if data.masks:
-            one_mask = merge_masks(data.masks).values
-            colors[one_mask] = self.mask_cmap(self.normalizer(data.values[one_mask]))
-        return sc.DataArray(coords=data.coords, data=)
+        self.bounds_changed = False
 
     def to_widget(self):
         import ipywidgets as ipw
@@ -96,6 +87,16 @@ class ColorMapper:
         self.colorbar['image'].value = fig_to_bytes(cbar_fig, form='svg').decode()
         plt.close(cbar_fig)
 
+    def rgba(self, data: sc.DataArray):
+        """
+        Return rgba values given a data array.
+        """
+        colors = self.cmap(self.normalizer(data.values))
+        if data.masks:
+            one_mask = merge_masks(data.masks).values
+            colors[one_mask] = self.mask_cmap(self.normalizer(data.values[one_mask]))
+        return colors
+
     def autoscale(self, data=None):
         """
         Re-compute the min and max range of values, given new values.
@@ -118,9 +119,12 @@ class ColorMapper:
         self.normalizer.vmin = self._vmin
         self.normalizer.vmax = self._vmax
 
-        if (self.colorbar is not None) and not np.allclose(
-                old_bounds, np.array([self.vmin, self.vmax])):
-            self._update_colorbar()
+        self.bounds_changed = not np.allclose(old_bounds,
+                                              np.array([self.vmin, self.vmax]))
+
+        # if (self.colorbar is not None) and not np.allclose(
+        #         old_bounds, np.array([self.vmin, self.vmax])):
+        #     self._update_colorbar()
 
     # def rescale(self, data):
     #     old_bounds = np.array([self.vmin, self.vmax])
