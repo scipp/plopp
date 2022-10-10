@@ -137,15 +137,6 @@ class Cut3dTool(ipw.HBox):
         self._nodes = list(self._view.graph_nodes.values())
         self.select_nodes = {}
 
-        # self.thickness_controls = ipw.HBox([self.button_plus, self.button_minus])
-        # self.position_controls = ipw.HBox([self.slider, self.unit_label])
-        # self.thickness_controls.layout.display = 'none'
-        # self.position_controls.layout.display = 'none'
-
-        # box_layout = ipw.Layout(display='flex',
-        #                         flex_flow='column',
-        #                         justify_content='center')
-
         super().__init__([
             ipw.VBox([self.button,
                       ipw.HBox([self.button_plus, self.button_minus])]),
@@ -158,20 +149,10 @@ class Cut3dTool(ipw.HBox):
         self.outline.visible = change['new']
         for widget in (self.slider, self.button_plus, self.button_minus, self.readout):
             widget.disabled = not change['new']
-        disp = None if change['new'] else 'none'
-        # self.thickness_controls.layout.display = disp
-        # self.position_controls.layout.display = disp
-        # self.layout.border = 'solid 1px' if change['new'] else 'none'
         if change['new']:
             self._add_cut()
-            # self.thickness_controls.layout.display = None
-            # self.position_controls.layout.display = None
-            # self.position_controls.layout.display = None
         else:
             self._remove_cut()
-            # self.thickness_controls.layout.display = 'none'
-            # self.position_controls.layout.display = 'none'
-            # self.position_controls.layout.display = 'none'
 
     def move(self, value):
         pos = list(self.outline.position)
@@ -225,10 +206,7 @@ class TriCutTool(ipw.HBox):
     def __init__(self, fig):
 
         self._fig = fig
-        # nodes = self._fig.graph_nodes
         limits = self._fig.get_limits()
-        # layout = {'width': '80px', 'padding': '0px 0px 0px 0px'}
-
         self.cut_x = Cut3dTool(view=self._fig,
                                direction='x',
                                limits=limits,
@@ -250,29 +228,23 @@ class TriCutTool(ipw.HBox):
 
         self._fig.add([self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
 
-        self.opacity = ipw.BoundedFloatText(
-            min=0,
-            max=0.5,
-            step=0.01,
-            # description='Opacity:',
-            disabled=True,
-            value=0.03,
-            style={'description_width': 'initial'},
-            layout={
-                'width': '50px',
-                'padding': '0px 0px 0px 0px'
-            })
+        self.opacity = ipw.BoundedFloatText(min=0,
+                                            max=0.5,
+                                            step=0.01,
+                                            disabled=True,
+                                            value=0.03,
+                                            style={'description_width': 'initial'},
+                                            layout={
+                                                'width': '50px',
+                                                'padding': '0px 0px 0px 0px'
+                                            })
         self.opacity.observe(self._set_opacity, names='value')
-
-        # self.left_bar.add(self.opacity_slider)
 
         self.cut_x.button.observe(self._toggle_opacity, names='value')
         self.cut_y.button.observe(self._toggle_opacity, names='value')
         self.cut_z.button.observe(self._toggle_opacity, names='value')
 
         space = ipw.HBox([], layout={'width': '10px'})
-        # super().__init__(
-        #     [self.cut_x, space, self.cut_y, space, self.cut_z, self.opacity])
         super().__init__([
             self.cut_x, space, self.cut_y, space, self.cut_z, space,
             ipw.VBox([ipw.Label('Opacity:'), self.opacity])
