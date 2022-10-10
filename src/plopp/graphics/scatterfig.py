@@ -82,6 +82,7 @@ class ScatterFig(Fig3d):
                              y=self._y,
                              z=self._z,
                              colormapper=colormapper,
+                             figheight=self._figheight,
                              **self._kwargs)
             self._children[key] = pts
             self.scene.add(pts.points)
@@ -94,8 +95,8 @@ class ScatterFig(Fig3d):
                 self._update_camera(limits=limits)
                 self.axes_3d.scale = [self.camera.far] * 3
                 self.right_bar.add(pts.color_mapper.widget)
-                pts.color_mapper.colorbar[
-                    'image'].layout.height = f'{0.91 * self._figheight}px'
+                # pts.color_mapper.colorbar[
+                #     'image'].layout.height = f'{0.91 * self._figheight}px'
         else:
             self._children[key].update(new_values=new_values)
 

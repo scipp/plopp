@@ -17,6 +17,7 @@ class PointCloud:
             y,
             z,
             data,
+            figheight,
             colormapper=None,
             pixel_size=1,  # TODO: pixel_size should have units
             cmap: str = 'viridis',
@@ -37,7 +38,8 @@ class PointCloud:
                                             vmin=vmin,
                                             vmax=vmax,
                                             nan_color="#f0f0f0",
-                                            notify_on_change=self._set_points_colors)
+                                            notify_on_change=self._set_points_colors,
+                                            figheight=figheight)
         else:
             self.color_mapper = colormapper
             self.color_mapper.add_notify(self._set_points_colors)

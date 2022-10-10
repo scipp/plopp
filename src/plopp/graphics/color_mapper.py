@@ -35,6 +35,7 @@ class ColorMapper:
 
     def __init__(self,
                  notify_on_change,
+                 figheight,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: str = "linear",
@@ -54,12 +55,32 @@ class ColorMapper:
         self.unit = None
         self.name = None
 
+        dpi = 96
+        height_inches = 0.9 * figheight / dpi
+        with plt.ioff():
+            self.cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
+            self.cbar_ax = self.cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
+
     @property
     def widget(self):
+        # dpi = 200
+        # # height_px = 600
+        # height_inches = 6
+        # cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=dpi)
+        # cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
+        # artist = ColorbarBase(cbar_ax, cmap=self.cmap, norm=self.norm)
+        # cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
+        # cbar_fig.canvas.toolbar_visible = False
+        # cbar_fig.canvas.header_visible = False
+        # cbar_fig.canvas.footer_visible = False
+        # cbar_fig.tight_layout()
+        # self.colorbar = {'fig': cbar_fig, 'ax': cbar_ax, 'artist': artist}
+        # return cbar_fig.canvas
+
         import ipywidgets as ipw
         self.colorbar = {
             'image':
-            ipw.Image(),
+            ipw.HTML(),
             'button':
             ToggleTool(self.toggle_norm,
                        value=self._norm == 'log',
@@ -70,15 +91,16 @@ class ColorMapper:
         return ipw.VBox(list(self.colorbar.values()))
 
     def _update_colorbar(self):
-        dpi = 96
-        height_px = 600
-        height_inches = 0.89 * height_px / dpi
-        cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=dpi)
-        cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
-        _ = ColorbarBase(cbar_ax, cmap=self.cmap, norm=self.norm)
-        cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
-        self.colorbar['image'].value = fig_to_bytes(cbar_fig)
-        plt.close(cbar_fig)
+        # dpi = 96
+        # height_px = 600
+        # height_inches = 0.89 * height_px / dpi
+        # cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=dpi)
+        # cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
+        self.cbar_ax.clear()
+        _ = ColorbarBase(self.cbar_ax, cmap=self.cmap, norm=self.norm)
+        self.cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
+        self.colorbar['image'].value = fig_to_bytes(self.cbar_fig, form='svg').decode()
+        # plt.close(cbar_fig)
 
         # dpi = 200
         # # height_px = 600
