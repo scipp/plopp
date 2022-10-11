@@ -55,11 +55,19 @@ class Canvas:
             # self.fig, self.ax = plt.subplots(1, 1, figsize=figsize, dpi=96)
             # self.fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
             self.fig = plt.figure(figsize=figsize, dpi=96)
+            left = 0.1
+            right = 0.9
+            bottom = 0.11
+            top = 0.95
             if cbar:
-                self.ax = self.fig.add_axes([0.05, 0.02, 0.87, 0.98])
-                self.cax = self.fig.add_axes([0.97, 0.02, 0.03, 0.98])
+                cbar_width = 0.03
+                cbar_gap = 0.04
+                self.ax = self.fig.add_axes(
+                    [left, bottom, right - left - cbar_width - cbar_gap, top - bottom])
+                self.cax = self.fig.add_axes(
+                    [right - cbar_width, bottom, cbar_width, top - bottom])
             else:
-                self.ax = self.fig.add_axes([0.05, 0.02, 0.95, 0.98])
+                self.ax = self.fig.add_axes([left, bottom, right - left, top - bottom])
                 self.cax = None
             # cax = fig.add_axes([0.27, 0.8, 0.5, 0.05])
         else:
@@ -114,17 +122,17 @@ class Canvas:
     def draw(self):
         self.fig.canvas.draw_idle()
 
-    def logx(self):
-        swap_scales = {"linear": "log", "log": "linear"}
-        self.ax.set_xscale(swap_scales[self.ax.get_xscale()])
-        self._autoscale()
-        self.draw()
+    # def logx(self):
+    #     swap_scales = {"linear": "log", "log": "linear"}
+    #     self.ax.set_xscale(swap_scales[self.ax.get_xscale()])
+    #     self._autoscale()
+    #     self.draw()
 
-    def logy(self):
-        swap_scales = {"linear": "log", "log": "linear"}
-        self.ax.set_yscale(swap_scales[self.ax.get_yscale()])
-        self._autoscale()
-        self.draw()
+    # def logy(self):
+    #     swap_scales = {"linear": "log", "log": "linear"}
+    #     self.ax.set_yscale(swap_scales[self.ax.get_yscale()])
+    #     self._autoscale()
+    #     self.draw()
 
     def savefig(self, filename: str = None):
         """
@@ -257,3 +265,34 @@ class Canvas:
     @ylabel.setter
     def ylabel(self, lab):
         self.ax.set_ylabel(lab)
+
+    @property
+    def xscale(self):
+        return self.ax.get_xscale()
+
+    @xscale.setter
+    def xscale(self, scale):
+        self.ax.set_xscale(scale)
+        # self.autoscale()
+
+    @property
+    def yscale(self):
+        return self.ax.get_yscale()
+
+    @yscale.setter
+    def yscale(self, scale):
+        self.ax.set_yscale(scale)
+        # self.autoscale()
+
+    @property
+    def toolbar_mode(self):
+        return self.fig.canvas.toolbar.mode
+
+    def zoom(self):
+        self.fig.canvas.toolbar.zoom()
+
+    def pan(self):
+        self.fig.canvas.toolbar.pan()
+
+    def save(self):
+        self.fig.canvas.toolbar.save_figure()

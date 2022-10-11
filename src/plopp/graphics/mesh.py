@@ -3,7 +3,7 @@
 
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import coord_as_bin_edges, name_with_unit, repeat, merge_masks
-from .color_mapper import ColorMapper
+# from .color_mapper import ColorMapper
 
 from matplotlib.pyplot import colorbar
 import numpy as np

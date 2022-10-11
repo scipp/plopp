@@ -2,7 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .fig import Figure
-from ..widgets import Toolbar
+from .fig2d import Figure2d
+from ..widgets import Toolbar, HBar, VBar
 
 from ipywidgets import VBox, HBox
 
@@ -39,29 +40,14 @@ def _is_sphinx_build():
     return meta.get("scipp_sphinx_build", False)
 
 
-class InteractiveFig(Figure, VBox):
+class Interactive(VBox):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
 
-        Figure.__init__(self, *args, **kwargs)
-        VBox.__init__(self, [
-            self.top_bar,
-            HBox([
-                self.left_bar,
-                self._to_image() if _is_sphinx_build() else self._fig.canvas,
-                self.right_bar
-            ]), self.bottom_bar
-        ])
-
-    def _post_init(self):
-
-        self._fig.canvas.toolbar_visible = False
-        self._fig.canvas.header_visible = False
-
-        self.left_bar = VBox()
-        self.right_bar = VBox()
-        self.bottom_bar = HBox()
-        self.top_bar = HBox()
+        # self.left_bar = VBox()
+        # self.right_bar = VBox()
+        # self.bottom_bar = HBox()
+        # self.top_bar = HBox()
 
         self.toolbar = Toolbar(
             tools={
@@ -72,32 +58,91 @@ class InteractiveFig(Figure, VBox):
                 'logy': self.logy,
                 'save': self.save
             })
-        self._fig.canvas.toolbar_visible = False
-        self._fig.canvas.header_visible = False
-        self.left_bar.children = tuple([self.toolbar])
+
+        # self._fig.canvas.toolbar_visible = False
+        # self._fig.canvas.header_visible = False
+
+        self.left_bar = VBar([self.toolbar])
+        self.right_bar = VBar()
+        self.bottom_bar = HBar()
+        self.top_bar = HBar()
+
+        # self.left_bar.children = tuple([self.toolbar])
+
+        # self.figure = Figure.__init__(self, *args, **kwargs)
+
+        super().__init__([
+            self.top_bar,
+            HBox([
+                self.left_bar,
+                # self._to_image() if _is_sphinx_build() else self._fig.canvas,
+                self.figure.canvas.fig.canvas,
+                self.right_bar
+            ]),
+            self.bottom_bar
+        ])
+
+    # def _post_init(self):
+
+    #     self._fig.canvas.toolbar_visible = False
+    #     self._fig.canvas.header_visible = False
+
+    #     self.left_bar = VBox()
+    #     self.right_bar = VBox()
+    #     self.bottom_bar = HBox()
+    #     self.top_bar = HBox()
+
+    #     self.toolbar = Toolbar(
+    #         tools={
+    #             'home': self.home,
+    #             'pan': self.pan,
+    #             'zoom': self.zoom,
+    #             'logx': self.logx,
+    #             'logy': self.logy,
+    #             'save': self.save
+    #         })
+    #     self._fig.canvas.toolbar_visible = False
+    #     self._fig.canvas.header_visible = False
+    #     self.left_bar.children = tuple([self.toolbar])
 
     def home(self):
-        self._autoscale()
-        self.crop(**self._crop)
-        self.draw()
+        self.figure.canvas.autoscale()
+        # self.figure.canvas.crop(**self._crop)
+        self.figure.canvas.draw()
 
     def pan(self):
-        if self._fig.canvas.toolbar.mode == 'zoom rect':
+        if self.figure.canvas.toolbar_mode == 'zoom rect':
             self.toolbar.zoom()
-        self._fig.canvas.toolbar.pan()
+        self.figure.canvas.pan()
 
     def zoom(self):
-        if self._fig.canvas.toolbar.mode == 'pan/zoom':
+        if self.figure.canvas.toolbar_mode == 'pan/zoom':
             self.toolbar.pan()
-        self._fig.canvas.toolbar.zoom()
+        self.figure.canvas.zoom()
 
     def save(self):
-        self._fig.canvas.toolbar.save_figure()
+        self.figure.canvas.save()
 
     def logx(self):
-        super().logx()
-        self.toolbar.logx.value = self._ax.get_xscale() == 'log'
+        # super().logx()
+        self.figure.canvas.xscale = 'log' if self.toolbar.logx.value else 'linear'
+        self.figure.autoscale()
+        self.figure.canvas.draw()
 
     def logy(self):
-        super().logy()
-        self.toolbar.logy.value = self._ax.get_yscale() == 'log'
+        # super().logy()
+        self.figure.canvas.yscale = 'log' if self.toolbar.logy.value else 'linear'
+        self.figure.autoscale()
+        self.figure.canvas.draw()
+        # self.toolbar.logy.value = self._ax.get_yscale() == 'log'
+
+
+class InteractiveFig2d(Interactive):
+
+    def __init__(self, *args, **kwargs):
+        self.figure = Figure2d(*args, **kwargs)
+        self.figure.canvas.fig.canvas.toolbar_visible = False
+        self.figure.canvas.fig.canvas.header_visible = False
+        super().__init__()
+        self.toolbar.logx.value = self.figure.canvas.xscale == 'log'
+        self.toolbar.logy.value = self.figure.canvas.yscale == 'log'

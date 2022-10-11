@@ -5,7 +5,7 @@ from ..core.utils import number_to_variable, name_with_unit
 from ..core.view import View
 from .fig import Figure
 from .canvas import Canvas
-from .color_mapper import ColorMapper
+from .colormapper import ColorMapper
 from .io import fig_to_bytes
 from .mesh import Mesh
 from .line import Line
@@ -24,12 +24,14 @@ class Figure2d(View):
                  norm: str = 'linear',
                  vmin=None,
                  vmax=None,
+                 scale=None,
                  **kwargs):
 
         super().__init__(*nodes)
 
         self._children = {}
         self._dims = {}
+        self._scale = {} if scale is None else scale
         self.canvas = Canvas(cbar=True)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
@@ -49,6 +51,9 @@ class Figure2d(View):
         node_id = message["node_id"]
         new_values = self.graph_nodes[node_id].request_data()
         self.update(new_values=new_values, key=node_id)
+
+    def autoscale(self):
+        self.canvas.autoscale(self._children.values())
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
@@ -92,9 +97,14 @@ class Figure2d(View):
                 var=new_values.meta[self._dims['x']['dim']])
             self.canvas.ylabel = name_with_unit(
                 var=new_values.meta[self._dims['y']['dim']])
+            if self._dims['x']['dim'] in self._scale:
+                self.canvas.xscale = self._scale[self._dims['x']['dim']]
+            if self._dims['y']['dim'] in self._scale:
+                self.canvas.yscale = self._scale[self._dims['y']['dim']]
+
             # if (self._dims['x']['dim'] in self._scale) and (
-            #         self._ax.get_xscale() != self._scale[self._dims['x']['dim']]):
-            #     self.logx()
+            #         self.canvas.xscale != self._scale[self._dims['x']['dim']]):
+            #     self.canvas.xscale
             # if (self._dims['y']['dim'] in self._scale) and (
             #         self._ax.get_yscale() != self._scale[self._dims['y']['dim']]):
             #     self.logy()

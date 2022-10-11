@@ -3,8 +3,8 @@
 
 # flake8: noqa E402, F401
 
-from .interactive import InteractiveFig
+from .interactive import InteractiveFig2d
 from .static import StaticFig2d
 from .fig3d import Fig3d
 from .scatterfig import ScatterFig
-from .color_mapper import ColorMapper
+from .colormapper import ColorMapper
