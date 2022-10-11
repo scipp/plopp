@@ -116,7 +116,8 @@ def plot(
     if ndim == 1:
         return figure1d(*[input_node(da) for da in data_arrays],
                         errorbars=errorbars,
-                        mask_color=mask_color**{
+                        mask_color=mask_color,
+                        **{
                             **common_args,
                             **kwargs
                         })

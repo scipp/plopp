@@ -6,6 +6,7 @@ from .fig2d import Figure2d
 from ..widgets import Toolbar, HBar, VBar
 
 from ipywidgets import VBox, HBox
+from functools import partial
 
 
 def _running_in_jupyter() -> bool:
@@ -38,6 +39,64 @@ def _is_sphinx_build():
     if hasattr(meta, "to_dict"):
         meta = meta.to_dict()
     return meta.get("scipp_sphinx_build", False)
+
+
+# def _make_toolbar(tools):
+#     _tools = {}
+#     for tool in tools:
+#         if isinstance(tool, str):
+#             _tools[tool] = getattr(self, tool)
+#         else:
+#             _tools[tool[0]] = tool[1]
+
+#     return Toolbar(tools=_tools)
+
+
+def make_fig_1d(*args, **kwargs):
+    fig = Figure1d(*args, **kwargs)
+    fig.canvas.fig.canvas.toolbar_visible = False
+    fig.canvas.fig.canvas.header_visible = False
+    # fig.toolbar = _make_toolbar(tools=['home', 'pan', 'zoom', 'logx', 'logy', 'save'])
+
+    toolbar = Toolbar(
+        tools={
+            'home': partial(fig.autoscale, draw=True),
+            'pan': fig.canvas.pan,
+            'zoom': fig.canvas.zoom,
+            # 'logx': fig.canvas.logx,
+            # 'logy': fig.canvas.logy,
+            'save': fig.canvas.save
+        })
+
+    left_bar = VBar([toolbar])
+    right_bar = VBar()
+    bottom_bar = HBar()
+    top_bar = HBar()
+
+    # self.left_bar.children = tuple([self.toolbar])
+
+    # self.figure = Figure.__init__(self, *args, **kwargs)
+
+    out = VBox([
+        top_bar,
+        HBox([
+            left_bar,
+            # self._to_image() if _is_sphinx_build() else self._fig.canvas,
+            fig.canvas.fig.canvas,
+            right_bar
+        ]),
+        bottom_bar
+    ])
+
+    out.canvas = fig.canvas
+    out.toolbar = toolbar
+    out.left_bar = left_bar
+    out.right_bar = right_bar
+    out.bottom_bar = bottom_bar
+    out.top_bar = top_bar
+    # self.toolbar.logx.value = self.figure.canvas.xscale == 'log'
+    # self.toolbar.logy.value = self.figure.canvas.yscale == 'log'
+    return out
 
 
 class Interactive(VBox):
