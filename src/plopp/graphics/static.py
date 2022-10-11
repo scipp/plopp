@@ -2,11 +2,12 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .fig import Figure
+from .fig1d import Figure1d
 from .fig2d import Figure2d
 from .io import fig_to_bytes
 
 
-class StaticMixin:
+class Static:
 
     def _repr_mimebundle_(self, include=None, exclude=None):
         """
@@ -28,7 +29,13 @@ class StaticMixin:
 #     pass
 
 
-class StaticFig2d(StaticMixin):
+class StaticFig1d(Static):
+
+    def __init__(self, *args, **kwargs):
+        self.figure = Figure1d(*args, **kwargs)
+
+
+class StaticFig2d(Static):
 
     def __init__(self, *args, **kwargs):
         self.figure = Figure2d(*args, **kwargs)

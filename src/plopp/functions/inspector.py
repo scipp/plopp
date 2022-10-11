@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
-from .figure import figure
+from .figure import figure1d, figure2d
 from ..core import input_node, node, Node
 from ..core.utils import coord_as_bin_edges
 from ..widgets import PointsTool
@@ -118,8 +118,8 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
         da.coords[d] = coord_as_bin_edges(da, d)
 
     op_node = node(getattr(sc, operation), dim=dim)(a)
-    f2d = figure(op_node, **{**{'crop': crop}, **kwargs})
-    f1d = figure()
+    f2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
+    f1d = figure1d()
     ev_handler = InspectorEventHandler(data_array=da, root_node=a, fig1d=f1d, fig2d=f2d)
     pts = PointsTool(ax=f2d._ax, tooltip='Add inspector points')
     pts.points.on_create = ev_handler.make_node

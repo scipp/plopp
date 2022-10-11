@@ -15,16 +15,16 @@ import scipp as sc
 from typing import Any, Tuple
 
 
-class Figure2d(View):
+class Figure1d(View):
 
     def __init__(self,
                  *nodes,
-                 cmap: str = 'viridis',
-                 mask_cmap: str = 'gray',
                  norm: str = 'linear',
                  vmin=None,
                  vmax=None,
                  scale=None,
+                 errorbars=True,
+                 mask_color='black',
                  aspect='auto',
                  grid=False,
                  **kwargs):
@@ -34,13 +34,12 @@ class Figure2d(View):
         self._children = {}
         self._dims = {}
         self._scale = {} if scale is None else scale
-        self.canvas = Canvas(cbar=True, aspect=aspect, grid=grid)
-        self.colormapper = ColorMapper(cmap=cmap,
-                                       mask_cmap=mask_cmap,
-                                       norm=norm,
-                                       vmin=vmin,
-                                       vmax=vmax,
-                                       cax=self.canvas.cax)
+        self._errorbars = errorbars
+        self._mask_color = mask_color
+        self._kwargs = kwargs
+
+        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid)
+        self.canvas.yscale = norm
 
         for node in self.graph_nodes.values():
             new_values = node.request_data()
@@ -59,50 +58,39 @@ class Figure2d(View):
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
-        Add new image or update image array with new values.
+        Add new line or update line values.
         """
-        if new_values.ndim != 2:
-            raise ValueError("Figure2d can only be used to plot 2-D data.")
-
-        self.colormapper.update(data=new_values)
+        if new_values.ndim != 1:
+            raise ValueError("Figure1d can only be used to plot 1-D data.")
 
         if key not in self._children:
 
-            # self.colormapper.autoscale(data=new_values)
-            mesh = Mesh(
-                canvas=self.canvas,
-                data=new_values
-                # vmin=self._user_vmin,
-                # vmax=self._user_vmax,
-                # norm=self._norm,
-                # **{
-                #     **{
-                #         'cbar': self._cbar,
-                #     },
-                #     **self._kwargs
-                # }
-            )
-            self._children[key] = mesh
-            self.colormapper[key] = mesh
-            self._dims.update({
-                "x": {
-                    'dim': new_values.dims[1],
-                    'unit': new_values.meta[new_values.dims[1]].unit
-                },
-                "y": {
-                    'dim': new_values.dims[0],
-                    'unit': new_values.meta[new_values.dims[0]].unit
-                }
-            })
+            line = Line(canvas=self.canvas,
+                        data=new_values,
+                        number=len(self._children),
+                        **{
+                            **{
+                                'errorbars': self._errorbars,
+                                'mask_color': self._mask_color
+                            },
+                            **self._kwargs
+                        })
+            self._children[key] = line
+            if line.label:
+                self.canvas.legend()
+
+            self._dims['x'] = {
+                'dim': new_values.dim,
+                'unit': new_values.meta[new_values.dim].unit
+            }
 
             self.canvas.xlabel = name_with_unit(
                 var=new_values.meta[self._dims['x']['dim']])
-            self.canvas.ylabel = name_with_unit(
-                var=new_values.meta[self._dims['y']['dim']])
+            self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
+
             if self._dims['x']['dim'] in self._scale:
                 self.canvas.xscale = self._scale[self._dims['x']['dim']]
-            if self._dims['y']['dim'] in self._scale:
-                self.canvas.yscale = self._scale[self._dims['y']['dim']]
+            # self.canvas.yscale = self._norm
 
             # if (self._dims['x']['dim'] in self._scale) and (
             #         self.canvas.xscale != self._scale[self._dims['x']['dim']]):
@@ -113,9 +101,8 @@ class Figure2d(View):
             # if not self._ax.get_title():
             #     self._ax.set_title(new_values.name)
 
-        # else:
-        self._children[key].update(new_values=new_values)
-        self._children[key].set_colors(self.colormapper.rgba(self._children[key].data))
+        else:
+            self._children[key].update(new_values=new_values)
 
         if draw:
             self.canvas.draw()

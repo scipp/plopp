@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
-from .figure import figure
+from .figure import figure1d, figure2d
 from ..core import input_node, widget_node
 
 from scipp import Variable, DataArray
@@ -34,7 +34,10 @@ class Slicer:
         self.slider = SliceWidget(da, dims=list(set(da.dims) - set(keep)))
         self.slider_node = widget_node(self.slider)
         self.slice_node = slice_dims(self.data_node, self.slider_node)
-        self.fig = figure(self.slice_node, **{**{'crop': crop}, **kwargs})
+        if len(keep) == 1:
+            self.fig = figure1d(self.slice_node, **{**{'crop': crop}, **kwargs})
+        elif len(keep) == 2:
+            self.fig = figure2d(self.slice_node, **{**{'crop': crop}, **kwargs})
 
 
 def slicer(obj: Union[VariableLike, ndarray],

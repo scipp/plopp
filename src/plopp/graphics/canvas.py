@@ -28,8 +28,6 @@ class Canvas:
             aspect='auto',
             scale=None,
             cbar=False,
-            errorbars=True,
-            mask_color='black',
             crop=None,
             **kwargs):
 
@@ -43,8 +41,8 @@ class Canvas:
         self._scale = {} if scale is None else scale
         self._crop = {} if crop is None else crop
         # self._cbar = cbar
-        self._errorbars = errorbars
-        self._mask_color = mask_color
+        # self._errorbars = errorbars
+        # self._mask_color = mask_color
         self._kwargs = kwargs
         # self._dims = {}
         # self._children = {}
@@ -77,7 +75,7 @@ class Canvas:
         self.ax.set_title(title)
         self.ax.grid(grid)
         self._legend = 0
-        self._new_artist = False
+        # self._new_artist = False
 
         # self._post_init()
         # self.render()
@@ -249,6 +247,9 @@ class Canvas:
         self.fig.savefig(buf, format=form, bbox_inches='tight')
         buf.seek(0)
         return buf.getvalue()
+
+    def legend(self):
+        self.ax.legend()
 
     @property
     def xlabel(self):

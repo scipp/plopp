@@ -26,10 +26,11 @@ class Line:
     """
     """
 
-    def __init__(self, ax, data, number=0, **kwargs):
+    def __init__(self, canvas, data, number=0, **kwargs):
 
-        self._ax = ax
+        self._ax = canvas.ax
         self._data = data
+        # print(kwargs)
 
         args = _parse_dicts_in_kwargs(kwargs, name=data.name)
 

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .figure import figure
+from .figure import figure1d, figure2d
 from ..core import input_node
 from .common import preprocess
 from ..graphics import ColorMapper
@@ -13,20 +13,21 @@ from numpy import ndarray
 from typing import Union, Dict, Literal
 
 
-def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
-         aspect: Literal['auto', 'equal'] = 'auto',
-         cbar: bool = True,
-         crop: Dict[str, Dict[str, Variable]] = None,
-         errorbars: bool = True,
-         grid: bool = False,
-         ignore_size: bool = False,
-         mask_color: str = 'black',
-         norm: Literal['linear', 'log'] = 'linear',
-         scale: Dict[str, str] = None,
-         title: str = None,
-         vmin: Variable = None,
-         vmax: Variable = None,
-         **kwargs):
+def plot(
+        obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
+        aspect: Literal['auto', 'equal'] = 'auto',
+        # cbar: bool = True,
+        crop: Dict[str, Dict[str, Variable]] = None,
+        errorbars: bool = True,
+        grid: bool = False,
+        ignore_size: bool = False,
+        mask_color: str = 'black',
+        norm: Literal['linear', 'log'] = 'linear',
+        scale: Dict[str, str] = None,
+        title: str = None,
+        vmin: Variable = None,
+        vmax: Variable = None,
+        **kwargs):
     """Plot a Scipp object.
 
     Parameters
@@ -77,27 +78,49 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
     :
         A figure.
     """
-    _, _, _, listed_args = inspect.getargvalues(inspect.currentframe())
-    all_args = {
-        **{
-            k: v
-            for k, v in listed_args.items() if k not in ('obj', 'ignore_size', 'kwargs')
-        },
-        **kwargs
-    }
-    # if isinstance(obj, (dict, Dataset)):
-    #     nodes = [
-    #         input_node(preprocess(item, crop=crop, name=name, ignore_size=ignore_size))
-    #         for name, item in obj.items()
-    #     ]
+    # _, _, _, listed_args = inspect.getargvalues(inspect.currentframe())
+    # all_args = {
+    #     **{
+    #         k: v
+    #         for k, v in listed_args.items() if k not in ('obj', 'ignore_size', 'kwargs')
+    #     },
+    #     **kwargs
+    # }
+    if isinstance(obj, (dict, Dataset)):
+        data_arrays = [
+            preprocess(item, crop=crop, name=name, ignore_size=ignore_size)
+            for name, item in obj.items()
+        ]
+    else:
+        data_arrays = [preprocess(obj, crop=crop, ignore_size=ignore_size)]
+
+    ndims = set()
+    for da in data_arrays:
+        ndims.add(da.ndim)
+    if len(ndims) > 1:
+        raise ValueError('All items given to the plot function must have the same '
+                         f'number of dimensions. Found dimensions {ndims}.')
+    ndim = ndims.pop()
+    if ndim == 1:
+        return figure1d(*[input_node(da) for da in data_arrays],
+                        errorbars=errorbars,
+                        **kwargs)
+    elif ndim == 2:
+        return figure2d(*[input_node(da) for da in data_arrays],
+                        aspect=aspect,
+                        **kwargs)
+    else:
+        raise ValueError('The plot function can only plot 1d and 2d data, got input '
+                         f'with {ndim} dimensions')
+
     #     return figure(*nodes, **all_args)
     # else:
     #     return figure(input_node(preprocess(obj, crop=crop, ignore_size=ignore_size)),
     #                   **all_args)
 
-    a = input_node(preprocess(obj, crop=crop, ignore_size=ignore_size))
-    if obj.ndim > 1:
-        cm = ColorMapper()
-        b = pp.Node(func=lambda: cm)
-        c = pp.node(lambda x, y: y(x))(x=a, y=b)
-    return figure(c)
+    # a = input_node(preprocess(obj, crop=crop, ignore_size=ignore_size))
+    # if obj.ndim > 1:
+    #     cm = ColorMapper()
+    #     b = pp.Node(func=lambda: cm)
+    #     c = pp.node(lambda x, y: y(x))(x=a, y=b)
+    # return figure(c)
