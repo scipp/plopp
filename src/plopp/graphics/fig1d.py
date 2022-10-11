@@ -27,6 +27,7 @@ class Figure1d(View):
                  mask_color='black',
                  aspect='auto',
                  grid=False,
+                 crop=None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -38,14 +39,14 @@ class Figure1d(View):
         self._mask_color = mask_color
         self._kwargs = kwargs
 
-        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid)
+        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid, crop=crop)
         self.canvas.yscale = norm
 
         for node in self.graph_nodes.values():
             new_values = node.request_data()
             self.update(new_values=new_values, key=node.id, draw=False)
         self.canvas.autoscale(self._children.values())
-        # self.crop(**self._crop)
+        self.canvas.crop()
         self.canvas.draw()
 
     def notify_view(self, message):
@@ -106,3 +107,6 @@ class Figure1d(View):
 
         if draw:
             self.canvas.draw()
+
+    def crop(self, *args, **kwargs):
+        self.canvas.crop(*args, **kwargs)

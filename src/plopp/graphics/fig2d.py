@@ -119,3 +119,7 @@ class Figure2d(View):
 
         if draw:
             self.canvas.draw()
+
+    def toggle_norm(self):
+        self.colormapper.toggle_norm()
+        self.canvas.draw()

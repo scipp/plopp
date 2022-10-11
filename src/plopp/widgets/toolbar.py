@@ -17,6 +17,8 @@ TOOL_LIBRARY = {
     partial(ToggleTool, description="logx", tooltip="Toggle X axis scale"),
     'logy':
     partial(ToggleTool, description="logy", tooltip="Toggle Y axis scale"),
+    'lognorm':
+    partial(ToggleTool, description="log", tooltip="Toggle colorscale normalization"),
     'save':
     partial(ButtonTool, icon="save", tooltip="Save figure"),
     'box':
@@ -44,25 +46,6 @@ TOOL_LIBRARY = {
             description='Z',
             tooltip="Camera to Z normal. Click twice to flip the view direction.")
 }
-
-
-class Bar:
-
-    def add(self, obj):
-        self.children = list(self.children) + [obj]
-
-    def remove(self, obj):
-        children = list(self.children)
-        children.remove(obj)
-        self.children = children
-
-
-class VBar(VBox, Bar):
-    pass
-
-
-class HBar(HBox, Bar):
-    pass
 
 
 class Toolbar(VBox):

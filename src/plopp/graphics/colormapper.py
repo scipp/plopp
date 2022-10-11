@@ -64,9 +64,10 @@ class ColorMapper:
         self._figheight = figheight
         self.changed = False
         self.children = {}
+        self.widget = None
 
         if self.cax is not None:
-            _ = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
+            self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
         # cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
 
     def __setitem__(self, key, val):
@@ -77,7 +78,7 @@ class ColorMapper:
 
     def to_widget(self):
         import ipywidgets as ipw
-        self.colorbar = {
+        self.widget = {
             'image':
             ipw.HTML(),
             'button':
@@ -87,7 +88,7 @@ class ColorMapper:
                        tooltip='Toggle data norm').widget
         }
         self._update_colorbar()
-        return ipw.VBox(list(self.colorbar.values()))
+        return ipw.VBox(list(self.widget.values()))
 
     def _update_colorbar(self):
         # Choose a dpi that makes the sizes in inches (mpl colorbar) and pixels
@@ -99,7 +100,7 @@ class ColorMapper:
         cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
         _ = ColorbarBase(cbar_ax, cmap=self.cmap, norm=self.norm)
         cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
-        self.colorbar['image'].value = fig_to_bytes(cbar_fig, form='svg').decode()
+        self.widget['image'].value = fig_to_bytes(cbar_fig, form='svg').decode()
         plt.close(cbar_fig)
 
     def rgba(self, data: sc.DataArray):
@@ -174,6 +175,7 @@ class ColorMapper:
         """
         self.norm = "log" if self.norm == "linear" else "linear"
         self.normalizer = Normalize() if self.norm == "linear" else LogNorm()
+        # cbar_fig.canvas.draw_idle()
         for child in self.children.values():
             self.autoscale(data=child._data)
         self._set_children_colors()
@@ -182,14 +184,15 @@ class ColorMapper:
         # print(self.norm.vmin, self.norm.vmax)
         # self.notify()
         if self.colorbar is not None:
-            self._update_colorbar()
+            self.colorbar.mappable.norm = self.normalizer
+            # self._update_colorbar()
 
-    def add_notify(self, callback):
-        self._notify_on_change.append(callback)
+    # def add_notify(self, callback):
+    #     self._notify_on_change.append(callback)
 
-    def notify(self):
-        for callback in self._notify_on_change:
-            callback()
+    # def notify(self):
+    #     for callback in self._notify_on_change:
+    #         callback()
 
     # @property
     # def vmin(self):

@@ -42,22 +42,21 @@ def _is_sphinx_build():
 
 class Interactive(VBox):
 
-    def __init__(self):
+    def __init__(self, tools):
 
         # self.left_bar = VBox()
         # self.right_bar = VBox()
         # self.bottom_bar = HBox()
         # self.top_bar = HBox()
 
-        self.toolbar = Toolbar(
-            tools={
-                'home': self.home,
-                'pan': self.pan,
-                'zoom': self.zoom,
-                'logx': self.logx,
-                'logy': self.logy,
-                'save': self.save
-            })
+        _tools = {}
+        for tool in tools:
+            if isinstance(tool, str):
+                _tools[tool] = getattr(self, tool)
+            else:
+                _tools[tool[0]] = tool[1]
+
+        self.toolbar = Toolbar(tools=_tools)
 
         # self._fig.canvas.toolbar_visible = False
         # self._fig.canvas.header_visible = False
@@ -106,8 +105,9 @@ class Interactive(VBox):
     #     self.left_bar.children = tuple([self.toolbar])
 
     def home(self):
-        self.figure.canvas.autoscale()
+        self.figure.autoscale()
         # self.figure.canvas.crop(**self._crop)
+        self.figure.crop()
         self.figure.canvas.draw()
 
     def pan(self):
@@ -143,7 +143,7 @@ class InteractiveFig1d(Interactive):
         self.figure = Figure1d(*args, **kwargs)
         self.figure.canvas.fig.canvas.toolbar_visible = False
         self.figure.canvas.fig.canvas.header_visible = False
-        super().__init__()
+        super().__init__(tools=['home', 'pan', 'zoom', 'logx', 'logy', 'save'])
         self.toolbar.logx.value = self.figure.canvas.xscale == 'log'
         self.toolbar.logy.value = self.figure.canvas.yscale == 'log'
 
@@ -154,6 +154,9 @@ class InteractiveFig2d(Interactive):
         self.figure = Figure2d(*args, **kwargs)
         self.figure.canvas.fig.canvas.toolbar_visible = False
         self.figure.canvas.fig.canvas.header_visible = False
-        super().__init__()
+        super().__init__(tools=[
+            'home', 'pan', 'zoom', 'logx', 'logy', ('lognorm',
+                                                    self.figure.toggle_norm), 'save'
+        ])
         self.toolbar.logx.value = self.figure.canvas.xscale == 'log'
         self.toolbar.logy.value = self.figure.canvas.yscale == 'log'

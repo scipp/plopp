@@ -86,6 +86,18 @@ def plot(
     #     },
     #     **kwargs
     # }
+
+    common_args = {
+        'aspect': aspect,
+        'crop': crop,
+        'grid': grid,
+        'norm': norm,
+        'scale': scale,
+        'title': title,
+        'vmin': vmin,
+        'vmax': vmax
+    }
+
     if isinstance(obj, (dict, Dataset)):
         data_arrays = [
             preprocess(item, crop=crop, name=name, ignore_size=ignore_size)
@@ -104,11 +116,17 @@ def plot(
     if ndim == 1:
         return figure1d(*[input_node(da) for da in data_arrays],
                         errorbars=errorbars,
-                        **kwargs)
+                        mask_color=mask_color**{
+                            **common_args,
+                            **kwargs
+                        })
     elif ndim == 2:
         return figure2d(*[input_node(da) for da in data_arrays],
                         aspect=aspect,
-                        **kwargs)
+                        **{
+                            **common_args,
+                            **kwargs
+                        })
     else:
         raise ValueError('The plot function can only plot 1d and 2d data, got input '
                          f'with {ndim} dimensions')

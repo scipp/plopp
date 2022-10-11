@@ -53,7 +53,7 @@ class Canvas:
             # self.fig, self.ax = plt.subplots(1, 1, figsize=figsize, dpi=96)
             # self.fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
             self.fig = plt.figure(figsize=figsize, dpi=96)
-            left = 0.1
+            left = 0.11
             right = 0.9
             bottom = 0.11
             top = 0.95
@@ -67,6 +67,7 @@ class Canvas:
             else:
                 self.ax = self.fig.add_axes([left, bottom, right - left, top - bottom])
                 self.cax = None
+            # self.fig.tight_layout()
             # cax = fig.add_axes([0.27, 0.8, 0.5, 0.05])
         else:
             self.fig = self.ax.get_figure()
@@ -221,8 +222,10 @@ class Canvas:
     #     if draw:
     #         self.draw()
 
-    def crop(self, **kwargs):
-        for dim, lims in kwargs.items():
+    def crop(self, limits=None):
+        if limits is None:
+            limits = self._crop
+        for dim, lims in limits.items():
             for xy in self._dims:
                 if dim == self._dims[xy]['dim']:
                     getattr(self.ax, f'set_{xy}lim')(*[
