@@ -36,6 +36,7 @@ class ColorMapper:
     def __init__(
             self,
             # notify_on_change=None,
+            cax=None,
             cmap: str = 'viridis',
             mask_cmap: str = 'gray',
             norm: str = "linear",
@@ -43,6 +44,8 @@ class ColorMapper:
             vmax=None,
             nan_color=None,
             figheight=None):
+
+        self.cax = cax
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin
@@ -62,6 +65,10 @@ class ColorMapper:
         self.changed = False
         self.children = {}
 
+        if self.cax is not None:
+            _ = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
+        # cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
+
     def __setitem__(self, key, val):
         self.children[key] = val
 
@@ -75,7 +82,7 @@ class ColorMapper:
             ipw.HTML(),
             'button':
             ToggleTool(self.toggle_norm,
-                       value=self._norm == 'log',
+                       value=self.norm == 'log',
                        description='log',
                        tooltip='Toggle data norm').widget
         }
@@ -111,7 +118,7 @@ class ColorMapper:
         """
         # if data is not None:
         #     self._data = data
-        vmin, vmax = fix_empty_range(find_limits(data, scale=self._norm))
+        vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm))
         if self.user_vmin is not None:
             assert self.user_vmin.unit == data.unit
             self.vmin = self.user_vmin.value

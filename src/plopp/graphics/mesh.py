@@ -63,7 +63,7 @@ class Mesh:
     """
 
     def __init__(self,
-                 ax,
+                 canvas,
                  data,
                  cax: Any = None,
                  cmap: str = 'viridis',
@@ -83,7 +83,7 @@ class Mesh:
         #                                 vmax=vmax,
         #                                 notify_on_change=self._set_mesh_colors)
 
-        self._ax = ax
+        self._ax = canvas.ax
         self._data = data
         self._dims = {'x': self._data.dims[1], 'y': self._data.dims[0]}
         self._bin_edge_coords = {

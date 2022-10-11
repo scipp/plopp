@@ -5,6 +5,10 @@ from .fig3d import Fig3d
 
 import scipp as sc
 
+# class ScatterFig(View, VBox):
+
+#     should contain a Canvas3d, a toolbar,
+
 
 class ScatterFig(Fig3d):
 

@@ -2,7 +2,9 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.utils import number_to_variable, name_with_unit
+from ..core.view import View
 from .fig import Figure
+from .canvas import Canvas
 from .color_mapper import ColorMapper
 from .io import fig_to_bytes
 from .mesh import Mesh
@@ -13,10 +15,10 @@ import scipp as sc
 from typing import Any, Tuple
 
 
-class Figure2d(Figure):
+class Figure2d(View):
 
     def __init__(self,
-                 *args,
+                 *nodes,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: str = 'linear',
@@ -24,13 +26,29 @@ class Figure2d(Figure):
                  vmax=None,
                  **kwargs):
 
+        super().__init__(*nodes)
+
+        self._children = {}
+        self._dims = {}
+        self.canvas = Canvas(cbar=True)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,
                                        vmin=vmin,
-                                       vmax=vmax)
+                                       vmax=vmax,
+                                       cax=self.canvas.cax)
 
-        super().__init__(*args, **kwargs)
+        for node in self.graph_nodes.values():
+            new_values = node.request_data()
+            self.update(new_values=new_values, key=node.id, draw=False)
+        self.canvas.autoscale(self._children.values())
+        # self.crop(**self._crop)
+        self.canvas.draw()
+
+    def notify_view(self, message):
+        node_id = message["node_id"]
+        new_values = self.graph_nodes[node_id].request_data()
+        self.update(new_values=new_values, key=node_id)
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
@@ -44,17 +62,19 @@ class Figure2d(Figure):
         if key not in self._children:
 
             # self.colormapper.autoscale(data=new_values)
-            mesh = Mesh(ax=self._ax,
-                        data=new_values,
-                        vmin=self._user_vmin,
-                        vmax=self._user_vmax,
-                        norm=self._norm,
-                        **{
-                            **{
-                                'cbar': self._cbar,
-                            },
-                            **self._kwargs
-                        })
+            mesh = Mesh(
+                canvas=self.canvas,
+                data=new_values
+                # vmin=self._user_vmin,
+                # vmax=self._user_vmax,
+                # norm=self._norm,
+                # **{
+                #     **{
+                #         'cbar': self._cbar,
+                #     },
+                #     **self._kwargs
+                # }
+            )
             self._children[key] = mesh
             self.colormapper[key] = mesh
             self._dims.update({
@@ -68,22 +88,22 @@ class Figure2d(Figure):
                 }
             })
 
-            self._ax.set_xlabel(
-                name_with_unit(var=new_values.meta[self._dims['x']['dim']]))
-            self._ax.set_ylabel(
-                name_with_unit(var=new_values.meta[self._dims['y']['dim']]))
-            if (self._dims['x']['dim'] in self._scale) and (
-                    self._ax.get_xscale() != self._scale[self._dims['x']['dim']]):
-                self.logx()
-            if (self._dims['y']['dim'] in self._scale) and (
-                    self._ax.get_yscale() != self._scale[self._dims['y']['dim']]):
-                self.logy()
-            if not self._ax.get_title():
-                self._ax.set_title(new_values.name)
+            self.canvas.xlabel = name_with_unit(
+                var=new_values.meta[self._dims['x']['dim']])
+            self.canvas.ylabel = name_with_unit(
+                var=new_values.meta[self._dims['y']['dim']])
+            # if (self._dims['x']['dim'] in self._scale) and (
+            #         self._ax.get_xscale() != self._scale[self._dims['x']['dim']]):
+            #     self.logx()
+            # if (self._dims['y']['dim'] in self._scale) and (
+            #         self._ax.get_yscale() != self._scale[self._dims['y']['dim']]):
+            #     self.logy()
+            # if not self._ax.get_title():
+            #     self._ax.set_title(new_values.name)
 
         # else:
         self._children[key].update(new_values=new_values)
         self._children[key].set_colors(self.colormapper.rgba(self._children[key].data))
 
         if draw:
-            self.draw()
+            self.canvas.draw()
