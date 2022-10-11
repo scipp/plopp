@@ -33,15 +33,16 @@ def _get_cmap(name, nan_color=None):
 
 class ColorMapper:
 
-    def __init__(self,
-                 notify_on_change=None,
-                 cmap: str = 'viridis',
-                 mask_cmap: str = 'gray',
-                 norm: str = "linear",
-                 vmin=None,
-                 vmax=None,
-                 nan_color=None,
-                 figheight=None):
+    def __init__(
+            self,
+            # notify_on_change=None,
+            cmap: str = 'viridis',
+            mask_cmap: str = 'gray',
+            norm: str = "linear",
+            vmin=None,
+            vmax=None,
+            nan_color=None,
+            figheight=None):
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin
@@ -53,12 +54,19 @@ class ColorMapper:
         self.norm = norm
         # self.normalizer = {'linear': Normalize(), 'log': LogNorm()}
         self.normalizer = Normalize() if self.norm == "linear" else LogNorm()
-        self._notify_on_change = [notify_on_change]
+        # self._notify_on_change = [notify_on_change]
         self.colorbar = None
         self.unit = None
         self.name = None
         self._figheight = figheight
-        self.bounds_changed = False
+        self.changed = False
+        self.children = {}
+
+    def __setitem__(self, key, val):
+        self.children[key] = val
+
+    def __getitem__(self, key):
+        return self.children[key]
 
     def to_widget(self):
         import ipywidgets as ipw
@@ -97,14 +105,13 @@ class ColorMapper:
             colors[one_mask] = self.mask_cmap(self.normalizer(data.values[one_mask]))
         return colors
 
-    def autoscale(self, data=None):
+    def autoscale(self, data):
         """
         Re-compute the min and max range of values, given new values.
         """
-        if data is not None:
-            self._data = data
-        old_bounds = np.array([self.vmin, self.vmax])
-        vmin, vmax = fix_empty_range(find_limits(self._data, scale=self._norm))
+        # if data is not None:
+        #     self._data = data
+        vmin, vmax = fix_empty_range(find_limits(data, scale=self._norm))
         if self.user_vmin is not None:
             assert self.user_vmin.unit == data.unit
             self.vmin = self.user_vmin.value
@@ -116,11 +123,22 @@ class ColorMapper:
         elif vmax.value > self.vmax:
             self.vmax = vmax.value
 
-        self.normalizer.vmin = self._vmin
-        self.normalizer.vmax = self._vmax
+    def _set_children_colors(self):
+        for child in self.children.values():
+            child.set_colors(self.rgba(child.data))
 
-        self.bounds_changed = not np.allclose(old_bounds,
-                                              np.array([self.vmin, self.vmax]))
+    def update(self, data):
+
+        old_bounds = np.array([self.vmin, self.vmax])
+        self.autoscale(data=data)
+
+        self.normalizer.vmin = self.vmin
+        self.normalizer.vmax = self.vmax
+
+        if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
+            self._set_children_colors()
+            # for child in self.children.values():
+            #     child.set_colors(self.rgba(child.data))
 
         # if (self.colorbar is not None) and not np.allclose(
         #         old_bounds, np.array([self.vmin, self.vmax])):
@@ -149,6 +167,10 @@ class ColorMapper:
         """
         self.norm = "log" if self.norm == "linear" else "linear"
         self.normalizer = Normalize() if self.norm == "linear" else LogNorm()
+        for child in self.children.values():
+            self.autoscale(data=child._data)
+        self._set_children_colors()
+
         # print(self._vmin, self._vmax)
         # print(self.norm.vmin, self.norm.vmax)
         # self.notify()

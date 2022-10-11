@@ -39,20 +39,24 @@ class Figure2d(Figure):
         if new_values.ndim != 2:
             raise ValueError("Figure can only be used to plot 2-D data.")
 
-        self.colormapper.update(new_values)
+        self.colormapper.update(data=new_values)
 
         if key not in self._children:
-            self._children[key] = Mesh(ax=self._ax,
-                                       data=new_values,
-                                       vmin=self._user_vmin,
-                                       vmax=self._user_vmax,
-                                       norm=self._norm,
-                                       **{
-                                           **{
-                                               'cbar': self._cbar,
-                                           },
-                                           **self._kwargs
-                                       })
+
+            # self.colormapper.autoscale(data=new_values)
+            mesh = Mesh(ax=self._ax,
+                        data=new_values,
+                        vmin=self._user_vmin,
+                        vmax=self._user_vmax,
+                        norm=self._norm,
+                        **{
+                            **{
+                                'cbar': self._cbar,
+                            },
+                            **self._kwargs
+                        })
+            self._children[key] = mesh
+            self.colormapper[key] = mesh
             self._dims.update({
                 "x": {
                     'dim': new_values.dims[1],
@@ -77,8 +81,9 @@ class Figure2d(Figure):
             if not self._ax.get_title():
                 self._ax.set_title(new_values.name)
 
-        else:
-            self._children[key].update(new_values=new_values)
+        # else:
+        self._children[key].update(new_values=new_values)
+        self._children[key].set_colors(self.colormapper.rgba(self._children[key].data))
 
         if draw:
             self.draw()
