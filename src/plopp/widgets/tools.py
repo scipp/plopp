@@ -23,7 +23,7 @@ class ButtonTool:
 
 class ToggleTool:
 
-    def __init__(self, callback: Callable, value: bool = False, **kwargs):
+    def __init__(self, callback: Callable, value: bool = False, linked=None, **kwargs):
         """
         Create a toggle button with a callback that is called when the button is
         toggled. We use a Button and handle the styling ourselves because in some
@@ -35,9 +35,12 @@ class ToggleTool:
         self.widget.on_click(self)
         self._value = value
         self._update_color()
+        self._linked = linked
 
     def __call__(self, *args, **kwargs):
         self._toggle()
+        if self.value and self._linked.value:
+            self._linked.value = False
         self._callback()
 
     @property

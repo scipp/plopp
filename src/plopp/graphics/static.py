@@ -15,27 +15,30 @@ class Static:
         """
         return {
             'text/plain': 'Figure',
-            'image/svg+xml': self.figure.canvas.to_bytes(form='svg').decode()
+            'image/svg+xml': self.canvas.to_bytes(form='svg').decode()
         }
 
     def to_widget(self):
         """
         Convert the Matplotlib figure to an image widget.
         """
-        return self.figure.canvas.to_image()
+        return self.canvas.to_image()
 
 
-# class StaticFig1d(Static, Figure1d):
-#     pass
+class StaticFig1d(Static, Figure1d):
+    pass
 
 
-class StaticFig1d(Static):
-
-    def __init__(self, *args, **kwargs):
-        self.figure = Figure1d(*args, **kwargs)
+class StaticFig2d(Static, Figure2d):
+    pass
 
 
-class StaticFig2d(Static):
+# class StaticFig1d(Static):
 
-    def __init__(self, *args, **kwargs):
-        self.figure = Figure2d(*args, **kwargs)
+#     def __init__(self, *args, **kwargs):
+#         self.figure = Figure1d(*args, **kwargs)
+
+# class StaticFig2d(Static):
+
+#     def __init__(self, *args, **kwargs):
+#         self.figure = Figure2d(*args, **kwargs)

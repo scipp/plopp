@@ -88,7 +88,6 @@ def plot(
     # }
 
     common_args = {
-        'aspect': aspect,
         'crop': crop,
         'grid': grid,
         'norm': norm,
