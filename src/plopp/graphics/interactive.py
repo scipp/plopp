@@ -83,6 +83,15 @@ def _patch_object(obj, figure, toolbar):
     obj.top_bar = top_bar
 
 
+def _pan_zoom(change, fig):
+    if change['new'] == 'zoom':
+        fig.canvas.zoom()
+    elif change['new'] == 'pan':
+        fig.canvas.pan()
+    elif change['new'] is None:
+        fig.canvas.reset_mode()
+
+
 class InteractiveFig1d(VBox):
 
     def __init__(self, *args, **kwargs):
@@ -91,9 +100,9 @@ class InteractiveFig1d(VBox):
         fig.canvas.fig.canvas.header_visible = False
         toolbar = Toolbar(
             tools={
-                'home': partial(fig.autoscale, draw=True),
-                'pan': fig.canvas.pan,
-                'zoom': fig.canvas.zoom,
+                'home': lambda *ignored: partial(fig.autoscale, draw=True)(),
+                'panzoom': partial(_pan_zoom, fig=fig),
+                # 'zoom': fig.canvas.zoom,
                 # 'logx': fig.canvas.logx,
                 # 'logy': fig.canvas.logy,
                 'save': fig.canvas.save

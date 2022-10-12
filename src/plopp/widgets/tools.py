@@ -49,11 +49,11 @@ class ButtonTool(ipw.Button):
         Create a new button with a callback that is called when the button is clicked.
         """
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
-        self._callback = callback
-        self.on_click(self)
+        # self._callback = callback
+        self.on_click(callback)
 
-    def __call__(self, *args, **kwargs):
-        self._callback()
+    # def __call__(self, *args, **kwargs):
+    #     self._callback()
 
 
 class ToggleTool(ipw.ToggleButton):
@@ -66,11 +66,11 @@ class ToggleTool(ipw.ToggleButton):
         function.
         """
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
-        self._callback = callback
-        self.observe(self)
+        # self._callback = callback
+        self.observe(callback, names='value')
 
-    def __call__(self, *args, **kwargs):
-        self._callback()
+    # def __call__(self, *args, **kwargs):
+    #     self._callback()
 
 
 class MultiToggleTool(ipw.ToggleButtons):
@@ -82,12 +82,33 @@ class MultiToggleTool(ipw.ToggleButtons):
         cases, we need to toggle the button color without triggering the callback
         function.
         """
-        super().__init__(**{**BUTTON_LAYOUT, **kwargs})
-        self._callback = callback
-        self.observe(self)
+        args = {
+            'layout': {
+                "width": "40px",
+                "padding": "0px 0px 0px 0px"
+            },
+            'style': {
+                'button_width': '17px',
+                'description_width': '0px'
+            }
+        }
+        super().__init__(**{**args, **kwargs})
+        # self._callback = callback
+        self.current_value = self.value
+        self.observe(callback, names='value')
+        self.on_msg(self.reset)
 
-    def __call__(self, *args, **kwargs):
-        self._callback()
+    # def __call__(self, *args, **kwargs):
+    #     # self.current_value = self.value
+    #     self._callback()
+
+    def reset(self, owner, *ignored):
+        """
+        If the currently selected button is clicked again, reset value to None.
+        """
+        if owner.value == self.current_value:
+            self.value = None
+        self.current_value = owner.value
 
     # @property
     # def value(self):

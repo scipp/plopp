@@ -9,8 +9,8 @@ def figure1d(*args, **kwargs):
     Make a figure that is either static or interactive depending on the backend in use.
     """
     if is_interactive_backend():
-        from ..graphics.interactive import make_fig_1d
-        return make_fig_1d(*args, **kwargs)
+        from ..graphics import InteractiveFig1d
+        return InteractiveFig1d(*args, **kwargs)
     else:
         from ..graphics import StaticFig1d
         return StaticFig1d(*args, **kwargs)

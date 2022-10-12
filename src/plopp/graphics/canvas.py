@@ -288,9 +288,8 @@ class Canvas:
         self.ax.set_yscale(scale)
         # self.autoscale()
 
-    @property
-    def toolbar_mode(self):
-        return self.fig.canvas.toolbar.mode
+    def reset_mode(self):
+        self.fig.canvas.toolbar.mode = ''
 
     def zoom(self):
         self.fig.canvas.toolbar.zoom()
