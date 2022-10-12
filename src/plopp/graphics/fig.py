@@ -7,9 +7,26 @@ from .io import fig_to_bytes
 from .mesh import Mesh
 from .line import Line
 
+from contextlib import contextmanager
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scipp import DataArray, to_unit
 from typing import Any, Tuple
+
+
+@contextmanager
+def silent_mpl_figure():
+    """
+    Context manager to prevent automatic generation of figures in Jupyter.
+    """
+    backend_ = mpl.get_backend()
+    revert = False
+    if 'inline' in backend_:
+        mpl.use("Agg")
+        revert = True
+    yield
+    if revert:
+        mpl.use(backend_)
 
 
 class Figure(View):
@@ -50,7 +67,8 @@ class Figure(View):
         if self._ax is None:
             if figsize is None:
                 figsize = (6, 4)
-            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=96)
+            with silent_mpl_figure():
+                self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=96)
             self._fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
         else:
             self._fig = self._ax.get_figure()
