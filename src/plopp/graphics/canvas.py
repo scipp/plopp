@@ -299,3 +299,15 @@ class Canvas:
 
     def save(self):
         self.fig.canvas.toolbar.save_figure()
+
+    def logx(self):
+        swap_scales = {"linear": "log", "log": "linear"}
+        self.ax.set_xscale(swap_scales[self.ax.get_xscale()])
+        self._autoscale()
+        self.draw()
+
+    def logy(self):
+        swap_scales = {"linear": "log", "log": "linear"}
+        self.ax.set_yscale(swap_scales[self.ax.get_yscale()])
+        self._autoscale()
+        self.draw()

@@ -103,7 +103,7 @@ class InteractiveFig1d(VBox):
                 'home': lambda *ignored: partial(fig.autoscale, draw=True)(),
                 'panzoom': partial(_pan_zoom, fig=fig),
                 # 'zoom': fig.canvas.zoom,
-                # 'logx': fig.canvas.logx,
+                'logx': fig.canvas.logx,
                 # 'logy': fig.canvas.logy,
                 'save': fig.canvas.save
             })

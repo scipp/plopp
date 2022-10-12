@@ -94,7 +94,7 @@ class MultiToggleTool(ipw.ToggleButtons):
         }
         super().__init__(**{**args, **kwargs})
         # self._callback = callback
-        self.current_value = self.value
+        self._current_value = self.value
         self.observe(callback, names='value')
         self.on_msg(self.reset)
 
@@ -106,9 +106,9 @@ class MultiToggleTool(ipw.ToggleButtons):
         """
         If the currently selected button is clicked again, reset value to None.
         """
-        if owner.value == self.current_value:
+        if owner.value == self._current_value:
             self.value = None
-        self.current_value = owner.value
+        self._current_value = owner.value
 
     # @property
     # def value(self):
