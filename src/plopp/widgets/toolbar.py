@@ -9,10 +9,10 @@ from functools import partial
 TOOL_LIBRARY = {
     'home':
     partial(ButtonTool, icon="home", tooltip="Autoscale view"),
-    'pan':
-    partial(ToggleTool, icon="arrows", tooltip="Pan"),
-    'zoom':
-    partial(ToggleTool, icon="search-plus", tooltip="Zoom"),
+    'panzoom':
+    partial(MultiToggleTool, icon="arrows", tooltip="Pan"),
+    # 'zoom':
+    # partial(ToggleTool, icon="search-plus", tooltip="Zoom"),
     'logx':
     partial(ToggleTool, description="logx", tooltip="Toggle X axis scale"),
     'logy':

@@ -6,58 +6,104 @@ from .styling import BUTTON_LAYOUT
 import ipywidgets as ipw
 from typing import Callable
 
+# class ArgSwallower:
 
-class ButtonTool:
+#     def __init__(self, func):
+#         self.func = func
+
+#     def __call__(self, *args, **kwargs):
+#         self.func()
+
+# def button(callback: Callable, **kwargs):
+#     b = ipw.Button(**{**BUTTON_LAYOUT, **kwargs})
+#     b.on_click(ArgSwallower(callback))
+#     return b
+
+# def toggle_button(callback: Callable, **kwargs):
+#     tb = ipw.ToggleButton(**{**BUTTON_LAYOUT, **kwargs})
+#     tb.observe(ArgSwallower(callback), names='value')
+#     return tb
+
+# def _reset_togglebuttons(owner, *ignored):
+#     """
+#     If the currently selected value is clicked again, we reset the value to None.
+#     """
+#     if owner.value == self.current_cut_surface_value:
+#         self.cut_surface_buttons.value = None
+#     self.current_cut_surface_value = owner.value
+
+# def multi_toggle_button(callback: Callable, **kwargs):
+#     tb = ipw.ToggleButtons(**{**BUTTON_LAYOUT, **kwargs})
+#     tb.observe(ArgSwallower(callback), names='value')
+
+#     def
+
+#     self.cut_surface_buttons.on_msg(self._check_if_reset_needed)
+#     return tb
+
+
+class ButtonTool(ipw.Button):
 
     def __init__(self, callback: Callable = None, **kwargs):
         """
         Create a new button with a callback that is called when the button is clicked.
         """
-        self.widget = ipw.Button(**{**BUTTON_LAYOUT, **kwargs})
+        super().__init__(**{**BUTTON_LAYOUT, **kwargs})
         self._callback = callback
-        self.widget.on_click(self)
+        self.on_click(self)
 
     def __call__(self, *args, **kwargs):
         self._callback()
 
 
-class ToggleTool:
+class ToggleTool(ipw.ToggleButton):
 
-    def __init__(self, callback: Callable, value: bool = False, linked=None, **kwargs):
+    def __init__(self, callback: Callable, **kwargs):
         """
         Create a toggle button with a callback that is called when the button is
         toggled. We use a Button and handle the styling ourselves because in some
         cases, we need to toggle the button color without triggering the callback
         function.
         """
-        self.widget = ipw.Button(**{**BUTTON_LAYOUT, **kwargs})
+        super().__init__(**{**BUTTON_LAYOUT, **kwargs})
         self._callback = callback
-        self.widget.on_click(self)
-        self._value = value
-        self._update_color()
-        self._linked = linked
+        self.observe(self)
 
     def __call__(self, *args, **kwargs):
-        self._toggle()
-        if self.value and self._linked.value:
-            self._linked.value = False
         self._callback()
 
-    @property
-    def value(self):
-        return self._value
 
-    @value.setter
-    def value(self, val):
-        self._value = val
-        self._update_color()
+class MultiToggleTool(ipw.ToggleButtons):
 
-    def _update_color(self):
-        self.widget.button_style = 'info' if self._value else ''
+    def __init__(self, callback: Callable, **kwargs):
+        """
+        Create a toggle button with a callback that is called when the button is
+        toggled. We use a Button and handle the styling ourselves because in some
+        cases, we need to toggle the button color without triggering the callback
+        function.
+        """
+        super().__init__(**{**BUTTON_LAYOUT, **kwargs})
+        self._callback = callback
+        self.observe(self)
 
-    def _toggle(self):
-        self._value = not self._value
-        self._update_color()
+    def __call__(self, *args, **kwargs):
+        self._callback()
+
+    # @property
+    # def value(self):
+    #     return self._value
+
+    # @value.setter
+    # def value(self, val):
+    #     self._value = val
+    #     self._update_color()
+
+    # def _update_color(self):
+    #     self.widget.button_style = 'info' if self._value else ''
+
+    # def _toggle(self):
+    #     self._value = not self._value
+    #     self._update_color()
 
 
 class PointsTool(ToggleTool):
