@@ -45,7 +45,7 @@ class Figure2d(View):
         for node in self.graph_nodes.values():
             new_values = node.request_data()
             self.update(new_values=new_values, key=node.id, draw=False)
-        self.canvas.autoscale(self._children.values())
+        self.canvas.autoscale()  # self._children.values())
         # self.crop(**self._crop)
         self.canvas.draw()
 
@@ -54,10 +54,10 @@ class Figure2d(View):
         new_values = self.graph_nodes[node_id].request_data()
         self.update(new_values=new_values, key=node_id)
 
-    def autoscale(self, draw=False):
-        self.canvas.autoscale(self._children.values())
-        if draw:
-            self.canvas.draw()
+    # def autoscale(self, draw=False):
+    #     self.canvas.autoscale(self._children.values())
+    #     if draw:
+    #         self.canvas.draw()
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """

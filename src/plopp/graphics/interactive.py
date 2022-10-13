@@ -3,7 +3,7 @@
 
 from .fig1d import Figure1d
 from .fig2d import Figure2d
-from ..widgets import Toolbar, HBar, VBar
+from ..widgets import Toolbar, HBar, VBar, tools
 
 from ipywidgets import VBox, HBox
 from functools import partial
@@ -75,6 +75,9 @@ def _patch_object(obj, figure, toolbar):
     bottom_bar = HBar()
     top_bar = HBar()
 
+    figure.canvas.fig.canvas.toolbar_visible = False
+    figure.canvas.fig.canvas.header_visible = False
+
     obj.canvas = figure.canvas
     obj.toolbar = toolbar
     obj.left_bar = left_bar
@@ -83,29 +86,29 @@ def _patch_object(obj, figure, toolbar):
     obj.top_bar = top_bar
 
 
-def _pan_zoom(change, fig):
-    if change['new'] == 'zoom':
-        fig.canvas.zoom()
-    elif change['new'] == 'pan':
-        fig.canvas.pan()
-    elif change['new'] is None:
-        fig.canvas.reset_mode()
+# def _pan_zoom(change, fig):
+#     if change['new'] == 'zoom':
+#         fig.canvas.zoom()
+#     elif change['new'] == 'pan':
+#         fig.canvas.pan()
+#     elif change['new'] is None:
+#         fig.canvas.reset_mode()
 
 
 class InteractiveFig1d(VBox):
 
     def __init__(self, *args, **kwargs):
         fig = Figure1d(*args, **kwargs)
-        fig.canvas.fig.canvas.toolbar_visible = False
-        fig.canvas.fig.canvas.header_visible = False
+        # fig.canvas.fig.canvas.toolbar_visible = False
+        # fig.canvas.fig.canvas.header_visible = False
         toolbar = Toolbar(
             tools={
-                'home': lambda *ignored: partial(fig.autoscale, draw=True)(),
-                'panzoom': partial(_pan_zoom, fig=fig),
+                'home': tools.HomeTool(fig.canvas.autoscale),
+                'panzoom': tools.PanZoomTool(fig=fig),
                 # 'zoom': fig.canvas.zoom,
-                'logx': fig.canvas.logx,
-                # 'logy': fig.canvas.logy,
-                'save': fig.canvas.save
+                'logx': tools.LogxTool(fig.canvas.logx),
+                'logy': tools.LogyTool(fig.canvas.logy),
+                'save': tools.SaveTool(fig.canvas.save)
             })
         _patch_object(self, figure=fig, toolbar=toolbar)
 
@@ -131,18 +134,28 @@ class InteractiveFig2d(VBox):
 
     def __init__(self, *args, **kwargs):
         fig = Figure2d(*args, **kwargs)
-        fig.canvas.fig.canvas.toolbar_visible = False
-        fig.canvas.fig.canvas.header_visible = False
+        # fig.canvas.fig.canvas.toolbar_visible = False
+        # fig.canvas.fig.canvas.header_visible = False
         self.colormapper = fig.colormapper
+        # toolbar = Toolbar(
+        #     tools={
+        #         'home': partial(fig.autoscale, draw=True),
+        #         'pan': fig.canvas.pan,
+        #         'zoom': fig.canvas.zoom,
+        #         # 'logx': fig.canvas.logx,
+        #         # 'logy': fig.canvas.logy,
+        #         'lognorm': fig.toggle_norm,
+        #         'save': fig.canvas.save
+        #     })
         toolbar = Toolbar(
             tools={
-                'home': partial(fig.autoscale, draw=True),
-                'pan': fig.canvas.pan,
-                'zoom': fig.canvas.zoom,
-                # 'logx': fig.canvas.logx,
-                # 'logy': fig.canvas.logy,
-                'lognorm': fig.toggle_norm,
-                'save': fig.canvas.save
+                'home': tools.HomeTool(fig.canvas.autoscale),
+                'panzoom': tools.PanZoomTool(fig=fig),
+                # 'zoom': fig.canvas.zoom,
+                'logx': tools.LogxTool(fig.canvas.logx),
+                'logy': tools.LogyTool(fig.canvas.logy),
+                'lognorm': tools.LogNormTool(fig.toggle_norm),
+                'save': tools.SaveTool(fig.canvas.save)
             })
         _patch_object(self, figure=fig, toolbar=toolbar)
 

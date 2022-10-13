@@ -93,30 +93,33 @@ class Canvas:
                      height=height * dpi,
                      format='png')
 
-    def autoscale(self, artists):
-        xmin = None
-        xmax = None
-        ymin = None
-        ymax = None
-        xscale = self.ax.get_xscale()
-        yscale = self.ax.get_yscale()
-        for artist in artists:
-            xlims, ylims = artist.get_limits(xscale=xscale, yscale=yscale)
-            # if isinstance(child, Line):
-            #     if self._user_vmin is not None:
-            #         ylims[0] = self._user_vmin
-            #     if self._user_vmax is not None:
-            #         ylims[1] = self._user_vmax
-            if xmin is None or xlims[0].value < xmin:
-                xmin = xlims[0].value
-            if xmax is None or xlims[1].value > xmax:
-                xmax = xlims[1].value
-            if ymin is None or ylims[0].value < ymin:
-                ymin = ylims[0].value
-            if ymax is None or ylims[1].value > ymax:
-                ymax = ylims[1].value
-        self.ax.set_xlim(xmin, xmax)
-        self.ax.set_ylim(ymin, ymax)
+    def autoscale(self):
+        self.ax.relim()
+        self.ax.autoscale()
+        self.draw()
+        # xmin = None
+        # xmax = None
+        # ymin = None
+        # ymax = None
+        # xscale = self.ax.get_xscale()
+        # yscale = self.ax.get_yscale()
+        # for artist in artists:
+        #     xlims, ylims = artist.get_limits(xscale=xscale, yscale=yscale)
+        #     # if isinstance(child, Line):
+        #     #     if self._user_vmin is not None:
+        #     #         ylims[0] = self._user_vmin
+        #     #     if self._user_vmax is not None:
+        #     #         ylims[1] = self._user_vmax
+        #     if xmin is None or xlims[0].value < xmin:
+        #         xmin = xlims[0].value
+        #     if xmax is None or xlims[1].value > xmax:
+        #         xmax = xlims[1].value
+        #     if ymin is None or ylims[0].value < ymin:
+        #         ymin = ylims[0].value
+        #     if ymax is None or ylims[1].value > ymax:
+        #         ymax = ylims[1].value
+        # self.ax.set_xlim(xmin, xmax)
+        # self.ax.set_ylim(ymin, ymax)
 
     def draw(self):
         self.fig.canvas.draw_idle()
@@ -301,13 +304,19 @@ class Canvas:
         self.fig.canvas.toolbar.save_figure()
 
     def logx(self):
-        swap_scales = {"linear": "log", "log": "linear"}
-        self.ax.set_xscale(swap_scales[self.ax.get_xscale()])
-        self._autoscale()
-        self.draw()
+        # swap_scales = {"linear": "log", "log": "linear"}
+        self.xscale = 'log' if self.xscale == 'linear' else 'linear'
+        self.autoscale()
+        # self.draw()
 
     def logy(self):
-        swap_scales = {"linear": "log", "log": "linear"}
-        self.ax.set_yscale(swap_scales[self.ax.get_yscale()])
-        self._autoscale()
-        self.draw()
+        # swap_scales = {"linear": "log", "log": "linear"}
+        self.yscale = 'log' if self.yscale == 'linear' else 'linear'
+        self.autoscale()
+        # self.draw()
+
+    # def logy(self):
+    #     swap_scales = {"linear": "log", "log": "linear"}
+    #     self.ax.set_yscale(swap_scales[self.ax.get_yscale()])
+    #     self._autoscale()
+    #     self.draw()

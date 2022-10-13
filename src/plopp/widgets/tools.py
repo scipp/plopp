@@ -4,6 +4,7 @@
 from .styling import BUTTON_LAYOUT
 
 import ipywidgets as ipw
+from functools import partial
 from typing import Callable
 
 # class ArgSwallower:
@@ -49,11 +50,11 @@ class ButtonTool(ipw.Button):
         Create a new button with a callback that is called when the button is clicked.
         """
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
-        # self._callback = callback
-        self.on_click(callback)
+        self.callback = callback
+        self.on_click(self)
 
-    # def __call__(self, *args, **kwargs):
-    #     self._callback()
+    def __call__(self, *ignored):
+        self.callback()
 
 
 class ToggleTool(ipw.ToggleButton):
@@ -66,11 +67,11 @@ class ToggleTool(ipw.ToggleButton):
         function.
         """
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
-        # self._callback = callback
-        self.observe(callback, names='value')
+        self.callback = callback
+        self.observe(self, names='value')
 
-    # def __call__(self, *args, **kwargs):
-    #     self._callback()
+    def __call__(self, *ignored):
+        self.callback()
 
 
 class MultiToggleTool(ipw.ToggleButtons):
@@ -93,14 +94,13 @@ class MultiToggleTool(ipw.ToggleButtons):
             }
         }
         super().__init__(**{**args, **kwargs})
-        # self._callback = callback
+        self.callback = callback
         self._current_value = self.value
-        self.observe(callback, names='value')
+        self.observe(self, names='value')
         self.on_msg(self.reset)
 
-    # def __call__(self, *args, **kwargs):
-    #     # self.current_value = self.value
-    #     self._callback()
+    def __call__(self, *ignored):
+        self.callback()
 
     def reset(self, owner, *ignored):
         """
@@ -125,6 +125,39 @@ class MultiToggleTool(ipw.ToggleButtons):
     # def _toggle(self):
     #     self._value = not self._value
     #     self._update_color()
+
+
+HomeTool = partial(ButtonTool, icon='home', tooltip='Autoscale view')
+
+LogxTool = partial(ToggleTool, description='logx', tooltip='Toggle X axis scale')
+
+LogyTool = partial(ToggleTool, description='logy', tooltip='Toggle Y axis scale')
+
+LogNormTool = partial(ToggleTool,
+                      description='log',
+                      tooltip='Toggle colorscale normalization')
+
+SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
+
+
+class PanZoomTool(MultiToggleTool):
+
+    def __init__(self, fig, value=None, **kwargs):
+        self._fig = fig
+        super().__init__(callback=self._pan_zoom,
+                         options=[('', 'pan'), (' ', 'zoom')],
+                         icons=['arrows', 'search-plus'],
+                         tooltips=['Pan', 'Zoom'],
+                         value=value,
+                         **kwargs)
+
+    def _pan_zoom(self):
+        if self.value == 'zoom':
+            self._fig.canvas.zoom()
+        elif self.value == 'pan':
+            self._fig.canvas.pan()
+        elif self.value is None:
+            self._fig.canvas.reset_mode()
 
 
 class PointsTool(ToggleTool):
