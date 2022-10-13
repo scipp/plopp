@@ -4,7 +4,7 @@
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import name_with_unit
 from .color_mapper import ColorMapper
-from .io import fig_to_bytes
+from .utils import fig_to_bytes, silent_mpl_figure
 from ..widgets import ToggleTool
 
 import numpy as np
@@ -90,7 +90,8 @@ class PointCloud:
     def _update_colorbar(self):
         dpi = 96
         height_inches = 0.89 * self._figsize[1] / dpi
-        cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=dpi)
+        with silent_mpl_figure():
+            cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=dpi)
         cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
         _ = ColorbarBase(cbar_ax,
                          cmap=self.color_mapper.cmap,
