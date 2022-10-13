@@ -9,10 +9,6 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-import matplotlib.pyplot as plt
-
-plt.ioff()
-
 from .core import Node, node, input_node, widget_node, show_graph, View
 from .functions import figure, plot, slicer, inspector, scatter3d, superplot
 

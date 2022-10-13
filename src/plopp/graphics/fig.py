@@ -24,7 +24,8 @@ def silent_mpl_figure():
     if 'inline' in backend_:
         mpl.use("Agg")
         revert = True
-    yield
+    with plt.ioff():
+        yield
     if revert:
         mpl.use(backend_)
 
