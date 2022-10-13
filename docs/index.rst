@@ -22,7 +22,22 @@ You can install from ``pip`` using
 
 .. code-block:: sh
 
+   pip install plopp[scipp]
+
+This will install both ``plopp`` and ``scipp`` which is required to use ``plopp``.
+If you already have ``scipp`` installed, you can leave the ``[scipp]`` part out and do
+
+.. code-block:: sh
+
    pip install plopp
+
+By default, this will only install minimal requirements (static 1d and 2d plots).
+If you wish to use all features of scipp, you can install all the optional dependencies
+by doing
+
+.. code-block:: sh
+
+   pip install plopp[all]
 
 Using conda
 -----------
