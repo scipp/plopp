@@ -121,6 +121,7 @@ def plot(
                             **kwargs
                         })
     elif ndim == 2:
+        print(*[input_node(da) for da in data_arrays])
         return figure2d(*[input_node(da) for da in data_arrays],
                         aspect=aspect,
                         **{

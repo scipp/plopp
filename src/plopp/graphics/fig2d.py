@@ -31,6 +31,7 @@ class Figure2d(View):
 
         super().__init__(*nodes)
 
+        print('start of fig init', nodes)
         self._children = {}
         self._dims = {}
         self._scale = {} if scale is None else scale
@@ -48,6 +49,7 @@ class Figure2d(View):
         self.canvas.autoscale()  # self._children.values())
         # self.crop(**self._crop)
         self.canvas.draw()
+        print('end of fig init', self.colormapper.children)
 
     def notify_view(self, message):
         node_id = message["node_id"]
@@ -119,9 +121,12 @@ class Figure2d(View):
         self._children[key].update(new_values=new_values)
         self._children[key].set_colors(self.colormapper.rgba(self._children[key].data))
 
+        print('after update', self.colormapper.children)
+
         if draw:
             self.canvas.draw()
 
     def toggle_norm(self):
+        print('figure togglenorm', self.colormapper.children)
         self.colormapper.toggle_norm()
         self.canvas.draw()

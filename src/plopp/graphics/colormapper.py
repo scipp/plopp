@@ -120,6 +120,9 @@ class ColorMapper:
         # if data is not None:
         #     self._data = data
         vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm))
+        print(vmin, vmax)
+        if self.norm == 'log':
+            assert False
         if self.user_vmin is not None:
             assert self.user_vmin.unit == data.unit
             self.vmin = self.user_vmin.value
@@ -136,6 +139,8 @@ class ColorMapper:
             child.set_colors(self.rgba(child.data))
 
     def update(self, data):
+
+        print("in update", self.children)
 
         old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
@@ -173,9 +178,13 @@ class ColorMapper:
         """
         Toggle the norm flag, between `linear` and `log`.
         """
+        print('colormapper togglenorm', self.children)
         self.norm = "log" if self.norm == "linear" else "linear"
         self.normalizer = Normalize() if self.norm == "linear" else LogNorm()
+        self.vmin = np.inf
+        self.vmax = np.NINF
         # cbar_fig.canvas.draw_idle()
+        print(self.children)
         for child in self.children.values():
             self.autoscale(data=child._data)
         self._set_children_colors()

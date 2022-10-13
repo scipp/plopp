@@ -142,8 +142,8 @@ SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
 
 class PanZoomTool(MultiToggleTool):
 
-    def __init__(self, fig, value=None, **kwargs):
-        self._fig = fig
+    def __init__(self, canvas, value=None, **kwargs):
+        self._canvas = canvas
         super().__init__(callback=self._pan_zoom,
                          options=[('', 'pan'), (' ', 'zoom')],
                          icons=['arrows', 'search-plus'],
@@ -153,11 +153,11 @@ class PanZoomTool(MultiToggleTool):
 
     def _pan_zoom(self):
         if self.value == 'zoom':
-            self._fig.canvas.zoom()
+            self._canvas.zoom()
         elif self.value == 'pan':
-            self._fig.canvas.pan()
+            self._canvas.pan()
         elif self.value is None:
-            self._fig.canvas.reset_mode()
+            self._canvas.reset_mode()
 
 
 class PointsTool(ToggleTool):
