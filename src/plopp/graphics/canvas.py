@@ -9,6 +9,7 @@ from .line import Line
 
 from io import BytesIO
 import matplotlib.pyplot as plt
+import numpy as np
 import scipp as sc
 from typing import Any, Tuple
 
@@ -76,6 +77,11 @@ class Canvas:
         self.ax.set_title(title)
         self.ax.grid(grid)
         self._legend = 0
+
+        self._xmin = np.inf
+        self._xmax = np.NINF
+        self._ymin = np.inf
+        self._ymax = np.NINF
         # self._new_artist = False
 
         # self._post_init()
@@ -96,6 +102,18 @@ class Canvas:
     def autoscale(self):
         self.ax.relim()
         self.ax.autoscale()
+        xmin, xmax = self.ax.get_xlim()
+        ymin, ymax = self.ax.get_ylim()
+        # TODO: limits should only be able to grow, not shrink. And reset on logscale
+        # toggle.
+        for c in self.ax.collections:
+            coords = c.get_coordinates()
+            xmin = min(xmin, coords[..., 0].min())
+            xmax = max(xmax, coords[..., 0].max())
+            ymin = min(ymin, coords[..., 1].min())
+            ymax = max(ymax, coords[..., 1].max())
+        self.ax.set_xlim(xmin, xmax)
+        self.ax.set_ylim(ymin, ymax)
         self.draw()
         # xmin = None
         # xmax = None
