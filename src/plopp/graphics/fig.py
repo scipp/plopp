@@ -3,31 +3,13 @@
 
 from ..core.utils import number_to_variable, name_with_unit
 from ..core import View
-from .io import fig_to_bytes
+from .utils import fig_to_bytes, silent_mpl_figure
 from .mesh import Mesh
 from .line import Line
 
-from contextlib import contextmanager
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scipp import DataArray, to_unit
 from typing import Any, Tuple
-
-
-@contextmanager
-def silent_mpl_figure():
-    """
-    Context manager to prevent automatic generation of figures in Jupyter.
-    """
-    backend_ = mpl.get_backend()
-    revert = False
-    if 'inline' in backend_:
-        mpl.use("Agg")
-        revert = True
-    with plt.ioff():
-        yield
-    if revert:
-        mpl.use(backend_)
 
 
 class Figure(View):
