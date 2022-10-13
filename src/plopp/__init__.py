@@ -36,6 +36,7 @@ def unpatch_scipp():
     """
     Running this reverts the pacthing operation in :func:`patch_scipp`.
     """
+    import scipp as sc
     from scipp.plotting import plot as pl
     setattr(sc.Variable, 'plot', pl)
     setattr(sc.DataArray, 'plot', pl)
