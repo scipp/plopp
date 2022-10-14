@@ -32,7 +32,7 @@ class Figure2d(BaseFig):
 
         print('start of fig init', nodes)
         # self._children = {}
-        # self._dims = {}
+        # self.dims = {}
         self._scale = {} if scale is None else scale
         self.canvas = Canvas(cbar=True, aspect=aspect, grid=grid)
         self.colormapper = ColorMapper(cmap=cmap,
@@ -47,7 +47,7 @@ class Figure2d(BaseFig):
             self.update(new_values=new_values, key=node.id, draw=False)
         self.canvas.autoscale()  # self._children.values())
         # self.crop(**self._crop)
-        self.canvas.draw()
+        # self.canvas.draw()
         print('end of fig init', self.colormapper.children)
 
     # def notify_view(self, message):
@@ -87,7 +87,7 @@ class Figure2d(BaseFig):
             )
             self._children[key] = mesh
             self.colormapper[key] = mesh
-            self._dims.update({
+            self.dims.update({
                 "x": {
                     'dim': new_values.dims[1],
                     'unit': new_values.meta[new_values.dims[1]].unit
@@ -99,19 +99,19 @@ class Figure2d(BaseFig):
             })
 
             self.canvas.xlabel = name_with_unit(
-                var=new_values.meta[self._dims['x']['dim']])
+                var=new_values.meta[self.dims['x']['dim']])
             self.canvas.ylabel = name_with_unit(
-                var=new_values.meta[self._dims['y']['dim']])
-            if self._dims['x']['dim'] in self._scale:
-                self.canvas.xscale = self._scale[self._dims['x']['dim']]
-            if self._dims['y']['dim'] in self._scale:
-                self.canvas.yscale = self._scale[self._dims['y']['dim']]
+                var=new_values.meta[self.dims['y']['dim']])
+            if self.dims['x']['dim'] in self._scale:
+                self.canvas.xscale = self._scale[self.dims['x']['dim']]
+            if self.dims['y']['dim'] in self._scale:
+                self.canvas.yscale = self._scale[self.dims['y']['dim']]
 
-            # if (self._dims['x']['dim'] in self._scale) and (
-            #         self.canvas.xscale != self._scale[self._dims['x']['dim']]):
+            # if (self.dims['x']['dim'] in self._scale) and (
+            #         self.canvas.xscale != self._scale[self.dims['x']['dim']]):
             #     self.canvas.xscale
-            # if (self._dims['y']['dim'] in self._scale) and (
-            #         self._ax.get_yscale() != self._scale[self._dims['y']['dim']]):
+            # if (self.dims['y']['dim'] in self._scale) and (
+            #         self._ax.get_yscale() != self._scale[self.dims['y']['dim']]):
             #     self.logy()
             # if not self._ax.get_title():
             #     self._ax.set_title(new_values.name)

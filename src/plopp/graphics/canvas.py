@@ -15,6 +15,10 @@ import scipp as sc
 from typing import Any, Tuple
 
 
+def _none_if_not_finite(x):
+    return x if np.isfinite(x) else None
+
+
 class Canvas:
 
     def __init__(
@@ -100,7 +104,7 @@ class Canvas:
                      height=height * dpi,
                      format='png')
 
-    def autoscale(self):
+    def autoscale(self, draw=True):
         """
         Matplotlib's autoscale only takes lines into account. We require a special
         handline for meshes, which is part of the axes collections.
@@ -126,9 +130,12 @@ class Canvas:
             self._xmax = max(self._xmax, right.value)
             self._ymin = min(self._ymin, bottom.value)
             self._ymax = max(self._ymax, top.value)
-        self.ax.set_xlim(self._xmin, self._xmax)
-        self.ax.set_ylim(self._ymin, self._ymax)
-        self.draw()
+        self.ax.set_xlim(_none_if_not_finite(self._xmin),
+                         _none_if_not_finite(self._xmax))
+        self.ax.set_ylim(_none_if_not_finite(self._ymin),
+                         _none_if_not_finite(self._ymax))
+        if draw:
+            self.draw()
 
     def draw(self):
         self.fig.canvas.draw_idle()

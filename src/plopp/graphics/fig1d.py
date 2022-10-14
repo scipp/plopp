@@ -34,7 +34,7 @@ class Figure1d(BaseFig):
         super().__init__(*nodes)
 
         # self._children = {}
-        # self._dims = {}
+        # self.dims = {}
         self._scale = {} if scale is None else scale
         self._errorbars = errorbars
         self._mask_color = mask_color
@@ -83,24 +83,24 @@ class Figure1d(BaseFig):
             if line.label:
                 self.canvas.legend()
 
-            self._dims['x'] = {
+            self.dims['x'] = {
                 'dim': new_values.dim,
                 'unit': new_values.meta[new_values.dim].unit
             }
 
             self.canvas.xlabel = name_with_unit(
-                var=new_values.meta[self._dims['x']['dim']])
+                var=new_values.meta[self.dims['x']['dim']])
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
 
-            if self._dims['x']['dim'] in self._scale:
-                self.canvas.xscale = self._scale[self._dims['x']['dim']]
+            if self.dims['x']['dim'] in self._scale:
+                self.canvas.xscale = self._scale[self.dims['x']['dim']]
             # self.canvas.yscale = self._norm
 
-            # if (self._dims['x']['dim'] in self._scale) and (
-            #         self.canvas.xscale != self._scale[self._dims['x']['dim']]):
+            # if (self.dims['x']['dim'] in self._scale) and (
+            #         self.canvas.xscale != self._scale[self.dims['x']['dim']]):
             #     self.canvas.xscale
-            # if (self._dims['y']['dim'] in self._scale) and (
-            #         self._ax.get_yscale() != self._scale[self._dims['y']['dim']]):
+            # if (self.dims['y']['dim'] in self._scale) and (
+            #         self._ax.get_yscale() != self._scale[self.dims['y']['dim']]):
             #     self.logy()
             # if not self._ax.get_title():
             #     self._ax.set_title(new_values.name)

@@ -16,7 +16,7 @@ class BaseFig:
         for node in nodes:
             node.add_view(self)
         self._children = {}
-        self._dims = {}
+        self.dims = {}
 
     def notify_view(self, message):
         node_id = message["node_id"]
@@ -29,3 +29,9 @@ class BaseFig:
     @abstractmethod
     def update(self):
         return
+
+    def render(self):
+        for node in self.graph_nodes.values():
+            new_values = node.request_data()
+            self.update(new_values=new_values, key=node.id, draw=False)
+        self.canvas.autoscale()

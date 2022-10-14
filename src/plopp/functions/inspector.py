@@ -19,8 +19,8 @@ class InspectorEventHandler:
         self._root_node = root_node
         self._fig1d = fig1d
         self._event_nodes = {}
-        self._xdim = fig2d._dims['x']['dim']
-        self._ydim = fig2d._dims['y']['dim']
+        self._xdim = fig2d.dims['x']['dim']
+        self._ydim = fig2d.dims['y']['dim']
 
     def make_node(self, change):
         from ..widgets import slice_dims
@@ -52,8 +52,8 @@ class InspectorEventHandler:
     def remove_node(self, change):
         n = self._event_nodes[change['artist'].nodeid]
         pnode = n.children[0]
-        self._fig1d._children[pnode.id].remove()
-        self._fig1d.draw()
+        self._fig1d.get_child(pnode.id).remove()
+        self._fig1d.canvas.draw()
         pnode.remove()
         n.remove()
 
@@ -121,7 +121,7 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
     f2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
     f1d = figure1d()
     ev_handler = InspectorEventHandler(data_array=da, root_node=a, fig1d=f1d, fig2d=f2d)
-    pts = PointsTool(ax=f2d._ax, tooltip='Add inspector points')
+    pts = PointsTool(ax=f2d.canvas.ax, tooltip='Add inspector points')
     pts.points.on_create = ev_handler.make_node
     pts.points.on_vertex_move = ev_handler.update_node
     pts.points.on_remove = ev_handler.remove_node

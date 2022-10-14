@@ -80,7 +80,12 @@ def _patch_object(obj, figure):
 
     obj.canvas = figure.canvas
     obj.update = figure.update
+    obj.graph_nodes = figure.graph_nodes
     obj.get_child = figure.get_child
+    obj.dims = figure.dims
+    obj.render = figure.render
+    obj.notify_view = figure.notify_view
+
     obj.left_bar = left_bar
     obj.right_bar = right_bar
     obj.bottom_bar = bottom_bar
