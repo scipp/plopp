@@ -67,22 +67,25 @@ def _is_sphinx_build():
 #             'save': fig.canvas.save
 #         })
 
-# def _patch_object(obj, figure, toolbar):
 
-#     left_bar = VBar([toolbar])
-#     right_bar = VBar()
-#     bottom_bar = HBar()
-#     top_bar = HBar()
+def _patch_object(obj, figure):
 
-#     figure.canvas.fig.canvas.toolbar_visible = False
-#     figure.canvas.fig.canvas.header_visible = False
+    left_bar = VBar([obj.toolbar])
+    right_bar = VBar()
+    bottom_bar = HBar()
+    top_bar = HBar()
 
-#     obj.canvas = figure.canvas
-#     obj.toolbar = toolbar
-#     obj.left_bar = left_bar
-#     obj.right_bar = right_bar
-#     obj.bottom_bar = bottom_bar
-#     obj.top_bar = top_bar
+    figure.canvas.fig.canvas.toolbar_visible = False
+    figure.canvas.fig.canvas.header_visible = False
+
+    obj.canvas = figure.canvas
+    obj.update = figure.update
+    obj.get_child = figure.get_child
+    obj.left_bar = left_bar
+    obj.right_bar = right_bar
+    obj.bottom_bar = bottom_bar
+    obj.top_bar = top_bar
+
 
 # def _pan_zoom(change, fig):
 #     if change['new'] == 'zoom':
@@ -92,122 +95,189 @@ def _is_sphinx_build():
 #     elif change['new'] is None:
 #         fig.canvas.reset_mode()
 
+# def _populate_container(obj):
+#     print('_populate_container')
+#     out = [
+#         obj.top_bar,
+#         HBox([
+#             obj.left_bar,
+#             # self._to_image() if _is_sphinx_build() else self._fig.canvas,
+#             obj.canvas.fig.canvas,
+#             obj.right_bar
+#         ]),
+#         obj.bottom_bar
+#     ]
+#     print('_populate_container 2')
+#     return out
 
-def _populate_container(obj):
-    print('_populate_container')
-    out = [
-        obj.top_bar,
-        HBox([
-            obj.left_bar,
-            # self._to_image() if _is_sphinx_build() else self._fig.canvas,
-            obj.canvas.fig.canvas,
-            obj.right_bar
-        ]),
-        obj.bottom_bar
-    ]
-    print('_populate_container 2')
-    return out
+# class InteractiveFig1d(VBox, Figure1d):
 
+#     def __init__(self, *args, **kwargs):
+#         Figure1d.__init__(self, *args, **kwargs)
+#         self.canvas.fig.canvas.toolbar_visible = False
+#         self.canvas.fig.canvas.header_visible = False
+#         self.toolbar = Toolbar(
+#             tools={
+#                 'home': tools.HomeTool(self.canvas.autoscale),
+#                 'panzoom': tools.PanZoomTool(canvas=self.canvas),
+#                 # 'zoom': fig.canvas.zoom,
+#                 'logx': tools.LogxTool(self.canvas.logx),
+#                 'logy': tools.LogyTool(self.canvas.logy),
+#                 'save': tools.SaveTool(self.canvas.save)
+#             })
 
-class InteractiveFig1d(VBox, Figure1d):
+#         self.left_bar = VBar([self.toolbar])
+#         self.right_bar = VBar()
+#         self.bottom_bar = HBar()
+#         self.top_bar = HBar()
+#         VBox.__init__(self, _populate_container(self))
 
-    def __init__(self, *args, **kwargs):
-        Figure1d.__init__(self, *args, **kwargs)
-        self.canvas.fig.canvas.toolbar_visible = False
-        self.canvas.fig.canvas.header_visible = False
-        self.toolbar = Toolbar(
-            tools={
-                'home': tools.HomeTool(self.canvas.autoscale),
-                'panzoom': tools.PanZoomTool(canvas=self.canvas),
-                # 'zoom': fig.canvas.zoom,
-                'logx': tools.LogxTool(self.canvas.logx),
-                'logy': tools.LogyTool(self.canvas.logy),
-                'save': tools.SaveTool(self.canvas.save)
-            })
-
-        self.left_bar = VBar([self.toolbar])
-        self.right_bar = VBar()
-        self.bottom_bar = HBar()
-        self.top_bar = HBar()
-        VBox.__init__(self, _populate_container(self))
-
-        # self.figure.canvas.fig.canvas.toolbar_visible = False
-        # self.figure.canvas.fig.canvas.header_visible = False
-        # super().__init__(tools=['home', 'pan', 'zoom', 'logx', 'logy', 'save'])
-        # self.toolbar.logx.value = self.figure.canvas.xscale == 'log'
-        # self.toolbar.logy.value = self.figure.canvas.yscale == 'log'
+#         # self.figure.canvas.fig.canvas.toolbar_visible = False
+#         # self.figure.canvas.fig.canvas.header_visible = False
+#         # super().__init__(tools=['home', 'pan', 'zoom', 'logx', 'logy', 'save'])
+#         # self.toolbar.logx.value = self.figure.canvas.xscale == 'log'
+#         # self.toolbar.logy.value = self.figure.canvas.yscale == 'log'
 
 
-class InteractiveFig2d(VBox, Figure2d):
+class InteractiveFig1d(VBox):
 
     def __init__(self, *args, **kwargs):
 
-        print(args, kwargs)
-        Figure2d.__init__(self, *args, **kwargs)
-        print('got to here 1')
-        self.canvas.fig.canvas.toolbar_visible = False
-        print('got to here 2')
-        self.canvas.fig.canvas.header_visible = False
-        print('got to here 3')
+        fig = Figure1d(*args, **kwargs)
         self.toolbar = Toolbar(
             tools={
-                'home': tools.HomeTool(self.canvas.autoscale),
-                'panzoom': tools.PanZoomTool(canvas=self.canvas),
-                # 'zoom': fig.canvas.zoom,
-                'logx': tools.LogxTool(self.canvas.logx),
-                'logy': tools.LogyTool(self.canvas.logy),
-                'lognorm': tools.LogNormTool(self.toggle_norm),
-                'save': tools.SaveTool(self.canvas.save)
+                'home': tools.HomeTool(fig.canvas.autoscale),
+                'panzoom': tools.PanZoomTool(canvas=fig.canvas),
+                'logx': tools.LogxTool(fig.canvas.logx),
+                'logy': tools.LogyTool(fig.canvas.logy),
+                'save': tools.SaveTool(fig.canvas.save)
             })
-        print('got to here 4')
 
-        self.left_bar = VBar([self.toolbar])
-        print('got to here 5')
-        self.right_bar = VBar()
-        print('got to here 6')
-        self.bottom_bar = HBar()
-        print('got to here 7')
-        self.top_bar = HBar()
-        print('got to here 8')
-        VBox.__init__(self, _populate_container(self))
+        _patch_object(self, figure=fig)
 
-        # fig = Figure2d(*args, **kwargs)
-        # # fig.canvas.fig.canvas.toolbar_visible = False
-        # # fig.canvas.fig.canvas.header_visible = False
-        # self.colormapper = fig.colormapper
-        # # toolbar = Toolbar(
-        # #     tools={
-        # #         'home': partial(fig.autoscale, draw=True),
-        # #         'pan': fig.canvas.pan,
-        # #         'zoom': fig.canvas.zoom,
-        # #         # 'logx': fig.canvas.logx,
-        # #         # 'logy': fig.canvas.logy,
-        # #         'lognorm': fig.toggle_norm,
-        # #         'save': fig.canvas.save
-        # #     })
-        # toolbar = Toolbar(
-        #     tools={
-        #         'home': tools.HomeTool(fig.canvas.autoscale),
-        #         'panzoom': tools.PanZoomTool(fig=fig),
-        #         # 'zoom': fig.canvas.zoom,
-        #         'logx': tools.LogxTool(fig.canvas.logx),
-        #         'logy': tools.LogyTool(fig.canvas.logy),
-        #         'lognorm': tools.LogNormTool(fig.toggle_norm),
-        #         'save': tools.SaveTool(fig.canvas.save)
-        #     })
-        # _patch_object(self, figure=fig, toolbar=toolbar)
+        super().__init__([
+            self.top_bar,
+            HBox([
+                self.left_bar,
+                # self._to_image() if _is_sphinx_build() else self._fig.canvas,
+                self.canvas.fig.canvas,
+                self.right_bar
+            ]),
+            self.bottom_bar
+        ])
 
-        # super().__init__([
-        #     self.top_bar,
-        #     HBox([
-        #         self.left_bar,
-        #         # self._to_image() if _is_sphinx_build() else self._fig.canvas,
-        #         self.canvas.fig.canvas,
-        #         self.right_bar
-        #     ]),
-        #     self.bottom_bar
-        # ])
 
+class InteractiveFig2d(VBox):
+
+    def __init__(self, *args, **kwargs):
+
+        fig = Figure2d(*args, **kwargs)
+        self.toolbar = Toolbar(
+            tools={
+                'home': tools.HomeTool(fig.canvas.autoscale),
+                'panzoom': tools.PanZoomTool(canvas=fig.canvas),
+                'logx': tools.LogxTool(fig.canvas.logx),
+                'logy': tools.LogyTool(fig.canvas.logy),
+                'lognorm': tools.LogNormTool(fig.toggle_norm),
+                'save': tools.SaveTool(fig.canvas.save)
+            })
+
+        _patch_object(self, figure=fig)
+
+        super().__init__([
+            self.top_bar,
+            HBox([
+                self.left_bar,
+                # self._to_image() if _is_sphinx_build() else self._fig.canvas,
+                self.canvas.fig.canvas,
+                self.right_bar
+            ]),
+            self.bottom_bar
+        ])
+
+
+# class InteractiveFig2d(VBox, Figure2d):
+
+#     def __init__(self, *args, **kwargs):
+
+#         print(args, kwargs)
+#         Figure2d.__init__(self, *args, **kwargs)
+#         print('got to here 1')
+#         self.canvas.fig.canvas.toolbar_visible = False
+#         print('got to here 2')
+#         self.canvas.fig.canvas.header_visible = False
+#         print('got to here 3')
+#         self.toolbar = Toolbar(
+#             tools={
+#                 'home': tools.HomeTool(self.canvas.autoscale),
+#                 'panzoom': tools.PanZoomTool(canvas=self.canvas),
+#                 # 'zoom': fig.canvas.zoom,
+#                 'logx': tools.LogxTool(self.canvas.logx),
+#                 'logy': tools.LogyTool(self.canvas.logy),
+#                 'lognorm': tools.LogNormTool(self.toggle_norm),
+#                 'save': tools.SaveTool(self.canvas.save)
+#             })
+#         print('got to here 4')
+
+#         self.left_bar = VBar([self.toolbar])
+#         print('got to here 5')
+#         self.right_bar = VBar()
+#         print('got to here 6')
+#         self.bottom_bar = HBar()
+#         print('got to here 7')
+#         self.top_bar = HBar()
+#         print('got to here 8')
+
+#         out = [
+#             self.top_bar,
+#             HBox([
+#                 self.left_bar,
+#                 # self._to_image() if _is_sphinx_build() else self._fig.canvas,
+#                 self.canvas.fig.canvas,
+#                 self.right_bar
+#             ]),
+#             self.bottom_bar
+#         ]
+
+#         # VBox.__init__(self, _populate_container(self))
+#         # VBox.__init__(self, out)
+
+# fig = Figure2d(*args, **kwargs)
+# # fig.canvas.fig.canvas.toolbar_visible = False
+# # fig.canvas.fig.canvas.header_visible = False
+# self.colormapper = fig.colormapper
+# # toolbar = Toolbar(
+# #     tools={
+# #         'home': partial(fig.autoscale, draw=True),
+# #         'pan': fig.canvas.pan,
+# #         'zoom': fig.canvas.zoom,
+# #         # 'logx': fig.canvas.logx,
+# #         # 'logy': fig.canvas.logy,
+# #         'lognorm': fig.toggle_norm,
+# #         'save': fig.canvas.save
+# #     })
+# toolbar = Toolbar(
+#     tools={
+#         'home': tools.HomeTool(fig.canvas.autoscale),
+#         'panzoom': tools.PanZoomTool(fig=fig),
+#         # 'zoom': fig.canvas.zoom,
+#         'logx': tools.LogxTool(fig.canvas.logx),
+#         'logy': tools.LogyTool(fig.canvas.logy),
+#         'lognorm': tools.LogNormTool(fig.toggle_norm),
+#         'save': tools.SaveTool(fig.canvas.save)
+#     })
+# _patch_object(self, figure=fig, toolbar=toolbar)
+
+# super().__init__([
+#     self.top_bar,
+#     HBox([
+#         self.left_bar,
+#         # self._to_image() if _is_sphinx_build() else self._fig.canvas,
+#         self.canvas.fig.canvas,
+#         self.right_bar
+#     ]),
+#     self.bottom_bar
+# ])
 
 # class Interactive(VBox):
 

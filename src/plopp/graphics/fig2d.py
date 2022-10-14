@@ -2,8 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.utils import number_to_variable, name_with_unit
-from ..core.view import View
-from .fig import Figure
+from .basefig import BaseFig
 from .canvas import Canvas
 from .colormapper import ColorMapper
 from .io import fig_to_bytes
@@ -15,7 +14,7 @@ import scipp as sc
 from typing import Any, Tuple
 
 
-class Figure2d(View):
+class Figure2d(BaseFig):
 
     def __init__(self,
                  *nodes,
@@ -32,8 +31,8 @@ class Figure2d(View):
         super().__init__(*nodes)
 
         print('start of fig init', nodes)
-        self._children = {}
-        self._dims = {}
+        # self._children = {}
+        # self._dims = {}
         self._scale = {} if scale is None else scale
         self.canvas = Canvas(cbar=True, aspect=aspect, grid=grid)
         self.colormapper = ColorMapper(cmap=cmap,
@@ -51,10 +50,10 @@ class Figure2d(View):
         self.canvas.draw()
         print('end of fig init', self.colormapper.children)
 
-    def notify_view(self, message):
-        node_id = message["node_id"]
-        new_values = self.graph_nodes[node_id].request_data()
-        self.update(new_values=new_values, key=node_id)
+    # def notify_view(self, message):
+    #     node_id = message["node_id"]
+    #     new_values = self.graph_nodes[node_id].request_data()
+    #     self.update(new_values=new_values, key=node_id)
 
     # def autoscale(self, draw=False):
     #     self.canvas.autoscale(self._children.values())

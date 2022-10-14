@@ -2,8 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.utils import number_to_variable, name_with_unit
-from ..core.view import View
-from .fig import Figure
+# from ..core.view import View
+from .basefig import BaseFig
 from .canvas import Canvas
 from .colormapper import ColorMapper
 from .io import fig_to_bytes
@@ -15,7 +15,7 @@ import scipp as sc
 from typing import Any, Tuple
 
 
-class Figure1d(View):
+class Figure1d(BaseFig):
 
     def __init__(self,
                  *nodes,
@@ -33,8 +33,8 @@ class Figure1d(View):
 
         super().__init__(*nodes)
 
-        self._children = {}
-        self._dims = {}
+        # self._children = {}
+        # self._dims = {}
         self._scale = {} if scale is None else scale
         self._errorbars = errorbars
         self._mask_color = mask_color
@@ -50,10 +50,10 @@ class Figure1d(View):
         self.canvas.crop()
         self.canvas.draw()
 
-    def notify_view(self, message):
-        node_id = message["node_id"]
-        new_values = self.graph_nodes[node_id].request_data()
-        self.update(new_values=new_values, key=node_id)
+    # def notify_view(self, message):
+    #     node_id = message["node_id"]
+    #     new_values = self.graph_nodes[node_id].request_data()
+    #     self.update(new_values=new_values, key=node_id)
 
     # def autoscale(self, draw=False):
     #     self.canvas.autoscale(self._children.values())

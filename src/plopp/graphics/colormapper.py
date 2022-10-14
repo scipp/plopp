@@ -121,8 +121,8 @@ class ColorMapper:
         #     self._data = data
         vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm))
         print(vmin, vmax)
-        if self.norm == 'log':
-            assert False
+        # if self.norm == 'log':
+        #     assert False
         if self.user_vmin is not None:
             assert self.user_vmin.unit == data.unit
             self.vmin = self.user_vmin.value
