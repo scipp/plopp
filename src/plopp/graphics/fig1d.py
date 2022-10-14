@@ -109,7 +109,8 @@ class Figure1d(BaseFig):
             self._children[key].update(new_values=new_values)
 
         if draw:
-            self.canvas.draw()
+            self.canvas.autoscale()
+            # self.canvas.draw()
 
     def crop(self, *args, **kwargs):
         self.canvas.crop(*args, **kwargs)

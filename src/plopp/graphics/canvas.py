@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import number_to_variable, name_with_unit
 from ..core import View
 from .io import fig_to_bytes
@@ -100,59 +101,37 @@ class Canvas:
                      format='png')
 
     def autoscale(self):
-        self.ax.relim()
-        self.ax.autoscale()
-        xmin, xmax = self.ax.get_xlim()
-        ymin, ymax = self.ax.get_ylim()
-        # TODO: limits should only be able to grow, not shrink. And reset on logscale
-        # toggle.
+        """
+        Matplotlib's autoscale only takes lines into account. We require a special
+        handline for meshes, which is part of the axes collections.
+        """
+        if self.ax.lines:
+            self.ax.relim()
+            self.ax.autoscale()
+            xmin, xmax = self.ax.get_xlim()
+            ymin, ymax = self.ax.get_ylim()
+            self._xmin = min(self._xmin, xmin)
+            self._xmax = max(self._xmax, xmax)
+            self._ymin = min(self._ymin, ymin)
+            self._ymax = max(self._ymax, ymax)
         for c in self.ax.collections:
             coords = c.get_coordinates()
-            xmin = min(xmin, coords[..., 0].min())
-            xmax = max(xmax, coords[..., 0].max())
-            ymin = min(ymin, coords[..., 1].min())
-            ymax = max(ymax, coords[..., 1].max())
-        self.ax.set_xlim(xmin, xmax)
-        self.ax.set_ylim(ymin, ymax)
+            left, right = fix_empty_range(
+                find_limits(sc.array(dims=['x', 'y'], values=coords[..., 0]),
+                            scale=self.xscale))
+            bottom, top = fix_empty_range(
+                find_limits(sc.array(dims=['x', 'y'], values=coords[..., 1]),
+                            scale=self.yscale))
+            self._xmin = min(self._xmin, left.value)
+            self._xmax = max(self._xmax, right.value)
+            self._ymin = min(self._ymin, bottom.value)
+            self._ymax = max(self._ymax, top.value)
+        self.ax.set_xlim(self._xmin, self._xmax)
+        self.ax.set_ylim(self._ymin, self._ymax)
         self.draw()
-        # xmin = None
-        # xmax = None
-        # ymin = None
-        # ymax = None
-        # xscale = self.ax.get_xscale()
-        # yscale = self.ax.get_yscale()
-        # for artist in artists:
-        #     xlims, ylims = artist.get_limits(xscale=xscale, yscale=yscale)
-        #     # if isinstance(child, Line):
-        #     #     if self._user_vmin is not None:
-        #     #         ylims[0] = self._user_vmin
-        #     #     if self._user_vmax is not None:
-        #     #         ylims[1] = self._user_vmax
-        #     if xmin is None or xlims[0].value < xmin:
-        #         xmin = xlims[0].value
-        #     if xmax is None or xlims[1].value > xmax:
-        #         xmax = xlims[1].value
-        #     if ymin is None or ylims[0].value < ymin:
-        #         ymin = ylims[0].value
-        #     if ymax is None or ylims[1].value > ymax:
-        #         ymax = ylims[1].value
-        # self.ax.set_xlim(xmin, xmax)
-        # self.ax.set_ylim(ymin, ymax)
 
     def draw(self):
         self.fig.canvas.draw_idle()
-
-    # def logx(self):
-    #     swap_scales = {"linear": "log", "log": "linear"}
-    #     self.ax.set_xscale(swap_scales[self.ax.get_xscale()])
-    #     self._autoscale()
-    #     self.draw()
-
-    # def logy(self):
-    #     swap_scales = {"linear": "log", "log": "linear"}
-    #     self.ax.set_yscale(swap_scales[self.ax.get_yscale()])
-    #     self._autoscale()
-    #     self.draw()
 
     def savefig(self, filename: str = None):
         """
@@ -324,12 +303,16 @@ class Canvas:
     def logx(self):
         # swap_scales = {"linear": "log", "log": "linear"}
         self.xscale = 'log' if self.xscale == 'linear' else 'linear'
+        self._xmin = np.inf
+        self._xmax = np.NINF
         self.autoscale()
         # self.draw()
 
     def logy(self):
         # swap_scales = {"linear": "log", "log": "linear"}
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
+        self._ymin = np.inf
+        self._ymax = np.NINF
         self.autoscale()
         # self.draw()
 
