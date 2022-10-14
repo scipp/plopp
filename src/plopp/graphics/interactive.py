@@ -3,6 +3,7 @@
 
 from .fig1d import Figure1d
 from .fig2d import Figure2d
+from .scatterfig3d import ScatterFig3d
 from ..widgets import Toolbar, HBar, VBar, tools
 
 from ipywidgets import VBox, HBox
@@ -205,11 +206,11 @@ class InteractiveFig2d(VBox):
         ])
 
 
-class InteractiveFig3d(VBox):
+class InteractiveScatterFig3d(VBox):
 
     def __init__(self, *args, **kwargs):
 
-        fig = Figure3d(*args, **kwargs)
+        fig = ScatterFig3d(*args, **kwargs)
         self.toolbar = Toolbar(
             tools={
                 'home':

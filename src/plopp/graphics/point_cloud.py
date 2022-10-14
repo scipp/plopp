@@ -17,7 +17,7 @@ class PointCloud:
         y,
         z,
         data,
-        colormapper,
+        # colormapper,
         pixel_size=1,  # TODO: pixel_size should have units
         # cmap: str = 'viridis',
         # mask_cmap: str = 'gray',
@@ -73,14 +73,14 @@ class PointCloud:
 
         # self.color_mapper.set_norm(data=self._data)
 
-    def _set_points_colors(self):
-        colors = self.color_mapper.rgba(self._data)[..., :3]
-        self.geometry.attributes["color"].array = colors.astype('float32')
+    def set_colors(self, rgba):
+        # colors = self.color_mapper.rgba(self._data)[..., :3]
+        self.geometry.attributes["color"].array = rgba[..., :3].astype('float32')
 
     def update(self, new_values):
         self._data = new_values
-        self.color_mapper.rescale(data=new_values.data)
-        self._set_points_colors()
+        # self.color_mapper.rescale(data=new_values.data)
+        # self._set_points_colors()
 
     def get_limits(self):
         xmin, xmax = fix_empty_range(find_limits(self._data.meta[self._x]))
@@ -98,3 +98,7 @@ class PointCloud:
     def opacity(self, val):
         self.material.opacity = val
         self.material.depthTest = val > 0.5
+
+    @property
+    def data(self):
+        return self._data

@@ -51,6 +51,7 @@ class Figure1d(BaseFig):
         # self.canvas.draw()
 
         self.render()
+        self.canvas.autoscale()
 
     # def notify_view(self, message):
     #     node_id = message["node_id"]

@@ -3,6 +3,7 @@
 
 from ..core import View
 from ..widgets import Toolbar, HBar, VBar
+from .outline import Outline
 
 from copy import copy
 import numpy as np
@@ -36,6 +37,14 @@ class Canvas3d(View, VBox):
                                     controls=[self.controls],
                                     width=width,
                                     height=height)
+
+    def make_outline(self, limits):
+        if self.outline is not None:
+            self.remove(self.outline)
+        self.outline = Outline(limits=limits)
+        self.add(self.outline)
+        self._update_camera(limits=limits)
+        self.axes_3d.scale = [self.camera.far] * 3
 
         # self.toolbar = Toolbar(
         #     tools={
@@ -142,3 +151,6 @@ class Canvas3d(View, VBox):
 
     def add(self, obj):
         self.scene.add(obj)
+
+    def remove(self, obj):
+        self.scene.remove(obj)
