@@ -43,12 +43,14 @@ class Figure1d(BaseFig):
         self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid, crop=crop)
         self.canvas.yscale = norm
 
-        for node in self.graph_nodes.values():
-            new_values = node.request_data()
-            self.update(new_values=new_values, key=node.id, draw=False)
-        self.canvas.autoscale()  # self._children.values())
-        self.canvas.crop()
-        self.canvas.draw()
+        # for node in self.graph_nodes.values():
+        #     new_values = node.request_data()
+        #     self.update(new_values=new_values, key=node.id, draw=False)
+        # self.canvas.autoscale(draw=False)  # self._children.values())
+        # self.canvas.crop()
+        # self.canvas.draw()
+
+        self.render()
 
     # def notify_view(self, message):
     #     node_id = message["node_id"]

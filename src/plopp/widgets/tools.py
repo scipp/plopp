@@ -139,6 +139,19 @@ LogNormTool = partial(ToggleTool,
 
 SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
 
+CameraTool = partial(ButtonTool, icon='camera', tooltip='Autoscale view')
+
+OutlineTool = partial(ToggleTool,
+                      value=True,
+                      icon='codepen',
+                      tooltip='Toggle outline visibility')
+
+AxesTool = partial(ToggleTool,
+                   value=True,
+                   description='\u27C0',
+                   style={'font_weight': 'bold'},
+                   tooltip='Toggle visibility of XYZ axes')
+
 
 class PanZoomTool(MultiToggleTool):
 

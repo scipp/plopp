@@ -9,42 +9,55 @@ import numpy as np
 from ipywidgets import VBox, HBox
 
 
-class Figure3d(BaseFig):
+class Canvas3d(View, VBox):
 
-    def __init__(self, *nodes, figsize=None, title=None):
+    def __init__(self, figsize=None, title=None):
 
-        super().__init__(*nodes)
+        import pythreejs as p3
 
-        from .canvas3d import Canvas3d
-        self.canvas = Canvas3d(figsize=figsize)
-        self.colormapper = ColorMapper(cmap=cmap,
-                                       mask_cmap=mask_cmap,
-                                       norm=norm,
-                                       vmin=vmin,
-                                       vmax=vmax,
-                                       cax=self.canvas.cax)
+        self.outline = None
+        self.axticks = None
+        self.figsize = figsize
 
-        self.toolbar = Toolbar(
-            tools={
-                'home': self.home,
-                'camerax': self.camera_x_normal,
-                'cameray': self.camera_y_normal,
-                'cameraz': self.camera_z_normal,
-                'box': self.toggle_outline,
-                'axes': self.toggle_axes3d
-            })
+        if self.figsize is None:
+            self.figsize = (600, 400)
+        width, height = self.figsize
+        # self._figheight = height
 
-        self.left_bar = VBar([self.toolbar])
-        self.right_bar = VBar()
-        self.bottom_bar = HBar()
-        self.top_bar = HBar()
+        self.camera = p3.PerspectiveCamera(aspect=width / height)
+        self.camera_backup = {}
+        self.axes_3d = p3.AxesHelper()
+        self.outline = None
+        self.scene = p3.Scene(children=[self.camera, self.axes_3d],
+                              background="#f0f0f0")
+        self.controls = p3.OrbitControls(controlling=self.camera)
+        self.renderer = p3.Renderer(camera=self.camera,
+                                    scene=self.scene,
+                                    controls=[self.controls],
+                                    width=width,
+                                    height=height)
 
-        self.render()
+        # self.toolbar = Toolbar(
+        #     tools={
+        #         'home': self.home,
+        #         'camerax': self.camera_x_normal,
+        #         'cameray': self.camera_y_normal,
+        #         'cameraz': self.camera_z_normal,
+        #         'box': self.toggle_outline,
+        #         'axes': self.toggle_axes3d
+        #     })
 
-        VBox.__init__(self, [
-            self.top_bar,
-            HBox([self.left_bar, self.renderer, self.right_bar]), self.bottom_bar
-        ])
+        # self.left_bar = VBar([self.toolbar])
+        # self.right_bar = VBar()
+        # self.bottom_bar = HBar()
+        # self.top_bar = HBar()
+
+        # self.render()
+
+        # VBox.__init__(self, [
+        #     self.top_bar,
+        #     HBox([self.left_bar, self.renderer, self.right_bar]), self.bottom_bar
+        # ])
 
     def _update_camera(self, limits):
         center = [var.mean().value for var in limits]
@@ -73,15 +86,15 @@ class Figure3d(BaseFig):
             center[0], center[1], center[2] - distance_from_center * box_mean_size
         ]
 
-    def notify_view(self, message):
-        node_id = message["node_id"]
-        new_values = self.graph_nodes[node_id].request_data()
-        self.update(new_values=new_values, key=node_id)
+    # def notify_view(self, message):
+    #     node_id = message["node_id"]
+    #     new_values = self.graph_nodes[node_id].request_data()
+    #     self.update(new_values=new_values, key=node_id)
 
-    def render(self):
-        for node in self.graph_nodes.values():
-            new_values = node.request_data()
-            self.update(new_values=new_values, key=node.id)
+    # def render(self):
+    #     for node in self.graph_nodes.values():
+    #         new_values = node.request_data()
+    #         self.update(new_values=new_values, key=node.id)
 
     def home(self):
         """

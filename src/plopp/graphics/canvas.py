@@ -30,10 +30,10 @@ class Canvas:
             grid: bool = False,
             vmin=None,
             vmax=None,
-            norm='linear',
+            # norm='linear',
             aspect='auto',
             scale=None,
-            cbar=False,
+            # cbar=False,
             crop=None,
             **kwargs):
 

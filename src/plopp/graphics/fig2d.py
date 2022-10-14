@@ -42,10 +42,11 @@ class Figure2d(BaseFig):
                                        vmax=vmax,
                                        cax=self.canvas.cax)
 
-        for node in self.graph_nodes.values():
-            new_values = node.request_data()
-            self.update(new_values=new_values, key=node.id, draw=False)
-        self.canvas.autoscale()  # self._children.values())
+        self.render()
+        # for node in self.graph_nodes.values():
+        #     new_values = node.request_data()
+        #     self.update(new_values=new_values, key=node.id, draw=False)
+        # self.canvas.autoscale()  # self._children.values())
         # self.crop(**self._crop)
         # self.canvas.draw()
         print('end of fig init', self.colormapper.children)

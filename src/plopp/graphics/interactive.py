@@ -75,8 +75,8 @@ def _patch_object(obj, figure):
     bottom_bar = HBar()
     top_bar = HBar()
 
-    figure.canvas.fig.canvas.toolbar_visible = False
-    figure.canvas.fig.canvas.header_visible = False
+    # figure.canvas.fig.canvas.toolbar_visible = False
+    # figure.canvas.fig.canvas.header_visible = False
 
     obj.canvas = figure.canvas
     obj.update = figure.update
@@ -149,6 +149,8 @@ class InteractiveFig1d(VBox):
     def __init__(self, *args, **kwargs):
 
         fig = Figure1d(*args, **kwargs)
+        fig.canvas.fig.canvas.toolbar_visible = False
+        fig.canvas.fig.canvas.header_visible = False
         self.toolbar = Toolbar(
             tools={
                 'home': tools.HomeTool(fig.canvas.autoscale),
@@ -177,6 +179,8 @@ class InteractiveFig2d(VBox):
     def __init__(self, *args, **kwargs):
 
         fig = Figure2d(*args, **kwargs)
+        fig.canvas.fig.canvas.toolbar_visible = False
+        fig.canvas.fig.canvas.header_visible = False
         self.toolbar = Toolbar(
             tools={
                 'home': tools.HomeTool(fig.canvas.autoscale),
@@ -195,6 +199,73 @@ class InteractiveFig2d(VBox):
                 self.left_bar,
                 # self._to_image() if _is_sphinx_build() else self._fig.canvas,
                 self.canvas.fig.canvas,
+                self.right_bar
+            ]),
+            self.bottom_bar
+        ])
+
+
+class InteractiveFig3d(VBox):
+
+    def __init__(self, *args, **kwargs):
+
+        fig = Figure3d(*args, **kwargs)
+        self.toolbar = Toolbar(
+            tools={
+                'home':
+                tools.HomeTool(fig.canvas.home),
+                'camerax':
+                tools.CameraTool(
+                    fig.canvas.camera_x_normal,
+                    description='X',
+                    tooltip='Camera to X normal. Click twice to flip the view direction.'
+                ),
+                'cameray':
+                tools.CameraTool(
+                    fig.canvas.camera_y_normal,
+                    description='Y',
+                    tooltip='Camera to Y normal. Click twice to flip the view direction.'
+                ),
+                'cameraz':
+                tools.CameraTool(
+                    fig.canvas.camera_y_normal,
+                    description='Z',
+                    tooltip='Camera to Z normal. Click twice to flip the view direction.'
+                ),
+                'lognorm':
+                tools.LogNormTool(fig.colormapper.toggle_norm),
+                'box':
+                tools.OutlineTool(fig.canvas.toggle_outline),
+                'axes':
+                tools.AxesTool(fig.canvas.toggle_axes3d)
+            })
+
+        # self.left_bar = VBar([self.toolbar])
+        # self.right_bar = VBar()
+        # self.bottom_bar = HBar()
+        # self.top_bar = HBar()
+
+        # obj.canvas = figure.canvas
+        # obj.update = figure.update
+        # obj.graph_nodes = figure.graph_nodes
+        # obj.get_child = figure.get_child
+        # obj.dims = figure.dims
+        # obj.render = figure.render
+        # obj.notify_view = figure.notify_view
+
+        # obj.left_bar = left_bar
+        # obj.right_bar = right_bar
+        # obj.bottom_bar = bottom_bar
+        # obj.top_bar = top_bar
+
+        _patch_object(self, figure=fig)
+
+        super().__init__([
+            self.top_bar,
+            HBox([
+                self.left_bar,
+                # self._to_image() if _is_sphinx_build() else self._fig.canvas,
+                self.canvas.renderer,
                 self.right_bar
             ]),
             self.bottom_bar
