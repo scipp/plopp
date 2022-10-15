@@ -3,7 +3,7 @@
 
 from .fig1d import Figure1d
 from .fig2d import Figure2d
-from .scatterfig3d import ScatterFig3d
+from .fig3d import Figure3d
 from ..widgets import Toolbar, HBar, VBar, tools
 
 from ipywidgets import VBox, HBox
@@ -193,6 +193,7 @@ class InteractiveFig2d(VBox):
             })
 
         _patch_object(self, figure=fig)
+        self.colormapper = fig.colormapper
 
         super().__init__([
             self.top_bar,
@@ -206,11 +207,11 @@ class InteractiveFig2d(VBox):
         ])
 
 
-class InteractiveScatterFig3d(VBox):
+class InteractiveFig3d(VBox):
 
     def __init__(self, *args, **kwargs):
 
-        fig = ScatterFig3d(*args, **kwargs)
+        fig = Figure3d(*args, **kwargs)
         self.toolbar = Toolbar(
             tools={
                 'home':
@@ -260,6 +261,10 @@ class InteractiveScatterFig3d(VBox):
         # obj.top_bar = top_bar
 
         _patch_object(self, figure=fig)
+        self.colormapper = fig.colormapper
+        self.get_limits = fig.get_limits
+        self.set_opacity = fig.set_opacity
+        self.remove = fig.remove
 
         super().__init__([
             self.top_bar,

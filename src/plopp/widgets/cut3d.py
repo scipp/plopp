@@ -180,9 +180,11 @@ class Cut3dTool(ipw.HBox):
             if selection.sum().value > 0:
                 self.select_nodes[n.id] = node(lambda da: da[selection])(da=n)
                 self.select_nodes[n.id].add_view(self._view)
-                self._view.update(self.select_nodes[n.id].request_data(),
-                                  key=self.select_nodes[n.id].id,
-                                  colormapper=n.id)
+                self._view.update(
+                    self.select_nodes[n.id].request_data(),
+                    key=self.select_nodes[n.id].id,
+                    # colormapper=n.id
+                )
 
     def _remove_cut(self):
         for n in self.select_nodes.values():
@@ -239,7 +241,8 @@ class TriCutTool(ipw.HBox):
                                icon='cube',
                                **BUTTON_LAYOUT)
 
-        self._fig.add([self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
+        self._fig.canvas.add(
+            [self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
 
         self.opacity = ipw.BoundedFloatText(min=0,
                                             max=0.5,

@@ -1,19 +1,39 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core import View
-from ..widgets import Toolbar, HBar, VBar
+# from .fig3d import Fig3d
 
-from copy import copy
-import numpy as np
-from ipywidgets import VBox, HBox
+import scipp as sc
+from .basefig import BaseFig
+from .colormapper import ColorMapper
+
+# class ScatterFig(View, VBox):
+
+#     should contain a Canvas3d, a toolbar,
 
 
 class Figure3d(BaseFig):
 
-    def __init__(self, *nodes, figsize=None, title=None):
+    def __init__(self,
+                 *nodes,
+                 x,
+                 y,
+                 z,
+                 figsize=None,
+                 title=None,
+                 cmap: str = 'viridis',
+                 mask_cmap: str = 'gray',
+                 norm=None,
+                 vmin=None,
+                 vmax=None,
+                 **kwargs):
 
         super().__init__(*nodes)
+
+        self._x = x
+        self._y = y
+        self._z = z
+        self._kwargs = kwargs
 
         from .canvas3d import Canvas3d
         self.canvas = Canvas3d(figsize=figsize)
@@ -22,110 +42,96 @@ class Figure3d(BaseFig):
                                        norm=norm,
                                        vmin=vmin,
                                        vmax=vmax,
-                                       cax=self.canvas.cax)
+                                       nan_color="#f0f0f0",
+                                       figheight=self.canvas.figsize[1])
 
-        self.toolbar = Toolbar(
-            tools={
-                'home': self.home,
-                'camerax': self.camera_x_normal,
-                'cameray': self.camera_y_normal,
-                'cameraz': self.camera_z_normal,
-                'box': self.toggle_outline,
-                'axes': self.toggle_axes3d
-            })
+        # self.right_bar.add(self.colormapper.to_widget)
+        # self.colormapper.colorbar['button'].on_click()
 
-        self.left_bar = VBar([self.toolbar])
-        self.right_bar = VBar()
-        self.bottom_bar = HBar()
-        self.top_bar = HBar()
-
+        self._original_children = [n.id for n in nodes]
         self.render()
 
-        VBox.__init__(self, [
-            self.top_bar,
-            HBox([self.left_bar, self.renderer, self.right_bar]), self.bottom_bar
-        ])
+        # self._original_children = list(self._children.keys())
 
-    def _update_camera(self, limits):
-        center = [var.mean().value for var in limits]
-        distance_from_center = 1.2
-        box_size = np.array([(limits[i][1] - limits[i][0]).value for i in range(3)])
-        camera_position = list(np.array(center) + distance_from_center * box_size)
-        camera_lookat = tuple(center)
-        self.camera.position = camera_position
-        cam_pos_norm = np.linalg.norm(self.camera.position)
-        box_mean_size = np.linalg.norm(box_size)
-        self.camera.near = 0.01 * box_mean_size
-        self.camera.far = 5.0 * cam_pos_norm
-        self.controls.target = camera_lookat
-        self.camera.lookAt(camera_lookat)
-
-        # Save camera settings
-        self.camera_backup["reset"] = copy(self.camera.position)
-        self.camera_backup["center"] = tuple(copy(center))
-        self.camera_backup["x_normal"] = [
-            center[0] - distance_from_center * box_mean_size, center[1], center[2]
-        ]
-        self.camera_backup["y_normal"] = [
-            center[0], center[1] - distance_from_center * box_mean_size, center[2]
-        ]
-        self.camera_backup["z_normal"] = [
-            center[0], center[1], center[2] - distance_from_center * box_mean_size
-        ]
-
-    def notify_view(self, message):
-        node_id = message["node_id"]
-        new_values = self.graph_nodes[node_id].request_data()
-        self.update(new_values=new_values, key=node_id)
-
-    def render(self):
-        for node in self.graph_nodes.values():
-            new_values = node.request_data()
-            self.update(new_values=new_values, key=node.id)
-
-    def home(self):
+    def update(self, new_values: sc.DataArray, key: str, draw=True):
         """
-        Reset the camera position.
+        Update image array with new values.
         """
-        self.move_camera(position=self.camera_backup["reset"])
 
-    def camera_x_normal(self):
-        """
-        View scene along the X normal.
-        """
-        self.camera_normal(position=self.camera_backup["x_normal"].copy(), ind=0)
+        self.colormapper.update(data=new_values)
 
-    def camera_y_normal(self):
-        """
-        View scene along the Y normal.
-        """
-        self.camera_normal(position=self.camera_backup["y_normal"].copy(), ind=1)
+        # from .outline import Outline
 
-    def camera_z_normal(self):
+        # if key in self._original_children:
+        #     self.colormapper.autoscale(new_values)
+
+        if key not in self._children:
+            # if colormapper is not None:
+            #     colormapper = self._children[colormapper].color_mapper
+            from .point_cloud import PointCloud
+            pts = PointCloud(
+                data=new_values,
+                x=self._x,
+                y=self._y,
+                z=self._z,
+                # colormapper=self.colormapper,
+                # figheight=self._figheight,
+                **self._kwargs)
+            self._children[key] = pts
+            self.colormapper[key] = pts
+            self.canvas.add(pts.points)
+            print(key, self._original_children)
+            if key in self._original_children:
+                print('making outline')
+                self.canvas.make_outline(limits=self.get_limits())
+                # if self.outline is not None:
+                #     self.scene.remove(self.outline)
+                # self.outline = Outline(limits=limits)
+                # self.scene.add(self.outline)
+                # self._update_camera(limits=limits)
+                # self.axes_3d.scale = [self.camera.far] * 3
+
+        self._children[key].update(new_values=new_values)
+        self._children[key].set_colors(self.colormapper.rgba(self._children[key].data))
+
+    def get_limits(self):
         """
-        View scene along the Z normal.
+        Get global limits for all the point clouds in the scene.
         """
-        self.camera_normal(position=self.camera_backup["z_normal"].copy(), ind=2)
+        xmin = None
+        xmax = None
+        ymin = None
+        ymax = None
+        zmin = None
+        zmax = None
+        for child in self._children.values():
+            xlims, ylims, zlims = child.get_limits()
+            if xmin is None or xlims[0] < xmin:
+                xmin = xlims[0]
+            if xmax is None or xlims[1] > xmax:
+                xmax = xlims[1]
+            if ymin is None or ylims[0] < ymin:
+                ymin = ylims[0]
+            if ymax is None or ylims[1] > ymax:
+                ymax = ylims[1]
+            if zmin is None or zlims[0] < zmin:
+                zmin = zlims[0]
+            if zmax is None or zlims[1] > zmax:
+                zmax = zlims[1]
+        return (sc.concat([xmin, xmax],
+                          dim=self._x), sc.concat([ymin, ymax], dim=self._y),
+                sc.concat([zmin, zmax], dim=self._z))
 
-    def camera_normal(self, position, ind):
+    def set_opacity(self, alpha):
         """
-        Move camera to requested normal, and flip if current position is equal
-        to the requested position.
+        Update the opacity of the original children (not the cuts).
         """
-        if np.allclose(self.camera.position, position):
-            position[ind] = 2.0 * self.camera_backup["center"][ind] - position[ind]
-        self.move_camera(position=position)
+        for name in self._original_children:
+            self._children[name].opacity = alpha
 
-    def move_camera(self, position):
-        self.camera.position = position
-        self.controls.target = self.camera_backup["center"]
-        self.camera.lookAt(self.camera_backup["center"])
-
-    def toggle_outline(self):
-        self.outline.visible = not self.outline.visible
-
-    def toggle_axes3d(self):
-        self.axes_3d.visible = not self.axes_3d.visible
-
-    def add(self, obj):
-        self.scene.add(obj)
+    def remove(self, key):
+        """
+        Remove an object from the scene.
+        """
+        self.canvas.remove(self._children[key].points)
+        del self._children[key]
