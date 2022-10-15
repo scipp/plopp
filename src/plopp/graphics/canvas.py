@@ -33,7 +33,7 @@ class Canvas:
             # norm='linear',
             aspect='auto',
             scale=None,
-            # cbar=False,
+            cbar=False,
             crop=None,
             **kwargs):
 
@@ -43,7 +43,7 @@ class Canvas:
         self.ax = ax
         self._user_vmin = vmin
         self._user_vmax = vmax
-        self._norm = norm
+        # self._norm = norm
         self._scale = {} if scale is None else scale
         self._crop = {} if crop is None else crop
         # self._cbar = cbar

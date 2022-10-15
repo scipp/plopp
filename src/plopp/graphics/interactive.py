@@ -68,30 +68,28 @@ def _is_sphinx_build():
 #             'save': fig.canvas.save
 #         })
 
+# def _patch_object(obj, figure):
 
-def _patch_object(obj, figure):
+#     left_bar = VBar([obj.toolbar])
+#     right_bar = VBar()
+#     bottom_bar = HBar()
+#     top_bar = HBar()
 
-    left_bar = VBar([obj.toolbar])
-    right_bar = VBar()
-    bottom_bar = HBar()
-    top_bar = HBar()
+#     # figure.canvas.fig.canvas.toolbar_visible = False
+#     # figure.canvas.fig.canvas.header_visible = False
 
-    # figure.canvas.fig.canvas.toolbar_visible = False
-    # figure.canvas.fig.canvas.header_visible = False
+#     obj.canvas = figure.canvas
+#     obj.update = figure.update
+#     obj.graph_nodes = figure.graph_nodes
+#     obj.get_child = figure.get_child
+#     obj.dims = figure.dims
+#     obj.render = figure.render
+#     obj.notify_view = figure.notify_view
 
-    obj.canvas = figure.canvas
-    obj.update = figure.update
-    obj.graph_nodes = figure.graph_nodes
-    obj.get_child = figure.get_child
-    obj.dims = figure.dims
-    obj.render = figure.render
-    obj.notify_view = figure.notify_view
-
-    obj.left_bar = left_bar
-    obj.right_bar = right_bar
-    obj.bottom_bar = bottom_bar
-    obj.top_bar = top_bar
-
+#     obj.left_bar = left_bar
+#     obj.right_bar = right_bar
+#     obj.bottom_bar = bottom_bar
+#     obj.top_bar = top_bar
 
 # def _pan_zoom(change, fig):
 #     if change['new'] == 'zoom':
@@ -149,133 +147,141 @@ class InteractiveFig1d(VBox):
 
     def __init__(self, *args, **kwargs):
 
-        fig = Figure1d(*args, **kwargs)
-        fig.canvas.fig.canvas.toolbar_visible = False
-        fig.canvas.fig.canvas.header_visible = False
+        self._fig = Figure1d(*args, **kwargs)
+        self._fig.canvas.fig.canvas.toolbar_visible = False
+        self._fig.canvas.fig.canvas.header_visible = False
         self.toolbar = Toolbar(
             tools={
-                'home': tools.HomeTool(fig.canvas.autoscale),
-                'panzoom': tools.PanZoomTool(canvas=fig.canvas),
-                'logx': tools.LogxTool(fig.canvas.logx),
-                'logy': tools.LogyTool(fig.canvas.logy),
-                'save': tools.SaveTool(fig.canvas.save)
+                'home': tools.HomeTool(self._fig.canvas.autoscale),
+                'panzoom': tools.PanZoomTool(canvas=self._fig.canvas),
+                'logx': tools.LogxTool(self._fig.canvas.logx),
+                'logy': tools.LogyTool(self._fig.canvas.logy),
+                'save': tools.SaveTool(self._fig.canvas.save)
             })
 
-        _patch_object(self, figure=fig)
+        # _patch_object(self, figure=fig)
+        self.left_bar = VBar([self.toolbar])
+        self.right_bar = VBar()
+        self.bottom_bar = HBar()
+        self.top_bar = HBar()
 
         super().__init__([
             self.top_bar,
             HBox([
                 self.left_bar,
                 # self._to_image() if _is_sphinx_build() else self._fig.canvas,
-                self.canvas.fig.canvas,
+                self._fig.canvas.fig.canvas,
                 self.right_bar
             ]),
             self.bottom_bar
         ])
+
+    def __getattr__(self, key):
+        try:
+            return super().__getattr__(key)
+        except AttributeError:
+            return getattr(self._fig, key)
 
 
 class InteractiveFig2d(VBox):
 
     def __init__(self, *args, **kwargs):
 
-        fig = Figure2d(*args, **kwargs)
-        fig.canvas.fig.canvas.toolbar_visible = False
-        fig.canvas.fig.canvas.header_visible = False
+        self._fig = Figure2d(*args, **kwargs)
+        self._fig.canvas.fig.canvas.toolbar_visible = False
+        self._fig.canvas.fig.canvas.header_visible = False
         self.toolbar = Toolbar(
             tools={
-                'home': tools.HomeTool(fig.canvas.autoscale),
-                'panzoom': tools.PanZoomTool(canvas=fig.canvas),
-                'logx': tools.LogxTool(fig.canvas.logx),
-                'logy': tools.LogyTool(fig.canvas.logy),
-                'lognorm': tools.LogNormTool(fig.toggle_norm),
-                'save': tools.SaveTool(fig.canvas.save)
+                'home': tools.HomeTool(self._fig.canvas.autoscale),
+                'panzoom': tools.PanZoomTool(canvas=self._fig.canvas),
+                'logx': tools.LogxTool(self._fig.canvas.logx),
+                'logy': tools.LogyTool(self._fig.canvas.logy),
+                'lognorm': tools.LogNormTool(self._fig.toggle_norm),
+                'save': tools.SaveTool(self._fig.canvas.save)
             })
 
-        _patch_object(self, figure=fig)
-        self.colormapper = fig.colormapper
+        # _patch_object(self, figure=fig)
+        self.colormapper = self._fig.colormapper
+
+        self.left_bar = VBar([self.toolbar])
+        self.right_bar = VBar()
+        self.bottom_bar = HBar()
+        self.top_bar = HBar()
 
         super().__init__([
             self.top_bar,
             HBox([
                 self.left_bar,
                 # self._to_image() if _is_sphinx_build() else self._fig.canvas,
-                self.canvas.fig.canvas,
+                self._fig.canvas.fig.canvas,
                 self.right_bar
             ]),
             self.bottom_bar
         ])
+
+    def __getattr__(self, key):
+        try:
+            return super().__getattr__(key)
+        except AttributeError:
+            return getattr(self._fig, key)
 
 
 class InteractiveFig3d(VBox):
 
     def __init__(self, *args, **kwargs):
 
-        fig = Figure3d(*args, **kwargs)
+        self._fig = Figure3d(*args, **kwargs)
         self.toolbar = Toolbar(
             tools={
                 'home':
-                tools.HomeTool(fig.canvas.home),
+                tools.HomeTool(self._fig.canvas.home),
                 'camerax':
                 tools.CameraTool(
-                    fig.canvas.camera_x_normal,
+                    self._fig.canvas.camera_x_normal,
                     description='X',
                     tooltip='Camera to X normal. Click twice to flip the view direction.'
                 ),
                 'cameray':
                 tools.CameraTool(
-                    fig.canvas.camera_y_normal,
+                    self._fig.canvas.camera_y_normal,
                     description='Y',
                     tooltip='Camera to Y normal. Click twice to flip the view direction.'
                 ),
                 'cameraz':
                 tools.CameraTool(
-                    fig.canvas.camera_y_normal,
+                    self._fig.canvas.camera_y_normal,
                     description='Z',
                     tooltip='Camera to Z normal. Click twice to flip the view direction.'
                 ),
                 'lognorm':
-                tools.LogNormTool(fig.colormapper.toggle_norm),
+                tools.LogNormTool(self._fig.colormapper.toggle_norm),
                 'box':
-                tools.OutlineTool(fig.canvas.toggle_outline),
+                tools.OutlineTool(self._fig.canvas.toggle_outline),
                 'axes':
-                tools.AxesTool(fig.canvas.toggle_axes3d)
+                tools.AxesTool(self._fig.canvas.toggle_axes3d)
             })
 
-        # self.left_bar = VBar([self.toolbar])
-        # self.right_bar = VBar()
-        # self.bottom_bar = HBar()
-        # self.top_bar = HBar()
-
-        # obj.canvas = figure.canvas
-        # obj.update = figure.update
-        # obj.graph_nodes = figure.graph_nodes
-        # obj.get_child = figure.get_child
-        # obj.dims = figure.dims
-        # obj.render = figure.render
-        # obj.notify_view = figure.notify_view
-
-        # obj.left_bar = left_bar
-        # obj.right_bar = right_bar
-        # obj.bottom_bar = bottom_bar
-        # obj.top_bar = top_bar
-
-        _patch_object(self, figure=fig)
-        self.colormapper = fig.colormapper
-        self.get_limits = fig.get_limits
-        self.set_opacity = fig.set_opacity
-        self.remove = fig.remove
+        self.left_bar = VBar([self.toolbar])
+        self.right_bar = VBar()
+        self.bottom_bar = HBar()
+        self.top_bar = HBar()
 
         super().__init__([
             self.top_bar,
             HBox([
                 self.left_bar,
                 # self._to_image() if _is_sphinx_build() else self._fig.canvas,
-                self.canvas.renderer,
+                self._fig.canvas.renderer,
                 self.right_bar
             ]),
             self.bottom_bar
         ])
+
+    def __getattr__(self, key):
+        try:
+            return super().__getattr__(key)
+        except AttributeError:
+            return getattr(self._fig, key)
 
 
 # class InteractiveFig2d(VBox, Figure2d):
