@@ -34,4 +34,3 @@ class BaseFig:
         for node in self.graph_nodes.values():
             new_values = node.request_data()
             self.update(new_values=new_values, key=node.id, draw=False)
-        # self.canvas.autoscale()

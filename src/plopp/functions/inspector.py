@@ -36,7 +36,7 @@ class InspectorEventHandler:
         change['artist'].nodeid = event_node.id
         inspect_node = slice_dims(self._root_node, event_node)
         inspect_node.add_view(self._fig1d)
-        self._fig1d.render()
+        self._fig1d.update(new_values=inspect_node.request_data(), key=inspect_node.id)
 
     def update_node(self, change):
         event = change['event']
