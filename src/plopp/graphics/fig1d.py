@@ -2,10 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.utils import name_with_unit
-# from ..core.view import View
 from .basefig import BaseFig
 from .canvas import Canvas
-# from .io import fig_to_bytes
 from .line import Line
 
 import scipp as sc
@@ -29,46 +27,17 @@ class Figure1d(BaseFig):
 
         super().__init__(*nodes)
 
-        # self._children = {}
-        # self.dims = {}
         self._scale = {} if scale is None else scale
         self._errorbars = errorbars
         self._mask_color = mask_color
         self._kwargs = kwargs
-
         self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid)
         self.canvas.yscale = norm
-
-        # for node in self.graph_nodes.values():
-        #     new_values = node.request_data()
-        #     self.update(new_values=new_values, key=node.id, draw=False)
-        # self.canvas.autoscale(draw=False)  # self._children.values())
-        # self.canvas.crop()
-        # self.canvas.draw()
 
         self.render()
         self.canvas.autoscale()
         if crop is not None:
-            # to_crop = {'dim': }
-
             self.crop(**crop)
-            # x={
-            #     **{
-            #         'dim': self.dims['x']['dim'],
-            #         'unit': self.dims['x']['unit']
-            #     },
-            #     **crop[self.dims['x']['dim']]
-            # })
-
-    # def notify_view(self, message):
-    #     node_id = message["node_id"]
-    #     new_values = self.graph_nodes[node_id].request_data()
-    #     self.update(new_values=new_values, key=node_id)
-
-    # def autoscale(self, draw=False):
-    #     self.canvas.autoscale(self._children.values())
-    #     if draw:
-    #         self.canvas.draw()
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
@@ -104,23 +73,12 @@ class Figure1d(BaseFig):
 
             if self.dims['x']['dim'] in self._scale:
                 self.canvas.xscale = self._scale[self.dims['x']['dim']]
-            # self.canvas.yscale = self._norm
-
-            # if (self.dims['x']['dim'] in self._scale) and (
-            #         self.canvas.xscale != self._scale[self.dims['x']['dim']]):
-            #     self.canvas.xscale
-            # if (self.dims['y']['dim'] in self._scale) and (
-            #         self._ax.get_yscale() != self._scale[self.dims['y']['dim']]):
-            #     self.logy()
-            # if not self._ax.get_title():
-            #     self._ax.set_title(new_values.name)
 
         else:
             self._children[key].update(new_values=new_values)
 
         if draw:
             self.canvas.autoscale()
-            # self.canvas.draw()
 
     def crop(self, **limits):
         self.canvas.crop(

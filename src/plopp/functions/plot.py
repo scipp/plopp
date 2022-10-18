@@ -120,15 +120,3 @@ def plot(
     else:
         raise ValueError('The plot function can only plot 1d and 2d data, got input '
                          f'with {ndim} dimensions')
-
-    #     return figure(*nodes, **all_args)
-    # else:
-    #     return figure(input_node(preprocess(obj, crop=crop, ignore_size=ignore_size)),
-    #                   **all_args)
-
-    # a = input_node(preprocess(obj, crop=crop, ignore_size=ignore_size))
-    # if obj.ndim > 1:
-    #     cm = ColorMapper()
-    #     b = pp.Node(func=lambda: cm)
-    #     c = pp.node(lambda x, y: y(x))(x=a, y=b)
-    # return figure(c)

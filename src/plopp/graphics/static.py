@@ -30,14 +30,3 @@ class StaticFig1d(Static, Figure1d):
 
 class StaticFig2d(Static, Figure2d):
     pass
-
-
-# class StaticFig1d(Static):
-
-#     def __init__(self, *args, **kwargs):
-#         self.figure = Figure1d(*args, **kwargs)
-
-# class StaticFig2d(Static):
-
-#     def __init__(self, *args, **kwargs):
-#         self.figure = Figure2d(*args, **kwargs)

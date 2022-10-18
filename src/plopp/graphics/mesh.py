@@ -2,7 +2,6 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.utils import coord_as_bin_edges, repeat, merge_masks
-# from .color_mapper import ColorMapper
 
 import numpy as np
 import scipp as sc
@@ -74,13 +73,6 @@ class Mesh:
                  rasterized=True,
                  **kwargs):
 
-        # self.color_mapper = ColorMapper(cmap=cmap,
-        #                                 mask_cmap=mask_cmap,
-        #                                 norm=norm,
-        #                                 vmin=vmin,
-        #                                 vmax=vmax,
-        #                                 notify_on_change=self._set_mesh_colors)
-
         self._ax = canvas.ax
         self._data = data
         self._dims = {'x': self._data.dims[1], 'y': self._data.dims[0]}
@@ -107,50 +99,15 @@ class Mesh:
         elif vmax is not None:
             self._extend = 'max'
 
-        # self._make_mesh(**kwargs)
-
-    # def _make_mesh(self, shading='auto', rasterized=True, **kwargs):
         x, y, z = _from_data_array_to_pcolormesh(data=self._data.data,
                                                  coords=self._bin_edge_coords)
-        self._mesh = self._ax.pcolormesh(
-            x.values,
-            y.values,
-            z.values,
-            # cmap=self.color_mapper.cmap,
-            shading=shading,
-            rasterized=rasterized,
-            **kwargs)
-        # if self._cbar:
-        #     self._cbar = colorbar(self._mesh,
-        #                           ax=self._ax,
-        #                           cax=self._cax,
-        #                           extend=self._extend,
-        #                           label=name_with_unit(var=self._data.data, name=""))
-
-        #     # # Add event that toggles the norm of the colorbar when clicked on
-        #     # # TODO: change this to a double-click event once this is supported in
-        #     # # jupyterlab, see https://github.com/matplotlib/ipympl/pull/446
-        #     # self._cbar.ax.set_picker(5)
-        #     # self._ax.figure.canvas.mpl_connect('pick_event', self.toggle_norm)
-        #     self._cbar.ax.yaxis.set_label_coords(-1.1, 0.5)
+        self._mesh = self._ax.pcolormesh(x.values,
+                                         y.values,
+                                         z.values,
+                                         shading=shading,
+                                         rasterized=rasterized,
+                                         **kwargs)
         self._mesh.set_array(None)
-        # self._set_norm()
-
-    # def _set_clim(self):
-    #     self._mesh.set_clim(self.color_mapper.vmin, self.color_mapper.vmax)
-
-    # def _set_mesh_colors(self):
-    #     to_mapper = sc.DataArray(data=_maybe_repeat_values(
-    #         data=self._data.data, coords=self._bin_edge_coords))
-    #     if self._data.masks:
-    #         to_mapper.masks['one_mask'] = _maybe_repeat_values(
-    #             data=sc.broadcast(merge_masks(self._data.masks),
-    #                               dims=self._data.dims,
-    #                               shape=self._data.shape),
-    #             coords=self._bin_edge_coords)
-
-    #     rgba = self.color_mapper.rgba(data=to_mapper)
-    #     self._mesh.set_facecolors(rgba.reshape(np.prod(rgba.shape[:-1]), 4))
 
     @property
     def data(self):
@@ -172,26 +129,3 @@ class Mesh:
         Update image array with new values.
         """
         self._data = new_values
-        # self.color_mapper.rescale(data=new_values.data)
-        # self._set_clim()
-        # self._set_mesh_colors()
-
-    # def _set_norm(self):
-    #     self.color_mapper.set_norm(data=self._data)
-    #     self._mesh.set_norm(self.color_mapper.norm)
-    #     self._set_clim()
-
-    # def toggle_norm(self, event):
-    #     if event.artist is not self._cbar.ax:
-    #         return
-    #     self.color_mapper.toggle_norm()
-    #     self._set_clim()
-    #     self._ax.figure.canvas.draw_idle()
-
-    # def get_limits(self, xscale, yscale):
-    #     xmin, xmax = fix_empty_range(
-    #         find_limits(self._bin_edge_coords['x']['var'], scale=xscale))
-    #     ymin, ymax = fix_empty_range(
-    #         find_limits(self._bin_edge_coords['y']['var'], scale=yscale))
-    #     return (sc.concat([xmin, xmax], dim=self._dims['x']),
-    #             sc.concat([ymin, ymax], dim=self._dims['y']))

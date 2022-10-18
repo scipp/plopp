@@ -29,7 +29,6 @@ class Line:
 
         self._ax = canvas.ax
         self._data = data
-        # print(kwargs)
 
         args = _parse_dicts_in_kwargs(kwargs, name=data.name)
 

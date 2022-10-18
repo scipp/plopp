@@ -22,7 +22,6 @@ class Canvas3d(View, VBox):
         if self.figsize is None:
             self.figsize = (600, 400)
         width, height = self.figsize
-        # self._figheight = height
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
@@ -44,28 +43,6 @@ class Canvas3d(View, VBox):
         self.add(self.outline)
         self._update_camera(limits=limits)
         self.axes_3d.scale = [self.camera.far] * 3
-
-        # self.toolbar = Toolbar(
-        #     tools={
-        #         'home': self.home,
-        #         'camerax': self.camera_x_normal,
-        #         'cameray': self.camera_y_normal,
-        #         'cameraz': self.camera_z_normal,
-        #         'box': self.toggle_outline,
-        #         'axes': self.toggle_axes3d
-        #     })
-
-        # self.left_bar = VBar([self.toolbar])
-        # self.right_bar = VBar()
-        # self.bottom_bar = HBar()
-        # self.top_bar = HBar()
-
-        # self.render()
-
-        # VBox.__init__(self, [
-        #     self.top_bar,
-        #     HBox([self.left_bar, self.renderer, self.right_bar]), self.bottom_bar
-        # ])
 
     def _update_camera(self, limits):
         center = [var.mean().value for var in limits]
@@ -93,16 +70,6 @@ class Canvas3d(View, VBox):
         self.camera_backup["z_normal"] = [
             center[0], center[1], center[2] - distance_from_center * box_mean_size
         ]
-
-    # def notify_view(self, message):
-    #     node_id = message["node_id"]
-    #     new_values = self.graph_nodes[node_id].request_data()
-    #     self.update(new_values=new_values, key=node_id)
-
-    # def render(self):
-    #     for node in self.graph_nodes.values():
-    #         new_values = node.request_data()
-    #         self.update(new_values=new_values, key=node.id)
 
     def home(self):
         """
