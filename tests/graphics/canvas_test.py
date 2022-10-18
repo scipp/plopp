@@ -12,7 +12,7 @@ import pytest
 
 def test_creation():
     title = 'My canvas'
-    canvas = Canvas(, title=title)
+    canvas = Canvas(title=title)
     assert canvas.ax.get_title() == title
     assert canvas.ax.get_xscale() == 'linear'
     assert canvas.ax.get_yscale() == 'linear'

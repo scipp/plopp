@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from plopp.data import dense_data_array
-from plopp.graphics.color_mapper import ColorMapper
+from plopp.graphics.colormapper import ColorMapper
 import scipp as sc
 import numpy as np
 from matplotlib.colors import Normalize, LogNorm

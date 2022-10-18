@@ -95,7 +95,7 @@ class Canvas:
     # def _post_init(self):
     #     return
 
-    def _to_image(self):
+    def to_image(self):
         from ipywidgets import Image
         width, height = self.fig.get_size_inches()
         dpi = self.fig.get_dpi()

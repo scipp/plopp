@@ -169,11 +169,9 @@ class InteractiveFig1d(VBox):
             self.top_bar,
             HBox([
                 self.left_bar,
-                # self._to_image() if _is_sphinx_build() else self._fig.canvas,
-                self._fig.canvas.fig.canvas,
-                self.right_bar
-            ]),
-            self.bottom_bar
+                self._fig.canvas.to_image()
+                if _is_sphinx_build() else self._fig.canvas.fig.canvas, self.right_bar
+            ]), self.bottom_bar
         ])
 
     def __getattr__(self, key):
@@ -212,11 +210,9 @@ class InteractiveFig2d(VBox):
             self.top_bar,
             HBox([
                 self.left_bar,
-                # self._to_image() if _is_sphinx_build() else self._fig.canvas,
-                self._fig.canvas.fig.canvas,
-                self.right_bar
-            ]),
-            self.bottom_bar
+                self._fig.canvas.to_image()
+                if _is_sphinx_build() else self._fig.canvas.fig.canvas, self.right_bar
+            ]), self.bottom_bar
         ])
 
     def __getattr__(self, key):
@@ -270,12 +266,7 @@ class InteractiveFig3d(VBox):
 
         super().__init__([
             self.top_bar,
-            HBox([
-                self.left_bar,
-                # self._to_image() if _is_sphinx_build() else self._fig.canvas,
-                self._fig.canvas.renderer,
-                self.right_bar
-            ]),
+            HBox([self.left_bar, self._fig.canvas.renderer, self.right_bar]),
             self.bottom_bar
         ])
 
