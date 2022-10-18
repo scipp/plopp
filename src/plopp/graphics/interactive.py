@@ -201,7 +201,7 @@ class InteractiveFig2d(VBox):
             })
 
         # _patch_object(self, figure=fig)
-        self.colormapper = self._fig.colormapper
+        # self.colormapper = self._fig.colormapper
 
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar()
@@ -261,8 +261,10 @@ class InteractiveFig3d(VBox):
                 tools.AxesTool(self._fig.canvas.toggle_axes3d)
             })
 
+        # self.colormapper = self._fig.colormapper
+
         self.left_bar = VBar([self.toolbar])
-        self.right_bar = VBar()
+        self.right_bar = VBar([self._fig.colormapper.to_widget()])
         self.bottom_bar = HBar()
         self.top_bar = HBar()
 

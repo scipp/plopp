@@ -90,30 +90,23 @@ class ColorMapper:
 
     def to_widget(self):
         import ipywidgets as ipw
-        self.widget = {
-            'image':
-            ipw.HTML(),
-            'button':
-            ToggleTool(self.toggle_norm,
-                       value=self.norm == 'log',
-                       description='log',
-                       tooltip='Toggle data norm').widget
-        }
-        self._update_colorbar_image()
-        return ipw.VBox(list(self.widget.values()))
+        self.widget = ipw.HTML()
+        self._update_colorbar_widget()
+        return self.widget
 
-    def _update_colorbar_image(self):
+    def _update_colorbar_widget(self):
         # Choose a dpi that makes the sizes in inches (mpl colorbar) and pixels
         # (pythreejs renderer) match.
-        dpi = 100
-        # Additional shrinking factor to make space for the 'log' toggle button
-        height_inches = 0.88 * self._figheight / dpi
-        cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
-        cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
-        _ = ColorbarBase(cbar_ax, cmap=self.cmap, norm=self.norm)
-        cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
-        self.widget['image'].value = fig_to_bytes(cbar_fig, form='svg').decode()
-        plt.close(cbar_fig)
+        # dpi = 100
+        # # Additional shrinking factor to make space for the 'log' toggle button
+        # height_inches = 0.88 * self._figheight / dpi
+        # cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
+        # cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
+        # _ = ColorbarBase(cbar_ax, cmap=self.cmap, norm=self.norm)
+        # cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
+        if self.widget is not None:
+            self.widget.value = fig_to_bytes(self.cax.get_figure(), form='svg').decode()
+        # plt.close(cbar_fig)
 
     def rgba(self, data: sc.DataArray):
         """
@@ -167,19 +160,20 @@ class ColorMapper:
 
         if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
             self._set_children_colors()
+            self._update_colorbar_widget()
             # for child in self.children.values():
             #     child.set_colors(self.rgba(child.data))
 
         # if (self.colorbar is not None) and not np.allclose(
         #         old_bounds, np.array([self.vmin, self.vmax])):
-        #     self._update_colorbar_image()
+        #     self._update_colorbar_widget()
 
     # def rescale(self, data):
     #     old_bounds = np.array([self.vmin, self.vmax])
     #     self.autoscale(data=data, scale=self._norm)
     #     if (self.colorbar is not None) and not np.allclose(
     #             old_bounds, np.array([self.vmin, self.vmax])):
-    #         self._update_colorbar_image()
+    #         self._update_colorbar_widget()
 
     # def set_norm(self, data):
     #     """
@@ -209,9 +203,9 @@ class ColorMapper:
         # print(self._vmin, self._vmax)
         # print(self.norm.vmin, self.norm.vmax)
         # self.notify()
-        if self.colorbar is not None:
-            self.colorbar.mappable.norm = self.normalizer
-            # self._update_colorbar_image()
+        # if self.colorbar is not None:
+        self.colorbar.mappable.norm = self.normalizer
+        self._update_colorbar_widget()
 
     # def add_notify(self, callback):
     #     self._notify_on_change.append(callback)
