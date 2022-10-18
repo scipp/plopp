@@ -14,7 +14,7 @@ class DummyChild:
         self._data = data
         self._colors = None
 
-    def _set_colors(self, colors):
+    def set_colors(self, colors):
         self._colors = colors
 
     @property
@@ -73,7 +73,7 @@ def test_vmin_vmax():
     vmin = sc.scalar(-0.1, unit='K')
     vmax = sc.scalar(3.5, unit='K')
     mapper = ColorMapper(vmin=vmin, vmax=vmax)
-    mapper.set_norm(data=da)
+    mapper.update(data=da * 100.)
     assert sc.identical(mapper.user_vmin, vmin)
     assert sc.identical(mapper.user_vmax, vmax)
     assert mapper.vmin == vmin.value
@@ -114,7 +114,7 @@ def test_update_changes_limits():
 def test_rgba():
     da = dense_data_array(ndim=2, unit='K')
     mapper = ColorMapper()
-    mapper.set_norm(data=da)
+    # mapper.set_norm(data=da)
     colors = mapper.rgba(da)
     assert colors.shape == da.data.shape + (4, )
 
@@ -123,7 +123,7 @@ def test_rgba_with_masks():
     da1 = dense_data_array(ndim=2, unit='K')
     da2 = dense_data_array(ndim=2, unit='K', masks=True)
     mapper = ColorMapper()
-    mapper.set_norm(data=da1)
+    # mapper.set_norm(data=da1)
     assert not np.allclose(mapper.rgba(da1), mapper.rgba(da2))
 
 
@@ -131,15 +131,15 @@ def test_colorbar_updated_on_rescale():
     da = dense_data_array(ndim=2, unit='K')
     mapper = ColorMapper()
 
-    mapper.set_norm(data=da)
-    _ = mapper.widget
-    old_image = mapper.colorbar['image'].value
-    old_image_array = bytearray(old_image)
+    mapper.update(data=da)
+    _ = mapper.to_widget()
+    old_image = mapper.widget.value
+    old_image_array = old_image
 
     # Update with the same values should not make a new colorbar image
-    mapper.rescale(data=da)
-    assert old_image is mapper.colorbar['image'].value
+    mapper.update(data=da)
+    assert old_image is mapper.widget.value
 
     const = 2.3
-    mapper.rescale(data=da * const)
-    assert old_image_array != bytearray(mapper.colorbar['image'].value)
+    mapper.update(data=da * const)
+    assert old_image_array != mapper.widget.value
