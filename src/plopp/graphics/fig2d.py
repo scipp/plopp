@@ -46,17 +46,7 @@ class Figure2d(BaseFig):
         self.render()
         self.canvas.autoscale()
         if crop is not None:
-            self.canvas.crop(
-                **{
-                    xy: {
-                        **{
-                            'dim': self.dims[xy]['dim'],
-                            'unit': self.dims[xy]['unit']
-                        },
-                        **crop[self.dims[xy]['dim']]
-                    }
-                    for xy in 'xy'
-                })
+            self.canvas.crop(**crop)
 
         # for node in self.graph_nodes.values():
         #     new_values = node.request_data()
@@ -145,3 +135,16 @@ class Figure2d(BaseFig):
         # print('figure togglenorm', self.colormapper.children)
         self.colormapper.toggle_norm()
         self.canvas.draw()
+
+    def crop(self, **limits):
+        self.canvas.crop(
+            **{
+                xy: {
+                    **{
+                        'dim': self.dims[xy]['dim'],
+                        'unit': self.dims[xy]['unit']
+                    },
+                    **limits[self.dims[xy]['dim']]
+                }
+                for xy in 'xy'
+            })

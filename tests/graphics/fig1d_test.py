@@ -51,7 +51,7 @@ def test_log_norm():
 
 def test_crop():
     da = dense_data_array(ndim=1)
-    fig = Figure1d(input_node(da), )
+    fig = Figure1d(input_node(da))
     assert fig.canvas.ax.get_xlim()[0] < da.meta['xx'].min().value
     assert fig.canvas.ax.get_xlim()[1] > da.meta['xx'].max().value
     xmin = sc.scalar(2.1, unit='m')
