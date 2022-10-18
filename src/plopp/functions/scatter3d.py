@@ -88,6 +88,5 @@ def scatter3d(da: sc.DataArray,
                            vmax=vmax,
                            cmap=cmap,
                            **kwargs)
-    # return fig
     tri_cutter = TriCutTool(fig)
     return Box([fig, tri_cutter])

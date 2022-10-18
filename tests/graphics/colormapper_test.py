@@ -114,7 +114,6 @@ def test_update_changes_limits():
 def test_rgba():
     da = dense_data_array(ndim=2, unit='K')
     mapper = ColorMapper()
-    # mapper.set_norm(data=da)
     colors = mapper.rgba(da)
     assert colors.shape == da.data.shape + (4, )
 
@@ -123,7 +122,6 @@ def test_rgba_with_masks():
     da1 = dense_data_array(ndim=2, unit='K')
     da2 = dense_data_array(ndim=2, unit='K', masks=True)
     mapper = ColorMapper()
-    # mapper.set_norm(data=da1)
     assert not np.allclose(mapper.rgba(da1), mapper.rgba(da2))
 
 

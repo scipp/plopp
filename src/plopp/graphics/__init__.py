@@ -5,6 +5,4 @@
 
 from .interactive import InteractiveFig1d, InteractiveFig2d, InteractiveFig3d
 from .static import StaticFig1d, StaticFig2d
-# from .scatterfig3d import ScatterFig3d
-# from .scatterfig import ScatterFig
 from .colormapper import ColorMapper

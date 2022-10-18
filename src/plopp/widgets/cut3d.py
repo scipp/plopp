@@ -183,7 +183,6 @@ class Cut3dTool(ipw.HBox):
                 self._view.update(
                     self.select_nodes[n.id].request_data(),
                     key=self.select_nodes[n.id].id,
-                    # colormapper=n.id
                 )
 
     def _remove_cut(self):

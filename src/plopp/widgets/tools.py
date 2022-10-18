@@ -7,41 +7,6 @@ import ipywidgets as ipw
 from functools import partial
 from typing import Callable
 
-# class ArgSwallower:
-
-#     def __init__(self, func):
-#         self.func = func
-
-#     def __call__(self, *args, **kwargs):
-#         self.func()
-
-# def button(callback: Callable, **kwargs):
-#     b = ipw.Button(**{**BUTTON_LAYOUT, **kwargs})
-#     b.on_click(ArgSwallower(callback))
-#     return b
-
-# def toggle_button(callback: Callable, **kwargs):
-#     tb = ipw.ToggleButton(**{**BUTTON_LAYOUT, **kwargs})
-#     tb.observe(ArgSwallower(callback), names='value')
-#     return tb
-
-# def _reset_togglebuttons(owner, *ignored):
-#     """
-#     If the currently selected value is clicked again, we reset the value to None.
-#     """
-#     if owner.value == self.current_cut_surface_value:
-#         self.cut_surface_buttons.value = None
-#     self.current_cut_surface_value = owner.value
-
-# def multi_toggle_button(callback: Callable, **kwargs):
-#     tb = ipw.ToggleButtons(**{**BUTTON_LAYOUT, **kwargs})
-#     tb.observe(ArgSwallower(callback), names='value')
-
-#     def
-
-#     self.cut_surface_buttons.on_msg(self._check_if_reset_needed)
-#     return tb
-
 
 class ButtonTool(ipw.Button):
 
@@ -109,22 +74,6 @@ class MultiToggleTool(ipw.ToggleButtons):
         if owner.value == self._current_value:
             self.value = None
         self._current_value = owner.value
-
-    # @property
-    # def value(self):
-    #     return self._value
-
-    # @value.setter
-    # def value(self, val):
-    #     self._value = val
-    #     self._update_color()
-
-    # def _update_color(self):
-    #     self.widget.button_style = 'info' if self._value else ''
-
-    # def _toggle(self):
-    #     self._value = not self._value
-    #     self._update_color()
 
 
 HomeTool = partial(ButtonTool, icon='home', tooltip='Autoscale view')

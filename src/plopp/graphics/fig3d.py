@@ -1,15 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-# from .fig3d import Fig3d
-
 import scipp as sc
 from .basefig import BaseFig
 from .colormapper import ColorMapper
-
-# class ScatterFig(View, VBox):
-
-#     should contain a Canvas3d, a toolbar,
 
 
 class Figure3d(BaseFig):
@@ -45,13 +39,8 @@ class Figure3d(BaseFig):
                                        nan_color="#f0f0f0",
                                        figsize=self.canvas.figsize)
 
-        # self.right_bar.add(self.colormapper.to_widget)
-        # self.colormapper.colorbar['button'].on_click()
-
         self._original_children = [n.id for n in nodes]
         self.render()
-
-        # self._original_children = list(self._children.keys())
 
     def update(self, new_values: sc.DataArray, key: str, draw=True):
         """
@@ -60,36 +49,18 @@ class Figure3d(BaseFig):
 
         self.colormapper.update(data=new_values)
 
-        # from .outline import Outline
-
-        # if key in self._original_children:
-        #     self.colormapper.autoscale(new_values)
-
         if key not in self._children:
-            # if colormapper is not None:
-            #     colormapper = self._children[colormapper].color_mapper
             from .point_cloud import PointCloud
-            pts = PointCloud(
-                data=new_values,
-                x=self._x,
-                y=self._y,
-                z=self._z,
-                # colormapper=self.colormapper,
-                # figheight=self._figheight,
-                **self._kwargs)
+            pts = PointCloud(data=new_values,
+                             x=self._x,
+                             y=self._y,
+                             z=self._z,
+                             **self._kwargs)
             self._children[key] = pts
             self.colormapper[key] = pts
             self.canvas.add(pts.points)
-            print(key, self._original_children)
             if key in self._original_children:
-                print('making outline')
                 self.canvas.make_outline(limits=self.get_limits())
-                # if self.outline is not None:
-                #     self.scene.remove(self.outline)
-                # self.outline = Outline(limits=limits)
-                # self.scene.add(self.outline)
-                # self._update_camera(limits=limits)
-                # self.axes_3d.scale = [self.camera.far] * 3
 
         self._children[key].update(new_values=new_values)
         self._children[key].set_colors(self.colormapper.rgba(self._children[key].data))
