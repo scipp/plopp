@@ -34,7 +34,7 @@ class Canvas:
             aspect='auto',
             scale=None,
             cbar=False,
-            crop=None,
+            # crop=None,
             **kwargs):
 
         # super().__init__(*nodes)
@@ -45,7 +45,7 @@ class Canvas:
         self._user_vmax = vmax
         # self._norm = norm
         self._scale = {} if scale is None else scale
-        self._crop = {} if crop is None else crop
+        # self._crop = {} if crop is None else crop
         # self._cbar = cbar
         # self._errorbars = errorbars
         # self._mask_color = mask_color
@@ -81,7 +81,6 @@ class Canvas:
         self.ax.set_aspect(aspect)
         self.ax.set_title(title)
         self.ax.grid(grid)
-        self._legend = 0
 
         self._xmin = np.inf
         self._xmax = np.NINF
@@ -152,10 +151,10 @@ class Canvas:
     def show(self):
         self.fig.show()
 
-    def notify_view(self, message):
-        node_id = message["node_id"]
-        new_values = self.graph_nodes[node_id].request_data()
-        self.update(new_values=new_values, key=node_id)
+    # def notify_view(self, message):
+    #     node_id = message["node_id"]
+    #     new_values = self.graph_nodes[node_id].request_data()
+    #     self.update(new_values=new_values, key=node_id)
 
     # def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
     #     """
@@ -229,25 +228,12 @@ class Canvas:
     #     if draw:
     #         self.draw()
 
-    def crop(self, limits=None):
-        if limits is None:
-            limits = self._crop
-        for dim, lims in limits.items():
-            for xy in self._dims:
-                if dim == self._dims[xy]['dim']:
-                    getattr(self.ax, f'set_{xy}lim')(*[
-                        sc.to_unit(number_to_variable(lims[m]),
-                                   unit=self._dims[xy]['unit']).value
-                        for m in ('min', 'max') if m in lims
-                    ])
-
-    # def render(self):
-    #     for node in self.graph_nodes.values():
-    #         new_values = node.request_data()
-    #         self.update(new_values=new_values, key=node.id, draw=False)
-    #     self._autoscale()
-    #     self.crop(**self._crop)
-    #     self.draw()
+    def crop(self, **limits):
+        for xy, lims in limits.items():
+            getattr(self.ax, f'set_{xy}lim')(*[
+                sc.to_unit(number_to_variable(lims[m]), unit=lims['unit']).value
+                for m in ('min', 'max') if m in lims
+            ])
 
     def to_bytes(self, form='png'):
         """

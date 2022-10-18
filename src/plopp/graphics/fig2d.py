@@ -26,11 +26,12 @@ class Figure2d(BaseFig):
                  scale=None,
                  aspect='auto',
                  grid=False,
+                 crop=None,
                  **kwargs):
 
         super().__init__(*nodes)
 
-        print('start of fig init', nodes)
+        # print('start of fig init', nodes)
         # self._children = {}
         # self.dims = {}
         self._scale = {} if scale is None else scale
@@ -44,13 +45,26 @@ class Figure2d(BaseFig):
 
         self.render()
         self.canvas.autoscale()
+        if crop is not None:
+            self.canvas.crop(
+                **{
+                    xy: {
+                        **{
+                            'dim': self.dims[xy]['dim'],
+                            'unit': self.dims[xy]['unit']
+                        },
+                        **crop[self.dims[xy]['dim']]
+                    }
+                    for xy in 'xy'
+                })
+
         # for node in self.graph_nodes.values():
         #     new_values = node.request_data()
         #     self.update(new_values=new_values, key=node.id, draw=False)
         # self.canvas.autoscale()  # self._children.values())
         # self.crop(**self._crop)
         # self.canvas.draw()
-        print('end of fig init', self.colormapper.children)
+        # print('end of fig init', self.colormapper.children)
 
     # def notify_view(self, message):
     #     node_id = message["node_id"]
@@ -122,12 +136,12 @@ class Figure2d(BaseFig):
         self._children[key].update(new_values=new_values)
         self._children[key].set_colors(self.colormapper.rgba(self._children[key].data))
 
-        print('after update', self.colormapper.children)
+        # print('after update', self.colormapper.children)
 
         if draw:
             self.canvas.draw()
 
     def toggle_norm(self):
-        print('figure togglenorm', self.colormapper.children)
+        # print('figure togglenorm', self.colormapper.children)
         self.colormapper.toggle_norm()
         self.canvas.draw()

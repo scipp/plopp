@@ -40,7 +40,7 @@ class Figure1d(BaseFig):
         self._mask_color = mask_color
         self._kwargs = kwargs
 
-        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid, crop=crop)
+        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid)
         self.canvas.yscale = norm
 
         # for node in self.graph_nodes.values():
@@ -52,6 +52,17 @@ class Figure1d(BaseFig):
 
         self.render()
         self.canvas.autoscale()
+        if crop is not None:
+            # to_crop = {'dim': }
+
+            self.canvas.crop(
+                x={
+                    **{
+                        'dim': self.dims['x']['dim'],
+                        'unit': self.dims['x']['unit']
+                    },
+                    **crop[self.dims['x']['dim']]
+                })
 
     # def notify_view(self, message):
     #     node_id = message["node_id"]
