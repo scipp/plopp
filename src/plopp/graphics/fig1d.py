@@ -55,7 +55,7 @@ class Figure1d(BaseFig):
         if crop is not None:
             # to_crop = {'dim': }
 
-            self.canvas.crop(**crop)
+            self.crop(**crop)
             # x={
             #     **{
             #         'dim': self.dims['x']['dim'],

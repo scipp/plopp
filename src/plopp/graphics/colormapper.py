@@ -199,12 +199,16 @@ class ColorMapper:
         print(self.children)
         for child in self.children.values():
             self.autoscale(data=child._data)
+        self.normalizer.vmin = self.vmin
+        self.normalizer.vmax = self.vmax
+
         self._set_children_colors()
 
         # print(self._vmin, self._vmax)
         # print(self.norm.vmin, self.norm.vmax)
         # self.notify()
         # if self.colorbar is not None:
+
         self.colorbar.mappable.norm = self.normalizer
         self._update_colorbar_widget()
 

@@ -46,7 +46,7 @@ class Figure2d(BaseFig):
         self.render()
         self.canvas.autoscale()
         if crop is not None:
-            self.canvas.crop(**crop)
+            self.crop(**crop)
 
         # for node in self.graph_nodes.values():
         #     new_values = node.request_data()
