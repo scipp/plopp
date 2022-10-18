@@ -14,8 +14,6 @@ def test_creation():
     assert sc.identical(cloud._data, da)
     assert np.allclose(cloud.geometry.attributes['position'].array,
                        da.coords['position'].values)
-    assert np.allclose(cloud.geometry.attributes['color'].array,
-                       cloud.color_mapper.rgba(da)[..., :3])
 
 
 def test_update():

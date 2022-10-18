@@ -176,34 +176,34 @@ class Line:
         arr2 = np.array([y - e, y + e]).T.flatten()
         return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
 
-    def get_limits(self, xscale, yscale) -> Tuple[float, ...]:
-        """
-        """
-        xmin, xmax = fix_empty_range(
-            find_limits(self._data.meta[self._dim], scale=xscale))
-        ymin, ymax = fix_empty_range(find_limits(self._data.data, scale=yscale))
+    # def get_limits(self, xscale, yscale) -> Tuple[float, ...]:
+    #     """
+    #     """
+    #     xmin, xmax = fix_empty_range(
+    #         find_limits(self._data.meta[self._dim], scale=xscale))
+    #     ymin, ymax = fix_empty_range(find_limits(self._data.data, scale=yscale))
 
-        for lim in (xmin, xmax, ymin, ymax):
-            if lim.unit is None:
-                lim.unit = ''
+    #     for lim in (xmin, xmax, ymin, ymax):
+    #         if lim.unit is None:
+    #             lim.unit = ''
 
-        # Add padding
-        deltax = delta(xmin, xmax, 0.03, xscale)
-        if xscale == "log":
-            xmin = xmin / deltax.value
-            xmax = xmax * deltax.value
-        else:
-            xmin = xmin - deltax
-            xmax = xmax + deltax
-        deltay = delta(ymin, ymax, 0.03, yscale)
-        if yscale == "log":
-            ymin = ymin / deltay.value
-            ymax = ymax * deltay.value
-        else:
-            ymin = ymin - deltay
-            ymax = ymax + deltay
+    #     # Add padding
+    #     deltax = delta(xmin, xmax, 0.03, xscale)
+    #     if xscale == "log":
+    #         xmin = xmin / deltax.value
+    #         xmax = xmax * deltax.value
+    #     else:
+    #         xmin = xmin - deltax
+    #         xmax = xmax + deltax
+    #     deltay = delta(ymin, ymax, 0.03, yscale)
+    #     if yscale == "log":
+    #         ymin = ymin / deltay.value
+    #         ymax = ymax * deltay.value
+    #     else:
+    #         ymin = ymin - deltay
+    #         ymax = ymax + deltay
 
-        return (sc.concat([xmin, xmax], dim=self._dim), sc.concat([ymin, ymax], dim=''))
+    #     return (sc.concat([xmin, xmax], dim=self._dim), sc.concat([ymin, ymax], dim=''))
 
     def remove(self):
         self._line.remove()

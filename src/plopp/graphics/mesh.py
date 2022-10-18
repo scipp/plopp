@@ -138,8 +138,8 @@ class Mesh:
         self._mesh.set_array(None)
         # self._set_norm()
 
-    def _set_clim(self):
-        self._mesh.set_clim(self.color_mapper.vmin, self.color_mapper.vmax)
+    # def _set_clim(self):
+    #     self._mesh.set_clim(self.color_mapper.vmin, self.color_mapper.vmax)
 
     # def _set_mesh_colors(self):
     #     to_mapper = sc.DataArray(data=_maybe_repeat_values(
@@ -178,22 +178,22 @@ class Mesh:
         # self._set_clim()
         # self._set_mesh_colors()
 
-    def _set_norm(self):
-        self.color_mapper.set_norm(data=self._data)
-        self._mesh.set_norm(self.color_mapper.norm)
-        self._set_clim()
+    # def _set_norm(self):
+    #     self.color_mapper.set_norm(data=self._data)
+    #     self._mesh.set_norm(self.color_mapper.norm)
+    #     self._set_clim()
 
-    def toggle_norm(self, event):
-        if event.artist is not self._cbar.ax:
-            return
-        self.color_mapper.toggle_norm()
-        self._set_clim()
-        self._ax.figure.canvas.draw_idle()
+    # def toggle_norm(self, event):
+    #     if event.artist is not self._cbar.ax:
+    #         return
+    #     self.color_mapper.toggle_norm()
+    #     self._set_clim()
+    #     self._ax.figure.canvas.draw_idle()
 
-    def get_limits(self, xscale, yscale):
-        xmin, xmax = fix_empty_range(
-            find_limits(self._bin_edge_coords['x']['var'], scale=xscale))
-        ymin, ymax = fix_empty_range(
-            find_limits(self._bin_edge_coords['y']['var'], scale=yscale))
-        return (sc.concat([xmin, xmax], dim=self._dims['x']),
-                sc.concat([ymin, ymax], dim=self._dims['y']))
+    # def get_limits(self, xscale, yscale):
+    #     xmin, xmax = fix_empty_range(
+    #         find_limits(self._bin_edge_coords['x']['var'], scale=xscale))
+    #     ymin, ymax = fix_empty_range(
+    #         find_limits(self._bin_edge_coords['y']['var'], scale=yscale))
+    #     return (sc.concat([xmin, xmax], dim=self._dims['x']),
+    #             sc.concat([ymin, ymax], dim=self._dims['y']))
