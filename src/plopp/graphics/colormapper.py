@@ -4,7 +4,7 @@
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
 from ..widgets import ToggleTool
-from .io import fig_to_bytes
+from .utils import fig_to_bytes, silent_mpl_figure
 
 import matplotlib as mpl
 from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
@@ -75,8 +75,9 @@ class ColorMapper:
         if self.cax is None:
             dpi = 100
             height_inches = figsize[1] / dpi
-            cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
-            self.cax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
+            with silent_mpl_figure():
+                fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
+            self.cax = fig.add_axes([0.05, 0.02, 0.2, 1.0])
 
         self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
         self.cax.yaxis.set_label_coords(-1.1, 0.5)

@@ -3,7 +3,7 @@
 
 from ..core.utils import number_to_variable, name_with_unit
 from ..core import View
-from .io import fig_to_bytes
+from .utils import fig_to_bytes, silent_mpl_figure
 from .mesh import Mesh
 from .line import Line
 
@@ -50,7 +50,8 @@ class Figure(View):
         if self._ax is None:
             if figsize is None:
                 figsize = (6, 4)
-            self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=96)
+            with silent_mpl_figure():
+                self._fig, self._ax = plt.subplots(1, 1, figsize=figsize, dpi=96)
             self._fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
         else:
             self._fig = self._ax.get_figure()

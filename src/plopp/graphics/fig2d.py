@@ -5,7 +5,7 @@ from ..core.utils import number_to_variable, name_with_unit
 from .basefig import BaseFig
 from .canvas import Canvas
 from .colormapper import ColorMapper
-from .io import fig_to_bytes
+# from .io import fig_to_bytes
 from .mesh import Mesh
 from .line import Line
 

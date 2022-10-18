@@ -4,7 +4,7 @@
 from .fig import Figure
 from .fig1d import Figure1d
 from .fig2d import Figure2d
-from .io import fig_to_bytes
+from .utils import fig_to_bytes
 
 
 class Static:
@@ -15,7 +15,7 @@ class Static:
         """
         return {
             'text/plain': 'Figure',
-            'image/svg+xml': self.canvas.to_bytes(form='svg').decode()
+            'image/svg+xml': fig_to_bytes(self.canvas.fig, form='svg').decode()
         }
 
     def to_widget(self):

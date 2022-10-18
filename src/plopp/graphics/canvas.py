@@ -4,11 +4,11 @@
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import number_to_variable, name_with_unit
 from ..core import View
-from .io import fig_to_bytes
 from .mesh import Mesh
 from .line import Line
+from .utils import fig_to_bytes, silent_mpl_figure
 
-from io import BytesIO
+# from io import BytesIO
 import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
@@ -58,7 +58,8 @@ class Canvas:
                 figsize = (6, 4)
             # self.fig, self.ax = plt.subplots(1, 1, figsize=figsize, dpi=96)
             # self.fig.tight_layout(rect=[0.05, 0.02, 1.0, 1.0])
-            self.fig = plt.figure(figsize=figsize, dpi=96)
+            with silent_mpl_figure():
+                self.fig = plt.figure(figsize=figsize, dpi=96)
             left = 0.11
             right = 0.9
             bottom = 0.11
@@ -235,14 +236,14 @@ class Canvas:
                 for m in ('min', 'max') if m in lims
             ])
 
-    def to_bytes(self, form='png'):
-        """
-        Convert a Matplotlib figure to png (default) or svg bytes.
-        """
-        buf = BytesIO()
-        self.fig.savefig(buf, format=form, bbox_inches='tight')
-        buf.seek(0)
-        return buf.getvalue()
+    # def to_bytes(self, form='png'):
+    #     """
+    #     Convert a Matplotlib figure to png (default) or svg bytes.
+    #     """
+    #     buf = BytesIO()
+    #     self.fig.savefig(buf, format=form, bbox_inches='tight')
+    #     buf.seek(0)
+    #     return buf.getvalue()
 
     def legend(self):
         self.ax.legend()

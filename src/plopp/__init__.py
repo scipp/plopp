@@ -9,10 +9,6 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-import matplotlib.pyplot as plt
-
-plt.ioff()
-
 from .core import Node, node, input_node, widget_node, show_graph, View
 from .functions import figure1d, figure2d, plot, slicer, inspector, scatter3d, superplot
 
@@ -30,3 +26,15 @@ def patch_scipp():
     setattr(sc.DataArray, 'plot', plot)
     setattr(sc.Dataset, 'plot', plot)
     setattr(sc, 'plot', plot)
+
+
+def unpatch_scipp():
+    """
+    Running this reverts the pacthing operation in :func:`patch_scipp`.
+    """
+    import scipp as sc
+    from scipp.plotting import plot as pl
+    setattr(sc.Variable, 'plot', pl)
+    setattr(sc.DataArray, 'plot', pl)
+    setattr(sc.Dataset, 'plot', pl)
+    setattr(sc, 'plot', pl)
