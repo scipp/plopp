@@ -27,7 +27,7 @@ def test_make_outline():
     assert canvas.outline is None
     canvas.make_outline(limits=_make_limits())
     assert isinstance(canvas.outline, Outline)
-    assert canvas.outline.visible == True
+    assert canvas.outline.visible
 
 
 def test_camera_home():

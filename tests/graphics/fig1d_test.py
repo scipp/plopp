@@ -4,7 +4,6 @@
 from plopp.data import dense_data_array
 from plopp.graphics.fig1d import Figure1d
 from plopp.graphics.line import Line
-from plopp.graphics.mesh import Mesh
 from plopp import input_node
 import scipp as sc
 import pytest

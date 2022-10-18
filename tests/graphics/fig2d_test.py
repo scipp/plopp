@@ -3,7 +3,6 @@
 
 from plopp.data import dense_data_array
 from plopp.graphics.fig2d import Figure2d
-from plopp.graphics.line import Line
 from plopp.graphics.mesh import Mesh
 from plopp import input_node
 import scipp as sc

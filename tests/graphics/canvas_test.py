@@ -1,13 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data import dense_data_array
 from plopp.graphics.canvas import Canvas
-from plopp.graphics.line import Line
-from plopp.graphics.mesh import Mesh
-from plopp import input_node
 import scipp as sc
-import pytest
 
 
 def test_creation():

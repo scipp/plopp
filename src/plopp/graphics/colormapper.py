@@ -3,7 +3,6 @@
 
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
-from ..widgets import ToggleTool
 from .utils import fig_to_bytes, silent_mpl_figure
 
 import matplotlib as mpl

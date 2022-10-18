@@ -2,10 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import number_to_variable, name_with_unit
-from ..core import View
-from .mesh import Mesh
-from .line import Line
+from ..core.utils import number_to_variable
 from .utils import fig_to_bytes, silent_mpl_figure
 
 # from io import BytesIO
@@ -308,10 +305,3 @@ class Canvas:
         self._ymin = np.inf
         self._ymax = np.NINF
         self.autoscale()
-        # self.draw()
-
-    # def logy(self):
-    #     swap_scales = {"linear": "log", "log": "linear"}
-    #     self.ax.set_yscale(swap_scales[self.ax.get_yscale()])
-    #     self._autoscale()
-    #     self.draw()

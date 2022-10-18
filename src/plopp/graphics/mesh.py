@@ -1,11 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import coord_as_bin_edges, name_with_unit, repeat, merge_masks
+from ..core.utils import coord_as_bin_edges, repeat, merge_masks
 # from .color_mapper import ColorMapper
 
-from matplotlib.pyplot import colorbar
 import numpy as np
 import scipp as sc
 from typing import Any

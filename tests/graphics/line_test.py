@@ -6,7 +6,6 @@ from plopp.graphics.canvas import Canvas
 from plopp.graphics.line import Line
 import numpy as np
 import scipp as sc
-from common import make_axes
 
 
 def test_line_creation():

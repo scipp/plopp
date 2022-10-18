@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .fig import Figure
 from .fig1d import Figure1d
 from .fig2d import Figure2d
 from .utils import fig_to_bytes

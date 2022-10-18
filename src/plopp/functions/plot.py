@@ -4,11 +4,9 @@
 from .figure import figure1d, figure2d
 from ..core import input_node
 from .common import preprocess
-from ..graphics import ColorMapper
 
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
-import inspect
 from numpy import ndarray
 from typing import Union, Dict, Literal
 
@@ -78,15 +76,6 @@ def plot(
     :
         A figure.
     """
-    # _, _, _, listed_args = inspect.getargvalues(inspect.currentframe())
-    # all_args = {
-    #     **{
-    #         k: v
-    #         for k, v in listed_args.items() if k not in ('obj', 'ignore_size', 'kwargs')
-    #     },
-    #     **kwargs
-    # }
-
     common_args = {
         'crop': crop,
         'grid': grid,

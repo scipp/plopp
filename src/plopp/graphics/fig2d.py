@@ -1,17 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.utils import number_to_variable, name_with_unit
+from ..core.utils import name_with_unit
 from .basefig import BaseFig
 from .canvas import Canvas
 from .colormapper import ColorMapper
 # from .io import fig_to_bytes
 from .mesh import Mesh
-from .line import Line
 
-import matplotlib.pyplot as plt
 import scipp as sc
-from typing import Any, Tuple
 
 
 class Figure2d(BaseFig):

@@ -5,8 +5,6 @@ from plopp.data import dense_data_array
 from plopp.graphics.canvas import Canvas
 from plopp.graphics.mesh import Mesh
 import scipp as sc
-from common import make_axes
-from dataclasses import dataclass
 
 
 def test_mesh_creation():

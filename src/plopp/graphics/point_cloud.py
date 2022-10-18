@@ -2,14 +2,6 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
-# <<<<<<< HEAD
-# # from .color_mapper import ColorMapper
-# =======
-# from ..core.utils import name_with_unit
-# from .color_mapper import ColorMapper
-# from .utils import fig_to_bytes, silent_mpl_figure
-# from ..widgets import ToggleTool
-# >>>>>>> main
 
 import numpy as np
 import scipp as sc
@@ -18,20 +10,14 @@ import scipp as sc
 class PointCloud:
 
     def __init__(
-        self,
-        *,
-        x,
-        y,
-        z,
-        data,
-        # colormapper,
-        pixel_size=1,  # TODO: pixel_size should have units
-        # cmap: str = 'viridis',
-        # mask_cmap: str = 'gray',
-        # norm: str = 'linear',
-        # vmin=None,
-        # vmax=None,
-        opacity=1):
+            self,
+            *,
+            x,
+            y,
+            z,
+            data,
+            pixel_size=1,  # TODO: pixel_size should have units
+            opacity=1):
         """
         Make a point cloud using pythreejs
         """
@@ -65,45 +51,11 @@ class PointCloud:
                                           opacity=opacity)
         self.points = p3.Points(geometry=self.geometry, material=self.material)
 
-        # if colormapper is None:
-        #     self.color_mapper = ColorMapper(cmap=cmap,
-        #                                     mask_cmap=mask_cmap,
-        #                                     norm=norm,
-        #                                     vmin=vmin,
-        #                                     vmax=vmax,
-        #                                     nan_color="#f0f0f0",
-        #                                     notify_on_change=self._set_points_colors,
-        #                                     figheight=figheight)
-        # else:
-        #     self.color_mapper = colormapper
-        #     self.color_mapper.add_notify(self._set_points_colors)
-
-        # self.color_mapper.set_norm(data=self._data)
-
     def set_colors(self, rgba):
-        # colors = self.color_mapper.rgba(self._data)[..., :3]
         self.geometry.attributes["color"].array = rgba[..., :3].astype('float32')
-
-
-# =======
-#     def _update_colorbar(self):
-#         dpi = 96
-#         height_inches = 0.89 * self._figsize[1] / dpi
-#         with silent_mpl_figure():
-#             cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches), dpi=dpi)
-#         cbar_ax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
-#         _ = ColorbarBase(cbar_ax,
-#                          cmap=self.color_mapper.cmap,
-#                          norm=self.color_mapper.norm_func)
-#         cbar_ax.set_ylabel(name_with_unit(self._data.data, name=self._data.name))
-#         self.colorbar['image'].value = fig_to_bytes(cbar_fig)
-#         plt.close(cbar_fig)
-# >>>>>>> main
 
     def update(self, new_values):
         self._data = new_values
-        # self.color_mapper.rescale(data=new_values.data)
-        # self._set_points_colors()
 
     def get_limits(self):
         xmin, xmax = fix_empty_range(find_limits(self._data.meta[self._x]))

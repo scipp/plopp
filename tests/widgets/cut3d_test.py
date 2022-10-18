@@ -3,10 +3,8 @@
 
 from plopp.data import scatter_data
 from plopp.graphics.fig3d import Figure3d
-from plopp.graphics.point_cloud import PointCloud
 from plopp.widgets import TriCutTool
 from plopp import input_node
-import scipp as sc
 
 
 def test_show_hide_cuts():

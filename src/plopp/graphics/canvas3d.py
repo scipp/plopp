@@ -2,12 +2,11 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core import View
-from ..widgets import Toolbar, HBar, VBar
 from .outline import Outline
 
 from copy import copy
 import numpy as np
-from ipywidgets import VBox, HBox
+from ipywidgets import VBox
 
 
 class Canvas3d(View, VBox):
