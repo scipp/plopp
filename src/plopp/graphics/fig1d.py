@@ -55,14 +55,14 @@ class Figure1d(BaseFig):
         if crop is not None:
             # to_crop = {'dim': }
 
-            self.canvas.crop(
-                x={
-                    **{
-                        'dim': self.dims['x']['dim'],
-                        'unit': self.dims['x']['unit']
-                    },
-                    **crop[self.dims['x']['dim']]
-                })
+            self.canvas.crop(**crop)
+            # x={
+            #     **{
+            #         'dim': self.dims['x']['dim'],
+            #         'unit': self.dims['x']['unit']
+            #     },
+            #     **crop[self.dims['x']['dim']]
+            # })
 
     # def notify_view(self, message):
     #     node_id = message["node_id"]
@@ -126,5 +126,12 @@ class Figure1d(BaseFig):
             self.canvas.autoscale()
             # self.canvas.draw()
 
-    def crop(self, *args, **kwargs):
-        self.canvas.crop(*args, **kwargs)
+    def crop(self, **limits):
+        self.canvas.crop(
+            x={
+                **{
+                    'dim': self.dims['x']['dim'],
+                    'unit': self.dims['x']['unit']
+                },
+                **limits[self.dims['x']['dim']]
+            })
