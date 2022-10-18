@@ -43,7 +43,7 @@ class Figure3d(BaseFig):
                                        vmin=vmin,
                                        vmax=vmax,
                                        nan_color="#f0f0f0",
-                                       figheight=self.canvas.figsize[1])
+                                       figsize=figsize)
 
         # self.right_bar.add(self.colormapper.to_widget)
         # self.colormapper.colorbar['button'].on_click()

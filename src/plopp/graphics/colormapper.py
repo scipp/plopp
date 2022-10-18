@@ -43,7 +43,7 @@ class ColorMapper:
             vmin=None,
             vmax=None,
             nan_color=None,
-            figheight=None):
+            figsize=None):
 
         self.cax = cax
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
@@ -56,18 +56,30 @@ class ColorMapper:
         self.vmax = np.NINF
         self.norm = norm
         # self.normalizer = {'linear': Normalize(), 'log': LogNorm()}
-        self.normalizer = Normalize() if self.norm == "linear" else LogNorm()
+
+        # Note that we need to set vmin/vmax for the LogNorm, if not an error is
+        # raised when making the colorbar before any call to update is made.
+        self.normalizer = Normalize() if self.norm == "linear" else LogNorm(vmin=1,
+                                                                            vmax=2)
         # self._notify_on_change = [notify_on_change]
         self.colorbar = None
         self.unit = None
         self.name = None
-        self._figheight = figheight
+        # self._figheight = figheight
         self.changed = False
         self.children = {}
         self.widget = None
 
-        if self.cax is not None:
-            self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
+        # print(self.normalizer, self.normalizer.vmin, self.normalizer.vmax)
+
+        if self.cax is None:
+            dpi = 100
+            height_inches = figsize[1] / dpi
+            cbar_fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
+            self.cax = cbar_fig.add_axes([0.05, 0.02, 0.25, 1.0])
+
+        self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
+        self.cax.yaxis.set_label_coords(-1.1, 0.5)
         # cbar_ax.set_ylabel(f'{self.name} [{self.unit}]')
 
     def __setitem__(self, key, val):
@@ -87,10 +99,10 @@ class ColorMapper:
                        description='log',
                        tooltip='Toggle data norm').widget
         }
-        self._update_colorbar()
+        self._update_colorbar_image()
         return ipw.VBox(list(self.widget.values()))
 
-    def _update_colorbar(self):
+    def _update_colorbar_image(self):
         # Choose a dpi that makes the sizes in inches (mpl colorbar) and pixels
         # (pythreejs renderer) match.
         dpi = 100
@@ -148,6 +160,11 @@ class ColorMapper:
         self.normalizer.vmin = self.vmin
         self.normalizer.vmax = self.vmax
 
+        if self.unit is None:
+            self.unit = data.unit
+            self.name = data.name
+            self.cax.set_ylabel(f'{self.name} [{self.unit}]')
+
         if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
             self._set_children_colors()
             # for child in self.children.values():
@@ -155,24 +172,24 @@ class ColorMapper:
 
         # if (self.colorbar is not None) and not np.allclose(
         #         old_bounds, np.array([self.vmin, self.vmax])):
-        #     self._update_colorbar()
+        #     self._update_colorbar_image()
 
     # def rescale(self, data):
     #     old_bounds = np.array([self.vmin, self.vmax])
     #     self.autoscale(data=data, scale=self._norm)
     #     if (self.colorbar is not None) and not np.allclose(
     #             old_bounds, np.array([self.vmin, self.vmax])):
-    #         self._update_colorbar()
+    #         self._update_colorbar_image()
 
-    def set_norm(self, data):
-        """
-        Set the norm of the color mapper and update the min/max values.
-        """
-        self.unit = data.unit
-        self.name = data.name
-        self.autoscale(data=data.data, scale='linear')
-        self.autoscale(data=data.data, scale='log')
-        # self.notify()
+    # def set_norm(self, data):
+    #     """
+    #     Set the norm of the color mapper and update the min/max values.
+    #     """
+    #     self.unit = data.unit
+    #     self.name = data.name
+    #     self.autoscale(data=data.data, scale='linear')
+    #     self.autoscale(data=data.data, scale='log')
+    #     # self.notify()
 
     def toggle_norm(self):
         """
@@ -194,7 +211,7 @@ class ColorMapper:
         # self.notify()
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
-            # self._update_colorbar()
+            # self._update_colorbar_image()
 
     # def add_notify(self, callback):
     #     self._notify_on_change.append(callback)
