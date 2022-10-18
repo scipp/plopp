@@ -33,7 +33,6 @@ class Canvas:
         self._user_vmin = vmin
         self._user_vmax = vmax
         self._scale = {} if scale is None else scale
-        self._kwargs = kwargs
 
         if self.ax is None:
             if figsize is None:
