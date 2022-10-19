@@ -73,7 +73,7 @@ def test_vmin_vmax():
     vmin = sc.scalar(-0.1, unit='K')
     vmax = sc.scalar(3.5, unit='K')
     mapper = ColorMapper(vmin=vmin, vmax=vmax)
-    mapper.update(data=da * 100.)
+    mapper.update(data=da * 100., key=None)
     assert sc.identical(mapper.user_vmin, vmin)
     assert sc.identical(mapper.user_vmax, vmax)
     assert mapper.vmin == vmin.value
@@ -101,12 +101,12 @@ def test_update_changes_limits():
     da = dense_data_array(ndim=2, unit='K')
     mapper = ColorMapper()
 
-    mapper.update(data=da)
+    mapper.update(data=da, key=None)
     assert mapper.normalizer.vmin == da.min().value
     assert mapper.normalizer.vmax == da.max().value
 
     const = 2.3
-    mapper.update(data=da * const)
+    mapper.update(data=da * const, key=None)
     assert mapper.normalizer.vmin == (da.min() * const).value
     assert mapper.normalizer.vmax == (da.max() * const).value
 
@@ -129,15 +129,15 @@ def test_colorbar_updated_on_rescale():
     da = dense_data_array(ndim=2, unit='K')
     mapper = ColorMapper()
 
-    mapper.update(data=da)
+    mapper.update(data=da, key=None)
     _ = mapper.to_widget()
     old_image = mapper.widget.value
     old_image_array = old_image
 
     # Update with the same values should not make a new colorbar image
-    mapper.update(data=da)
+    mapper.update(data=da, key=None)
     assert old_image is mapper.widget.value
 
     const = 2.3
-    mapper.update(data=da * const)
+    mapper.update(data=da * const, key=None)
     assert old_image_array != mapper.widget.value
