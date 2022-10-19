@@ -3,7 +3,7 @@
 
 # flake8: noqa E402, F401
 
-from .figure import figure1d, figure2d
+from .figure import figure1d, figure2d, figure3d
 from .plot import plot
 from .inspector import inspector
 from .scatter3d import scatter3d

@@ -61,7 +61,7 @@ def scatter3d(da: sc.DataArray,
     :
         A three-dimensional interactive scatter plot.
     """
-    from ..graphics import InteractiveFig3d
+    from ..functions import figure3d
     from ..widgets import Box, TriCutTool
 
     if pos is not None:
@@ -76,17 +76,17 @@ def scatter3d(da: sc.DataArray,
     else:
         coords = {k: da.meta[k] for k in (x, y, z)}
 
-    fig = InteractiveFig3d(input_node(
-        sc.DataArray(data=da.data, masks=da.masks, coords=coords)),
-                           x=x,
-                           y=y,
-                           z=z,
-                           figsize=figsize,
-                           norm=norm,
-                           title=title,
-                           vmin=vmin,
-                           vmax=vmax,
-                           cmap=cmap,
-                           **kwargs)
+    fig = figure3d(input_node(sc.DataArray(data=da.data, masks=da.masks,
+                                           coords=coords)),
+                   x=x,
+                   y=y,
+                   z=z,
+                   figsize=figsize,
+                   norm=norm,
+                   title=title,
+                   vmin=vmin,
+                   vmax=vmax,
+                   cmap=cmap,
+                   **kwargs)
     tri_cutter = TriCutTool(fig)
     return Box([fig, tri_cutter])
