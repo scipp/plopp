@@ -47,7 +47,7 @@ class Figure3d(BaseFig):
         Update image array with new values.
         """
 
-        self.colormapper.update(data=new_values)
+        self.colormapper.update(data=new_values, key=key)
 
         if key not in self._children:
             from .point_cloud import PointCloud

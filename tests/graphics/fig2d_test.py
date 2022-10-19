@@ -5,6 +5,7 @@ from plopp.data import dense_data_array
 from plopp.graphics.fig2d import Figure2d
 from plopp.graphics.mesh import Mesh
 from plopp import input_node
+import numpy as np
 import scipp as sc
 import pytest
 
@@ -74,3 +75,20 @@ def test_cbar():
     da = dense_data_array(ndim=2, binedges=True)
     fig = Figure2d(input_node(da), cbar=False)
     assert fig.canvas.cax is None
+
+
+def test_update_on_one_mesh_changes_colors_on_second_mesh():
+    da1 = dense_data_array(ndim=2)
+    da2 = 3.0 * dense_data_array(ndim=2)
+    da2.coords['xx'] += sc.scalar(50.0, unit='m')
+    a = input_node(da1)
+    b = input_node(da2)
+    f = Figure2d(a, b)
+    old_b_colors = f._children[b.id]._mesh.get_facecolors()
+    a.func = lambda: da1 * 1.1
+    a.notify_children('updated a')
+    # No change because the update did not change the colorbar limits
+    assert np.allclose(old_b_colors, f._children[b.id]._mesh.get_facecolors())
+    a.func = lambda: da1 * 5.0
+    a.notify_children('updated a')
+    assert not np.allclose(old_b_colors, f._children[b.id]._mesh.get_facecolors())

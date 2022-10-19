@@ -49,7 +49,7 @@ class Figure2d(BaseFig):
         if new_values.ndim != 2:
             raise ValueError("Figure2d can only be used to plot 2-D data.")
 
-        self.colormapper.update(data=new_values)
+        self.colormapper.update(data=new_values, key=key)
 
         if key not in self._children:
 

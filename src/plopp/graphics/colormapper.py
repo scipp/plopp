@@ -114,11 +114,18 @@ class ColorMapper:
         elif vmax.value > self.vmax:
             self.vmax = vmax.value
 
-    def _set_children_colors(self):
-        for child in self.children.values():
-            child.set_colors(self.rgba(child.data))
+    def _set_children_colors(self, key=None):
+        """
+        Update the colors of all the children apart from the one that triggered the
+        update, as those get updated by the figure.
+        """
+        keys = set(self.children.keys())
+        if key is not None:
+            keys -= set([key])
+        for k in keys:
+            self.children[k].set_colors(self.rgba(self.children[k].data))
 
-    def update(self, data):
+    def update(self, data, key):
         old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
 
@@ -131,7 +138,7 @@ class ColorMapper:
             self.cax.set_ylabel(f'{self.name} [{self.unit}]')
 
         if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
-            self._set_children_colors()
+            self._set_children_colors(key=key)
             self._update_colorbar_widget()
 
     def toggle_norm(self):
