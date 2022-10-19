@@ -63,6 +63,7 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
               dim: str = None,
               *,
               operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
+              orientation='horizontal',
               crop: Dict[str, Dict[str, sc.Variable]] = None,
               **kwargs):
     """
@@ -128,4 +129,7 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
     pts.points.on_remove = ev_handler.remove_node
     f2d.toolbar['inspect'] = pts
     from plopp.widgets import Box
-    return Box([[f2d, f1d]])
+    out = [f2d, f1d]
+    if orientation == 'horizontal':
+        out = [out]
+    return Box(out)
