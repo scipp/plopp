@@ -23,12 +23,13 @@ class Figure2d(BaseFig):
                  aspect='auto',
                  grid=False,
                  crop=None,
+                 cbar=True,
                  **kwargs):
 
         super().__init__(*nodes)
 
         self._scale = {} if scale is None else scale
-        self.canvas = Canvas(cbar=True, aspect=aspect, grid=grid)
+        self.canvas = Canvas(cbar=cbar, aspect=aspect, grid=grid)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,

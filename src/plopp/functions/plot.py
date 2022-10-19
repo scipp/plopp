@@ -11,21 +11,20 @@ from numpy import ndarray
 from typing import Union, Dict, Literal
 
 
-def plot(
-        obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
-        aspect: Literal['auto', 'equal'] = 'auto',
-        # cbar: bool = True,
-        crop: Dict[str, Dict[str, Variable]] = None,
-        errorbars: bool = True,
-        grid: bool = False,
-        ignore_size: bool = False,
-        mask_color: str = 'black',
-        norm: Literal['linear', 'log'] = 'linear',
-        scale: Dict[str, str] = None,
-        title: str = None,
-        vmin: Variable = None,
-        vmax: Variable = None,
-        **kwargs):
+def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
+         aspect: Literal['auto', 'equal'] = 'auto',
+         cbar: bool = True,
+         crop: Dict[str, Dict[str, Variable]] = None,
+         errorbars: bool = True,
+         grid: bool = False,
+         ignore_size: bool = False,
+         mask_color: str = 'black',
+         norm: Literal['linear', 'log'] = 'linear',
+         scale: Dict[str, str] = None,
+         title: str = None,
+         vmin: Variable = None,
+         vmax: Variable = None,
+         **kwargs):
     """Plot a Scipp object.
 
     Parameters
@@ -112,6 +111,7 @@ def plot(
     elif ndim == 2:
         return figure2d(*[input_node(da) for da in data_arrays],
                         aspect=aspect,
+                        cbar=cbar,
                         **{
                             **common_args,
                             **kwargs
