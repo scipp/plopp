@@ -46,11 +46,11 @@ class Figure1d(BaseFig):
         if new_values.ndim != 1:
             raise ValueError("Figure1d can only be used to plot 1-D data.")
 
-        if key not in self._children:
+        if key not in self.artists:
 
             line = Line(canvas=self.canvas,
                         data=new_values,
-                        number=len(self._children),
+                        number=len(self.artists),
                         **{
                             **{
                                 'errorbars': self._errorbars,
@@ -58,7 +58,7 @@ class Figure1d(BaseFig):
                             },
                             **self._kwargs
                         })
-            self._children[key] = line
+            self.artists[key] = line
             if line.label:
                 self.canvas.legend()
 
@@ -75,7 +75,7 @@ class Figure1d(BaseFig):
                 self.canvas.xscale = self._scale[self.dims['x']['dim']]
 
         else:
-            self._children[key].update(new_values=new_values)
+            self.artists[key].update(new_values=new_values)
 
         if draw:
             self.canvas.autoscale()

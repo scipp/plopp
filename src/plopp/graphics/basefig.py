@@ -13,7 +13,7 @@ class BaseFig(View):
 
     def __init__(self, *nodes):
         super().__init__(*nodes)
-        self._children = {}
+        self.artists = {}
         self.dims = {}
 
     def notify_view(self, message):
@@ -22,7 +22,7 @@ class BaseFig(View):
         self.update(new_values=new_values, key=node_id)
 
     def get_child(self, key):
-        return self._children[key]
+        return self.artists[key]
 
     @abstractmethod
     def update(self):

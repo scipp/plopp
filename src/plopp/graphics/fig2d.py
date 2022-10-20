@@ -51,10 +51,10 @@ class Figure2d(BaseFig):
 
         self.colormapper.update(data=new_values, key=key)
 
-        if key not in self._children:
+        if key not in self.artists:
 
             mesh = Mesh(canvas=self.canvas, data=new_values)
-            self._children[key] = mesh
+            self.artists[key] = mesh
             self.colormapper[key] = mesh
             self.dims.update({
                 "x": {
@@ -76,8 +76,8 @@ class Figure2d(BaseFig):
             if self.dims['y']['dim'] in self._scale:
                 self.canvas.yscale = self._scale[self.dims['y']['dim']]
 
-        self._children[key].update(new_values=new_values)
-        self._children[key].set_colors(self.colormapper.rgba(self._children[key].data))
+        self.artists[key].update(new_values=new_values)
+        self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
 
         if draw:
             self.canvas.draw()

@@ -39,7 +39,7 @@ class Figure3d(BaseFig):
                                        nan_color="#f0f0f0",
                                        figsize=self.canvas.figsize)
 
-        self._original_children = [n.id for n in nodes]
+        self._original_artists = [n.id for n in nodes]
         self.render()
 
     def update(self, new_values: sc.DataArray, key: str, draw=True):
@@ -49,21 +49,21 @@ class Figure3d(BaseFig):
 
         self.colormapper.update(data=new_values, key=key)
 
-        if key not in self._children:
+        if key not in self.artists:
             from .point_cloud import PointCloud
             pts = PointCloud(data=new_values,
                              x=self._x,
                              y=self._y,
                              z=self._z,
                              **self._kwargs)
-            self._children[key] = pts
+            self.artists[key] = pts
             self.colormapper[key] = pts
             self.canvas.add(pts.points)
-            if key in self._original_children:
+            if key in self._original_artists:
                 self.canvas.make_outline(limits=self.get_limits())
 
-        self._children[key].update(new_values=new_values)
-        self._children[key].set_colors(self.colormapper.rgba(self._children[key].data))
+        self.artists[key].update(new_values=new_values)
+        self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
 
     def get_limits(self):
         """
@@ -75,7 +75,7 @@ class Figure3d(BaseFig):
         ymax = None
         zmin = None
         zmax = None
-        for child in self._children.values():
+        for child in self.artists.values():
             xlims, ylims, zlims = child.get_limits()
             if xmin is None or xlims[0] < xmin:
                 xmin = xlims[0]
@@ -97,12 +97,12 @@ class Figure3d(BaseFig):
         """
         Update the opacity of the original children (not the cuts).
         """
-        for name in self._original_children:
-            self._children[name].opacity = alpha
+        for name in self._original_artists:
+            self.artists[name].opacity = alpha
 
     def remove(self, key):
         """
         Remove an object from the scene.
         """
-        self.canvas.remove(self._children[key].points)
-        del self._children[key]
+        self.canvas.remove(self.artists[key].points)
+        del self.artists[key]

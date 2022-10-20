@@ -59,7 +59,7 @@ class ColorMapper:
         self.unit = None
         self.name = None
         self.changed = False
-        self.children = {}
+        self.artists = {}
         self.widget = None
 
         if self.cax is None:
@@ -73,10 +73,10 @@ class ColorMapper:
         self.cax.yaxis.set_label_coords(-1.1, 0.5)
 
     def __setitem__(self, key, val):
-        self.children[key] = val
+        self.artists[key] = val
 
     def __getitem__(self, key):
-        return self.children[key]
+        return self.artists[key]
 
     def to_widget(self):
         import ipywidgets as ipw
@@ -114,16 +114,16 @@ class ColorMapper:
         elif vmax.value > self.vmax:
             self.vmax = vmax.value
 
-    def _set_children_colors(self, key=None):
+    def _set_artists_colors(self, key=None):
         """
-        Update the colors of all the children apart from the one that triggered the
+        Update the colors of all the artists apart from the one that triggered the
         update, as those get updated by the figure.
         """
-        keys = set(self.children.keys())
+        keys = set(self.artists.keys())
         if key is not None:
             keys -= set([key])
         for k in keys:
-            self.children[k].set_colors(self.rgba(self.children[k].data))
+            self.artists[k].set_colors(self.rgba(self.artists[k].data))
 
     def update(self, data, key):
         old_bounds = np.array([self.vmin, self.vmax])
@@ -138,7 +138,7 @@ class ColorMapper:
             self.cax.set_ylabel(f'{self.name} [{self.unit}]')
 
         if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
-            self._set_children_colors(key=key)
+            self._set_artists_colors(key=key)
             self._update_colorbar_widget()
 
     def toggle_norm(self):
@@ -149,10 +149,10 @@ class ColorMapper:
         self.normalizer = Normalize() if self.norm == "linear" else LogNorm()
         self.vmin = np.inf
         self.vmax = np.NINF
-        for child in self.children.values():
-            self.autoscale(data=child._data)
+        for artist in self.artists.values():
+            self.autoscale(data=artist._data)
         self.normalizer.vmin = self.vmin
         self.normalizer.vmax = self.vmax
-        self._set_children_colors()
+        self._set_artists_colors()
         self.colorbar.mappable.norm = self.normalizer
         self._update_colorbar_widget()
