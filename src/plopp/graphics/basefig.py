@@ -1,20 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from ..core import View
+
 from abc import abstractmethod
-import uuid
 
 
-class BaseFig:
+class BaseFig(View):
     """
     A View class for figures.
     """
 
     def __init__(self, *nodes):
-        self.id = str(uuid.uuid1())
-        self.graph_nodes = {}
-        for node in nodes:
-            node.add_view(self)
+        super().__init__(*nodes)
         self._children = {}
         self.dims = {}
 
