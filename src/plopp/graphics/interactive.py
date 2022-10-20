@@ -46,8 +46,6 @@ class InteractiveFig1d(VBox):
     def __init__(self, *args, **kwargs):
 
         self._fig = Figure1d(*args, **kwargs)
-        self._fig.canvas.fig.canvas.toolbar_visible = False
-        self._fig.canvas.fig.canvas.header_visible = False
         self.toolbar = Toolbar(
             tools={
                 'home': tools.HomeTool(self._fig.canvas.autoscale),
@@ -83,8 +81,6 @@ class InteractiveFig2d(VBox):
     def __init__(self, *args, **kwargs):
 
         self._fig = Figure2d(*args, **kwargs)
-        self._fig.canvas.fig.canvas.toolbar_visible = False
-        self._fig.canvas.fig.canvas.header_visible = False
         self.toolbar = Toolbar(
             tools={
                 'home': tools.HomeTool(self._fig.canvas.autoscale),

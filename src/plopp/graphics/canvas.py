@@ -53,6 +53,9 @@ class Canvas:
             else:
                 self.ax = self.fig.add_axes([left, bottom, right - left, top - bottom])
                 self.cax = None
+            if hasattr(self.fig.canvas, "on_widget_constructed"):
+                self.fig.canvas.toolbar_visible = False
+                self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
 
