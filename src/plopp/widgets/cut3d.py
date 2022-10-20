@@ -127,7 +127,7 @@ class Cut3dTool(ipw.HBox):
         self.unit_label = ipw.Label(f'[{self._unit}]')
         ipw.jslink((self.slider, "value"), (self.readout, "value"))
 
-        layout = {'width': '15px', 'padding': '0px'}
+        layout = {'width': '16px', 'padding': '0px'}
         self.button_plus = ipw.Button(icon='plus',
                                       layout=layout,
                                       disabled=not value,
@@ -264,6 +264,7 @@ class TriCutTool(ipw.HBox):
             self.cut_x, space, self.cut_y, space, self.cut_z, space,
             ipw.VBox([ipw.Label('Opacity:'), self.opacity])
         ])
+        self.layout.display = 'none'
 
     def _toggle_opacity(self, change):
         """
@@ -277,3 +278,6 @@ class TriCutTool(ipw.HBox):
 
     def _set_opacity(self, change):
         self._fig.set_opacity(change['new'])
+
+    def toggle_visibility(self):
+        self.layout.display = None if self.layout.display == 'none' else 'none'

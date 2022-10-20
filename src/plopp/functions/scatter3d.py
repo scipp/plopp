@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core import input_node
+from ..widgets import ToggleTool
 
 import scipp as sc
 from typing import Union, Literal, Tuple
@@ -89,4 +90,7 @@ def scatter3d(da: sc.DataArray,
                    cmap=cmap,
                    **kwargs)
     tri_cutter = TriCutTool(fig)
+    fig.toolbar['cut3d'] = ToggleTool(callback=tri_cutter.toggle_visibility,
+                                      icon='cube',
+                                      tooltip='Hide/show spatial cutting tool')
     return Box([fig, tri_cutter])
