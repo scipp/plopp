@@ -85,18 +85,18 @@ def test_plot_2d_coord_with_mask():
     pp.plot(da)
 
 
-def _get_child(plot, n=0):
-    children = plot._children
-    keys = list(children.keys())
-    return children[keys[n]]
+def _get_artist(fig, n=0):
+    artists = fig.artists
+    keys = list(artists.keys())
+    return artists[keys[n]]
 
 
-def _get_line(plot, n=0):
-    return _get_child(plot=plot, n=n)._line
+def _get_line(fig, n=0):
+    return _get_artist(fig=fig, n=n)._line
 
 
-def _get_mesh(plot):
-    return _get_child(plot)._mesh
+def _get_mesh(fig):
+    return _get_artist(fig=fig)._mesh
 
 
 def test_kwarg_linecolor():

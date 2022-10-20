@@ -21,9 +21,6 @@ class BaseFig(View):
         new_values = self.graph_nodes[node_id].request_data()
         self.update(new_values=new_values, key=node_id)
 
-    def get_child(self, key):
-        return self.artists[key]
-
     @abstractmethod
     def update(self):
         return

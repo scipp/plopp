@@ -11,17 +11,17 @@ import pytest
 
 def test_empty():
     fig = Figure1d()
-    assert len(fig._children) == 0
+    assert len(fig.artists) == 0
 
 
 def test_update():
     fig = Figure1d()
-    assert len(fig._children) == 0
+    assert len(fig.artists) == 0
     da = dense_data_array(ndim=1)
     key = 'data1d'
     fig.update(da, key=key)
-    assert isinstance(fig._children[key], Line)
-    assert sc.identical(fig._children[key]._data, da)
+    assert isinstance(fig.artists[key], Line)
+    assert sc.identical(fig.artists[key]._data, da)
 
 
 def test_update_not_1d_raises():
@@ -37,8 +37,8 @@ def test_update_not_1d_raises():
 def test_create_with_node():
     da = dense_data_array(ndim=1)
     fig = Figure1d(input_node(da))
-    assert len(fig._children) == 1
-    assert sc.identical(list(fig._children.values())[0]._data, da)
+    assert len(fig.artists) == 1
+    assert sc.identical(list(fig.artists.values())[0]._data, da)
 
 
 def test_log_norm():
@@ -65,7 +65,7 @@ def test_update_grows_limits():
     da = dense_data_array(ndim=1)
     fig = Figure1d(input_node(da))
     old_lims = fig.canvas.ax.get_ylim()
-    key = list(fig._children.keys())[0]
+    key = list(fig.artists.keys())[0]
     fig.update(da * 2.5, key=key)
     new_lims = fig.canvas.ax.get_ylim()
     assert new_lims[0] < old_lims[0]
@@ -76,7 +76,7 @@ def test_update_does_not_shrink_limits():
     da = dense_data_array(ndim=1)
     fig = Figure1d(input_node(da))
     old_lims = fig.canvas.ax.get_ylim()
-    key = list(fig._children.keys())[0]
+    key = list(fig.artists.keys())[0]
     fig.update(da * 0.5, key=key)
     new_lims = fig.canvas.ax.get_ylim()
     assert new_lims[0] == old_lims[0]

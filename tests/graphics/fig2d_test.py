@@ -12,17 +12,17 @@ import pytest
 
 def test_empty():
     fig = Figure2d()
-    assert len(fig._children) == 0
+    assert len(fig.artists) == 0
 
 
 def test_update():
     fig = Figure2d()
-    assert len(fig._children) == 0
+    assert len(fig.artists) == 0
     da = dense_data_array(ndim=2)
     key = 'data2d'
     fig.update(da, key=key)
-    assert isinstance(fig._children[key], Mesh)
-    assert sc.identical(fig._children[key]._data, da)
+    assert isinstance(fig.artists[key], Mesh)
+    assert sc.identical(fig.artists[key]._data, da)
 
 
 def test_update_not_2d_raises():
@@ -38,8 +38,8 @@ def test_update_not_2d_raises():
 def test_create_with_node():
     da = dense_data_array(ndim=2)
     fig = Figure2d(input_node(da))
-    assert len(fig._children) == 1
-    assert sc.identical(list(fig._children.values())[0]._data, da)
+    assert len(fig.artists) == 1
+    assert sc.identical(list(fig.artists.values())[0]._data, da)
 
 
 def test_log_norm():
@@ -84,11 +84,11 @@ def test_update_on_one_mesh_changes_colors_on_second_mesh():
     a = input_node(da1)
     b = input_node(da2)
     f = Figure2d(a, b)
-    old_b_colors = f._children[b.id]._mesh.get_facecolors()
+    old_b_colors = f.artists[b.id]._mesh.get_facecolors()
     a.func = lambda: da1 * 1.1
     a.notify_children('updated a')
     # No change because the update did not change the colorbar limits
-    assert np.allclose(old_b_colors, f._children[b.id]._mesh.get_facecolors())
+    assert np.allclose(old_b_colors, f.artists[b.id]._mesh.get_facecolors())
     a.func = lambda: da1 * 5.0
     a.notify_children('updated a')
-    assert not np.allclose(old_b_colors, f._children[b.id]._mesh.get_facecolors())
+    assert not np.allclose(old_b_colors, f.artists[b.id]._mesh.get_facecolors())

@@ -11,19 +11,19 @@ import scipp as sc
 def test_creation():
     da = scatter_data()
     fig = Figure3d(input_node(da), x='x', y='y', z='z')
-    assert len(fig._children) == 1
-    key = list(fig._children.keys())[0]
-    assert isinstance(fig._children[key], PointCloud)
-    assert sc.identical(fig._children[key]._data, da)
+    assert len(fig.artists) == 1
+    key = list(fig.artists.keys())[0]
+    assert isinstance(fig.artists[key], PointCloud)
+    assert sc.identical(fig.artists[key]._data, da)
 
 
 def test_update():
     da = scatter_data()
     fig = Figure3d(input_node(da), x='x', y='y', z='z')
-    assert len(fig._children) == 1
-    key = list(fig._children.keys())[0]
+    assert len(fig.artists) == 1
+    key = list(fig.artists.keys())[0]
     fig.update(da * 3.3, key=key)
-    assert sc.identical(fig._children[key]._data, da * 3.3)
+    assert sc.identical(fig.artists[key]._data, da * 3.3)
 
 
 def test_log_norm():

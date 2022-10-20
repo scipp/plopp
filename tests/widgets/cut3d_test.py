@@ -11,19 +11,19 @@ def test_show_hide_cuts():
     da = scatter_data()
     fig = Figure3d(input_node(da), x='x', y='y', z='z')
     tri = TriCutTool(fig)
-    assert len(fig._children) == 1
+    assert len(fig.artists) == 1
     tri.cut_x.button.value = True
-    assert len(fig._children) == 2
+    assert len(fig.artists) == 2
     tri.cut_y.button.value = True
-    assert len(fig._children) == 3
+    assert len(fig.artists) == 3
     tri.cut_z.button.value = True
-    assert len(fig._children) == 4
+    assert len(fig.artists) == 4
     tri.cut_x.button.value = False
-    assert len(fig._children) == 3
+    assert len(fig.artists) == 3
     tri.cut_y.button.value = False
-    assert len(fig._children) == 2
+    assert len(fig.artists) == 2
     tri.cut_z.button.value = False
-    assert len(fig._children) == 1
+    assert len(fig.artists) == 1
 
 
 def test_move_cut():
@@ -32,11 +32,11 @@ def test_move_cut():
     tri = TriCutTool(fig)
     tri.cut_x.button.value = True
     assert tri.cut_x.outline.position[0] == tri.cut_x.slider.value
-    pts = list(fig._children.values())[-1]
+    pts = list(fig.artists.values())[-1]
     npoints = pts.geometry.attributes['position'].array.shape[0]
     tri.cut_x.slider.value = -5.0
     assert tri.cut_x.outline.position[0] == tri.cut_x.slider.value
-    new_pts = list(fig._children.values())[-1]
+    new_pts = list(fig.artists.values())[-1]
     assert npoints != new_pts.geometry.attributes['position'].array.shape[0]
 
 
@@ -45,16 +45,16 @@ def test_cut_thickness():
     fig = Figure3d(input_node(da), x='x', y='y', z='z')
     tri = TriCutTool(fig)
     tri.cut_x.button.value = True
-    pts = list(fig._children.values())[-1]
+    pts = list(fig.artists.values())[-1]
     npoints = pts.geometry.attributes['position'].array.shape[0]
     tri.cut_x.button_plus.click()
-    new_pts = list(fig._children.values())[-1]
+    new_pts = list(fig.artists.values())[-1]
     assert npoints < new_pts.geometry.attributes['position'].array.shape[0]
     tri.cut_x.button_minus.click()
-    new_pts = list(fig._children.values())[-1]
+    new_pts = list(fig.artists.values())[-1]
     assert npoints == new_pts.geometry.attributes['position'].array.shape[0]
     tri.cut_x.button_minus.click()
-    new_pts = list(fig._children.values())[-1]
+    new_pts = list(fig.artists.values())[-1]
     assert npoints > new_pts.geometry.attributes['position'].array.shape[0]
 
 
@@ -62,8 +62,8 @@ def test_empty_cut():
     da = scatter_data()
     fig = Figure3d(input_node(da), x='x', y='y', z='z')
     tri = TriCutTool(fig)
-    assert len(fig._children) == 1
+    assert len(fig.artists) == 1
     tri.cut_y.button.value = True
-    assert len(fig._children) == 2
+    assert len(fig.artists) == 2
     tri.cut_y.slider.value = 34.0  # This cut should contain no points
-    assert len(fig._children) == 1
+    assert len(fig.artists) == 1
