@@ -81,3 +81,11 @@ def test_update_does_not_shrink_limits():
     new_lims = fig.canvas.ax.get_ylim()
     assert new_lims[0] == old_lims[0]
     assert new_lims[1] == old_lims[1]
+
+
+def test_with_string_coord():
+    strings = ['a', 'b', 'c', 'd', 'e']
+    da = sc.DataArray(data=sc.arange('x', 5.),
+                      coords={'x': sc.array(dims=['x'], values=strings, unit='m')})
+    fig = Figure1d(input_node(da))
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
