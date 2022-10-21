@@ -5,40 +5,9 @@ from .fig1d import Figure1d
 from .fig2d import Figure2d
 from .fig3d import Figure3d
 from ..widgets import Toolbar, HBar, VBar, tools
+from ..widgets.common import is_sphinx_build
 
 from ipywidgets import VBox, HBox
-
-
-def _running_in_jupyter() -> bool:
-    """
-    Detect whether Python is running in Jupyter.
-
-    Note that this includes not only Jupyter notebooks
-    but also Jupyter console and qtconsole.
-    """
-    try:
-        from IPython import get_ipython
-        import ipykernel.zmqshell
-    except ImportError:
-        # Cannot be Jupyter if IPython is not installed.
-        return False
-
-    return isinstance(get_ipython(), ipykernel.zmqshell.ZMQInteractiveShell)
-
-
-def _is_sphinx_build():
-    """
-    Returns `True` if we are running inside a sphinx documentation build.
-    """
-    if not _running_in_jupyter():
-        return False
-    from IPython import get_ipython
-    ipy = get_ipython()
-    cfg = ipy.config
-    meta = cfg["Session"]["metadata"]
-    if hasattr(meta, "to_dict"):
-        meta = meta.to_dict()
-    return meta.get("scipp_sphinx_build", False)
 
 
 class InteractiveFig1d(VBox):
@@ -65,7 +34,7 @@ class InteractiveFig1d(VBox):
             HBox([
                 self.left_bar,
                 self._fig.canvas.to_image()
-                if _is_sphinx_build() else self._fig.canvas.fig.canvas, self.right_bar
+                if is_sphinx_build() else self._fig.canvas.fig.canvas, self.right_bar
             ]), self.bottom_bar
         ])
 
@@ -104,7 +73,7 @@ class InteractiveFig2d(VBox):
             HBox([
                 self.left_bar,
                 self._fig.canvas.to_image()
-                if _is_sphinx_build() else self._fig.canvas.fig.canvas, self.right_bar
+                if is_sphinx_build() else self._fig.canvas.fig.canvas, self.right_bar
             ]), self.bottom_bar
         ])
 
