@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .styling import BUTTON_LAYOUT
+from .common import BUTTON_LAYOUT, is_sphinx_build
 
 import ipywidgets as ipw
 from functools import partial
@@ -12,7 +12,7 @@ class ButtonTool(ipw.Button):
 
     def __init__(self, callback: Callable = None, **kwargs):
         """
-        Create a new button with a callback that is called when the button is clicked.
+        Create a button with a callback that is called when the button is clicked.
         """
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
         self.callback = callback
@@ -27,9 +27,7 @@ class ToggleTool(ipw.ToggleButton):
     def __init__(self, callback: Callable, **kwargs):
         """
         Create a toggle button with a callback that is called when the button is
-        toggled. We use a Button and handle the styling ourselves because in some
-        cases, we need to toggle the button color without triggering the callback
-        function.
+        toggled.
         """
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
         self.callback = callback
@@ -43,10 +41,9 @@ class MultiToggleTool(ipw.ToggleButtons):
 
     def __init__(self, callback: Callable, **kwargs):
         """
-        Create a toggle button with a callback that is called when the button is
-        toggled. We use a Button and handle the styling ourselves because in some
-        cases, we need to toggle the button color without triggering the callback
-        function.
+        Create toggle buttons with a callback that is called when one of the buttons is
+        toggled. In addition to ipywidgets ToggleButtons, when you click the button
+        which is already selected, it resets the value to `None` (no button selected).
         """
         args = {
             'layout': {
@@ -54,8 +51,11 @@ class MultiToggleTool(ipw.ToggleButtons):
                 "padding": "0px 0px 0px 0px"
             },
             'style': {
-                'button_width': '17px',
-                'description_width': '0px'
+                'button_width':
+                # See https://github.com/jupyter-widgets/ipywidgets/issues/2517
+                BUTTON_LAYOUT['layout']['width'] if is_sphinx_build() else '17px',
+                'description_width':
+                '0px'
             }
         }
         super().__init__(**{**args, **kwargs})

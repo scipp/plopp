@@ -5,7 +5,6 @@ from .common import require_interactive_backend, preprocess
 from .figure import figure1d, figure2d
 from ..core import input_node, node, Node
 from ..core.utils import coord_as_bin_edges
-from ..widgets import PointsTool
 
 import scipp as sc
 from numpy import ndarray
@@ -52,7 +51,7 @@ class InspectorEventHandler:
     def remove_node(self, change):
         n = self._event_nodes[change['artist'].nodeid]
         pnode = n.children[0]
-        self._fig1d.get_child(pnode.id).remove()
+        self._fig1d.artists[pnode.id].remove()
         self._fig1d.canvas.draw()
         pnode.remove()
         n.remove()
@@ -62,6 +61,7 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
               dim: str = None,
               *,
               operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
+              orientation='horizontal',
               crop: Dict[str, Dict[str, sc.Variable]] = None,
               **kwargs):
     """
@@ -103,6 +103,8 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
     :
         A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
+    from ..widgets import PointsTool
+
     if obj.ndim != 3:
         raise ValueError('The inspector plot currently only work with '
                          f'three-dimensional data, found {obj.ndim} dims.')
@@ -127,4 +129,7 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
     pts.points.on_remove = ev_handler.remove_node
     f2d.toolbar['inspect'] = pts
     from ..widgets import Box
-    return Box([[f2d, f1d]])
+    out = [f2d, f1d]
+    if orientation == 'horizontal':
+        out = [out]
+    return Box(out)
