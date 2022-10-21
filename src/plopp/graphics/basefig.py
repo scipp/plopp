@@ -22,7 +22,7 @@ class BaseFig(View):
         self.update(new_values=new_values, key=node_id)
 
     @abstractmethod
-    def update(self):
+    def update(self, new_values: sc.DataArray, key: str, draw: bool):
         return
 
     def render(self):
