@@ -10,7 +10,7 @@ except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
 from .core import Node, node, input_node, widget_node, show_graph, View
-from .functions import figure, plot, slicer, inspector, scatter3d, superplot
+from .functions import figure1d, figure2d, plot, slicer, inspector, scatter3d, superplot
 
 from . import data
 

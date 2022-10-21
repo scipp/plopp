@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.limits import find_limits, fix_empty_range, delta
 from ..core.utils import merge_masks
 
 import scipp as sc
@@ -26,9 +25,9 @@ class Line:
     """
     """
 
-    def __init__(self, ax, data, number=0, **kwargs):
+    def __init__(self, canvas, data, number=0, **kwargs):
 
-        self._ax = ax
+        self._ax = canvas.ax
         self._data = data
 
         args = _parse_dicts_in_kwargs(kwargs, name=data.name)
@@ -174,35 +173,6 @@ class Line:
         arr1 = np.repeat(x, 2)
         arr2 = np.array([y - e, y + e]).T.flatten()
         return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
-
-    def get_limits(self, xscale, yscale) -> Tuple[float, ...]:
-        """
-        """
-        xmin, xmax = fix_empty_range(
-            find_limits(self._data.meta[self._dim], scale=xscale))
-        ymin, ymax = fix_empty_range(find_limits(self._data.data, scale=yscale))
-
-        for lim in (xmin, xmax, ymin, ymax):
-            if lim.unit is None:
-                lim.unit = ''
-
-        # Add padding
-        deltax = delta(xmin, xmax, 0.03, xscale)
-        if xscale == "log":
-            xmin = xmin / deltax.value
-            xmax = xmax * deltax.value
-        else:
-            xmin = xmin - deltax
-            xmax = xmax + deltax
-        deltay = delta(ymin, ymax, 0.03, yscale)
-        if yscale == "log":
-            ymin = ymin / deltay.value
-            ymax = ymax * deltay.value
-        else:
-            ymin = ymin - deltay
-            ymax = ymax + deltay
-
-        return (sc.concat([xmin, xmax], dim=self._dim), sc.concat([ymin, ymax], dim=''))
 
     def remove(self):
         self._line.remove()

@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
-from .figure import figure
+from .figure import figure1d, figure2d
 from ..core import input_node, widget_node
 
 from scipp import Variable, DataArray
@@ -20,12 +20,15 @@ class Slicer:
                  crop: Dict[str, Dict[str, Variable]] = None,
                  **kwargs):
 
-        from plopp.widgets import SliceWidget, slice_dims
+        from ..widgets import SliceWidget, slice_dims
 
         self.data_node = input_node(da)
 
         if keep is None:
             keep = da.dims[-(2 if da.ndim > 2 else 1):]
+
+        if isinstance(keep, str):
+            keep = [keep]
 
         if len(keep) == 0:
             raise ValueError(
@@ -34,7 +37,10 @@ class Slicer:
         self.slider = SliceWidget(da, dims=list(set(da.dims) - set(keep)))
         self.slider_node = widget_node(self.slider)
         self.slice_node = slice_dims(self.data_node, self.slider_node)
-        self.fig = figure(self.slice_node, **{**{'crop': crop}, **kwargs})
+        if len(keep) == 1:
+            self.fig = figure1d(self.slice_node, crop=crop, **kwargs)
+        elif len(keep) == 2:
+            self.fig = figure2d(self.slice_node, crop=crop, **kwargs)
 
 
 def slicer(obj: Union[VariableLike, ndarray],
@@ -70,6 +76,6 @@ def slicer(obj: Union[VariableLike, ndarray],
     """
     require_interactive_backend('slicer')
     da = preprocess(obj, crop=crop, ignore_size=True)
-    from plopp.widgets import Box
+    from ..widgets import Box
     sl = Slicer(da=da, keep=keep, crop=crop, **kwargs)
     return Box([sl.fig, sl.slider])
