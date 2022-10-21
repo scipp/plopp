@@ -104,9 +104,8 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         return figure1d(*[input_node(da) for da in data_arrays],
                         errorbars=errorbars,
                         mask_color=mask_color,
-                            **common_args,
-                            **kwargs
-                        )
+                        **common_args,
+                        **kwargs)
     elif ndim == 2:
         return figure2d(*[input_node(da) for da in data_arrays],
                         aspect=aspect,
