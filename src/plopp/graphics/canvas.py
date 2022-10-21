@@ -80,7 +80,7 @@ class Canvas:
     def autoscale(self, draw=True):
         """
         Matplotlib's autoscale only takes lines into account. We require a special
-        handline for meshes, which is part of the axes collections.
+        handling for meshes, which is part of the axes collections.
         """
         if self.ax.lines:
             self.ax.relim()

@@ -71,7 +71,7 @@ class InteractiveFig1d(VBox):
 
     def __getattr__(self, key):
         try:
-            return super().__getattr__(key)
+            return getattr(super(), key)
         except AttributeError:
             return getattr(self._fig, key)
 
