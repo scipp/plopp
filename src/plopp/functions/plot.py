@@ -1,13 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .figure import figure
+from .figure import figure1d, figure2d
 from ..core import input_node
 from .common import preprocess
 
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
-import inspect
 from numpy import ndarray
 from typing import Union, Dict, Literal
 
@@ -76,20 +75,45 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
     :
         A figure.
     """
-    _, _, _, listed_args = inspect.getargvalues(inspect.currentframe())
-    all_args = {
-        **{
-            k: v
-            for k, v in listed_args.items() if k not in ('obj', 'ignore_size', 'kwargs')
-        },
-        **kwargs
+    common_args = {
+        'crop': crop,
+        'grid': grid,
+        'norm': norm,
+        'scale': scale,
+        'title': title,
+        'vmin': vmin,
+        'vmax': vmax
     }
+
     if isinstance(obj, (dict, Dataset)):
-        nodes = [
-            input_node(preprocess(item, crop=crop, name=name, ignore_size=ignore_size))
+        data_arrays = [
+            preprocess(item, crop=crop, name=name, ignore_size=ignore_size)
             for name, item in obj.items()
         ]
-        return figure(*nodes, **all_args)
     else:
-        return figure(input_node(preprocess(obj, crop=crop, ignore_size=ignore_size)),
-                      **all_args)
+        data_arrays = [preprocess(obj, crop=crop, ignore_size=ignore_size)]
+
+    ndims = set()
+    for da in data_arrays:
+        ndims.add(da.ndim)
+    if len(ndims) > 1:
+        raise ValueError('All items given to the plot function must have the same '
+                         f'number of dimensions. Found dimensions {ndims}.')
+    ndim = ndims.pop()
+    if ndim == 1:
+        return figure1d(*[input_node(da) for da in data_arrays],
+                        errorbars=errorbars,
+                        mask_color=mask_color,
+                        **common_args,
+                        **kwargs)
+    elif ndim == 2:
+        return figure2d(*[input_node(da) for da in data_arrays],
+                        aspect=aspect,
+                        cbar=cbar,
+                        **{
+                            **common_args,
+                            **kwargs
+                        })
+    else:
+        raise ValueError('The plot function can only plot 1d and 2d data, got input '
+                         f'with {ndim} dimensions')

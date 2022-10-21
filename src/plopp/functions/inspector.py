@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
-from .figure import figure
+from .figure import figure1d, figure2d
 from ..core import input_node, node, Node
 from ..core.utils import coord_as_bin_edges
 from ..widgets import PointsTool
@@ -19,11 +19,11 @@ class InspectorEventHandler:
         self._root_node = root_node
         self._fig1d = fig1d
         self._event_nodes = {}
-        self._xdim = fig2d._dims['x']['dim']
-        self._ydim = fig2d._dims['y']['dim']
+        self._xdim = fig2d.dims['x']['dim']
+        self._ydim = fig2d.dims['y']['dim']
 
     def make_node(self, change):
-        from plopp.widgets import slice_dims
+        from ..widgets import slice_dims
         event = change['event']
         event_node = Node(
             func=lambda: {
@@ -35,9 +35,8 @@ class InspectorEventHandler:
         self._event_nodes[event_node.id] = event_node
         change['artist'].nodeid = event_node.id
         inspect_node = slice_dims(self._root_node, event_node)
-        self._fig1d.graph_nodes[inspect_node.id] = inspect_node
         inspect_node.add_view(self._fig1d)
-        self._fig1d.render()
+        self._fig1d.update(new_values=inspect_node.request_data(), key=inspect_node.id)
 
     def update_node(self, change):
         event = change['event']
@@ -53,8 +52,8 @@ class InspectorEventHandler:
     def remove_node(self, change):
         n = self._event_nodes[change['artist'].nodeid]
         pnode = n.children[0]
-        self._fig1d._children[pnode.id].remove()
-        self._fig1d.draw()
+        self._fig1d.get_child(pnode.id).remove()
+        self._fig1d.canvas.draw()
         pnode.remove()
         n.remove()
 
@@ -119,13 +118,13 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
         da.coords[d] = coord_as_bin_edges(da, d)
 
     op_node = node(getattr(sc, operation), dim=dim)(a)
-    f2d = figure(op_node, **{**{'crop': crop}, **kwargs})
-    f1d = figure()
+    f2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
+    f1d = figure1d()
     ev_handler = InspectorEventHandler(data_array=da, root_node=a, fig1d=f1d, fig2d=f2d)
-    pts = PointsTool(ax=f2d._ax, tooltip='Add inspector points')
+    pts = PointsTool(ax=f2d.canvas.ax, tooltip='Add inspector points')
     pts.points.on_create = ev_handler.make_node
     pts.points.on_vertex_move = ev_handler.update_node
     pts.points.on_remove = ev_handler.remove_node
     f2d.toolbar['inspect'] = pts
-    from plopp.widgets import Box
+    from ..widgets import Box
     return Box([[f2d, f1d]])

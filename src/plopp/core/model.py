@@ -48,6 +48,7 @@ class Node:
 
     def add_view(self, view):
         self.views.append(view)
+        view.graph_nodes[self.id] = self
 
     def notify_children(self, message):
         self._data = None

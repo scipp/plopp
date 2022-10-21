@@ -3,6 +3,6 @@
 
 # flake8: noqa E402, F401
 
-from .interactive import InteractiveFig
-from .static import StaticFig
-from .scene3d import Scene3d
+from .interactive import InteractiveFig1d, InteractiveFig2d, InteractiveFig3d
+from .static import StaticFig1d, StaticFig2d
+from .colormapper import ColorMapper
