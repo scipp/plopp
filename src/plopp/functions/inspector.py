@@ -5,7 +5,6 @@ from .common import require_interactive_backend, preprocess
 from .figure import figure1d, figure2d
 from ..core import input_node, node, Node
 from ..core.utils import coord_as_bin_edges
-from ..widgets import PointsTool
 
 import scipp as sc
 from numpy import ndarray
@@ -104,6 +103,8 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
     :
         A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
+    from ..widgets import PointsTool
+
     if obj.ndim != 3:
         raise ValueError('The inspector plot currently only work with '
                          f'three-dimensional data, found {obj.ndim} dims.')

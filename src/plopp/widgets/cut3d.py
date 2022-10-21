@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .styling import BUTTON_LAYOUT
+from .common import BUTTON_LAYOUT
 from ..core import node
 
 import ipywidgets as ipw
