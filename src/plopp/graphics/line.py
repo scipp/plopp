@@ -80,6 +80,7 @@ class Line:
             self._mask = self._ax.step(data["values"]["x"], data[mask_data_key]["y"])[0]
             self._mask.update_from(self._line)
             self._mask.set_color(mask_color)
+            self._mask.set_label(None)
             self._mask.set_linewidth(self._mask.get_linewidth() * 3)
             self._mask.set_zorder(self._mask.get_zorder() - 1)
             self._mask.set_visible(has_mask)
