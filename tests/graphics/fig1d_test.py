@@ -89,3 +89,11 @@ def test_with_string_coord():
                       coords={'x': sc.array(dims=['x'], values=strings, unit='m')})
     fig = Figure1d(input_node(da))
     assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_strings_as_bin_edges():
+    strings = ['a', 'b', 'c', 'd', 'e', 'f']
+    da = sc.DataArray(data=sc.arange('x', 5.),
+                      coords={'x': sc.array(dims=['x'], values=strings, unit='m')})
+    fig = Figure1d(input_node(da))
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
