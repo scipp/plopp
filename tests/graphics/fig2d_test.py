@@ -42,6 +42,21 @@ def test_create_with_node():
     assert sc.identical(list(fig.artists.values())[0]._data, da)
 
 
+def test_create_with_bin_edges():
+    da = dense_data_array(ndim=2, binedges=True)
+    fig = Figure2d(input_node(da))
+    assert len(fig.artists) == 1
+    assert sc.identical(list(fig.artists.values())[0]._data, da)
+
+
+def test_create_with_only_one_bin_edge_coord():
+    da = dense_data_array(ndim=2, binedges=True)
+    da.coords['xx'] = sc.midpoints(da.coords['xx'])
+    fig = Figure2d(input_node(da))
+    assert len(fig.artists) == 1
+    assert sc.identical(list(fig.artists.values())[0]._data, da)
+
+
 def test_log_norm():
     fig = Figure2d(norm='log')
     assert fig.colormapper.norm == 'log'
