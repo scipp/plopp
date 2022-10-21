@@ -4,6 +4,7 @@
 from ..core import View
 
 from abc import abstractmethod
+import scipp as sc
 
 
 class BaseFig(View):

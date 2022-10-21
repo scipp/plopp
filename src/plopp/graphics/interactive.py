@@ -75,6 +75,9 @@ class InteractiveFig1d(VBox):
         except AttributeError:
             return getattr(self._fig, key)
 
+    def __dir__(self):
+        return list(set(dir(VBox) + dir(super()) + dir(self._fig)))
+
 
 class InteractiveFig2d(VBox):
 
@@ -107,9 +110,12 @@ class InteractiveFig2d(VBox):
 
     def __getattr__(self, key):
         try:
-            return super().__getattr__(key)
+            return getattr(super(), key)
         except AttributeError:
             return getattr(self._fig, key)
+
+    def __dir__(self):
+        return list(set(dir(VBox) + dir(super()) + dir(self._fig)))
 
 
 class InteractiveFig3d(VBox):
@@ -157,6 +163,9 @@ class InteractiveFig3d(VBox):
 
     def __getattr__(self, key):
         try:
-            return super().__getattr__(key)
+            return getattr(super(), key)
         except AttributeError:
             return getattr(self._fig, key)
+
+    def __dir__(self):
+        return list(set(dir(VBox) + dir(super()) + dir(self._fig)))

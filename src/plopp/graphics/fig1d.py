@@ -51,13 +51,9 @@ class Figure1d(BaseFig):
             line = Line(canvas=self.canvas,
                         data=new_values,
                         number=len(self.artists),
-                        **{
-                            **{
-                                'errorbars': self._errorbars,
-                                'mask_color': self._mask_color
-                            },
-                            **self._kwargs
-                        })
+                        errorbars=self._errorbars,
+                        mask_color=self._mask_color,
+                        **self._kwargs)
             self.artists[key] = line
             if line.label:
                 self.canvas.legend()
