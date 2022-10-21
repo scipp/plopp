@@ -31,13 +31,13 @@ class Slicer:
             raise ValueError(
                 'Slicer plot: the list of dims to be kept cannot be empty.')
 
-        self.slider = SliceWidget(da, dims=list(set(da.dims) - set(keep)))
+        self.slider = SliceWidget(da, dims=list(set(da.dims) - {keep}))
         self.slider_node = widget_node(self.slider)
         self.slice_node = slice_dims(self.data_node, self.slider_node)
         if len(keep) == 1:
-            self.fig = figure1d(self.slice_node, **{**{'crop': crop}, **kwargs})
+            self.fig = figure1d(self.slice_node, crop=crop, **kwargs)
         elif len(keep) == 2:
-            self.fig = figure2d(self.slice_node, **{**{'crop': crop}, **kwargs})
+            self.fig = figure2d(self.slice_node, crop=crop, **kwargs)
 
 
 def slicer(obj: Union[VariableLike, ndarray],
