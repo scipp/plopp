@@ -80,5 +80,6 @@ class Figure1d(BaseFig):
         self.canvas.crop(
             x={
                 'dim': self.dims['x']['dim'],
-                'unit': self.dims['x']['unit']**limits[self.dims['x']['dim']]
+                'unit': self.dims['x']['unit'],
+                **limits[self.dims['x']['dim']]
             })

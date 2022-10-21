@@ -27,11 +27,14 @@ class Slicer:
         if keep is None:
             keep = da.dims[-(2 if da.ndim > 2 else 1):]
 
+        if isinstance(keep, str):
+            keep = [keep]
+
         if len(keep) == 0:
             raise ValueError(
                 'Slicer plot: the list of dims to be kept cannot be empty.')
 
-        self.slider = SliceWidget(da, dims=list(set(da.dims) - {keep}))
+        self.slider = SliceWidget(da, dims=list(set(da.dims) - set(keep)))
         self.slider_node = widget_node(self.slider)
         self.slice_node = slice_dims(self.data_node, self.slider_node)
         if len(keep) == 1:
