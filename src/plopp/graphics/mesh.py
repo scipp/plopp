@@ -71,20 +71,20 @@ class Mesh:
 
         self._ax = canvas.ax
         self._data = data
-        self._dim_1d, self._dim_2d = _get_dims_of_1d_and_2d_coords({
-            k: {
+
+        to_dim_search = {}
+        string_labels = {}
+        bin_edge_coords = {}
+        for i, k in enumerate('yx'):
+            to_dim_search[k] = {
                 'dim': self._data.dims[i],
                 'var': self._data.meta[self._data.dims[i]]
             }
-            for i, k in enumerate('yx')
-        })
+            bin_edge_coords[k] = coord_as_bin_edges(self._data, self._data.dims[i])
+            if self._data.meta[self._data.dims[i]].dtype == str:
+                string_labels[k] = self._data.meta[self._data.dims[i]]
 
-        maybe_bin_edge_coords = {
-            k: coord_as_bin_edges(self._data, self._data.dims[i])
-            if self._dim_2d is not None else self._data.meta[self._data.dims[i]]
-            for i, k in enumerate('yx')
-        }
-
+        self._dim_1d, self._dim_2d = _get_dims_of_1d_and_2d_coords(to_dim_search)
         self._xlabel = None
         self._ylabel = None
         self._title = None
@@ -101,7 +101,7 @@ class Mesh:
             self._extend = 'max'
 
         x, y, z = _from_data_array_to_pcolormesh(data=self._data.data,
-                                                 coords=maybe_bin_edge_coords,
+                                                 coords=bin_edge_coords,
                                                  dim_1d=self._dim_1d,
                                                  dim_2d=self._dim_2d)
         self._mesh = self._ax.pcolormesh(x.values,
@@ -111,6 +111,10 @@ class Mesh:
                                          rasterized=rasterized,
                                          **kwargs)
         self._mesh.set_array(None)
+
+        for xy, var in string_labels.items():
+            getattr(self._ax, f'set_{xy}ticks')(np.arange(float(var.shape[0])))
+            getattr(self._ax, f'set_{xy}ticklabels')(var.values)
 
     @property
     def data(self):
