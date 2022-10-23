@@ -5,6 +5,7 @@ from plopp.data import dense_data_array
 from plopp.graphics.fig1d import Figure1d
 from plopp.graphics.line import Line
 from plopp import input_node
+import numpy as np
 import scipp as sc
 import pytest
 

@@ -10,7 +10,6 @@ import scipp as sc
 def test_mesh_creation():
     da = dense_data_array(ndim=2)
     mesh = Mesh(canvas=Canvas(), data=da)
-    assert mesh._dims == {'x': 'xx', 'y': 'yy'}
     assert sc.identical(mesh._data, da)
 
 
@@ -29,7 +28,8 @@ def test_mesh_creation_masks():
 def test_mesh_creation_ragged_coord():
     da = dense_data_array(ndim=2, ragged=True)
     mesh = Mesh(canvas=Canvas(), data=da)
-    assert mesh._dims == {'x': 'xx', 'y': 'yy'}
+    assert mesh._dim_2d == ('x', 'xx')
+    assert mesh._dim_1d == ('y', 'yy')
     assert sc.identical(mesh._data, da)
 
 
