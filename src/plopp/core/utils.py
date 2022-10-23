@@ -50,7 +50,7 @@ def number_to_variable(x):
     """
     Convert the input int or float to a variable.
     """
-    return scalar(x, unit=None) if isinstance(x, (int, float)) else x
+    return sc.scalar(x, unit=None) if isinstance(x, (int, float)) else x
 
 
 def name_with_unit(var=None, name=None, log=False):

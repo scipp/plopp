@@ -38,7 +38,31 @@ def test_create_with_node():
     da = dense_data_array(ndim=1)
     fig = Figure1d(input_node(da))
     assert len(fig.artists) == 1
-    assert sc.identical(list(fig.artists.values())[0]._data, da)
+    line = list(fig.artists.values())[0]
+    assert sc.identical(line._data, da)
+    assert line._error is None
+
+
+def test_with_errorbars():
+    da = dense_data_array(ndim=1, with_variance=True)
+    fig = Figure1d(input_node(da))
+    assert len(fig.artists) == 1
+    line = list(fig.artists.values())[0]
+    assert line._error is not None
+    fig = Figure1d(input_node(da), errorbars=False)
+    line = list(fig.artists.values())[0]
+    assert line._error is None
+
+
+def test_with_binedges():
+    da = dense_data_array(ndim=1, binedges=True)
+    fig = Figure1d(input_node(da))
+    assert len(fig.artists) == 1
+    line = list(fig.artists.values())[0]
+    assert sc.identical(line._data, da)
+    xdata = line._line.get_xdata()
+    assert np.allclose(xdata, da.coords['xx'].values)
+    assert len(xdata) == da.sizes['xx'] + 1
 
 
 def test_log_norm():
