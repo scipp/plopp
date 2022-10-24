@@ -42,6 +42,21 @@ def test_create_with_node():
     assert sc.identical(list(fig.artists.values())[0]._data, da)
 
 
+def test_create_with_bin_edges():
+    da = dense_data_array(ndim=2, binedges=True)
+    fig = Figure2d(input_node(da))
+    assert len(fig.artists) == 1
+    assert sc.identical(list(fig.artists.values())[0]._data, da)
+
+
+def test_create_with_only_one_bin_edge_coord():
+    da = dense_data_array(ndim=2, binedges=True)
+    da.coords['xx'] = sc.midpoints(da.coords['xx'])
+    fig = Figure2d(input_node(da))
+    assert len(fig.artists) == 1
+    assert sc.identical(list(fig.artists.values())[0]._data, da)
+
+
 def test_log_norm():
     fig = Figure2d(norm='log')
     assert fig.colormapper.norm == 'log'
@@ -92,3 +107,36 @@ def test_update_on_one_mesh_changes_colors_on_second_mesh():
     a.func = lambda: da1 * 5.0
     a.notify_children('updated a')
     assert not np.allclose(old_b_colors, f.artists[b.id]._mesh.get_facecolors())
+
+
+def test_with_string_coord():
+    strings = ['a', 'b', 'c', 'd', 'e']
+    da = sc.DataArray(data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
+                      coords={
+                          'x': sc.array(dims=['x'], values=strings, unit='s'),
+                          'y': sc.arange('y', 5., unit='m')
+                      })
+    fig = Figure2d(input_node(da))
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_strings_as_bin_edges():
+    strings = ['a', 'b', 'c', 'd', 'e', 'f']
+    da = sc.DataArray(data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
+                      coords={
+                          'x': sc.array(dims=['x'], values=strings, unit='s'),
+                          'y': sc.arange('y', 6., unit='m')
+                      })
+    fig = Figure2d(input_node(da))
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_strings_as_bin_edges_other_coord_is_bin_centers():
+    strings = ['a', 'b', 'c', 'd', 'e', 'f']
+    da = sc.DataArray(data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
+                      coords={
+                          'x': sc.array(dims=['x'], values=strings, unit='s'),
+                          'y': sc.arange('y', 5., unit='m')
+                      })
+    fig = Figure2d(input_node(da))
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
