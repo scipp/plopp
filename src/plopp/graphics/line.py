@@ -125,9 +125,8 @@ class Line:
             if data["mask"] is not None:
                 data["mask"]["y"] = np.concatenate(
                     (data["mask"]["y"][0:1], data["mask"]["y"]))
-            data["variances"]["x"] = 0.5 * (x[1:] + x[:-1])
-        else:
-            data["variances"]["x"] = x
+        if self._data.variances is not None:
+            data["variances"]["x"] = 0.5 * (x[1:] + x[:-1]) if hist else x
         data["variances"]["y"] = y
         data["hist"] = hist
         return data
