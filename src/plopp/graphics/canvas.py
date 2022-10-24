@@ -6,6 +6,7 @@ from ..core.utils import number_to_variable
 from .utils import fig_to_bytes, silent_mpl_figure
 
 import matplotlib.pyplot as plt
+from matplotlib.collections import QuadMesh
 import numpy as np
 import scipp as sc
 from typing import Any, Tuple
@@ -92,17 +93,18 @@ class Canvas:
             self._ymin = min(self._ymin, ymin)
             self._ymax = max(self._ymax, ymax)
         for c in self.ax.collections:
-            coords = c.get_coordinates()
-            left, right = fix_empty_range(
-                find_limits(sc.array(dims=['x', 'y'], values=coords[..., 0]),
-                            scale=self.xscale))
-            bottom, top = fix_empty_range(
-                find_limits(sc.array(dims=['x', 'y'], values=coords[..., 1]),
-                            scale=self.yscale))
-            self._xmin = min(self._xmin, left.value)
-            self._xmax = max(self._xmax, right.value)
-            self._ymin = min(self._ymin, bottom.value)
-            self._ymax = max(self._ymax, top.value)
+            if isinstance(c, QuadMesh):
+                coords = c.get_coordinates()
+                left, right = fix_empty_range(
+                    find_limits(sc.array(dims=['x', 'y'], values=coords[..., 0]),
+                                scale=self.xscale))
+                bottom, top = fix_empty_range(
+                    find_limits(sc.array(dims=['x', 'y'], values=coords[..., 1]),
+                                scale=self.yscale))
+                self._xmin = min(self._xmin, left.value)
+                self._xmax = max(self._xmax, right.value)
+                self._ymin = min(self._ymin, bottom.value)
+                self._ymax = max(self._ymax, top.value)
         self.ax.set_xlim(_none_if_not_finite(self._xmin),
                          _none_if_not_finite(self._xmax))
         self.ax.set_ylim(_none_if_not_finite(self._ymin),
