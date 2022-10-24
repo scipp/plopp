@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from scipp import scalar, concat, midpoints
+import scipp as sc
 import uuid
 from functools import reduce
 
@@ -14,19 +14,20 @@ def coord_as_bin_edges(da, key, dim=None):
     if dim is None:
         dim = key
     x = da.meta[key]
+    if x.dtype == str:
+        x = sc.arange(dim, float(x.shape[0]), unit=x.unit)
     if da.meta.is_edges(key, dim=dim):
         return x
-    idim = x.dims.index(dim)
-    if x.shape[idim] < 2:
-        half = scalar(0.5, unit=x.unit)
-        return concat([x[dim, 0:1] - half, x[dim, 0:1] + half], dim)
+    if x.sizes[dim] < 2:
+        half = sc.scalar(0.5, unit=x.unit)
+        return sc.concat([x[dim, 0:1] - half, x[dim, 0:1] + half], dim)
     else:
-        center = midpoints(x, dim=dim)
+        center = sc.midpoints(x, dim=dim)
         # Note: use range of 0:1 to keep dimension dim in the slice to avoid
         # switching round dimension order in concatenate step.
         left = center[dim, 0:1] - (x[dim, 1] - x[dim, 0])
         right = center[dim, -1] + (x[dim, -1] - x[dim, -2])
-        return concat([left, center, right], dim)
+        return sc.concat([left, center, right], dim)
 
 
 def repeat(x, dim, n):
@@ -48,7 +49,7 @@ def number_to_variable(x):
     """
     Convert the input int or float to a variable.
     """
-    return scalar(x, unit=None) if isinstance(x, (int, float)) else x
+    return sc.scalar(x, unit=None) if isinstance(x, (int, float)) else x
 
 
 def name_with_unit(var=None, name=None, log=False):
