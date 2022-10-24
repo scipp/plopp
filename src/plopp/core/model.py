@@ -20,6 +20,7 @@ class Node:
         for parent in chain(self.parents, self.kwparents.values()):
             parent.add_child(self)
         self._data = None
+        self.name = None
 
     @property
     def id(self):

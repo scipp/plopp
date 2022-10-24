@@ -129,8 +129,14 @@ class ColorMapper:
         old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
 
-        self.normalizer.vmin = self.vmin
-        self.normalizer.vmax = self.vmax
+        # Note that the order matters here, as for a normalizer vmin cannot be set above
+        # the current vmax.
+        if self.vmin > self.normalizer.vmax:
+            self.normalizer.vmax = self.vmax
+            self.normalizer.vmin = self.vmin
+        else:
+            self.normalizer.vmin = self.vmin
+            self.normalizer.vmax = self.vmax
 
         if self.unit is None:
             self.unit = data.unit
