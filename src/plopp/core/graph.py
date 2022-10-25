@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from .model import Node
+
 from html import escape
 
 
@@ -41,10 +43,25 @@ def _add_graph_edges(dot, node, inventory, hide_views):
             dot.edge(node.id, key)
 
 
-def show_graph(node, size=None, hide_views=False):
+def show_graph(node: Node, hide_views: bool = False):
+    """
+    Display the connected nodes and views as a graph.
+
+    Parameters
+    ----------
+    node:
+        A node which is part of the graph. This can be any node in the graph.
+        The graph will be searched from end to end to construct the figure.
+    hide_views:
+        Do not show the views associated with the nodes if `True`.
+
+    Returns
+    -------
+    :
+        A visual representation of the graph generated with Graphviz.
+    """
     dot = _make_graphviz_digraph(strict=True)
     dot.attr('node', shape='box', height='0.1')
-    dot.attr(size=size)
     inventory = []
     _add_graph_edges(dot, node, inventory, hide_views)
     return dot
