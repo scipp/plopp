@@ -1,5 +1,6 @@
 -r base.in
 graphviz
+h5py
 ipympl
 ipywidgets
 mpltoolbox
