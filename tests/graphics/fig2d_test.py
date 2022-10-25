@@ -140,3 +140,13 @@ def test_with_strings_as_bin_edges_other_coord_is_bin_centers():
                       })
     fig = Figure2d(input_node(da))
     assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_kwargs_are_forwarded_to_artist():
+    da = dense_data_array(ndim=2)
+    fig = Figure2d(input_node(da), rasterized=True)
+    artist = list(fig.artists.values())[0]
+    assert artist._mesh.get_rasterized()
+    fig = Figure2d(input_node(da), rasterized=False)
+    artist = list(fig.artists.values())[0]
+    assert not artist._mesh.get_rasterized()
