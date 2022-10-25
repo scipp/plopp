@@ -69,6 +69,13 @@ Get in touch
    user-guide/scatter3d-plot
 
 .. toctree::
+   :caption: Tutorials
+   :maxdepth: 3
+   :hidden:
+
+   tutorials/nodes-tutorial
+
+.. toctree::
    :caption: Reference
    :maxdepth: 3
    :hidden:

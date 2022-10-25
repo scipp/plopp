@@ -4,7 +4,6 @@
 from .common import require_interactive_backend, preprocess
 from .slicer import Slicer
 from ..core.utils import coord_element_to_string
-from ..widgets import ColorTool
 
 from functools import partial
 import scipp as sc
@@ -31,13 +30,14 @@ class LineSaveTool:
         self.container.children = [line['tool'] for line in self._lines.values()]
 
     def save_line(self, change=None):
+        from ..widgets import ColorTool
         line_id = uuid.uuid4().hex
         data = self._data_node.request_data()
         self._fig.update(data, key=line_id)
         slice_values = self._slider_node.request_data()
         text = ', '.join(f'{k}: {coord_element_to_string(data.meta[k])}'
                          for k, it in slice_values.items())
-        line = self._fig._children[line_id]
+        line = self._fig.artists[line_id]
         tool = ColorTool(text=text, color=to_hex(line.color))
         self._lines[line_id] = {'line': line, 'tool': tool}
         self._update_container()
@@ -47,11 +47,11 @@ class LineSaveTool:
 
     def change_line_color(self, change, line_id):
         self._lines[line_id]['line'].color = change['new']
-        self._fig.draw()
+        self._fig.canvas.draw()
 
     def remove_line(self, change, line_id):
         self._lines[line_id]['line'].remove()
-        self._fig.draw()
+        self._fig.canvas.draw()
         del self._lines[line_id]
         self._update_container()
 
@@ -97,5 +97,5 @@ def superplot(obj: Union[sc.typing.VariableLike, ndarray],
     save_tool = LineSaveTool(data_node=sl.slice_node,
                              slider_node=sl.slider_node,
                              fig=sl.fig)
-    from plopp.widgets import Box
+    from ..widgets import Box
     return Box([[sl.fig, save_tool.widget], sl.slider])

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.limits import find_limits, fix_empty_range, delta
 from ..core.utils import merge_masks
 
 import scipp as sc
@@ -26,9 +25,9 @@ class Line:
     """
     """
 
-    def __init__(self, ax, data, number=0, **kwargs):
+    def __init__(self, canvas, data, number=0, **kwargs):
 
-        self._ax = ax
+        self._ax = canvas.ax
         self._data = data
 
         args = _parse_dicts_in_kwargs(kwargs, name=data.name)
@@ -81,6 +80,7 @@ class Line:
             self._mask = self._ax.step(data["values"]["x"], data[mask_data_key]["y"])[0]
             self._mask.update_from(self._line)
             self._mask.set_color(mask_color)
+            self._mask.set_label(None)
             self._mask.set_linewidth(self._mask.get_linewidth() * 3)
             self._mask.set_zorder(self._mask.get_zorder() - 1)
             self._mask.set_visible(has_mask)
@@ -125,9 +125,8 @@ class Line:
             if data["mask"] is not None:
                 data["mask"]["y"] = np.concatenate(
                     (data["mask"]["y"][0:1], data["mask"]["y"]))
-            data["variances"]["x"] = 0.5 * (x[1:] + x[:-1])
-        else:
-            data["variances"]["x"] = x
+        if self._data.variances is not None:
+            data["variances"]["x"] = 0.5 * (x[1:] + x[:-1]) if hist else x
         data["variances"]["y"] = y
         data["hist"] = hist
         return data
@@ -174,35 +173,6 @@ class Line:
         arr1 = np.repeat(x, 2)
         arr2 = np.array([y - e, y + e]).T.flatten()
         return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
-
-    def get_limits(self, xscale, yscale) -> Tuple[float, ...]:
-        """
-        """
-        xmin, xmax = fix_empty_range(
-            find_limits(self._data.meta[self._dim], scale=xscale))
-        ymin, ymax = fix_empty_range(find_limits(self._data.data, scale=yscale))
-
-        for lim in (xmin, xmax, ymin, ymax):
-            if lim.unit is None:
-                lim.unit = ''
-
-        # Add padding
-        deltax = delta(xmin, xmax, 0.03, xscale)
-        if xscale == "log":
-            xmin = xmin / deltax.value
-            xmax = xmax * deltax.value
-        else:
-            xmin = xmin - deltax
-            xmax = xmax + deltax
-        deltay = delta(ymin, ymax, 0.03, yscale)
-        if yscale == "log":
-            ymin = ymin / deltay.value
-            ymax = ymax * deltay.value
-        else:
-            ymin = ymin - deltay
-            ymax = ymax + deltay
-
-        return (sc.concat([xmin, xmax], dim=self._dim), sc.concat([ymin, ymax], dim=''))
 
     def remove(self):
         self._line.remove()

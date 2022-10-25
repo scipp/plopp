@@ -12,7 +12,7 @@ class Node:
         if not callable(func):
             raise ValueError("A node can only be created using a callable func.")
         self.func = func
-        self.id = str(uuid.uuid1())
+        self._id = str(uuid.uuid1())
         self.children = []
         self.views = []
         self.parents = list(parents)
@@ -20,6 +20,11 @@ class Node:
         for parent in chain(self.parents, self.kwparents.values()):
             parent.add_child(self)
         self._data = None
+        self.name = None
+
+    @property
+    def id(self):
+        return self._id
 
     def remove(self):
         if self.children:
@@ -48,6 +53,7 @@ class Node:
 
     def add_view(self, view):
         self.views.append(view)
+        view.graph_nodes[self.id] = self
 
     def notify_children(self, message):
         self._data = None

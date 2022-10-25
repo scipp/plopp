@@ -61,7 +61,8 @@ def scatter3d(da: sc.DataArray,
     :
         A three-dimensional interactive scatter plot.
     """
-    from ..graphics import Scene3d
+    from ..functions import figure3d
+    from ..widgets import Box, ToggleTool, TriCutTool
 
     if pos is not None:
         if any((x, y, z)):
@@ -75,14 +76,20 @@ def scatter3d(da: sc.DataArray,
     else:
         coords = {k: da.meta[k] for k in (x, y, z)}
 
-    return Scene3d(input_node(sc.DataArray(data=da.data, masks=da.masks,
+    fig = figure3d(input_node(sc.DataArray(data=da.data, masks=da.masks,
                                            coords=coords)),
                    x=x,
                    y=y,
                    z=z,
+                   figsize=figsize,
                    norm=norm,
                    title=title,
                    vmin=vmin,
                    vmax=vmax,
                    cmap=cmap,
                    **kwargs)
+    tri_cutter = TriCutTool(fig)
+    fig.toolbar['cut3d'] = ToggleTool(callback=tri_cutter.toggle_visibility,
+                                      icon='cube',
+                                      tooltip='Hide/show spatial cutting tool')
+    return Box([fig, tri_cutter])

@@ -16,18 +16,19 @@ def _make_graphviz_digraph(*args, **kwargs):
 
 
 def _add_graph_edges(dot, node, inventory, hide_views):
-    name = node.id
-    inventory.append(name)
-    dot.node(name, label=escape(str(node.func)) + '\nid = ' + name)
+    label = escape(str(
+        node.func)) + '\nid = ' + node.id if node.name is None else escape(node.name)
+    inventory.append(node.id)
+    dot.node(node.id, label=label)
     for child in node.children:
         key = child.id
         if key not in inventory:
-            dot.edge(name, key)
+            dot.edge(node.id, key)
             _add_graph_edges(dot, child, inventory, hide_views)
     for parent in node.parents + list(node.kwparents.values()):
         key = parent.id
         if key not in inventory:
-            dot.edge(key, name)
+            dot.edge(key, node.id)
             _add_graph_edges(dot, parent, inventory, hide_views)
     if not hide_views:
         for view in node.views:
@@ -37,7 +38,7 @@ def _add_graph_edges(dot, node, inventory, hide_views):
                      shape='ellipse',
                      style='filled',
                      color='lightgrey')
-            dot.edge(name, key)
+            dot.edge(node.id, key)
 
 
 def show_graph(node, size=None, hide_views=False):

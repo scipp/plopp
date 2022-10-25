@@ -2,29 +2,26 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core import View
-from ..widgets import Toolbar
+from .outline import Outline
 
-import scipp as sc
 from copy import copy
 import numpy as np
-from ipywidgets import VBox, HBox
+from ipywidgets import VBox
 
 
-class Scene3d(View, VBox):
+class Canvas3d(View, VBox):
 
-    def __init__(self, *nodes, figsize=(600, 400), title=None, **kwargs):
+    def __init__(self, figsize=None, title=None):
 
         import pythreejs as p3
 
-        View.__init__(self, *nodes)
-
-        self._kwargs = kwargs
-        self._children = {}
         self.outline = None
         self.axticks = None
-        self._figsize = figsize
+        self.figsize = figsize
 
-        width, height = self._figsize
+        if self.figsize is None:
+            self.figsize = (600, 400)
+        width, height = self.figsize
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
@@ -39,27 +36,13 @@ class Scene3d(View, VBox):
                                     width=width,
                                     height=height)
 
-        self.toolbar = Toolbar(
-            tools={
-                'home': self.home,
-                'camerax': self.camera_x_normal,
-                'cameray': self.camera_y_normal,
-                'cameraz': self.camera_z_normal,
-                'box': self.toggle_outline,
-                'axes': self.toggle_axes3d
-            })
-
-        self.left_bar = VBox([self.toolbar])
-        self.right_bar = VBox()
-        self.bottom_bar = HBox()
-        self.top_bar = HBox()
-
-        self.render()
-
-        VBox.__init__(self, [
-            self.top_bar,
-            HBox([self.left_bar, self.renderer, self.right_bar]), self.bottom_bar
-        ])
+    def make_outline(self, limits):
+        if self.outline is not None:
+            self.remove(self.outline)
+        self.outline = Outline(limits=limits)
+        self.add(self.outline)
+        self._update_camera(limits=limits)
+        self.axes_3d.scale = [self.camera.far] * 3
 
     def _update_camera(self, limits):
         center = [var.mean().value for var in limits]
@@ -87,40 +70,6 @@ class Scene3d(View, VBox):
         self.camera_backup["z_normal"] = [
             center[0], center[1], center[2] - distance_from_center * box_mean_size
         ]
-
-    def notify_view(self, message):
-        node_id = message["node_id"]
-        new_values = self.graph_nodes[node_id].request_data()
-        self.update(new_values=new_values, key=node_id)
-
-    def update(self, new_values: sc.DataArray, key: str):
-        """
-        Update image array with new values.
-        """
-        from .point_cloud import PointCloud
-        from .outline import Outline
-
-        if key not in self._children:
-            pts = PointCloud(data=new_values,
-                             cbar=self.right_bar,
-                             figsize=self._figsize,
-                             **self._kwargs)
-            self._children[key] = pts
-            self.scene.add(pts.points)
-            limits = pts.get_limits()
-            if self.outline is not None:
-                self.scene.remove(self.outline)
-            self.outline = Outline(limits=limits)
-            self.scene.add(self.outline)
-            self._update_camera(limits=limits)
-            self.axes_3d.scale = [self.camera.far] * 3
-        else:
-            self._children[key].update(new_values=new_values)
-
-    def render(self):
-        for node in self.graph_nodes.values():
-            new_values = node.request_data()
-            self.update(new_values=new_values, key=node.id)
 
     def home(self):
         """
@@ -165,3 +114,9 @@ class Scene3d(View, VBox):
 
     def toggle_axes3d(self):
         self.axes_3d.visible = not self.axes_3d.visible
+
+    def add(self, obj):
+        self.scene.add(obj)
+
+    def remove(self, obj):
+        self.scene.remove(obj)

@@ -4,6 +4,25 @@
 from ipywidgets import VBox, HBox
 
 
+class Bar:
+
+    def add(self, obj):
+        self.children = list(self.children) + [obj]
+
+    def remove(self, obj):
+        children = list(self.children)
+        children.remove(obj)
+        self.children = children
+
+
+class VBar(VBox, Bar):
+    pass
+
+
+class HBar(HBox, Bar):
+    pass
+
+
 class Box(VBox):
     """
     Container widget that accepts a list of items. For each item in the list, if the
