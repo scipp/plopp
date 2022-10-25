@@ -25,7 +25,7 @@ _pooch = _make_pooch()
 
 def get_path(name: str) -> str:
     """
-    Return the path to a data file bundled with scippneutron.
+    Return the path to a data file bundled with plopp.
 
     This function only works with example data and cannot handle
     paths to custom files.
