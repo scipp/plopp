@@ -27,7 +27,7 @@ def test_line_creation_bin_edges():
 
 
 def test_line_with_errorbars():
-    da = data_array(ndim=1, with_variance=True)
+    da = data_array(ndim=1, variances=True)
     line = Line(canvas=Canvas(), data=da)
     assert line._error.has_yerr
     coll = line._error.get_children()[0]
@@ -40,7 +40,7 @@ def test_line_with_errorbars():
 
 
 def test_line_hide_errorbars():
-    da = data_array(ndim=1, with_variance=True)
+    da = data_array(ndim=1, variances=True)
     line = Line(canvas=Canvas(), data=da, errorbars=False)
     assert line._error is None
 
@@ -62,7 +62,7 @@ def test_line_update():
 
 
 def test_line_update_with_errorbars():
-    da = data_array(ndim=1, with_variance=True)
+    da = data_array(ndim=1, variances=True)
     line = Line(canvas=Canvas(), data=da)
     coll = line._error.get_children()[0]
     x = np.array(coll.get_segments())[:, 0, 0]

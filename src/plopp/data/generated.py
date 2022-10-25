@@ -7,7 +7,7 @@ import scipp as sc
 dim_list = ['xx', 'yy', 'zz', 'time', 'temperature']
 
 
-def variable(ndim=1, with_variance=False, dims=None, dtype='float64', unit='m/s'):
+def variable(ndim=1, variances=False, dims=None, dtype='float64', unit='m/s'):
 
     shapes = np.arange(50, 0, -10)[:ndim]
     if dims is None:
@@ -19,14 +19,14 @@ def variable(ndim=1, with_variance=False, dims=None, dtype='float64', unit='m/s'
     a = np.sin(radius / 5.0)
 
     var = sc.array(dims=dims, values=a, unit=unit, dtype=dtype)
-    if with_variance:
+    if variances:
         var.variances = np.abs(np.random.normal(a * 0.1, 0.05))
 
     return var
 
 
 def data_array(ndim=1,
-               with_variance=False,
+               variances=False,
                binedges=False,
                labels=False,
                masks=False,
@@ -38,11 +38,7 @@ def data_array(ndim=1,
 
     coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K']))
 
-    data = variable(ndim=ndim,
-                    with_variance=with_variance,
-                    dims=dims,
-                    dtype=dtype,
-                    unit=unit)
+    data = variable(ndim=ndim, variances=variances, dims=dims, dtype=dtype, unit=unit)
 
     coord_dict = {
         data.dims[i]: sc.arange(data.dims[i],

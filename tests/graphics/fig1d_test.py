@@ -45,7 +45,7 @@ def test_create_with_node():
 
 
 def test_with_errorbars():
-    da = data_array(ndim=1, with_variance=True)
+    da = data_array(ndim=1, variances=True)
     fig = Figure1d(input_node(da))
     assert len(fig.artists) == 1
     line = list(fig.artists.values())[0]
