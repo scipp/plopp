@@ -24,12 +24,14 @@ class Figure2d(BaseFig):
                  grid=False,
                  crop=None,
                  cbar=True,
+                 title=None,
                  **kwargs):
 
         super().__init__(*nodes)
 
         self._scale = {} if scale is None else scale
-        self.canvas = Canvas(cbar=cbar, aspect=aspect, grid=grid)
+        self._kwargs = kwargs
+        self.canvas = Canvas(cbar=cbar, aspect=aspect, grid=grid, title=title)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,
@@ -53,7 +55,7 @@ class Figure2d(BaseFig):
 
         if key not in self.artists:
 
-            mesh = Mesh(canvas=self.canvas, data=new_values)
+            mesh = Mesh(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = mesh
             self.colormapper[key] = mesh
             self.dims.update({
