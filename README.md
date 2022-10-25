@@ -1,7 +1,7 @@
 <img src="docs/_static/logo.svg" width="50%" />
 
 [![PyPI version](https://badge.fury.io/py/plopp.svg)](https://pypi.org/project/plopp)
-[![Anaconda-Server Badge](https://anaconda.org/scipp/plopp/badges/installer/conda.svg)](https://conda.anaconda.org/scipp)
+[![Anaconda-Server Badge](https://anaconda.org/scipp/plopp/badges/version.svg)](https://anaconda.org/scipp/plopp)
 [![Documentation](https://img.shields.io/badge/docs-online-success)](https://scipp.github.io/plopp/)
 [![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 
