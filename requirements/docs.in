@@ -4,6 +4,7 @@ ipympl
 ipywidgets
 mpltoolbox
 nbsphinx
+pooch
 requests
 scipy
 sphinx
