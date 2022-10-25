@@ -71,7 +71,9 @@ class Canvas:
 
     def to_image(self):
         from ipywidgets import Image
-        width, height = self.fig.get_size_inches()
+        bounds = self.fig.get_tightbbox(self.fig.canvas.get_renderer()).bounds
+        width = bounds[2] - bounds[0]
+        height = bounds[3] - bounds[1]
         dpi = self.fig.get_dpi()
         return Image(value=fig_to_bytes(self.fig),
                      width=width * dpi,
