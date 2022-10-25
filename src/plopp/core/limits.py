@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
-from scipp import scalar, Variable, log10, DType
+from scipp import scalar, Variable
 from typing import Tuple, Literal
 
 
