@@ -115,14 +115,14 @@ class Canvas:
     def draw(self):
         self.fig.canvas.draw_idle()
 
-    def savefig(self, filename: str = None):
+    def savefig(self, filename: str, dpi: float = None):
         """
         Save plot to file.
         Possible file extensions are `.jpg`, `.png` and `.pdf`.
         The default directory for writing the file is the same as the
         directory where the script or notebook is running.
         """
-        self.fig.savefig(filename, bbox_inches="tight")
+        self.fig.savefig(filename, bbox_inches="tight", dpi=dpi)
 
     def show(self):
         self.fig.show()
