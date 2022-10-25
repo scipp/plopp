@@ -1,60 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from functools import lru_cache
 import numpy as np
 import scipp as sc
 
-_version = '1'
 dim_list = ['xx', 'yy', 'zz', 'time', 'temperature']
 
 
-@lru_cache(maxsize=1)
-def _make_pooch():
-    import pooch
-    return pooch.create(
-        path=pooch.os_cache('plopp'),
-        env='PLOPP_DATA_DIR',
-        base_url='https://public.esss.dk/groups/scipp/plopp/{version}/',
-        version=_version,
-        registry={'nyc_taxi_data.h5': 'md5:fc0867ec061e4ac0cbe5975a665a0eea'})
-
-
-_pooch = _make_pooch()
-
-
-def get_path(name: str) -> str:
-    """
-    Return the path to a data file bundled with plopp.
-
-    This function only works with example data and cannot handle
-    paths to custom files.
-    """
-    return _pooch.fetch(name)
-
-
-def nyc_taxi() -> str:
-    """
-    Return the path to the NYC taxi dataset from 2015 histogrammed in latitude,
-    longitude, and hour-of-the-dat, stored in scipp's HDF5 format.
-
-    The original data was found at https://vaex.readthedocs.io/en/latest/datasets.html.
-
-    Attention
-    ---------
-    This data has been manipulated!
-    """
-    return get_path('nyc_taxi_data.h5')
-
-
-def scalar_variable(with_variance=False, dtype='float64', unit='m/s'):
-    var = sc.scalar(10.0 * np.random.rand(), unit=unit, dtype=dtype)
-    if with_variance:
-        var.variance = np.random.rand()
-    return var
-
-
-def array_variable(ndim=1, with_variance=False, dims=None, dtype='float64', unit='m/s'):
+def variable(ndim=1, with_variance=False, dims=None, dtype='float64', unit='m/s'):
 
     shapes = np.arange(50, 0, -10)[:ndim]
     if dims is None:
@@ -72,47 +25,24 @@ def array_variable(ndim=1, with_variance=False, dims=None, dtype='float64', unit
     return var
 
 
-def scalar_data_array(with_variance=False,
-                      label=False,
-                      mask=False,
-                      attr=False,
-                      dtype='float64',
-                      unit='m/s'):
-
-    data = scalar_variable(with_variance=with_variance, dtype=dtype, unit=unit)
-
-    coord_dict = {'xx': scalar_variable(dtype=dtype, unit=unit)}
-    attr_dict = {}
-    mask_dict = {}
-
-    if label:
-        coord_dict["lab"] = scalar_variable(dtype=dtype, unit=unit)
-    if attr:
-        attr_dict["attr"] = scalar_variable(dtype=dtype, unit=unit)
-    if mask:
-        mask_dict["mask"] = scalar_variable(dtype=dtype, unit=unit)
-
-    return sc.DataArray(data=data, coords=coord_dict, attrs=attr_dict, masks=mask_dict)
-
-
-def dense_data_array(ndim=1,
-                     with_variance=False,
-                     binedges=False,
-                     labels=False,
-                     masks=False,
-                     attrs=False,
-                     ragged=False,
-                     dims=None,
-                     dtype='float64',
-                     unit='m/s'):
+def data_array(ndim=1,
+               with_variance=False,
+               binedges=False,
+               labels=False,
+               masks=False,
+               attrs=False,
+               ragged=False,
+               dims=None,
+               dtype='float64',
+               unit='m/s'):
 
     coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K']))
 
-    data = array_variable(ndim=ndim,
-                          with_variance=with_variance,
-                          dims=dims,
-                          dtype=dtype,
-                          unit=unit)
+    data = variable(ndim=ndim,
+                    with_variance=with_variance,
+                    dims=dims,
+                    dtype=dtype,
+                    unit=unit)
 
     coord_dict = {
         data.dims[i]: sc.arange(data.dims[i],
@@ -150,12 +80,12 @@ def dense_data_array(ndim=1,
     return sc.DataArray(data=data, coords=coord_dict, attrs=attr_dict, masks=mask_dict)
 
 
-def dense_dataset(entries=None, **kwargs):
+def dataset(entries=None, **kwargs):
     if entries is None:
         entries = ['a', 'b']
     ds = sc.Dataset()
     for entry in entries:
-        ds[entry] = (10.0 * np.random.rand()) * dense_data_array(**kwargs)
+        ds[entry] = (10.0 * np.random.rand()) * data_array(**kwargs)
     return ds
 
 
