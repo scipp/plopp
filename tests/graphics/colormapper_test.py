@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data import dense_data_array
+from plopp.data import data_array
 from plopp.graphics.colormapper import ColorMapper
 import scipp as sc
 import numpy as np
@@ -41,7 +41,7 @@ def test_norm():
 
 
 def test_autoscale():
-    da = dense_data_array(ndim=2, unit='K')
+    da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
 
     mapper.autoscale(data=da)
@@ -55,7 +55,7 @@ def test_autoscale():
 
 
 def test_rescale_limits_do_not_shrink():
-    da = dense_data_array(ndim=2, unit='K')
+    da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
 
     mapper.autoscale(data=da)
@@ -69,7 +69,7 @@ def test_rescale_limits_do_not_shrink():
 
 
 def test_vmin_vmax():
-    da = dense_data_array(ndim=2, unit='K')
+    da = data_array(ndim=2, unit='K')
     vmin = sc.scalar(-0.1, unit='K')
     vmax = sc.scalar(3.5, unit='K')
     mapper = ColorMapper(vmin=vmin, vmax=vmax)
@@ -82,7 +82,7 @@ def test_vmin_vmax():
 
 def test_toggle_norm():
     mapper = ColorMapper()
-    da = dense_data_array(ndim=2, unit='K')
+    da = data_array(ndim=2, unit='K')
     mapper['child1'] = DummyChild(da)
     mapper.autoscale(da)
     assert mapper.norm == 'linear'
@@ -98,7 +98,7 @@ def test_toggle_norm():
 
 
 def test_update_changes_limits():
-    da = dense_data_array(ndim=2, unit='K')
+    da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
 
     mapper.update(data=da, key=None)
@@ -112,21 +112,21 @@ def test_update_changes_limits():
 
 
 def test_rgba():
-    da = dense_data_array(ndim=2, unit='K')
+    da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
     colors = mapper.rgba(da)
     assert colors.shape == da.data.shape + (4, )
 
 
 def test_rgba_with_masks():
-    da1 = dense_data_array(ndim=2, unit='K')
-    da2 = dense_data_array(ndim=2, unit='K', masks=True)
+    da1 = data_array(ndim=2, unit='K')
+    da2 = data_array(ndim=2, unit='K', masks=True)
     mapper = ColorMapper()
     assert not np.allclose(mapper.rgba(da1), mapper.rgba(da2))
 
 
 def test_colorbar_updated_on_rescale():
-    da = dense_data_array(ndim=2, unit='K')
+    da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
 
     mapper.update(data=da, key=None)

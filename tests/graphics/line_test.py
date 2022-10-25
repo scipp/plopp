@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data import dense_data_array
+from plopp.data import data_array
 from plopp.graphics.canvas import Canvas
 from plopp.graphics.line import Line
 import numpy as np
@@ -9,7 +9,7 @@ import scipp as sc
 
 
 def test_line_creation():
-    da = dense_data_array(ndim=1, unit='K')
+    da = data_array(ndim=1, unit='K')
     line = Line(canvas=Canvas(), data=da)
     assert line._unit == 'K'
     assert line._dim == 'xx'
@@ -21,13 +21,13 @@ def test_line_creation():
 
 
 def test_line_creation_bin_edges():
-    da = dense_data_array(ndim=1, binedges=True)
+    da = data_array(ndim=1, binedges=True)
     line = Line(canvas=Canvas(), data=da)
     assert len(line._line.get_xdata()) == da.sizes['xx'] + 1
 
 
 def test_line_with_errorbars():
-    da = dense_data_array(ndim=1, with_variance=True)
+    da = data_array(ndim=1, with_variance=True)
     line = Line(canvas=Canvas(), data=da)
     assert line._error.has_yerr
     coll = line._error.get_children()[0]
@@ -40,19 +40,19 @@ def test_line_with_errorbars():
 
 
 def test_line_hide_errorbars():
-    da = dense_data_array(ndim=1, with_variance=True)
+    da = data_array(ndim=1, with_variance=True)
     line = Line(canvas=Canvas(), data=da, errorbars=False)
     assert line._error is None
 
 
 def test_line_with_mask():
-    da = dense_data_array(ndim=1, masks=True)
+    da = data_array(ndim=1, masks=True)
     line = Line(canvas=Canvas(), data=da)
     assert line._mask.get_visible()
 
 
 def test_line_update():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     line = Line(canvas=Canvas(), data=da)
     assert np.allclose(line._line.get_xdata(), da.meta['xx'].values)
     assert np.allclose(line._line.get_ydata(), da.values)
@@ -62,7 +62,7 @@ def test_line_update():
 
 
 def test_line_update_with_errorbars():
-    da = dense_data_array(ndim=1, with_variance=True)
+    da = data_array(ndim=1, with_variance=True)
     line = Line(canvas=Canvas(), data=da)
     coll = line._error.get_children()[0]
     x = np.array(coll.get_segments())[:, 0, 0]

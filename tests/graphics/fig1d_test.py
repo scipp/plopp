@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data import dense_data_array
+from plopp.data import data_array
 from plopp.graphics.fig1d import Figure1d
 from plopp.graphics.line import Line
 from plopp import input_node
@@ -18,7 +18,7 @@ def test_empty():
 def test_update():
     fig = Figure1d()
     assert len(fig.artists) == 0
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     key = 'data1d'
     fig.update(da, key=key)
     assert isinstance(fig.artists[key], Line)
@@ -28,15 +28,15 @@ def test_update():
 def test_update_not_1d_raises():
     fig = Figure1d()
     with pytest.raises(ValueError) as e:
-        fig.update(dense_data_array(ndim=2), key='data2d')
+        fig.update(data_array(ndim=2), key='data2d')
     assert str(e.value) == "Figure1d can only be used to plot 1-D data."
     with pytest.raises(ValueError) as e:
-        fig.update(dense_data_array(ndim=3), key='data3d')
+        fig.update(data_array(ndim=3), key='data3d')
     assert str(e.value) == "Figure1d can only be used to plot 1-D data."
 
 
 def test_create_with_node():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     fig = Figure1d(input_node(da))
     assert len(fig.artists) == 1
     line = list(fig.artists.values())[0]
@@ -45,7 +45,7 @@ def test_create_with_node():
 
 
 def test_with_errorbars():
-    da = dense_data_array(ndim=1, with_variance=True)
+    da = data_array(ndim=1, with_variance=True)
     fig = Figure1d(input_node(da))
     assert len(fig.artists) == 1
     line = list(fig.artists.values())[0]
@@ -56,7 +56,7 @@ def test_with_errorbars():
 
 
 def test_with_binedges():
-    da = dense_data_array(ndim=1, binedges=True)
+    da = data_array(ndim=1, binedges=True)
     fig = Figure1d(input_node(da))
     assert len(fig.artists) == 1
     line = list(fig.artists.values())[0]
@@ -74,7 +74,7 @@ def test_log_norm():
 
 
 def test_crop():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     fig = Figure1d(input_node(da))
     assert fig.canvas.ax.get_xlim()[0] < da.meta['xx'].min().value
     assert fig.canvas.ax.get_xlim()[1] > da.meta['xx'].max().value
@@ -87,7 +87,7 @@ def test_crop():
 
 
 def test_update_grows_limits():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     fig = Figure1d(input_node(da))
     old_lims = fig.canvas.ax.get_ylim()
     key = list(fig.artists.keys())[0]
@@ -98,7 +98,7 @@ def test_update_grows_limits():
 
 
 def test_update_does_not_shrink_limits():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     fig = Figure1d(input_node(da))
     old_lims = fig.canvas.ax.get_ylim()
     key = list(fig.artists.keys())[0]
