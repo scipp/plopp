@@ -1,0 +1,23 @@
+name: Update to latest Scipp
+
+on:
+  schedule:
+    - cron: '0 5 * * 0'
+  workflow_dispatch:
+
+jobs:
+  pip-compile-multi:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r requirements/ci.txt
+      - run: pip-compile-multi -P scipp
+      - uses: peter-evans/create-pull-request@v4
+        with:
+          base: ${{ github.head_ref }}  # avoid base being a merge commit when triggered by PR
+          branch: auto-update-scipp
+          title: Update to latest Scipp version
