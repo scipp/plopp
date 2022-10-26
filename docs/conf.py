@@ -86,6 +86,7 @@ extensions = [
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
     'nbsphinx',
+    'sphinx_gallery.load_style',
 ]
 
 autodoc_type_aliases = {

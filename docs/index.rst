@@ -69,12 +69,12 @@ Get in touch
    user-guide/scatter3d-plot
 
 .. toctree::
-   :caption: Building custom interfaces
+   :caption: Examples
    :maxdepth: 3
    :hidden:
 
-   custom-interfaces/introduction
-   custom-interfaces/gallery
+   examples/custom-interfaces
+   examples/gallery
 
 .. toctree::
    :caption: Reference
