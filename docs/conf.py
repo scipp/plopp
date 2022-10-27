@@ -259,3 +259,9 @@ linkcheck_ignore = [
     # Specific lines in Github blobs cannot be found by linkcheck.
     r'https?://github\.com/.*?/blob/[a-f0-9]+/.+?#',
 ]
+
+# -- Options for nbsphinx gallery------------------------------------------
+
+nbsphinx_thumbnails = {
+    'examples/gallery/nyc-taxi': '_static/gallery/nyc-taxi-thumbnail.png',
+}
