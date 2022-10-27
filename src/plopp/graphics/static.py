@@ -7,8 +7,12 @@ from .utils import fig_to_bytes
 
 
 class Static:
+    """
+    Mixin class to provide the svg repr for static figures, as well as a method to
+    convert them to a widget.
+    """
 
-    def _repr_mimebundle_(self, include=None, exclude=None):
+    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
         """
         Mimebundle display representation for jupyter notebooks.
         """
@@ -25,8 +29,14 @@ class Static:
 
 
 class StaticFig1d(Static, Figure1d):
+    """
+    Create a static figure to represent one-dimensional data.
+    """
     pass
 
 
 class StaticFig2d(Static, Figure2d):
+    """
+    Create a static figure to represent two-dimensional data.
+    """
     pass
