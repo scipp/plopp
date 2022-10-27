@@ -29,6 +29,7 @@ class View:
         """
         The function that will be called when a parent node is told to notify its
         children and its views.
+        This has to be overridden by any child class.
         """
         return
 
