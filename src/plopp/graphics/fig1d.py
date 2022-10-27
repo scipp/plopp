@@ -40,6 +40,8 @@ class Figure1d(BaseFig):
         dimension to be cropped.
     title:
         The figure title.
+    figsize:
+        The width and height of the figure, in inches.
     **kwargs:
         All other kwargs are forwarded to Matplotlib:
         - ``matplotlib.pyplot.plot`` for 1d data with a non bin-edge coordinate
@@ -58,6 +60,7 @@ class Figure1d(BaseFig):
                  grid: bool = False,
                  crop: Dict[str, Dict[str, Variable]] = None,
                  title: str = None,
+                 figsize: Tuple[float, float] = None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -66,7 +69,7 @@ class Figure1d(BaseFig):
         self._errorbars = errorbars
         self._mask_color = mask_color
         self._kwargs = kwargs
-        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid)
+        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid, figsize=figsize)
         self.canvas.yscale = norm
 
         self.render()

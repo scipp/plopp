@@ -46,10 +46,10 @@ class Figure2d(BaseFig):
         Show colorbar if ``True``.
     title:
         The figure title.
+    figsize:
+        The width and height of the figure, in inches.
     **kwargs:
-        All other kwargs are forwarded to Matplotlib:
-        - ``matplotlib.pyplot.plot`` for 1d data with a non bin-edge coordinate
-        - ``matplotlib.pyplot.step`` for 1d data with a bin-edge coordinate
+        All other kwargs are forwarded to the Mesh artist.
     """
 
     def __init__(self,
@@ -65,13 +65,18 @@ class Figure2d(BaseFig):
                  crop: Dict[str, Dict[str, Variable]] = None,
                  cbar: bool = True,
                  title: str = None,
+                 figsize: Tuple[float, float] = None,
                  **kwargs):
 
         super().__init__(*nodes)
 
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
-        self.canvas = Canvas(cbar=cbar, aspect=aspect, grid=grid, title=title)
+        self.canvas = Canvas(cbar=cbar,
+                             aspect=aspect,
+                             grid=grid,
+                             title=title,
+                             figsize=figsize)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,

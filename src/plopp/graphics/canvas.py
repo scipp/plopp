@@ -48,7 +48,7 @@ class Canvas:
 
     def __init__(self,
                  ax: plt.Axes = None,
-                 figsize: Tuple[float, ...] = None,
+                 figsize: Tuple[float, float] = None,
                  title: str = None,
                  grid: bool = False,
                  vmin: sc.Variable = None,
