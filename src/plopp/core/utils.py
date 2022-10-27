@@ -3,7 +3,7 @@
 
 from functools import reduce
 import scipp as sc
-from typing import Union
+from typing import Dict, Union
 import uuid
 
 
@@ -95,11 +95,11 @@ def name_with_unit(var: sc.Variable, name: str = None) -> str:
     else:
         text = str(var.dims[-1])
     if var.unit is not None:
-        text += f" [{unit}]"
+        text += f" [{var.unit}]"
     return text
 
 
-def value_to_string(val: Union[int, float], precision: int = 3) -> string:
+def value_to_string(val: Union[int, float], precision: int = 3) -> str:
     """
     Convert a number to a human readable string.
 
