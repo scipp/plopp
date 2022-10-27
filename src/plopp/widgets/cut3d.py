@@ -9,7 +9,7 @@ import asyncio
 import ipywidgets as ipw
 import numpy as np
 import scipp as sc
-from typing import Callable, Literal, Tuple
+from typing import Any, Callable, Dict, Literal, Tuple
 
 
 class Timer:

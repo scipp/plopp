@@ -5,6 +5,7 @@ from ..core.limits import find_limits, fix_empty_range
 
 import numpy as np
 import scipp as sc
+from typing import Tuple
 
 
 class PointCloud:

@@ -7,6 +7,7 @@ import pythreejs as p3
 import numpy as np
 from matplotlib import ticker
 from scipp import Variable
+from typing import Tuple
 
 
 def _get_delta(x: Variable, axis: int) -> float:

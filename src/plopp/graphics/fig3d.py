@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-import scipp as sc
 from .basefig import BaseFig
 from .colormapper import ColorMapper
+
+import scipp as sc
+from typing import Literal, Tuple
 
 
 class Figure3d(BaseFig):

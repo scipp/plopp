@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ipywidgets import VBox
-from typing import Any
+from typing import Any, Dict
 
 
 class Toolbar(VBox):

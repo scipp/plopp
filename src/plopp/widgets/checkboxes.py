@@ -3,7 +3,7 @@
 
 from html import escape
 import ipywidgets as ipw
-from typing import Callable, List
+from typing import Callable, Dict, List
 
 
 class Checkboxes(ipw.HBox):

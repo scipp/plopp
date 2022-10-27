@@ -7,7 +7,7 @@ from .canvas import Canvas
 import scipp as sc
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Tuple
+from typing import Dict
 from matplotlib.lines import Line2D
 
 

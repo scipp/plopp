@@ -8,6 +8,7 @@ from copy import copy
 from ipywidgets import VBox
 import numpy as np
 from scipp import Variable
+from typing import Any, Tuple
 
 
 class Canvas3d(View, VBox):

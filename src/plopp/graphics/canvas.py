@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import QuadMesh
 import numpy as np
 import scipp as sc
-from typing import Any, Tuple
+from typing import Dict, Literal, Tuple
 
 
 def _none_if_not_finite(x):

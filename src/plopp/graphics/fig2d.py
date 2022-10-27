@@ -8,6 +8,7 @@ from .colormapper import ColorMapper
 from .mesh import Mesh
 
 import scipp as sc
+from typing import Dict, Literal, Tuple
 
 
 class Figure2d(BaseFig):
@@ -62,7 +63,7 @@ class Figure2d(BaseFig):
                  scale: Dict[str, str] = None,
                  aspect: Literal['auto', 'equal'] = 'auto',
                  grid: bool = False,
-                 crop: Dict[str, Dict[str, Variable]] = None,
+                 crop: Dict[str, Dict[str, sc.Variable]] = None,
                  cbar: bool = True,
                  title: str = None,
                  figsize: Tuple[float, float] = None,

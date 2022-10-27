@@ -2,10 +2,10 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.utils import coord_as_bin_edges, repeat, merge_masks
+from .canvas import Canvas
 
 import numpy as np
 import scipp as sc
-from typing import Any
 
 
 def _find_dim_of_2d_coord(coords):
@@ -91,20 +91,7 @@ class Mesh:
                 string_labels[k] = self._data.meta[self._data.dims[i]]
 
         self._dim_1d, self._dim_2d = _get_dims_of_1d_and_2d_coords(to_dim_search)
-        self._xlabel = None
-        self._ylabel = None
-        self._title = None
-        self._cax = cax
         self._mesh = None
-        self._cbar = cbar
-
-        self._extend = 'neither'
-        if (vmin is not None) and (vmax is not None):
-            self._extend = 'both'
-        elif vmin is not None:
-            self._extend = 'min'
-        elif vmax is not None:
-            self._extend = 'max'
 
         x, y, z = _from_data_array_to_pcolormesh(data=self._data.data,
                                                  coords=bin_edge_coords,
