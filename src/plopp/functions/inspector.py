@@ -8,7 +8,7 @@ from ..core.utils import coord_as_bin_edges
 
 import scipp as sc
 from numpy import ndarray
-from typing import Union, Dict, Literal
+from typing import Any, Union, Dict, Literal
 
 
 class InspectorEventHandler:
