@@ -21,9 +21,9 @@ def _running_in_jupyter() -> bool:
     return isinstance(get_ipython(), ipykernel.zmqshell.ZMQInteractiveShell)
 
 
-def is_sphinx_build():
+def is_sphinx_build() -> bool:
     """
-    Returns `True` if we are running inside a sphinx documentation build.
+    Returns ``True`` if we are running inside a sphinx documentation build.
     """
     if not _running_in_jupyter():
         return False
