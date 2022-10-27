@@ -17,17 +17,45 @@ def _none_if_not_finite(x):
 
 
 class Canvas:
+    """
+    Matplotlib-based canvas used to render 2D graphics.
+    It provides a figure and some axes, as well as functions for controlling the zoom,
+    panning, and the scale of the axes.
+
+    Parameters
+    ----------
+    ax:
+        If supplied, use these axes to create the figure. If none are supplied, the
+        canvas will create its own axes.
+    figsize:
+        The width and height of the figure, in inches.
+    title:
+        The title to be placed above the figure.
+    grid:
+        Display the figure grid if ``True``.
+    vmin:
+        The minimum value for the vertical axis.
+    vmax:
+        The maximum value for the vertical axis.
+    aspect:
+        The aspect ratio for the axes.
+    scale:
+        Change axis scaling between ``log`` and ``linear``. For example, specify
+        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
+    cbar:
+        Add axes to host a colorbar if ``True``.
+    """
 
     def __init__(self,
-                 ax: Any = None,
+                 ax: plt.Axes = None,
                  figsize: Tuple[float, ...] = None,
                  title: str = None,
                  grid: bool = False,
-                 vmin=None,
-                 vmax=None,
-                 aspect='auto',
-                 scale=None,
-                 cbar=False):
+                 vmin: sc.Variable = None,
+                 vmax: sc.Variable = None,
+                 aspect: Literal['auto', 'equal'] = 'auto',
+                 scale: Dict[str, str] = None,
+                 cbar: bool = False):
 
         self.fig = None
         self.ax = ax
@@ -70,13 +98,21 @@ class Canvas:
         self._ymax = np.NINF
 
     def to_image(self):
+        """
+        Convert the underlying Matplotlib figure to an image widget from ``ipywidgets``.
+        """
         from ipywidgets import Image
         return Image(value=fig_to_bytes(self.fig), format='png')
 
-    def autoscale(self, draw=True):
+    def autoscale(self, draw: bool = True):
         """
         Matplotlib's autoscale only takes lines into account. We require a special
         handling for meshes, which is part of the axes collections.
+
+        Parameters
+        ----------
+        draw:
+            Make a draw call to the figure if ``True``.
         """
         if self.ax.lines:
             self.ax.relim()
@@ -108,21 +144,35 @@ class Canvas:
             self.draw()
 
     def draw(self):
+        """
+        Make a draw call to the underlying figure.
+        """
         self.fig.canvas.draw_idle()
 
     def savefig(self, filename: str, **kwargs):
         """
         Save plot to file.
-        Possible file extensions are `.jpg`, `.png` and `.pdf`.
         The default directory for writing the file is the same as the
         directory where the script or notebook is running.
+
+        Parameters
+        ----------
+        filename:
+            Save the figure to file. Possible file extensions are ``.jpg``, ``.png``
+            and ``.pdf``.
         """
         self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
 
     def show(self):
+        """
+        Make a call to Matplotlib's underlying ``show`` function.
+        """
         self.fig.show()
 
     def crop(self, **limits):
+        """
+        Set the axes limits according to the crop parameters.
+        """
         for xy, lims in limits.items():
             getattr(self.ax, f'set_{xy}lim')(*[
                 sc.to_unit(number_to_variable(lims[m]), unit=lims['unit']).value
@@ -130,6 +180,9 @@ class Canvas:
             ])
 
     def legend(self):
+        """
+        Add a legend to the figure.
+        """
         self.ax.legend()
 
     @property
@@ -137,7 +190,7 @@ class Canvas:
         return self.ax.get_xlabel()
 
     @xlabel.setter
-    def xlabel(self, lab):
+    def xlabel(self, lab: str):
         self.ax.set_xlabel(lab)
 
     @property
@@ -145,7 +198,7 @@ class Canvas:
         return self.ax.get_ylabel()
 
     @ylabel.setter
-    def ylabel(self, lab):
+    def ylabel(self, lab: str):
         self.ax.set_ylabel(lab)
 
     @property
@@ -153,7 +206,7 @@ class Canvas:
         return self.ax.get_xscale()
 
     @xscale.setter
-    def xscale(self, scale):
+    def xscale(self, scale: Literal['linear', 'log']):
         self.ax.set_xscale(scale)
 
     @property
@@ -161,28 +214,46 @@ class Canvas:
         return self.ax.get_yscale()
 
     @yscale.setter
-    def yscale(self, scale):
+    def yscale(self, scale: Literal['linear', 'log']):
         self.ax.set_yscale(scale)
 
     def reset_mode(self):
+        """
+        Reset the Matplotlib toolbar mode to nothing, to disable all Zoom/Pan tools.
+        """
         self.fig.canvas.toolbar.mode = ''
 
     def zoom(self):
+        """
+        Activate the underlying Matplotlib zoom tool.
+        """
         self.fig.canvas.toolbar.zoom()
 
     def pan(self):
+        """
+        Activate the underlying Matplotlib pan tool.
+        """
         self.fig.canvas.toolbar.pan()
 
     def save(self):
+        """
+        Save the figure to a PNG file via a pop-up dialog.
+        """
         self.fig.canvas.toolbar.save_figure()
 
     def logx(self):
+        """
+        Toggle the scale between ``linear`` and ``log`` along the horizontal axis.
+        """
         self.xscale = 'log' if self.xscale == 'linear' else 'linear'
         self._xmin = np.inf
         self._xmax = np.NINF
         self.autoscale()
 
     def logy(self):
+        """
+        Toggle the scale between ``linear`` and ``log`` along the vertical axis.
+        """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
         self._ymin = np.inf
         self._ymax = np.NINF
