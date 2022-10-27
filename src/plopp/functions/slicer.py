@@ -12,6 +12,25 @@ from typing import Union, Dict, List
 
 
 class Slicer:
+    """
+    Class that slices out dimensions from the data and displays the resulting data as
+    either a 1D line or a 2D image.
+
+    Parameters
+    ----------
+    da:
+        The input data array.
+    keep:
+        The dimensions to be kept, all remaining dimensions will be sliced. This should
+        be a list of dims. If no dims are provided, the last dim will be kept in the
+        case of a 2-dimensional input, while the last two dims will be kept in the case
+        of higher dimensional inputs.
+    crop:
+        Set the axis limits. Limits should be given as a dict with one entry per
+        dimension to be cropped.
+    **kwargs:
+        The additional arguments are forwarded to the underlying 1D or 2D figures.
+    """
 
     def __init__(self,
                  da: DataArray,
