@@ -71,14 +71,7 @@ class Canvas:
 
     def to_image(self):
         from ipywidgets import Image
-        bounds = self.fig.get_tightbbox(self.fig.canvas.get_renderer()).bounds
-        width = bounds[2] - bounds[0]
-        height = bounds[3] - bounds[1]
-        dpi = self.fig.get_dpi()
-        return Image(value=fig_to_bytes(self.fig),
-                     width=width * dpi,
-                     height=height * dpi,
-                     format='png')
+        return Image(value=fig_to_bytes(self.fig), format='png')
 
     def autoscale(self, draw=True):
         """
