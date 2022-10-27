@@ -24,7 +24,7 @@ def _parse_dicts_in_kwargs(kwargs, name):
 
 class Line:
     """
-    Artists to represent one-dimensional data.
+    Artist to represent one-dimensional data.
     If the coordinate is bin centers, the line is (by default) a set of markers.
     If the coordinate is bin edges, the line is a step function.
 
@@ -185,8 +185,7 @@ class Line:
 
     def update(self, new_values: sc.DataArray):
         """
-        Update the x and y positions of the data points when a new data slice
-        is received for display.
+        Update the x and y positions of the data points from new data.
 
         Parameters
         ----------
