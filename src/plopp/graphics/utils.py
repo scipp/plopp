@@ -4,11 +4,20 @@
 from contextlib import contextmanager
 from io import BytesIO
 import matplotlib as mpl
+from matplotlib.pyplot import Figure
+from typing import Literal
 
 
-def fig_to_bytes(fig, form='png'):
+def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
     """
     Convert a Matplotlib figure to png (default) or svg bytes.
+
+    Parameters
+    ----------
+    fig:
+        The figure to be converted.
+    form:
+        The format to use.
     """
     buf = BytesIO()
     fig.savefig(buf, format=form, bbox_inches='tight')
