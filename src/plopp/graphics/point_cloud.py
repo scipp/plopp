@@ -8,16 +8,34 @@ import scipp as sc
 
 
 class PointCloud:
+    """
+    Artist to represent a three-dimensional point cloud/scatter plot.
+
+    Parameters
+    ----------
+    x:
+        The name of the coordinate that is to be used for the X positions.
+    y:
+        The name of the coordinate that is to be used for the Y positions.
+    z:
+        The name of the coordinate that is to be used for the Z positions.
+    data:
+        The initial data to create the line from.
+    pixel_size:
+        The size of the markers.
+    opacity:
+        The opacity of the points.
+    """
 
     def __init__(
             self,
             *,
-            x,
-            y,
-            z,
-            data,
-            pixel_size=1,  # TODO: pixel_size should have units
-            opacity=1):
+            x: str,
+            y: str,
+            z: str,
+            data: sc.DataArray,
+            pixel_size: float = 1,  # TODO: pixel_size should have units
+            opacity: float = 1):
         """
         Make a point cloud using pythreejs
         """
@@ -52,12 +70,31 @@ class PointCloud:
         self.points = p3.Points(geometry=self.geometry, material=self.material)
 
     def set_colors(self, rgba):
+        """
+        Set the point cloud's rgba colors:
+
+        Parameters
+        ----------
+        rgba:
+            The array of rgba colors.
+        """
         self.geometry.attributes["color"].array = rgba[..., :3].astype('float32')
 
     def update(self, new_values):
+        """
+        Update point cloud array with new values.
+
+        Parameters
+        ----------
+        new_values:
+            New data to update the point cloud values from.
+        """
         self._data = new_values
 
-    def get_limits(self):
+    def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
+        """
+        Get the spatial extent of all the points in the cloud.
+        """
         xmin, xmax = fix_empty_range(find_limits(self._data.meta[self._x]))
         ymin, ymax = fix_empty_range(find_limits(self._data.meta[self._y]))
         zmin, zmax = fix_empty_range(find_limits(self._data.meta[self._z]))
@@ -67,13 +104,22 @@ class PointCloud:
 
     @property
     def opacity(self):
+        """
+        Get the material opacity.
+        """
         return self.material.opacity
 
     @opacity.setter
     def opacity(self, val):
+        """
+        Set the material opacity.
+        """
         self.material.opacity = val
         self.material.depthTest = val > 0.5
 
     @property
     def data(self):
+        """
+        Get the point cloud data.
+        """
         return self._data
