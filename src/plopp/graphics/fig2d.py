@@ -11,20 +11,60 @@ import scipp as sc
 
 
 class Figure2d(BaseFig):
+    """
+    Figure that makes a visual representation of two-dimensional data.
+    It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
+    function that generates :class:`Mesh` artists.
+
+    Parameters
+    ----------
+    *nodes:
+        The nodes that are attached to the view.
+    cmap:
+        The name of the colormap for the data
+        (see https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+        In addition to the Matplotlib docs, if the name is just a single html color,
+        a colormap with that single color will be used.
+    mask_cmap:
+        The name of the colormap for masked data.
+    norm:
+        Control the scaling on the vertical axis.
+    vmin:
+        Lower bound for the vertical axis.
+    vmax:
+        Upper bound for the vertical axis.
+    scale:
+        Control the scaling of the horizontal axis.
+    aspect:
+        Aspect ratio for the axes.
+    grid:
+        Show grid if ``True``.
+    crop:
+        Set the axis limits. Limits should be given as a dict with one entry per
+        dimension to be cropped.
+    cbar:
+        Show colorbar if ``True``.
+    title:
+        The figure title.
+    **kwargs:
+        All other kwargs are forwarded to Matplotlib:
+        - ``matplotlib.pyplot.plot`` for 1d data with a non bin-edge coordinate
+        - ``matplotlib.pyplot.step`` for 1d data with a bin-edge coordinate
+    """
 
     def __init__(self,
                  *nodes,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
-                 norm: str = 'linear',
-                 vmin=None,
-                 vmax=None,
-                 scale=None,
-                 aspect='auto',
-                 grid=False,
-                 crop=None,
-                 cbar=True,
-                 title=None,
+                 norm: Literal['linear', 'log'] = 'linear',
+                 vmin: sc.Variable = None,
+                 vmax: sc.Variable = None,
+                 scale: Dict[str, str] = None,
+                 aspect: Literal['auto', 'equal'] = 'auto',
+                 grid: bool = False,
+                 crop: Dict[str, Dict[str, Variable]] = None,
+                 cbar: bool = True,
+                 title: str = None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -47,6 +87,17 @@ class Figure2d(BaseFig):
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
         Add new image or update image array with new values.
+
+        Parameters
+        ----------
+        new_values:
+            New data to create or update a :class:`Mesh` object from.
+        key:
+            The id of the node that sent the new data.
+        draw:
+            Draw the figure after the update if ``True``. Set this to ``False`` when
+            doing batch updates of multiple artists, and then manually call ``draw``
+            once all artists have been updated.
         """
         if new_values.ndim != 2:
             raise ValueError("Figure2d can only be used to plot 2-D data.")
@@ -85,10 +136,21 @@ class Figure2d(BaseFig):
             self.canvas.draw()
 
     def toggle_norm(self):
+        """
+        Toggle the colormapper norm.
+        """
         self.colormapper.toggle_norm()
         self.canvas.draw()
 
     def crop(self, **limits):
+        """
+        Set the axes limits according to the crop parameters.
+
+        Parameters
+        ----------
+        **limits:
+            Min and max limits for each dimension to be cropped.
+        """
         self.canvas.crop(
             **{
                 xy: {
