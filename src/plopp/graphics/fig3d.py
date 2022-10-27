@@ -109,7 +109,7 @@ class Figure3d(BaseFig):
         self.artists[key].update(new_values=new_values)
         self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
 
-    def get_limits(self):
+    def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
         Get global limits for all the point clouds in the scene.
         """
