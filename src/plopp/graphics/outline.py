@@ -92,7 +92,7 @@ class Outline(p3.Group):
             self.add(obj)
 
     def _make_ticks(self, limits: Tuple[Variable, Variable, Variable],
-                    center: Tuple[float, float, float], tick_size: float) -> p3.Group:
+                    center: List[float], tick_size: float) -> p3.Group:
         """
         Create tick labels on outline edges
         """
@@ -111,7 +111,7 @@ class Outline(p3.Group):
         return ticks_group
 
     def _make_labels(self, limits: Tuple[Variable, Variable, Variable],
-                     center: Tuple[float, float, float], tick_size: float) -> p3.Group:
+                     center: List[float], tick_size: float) -> p3.Group:
         """
         Create axes labels (coord dimension and unit) on outline edges
         """
