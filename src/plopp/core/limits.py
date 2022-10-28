@@ -32,4 +32,4 @@ def fix_empty_range(lims: Tuple[Variable, ...]) -> Tuple[Variable, ...]:
     else:
         # We decompose value and unit to avoid operation exceptions when unit is None.
         dx = scalar(0.5 * abs(lims[0].value), unit=lims[0].unit)
-    return [lims[0] - dx, lims[1] + dx]
+    return (lims[0] - dx, lims[1] + dx)

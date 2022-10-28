@@ -121,7 +121,7 @@ class Node:
             view.notify_view({"node_id": self.id, "message": message})
 
 
-def node(func: Callable, *args, **kwargs) -> Node:
+def node(func: Callable, *args, **kwargs) -> Callable:
     """
     Create a ``Node`` from a callable. The additional arguments will be parent nodes to
     the returned node.
