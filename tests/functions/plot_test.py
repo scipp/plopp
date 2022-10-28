@@ -3,7 +3,7 @@
 
 import numpy as np
 import plopp as pp
-from plopp.data import dense_data_array, dense_dataset
+from plopp.data import data_array, dataset
 import pytest
 import scipp as sc
 
@@ -17,8 +17,8 @@ def test_plot_variable():
 
 
 def test_plot_data_array():
-    pp.plot(dense_data_array(ndim=1))
-    da = dense_data_array(ndim=2)
+    pp.plot(data_array(ndim=1))
+    da = data_array(ndim=2)
     pp.plot(da)
     pp.plot(da)
 
@@ -30,7 +30,7 @@ def test_plot_data_array_missing_coords():
 
 
 def test_plot_dataset():
-    ds = dense_dataset(ndim=1)
+    ds = dataset(ndim=1)
     pp.plot(ds)
 
 
@@ -43,7 +43,7 @@ def test_plot_dict_of_variables():
 
 
 def test_plot_dict_of_data_arrays():
-    ds = dense_dataset(ndim=1)
+    ds = dataset(ndim=1)
     pp.plot({'a': ds['a'], 'b': ds['b']})
 
 
@@ -74,13 +74,13 @@ def test_plot_ignore_size_disables_size_check():
 
 
 def test_plot_2d_coord():
-    da = dense_data_array(ndim=2, ragged=True)
+    da = data_array(ndim=2, ragged=True)
     pp.plot(da)
     pp.plot(da.transpose())
 
 
 def test_plot_2d_coord_with_mask():
-    da = pp.data.dense_data_array(ndim=2, ragged=True)
+    da = pp.data.data_array(ndim=2, ragged=True)
     da.masks['negative'] = da.data < sc.scalar(0, unit='m/s')
     pp.plot(da)
 
@@ -100,7 +100,7 @@ def _get_mesh(fig):
 
 
 def test_kwarg_linecolor():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot(da, color='r')
     assert _get_line(p).get_color() == 'r'
     p = pp.plot(da, c='b')
@@ -108,7 +108,7 @@ def test_kwarg_linecolor():
 
 
 def test_kwarg_linestyle():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot(da, linestyle='solid')
     assert _get_line(p).get_linestyle() == '-'
     p = pp.plot(da, ls='dashed')
@@ -116,7 +116,7 @@ def test_kwarg_linestyle():
 
 
 def test_kwarg_linewidth():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot(da, linewidth=3)
     assert _get_line(p).get_linewidth() == 3
     p = pp.plot(da, lw=5)
@@ -124,39 +124,39 @@ def test_kwarg_linewidth():
 
 
 def test_kwarg_marker():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot(da, marker='+')
     assert _get_line(p).get_marker() == '+'
 
 
 def test_kwarg_norm():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot(da, norm='log')
     assert p.canvas.ax.get_yscale() == 'log'
 
 
 def test_kwarg_scale():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot(da, scale={'xx': 'log'})
     assert p.canvas.ax.get_xscale() == 'log'
     assert p.canvas.ax.get_yscale() == 'linear'
 
 
 def test_kwarg_cmap():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     p = pp.plot(da, cmap='magma')
     assert p.colormapper.cmap.name == 'magma'
 
 
 def test_kwarg_scale_2d():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     p = pp.plot(da, scale={'xx': 'log', 'yy': 'log'})
     assert p.canvas.ax.get_xscale() == 'log'
     assert p.canvas.ax.get_yscale() == 'log'
 
 
 def test_kwarg_crop_1d_min_max():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot(
         da,
         crop={'xx': {
@@ -167,19 +167,19 @@ def test_kwarg_crop_1d_min_max():
 
 
 def test_kwarg_crop_1d_min_only():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot(da, crop={'xx': {'min': sc.scalar(20, unit='m')}})
     assert p.canvas.ax.get_xlim()[0] == 20
 
 
 def test_kwarg_crop_1d_min_conversion():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot(da, crop={'xx': {'min': sc.scalar(200, unit='cm')}})
     assert p.canvas.ax.get_xlim()[0] == 2
 
 
 def test_kwarg_crop_1d_with_no_unit():
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     del da.coords['xx']
     p = pp.plot(da, crop={'xx': {'min': sc.scalar(20, unit=None)}})
     assert p.canvas.ax.get_xlim()[0] == 20
@@ -190,7 +190,7 @@ def test_kwarg_crop_1d_with_no_unit():
 
 
 def test_kwarg_crop_2d():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     p = pp.plot(da,
                 crop={
                     'xx': {
@@ -206,18 +206,18 @@ def test_kwarg_crop_2d():
 
 
 def test_kwarg_for_two_lines():
-    ds = dense_dataset(ndim=1)
+    ds = dataset(ndim=1)
     p = pp.plot(ds, color='r')
     assert _get_line(p, 0).get_color() == 'r'
     assert _get_line(p, 1).get_color() == 'r'
 
 
 def test_kwarg_as_dict():
-    ds = dense_dataset(ndim=1)
+    ds = dataset(ndim=1)
     p = pp.plot(ds, color={'a': 'red', 'b': 'black'})
     assert _get_line(p, 0).get_color() == 'red'
     assert _get_line(p, 1).get_color() == 'black'
-    da = dense_data_array(ndim=1)
+    da = data_array(ndim=1)
     p = pp.plot({'a': da, 'b': 0.2 * da}, color={'a': 'red', 'b': 'black'})
     assert _get_line(p, 0).get_color() == 'red'
     assert _get_line(p, 1).get_color() == 'black'

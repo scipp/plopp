@@ -86,6 +86,7 @@ extensions = [
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
     'nbsphinx',
+    'sphinx_gallery.load_style',
 ]
 
 autodoc_type_aliases = {
@@ -258,3 +259,9 @@ linkcheck_ignore = [
     # Specific lines in Github blobs cannot be found by linkcheck.
     r'https?://github\.com/.*?/blob/[a-f0-9]+/.+?#',
 ]
+
+# -- Options for nbsphinx gallery------------------------------------------
+
+nbsphinx_thumbnails = {
+    'examples/gallery/nyc-taxi': '_static/gallery/nyc-taxi-thumbnail.png',
+}

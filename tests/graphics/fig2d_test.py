@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data import dense_data_array
+from plopp.data import data_array
 from plopp.graphics.fig2d import Figure2d
 from plopp.graphics.mesh import Mesh
 from plopp import input_node
@@ -18,7 +18,7 @@ def test_empty():
 def test_update():
     fig = Figure2d()
     assert len(fig.artists) == 0
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     key = 'data2d'
     fig.update(da, key=key)
     assert isinstance(fig.artists[key], Mesh)
@@ -28,29 +28,29 @@ def test_update():
 def test_update_not_2d_raises():
     fig = Figure2d()
     with pytest.raises(ValueError) as e:
-        fig.update(dense_data_array(ndim=1), key='data1d')
+        fig.update(data_array(ndim=1), key='data1d')
     assert str(e.value) == "Figure2d can only be used to plot 2-D data."
     with pytest.raises(ValueError) as e:
-        fig.update(dense_data_array(ndim=3), key='data3d')
+        fig.update(data_array(ndim=3), key='data3d')
     assert str(e.value) == "Figure2d can only be used to plot 2-D data."
 
 
 def test_create_with_node():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     fig = Figure2d(input_node(da))
     assert len(fig.artists) == 1
     assert sc.identical(list(fig.artists.values())[0]._data, da)
 
 
 def test_create_with_bin_edges():
-    da = dense_data_array(ndim=2, binedges=True)
+    da = data_array(ndim=2, binedges=True)
     fig = Figure2d(input_node(da))
     assert len(fig.artists) == 1
     assert sc.identical(list(fig.artists.values())[0]._data, da)
 
 
 def test_create_with_only_one_bin_edge_coord():
-    da = dense_data_array(ndim=2, binedges=True)
+    da = data_array(ndim=2, binedges=True)
     da.coords['xx'] = sc.midpoints(da.coords['xx'])
     fig = Figure2d(input_node(da))
     assert len(fig.artists) == 1
@@ -63,7 +63,7 @@ def test_log_norm():
 
 
 def test_toggle_norm():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     fig = Figure2d(input_node(da))
     assert fig.colormapper.norm == 'linear'
     fig.toggle_norm()
@@ -71,7 +71,7 @@ def test_toggle_norm():
 
 
 def test_crop():
-    da = dense_data_array(ndim=2, binedges=True)
+    da = data_array(ndim=2, binedges=True)
     fig = Figure2d(input_node(da))
     assert fig.canvas.ax.get_xlim() == (da.meta['xx'].min().value,
                                         da.meta['xx'].max().value)
@@ -87,14 +87,14 @@ def test_crop():
 
 
 def test_cbar():
-    da = dense_data_array(ndim=2, binedges=True)
+    da = data_array(ndim=2, binedges=True)
     fig = Figure2d(input_node(da), cbar=False)
     assert fig.canvas.cax is None
 
 
 def test_update_on_one_mesh_changes_colors_on_second_mesh():
-    da1 = dense_data_array(ndim=2)
-    da2 = 3.0 * dense_data_array(ndim=2)
+    da1 = data_array(ndim=2)
+    da2 = 3.0 * data_array(ndim=2)
     da2.coords['xx'] += sc.scalar(50.0, unit='m')
     a = input_node(da1)
     b = input_node(da2)
@@ -143,7 +143,7 @@ def test_with_strings_as_bin_edges_other_coord_is_bin_centers():
 
 
 def test_kwargs_are_forwarded_to_artist():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     fig = Figure2d(input_node(da), rasterized=True)
     artist = list(fig.artists.values())[0]
     assert artist._mesh.get_rasterized()
@@ -153,7 +153,7 @@ def test_kwargs_are_forwarded_to_artist():
 
 
 def test_figsize():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     size = (8.1, 8.3)
     fig = Figure2d(input_node(da), figsize=size)
     assert np.allclose(fig.canvas.fig.get_size_inches(), size)
