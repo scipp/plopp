@@ -87,6 +87,7 @@ class Line:
             The color to be used to represent the masks.
         **kwargs:
             The kwargs are forwarded to:
+
             - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
             - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
         """

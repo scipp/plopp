@@ -65,7 +65,7 @@ def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
                                                                to=dim)
 
 
-def number_to_variable(x: Union[int, float]) -> sc.Variable:
+def number_to_variable(x: Union[int, float, sc.Variable]) -> sc.Variable:
     """
     Convert the input int or float to a variable.
 

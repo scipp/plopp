@@ -66,6 +66,7 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
     **kwargs:
         All other kwargs are directly forwarded to Matplotlib, the underlying plotting
         library. The underlying functions called are the following:
+
         - 1d data with a non bin-edge coordinate: ``plot``
         - 1d data with a bin-edge coordinate: ``step``
         - 2d data: ``pcolormesh``

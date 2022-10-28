@@ -73,6 +73,7 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
     """
     Pre-process input data for plotting.
     This involves:
+
       - converting the input to a data array
       - filling in missing dimension coords if needed
       - slicing out the parts that are not needed if cropping is requested

@@ -15,6 +15,7 @@ class InspectorEventHandler:
     """
     Class that handles the events triggered by the :class:`PointsTool` tool.
     This defines the actions to perform when:
+
       - a point is added to the 2D figure
       - a point is dragged on the 2D figure
       - a point is removed from the 2D figure

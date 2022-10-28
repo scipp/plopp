@@ -45,6 +45,7 @@ class Figure1d(BaseFig):
         The width and height of the figure, in inches.
     **kwargs:
         All other kwargs are forwarded to Matplotlib:
+
         - ``matplotlib.pyplot.plot`` for 1d data with a non bin-edge coordinate
         - ``matplotlib.pyplot.step`` for 1d data with a bin-edge coordinate
     """
