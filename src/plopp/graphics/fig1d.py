@@ -23,6 +23,7 @@ class Figure1d(BaseFig):
                  grid=False,
                  crop=None,
                  title=None,
+                 figsize=None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -31,7 +32,7 @@ class Figure1d(BaseFig):
         self._errorbars = errorbars
         self._mask_color = mask_color
         self._kwargs = kwargs
-        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid)
+        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid, figsize=figsize)
         self.canvas.yscale = norm
 
         self.render()
