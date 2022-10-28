@@ -122,3 +122,10 @@ def test_with_strings_as_bin_edges():
                       coords={'x': sc.array(dims=['x'], values=strings, unit='m')})
     fig = Figure1d(input_node(da))
     assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_figsize():
+    da = dense_data_array(ndim=1)
+    size = (6.1, 3.3)
+    fig = Figure2d(input_node(da), figsize=size)
+    assert np.allclose(fig.canvas.fig.get_size_inches(), size)

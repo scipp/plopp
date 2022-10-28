@@ -150,3 +150,10 @@ def test_kwargs_are_forwarded_to_artist():
     fig = Figure2d(input_node(da), rasterized=False)
     artist = list(fig.artists.values())[0]
     assert not artist._mesh.get_rasterized()
+
+
+def test_figsize():
+    da = dense_data_array(ndim=2)
+    size = (8.1, 8.3)
+    fig = Figure2d(input_node(da), figsize=size)
+    assert np.allclose(fig.canvas.fig.get_size_inches(), size)
