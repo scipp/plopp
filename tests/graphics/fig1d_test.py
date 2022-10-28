@@ -127,5 +127,5 @@ def test_with_strings_as_bin_edges():
 def test_figsize():
     da = dense_data_array(ndim=1)
     size = (6.1, 3.3)
-    fig = Figure2d(input_node(da), figsize=size)
+    fig = Figure1d(input_node(da), figsize=size)
     assert np.allclose(fig.canvas.fig.get_size_inches(), size)
