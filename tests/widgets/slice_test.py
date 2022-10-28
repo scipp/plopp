@@ -2,12 +2,12 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from plopp.widgets import SliceWidget, slice_dims
-from plopp.data import dense_data_array
+from plopp.data import data_array
 from scipp import identical
 
 
 def test_slice_creation():
-    da = dense_data_array(ndim=3)
+    da = data_array(ndim=3)
     dims = ['xx', 'yy']
     sw = SliceWidget(da, dims=dims)
     assert sw._slider_dims == dims
@@ -20,7 +20,7 @@ def test_slice_creation():
 
 
 def test_slice_value_property():
-    da = dense_data_array(ndim=3)
+    da = data_array(ndim=3)
     dims = ['xx', 'yy']
     sw = SliceWidget(da, dims=dims)
     sw.controls['xx']['slider'].value = 10
@@ -29,7 +29,7 @@ def test_slice_value_property():
 
 
 def test_slice_label_updates():
-    da = dense_data_array(ndim=3)
+    da = data_array(ndim=3)
     da.coords['xx'] *= 1.1
     da.coords['yy'] *= 3.3
     dims = ['xx', 'yy']
@@ -43,7 +43,7 @@ def test_slice_label_updates():
 
 
 def test_slice_dims():
-    da = dense_data_array(ndim=3)
+    da = data_array(ndim=3)
     slices = {'xx': 8, 'yy': 7}
     expected = da['xx', slices['xx']]['yy', slices['yy']]
     assert identical(slice_dims().func(da, slices=slices), expected)

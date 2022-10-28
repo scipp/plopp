@@ -1,21 +1,21 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data import dense_data_array
+from plopp.data import data_array
 from plopp.functions.slicer import Slicer
 from plopp.functions.superplot import LineSaveTool
 import scipp as sc
 
 
 def test_creation():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     sl = Slicer(da=da, keep=['xx'])
     tool = LineSaveTool(data_node=sl.slice_node, slider_node=sl.slider_node, fig=sl.fig)
     assert len(tool._lines) == 0
 
 
 def test_save_line():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     sl = Slicer(da=da, keep=['xx'])
     tool = LineSaveTool(data_node=sl.slice_node, slider_node=sl.slider_node, fig=sl.fig)
     assert len(tool._lines) == 0
@@ -34,7 +34,7 @@ def test_save_line():
 
 
 def test_remove_line():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     sl = Slicer(da=da, keep=['xx'])
     tool = LineSaveTool(data_node=sl.slice_node, slider_node=sl.slider_node, fig=sl.fig)
     assert len(tool._lines) == 0
@@ -60,7 +60,7 @@ def test_remove_line():
 
 
 def test_change_line_color():
-    da = dense_data_array(ndim=2)
+    da = data_array(ndim=2)
     sl = Slicer(da=da, keep=['xx'])
     tool = LineSaveTool(data_node=sl.slice_node, slider_node=sl.slider_node, fig=sl.fig)
     tool.save_line()
