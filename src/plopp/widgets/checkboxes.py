@@ -57,6 +57,6 @@ class Checkboxes(ipw.HBox):
     @property
     def value(self) -> Dict[str, bool]:
         """
-        Returns a dict containig one entry per checkbox, giving the checkbox's value.
+        Returns a dict containing one entry per checkbox, giving the checkbox's value.
         """
         return {key: chbx.value for key, chbx in self.checkboxes.items()}

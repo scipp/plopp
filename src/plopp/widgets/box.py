@@ -41,7 +41,7 @@ class HBar(HBox, Bar):
 class Box(VBox):
     """
     Container widget that accepts a list of items. For each item in the list, if the
-    item is itself a list, it will be bade into a horizontal row of the underlying
+    item is itself a list, it will be made into a horizontal row of the underlying
     items, if not, the item will span then entire row.
     Finally, all the rows will be placed inside a vertical box container.
 
@@ -57,4 +57,4 @@ class Box(VBox):
         children = []
         for view in self.widgets:
             children.append(HBox(view) if isinstance(view, (list, tuple)) else view)
-        return super().__init__(children)
+        super().__init__(children)

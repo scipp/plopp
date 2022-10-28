@@ -185,7 +185,7 @@ class ColorMapper:
         """
         keys = set(self.artists.keys())
         if key is not None:
-            keys -= set([key])
+            keys -= {key}
         for k in keys:
             self.artists[k].set_colors(self.rgba(self.artists[k].data))
 

@@ -60,7 +60,7 @@ class SliceWidget(ipw.VBox):
 
     def _update_label(self, change: Dict[str, Any]):
         """
-        Update the readout label with the coorinate value, instead of the integer
+        Update the readout label with the coordinate value, instead of the integer
         readout index.
         """
         dim = change['owner'].description

@@ -127,7 +127,7 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
         dim = da.dims[-1]
 
     # Convert dimension coords to bin edges
-    for d in set(da.dims) - set([dim]):
+    for d in set(da.dims) - {dim}:
         da.coords[d] = coord_as_bin_edges(da, d)
 
     op_node = node(getattr(sc, operation), dim=dim)(a)
