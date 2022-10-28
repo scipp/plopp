@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .basefig import BaseFig
+from .canvas3d import Canvas3d
 from .colormapper import ColorMapper
 
 import scipp as sc
@@ -66,7 +67,6 @@ class Figure3d(BaseFig):
         self._z = z
         self._kwargs = kwargs
 
-        from .canvas3d import Canvas3d
         self.canvas = Canvas3d(figsize=figsize)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,

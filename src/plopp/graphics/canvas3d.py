@@ -1,17 +1,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core import View
 from .outline import Outline
 
 from copy import copy
-from ipywidgets import VBox
 import numpy as np
 from scipp import Variable
 from typing import Any, Tuple
 
 
-class Canvas3d(View, VBox):
+class Canvas3d:
     """
     WebGL canvas used to render 3D graphics.
     It is based on the ``pythreejs`` library. It provides a scene, camera, controls,
@@ -28,6 +26,8 @@ class Canvas3d(View, VBox):
     """
 
     def __init__(self, figsize: Tuple[float, float] = None, title: str = None):
+
+        # TODO: the title is still unused.
 
         import pythreejs as p3
 

@@ -70,7 +70,11 @@ class Figure1d(BaseFig):
         self._errorbars = errorbars
         self._mask_color = mask_color
         self._kwargs = kwargs
-        self.canvas = Canvas(cbar=False, aspect=aspect, grid=grid, figsize=figsize)
+        self.canvas = Canvas(cbar=False,
+                             aspect=aspect,
+                             grid=grid,
+                             figsize=figsize,
+                             title=title)
         self.canvas.yscale = norm
 
         self.render()
