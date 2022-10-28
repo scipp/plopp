@@ -3,11 +3,32 @@
 
 import numpy as np
 import scipp as sc
+from typing import List
 
 dim_list = ['xx', 'yy', 'zz', 'time', 'temperature']
 
 
-def variable(ndim=1, variances=False, dims=None, dtype='float64', unit='m/s'):
+def variable(ndim: int = 1,
+             variances: bool = False,
+             dims: List[str] = None,
+             dtype: str = 'float64',
+             unit: str = 'm/s') -> sc.Variable:
+    """
+    Generate a sample ``Variable`` containing data based on a sine function.
+
+    Parameters
+    ----------
+    ndim:
+        The number of dimensions.
+    variances:
+        Add variances to the output if ``True``.
+    dims:
+        List of dimension labels. If ``None``, they will be auto-generated.
+    dtype:
+        The output variable's data type.
+    unit:
+        The output variable's unit.
+    """
 
     shapes = np.arange(50, 0, -10)[:ndim]
     if dims is None:
@@ -25,16 +46,45 @@ def variable(ndim=1, variances=False, dims=None, dtype='float64', unit='m/s'):
     return var
 
 
-def data_array(ndim=1,
-               variances=False,
-               binedges=False,
-               labels=False,
-               masks=False,
-               attrs=False,
-               ragged=False,
-               dims=None,
-               dtype='float64',
-               unit='m/s'):
+def data_array(ndim: int = 1,
+               variances: bool = False,
+               binedges: bool = False,
+               labels: bool = False,
+               masks: bool = False,
+               attrs: bool = False,
+               ragged: bool = False,
+               dims: List[str] = None,
+               dtype: str = 'float64',
+               unit: str = 'm/s') -> sc.DataArray:
+    """
+    Generate a sample ``DataArray`` containing data based on a sine function, with
+    coordinates. Optionally add masks, labels, attributes.
+    It is also possible to turn the coordinates into bin-edges, or make a ragged (2d)
+    coordinate.
+
+    Parameters
+    ----------
+    ndim:
+        The number of dimensions.
+    variances:
+        Add variances to the output if ``True``.
+    binedges:
+        The output will have bin-edge coordinates instead of bin-centers if ``True``.
+    labels:
+        Add non-dimension coordinates if ``True``.
+    masks:
+        Add masks if ``True``.
+    attrs:
+        Add attributes if ``True``.
+    ragged:
+        Make one of the coordinates two-dimensional.
+    dims:
+        List of dimension labels. If ``None``, they will be auto-generated.
+    dtype:
+        The output variable's data type.
+    unit:
+        The output variable's unit.
+    """
 
     coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K']))
 
@@ -76,16 +126,38 @@ def data_array(ndim=1,
     return sc.DataArray(data=data, coords=coord_dict, attrs=attr_dict, masks=mask_dict)
 
 
-def dataset(entries=None, **kwargs):
+def dataset(entries: List[str] = None, **kwargs) -> sc.Dataset:
+    """
+    Generate a sample ``Dataset``. See :func:`data_array` for more options.
+
+    Parameters
+    ----------
+    entries:
+        A list of names for the elements of the dataset.
+    **kwargs:
+        All other keyword arguments are forwarded to :func:`data_array`.
+    """
     if entries is None:
         entries = ['a', 'b']
     ds = sc.Dataset()
     for entry in entries:
-        ds[entry] = (10.0 * np.random.rand()) * data_array(**kwargs)
+        ds[entry] = (10.0 * np.random.random()) * data_array(**kwargs)
     return ds
 
 
-def scatter_data(npoints=500, scale=10.0, seed=1):
+def scatter_data(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
+    """
+    Generate some three-dimensional scatter data, based on a normal distribution.
+
+    Parameters
+    ----------
+    npoints:
+        The number of points to generate.
+    scale:
+        Standard deviation (spread or 'width') of the distribution.
+    seed:
+        The seed for the random number generator.
+    """
     rng = np.random.default_rng(seed)
     position = scale * rng.standard_normal(size=[npoints, 3])
     values = np.linalg.norm(position, axis=1)
