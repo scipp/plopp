@@ -2,11 +2,12 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.utils import merge_masks
+from .canvas import Canvas
 
 import scipp as sc
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Tuple
+from typing import Dict
 from matplotlib.lines import Line2D
 
 
@@ -23,9 +24,22 @@ def _parse_dicts_in_kwargs(kwargs, name):
 
 class Line:
     """
+    Artist to represent one-dimensional data.
+    If the coordinate is bin centers, the line is (by default) a set of markers.
+    If the coordinate is bin edges, the line is a step function.
+
+    Parameters
+    ----------
+    canvas:
+        The canvas that will display the line.
+    data:
+        The initial data to create the line from.
+    number:
+        The canvas keeps track of how many lines have been added to it. This number is
+        used to set the color and marker parameters of the line.
     """
 
-    def __init__(self, canvas, data, number=0, **kwargs):
+    def __init__(self, canvas: Canvas, data: sc.DataArray, number: int = 0, **kwargs):
 
         self._ax = canvas.ax
         self._data = data
@@ -50,7 +64,33 @@ class Line:
 
         self._make_line(data=self._make_data(), number=number, **args)
 
-    def _make_line(self, data, number, errorbars=True, mask_color='black', **kwargs):
+    def _make_line(self,
+                   data: Dict,
+                   number: int,
+                   errorbars: bool = True,
+                   mask_color: str = 'black',
+                   **kwargs):
+        """
+        Create either plot markers or a step function, depending on whether the data
+        contains bin edges or not.
+
+        Parameters
+        ----------
+        data:
+            A dictionary containing data entries that have been pre-processed to be in
+            a format that Matplotlib can directly use.
+        number:
+            The line number to set colors and marker style.
+        errorbars:
+            Show errorbars if ``True``.
+        mask_color:
+            The color to be used to represent the masks.
+        **kwargs:
+            The kwargs are forwarded to:
+
+            - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
+            - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
+        """
         has_mask = data["mask"] is not None
         mask_data_key = "mask" if has_mask else "values"
 
@@ -112,7 +152,7 @@ class Line:
                                             zorder=10,
                                             fmt="none")
 
-    def _preprocess_hist(self, data: dict) -> Tuple[dict, bool]:
+    def _preprocess_hist(self, data: dict) -> dict:
         """
         Convert 1d data to be plotted to internal format, e.g., padding
         histograms and duplicating info for variances.
@@ -146,8 +186,12 @@ class Line:
 
     def update(self, new_values: sc.DataArray):
         """
-        Update the x and y positions of the data points when a new data slice
-        is received for display.
+        Update the x and y positions of the data points from new data.
+
+        Parameters
+        ----------
+        new_values:
+            New data to update the line values, masks, errorbars from.
         """
         self._data = new_values
         new_values = self._make_data()
@@ -175,6 +219,9 @@ class Line:
         return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
 
     def remove(self):
+        """
+        Remove the line, masks and errorbar artists from the canvas.
+        """
         self._line.remove()
         self._mask.remove()
         if self._error is not None:
@@ -182,6 +229,9 @@ class Line:
 
     @property
     def color(self):
+        """
+        The line color.
+        """
         return self._line.get_color()
 
     @color.setter

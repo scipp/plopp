@@ -3,15 +3,24 @@
 
 from html import escape
 import ipywidgets as ipw
-from typing import Callable
+from typing import Callable, Dict, List
 
 
 class Checkboxes(ipw.HBox):
     """
     Widget providing a list of checkboxes, along with a button to toggle them all.
+
+    Parameters
+    ----------
+    entries:
+        List of strings to create the names for the different checkboxes.
+    description:
+        Global description for all the checkboxes.
+    value:
+        Default value to set all the checkboxes to.
     """
 
-    def __init__(self, entries: list, description="", value=True):
+    def __init__(self, entries: List[str], description: str = "", value: bool = True):
         self.checkboxes = {}
         self._lock = False
         self.description = ipw.Label(value=description)
@@ -46,7 +55,8 @@ class Checkboxes(ipw.HBox):
             chbx.observe(callback, **kwargs)
 
     @property
-    def value(self) -> dict:
+    def value(self) -> Dict[str, bool]:
         """
+        Returns a dict containing one entry per checkbox, giving the checkbox's value.
         """
         return {key: chbx.value for key, chbx in self.checkboxes.items()}

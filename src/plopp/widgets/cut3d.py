@@ -2,12 +2,13 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import BUTTON_LAYOUT
-from ..core import node
+from ..core import node, View
 
+import asyncio
 import ipywidgets as ipw
 import numpy as np
 import scipp as sc
-import asyncio
+from typing import Any, Callable, Dict, Literal, Tuple
 
 
 class Timer:
@@ -16,7 +17,7 @@ class Timer:
     https://ipywidgets.readthedocs.io/en/8.0.2/examples/Widget%20Events.html#Debouncing
     """
 
-    def __init__(self, timeout, callback):
+    def __init__(self, timeout: float, callback: Callable):
         self._timeout = timeout
         self._callback = callback
 
@@ -31,7 +32,7 @@ class Timer:
         self._task.cancel()
 
 
-def debounce(wait):
+def debounce(wait: float):
     """
     Decorator that will postpone a function's
     execution until after `wait` seconds
@@ -41,7 +42,7 @@ def debounce(wait):
     https://ipywidgets.readthedocs.io/en/8.0.2/examples/Widget%20Events.html#Debouncing
     """
 
-    def decorator(fn):
+    def decorator(fn: Callable):
         timer = None
 
         def debounced(*args, **kwargs):
@@ -69,18 +70,34 @@ class Cut3dTool(ipw.HBox):
     using a debounce mechanism.
 
     The tool also has two buttons +/- to increase/decrease the thickness of the cut.
+
+    Parameters
+    ----------
+    view:
+        The 3d figure that contains the point clouds to be cut.
+    limits:
+        The spatial extent of the points in the 3d figure in the XYZ directions.
+    direction:
+        The direction normal to the slice.
+    value:
+        Set the cut to active upon creation if ``True``.
+    color:
+        Color of the cut's outline.
+    linewidth:
+        Width of the line delineating the outline.
+    **kwargs:
+        The kwargs are forwarded to the ToggleButton from ``ipywidgets``.
     """
 
     def __init__(self,
-                 view,
-                 limits,
-                 direction,
+                 view: View,
+                 limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
+                 direction: Literal['x', 'y', 'z'],
                  value: bool = False,
-                 color='red',
-                 linewidth=1.5,
+                 color: str = 'red',
+                 linewidth: float = 1.5,
                  **kwargs):
-        """
-        """
+
         import pythreejs as p3
         self._limits = limits
         self._direction = direction
@@ -154,7 +171,10 @@ class Cut3dTool(ipw.HBox):
                 layout={'align_items': 'center'})
         ])
 
-    def toggle(self, change):
+    def toggle(self, change: Dict[str, Any]):
+        """
+        Toggle the tool on and off.
+        """
         self.outline.visible = change['new']
         for widget in (self.slider, self.button_plus, self.button_minus, self.readout):
             widget.disabled = not change['new']
@@ -163,7 +183,10 @@ class Cut3dTool(ipw.HBox):
         else:
             self._remove_cut()
 
-    def move(self, value):
+    def move(self, value: Dict[str, Any]):
+        """
+        Move the outline of the cut according to new position given by the slider.
+        """
         pos = list(self.outline.position)
         axis = 'xyz'.index(self._direction)
         pos[axis] = value['new']
@@ -171,6 +194,9 @@ class Cut3dTool(ipw.HBox):
         self._remove_cut()
 
     def _add_cut(self):
+        """
+        Add a point cloud representing the points that intersect the cut plane.
+        """
         for n in self._nodes:
             da = n.request_data()
             delta = sc.scalar((self.slider.max - self.slider.min) * self.thickness,
@@ -186,26 +212,43 @@ class Cut3dTool(ipw.HBox):
                 )
 
     def _remove_cut(self):
+        """
+        Remove a cut point the scene.
+        """
         for n in self.select_nodes.values():
             self._view.remove(n.id)
             n.remove()
         self.select_nodes.clear()
 
     @debounce(0.3)
-    def update_cut(self, change):
+    def update_cut(self, _):
+        """
+        Update the position of the point cloud. This uses the debounce mechanism to
+        avoid updating the cloud too often, and instead rely on simply moving the
+        outline, which is cheap.
+        """
         if self.value:
             self._add_cut()
 
     @property
     def value(self):
+        """
+        Return the state of the ToggleButton.
+        """
         return self.button.value
 
-    def increase_thickness(self, change):
+    def increase_thickness(self, _):
+        """
+        Increase the thickness of the cut.
+        """
         self.thickness = self.thickness + self._thickness_step
         self._remove_cut()
         self._add_cut()
 
-    def decrease_thickness(self, change):
+    def decrease_thickness(self, _):
+        """
+        Decrease the thickness of the cut.
+        """
         self.thickness = max(self.thickness - self._thickness_step, 0)
         self._remove_cut()
         self._add_cut()
@@ -215,9 +258,14 @@ class TriCutTool(ipw.HBox):
     """
     A collection of :class:`Cut3dTool`s to make spatial cuts in the X, Y, and Z
     directions on a three-dimensional scatter plot.
+
+    Parameters
+    ----------
+    fig:
+        The 3d figure that contains the point clouds to be cut.
     """
 
-    def __init__(self, fig):
+    def __init__(self, fig: View):
 
         self._fig = fig
         limits = self._fig.get_limits()
@@ -266,7 +314,7 @@ class TriCutTool(ipw.HBox):
         ])
         self.layout.display = 'none'
 
-    def _toggle_opacity(self, change):
+    def _toggle_opacity(self, _):
         """
         If any cut is active, set the opacity of the original children (not the cuts) to
         a low value. If all cuts are inactive, set the opacity back to 1.
@@ -276,8 +324,14 @@ class TriCutTool(ipw.HBox):
         opacity = self.opacity.value if active_cut else 1.0
         self._set_opacity({'new': opacity})
 
-    def _set_opacity(self, change):
+    def _set_opacity(self, change: Dict[str, Any]):
+        """
+        Set the opacity of the original point clouds in the figure, not the cuts.
+        """
         self._fig.set_opacity(change['new'])
 
     def toggle_visibility(self):
+        """
+        Toggle the visibility of the control buttons for making the cuts.
+        """
         self.layout.display = None if self.layout.display == 'none' else 'none'

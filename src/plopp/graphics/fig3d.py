@@ -1,25 +1,63 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-import scipp as sc
 from .basefig import BaseFig
+from .canvas3d import Canvas3d
 from .colormapper import ColorMapper
+
+import scipp as sc
+from typing import Literal, Tuple
 
 
 class Figure3d(BaseFig):
+    """
+    Figure that makes a visual representation of three-dimensional scatter data.
+    It has a :class:`Canvas3d`, a :class:`ColorMapper` and a specialized ``update``
+    function that generates :class:`PointCloud` artists.
+
+    Parameters
+    ----------
+    *nodes:
+        The nodes that are attached to the view.
+    x:
+        The name of the coordinate to use for the X positions of the scatter points.
+    y:
+        The name of the coordinate to use for the Y positions of the scatter points.
+    z:
+        The name of the coordinate to use for the Z positions of the scatter points.
+    cmap:
+        The name of the colormap for the data
+        (see https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+        In addition to the Matplotlib docs, if the name is just a single html color,
+        a colormap with that single color will be used.
+    mask_cmap:
+        The name of the colormap for masked data.
+    norm:
+        Control the scaling on the vertical axis.
+    vmin:
+        Lower bound for the vertical axis.
+    vmax:
+        Upper bound for the vertical axis.
+    title:
+        The figure title.
+    figsize:
+        The width and height of the figure, in pixels.
+    **kwargs:
+        All other kwargs are forwarded to the PointCloud artist.
+    """
 
     def __init__(self,
                  *nodes,
-                 x,
-                 y,
-                 z,
-                 figsize=None,
-                 title=None,
+                 x: str,
+                 y: str,
+                 z: str,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
-                 norm=None,
-                 vmin=None,
-                 vmax=None,
+                 norm: Literal['linear', 'log'] = 'linear',
+                 vmin: sc.Variable = None,
+                 vmax: sc.Variable = None,
+                 figsize: Tuple[float, float] = None,
+                 title: str = None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -29,7 +67,6 @@ class Figure3d(BaseFig):
         self._z = z
         self._kwargs = kwargs
 
-        from .canvas3d import Canvas3d
         self.canvas = Canvas3d(figsize=figsize)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
@@ -44,7 +81,16 @@ class Figure3d(BaseFig):
 
     def update(self, new_values: sc.DataArray, key: str, draw=True):
         """
-        Update image array with new values.
+        Add new point cloud or update point cloud array with new values.
+
+        Parameters
+        ----------
+        new_values:
+            New data to create or update a :class:`PointCloud` object from.
+        key:
+            The id of the node that sent the new data.
+        draw:
+            This argument is ignored for the 3d figure update.
         """
 
         self.colormapper.update(data=new_values, key=key)
@@ -65,7 +111,7 @@ class Figure3d(BaseFig):
         self.artists[key].update(new_values=new_values)
         self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
 
-    def get_limits(self):
+    def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
         Get global limits for all the point clouds in the scene.
         """
@@ -93,16 +139,26 @@ class Figure3d(BaseFig):
                           dim=self._x), sc.concat([ymin, ymax], dim=self._y),
                 sc.concat([zmin, zmax], dim=self._z))
 
-    def set_opacity(self, alpha):
+    def set_opacity(self, alpha: float):
         """
         Update the opacity of the original children (not the cuts).
+
+        Parameters
+        ----------
+        alpha:
+            The opacity value, between 0 and 1.
         """
         for name in self._original_artists:
             self.artists[name].opacity = alpha
 
-    def remove(self, key):
+    def remove(self, key: str):
         """
         Remove an object from the scene.
+
+        Parameters
+        ----------
+        key:
+            The id of the object to be removed.
         """
         self.canvas.remove(self.artists[key].points)
         del self.artists[key]

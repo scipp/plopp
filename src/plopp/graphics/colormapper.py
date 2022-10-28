@@ -5,16 +5,28 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
 from .utils import fig_to_bytes, silent_mpl_figure
 
+from copy import copy
 import matplotlib as mpl
-from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap
+from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap, Colormap
 import matplotlib.pyplot as plt
 from matplotlib.colorbar import ColorbarBase
-import scipp as sc
-from copy import copy
 import numpy as np
+import scipp as sc
+from typing import Literal, Tuple
 
 
-def _get_cmap(name, nan_color=None):
+def _get_cmap(name: str, nan_color: str = None) -> Colormap:
+    """
+    Get a colormap object from a colormap name.
+
+    Parameters
+    ----------
+    name:
+        Name of the colormap. If the name is just a single html color, this will
+        create a colormap with that single color.
+    nan_color:
+        The color to use for NAN values.
+    """
 
     try:
         if hasattr(mpl, 'colormaps'):
@@ -22,7 +34,7 @@ def _get_cmap(name, nan_color=None):
         else:
             cmap = mpl.cm.get_cmap(name)
     except (KeyError, ValueError):
-        cmap = LinearSegmentedColormap.from_list("tmp", [name, name])
+        cmap = LinearSegmentedColormap.from_list('tmp', [name, name])
     # TODO: we need to set under and over values for the cmap with
     # `cmap.set_under` and `cmap.set_over`. Ideally these should come from a config?
     if nan_color is not None:
@@ -31,16 +43,46 @@ def _get_cmap(name, nan_color=None):
 
 
 class ColorMapper:
+    """
+    A class that handles conversion between data values and RGBA colors.
+    It controls the normalization (linear or log), as well as the min and max limits
+    for the color range.
+    If the min and max values are not set manually by the user, they are allowed to grow
+    with time but they do not shrink.
+
+    Parameters
+    ----------
+    cax:
+        The axes to use for the colorbar. If none are supplied, the ColorMapper will
+        create its own axes.
+    cmap:
+        The name of the colormap for the data
+        (see https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+        In addition to the Matplotlib docs, if the name is just a single html color,
+        a colormap with that single color will be used.
+    mask_cmap:
+        The name of the colormap for masked data.
+    norm:
+        The colorscale normalization.
+    vmin:
+        The minimum value for the colorscale range.
+    vmax:
+        The maximum value for the colorscale range.
+    nan_color:
+        The color used for representing NAN values.
+    figsize:
+        The size of the figure next to which the colorbar will be displayed.
+    """
 
     def __init__(self,
-                 cax=None,
+                 cax: plt.Axes = None,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
-                 norm: str = "linear",
-                 vmin=None,
-                 vmax=None,
-                 nan_color=None,
-                 figsize=None):
+                 norm: Literal['linear', 'log'] = 'linear',
+                 vmin: sc.Variable = None,
+                 vmax: sc.Variable = None,
+                 nan_color: str = None,
+                 figsize: Tuple[float, float] = None):
 
         self.cax = cax
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
@@ -53,7 +95,7 @@ class ColorMapper:
 
         # Note that we need to set vmin/vmax for the LogNorm, if not an error is
         # raised when making the colorbar before any call to update is made.
-        self.normalizer = Normalize() if self.norm == "linear" else LogNorm(vmin=1,
+        self.normalizer = Normalize() if self.norm == 'linear' else LogNorm(vmin=1,
                                                                             vmax=2)
         self.colorbar = None
         self.unit = None
@@ -79,18 +121,29 @@ class ColorMapper:
         return self.artists[key]
 
     def to_widget(self):
+        """
+        Convert the colorbar into a widget for use with other ``ipywidgets``.
+        """
         import ipywidgets as ipw
         self.widget = ipw.HTML()
         self._update_colorbar_widget()
         return self.widget
 
     def _update_colorbar_widget(self):
+        """
+        Upon an updated colorscale range, we need to update the image inside the widget.
+        """
         if self.widget is not None:
             self.widget.value = fig_to_bytes(self.cax.get_figure(), form='svg').decode()
 
-    def rgba(self, data: sc.DataArray):
+    def rgba(self, data: sc.DataArray) -> np.ndarray:
         """
         Return rgba values given a data array.
+
+        Parameters
+        ----------
+        data:
+            The data array to be converted to rgba colors, taking masks into account.
         """
         colors = self.cmap(self.normalizer(data.values))
         if data.masks:
@@ -98,9 +151,15 @@ class ColorMapper:
             colors[one_mask] = self.mask_cmap(self.normalizer(data.values[one_mask]))
         return colors
 
-    def autoscale(self, data):
+    def autoscale(self, data: sc.DataArray):
         """
         Re-compute the min and max range of values, given new values.
+        The current range can grow but not shrink.
+
+        Parameters
+        ----------
+        data:
+            The data array containing the values to update the current range.
         """
         vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm))
         if self.user_vmin is not None:
@@ -114,18 +173,35 @@ class ColorMapper:
         elif vmax.value > self.vmax:
             self.vmax = vmax.value
 
-    def _set_artists_colors(self, key=None):
+    def _set_artists_colors(self, key: str = None):
         """
         Update the colors of all the artists apart from the one that triggered the
         update, as those get updated by the figure.
+
+        Parameters
+        ----------
+        key:
+            Update all connected artists, apart from the one whose id is ``key``.
         """
         keys = set(self.artists.keys())
         if key is not None:
-            keys -= set([key])
+            keys -= {key}
         for k in keys:
             self.artists[k].set_colors(self.rgba(self.artists[k].data))
 
-    def update(self, data, key):
+    def update(self, data: sc.DataArray, key: str):
+        """
+        Update the colorscale bounds taking into account new values.
+        If the bounds have changed, we update all the colors in the artists that depend
+        on this ColorMapper. We also update the colorbar widget if it exists.
+
+        Parameters
+        ----------
+        data:
+            The data array to use to update the colorscale range.
+        key:
+            The id of the node that provided this data.
+        """
         old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
 
@@ -151,8 +227,8 @@ class ColorMapper:
         """
         Toggle the norm flag, between `linear` and `log`.
         """
-        self.norm = "log" if self.norm == "linear" else "linear"
-        self.normalizer = Normalize() if self.norm == "linear" else LogNorm()
+        self.norm = "log" if self.norm == 'linear' else 'linear'
+        self.normalizer = Normalize() if self.norm == 'linear' else LogNorm()
         self.vmin = np.inf
         self.vmax = np.NINF
         for artist in self.artists.values():

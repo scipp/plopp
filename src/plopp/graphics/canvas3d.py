@@ -1,17 +1,33 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core import View
 from .outline import Outline
 
 from copy import copy
 import numpy as np
-from ipywidgets import VBox
+from scipp import Variable
+from typing import Any, Tuple
 
 
-class Canvas3d(View, VBox):
+class Canvas3d:
+    """
+    WebGL canvas used to render 3D graphics.
+    It is based on the ``pythreejs`` library. It provides a scene, camera, controls,
+    as well as functions for controlling the camera.
+    In addition, it draws a RGB axes helper for the XYZ dimensions, and can draw an
+    outline box, given a spatial range in the three directions.
 
-    def __init__(self, figsize=None, title=None):
+    Parameters
+    ----------
+    figsize:
+        The width and height of the renderer in pixels.
+    title:
+        The title to be placed above the figure.
+    """
+
+    def __init__(self, figsize: Tuple[float, float] = None, title: str = None):
+
+        # TODO: the title is still unused.
 
         import pythreejs as p3
 
@@ -36,7 +52,10 @@ class Canvas3d(View, VBox):
                                     width=width,
                                     height=height)
 
-    def make_outline(self, limits):
+    def make_outline(self, limits: Tuple[Variable, Variable, Variable]):
+        """
+        Create an outline box with ticklabels, given a range in the XYZ directions.
+        """
         if self.outline is not None:
             self.remove(self.outline)
         self.outline = Outline(limits=limits)
@@ -44,7 +63,14 @@ class Canvas3d(View, VBox):
         self._update_camera(limits=limits)
         self.axes_3d.scale = [self.camera.far] * 3
 
-    def _update_camera(self, limits):
+    def _update_camera(self, limits: Tuple[Variable, Variable, Variable]):
+        """
+        Update the camera position when a new object is added to the canvas.
+        The camera will look at the mean position of all the objects, and its position
+        will be far enough from the center to see all the objects.
+        This 'Home' position will be backed up so it can be used when resetting the
+        camera via the ``home`` function.
+        """
         center = [var.mean().value for var in limits]
         distance_from_center = 1.2
         box_size = np.array([(limits[i][1] - limits[i][0]).value for i in range(3)])
@@ -81,21 +107,21 @@ class Canvas3d(View, VBox):
         """
         View scene along the X normal.
         """
-        self.camera_normal(position=self.camera_backup["x_normal"].copy(), ind=0)
+        self._camera_normal(position=self.camera_backup["x_normal"].copy(), ind=0)
 
     def camera_y_normal(self):
         """
         View scene along the Y normal.
         """
-        self.camera_normal(position=self.camera_backup["y_normal"].copy(), ind=1)
+        self._camera_normal(position=self.camera_backup["y_normal"].copy(), ind=1)
 
     def camera_z_normal(self):
         """
         View scene along the Z normal.
         """
-        self.camera_normal(position=self.camera_backup["z_normal"].copy(), ind=2)
+        self._camera_normal(position=self.camera_backup["z_normal"].copy(), ind=2)
 
-    def camera_normal(self, position, ind):
+    def _camera_normal(self, position: Tuple[float, float, float], ind: int):
         """
         Move camera to requested normal, and flip if current position is equal
         to the requested position.
@@ -104,19 +130,39 @@ class Canvas3d(View, VBox):
             position[ind] = 2.0 * self.camera_backup["center"][ind] - position[ind]
         self.move_camera(position=position)
 
-    def move_camera(self, position):
+    def move_camera(self, position: Tuple[float, float, float]):
+        """
+        Move the camera to the supplied position.
+
+        Parameters
+        ----------
+        position:
+            The new camera position.
+        """
         self.camera.position = position
         self.controls.target = self.camera_backup["center"]
         self.camera.lookAt(self.camera_backup["center"])
 
     def toggle_outline(self):
+        """
+        Toggle the visibility of the outline box.
+        """
         self.outline.visible = not self.outline.visible
 
     def toggle_axes3d(self):
+        """
+        Toggle the visibility of the RGB helper axes.
+        """
         self.axes_3d.visible = not self.axes_3d.visible
 
-    def add(self, obj):
+    def add(self, obj: Any):
+        """
+        Add an object to the ``scene``.
+        """
         self.scene.add(obj)
 
     def remove(self, obj):
+        """
+        Remove an object from the ``scene``.
+        """
         self.scene.remove(obj)

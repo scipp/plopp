@@ -2,18 +2,20 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import BUTTON_LAYOUT, is_sphinx_build
+from ..graphics import Canvas
 
 import ipywidgets as ipw
 from functools import partial
 from typing import Callable
+from matplotlib.pyplot import Axes
 
 
 class ButtonTool(ipw.Button):
+    """
+    Create a button with a callback that is called when the button is clicked.
+    """
 
     def __init__(self, callback: Callable = None, **kwargs):
-        """
-        Create a button with a callback that is called when the button is clicked.
-        """
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
         self.callback = callback
         self.on_click(self)
@@ -23,12 +25,12 @@ class ButtonTool(ipw.Button):
 
 
 class ToggleTool(ipw.ToggleButton):
+    """
+    Create a toggle button with a callback that is called when the button is
+    toggled.
+    """
 
     def __init__(self, callback: Callable, **kwargs):
-        """
-        Create a toggle button with a callback that is called when the button is
-        toggled.
-        """
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
         self.callback = callback
         self.observe(self, names='value')
@@ -38,13 +40,13 @@ class ToggleTool(ipw.ToggleButton):
 
 
 class MultiToggleTool(ipw.ToggleButtons):
+    """
+    Create toggle buttons with a callback that is called when one of the buttons is
+    toggled. In addition to ipywidgets ToggleButtons, when you click the button
+    which is already selected, it resets the value to `None` (no button selected).
+    """
 
     def __init__(self, callback: Callable, **kwargs):
-        """
-        Create toggle buttons with a callback that is called when one of the buttons is
-        toggled. In addition to ipywidgets ToggleButtons, when you click the button
-        which is already selected, it resets the value to `None` (no button selected).
-        """
         args = {
             'layout': {
                 "width": "40px",
@@ -67,7 +69,7 @@ class MultiToggleTool(ipw.ToggleButtons):
     def __call__(self, *ignored):
         self.callback()
 
-    def reset(self, owner, *ignored):
+    def reset(self, owner: ipw.Widget, *ignored):
         """
         If the currently selected button is clicked again, reset value to None.
         """
@@ -77,34 +79,52 @@ class MultiToggleTool(ipw.ToggleButtons):
 
 
 HomeTool = partial(ButtonTool, icon='home', tooltip='Autoscale view')
+"""Return home tool."""
 
 LogxTool = partial(ToggleTool, description='logx', tooltip='Toggle X axis scale')
+"""Toggle horizontal axis scale tool."""
 
 LogyTool = partial(ToggleTool, description='logy', tooltip='Toggle Y axis scale')
+"""Toggle vertical axis scale tool."""
 
 LogNormTool = partial(ToggleTool,
                       description='log',
                       tooltip='Toggle colorscale normalization')
+"""Toggle normalization scale tool."""
 
 SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
+"""Save figure to png tool."""
 
 CameraTool = partial(ButtonTool, icon='camera', tooltip='Autoscale view')
+"""Tool for changing the position of the camera in a 3d scene."""
 
 OutlineTool = partial(ToggleTool,
                       value=True,
                       icon='codepen',
                       tooltip='Toggle outline visibility')
+"""Toggle outline visbility tool"""
 
 AxesTool = partial(ToggleTool,
                    value=True,
                    description='\u27C0',
                    style={'font_weight': 'bold'},
                    tooltip='Toggle visibility of XYZ axes')
+"""Toggle RGB axes helper visbility tool"""
 
 
 class PanZoomTool(MultiToggleTool):
+    """
+    Tool to control the panning and zooming actions on a Matplotlib figure.
 
-    def __init__(self, canvas, value=None, **kwargs):
+    Parameters
+    ----------
+    canvas:
+        The canvas to act upon.
+    value:
+        Set the initially selected button. No button selected if ``None``.
+    """
+
+    def __init__(self, canvas: Canvas, value: bool = None, **kwargs):
         self._canvas = canvas
         super().__init__(callback=self._pan_zoom,
                          options=[('', 'pan'), (' ', 'zoom')],
@@ -123,8 +143,18 @@ class PanZoomTool(MultiToggleTool):
 
 
 class PointsTool(ToggleTool):
+    """
+    Tool to add point markers onto a figure.
 
-    def __init__(self, value=False, ax=None, **kwargs):
+    Parameters
+    ----------
+    value:
+        Set the toggle button value on creation.
+    ax:
+        The Matplotlib axes where the points will be drawn.
+    """
+
+    def __init__(self, value: bool = False, ax: Axes = None, **kwargs):
         from mpltoolbox import Points
         self.points = Points(ax=ax, autostart=False, mec='w')
         super().__init__(callback=self.start_stop,
@@ -133,6 +163,9 @@ class PointsTool(ToggleTool):
                          **kwargs)
 
     def start_stop(self):
+        """
+        Toggle start or stop of the tool.
+        """
         if self.value:
             self.points.start()
         else:
@@ -140,8 +173,19 @@ class PointsTool(ToggleTool):
 
 
 class ColorTool(ipw.HBox):
+    """
+    Tool for saving lines and controlling their color.
+    It also comes with a close button to remove a line.
 
-    def __init__(self, text, color):
+    Parameters
+    ----------
+    text:
+        Text label for the tool.
+    color:
+        Initial color.
+    """
+
+    def __init__(self, text: str, color: str):
         layout = ipw.Layout(display="flex", justify_content="flex-end", width='150px')
         self.text = ipw.Label(value=text, layout=layout)
         self.color = ipw.ColorPicker(concise=True,

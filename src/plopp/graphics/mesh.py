@@ -2,10 +2,10 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.utils import coord_as_bin_edges, repeat, merge_masks
+from .canvas import Canvas
 
 import numpy as np
 import scipp as sc
-from typing import Any
 
 
 def _find_dim_of_2d_coord(coords):
@@ -52,21 +52,27 @@ def _from_data_array_to_pcolormesh(data, coords, dim_1d, dim_2d):
 
 class Mesh:
     """
-    Class for 2 dimensional plots.
+    Artist to represent two-dimensional data.
+
+    Parameters
+    ----------
+    canvas:
+        The canvas that will display the line.
+    data:
+        The initial data to create the line from.
+    shading:
+        The shading to use for the ``pcolormesh``.
+    rasterized:
+        Rasterize the mesh/image if ``True``.
+    **kwargs:
+        Additional arguments are forwarded to Matplotlib's ``pcolormesh``.
     """
 
     def __init__(self,
-                 canvas,
-                 data,
-                 cax: Any = None,
-                 cmap: str = 'viridis',
-                 mask_cmap: str = 'gray',
-                 norm: str = 'linear',
-                 vmin=None,
-                 vmax=None,
-                 cbar=True,
-                 shading='auto',
-                 rasterized=True,
+                 canvas: Canvas,
+                 data: sc.DataArray,
+                 shading: str = 'auto',
+                 rasterized: bool = True,
                  **kwargs):
 
         self._ax = canvas.ax
@@ -85,20 +91,7 @@ class Mesh:
                 string_labels[k] = self._data.meta[self._data.dims[i]]
 
         self._dim_1d, self._dim_2d = _get_dims_of_1d_and_2d_coords(to_dim_search)
-        self._xlabel = None
-        self._ylabel = None
-        self._title = None
-        self._cax = cax
         self._mesh = None
-        self._cbar = cbar
-
-        self._extend = 'neither'
-        if (vmin is not None) and (vmax is not None):
-            self._extend = 'both'
-        elif vmin is not None:
-            self._extend = 'min'
-        elif vmax is not None:
-            self._extend = 'max'
 
         x, y, z = _from_data_array_to_pcolormesh(data=self._data.data,
                                                  coords=bin_edge_coords,
@@ -118,6 +111,10 @@ class Mesh:
 
     @property
     def data(self):
+        """
+        Get the Mesh's data in a form that may have been tweaked, compared to the
+        original data, in the case of a two-dimensional coordinate.
+        """
         out = sc.DataArray(data=_maybe_repeat_values(
             data=self._data.data, dim_1d=self._dim_1d, dim_2d=self._dim_2d))
         if self._data.masks:
@@ -129,11 +126,24 @@ class Mesh:
                                                          dim_2d=self._dim_2d)
         return out
 
-    def set_colors(self, rgba):
+    def set_colors(self, rgba: np.ndarray):
+        """
+        Set the mesh's rgba colors:
+
+        Parameters
+        ----------
+        rgba:
+            The array of rgba colors.
+        """
         self._mesh.set_facecolors(rgba.reshape(np.prod(rgba.shape[:-1]), 4))
 
     def update(self, new_values: sc.DataArray):
         """
         Update image array with new values.
+
+        Parameters
+        ----------
+        new_values:
+            New data to update the mesh values from.
         """
         self._data = new_values

@@ -9,7 +9,7 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-from .core import Node, node, input_node, widget_node, show_graph, View
+from .core import Node, View, node, input_node, widget_node, show_graph
 from .functions import figure1d, figure2d, plot, slicer, inspector, scatter3d, superplot
 
 from . import data
@@ -30,7 +30,7 @@ def patch_scipp():
 
 def unpatch_scipp():
     """
-    Running this reverts the pacthing operation in :func:`patch_scipp`.
+    Running this reverts the patching operation in :func:`patch_scipp`.
     """
     import scipp as sc
     from scipp.plotting import plot as pl

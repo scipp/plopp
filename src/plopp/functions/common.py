@@ -6,6 +6,7 @@ from ..core.utils import number_to_variable
 from matplotlib import get_backend
 from numpy import ndarray, prod
 from scipp import Variable, DataArray, arange, to_unit
+from typing import Dict, Union
 
 
 def is_interactive_backend():
@@ -15,14 +16,21 @@ def is_interactive_backend():
     return 'ipympl' in get_backend()
 
 
-def require_interactive_backend(func):
+def require_interactive_backend(func: str):
+    """
+    Raise an error if the current backend in use is non-interactive.
+    """
     if not is_interactive_backend():
         raise RuntimeError(f"The {func} can only be used with the interactive widget "
                            "backend. Use `%matplotlib widget` at the start of your "
                            "notebook.")
 
 
-def _to_data_array(obj):
+def _to_data_array(obj: Union[ndarray, Variable, DataArray]):
+    """
+    Convert an input to a DataArray, potentially adding fake coordinates if they are
+    missing.
+    """
     out = obj
     if isinstance(out, ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
@@ -36,23 +44,51 @@ def _to_data_array(obj):
     return out
 
 
-def _convert_if_not_none(x, unit):
+def _convert_if_not_none(x: Variable, unit: str) -> Union[None, Variable]:
+    """
+    Convert input to the required unit if it is not ``None``.
+    """
     if x is not None:
         return to_unit(number_to_variable(x), unit=unit)
-    return x
 
 
-def _check_size(obj):
+def _check_size(da: DataArray):
+    """
+    Prevent slow figure rendering by raising an error if the data array exceeds a
+    default size.
+    """
     limits = {1: 1_000_000, 2: 2500 * 2500}
-    if obj.ndim not in limits:
+    if da.ndim not in limits:
         raise ValueError("plot can only handle 1d and 2d data.")
-    if prod(obj.shape) > limits[obj.ndim]:
-        raise ValueError(f"Plotting data of size {obj.shape} may take very long or use "
+    if prod(da.shape) > limits[da.ndim]:
+        raise ValueError(f"Plotting data of size {da.shape} may take very long or use "
                          "an excessive amount of memory. This is therefore disabled by "
                          "default. To bypass this check, use `ignore_size=True`.")
 
 
-def preprocess(obj, crop=None, name='', ignore_size=False):
+def preprocess(obj: Union[ndarray, Variable, DataArray],
+               crop: Dict[str, Dict[str, Variable]] = None,
+               name: str = '',
+               ignore_size: bool = False):
+    """
+    Pre-process input data for plotting.
+    This involves:
+
+      - converting the input to a data array
+      - filling in missing dimension coords if needed
+      - slicing out the parts that are not needed if cropping is requested
+
+    Parameters
+    ----------
+    obj:
+        The input object that will be plotted.
+    crop:
+        Used to define cropping. See :func:`plot` for syntax.
+    name:
+        Override the input's name if it has none.
+    ignore_size:
+        Do not perform a size check on the object before plotting it.
+    """
     out = _to_data_array(obj)
     if not out.name:
         out.name = name

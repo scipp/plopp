@@ -1,15 +1,26 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-import scipp as sc
-import uuid
 from functools import reduce
+import scipp as sc
+from typing import Dict, Union
+import uuid
 
 
-def coord_as_bin_edges(da, key, dim=None):
+def coord_as_bin_edges(da: sc.DataArray, key: str, dim: str = None) -> sc.Variable:
     """
-    If coordinate `key` in DataArray da is already bin edges, return it unchanged.
+    If coordinate ``key`` in DataArray ``da`` is already bin edges, return it unchanged.
     If it is midpoints, return as bin edges.
+
+    Parameters
+    ----------
+    da:
+        The input data array.
+    key:
+        The name of coordinate to potentially convert to bin edges.
+    dim:
+        The dimension to use for computing the bin edges (this can be different from
+        the coordinate name, in the case of non-dimension coordinates).
     """
     if dim is None:
         dim = key
@@ -30,10 +41,19 @@ def coord_as_bin_edges(da, key, dim=None):
         return sc.concat([left, center, right], dim)
 
 
-def repeat(x, dim, n):
+def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
     """
     Equivalent of Numpy's `repeat` function: repeat the values of a variable `n` times
     along dimension `dim`.
+
+    Parameters
+    ----------
+    x:
+        The input variable.
+    dim:
+        The dimension along which to repeat.
+    n:
+        The number of times to repeat.
     """
     index = x.dims.index(dim) + 1
     dummy_dim = uuid.uuid4().hex
@@ -45,35 +65,50 @@ def repeat(x, dim, n):
                                                                to=dim)
 
 
-def number_to_variable(x):
+def number_to_variable(x: Union[int, float, sc.Variable]) -> sc.Variable:
     """
     Convert the input int or float to a variable.
+
+    Parameters
+    ----------
+    x:
+        The input int or float.
     """
     return sc.scalar(x, unit=None) if isinstance(x, (int, float)) else x
 
 
-def name_with_unit(var=None, name=None, log=False):
+def name_with_unit(var: sc.Variable, name: str = None) -> str:
     """
-    Make a column title or axis label with "Name [unit]".
+    Make a string from a variable dimension and its unit.
+    The variable dimension can be overridden by specifying the ``name`` directly.
+
+    Parameters
+    ----------
+    var:
+        The input variable.
+    name:
+        The name to use to override the variable's dimension name.
     """
     text = ""
     if name is not None:
         text = name
-    elif var is not None:
+    else:
         text = str(var.dims[-1])
-
-    if log:
-        text = "log\u2081\u2080(" + text + ")"
-    if var is not None:
-        unit = var.unit if var.bins is None else var.bins.constituents["data"].unit
-        if unit is not None:
-            text += f" [{unit}]"
+    if var.unit is not None:
+        text += f" [{var.unit}]"
     return text
 
 
-def value_to_string(val, precision=3):
+def value_to_string(val: Union[int, float], precision: int = 3) -> str:
     """
     Convert a number to a human readable string.
+
+    Parameters
+    ----------
+    val:
+        The input number.
+    precision:
+        The number of decimal places to use for the string output.
     """
     if (not isinstance(val, float)) or (val == 0):
         text = str(val)
@@ -87,19 +122,29 @@ def value_to_string(val, precision=3):
     return text
 
 
-def merge_masks(masks):
+def merge_masks(masks: Dict[str, sc.Variable]) -> sc.Variable:
     """
     Combine all masks into a single one using the OR operation.
+
+    Parameters
+    ----------
+    masks:
+        The dict holding the masks to be combined.
     """
     return reduce(lambda a, b: a | b, masks.values())
 
 
-def coord_element_to_string(coord):
+def coord_element_to_string(x: sc.Variable) -> str:
     """
     Convert a slice of a coordinate containing a single value (or two values in the
     case of a bin-edge coordinate) to a string.
+
+    Parameters
+    ----------
+    x:
+        The input variable (of length 1 or 2).
     """
-    out = value_to_string(coord.values)
-    if coord.unit is not None:
-        out += f" [{coord.unit}]"
+    out = value_to_string(x.values)
+    if x.unit is not None:
+        out += f" [{x.unit}]"
     return out

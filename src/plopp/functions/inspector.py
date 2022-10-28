@@ -3,17 +3,26 @@
 
 from .common import require_interactive_backend, preprocess
 from .figure import figure1d, figure2d
-from ..core import input_node, node, Node
+from ..core import input_node, node, Node, View
 from ..core.utils import coord_as_bin_edges
 
 import scipp as sc
 from numpy import ndarray
-from typing import Union, Dict, Literal
+from typing import Any, Union, Dict, Literal
 
 
 class InspectorEventHandler:
+    """
+    Class that handles the events triggered by the :class:`PointsTool` tool.
+    This defines the actions to perform when:
 
-    def __init__(self, data_array, root_node, fig1d, fig2d):
+      - a point is added to the 2D figure
+      - a point is dragged on the 2D figure
+      - a point is removed from the 2D figure
+    """
+
+    def __init__(self, data_array: sc.DataArray, root_node: Node, fig1d: View,
+                 fig2d: View):
         self._data_array = data_array
         self._root_node = root_node
         self._fig1d = fig1d
@@ -21,7 +30,7 @@ class InspectorEventHandler:
         self._xdim = fig2d.dims['x']['dim']
         self._ydim = fig2d.dims['y']['dim']
 
-    def make_node(self, change):
+    def make_node(self, change: Dict[str, Any]):
         from ..widgets import slice_dims
         event = change['event']
         event_node = Node(
@@ -37,7 +46,7 @@ class InspectorEventHandler:
         inspect_node.add_view(self._fig1d)
         self._fig1d.update(new_values=inspect_node.request_data(), key=inspect_node.id)
 
-    def update_node(self, change):
+    def update_node(self, change: Dict[str, Any]):
         event = change['event']
         n = self._event_nodes[change['artist'].nodeid]
         n.func = lambda: {
@@ -48,7 +57,7 @@ class InspectorEventHandler:
         }
         n.notify_children(change)
 
-    def remove_node(self, change):
+    def remove_node(self, change: Dict[str, Any]):
         n = self._event_nodes[change['artist'].nodeid]
         pnode = n.children[0]
         self._fig1d.artists[pnode.id].remove()
@@ -57,11 +66,11 @@ class InspectorEventHandler:
         n.remove()
 
 
-def inspector(obj: Union[sc.typing.VariableLike, ndarray],
+def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
               dim: str = None,
               *,
               operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
-              orientation='horizontal',
+              orientation: Literal['horizontal', 'vertical'] = 'horizontal',
               crop: Dict[str, Dict[str, sc.Variable]] = None,
               **kwargs):
     """
@@ -90,6 +99,9 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
     operation:
         The operation to apply along the third (undisplayed) dimension specified by
         ``dim``.
+    orientation:
+        Display the two panels side-by-side ('horizontal') or one below the other
+        ('vertical').
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped. Each entry should be a nested dict containing scalar
@@ -116,7 +128,7 @@ def inspector(obj: Union[sc.typing.VariableLike, ndarray],
         dim = da.dims[-1]
 
     # Convert dimension coords to bin edges
-    for d in set(da.dims) - set([dim]):
+    for d in set(da.dims) - {dim}:
         da.coords[d] = coord_as_bin_edges(da, d)
 
     op_node = node(getattr(sc, operation), dim=dim)(a)

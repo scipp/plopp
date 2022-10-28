@@ -11,6 +11,9 @@ from ipywidgets import VBox, HBox
 
 
 class InteractiveFig1d(VBox):
+    """
+    Create an interactive figure to represent one-dimensional data.
+    """
 
     def __init__(self, *args, **kwargs):
 
@@ -49,6 +52,9 @@ class InteractiveFig1d(VBox):
 
 
 class InteractiveFig2d(VBox):
+    """
+    Create an interactive figure to represent two-dimensional data.
+    """
 
     def __init__(self, *args, **kwargs):
 
@@ -88,6 +94,9 @@ class InteractiveFig2d(VBox):
 
 
 class InteractiveFig3d(VBox):
+    """
+    Create an interactive figure to represent three-dimensional data.
+    """
 
     def __init__(self, *args, **kwargs):
 

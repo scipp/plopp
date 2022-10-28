@@ -3,19 +3,29 @@
 
 from .common import require_interactive_backend, preprocess
 from .slicer import Slicer
+from ..core import Node, View
 from ..core.utils import coord_element_to_string
 
 from functools import partial
 import scipp as sc
 from numpy import ndarray
-from typing import Union, Dict
+from typing import Any, Union, Dict
 from matplotlib.colors import to_hex
 import uuid
 
 
 class LineSaveTool:
+    """
+    Create a tool that is used to copy and save the currently displayed 1D line on a
+    plot.
 
-    def __init__(self, data_node, slider_node, fig):
+    Parameters
+    ----------
+    data_node:
+        The node that generates the input data.
+    """
+
+    def __init__(self, data_node: Node, slider_node: Node, fig: View):
         import ipywidgets as ipw
         self._data_node = data_node
         self._slider_node = slider_node
@@ -29,7 +39,7 @@ class LineSaveTool:
     def _update_container(self):
         self.container.children = [line['tool'] for line in self._lines.values()]
 
-    def save_line(self, change=None):
+    def save_line(self, change: Dict[str, Any] = None):
         from ..widgets import ColorTool
         line_id = uuid.uuid4().hex
         data = self._data_node.request_data()
@@ -45,11 +55,11 @@ class LineSaveTool:
                            names='value')
         tool.button.on_click(partial(self.remove_line, line_id=line_id))
 
-    def change_line_color(self, change, line_id):
+    def change_line_color(self, change: Dict[str, Any], line_id: str):
         self._lines[line_id]['line'].color = change['new']
         self._fig.canvas.draw()
 
-    def remove_line(self, change, line_id):
+    def remove_line(self, change: Dict[str, Any], line_id: str):
         self._lines[line_id]['line'].remove()
         self._fig.canvas.draw()
         del self._lines[line_id]
