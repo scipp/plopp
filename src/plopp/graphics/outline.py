@@ -82,7 +82,7 @@ class Outline(p3.Group):
                                    material=p3.LineBasicMaterial(color='#000000'),
                                    position=center)
 
-        self.ticks = self._make_ticks(limits=limits, center=center, tick_size=tick_size)
+        self.ticks = self._make_ticks(limits=limits, tick_size=tick_size)
         self.labels = self._make_labels(limits=limits,
                                         center=center,
                                         tick_size=tick_size)
@@ -92,7 +92,7 @@ class Outline(p3.Group):
             self.add(obj)
 
     def _make_ticks(self, limits: Tuple[Variable, Variable, Variable],
-                    center: List[float], tick_size: float) -> p3.Group:
+                    tick_size: float) -> p3.Group:
         """
         Create tick labels on outline edges
         """
