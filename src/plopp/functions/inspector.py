@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
+from ..graphics.basefig import BaseFig
 from .figure import figure1d, figure2d
 from ..core import input_node, node, Node
 from ..core.utils import coord_as_bin_edges
@@ -19,10 +20,9 @@ class InspectorEventHandler:
       - a point is dragged on the 2D figure
       - a point is removed from the 2D figure
     """
-    from ..graphics import InteractiveFig1d, InteractiveFig2d
 
-    def __init__(self, data_array: sc.DataArray, root_node: Node,
-                 fig1d: InteractiveFig1d, fig2d: InteractiveFig2d):
+    def __init__(self, data_array: sc.DataArray, root_node: Node, fig1d: BaseFig,
+                 fig2d: BaseFig):
         self._data_array = data_array
         self._root_node = root_node
         self._fig1d = fig1d

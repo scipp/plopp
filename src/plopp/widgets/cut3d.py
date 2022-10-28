@@ -2,8 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import BUTTON_LAYOUT
-from ..core import node
-from ..graphics import InteractiveFig3d
+from ..core import node, View
 
 import asyncio
 import ipywidgets as ipw
@@ -91,7 +90,7 @@ class Cut3dTool(ipw.HBox):
     """
 
     def __init__(self,
-                 view: InteractiveFig3d,
+                 view: View,
                  limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
                  direction: Literal['x', 'y', 'z'],
                  value: bool = False,
@@ -266,7 +265,7 @@ class TriCutTool(ipw.HBox):
         The 3d figure that contains the point clouds to be cut.
     """
 
-    def __init__(self, fig: InteractiveFig3d):
+    def __init__(self, fig: View):
 
         self._fig = fig
         limits = self._fig.get_limits()

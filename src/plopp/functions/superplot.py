@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
+from ..graphics.basefig import BaseFig
 from .slicer import Slicer
 from ..core import Node
 from ..core.utils import coord_element_to_string
@@ -24,9 +25,8 @@ class LineSaveTool:
     data_node:
         The node that generates the input data.
     """
-    from ..graphics import InteractiveFig1d
 
-    def __init__(self, data_node: Node, slider_node: Node, fig: InteractiveFig1d):
+    def __init__(self, data_node: Node, slider_node: Node, fig: BaseFig):
         import ipywidgets as ipw
         self._data_node = data_node
         self._slider_node = slider_node
