@@ -7,5 +7,5 @@ from .box import Box, HBar, VBar
 from .checkboxes import Checkboxes
 from .slice import SliceWidget, slice_dims
 from .toolbar import Toolbar
-from .tools import ButtonTool, ToggleTool, PointsTool, ColorTool
+from .tools import ButtonTool, ToggleTool, DrawPointsTool, DrawLinesTool, ColorTool
 from .cut3d import Cut3dTool, TriCutTool

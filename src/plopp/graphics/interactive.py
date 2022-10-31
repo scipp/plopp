@@ -92,6 +92,10 @@ class InteractiveFig2d(VBox):
     def __dir__(self):
         return list(set(dir(VBox) + dir(super()) + dir(self._fig)))
 
+    def add_tool(self, tool, **kwargs):
+        t = tool(self._fig, **kwargs)
+        self.toolbar[t.__class__.__name__] = t
+
 
 class InteractiveFig3d(VBox):
     """
