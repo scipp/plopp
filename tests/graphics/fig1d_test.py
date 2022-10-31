@@ -137,4 +137,4 @@ def test_ax():
     assert len(ax.lines) == 0
     da = data_array(ndim=1)
     _ = Figure1d(input_node(da), ax=ax)
-    assert len(ax.lines) == 1
+    assert len(ax.lines) > 0

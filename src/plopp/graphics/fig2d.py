@@ -52,6 +52,9 @@ class Figure2d(BaseFig):
     ax:
         If supplied, use these axes to create the figure. If none are supplied, the
         canvas will create its own axes.
+    cax:
+        If supplied, use these axes for the colorbar. If none are supplied, and a
+        colorbar is required, the canvas will create its own axes.
     **kwargs:
         All other kwargs are forwarded to the Mesh artist.
     """
@@ -71,6 +74,7 @@ class Figure2d(BaseFig):
                  title: str = None,
                  figsize: Tuple[float, float] = None,
                  ax: Any = None,
+                 cax: Any = None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -82,7 +86,8 @@ class Figure2d(BaseFig):
                              grid=grid,
                              title=title,
                              figsize=figsize,
-                             ax=ax)
+                             ax=ax,
+                             cax=cax)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,
