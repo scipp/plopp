@@ -109,7 +109,7 @@ class ColorMapper:
             height_inches = (figsize[1] / dpi) if figsize is not None else 6
             with silent_mpl_figure():
                 fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
-            self.cax = fig.add_axes([0.05, 0.02, 0.2, 1.0])
+            self.cax = fig.add_axes([0.05, 0.02, 0.2, 0.98])
 
         self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
         self.cax.yaxis.set_label_coords(-1.1, 0.5)

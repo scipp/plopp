@@ -157,3 +157,20 @@ def test_figsize():
     size = (8.1, 8.3)
     fig = Figure2d(input_node(da), figsize=size)
     assert np.allclose(fig.canvas.fig.get_size_inches(), size)
+
+
+def test_ax():
+    fig, ax = plt.subplots()
+    assert len(ax.collections) == 0
+    da = data_array(ndim=2)
+    f = Figure2d(input_node(da), ax=ax)
+    assert len(ax.collections) == 1
+
+
+def test_cax():
+    fig, ax = plt.subplots()
+    cax = fig.add_axes([0.9, 0.02, 0.05, 0.98])
+    assert len(cax.collections) == 0
+    da = data_array(ndim=2)
+    f = Figure2d(input_node(da), ax=ax, cax=cax)
+    assert len(cax.collections) > 0

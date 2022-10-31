@@ -48,6 +48,7 @@ class Canvas:
 
     def __init__(self,
                  ax: plt.Axes = None,
+                 cax: plt.Axes = None,
                  figsize: Tuple[float, float] = None,
                  title: str = None,
                  grid: bool = False,
@@ -59,9 +60,13 @@ class Canvas:
 
         self.fig = None
         self.ax = ax
+        self.cax = cax
         self._user_vmin = vmin
         self._user_vmax = vmax
         self._scale = {} if scale is None else scale
+
+        cbar_width = 0.03
+        cbar_gap = 0.04
 
         if self.ax is None:
             if figsize is None:
@@ -73,20 +78,22 @@ class Canvas:
             bottom = 0.11
             top = 0.95
             if cbar:
-                cbar_width = 0.03
-                cbar_gap = 0.04
                 self.ax = self.fig.add_axes(
                     [left, bottom, right - left - cbar_width - cbar_gap, top - bottom])
-                self.cax = self.fig.add_axes(
-                    [right - cbar_width, bottom, cbar_width, top - bottom])
+                if self.cax is None:
+                    self.cax = self.fig.add_axes(
+                        [right - cbar_width, bottom, cbar_width, top - bottom])
             else:
                 self.ax = self.fig.add_axes([left, bottom, right - left, top - bottom])
-                self.cax = None
             if hasattr(self.fig.canvas, "on_widget_constructed"):
                 self.fig.canvas.toolbar_visible = False
                 self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
+            if cbar and self.cax is None:
+                bbox = self.ax.get_position().bounds
+                self.cax = self.fig.add_axes(
+                    [bbox[0] + bbox[2] + cbar_gap, bbox[1], cbar_width, bbox[3]])
 
         self.ax.set_aspect(aspect)
         self.ax.set_title(title)

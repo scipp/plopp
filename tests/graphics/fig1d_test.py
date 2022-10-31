@@ -5,6 +5,7 @@ from plopp.data import data_array
 from plopp.graphics.fig1d import Figure1d
 from plopp.graphics.line import Line
 from plopp import input_node
+import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 import pytest
@@ -129,3 +130,11 @@ def test_figsize():
     size = (6.1, 3.3)
     fig = Figure1d(input_node(da), figsize=size)
     assert np.allclose(fig.canvas.fig.get_size_inches(), size)
+
+
+def test_ax():
+    fig, ax = plt.subplots()
+    assert len(ax.lines) == 0
+    da = data_array(ndim=1)
+    f = Figure1d(input_node(da), ax=ax)
+    assert len(ax.lines) == 1
