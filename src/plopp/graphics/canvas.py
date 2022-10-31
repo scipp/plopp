@@ -27,6 +27,9 @@ class Canvas:
     ax:
         If supplied, use these axes to create the figure. If none are supplied, the
         canvas will create its own axes.
+    cax:
+        If supplied, use these axes for the colorbar. If none are supplied, and a
+        colorbar is required, the canvas will create its own axes.
     figsize:
         The width and height of the figure, in inches.
     title:
