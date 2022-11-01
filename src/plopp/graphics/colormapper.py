@@ -112,7 +112,7 @@ class ColorMapper:
             self.cax = fig.add_axes([0.05, 0.02, 0.2, 0.98])
 
         self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
-        self.cax.yaxis.set_label_coords(-1.1, 0.5)
+        self.cax.yaxis.set_label_coords(-0.9, 0.5)
 
     def __setitem__(self, key, val):
         self.artists[key] = val

@@ -55,6 +55,9 @@ class Figure2d(BaseFig):
     cax:
         If supplied, use these axes for the colorbar. If none are supplied, and a
         colorbar is required, the canvas will create its own axes.
+    cbar_width:
+        The width of the colorbar, in units of figure size where the entire figure
+        width is equal to 1.
     **kwargs:
         All other kwargs are forwarded to the Mesh artist.
     """
@@ -75,6 +78,7 @@ class Figure2d(BaseFig):
                  figsize: Tuple[float, float] = None,
                  ax: Any = None,
                  cax: Any = None,
+                 cbar_width: float = 0.03,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -87,7 +91,8 @@ class Figure2d(BaseFig):
                              title=title,
                              figsize=figsize,
                              ax=ax,
-                             cax=cax)
+                             cax=cax,
+                             cbar_width=cbar_width)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,
