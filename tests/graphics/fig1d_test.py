@@ -135,3 +135,29 @@ def test_grid():
     da = data_array(ndim=1)
     fig = Figure1d(input_node(da), grid=True)
     assert fig.canvas.ax.xaxis.get_gridlines()[0].get_visible()
+
+
+def test_vmin():
+    da = data_array(ndim=1)
+    fig = Figure1d(input_node(da), vmin=sc.scalar(-0.5, unit='m/s'))
+    assert fig.canvas.ax.get_ylim()[0] == -0.5
+
+
+def test_vmin_unit_mismatch_raises():
+    da = data_array(ndim=1)
+    with pytest.raises(AssertionError):
+        _ = Figure1d(input_node(da), vmin=sc.scalar(-0.5, unit='m'))
+
+
+def test_vmax():
+    da = data_array(ndim=1)
+    fig = Figure1d(input_node(da), vmax=sc.scalar(0.68, unit='m/s'))
+    assert fig.canvas.ax.get_ylim()[1] == 0.68
+
+
+def test_vmin_vmax():
+    da = data_array(ndim=1)
+    fig = Figure1d(input_node(da),
+                   vmin=sc.scalar(-0.5, unit='m/s'),
+                   vmax=sc.scalar(0.68, unit='m/s'))
+    assert np.allclose(fig.canvas.ax.get_ylim(), [-0.5, 0.68])
