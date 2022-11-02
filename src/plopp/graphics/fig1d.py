@@ -89,6 +89,7 @@ class Figure1d(BaseFig):
         self.canvas.autoscale()
         if crop is not None:
             self.crop(**crop)
+        self.canvas.fit_to_page()
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
