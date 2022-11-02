@@ -7,6 +7,7 @@ from .utils import fig_to_bytes, silent_mpl_figure
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import QuadMesh
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 import scipp as sc
 from typing import Dict, Literal, Tuple
@@ -73,41 +74,60 @@ class Canvas:
         self._scale = {} if scale is None else scale
         self.xunit = None
         self.yunit = None
+        own_axes = False
 
         cbar_gap = 1.2 * cbar_width
 
         if self.ax is None:
-            if figsize is None:
-                figsize = (6, 4)
+            # if figsize is None:
+            #     figsize = (6, 4)
+            own_axes = True
             with silent_mpl_figure():
-                self.fig = plt.figure(figsize=figsize, dpi=96)
-            left = 0.11
-            right = 0.9
-            bottom = 0.11
-            top = 0.95
-            if cbar:
-                self.ax = self.fig.add_axes(
-                    [left, bottom, right - left - cbar_width - cbar_gap, top - bottom])
-                if self.cax is None:
-                    self.cax = self.fig.add_axes(
-                        [right - cbar_width, bottom, cbar_width, top - bottom])
-            else:
-                self.ax = self.fig.add_axes([left, bottom, right - left, top - bottom])
+                self.fig, self.ax = plt.subplots()
+                # self.fig = plt.figure(figsize=figsize, dpi=96)
+            # left = 0.11
+            # right = 0.9
+            # bottom = 0.11
+            # top = 0.95
+            # if cbar:
+
+            #     divider = make_axes_locatable(self.ax)
+            #     self.cax = divider.append_axes("right", "5%", pad="3%")
+            # self.ax = self.fig.add_axes(
+            #     [left, bottom, right - left - cbar_width - cbar_gap, top - bottom])
+            # if self.cax is None:
+            #     self.cax = self.fig.add_axes(
+            #         [right - cbar_width, bottom, cbar_width, top - bottom])
+            # else:
+            #     self.ax = self.fig.add_axes([left, bottom, right - left, top - bottom])
             if hasattr(self.fig.canvas, "on_widget_constructed"):
                 self.fig.canvas.toolbar_visible = False
                 self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
-            if cbar and self.cax is None:
-                bbox = self.ax.get_position().bounds
-                self.ax.set_position(
-                    [bbox[0], bbox[1], bbox[2] - cbar_gap - cbar_width, bbox[3]])
-                self.cax = self.fig.add_axes(
-                    [bbox[0] + bbox[2] - cbar_width, bbox[1], cbar_width, bbox[3]])
+            # if cbar and self.cax is None:
+            #     bbox = self.ax.get_position().bounds
+            #     self.ax.set_position(
+            #         [bbox[0], bbox[1], bbox[2] - cbar_gap - cbar_width, bbox[3]])
+            #     self.cax = self.fig.add_axes(
+            #         [bbox[0] + bbox[2] - cbar_width, bbox[1], cbar_width, bbox[3]])
+
+        if cbar and self.cax is None:
+            divider = make_axes_locatable(self.ax)
+            self.cax = divider.append_axes("right", "4%", pad="5%")
 
         self.ax.set_aspect(aspect)
         self.ax.set_title(title)
         self.ax.grid(grid)
+        if own_axes:
+            tight = self.fig.get_tightbbox(self.fig.canvas.get_renderer()).bounds
+            original = self.fig.bbox_inches.bounds
+            rect = [
+                tight[0] / original[2], tight[1] / original[3],
+                (tight[0] + tight[2]) / original[2], (tight[1] + tight[3]) / original[3]
+            ]
+            print(rect)
+            self.fig.tight_layout(rect=rect)
 
         self._xmin = np.inf
         self._xmax = np.NINF
