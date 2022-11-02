@@ -80,7 +80,9 @@ class Figure1d(BaseFig):
                              grid=grid,
                              figsize=figsize,
                              title=title,
-                             ax=ax)
+                             ax=ax,
+                             vmin=vmin,
+                             vmax=vmax)
         self.canvas.yscale = norm
 
         self.render()
@@ -123,6 +125,8 @@ class Figure1d(BaseFig):
                 'unit': new_values.meta[new_values.dim].unit
             }
 
+            self.canvas.xunit = self.dims['x']['unit']
+            self.canvas.yunit = new_values.unit
             self.canvas.xlabel = name_with_unit(
                 var=new_values.meta[self.dims['x']['dim']])
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")

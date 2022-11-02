@@ -67,6 +67,8 @@ class Canvas:
         self._user_vmin = vmin
         self._user_vmax = vmax
         self._scale = {} if scale is None else scale
+        self.xunit = None
+        self.yunit = None
 
         cbar_width = 0.03
         cbar_gap = 0.04
@@ -146,6 +148,12 @@ class Canvas:
                 self._xmax = max(self._xmax, right.value)
                 self._ymin = min(self._ymin, bottom.value)
                 self._ymax = max(self._ymax, top.value)
+        if self._user_vmin is not None:
+            assert self._user_vmin.unit == self.yunit
+            self._ymin = self._user_vmin.value
+        if self._user_vmax is not None:
+            assert self._user_vmax.unit == self.yunit
+            self._ymax = self._user_vmax.value
         self.ax.set_xlim(_none_if_not_finite(self._xmin),
                          _none_if_not_finite(self._xmax))
         self.ax.set_ylim(_none_if_not_finite(self._ymin),

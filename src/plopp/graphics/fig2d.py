@@ -131,6 +131,8 @@ class Figure2d(BaseFig):
                 }
             })
 
+            self.canvas.xunit = self.dims['x']['unit']
+            self.canvas.yunit = self.dims['y']['unit']
             self.canvas.xlabel = name_with_unit(
                 var=new_values.meta[self.dims['x']['dim']])
             self.canvas.ylabel = name_with_unit(
