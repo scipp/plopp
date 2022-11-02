@@ -157,3 +157,9 @@ def test_figsize():
     size = (8.1, 8.3)
     fig = Figure2d(input_node(da), figsize=size)
     assert np.allclose(fig.canvas.fig.get_size_inches(), size)
+
+
+def test_grid():
+    da = data_array(ndim=2)
+    fig = Figure2d(input_node(da), grid=True)
+    assert fig.canvas.ax.xaxis.get_gridlines()[0].get_visible()
