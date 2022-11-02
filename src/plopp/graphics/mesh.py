@@ -77,6 +77,10 @@ class Mesh:
 
         self._ax = canvas.ax
         self._data = data
+        # If the grid is visible on the axes, we need to set that on again after we
+        # call pcolormesh, because that turns the grid off automatically.
+        # See https://github.com/matplotlib/matplotlib/issues/15600.
+        need_grid = self._ax.xaxis.get_gridlines()[0].get_visible()
 
         to_dim_search = {}
         string_labels = {}
@@ -108,6 +112,9 @@ class Mesh:
         for xy, var in string_labels.items():
             getattr(self._ax, f'set_{xy}ticks')(np.arange(float(var.shape[0])))
             getattr(self._ax, f'set_{xy}ticklabels')(var.values)
+
+        if need_grid:
+            self._ax.grid(True)
 
     @property
     def data(self):

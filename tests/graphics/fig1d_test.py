@@ -131,6 +131,12 @@ def test_figsize():
     assert np.allclose(fig.canvas.fig.get_size_inches(), size)
 
 
+def test_grid():
+    da = data_array(ndim=1)
+    fig = Figure1d(input_node(da), grid=True)
+    assert fig.canvas.ax.xaxis.get_gridlines()[0].get_visible()
+
+
 def test_vmin():
     da = data_array(ndim=1)
     fig = Figure1d(input_node(da), vmin=sc.scalar(-0.5, unit='m/s'))

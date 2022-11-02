@@ -13,7 +13,8 @@ testpaths = "tests"
 filterwarnings = [
   "error",
   "ignore::UserWarning",
-  'ignore:\n            Sentinel is not a public part of the traitlets API:DeprecationWarning',]
+  'ignore:\n            Sentinel is not a public part of the traitlets API:DeprecationWarning',
+  'ignore:Auto-removal of grids by pcolor:matplotlib._api.deprecation.MatplotlibDeprecationWarning',]
 
 [tool.mypy]
 mypy_path = "src"
