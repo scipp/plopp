@@ -7,7 +7,7 @@ from .canvas import Canvas
 from .line import Line
 
 import scipp as sc
-from typing import Dict, Literal, Tuple
+from typing import Any, Dict, Literal, Tuple
 
 
 class Figure1d(BaseFig):
@@ -43,6 +43,9 @@ class Figure1d(BaseFig):
         The figure title.
     figsize:
         The width and height of the figure, in inches.
+    ax:
+        If supplied, use these axes to create the figure. If none are supplied, the
+        canvas will create its own axes.
     **kwargs:
         All other kwargs are forwarded to Matplotlib:
 
@@ -63,6 +66,7 @@ class Figure1d(BaseFig):
                  crop: Dict[str, Dict[str, sc.Variable]] = None,
                  title: str = None,
                  figsize: Tuple[float, float] = None,
+                 ax: Any = None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -76,6 +80,7 @@ class Figure1d(BaseFig):
                              grid=grid,
                              figsize=figsize,
                              title=title,
+                             ax=ax,
                              vmin=vmin,
                              vmax=vmax)
         self.canvas.yscale = norm
@@ -84,6 +89,7 @@ class Figure1d(BaseFig):
         self.canvas.autoscale()
         if crop is not None:
             self.crop(**crop)
+        self.canvas.fit_to_page()
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """

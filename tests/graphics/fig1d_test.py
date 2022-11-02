@@ -5,6 +5,7 @@ from plopp.data import data_array
 from plopp.graphics.fig1d import Figure1d
 from plopp.graphics.line import Line
 from plopp import input_node
+import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 import pytest
@@ -161,3 +162,11 @@ def test_vmin_vmax():
                    vmin=sc.scalar(-0.5, unit='m/s'),
                    vmax=sc.scalar(0.68, unit='m/s'))
     assert np.allclose(fig.canvas.ax.get_ylim(), [-0.5, 0.68])
+
+
+def test_ax():
+    fig, ax = plt.subplots()
+    assert len(ax.lines) == 0
+    da = data_array(ndim=1)
+    _ = Figure1d(input_node(da), ax=ax)
+    assert len(ax.lines) > 0

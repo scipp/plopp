@@ -7,6 +7,7 @@ from .utils import fig_to_bytes, silent_mpl_figure
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import QuadMesh
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 import scipp as sc
 from typing import Dict, Literal, Tuple
@@ -27,6 +28,9 @@ class Canvas:
     ax:
         If supplied, use these axes to create the figure. If none are supplied, the
         canvas will create its own axes.
+    cax:
+        If supplied, use these axes for the colorbar. If none are supplied, and a
+        colorbar is required, the canvas will create its own axes.
     figsize:
         The width and height of the figure, in inches.
     title:
@@ -48,6 +52,7 @@ class Canvas:
 
     def __init__(self,
                  ax: plt.Axes = None,
+                 cax: plt.Axes = None,
                  figsize: Tuple[float, float] = None,
                  title: str = None,
                  grid: bool = False,
@@ -59,36 +64,27 @@ class Canvas:
 
         self.fig = None
         self.ax = ax
+        self.cax = cax
         self._user_vmin = vmin
         self._user_vmax = vmax
         self._scale = {} if scale is None else scale
         self.xunit = None
         self.yunit = None
+        self._own_axes = False
 
         if self.ax is None:
-            if figsize is None:
-                figsize = (6, 4)
+            self._own_axes = True
             with silent_mpl_figure():
-                self.fig = plt.figure(figsize=figsize, dpi=96)
-            left = 0.11
-            right = 0.9
-            bottom = 0.11
-            top = 0.95
-            if cbar:
-                cbar_width = 0.03
-                cbar_gap = 0.04
-                self.ax = self.fig.add_axes(
-                    [left, bottom, right - left - cbar_width - cbar_gap, top - bottom])
-                self.cax = self.fig.add_axes(
-                    [right - cbar_width, bottom, cbar_width, top - bottom])
-            else:
-                self.ax = self.fig.add_axes([left, bottom, right - left, top - bottom])
-                self.cax = None
+                self.fig, self.ax = plt.subplots(figsize=figsize)
             if hasattr(self.fig.canvas, "on_widget_constructed"):
                 self.fig.canvas.toolbar_visible = False
                 self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
+
+        if cbar and self.cax is None:
+            divider = make_axes_locatable(self.ax)
+            self.cax = divider.append_axes("right", "4%", pad="5%")
 
         self.ax.set_aspect(aspect)
         self.ax.set_title(title)
@@ -271,3 +267,10 @@ class Canvas:
         self._ymin = np.inf
         self._ymax = np.NINF
         self.autoscale()
+
+    def fit_to_page(self):
+        """
+        Trim the margins around the figure.
+        """
+        if self._own_axes:
+            self.fig.tight_layout()

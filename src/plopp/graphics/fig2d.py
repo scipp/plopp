@@ -8,7 +8,7 @@ from .colormapper import ColorMapper
 from .mesh import Mesh
 
 import scipp as sc
-from typing import Dict, Literal, Tuple
+from typing import Any, Dict, Literal, Tuple
 
 
 class Figure2d(BaseFig):
@@ -49,6 +49,12 @@ class Figure2d(BaseFig):
         The figure title.
     figsize:
         The width and height of the figure, in inches.
+    ax:
+        If supplied, use these axes to create the figure. If none are supplied, the
+        canvas will create its own axes.
+    cax:
+        If supplied, use these axes for the colorbar. If none are supplied, and a
+        colorbar is required, the canvas will create its own axes.
     **kwargs:
         All other kwargs are forwarded to the Mesh artist.
     """
@@ -67,6 +73,8 @@ class Figure2d(BaseFig):
                  cbar: bool = True,
                  title: str = None,
                  figsize: Tuple[float, float] = None,
+                 ax: Any = None,
+                 cax: Any = None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -77,7 +85,9 @@ class Figure2d(BaseFig):
                              aspect=aspect,
                              grid=grid,
                              title=title,
-                             figsize=figsize)
+                             figsize=figsize,
+                             ax=ax,
+                             cax=cax)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,
@@ -89,6 +99,7 @@ class Figure2d(BaseFig):
         self.canvas.autoscale()
         if crop is not None:
             self.crop(**crop)
+        self.canvas.fit_to_page()
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
