@@ -5,6 +5,7 @@ from plopp.data import data_array
 from plopp.graphics.fig2d import Figure2d
 from plopp.graphics.mesh import Mesh
 from plopp import input_node
+import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 import pytest
@@ -169,7 +170,7 @@ def test_ax():
     fig, ax = plt.subplots()
     assert len(ax.collections) == 0
     da = data_array(ndim=2)
-    f = Figure2d(input_node(da), ax=ax)
+    _ = Figure2d(input_node(da), ax=ax)
     assert len(ax.collections) == 1
 
 
@@ -178,5 +179,5 @@ def test_cax():
     cax = fig.add_axes([0.9, 0.02, 0.05, 0.98])
     assert len(cax.collections) == 0
     da = data_array(ndim=2)
-    f = Figure2d(input_node(da), ax=ax, cax=cax)
+    _ = Figure2d(input_node(da), ax=ax, cax=cax)
     assert len(cax.collections) > 0

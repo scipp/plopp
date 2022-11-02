@@ -47,6 +47,9 @@ class Canvas:
         ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
     cbar:
         Add axes to host a colorbar if ``True``.
+    cbar_width:
+        The width of the colorbar, in units of figure size where the entire figure
+        width is equal to 1.
     """
 
     def __init__(self,
@@ -59,7 +62,8 @@ class Canvas:
                  vmax: sc.Variable = None,
                  aspect: Literal['auto', 'equal'] = 'auto',
                  scale: Dict[str, str] = None,
-                 cbar: bool = False):
+                 cbar: bool = False,
+                 cbar_width: float = 0.03):
 
         self.fig = None
         self.ax = ax
@@ -70,8 +74,7 @@ class Canvas:
         self.xunit = None
         self.yunit = None
 
-        cbar_width = 0.03
-        cbar_gap = 0.04
+        cbar_gap = 1.2 * cbar_width
 
         if self.ax is None:
             if figsize is None:
@@ -97,8 +100,10 @@ class Canvas:
             self.fig = self.ax.get_figure()
             if cbar and self.cax is None:
                 bbox = self.ax.get_position().bounds
+                self.ax.set_position(
+                    [bbox[0], bbox[1], bbox[2] - cbar_gap - cbar_width, bbox[3]])
                 self.cax = self.fig.add_axes(
-                    [bbox[0] + bbox[2] + cbar_gap, bbox[1], cbar_width, bbox[3]])
+                    [bbox[0] + bbox[2] - cbar_width, bbox[1], cbar_width, bbox[3]])
 
         self.ax.set_aspect(aspect)
         self.ax.set_title(title)
