@@ -138,8 +138,6 @@ class Canvas:
                 self._xmax = max(self._xmax, right.value)
                 self._ymin = min(self._ymin, bottom.value)
                 self._ymax = max(self._ymax, top.value)
-        # TODO: if searching for limits becomes a performance issue, user specified
-        # y-axis limits via vmin/vmax could be taken into account to speed things up.
         if self._user_vmin is not None:
             assert self._user_vmin.unit == self.yunit
             self._ymin = self._user_vmin.value
