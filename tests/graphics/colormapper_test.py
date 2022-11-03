@@ -80,6 +80,18 @@ def test_vmin_vmax():
     assert mapper.vmax == vmax.value
 
 
+def test_vmin_vmax_no_variable():
+    da = data_array(ndim=2, unit='K')
+    vmin = -0.1
+    vmax = 3.5
+    mapper = ColorMapper(vmin=vmin, vmax=vmax)
+    mapper.update(data=da * 100., key=None)
+    assert mapper.user_vmin == vmin
+    assert mapper.user_vmax == vmax
+    assert mapper.vmin == vmin
+    assert mapper.vmax == vmax
+
+
 def test_toggle_norm():
     mapper = ColorMapper()
     da = data_array(ndim=2, unit='K')
