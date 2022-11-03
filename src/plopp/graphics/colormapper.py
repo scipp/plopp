@@ -163,13 +163,15 @@ class ColorMapper:
         """
         vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm))
         if self.user_vmin is not None:
-            assert self.user_vmin.unit == data.unit
-            self.vmin = self.user_vmin.value
+            self.vmin = self.user_vmin.to(unit=self.unit).value if hasattr(
+                self.user_vmin, 'unit') else self.user_vmin
         elif vmin.value < self.vmin:
             self.vmin = vmin.value
         if self.user_vmax is not None:
-            assert self.user_vmax.unit == data.unit
-            self.vmax = self.user_vmax.value
+            # assert self.user_vmax.unit == data.unit
+            # self.vmax = self.user_vmax.value
+            self.vmax = self.user_vmax.to(unit=self.unit).value if hasattr(
+                self.user_vmax, 'unit') else self.user_vmax
         elif vmax.value > self.vmax:
             self.vmax = vmax.value
 
@@ -202,6 +204,14 @@ class ColorMapper:
         key:
             The id of the node that provided this data.
         """
+        if self.unit is None:
+            self.unit = data.unit
+            self.name = data.name
+            self.cax.set_ylabel(f'{self.name} [{self.unit}]')
+        elif data.unit != self.unit:
+            raise ValueError(f'Incompatible unit: colormapper has unit {self.unit}, '
+                             f'new data has unit {data.unit}.')
+
         old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
 
@@ -213,11 +223,6 @@ class ColorMapper:
         else:
             self.normalizer.vmin = self.vmin
             self.normalizer.vmax = self.vmax
-
-        if self.unit is None:
-            self.unit = data.unit
-            self.name = data.name
-            self.cax.set_ylabel(f'{self.name} [{self.unit}]')
 
         if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
             self._set_artists_colors(key=key)
