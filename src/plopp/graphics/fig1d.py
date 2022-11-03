@@ -65,7 +65,7 @@ class Figure1d(BaseFig):
                  grid: bool = False,
                  crop: Dict[str, Dict[str, sc.Variable]] = None,
                  title: str = None,
-                 figsize: Tuple[float, float] = None,
+                 figsize: Tuple[float, float] = (6., 4.),
                  ax: Any = None,
                  **kwargs):
 

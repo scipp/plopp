@@ -72,7 +72,7 @@ class Figure2d(BaseFig):
                  crop: Dict[str, Dict[str, sc.Variable]] = None,
                  cbar: bool = True,
                  title: str = None,
-                 figsize: Tuple[float, float] = None,
+                 figsize: Tuple[float, float] = (6., 4.),
                  ax: Any = None,
                  cax: Any = None,
                  **kwargs):
