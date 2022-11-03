@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import merge_masks
+from ..core.utils import merge_masks, maybe_variable_to_number
 from .utils import fig_to_bytes, silent_mpl_figure
 
 from copy import copy
@@ -163,15 +163,11 @@ class ColorMapper:
         """
         vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm))
         if self.user_vmin is not None:
-            self.vmin = self.user_vmin.to(unit=self.unit).value if hasattr(
-                self.user_vmin, 'unit') else self.user_vmin
+            self.vmin = maybe_variable_to_number(self.user_vmin, unit=self.unit)
         elif vmin.value < self.vmin:
             self.vmin = vmin.value
         if self.user_vmax is not None:
-            # assert self.user_vmax.unit == data.unit
-            # self.vmax = self.user_vmax.value
-            self.vmax = self.user_vmax.to(unit=self.unit).value if hasattr(
-                self.user_vmax, 'unit') else self.user_vmax
+            self.vmax = maybe_variable_to_number(self.user_vmax, unit=self.unit)
         elif vmax.value > self.vmax:
             self.vmax = vmax.value
 
