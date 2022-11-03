@@ -116,7 +116,7 @@ class InteractiveFig3d(VBox):
                                  tooltip='Camera to Y normal. '
                                  'Click twice to flip the view direction.'),
                 'cameraz':
-                tools.CameraTool(self._fig.canvas.camera_y_normal,
+                tools.CameraTool(self._fig.canvas.camera_z_normal,
                                  description='Z',
                                  tooltip='Camera to Z normal. '
                                  'Click twice to flip the view direction.'),
