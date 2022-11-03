@@ -120,20 +120,15 @@ class Figure1d(BaseFig):
             self.artists[key] = line
             if line.label:
                 self.canvas.legend()
+            self.dims['x'] = new_values.dim
 
-            self.dims['x'] = {
-                'dim': new_values.dim,
-                'unit': new_values.meta[new_values.dim].unit
-            }
-
-            self.canvas.xunit = self.dims['x']['unit']
+            self.canvas.xunit = new_values.meta[new_values.dim].unit
             self.canvas.yunit = new_values.unit
-            self.canvas.xlabel = name_with_unit(
-                var=new_values.meta[self.dims['x']['dim']])
+            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
 
-            if self.dims['x']['dim'] in self._scale:
-                self.canvas.xscale = self._scale[self.dims['x']['dim']]
+            if self.dims['x'] in self._scale:
+                self.canvas.xscale = self._scale[self.dims['x']]
 
         else:
             self.artists[key].update(new_values=new_values)
@@ -150,9 +145,4 @@ class Figure1d(BaseFig):
         **limits:
             Min and max limits for each dimension to be cropped.
         """
-        self.canvas.crop(
-            x={
-                'dim': self.dims['x']['dim'],
-                'unit': self.dims['x']['unit'],
-                **limits[self.dims['x']['dim']]
-            })
+        self.canvas.crop(x=limits[self.dims['x']])

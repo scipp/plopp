@@ -5,7 +5,7 @@ from ..core.utils import number_to_variable
 
 from matplotlib import get_backend
 from numpy import ndarray, prod
-from scipp import Variable, DataArray, arange, to_unit
+from scipp import Variable, DataArray, arange
 from typing import Dict, Union
 
 
@@ -44,12 +44,12 @@ def _to_data_array(obj: Union[ndarray, Variable, DataArray]):
     return out
 
 
-def _convert_if_not_none(x: Variable, unit: str) -> Union[None, Variable]:
+def _to_variable_if_not_none(x: Variable, unit: str) -> Union[None, Variable]:
     """
     Convert input to the required unit if it is not ``None``.
     """
     if x is not None:
-        return to_unit(number_to_variable(x), unit=unit)
+        return number_to_variable(x, unit=unit)
 
 
 def _check_size(da: DataArray):
@@ -99,8 +99,8 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
         # on the figure (this mostly arises in the case of a 2d image with no bin-edge
         # coord). Therefore, we convert the value-based range to slicing indices, and
         # then extend the lower and upper bounds by 1.
-        smin = _convert_if_not_none(sl.get('min'), unit=out.meta[dim].unit)
-        smax = _convert_if_not_none(sl.get('max'), unit=out.meta[dim].unit)
+        smin = _to_variable_if_not_none(sl.get('min'), unit=out.meta[dim].unit)
+        smax = _to_variable_if_not_none(sl.get('max'), unit=out.meta[dim].unit)
         start = max(out[dim, :smin].sizes[dim] - 1, 0)
         width = out[dim, smin:smax].sizes[dim]
         out = out[dim, start:start + width + 2]

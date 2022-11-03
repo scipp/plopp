@@ -180,9 +180,6 @@ def test_kwarg_crop_1d_min_conversion():
 
 def test_kwarg_crop_1d_with_no_unit():
     da = data_array(ndim=1)
-    del da.coords['xx']
-    p = pp.plot(da, crop={'xx': {'min': sc.scalar(20, unit=None)}})
-    assert p.canvas.ax.get_xlim()[0] == 20
     p = pp.plot(da, crop={'xx': {'min': 20}})
     assert p.canvas.ax.get_xlim()[0] == 20
     p = pp.plot(da, crop={'xx': {'min': 20.5}})

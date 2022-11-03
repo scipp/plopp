@@ -87,6 +87,14 @@ def test_crop():
         fig.crop(yy={'min': xmin, 'max': xmax})
 
 
+def test_crop_no_variable():
+    da = data_array(ndim=1)
+    xmin = 2.1
+    xmax = 33.4
+    fig = Figure1d(input_node(da), crop={'xx': {'min': xmin, 'max': xmax}})
+    assert fig.canvas.ax.get_xlim() == (xmin, xmax)
+
+
 def test_update_grows_limits():
     da = data_array(ndim=1)
     fig = Figure1d(input_node(da))

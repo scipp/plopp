@@ -87,6 +87,27 @@ def test_crop():
     assert fig.canvas.ax.get_ylim() == (ymin.value, ymax.value)
 
 
+def test_crop_no_variable():
+    da = data_array(ndim=2)
+    xmin = 2.1
+    xmax = 102.0
+    ymin = 5.5
+    ymax = 22.3
+    fig = Figure2d(input_node(da),
+                   crop={
+                       'xx': {
+                           'min': xmin,
+                           'max': xmax
+                       },
+                       'yy': {
+                           'min': ymin,
+                           'max': ymax
+                       }
+                   })
+    assert fig.canvas.ax.get_xlim() == (xmin, xmax)
+    assert fig.canvas.ax.get_ylim() == (ymin, ymax)
+
+
 def test_cbar():
     da = data_array(ndim=2, binedges=True)
     fig = Figure2d(input_node(da), cbar=False)

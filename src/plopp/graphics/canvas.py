@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import number_to_variable, maybe_variable_to_number
+from ..core.utils import maybe_variable_to_number
 from .utils import fig_to_bytes, silent_mpl_figure
 
 import matplotlib.pyplot as plt
@@ -183,7 +183,7 @@ class Canvas:
         """
         for xy, lims in limits.items():
             getattr(self.ax, f'set_{xy}lim')(*[
-                sc.to_unit(number_to_variable(lims[m]), unit=lims['unit']).value
+                maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
                 for m in ('min', 'max') if m in lims
             ])
 

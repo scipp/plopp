@@ -65,7 +65,7 @@ def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
                                                                to=dim)
 
 
-def number_to_variable(x: Union[int, float, sc.Variable]) -> sc.Variable:
+def number_to_variable(x: Union[int, float, sc.Variable], unit: str) -> sc.Variable:
     """
     Convert the input int or float to a variable.
 
@@ -74,7 +74,7 @@ def number_to_variable(x: Union[int, float, sc.Variable]) -> sc.Variable:
     x:
         The input int or float.
     """
-    return sc.scalar(x, unit=None) if isinstance(x, (int, float)) else x
+    return sc.scalar(x, unit=unit) if isinstance(x, (int, float)) else x.to(unit=unit)
 
 
 def maybe_variable_to_number(x: Union[int, float, sc.Variable],
