@@ -25,7 +25,7 @@ class Canvas3d:
         The title to be placed above the figure.
     """
 
-    def __init__(self, figsize: Tuple[float, float] = None, title: str = None):
+    def __init__(self, figsize: Tuple[int, int] = (600, 400), title: str = None):
 
         # TODO: the title is still unused.
 
@@ -34,9 +34,6 @@ class Canvas3d:
         self.outline = None
         self.axticks = None
         self.figsize = figsize
-
-        if self.figsize is None:
-            self.figsize = (600, 400)
         width, height = self.figsize
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)

@@ -56,7 +56,7 @@ class Figure3d(BaseFig):
                  norm: Literal['linear', 'log'] = 'linear',
                  vmin: sc.Variable = None,
                  vmax: sc.Variable = None,
-                 figsize: Tuple[float, float] = None,
+                 figsize: Tuple[int, int] = (600, 400),
                  title: str = None,
                  **kwargs):
 

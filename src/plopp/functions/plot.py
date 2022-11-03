@@ -8,7 +8,7 @@ from .common import preprocess
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
 from numpy import ndarray
-from typing import Union, Dict, Literal
+from typing import Union, Dict, Literal, Tuple
 
 
 def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
@@ -24,6 +24,7 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
          title: str = None,
          vmin: Variable = None,
          vmax: Variable = None,
+         figsize: Tuple[float, float] = (6., 4.),
          **kwargs):
     """Plot a Scipp object.
 
@@ -63,6 +64,8 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
     vmax:
         Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
         2d plots).
+    figsize:
+        The width and height of the figure, in inches.
     **kwargs:
         All other kwargs are directly forwarded to Matplotlib, the underlying plotting
         library. The underlying functions called are the following:
@@ -83,7 +86,8 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         'scale': scale,
         'title': title,
         'vmin': vmin,
-        'vmax': vmax
+        'vmax': vmax,
+        'figsize': figsize
     }
 
     if isinstance(obj, (dict, Dataset)):
