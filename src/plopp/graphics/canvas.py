@@ -10,7 +10,7 @@ from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 import scipp as sc
-from typing import Dict, Literal, Tuple
+from typing import Dict, Literal, Tuple, Union
 
 
 def _none_if_not_finite(x):
@@ -38,9 +38,13 @@ class Canvas:
     grid:
         Display the figure grid if ``True``.
     vmin:
-        The minimum value for the vertical axis.
+        The minimum value for the vertical axis. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the current vertical axis
+        unit.
     vmax:
-        The maximum value for the vertical axis.
+        The maximum value for the vertical axis. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the current vertical axis
+        unit.
     aspect:
         The aspect ratio for the axes.
     scale:
@@ -56,8 +60,8 @@ class Canvas:
                  figsize: Tuple[float, float] = (6., 4.),
                  title: str = None,
                  grid: bool = False,
-                 vmin: sc.Variable = None,
-                 vmax: sc.Variable = None,
+                 vmin: Union[sc.Variable, int, float] = None,
+                 vmax: Union[sc.Variable, int, float] = None,
                  aspect: Literal['auto', 'equal'] = 'auto',
                  scale: Dict[str, str] = None,
                  cbar: bool = False):

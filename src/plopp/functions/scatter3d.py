@@ -4,7 +4,7 @@
 from ..core import input_node
 
 import scipp as sc
-from typing import Literal, Tuple
+from typing import Literal, Tuple, Union
 
 
 def scatter3d(da: sc.DataArray,
@@ -16,8 +16,8 @@ def scatter3d(da: sc.DataArray,
               figsize: Tuple[int, int] = (600, 400),
               norm: Literal['linear', 'log'] = 'linear',
               title: str = None,
-              vmin: sc.Variable = None,
-              vmax: sc.Variable = None,
+              vmin: Union[sc.Variable, int, float] = None,
+              vmax: Union[sc.Variable, int, float] = None,
               cmap: str = 'viridis',
               **kwargs):
     """Make a three-dimensional scatter plot.

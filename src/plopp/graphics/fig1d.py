@@ -7,7 +7,7 @@ from .canvas import Canvas
 from .line import Line
 
 import scipp as sc
-from typing import Any, Dict, Literal, Tuple
+from typing import Any, Dict, Literal, Tuple, Union
 
 
 class Figure1d(BaseFig):
@@ -23,9 +23,11 @@ class Figure1d(BaseFig):
     norm:
         Control the scaling on the vertical axis.
     vmin:
-        Lower bound for the vertical axis.
+        Lower bound for the vertical axis. If a number (without a unit) is supplied,
+        it is assumed that the unit is the same as the current vertical axis unit.
     vmax:
-        Upper bound for the vertical axis.
+        Upper bound for the vertical axis. If a number (without a unit) is supplied,
+        it is assumed that the unit is the same as the current vertical axis unit.
     scale:
         Control the scaling of the horizontal axis.
     errorbars:
@@ -56,8 +58,8 @@ class Figure1d(BaseFig):
     def __init__(self,
                  *nodes,
                  norm: Literal['linear', 'log'] = 'linear',
-                 vmin: sc.Variable = None,
-                 vmax: sc.Variable = None,
+                 vmin: Union[sc.Variable, int, float] = None,
+                 vmax: Union[sc.Variable, int, float] = None,
                  scale: Dict[str, str] = None,
                  errorbars: bool = True,
                  mask_color: str = 'black',

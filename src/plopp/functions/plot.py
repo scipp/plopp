@@ -22,8 +22,8 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
          norm: Literal['linear', 'log'] = 'linear',
          scale: Dict[str, str] = None,
          title: str = None,
-         vmin: Variable = None,
-         vmax: Variable = None,
+         vmin: Union[Variable, int, float] = None,
+         vmax: Union[Variable, int, float] = None,
          figsize: Tuple[float, float] = (6., 4.),
          **kwargs):
     """Plot a Scipp object.
