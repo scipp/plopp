@@ -12,11 +12,11 @@ requirements:
     - setuptools
     - setuptools_scm
   run:
-    - python >= 3.8
+    - python >=3.8
     - python-dateutil
     - matplotlib
   run_constrained:
-    - scipp >= 0.12
+    - scipp >=0.12
 
 test:
   imports:
