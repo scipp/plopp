@@ -87,6 +87,14 @@ def test_crop():
         fig.crop(yy={'min': xmin, 'max': xmax})
 
 
+def test_crop_no_variable():
+    da = data_array(ndim=1)
+    xmin = 2.1
+    xmax = 33.4
+    fig = Figure1d(input_node(da), crop={'xx': {'min': xmin, 'max': xmax}})
+    assert fig.canvas.ax.get_xlim() == (xmin, xmax)
+
+
 def test_update_grows_limits():
     da = data_array(ndim=1)
     fig = Figure1d(input_node(da))
@@ -146,7 +154,7 @@ def test_vmin():
 
 def test_vmin_unit_mismatch_raises():
     da = data_array(ndim=1)
-    with pytest.raises(AssertionError):
+    with pytest.raises(sc.UnitError):
         _ = Figure1d(input_node(da), vmin=sc.scalar(-0.5, unit='m'))
 
 
@@ -161,6 +169,12 @@ def test_vmin_vmax():
     fig = Figure1d(input_node(da),
                    vmin=sc.scalar(-0.5, unit='m/s'),
                    vmax=sc.scalar(0.68, unit='m/s'))
+    assert np.allclose(fig.canvas.ax.get_ylim(), [-0.5, 0.68])
+
+
+def test_vmin_vmax_no_variable():
+    da = data_array(ndim=1)
+    fig = Figure1d(input_node(da), vmin=-0.5, vmax=0.68)
     assert np.allclose(fig.canvas.ax.get_ylim(), [-0.5, 0.68])
 
 

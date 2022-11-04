@@ -27,8 +27,8 @@ class InspectorEventHandler:
         self._root_node = root_node
         self._fig1d = fig1d
         self._event_nodes = {}
-        self._xdim = fig2d.dims['x']['dim']
-        self._ydim = fig2d.dims['y']['dim']
+        self._xdim = fig2d.dims['x']
+        self._ydim = fig2d.dims['y']
 
     def make_node(self, change: Dict[str, Any]):
         from ..widgets import slice_dims

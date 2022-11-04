@@ -126,27 +126,16 @@ class Figure2d(BaseFig):
             mesh = Mesh(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = mesh
             self.colormapper[key] = mesh
-            self.dims.update({
-                "x": {
-                    'dim': new_values.dims[1],
-                    'unit': new_values.meta[new_values.dims[1]].unit
-                },
-                "y": {
-                    'dim': new_values.dims[0],
-                    'unit': new_values.meta[new_values.dims[0]].unit
-                }
-            })
+            self.dims.update({"x": new_values.dims[1], "y": new_values.dims[0]})
 
-            self.canvas.xunit = self.dims['x']['unit']
-            self.canvas.yunit = self.dims['y']['unit']
-            self.canvas.xlabel = name_with_unit(
-                var=new_values.meta[self.dims['x']['dim']])
-            self.canvas.ylabel = name_with_unit(
-                var=new_values.meta[self.dims['y']['dim']])
-            if self.dims['x']['dim'] in self._scale:
-                self.canvas.xscale = self._scale[self.dims['x']['dim']]
-            if self.dims['y']['dim'] in self._scale:
-                self.canvas.yscale = self._scale[self.dims['y']['dim']]
+            self.canvas.xunit = new_values.meta[new_values.dims[1]].unit
+            self.canvas.yunit = new_values.meta[new_values.dims[0]].unit
+            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
+            self.canvas.ylabel = name_with_unit(var=new_values.meta[self.dims['y']])
+            if self.dims['x'] in self._scale:
+                self.canvas.xscale = self._scale[self.dims['x']]
+            if self.dims['y'] in self._scale:
+                self.canvas.yscale = self._scale[self.dims['y']]
 
         self.artists[key].update(new_values=new_values)
         self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
@@ -170,14 +159,4 @@ class Figure2d(BaseFig):
         **limits:
             Min and max limits for each dimension to be cropped.
         """
-        self.canvas.crop(
-            **{
-                xy: {
-                    **{
-                        'dim': self.dims[xy]['dim'],
-                        'unit': self.dims[xy]['unit']
-                    },
-                    **limits[self.dims[xy]['dim']]
-                }
-                for xy in 'xy'
-            })
+        self.canvas.crop(**{xy: limits[self.dims[xy]] for xy in 'xy'})

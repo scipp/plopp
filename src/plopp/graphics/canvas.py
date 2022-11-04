@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import number_to_variable
+from ..core.utils import maybe_variable_to_number
 from .utils import fig_to_bytes, silent_mpl_figure
 
 import matplotlib.pyplot as plt
@@ -135,11 +135,10 @@ class Canvas:
                 self._ymin = min(self._ymin, bottom.value)
                 self._ymax = max(self._ymax, top.value)
         if self._user_vmin is not None:
-            assert self._user_vmin.unit == self.yunit
-            self._ymin = self._user_vmin.value
+            self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
         if self._user_vmax is not None:
-            assert self._user_vmax.unit == self.yunit
-            self._ymax = self._user_vmax.value
+            self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
+
         self.ax.set_xlim(_none_if_not_finite(self._xmin),
                          _none_if_not_finite(self._xmax))
         self.ax.set_ylim(_none_if_not_finite(self._ymin),
@@ -184,7 +183,7 @@ class Canvas:
         """
         for xy, lims in limits.items():
             getattr(self.ax, f'set_{xy}lim')(*[
-                sc.to_unit(number_to_variable(lims[m]), unit=lims['unit']).value
+                maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
                 for m in ('min', 'max') if m in lims
             ])
 
