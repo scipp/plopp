@@ -8,7 +8,7 @@ from .colormapper import ColorMapper
 from .mesh import Mesh
 
 import scipp as sc
-from typing import Any, Dict, Literal, Tuple
+from typing import Any, Dict, Literal, Tuple, Union
 
 
 class Figure2d(BaseFig):
@@ -31,9 +31,11 @@ class Figure2d(BaseFig):
     norm:
         Control the scaling on the vertical axis.
     vmin:
-        Lower bound for the vertical axis.
+        Lower bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
     vmax:
-        Upper bound for the vertical axis.
+        Upper bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
     scale:
         Control the scaling of the horizontal axis.
     aspect:
@@ -64,8 +66,8 @@ class Figure2d(BaseFig):
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: Literal['linear', 'log'] = 'linear',
-                 vmin: sc.Variable = None,
-                 vmax: sc.Variable = None,
+                 vmin: Union[sc.Variable, int, float] = None,
+                 vmax: Union[sc.Variable, int, float] = None,
                  scale: Dict[str, str] = None,
                  aspect: Literal['auto', 'equal'] = 'auto',
                  grid: bool = False,

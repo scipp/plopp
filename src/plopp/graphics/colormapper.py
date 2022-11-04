@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colorbar import ColorbarBase
 import numpy as np
 import scipp as sc
-from typing import Literal, Tuple
+from typing import Literal, Tuple, Union
 
 
 def _get_cmap(name: str, nan_color: str = None) -> Colormap:
@@ -65,9 +65,11 @@ class ColorMapper:
     norm:
         The colorscale normalization.
     vmin:
-        The minimum value for the colorscale range.
+        The minimum value for the colorscale range. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the data unit.
     vmax:
-        The maximum value for the colorscale range.
+        The maximum value for the colorscale range. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the data unit.
     nan_color:
         The color used for representing NAN values.
     figsize:
@@ -79,8 +81,8 @@ class ColorMapper:
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: Literal['linear', 'log'] = 'linear',
-                 vmin: sc.Variable = None,
-                 vmax: sc.Variable = None,
+                 vmin: Union[sc.Variable, int, float] = None,
+                 vmax: Union[sc.Variable, int, float] = None,
                  nan_color: str = None,
                  figsize: Tuple[float, float] = None):
 
