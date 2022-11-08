@@ -34,7 +34,7 @@ class Static:
             npoints = 0
             for line in self.canvas.ax.lines:
                 npoints += len(line.get_xdata())
-            repr_maker = REPR_MAP['png' if (npoints > 60_000) else 'svg']
+            repr_maker = REPR_MAP['png' if (npoints > 20_000) else 'svg']
         out.update(repr_maker(self.canvas.fig))
         return out
 
