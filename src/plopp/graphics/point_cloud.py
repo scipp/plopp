@@ -46,6 +46,7 @@ class PointCloud:
         self._x = x
         self._y = y
         self._z = z
+        self._pixel_size = pixel_size
 
         self.geometry = p3.BufferGeometry(
             attributes={
@@ -65,7 +66,7 @@ class PointCloud:
         # Note that an additional factor of 2.5 (obtained from trial and error) seems to
         # be required to get the sizes right in the scene.
         self.material = p3.PointsMaterial(vertexColors='VertexColors',
-                                          size=2.5 * pixel_size * pixel_ratio,
+                                          size=2.5 * self._pixel_size * pixel_ratio,
                                           transparent=True,
                                           opacity=opacity)
         self.points = p3.Points(geometry=self.geometry, material=self.material)
@@ -96,12 +97,16 @@ class PointCloud:
         """
         Get the spatial extent of all the points in the cloud.
         """
-        xmin, xmax = fix_empty_range(find_limits(self._data.meta[self._x]))
-        ymin, ymax = fix_empty_range(find_limits(self._data.meta[self._y]))
-        zmin, zmax = fix_empty_range(find_limits(self._data.meta[self._z]))
-        return (sc.concat([xmin, xmax],
-                          dim=self._x), sc.concat([ymin, ymax], dim=self._y),
-                sc.concat([zmin, zmax], dim=self._z))
+        xcoord = self._data.meta[self._x]
+        ycoord = self._data.meta[self._y]
+        zcoord = self._data.meta[self._z]
+        half_pixel = 0.5 * self._pixel_size
+        dx = sc.scalar(half_pixel, unit=xcoord.unit)
+        dy = sc.scalar(half_pixel, unit=ycoord.unit)
+        dz = sc.scalar(half_pixel, unit=zcoord.unit)
+        return (sc.concat([xcoord.min() - dx, xcoord.max() + dx], dim=self._x),
+                sc.concat([ycoord.min() - dy, ycoord.max() + dy], dim=self._y),
+                sc.concat([zcoord.min() - dz, zcoord.max() + dz], dim=self._z))
 
     @property
     def opacity(self):
