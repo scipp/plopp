@@ -29,6 +29,8 @@ def coord_as_bin_edges(da: sc.DataArray, key: str, dim: str = None) -> sc.Variab
         x = sc.arange(dim, float(x.shape[0]), unit=x.unit)
     if da.meta.is_edges(key, dim=dim):
         return x
+    if x.dtype == int:
+        x = x.to(dtype='float64')
     if x.sizes[dim] < 2:
         half = sc.scalar(0.5, unit=x.unit)
         return sc.concat([x[dim, 0:1] - half, x[dim, 0:1] + half], dim)
