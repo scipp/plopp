@@ -48,6 +48,10 @@ class Figure1d(BaseFig):
     ax:
         If supplied, use these axes to create the figure. If none are supplied, the
         canvas will create its own axes.
+    form:
+        Format of the figure displayed in the Jupyter notebook. If ``None``, a SVG is
+        created as long as the number of markers in the figure is not too large. If too
+        many markers are drawn, a PNG image is created instead.
     **kwargs:
         All other kwargs are forwarded to Matplotlib:
 
@@ -69,6 +73,7 @@ class Figure1d(BaseFig):
                  title: str = None,
                  figsize: Tuple[float, float] = (6., 4.),
                  ax: Any = None,
+                 form: Literal['svg', 'png'] = None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -77,6 +82,7 @@ class Figure1d(BaseFig):
         self._errorbars = errorbars
         self._mask_color = mask_color
         self._kwargs = kwargs
+        self._repr_format = form
         self.canvas = Canvas(cbar=False,
                              aspect=aspect,
                              grid=grid,

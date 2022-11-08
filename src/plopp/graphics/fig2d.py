@@ -57,6 +57,10 @@ class Figure2d(BaseFig):
     cax:
         If supplied, use these axes for the colorbar. If none are supplied, and a
         colorbar is required, the canvas will create its own axes.
+    form:
+        Format of the figure displayed in the Jupyter notebook. If ``None``, a SVG is
+        created as long as the number of markers in the figure is not too large. If too
+        many markers are drawn, a PNG image is created instead.
     **kwargs:
         All other kwargs are forwarded to the Mesh artist.
     """
@@ -77,12 +81,14 @@ class Figure2d(BaseFig):
                  figsize: Tuple[float, float] = (6., 4.),
                  ax: Any = None,
                  cax: Any = None,
+                 form: Literal['svg', 'png'] = None,
                  **kwargs):
 
         super().__init__(*nodes)
 
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
+        self._repr_format = form
         self.canvas = Canvas(cbar=cbar,
                              aspect=aspect,
                              grid=grid,
