@@ -8,7 +8,7 @@ from .colormapper import ColorMapper
 from .mesh import Mesh
 
 import scipp as sc
-from typing import Any, Dict, Literal, Tuple, Union
+from typing import Any, Dict, Literal, Optional, Tuple, Union
 
 
 class Figure2d(BaseFig):
@@ -57,6 +57,10 @@ class Figure2d(BaseFig):
     cax:
         If supplied, use these axes for the colorbar. If none are supplied, and a
         colorbar is required, the canvas will create its own axes.
+    format:
+        Format of the figure displayed in the Jupyter notebook. If ``None``, a SVG is
+        created as long as the number of markers in the figure is not too large. If too
+        many markers are drawn, a PNG image is created instead.
     **kwargs:
         All other kwargs are forwarded to the Mesh artist.
     """
@@ -66,23 +70,25 @@ class Figure2d(BaseFig):
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: Literal['linear', 'log'] = 'linear',
-                 vmin: Union[sc.Variable, int, float] = None,
-                 vmax: Union[sc.Variable, int, float] = None,
-                 scale: Dict[str, str] = None,
+                 vmin: Optional[Union[sc.Variable, int, float]] = None,
+                 vmax: Optional[Union[sc.Variable, int, float]] = None,
+                 scale: Optional[Dict[str, str]] = None,
                  aspect: Literal['auto', 'equal'] = 'auto',
                  grid: bool = False,
-                 crop: Dict[str, Dict[str, sc.Variable]] = None,
+                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
                  cbar: bool = True,
-                 title: str = None,
+                 title: Optional[str] = None,
                  figsize: Tuple[float, float] = (6., 4.),
-                 ax: Any = None,
-                 cax: Any = None,
+                 ax: Optional[Any] = None,
+                 cax: Optional[Any] = None,
+                 format: Optional[Literal['svg', 'png']] = None,
                  **kwargs):
 
         super().__init__(*nodes)
 
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
+        self._repr_format = format
         self.canvas = Canvas(cbar=cbar,
                              aspect=aspect,
                              grid=grid,
