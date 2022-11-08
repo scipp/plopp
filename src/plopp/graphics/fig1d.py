@@ -7,7 +7,7 @@ from .canvas import Canvas
 from .line import Line
 
 import scipp as sc
-from typing import Any, Dict, Literal, Tuple, Union
+from typing import Any, Dict, Literal, Optional, Tuple, Union
 
 
 class Figure1d(BaseFig):
@@ -48,7 +48,7 @@ class Figure1d(BaseFig):
     ax:
         If supplied, use these axes to create the figure. If none are supplied, the
         canvas will create its own axes.
-    form:
+    format:
         Format of the figure displayed in the Jupyter notebook. If ``None``, a SVG is
         created as long as the number of markers in the figure is not too large. If too
         many markers are drawn, a PNG image is created instead.
@@ -62,18 +62,18 @@ class Figure1d(BaseFig):
     def __init__(self,
                  *nodes,
                  norm: Literal['linear', 'log'] = 'linear',
-                 vmin: Union[sc.Variable, int, float] = None,
-                 vmax: Union[sc.Variable, int, float] = None,
-                 scale: Dict[str, str] = None,
+                 vmin: Optional[Union[sc.Variable, int, float]] = None,
+                 vmax: Optional[Union[sc.Variable, int, float]] = None,
+                 scale: Optional[Dict[str, str]] = None,
                  errorbars: bool = True,
                  mask_color: str = 'black',
                  aspect: Literal['auto', 'equal'] = 'auto',
                  grid: bool = False,
-                 crop: Dict[str, Dict[str, sc.Variable]] = None,
-                 title: str = None,
+                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+                 title: Optional[str] = None,
                  figsize: Tuple[float, float] = (6., 4.),
-                 ax: Any = None,
-                 form: Literal['svg', 'png'] = None,
+                 ax: Optional[Any] = None,
+                 format: Optional[Literal['svg', 'png']] = None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -82,7 +82,7 @@ class Figure1d(BaseFig):
         self._errorbars = errorbars
         self._mask_color = mask_color
         self._kwargs = kwargs
-        self._repr_format = form
+        self._repr_format = format
         self.canvas = Canvas(cbar=False,
                              aspect=aspect,
                              grid=grid,
