@@ -55,6 +55,8 @@ class ColorMapper:
     cax:
         The axes to use for the colorbar. If none are supplied, the ColorMapper will
         create its own axes.
+    cbar:
+        Create a colorbar if ``True``.
     cmap:
         The name of the colormap for the data
         (see https://matplotlib.org/stable/tutorials/colors/colormaps.html).
@@ -77,7 +79,8 @@ class ColorMapper:
     """
 
     def __init__(self,
-                 cax: Optional[Union[plt.Axes, Literal['generate']]] = None,
+                 cax: Optional[plt.Axes] = None,
+                 cbar: bool = True,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: Literal['linear', 'log'] = 'linear',
@@ -106,7 +109,7 @@ class ColorMapper:
         self.artists = {}
         self.widget = None
 
-        if self.cax == 'generate':
+        if cbar and self.cax is None:
             dpi = 100
             height_inches = (figsize[1] / dpi) if figsize is not None else 6
             with silent_mpl_figure():
