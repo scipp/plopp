@@ -76,7 +76,8 @@ class Figure3d(BaseFig):
                                        vmin=vmin,
                                        vmax=vmax,
                                        nan_color="#f0f0f0",
-                                       figsize=self.canvas.figsize)
+                                       figsize=self.canvas.figsize,
+                                       cax='generate')
 
         self._original_artists = [n.id for n in nodes]
         self.render()
