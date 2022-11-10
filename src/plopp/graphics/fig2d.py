@@ -97,6 +97,7 @@ class Figure2d(BaseFig):
                              ax=ax,
                              cax=cax)
         self.colormapper = ColorMapper(cmap=cmap,
+                                       cbar=cbar,
                                        mask_cmap=mask_cmap,
                                        norm=norm,
                                        vmin=vmin,
