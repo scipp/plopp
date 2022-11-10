@@ -56,7 +56,8 @@ class ColorMapper:
         The axes to use for the colorbar. If none are supplied, the ColorMapper will
         create its own axes.
     cbar:
-        Create a colorbar if ``True``.
+        Create a colorbar if ``True``. If ``False``, no colorbar is made even if ``cax``
+        is defined.
     cmap:
         The name of the colormap for the data
         (see https://matplotlib.org/stable/tutorials/colors/colormaps.html).
@@ -109,14 +110,13 @@ class ColorMapper:
         self.artists = {}
         self.widget = None
 
-        if cbar and self.cax is None:
-            dpi = 100
-            height_inches = (figsize[1] / dpi) if figsize is not None else 6
-            with silent_mpl_figure():
-                fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
-            self.cax = fig.add_axes([0.05, 0.02, 0.2, 0.98])
-
-        if self.cax is not None:
+        if cbar:
+            if self.cax is None:
+                dpi = 100
+                height_inches = (figsize[1] / dpi) if figsize is not None else 6
+                with silent_mpl_figure():
+                    fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
+                self.cax = fig.add_axes([0.05, 0.02, 0.2, 0.98])
             self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
             self.cax.yaxis.set_label_coords(-0.9, 0.5)
 
