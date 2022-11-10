@@ -5,6 +5,7 @@ from plopp.data import data_array
 from plopp.graphics.colormapper import ColorMapper
 import scipp as sc
 import numpy as np
+import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize, LogNorm
 
 
@@ -153,3 +154,15 @@ def test_colorbar_updated_on_rescale():
     const = 2.3
     mapper.update(data=da * const, key=None)
     assert old_image_array != mapper.widget.value
+
+
+def test_colorbar_is_not_created_if_cbar_false():
+    mapper = ColorMapper(cbar=False)
+    assert mapper.colorbar is None
+    assert mapper.cax is None
+
+
+def test_colorbar_cbar_false_overrides_cax():
+    fig, ax = plt.subplots(figsize=(1, 4))
+    mapper = ColorMapper(cbar=False, cax=ax)
+    assert mapper.colorbar is None
