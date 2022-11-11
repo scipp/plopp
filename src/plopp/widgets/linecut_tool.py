@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core import node, Node, View
+from ..core.utils import coord_as_midpoints
 from ..graphics.fig2d import Figure2d
 from .tools import DrawLinesTool
 
@@ -57,12 +58,13 @@ class LineCutTool(DrawLinesTool):
                                  "has more than one artist.")
             data = list(figure.graph_nodes.values())[0].request_data()
         self._data_array = data
-        self._interpolator = partial(interpolator,
-                                     interp_func=interp2d(
-                                         self._data_array.coords['xx'].values,
-                                         self._data_array.coords['yy'].values,
-                                         self._data_array.values),
-                                     resolution=resolution)
+        self._interpolator = partial(
+            interpolator,
+            interp_func=interp2d(
+                coord_as_midpoints(self._data_array, key=figure.dims['x']).values,
+                coord_as_midpoints(self._data_array, key=figure.dims['y']).values,
+                self._data_array.values),
+            resolution=resolution)
 
         self._fig1d = fig1d
         self._event_nodes = {}

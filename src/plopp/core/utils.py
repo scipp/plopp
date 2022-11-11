@@ -34,13 +34,41 @@ def coord_as_bin_edges(da: sc.DataArray, key: str, dim: str = None) -> sc.Variab
     if x.sizes[dim] < 2:
         half = sc.scalar(0.5, unit=x.unit)
         return sc.concat([x[dim, 0:1] - half, x[dim, 0:1] + half], dim)
-    else:
-        center = sc.midpoints(x, dim=dim)
-        # Note: use range of 0:1 to keep dimension dim in the slice to avoid
-        # switching round dimension order in concatenate step.
-        left = center[dim, 0:1] - (x[dim, 1] - x[dim, 0])
-        right = center[dim, -1] + (x[dim, -1] - x[dim, -2])
-        return sc.concat([left, center, right], dim)
+    center = sc.midpoints(x, dim=dim)
+    # Note: use range of 0:1 to keep dimension dim in the slice to avoid
+    # switching round dimension order in concatenate step.
+    left = center[dim, 0:1] - (x[dim, 1] - x[dim, 0])
+    right = center[dim, -1] + (x[dim, -1] - x[dim, -2])
+    return sc.concat([left, center, right], dim)
+
+
+def coord_as_midpoints(da: sc.DataArray, key: str, dim: str = None) -> sc.Variable:
+    """
+    If coordinate ``key`` in DataArray ``da`` is already midpoints, return it unchanged.
+    If it is bin edges, return as midpoints.
+
+    Parameters
+    ----------
+    da:
+        The input data array.
+    key:
+        The name of coordinate to potentially convert to midpoints.
+    dim:
+        The dimension to use for computing the midpoints (this can be different from
+        the coordinate name, in the case of non-dimension coordinates).
+    """
+    if dim is None:
+        dim = key
+    x = da.meta[key]
+    if x.dtype == str:
+        x = sc.arange(dim, float(x.shape[0]), unit=x.unit)
+    if not da.meta.is_edges(key, dim=dim):
+        return x
+    if x.dtype in ('int32', 'int64'):
+        x = x.to(dtype='float64')
+    if x.sizes[dim] < 2:
+        return x
+    return sc.midpoints(x, dim=dim)
 
 
 def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
