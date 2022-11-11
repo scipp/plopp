@@ -91,7 +91,7 @@ def scatter3d(da: sc.DataArray,
                    vmax=vmax,
                    cmap=cmap,
                    **kwargs)
-    tri_cutter = TriCutTool(fig)
+    tri_cutter = TriCutTool(figure=fig)
     fig.toolbar['cut3d'] = ToggleTool(callback=tri_cutter.toggle_visibility,
                                       icon='cube',
                                       tooltip='Hide/show spatial cutting tool')

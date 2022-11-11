@@ -11,7 +11,7 @@ except importlib.metadata.PackageNotFoundError:
 
 from .core import Node, View, node, input_node, widget_node, show_graph
 from .functions import (figure1d, figure2d, figure3d, plot, slicer, inspector,
-                        scatter3d, superplot)
+                        linecutter, scatter3d, superplot)
 
 from . import data
 

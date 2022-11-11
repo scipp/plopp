@@ -10,7 +10,7 @@ from functools import partial
 import numpy as np
 import scipp as sc
 from scipy.interpolate import interp2d
-from typing import Any, Union, Dict, Literal
+from typing import Any, Union, Dict, Literal, Optional
 
 
 def interpolator(xy, interp_func, resolution):
@@ -36,16 +36,27 @@ def interpolator(xy, interp_func, resolution):
 
 class LineCutTool(DrawLinesTool):
     """
+    Tool to draw cuts/profiles of a 2d data array along a arbitrary lines.
+
+      - When a line is added to the 2d figure, make a new cut in the 1d figure.
+      - When a line or one of its vertices is dragged on the 2d figure, update the
+        corresponding cut in the 1d figure.
+      - When a line is removed from the 2d figure, remove the corresponding cut from
+        the 1d figure.
     """
 
-    def __init__(self, fig2d: View, fig1d: View, data=None, resolution=100):
-        if not isinstance(fig2d, Figure2d):
+    def __init__(self,
+                 figure: View,
+                 fig1d: View,
+                 data: Optional[sc.DataArray] = None,
+                 resolution: int = 100):
+        if not isinstance(figure, Figure2d):
             raise TypeError("The line cut tool is only designed to work on 2d figures.")
         if data is None:
-            if len(fig2d.graph_nodes) > 1:
+            if len(figure.graph_nodes) > 1:
                 raise ValueError("Cannot automatically generate tool because figure "
                                  "has more than one artist.")
-            data = list(fig2d.graph_nodes.values())[0].request_data()
+            data = list(figure.graph_nodes.values())[0].request_data()
         self._data_array = data
         self._interpolator = partial(interpolator,
                                      interp_func=interp2d(
@@ -56,7 +67,7 @@ class LineCutTool(DrawLinesTool):
 
         self._fig1d = fig1d
         self._event_nodes = {}
-        super().__init__(ax=fig2d.canvas.ax, n=2)
+        super().__init__(figure=figure, n=2)
         self.lines.on_create = self.make_node
         self.lines.on_vertex_release = self.update_node
         self.lines.on_drag_release = self.update_node

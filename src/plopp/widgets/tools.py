@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import BUTTON_LAYOUT, is_sphinx_build
+from ..core import View
 from ..graphics import Canvas
 
 import ipywidgets as ipw
@@ -154,9 +155,9 @@ class DrawPointsTool(ToggleTool):
         The Matplotlib axes where the points will be drawn.
     """
 
-    def __init__(self, value: bool = False, ax: Axes = None, **kwargs):
+    def __init__(self, figure: View, value: bool = False, **kwargs):
         from mpltoolbox import Points
-        self.points = Points(ax=ax, autostart=False, mec='w')
+        self.points = Points(ax=figure.canvas.ax, autostart=False, mec='w')
         super().__init__(callback=self.start_stop,
                          value=value,
                          icon='crosshairs',
@@ -184,9 +185,9 @@ class DrawLinesTool(ToggleTool):
         The Matplotlib axes where the points will be drawn.
     """
 
-    def __init__(self, value: bool = False, ax: Axes = None, n=None, **kwargs):
+    def __init__(self, figure: View, value: bool = False, n=None, **kwargs):
         from mpltoolbox import Lines
-        self.lines = Lines(ax=ax, n=n, autostart=False)
+        self.lines = Lines(ax=figure.canvas.ax, n=n, autostart=False)
         super().__init__(callback=self.start_stop, value=value, icon='slash', **kwargs)
 
     def start_stop(self):

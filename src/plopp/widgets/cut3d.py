@@ -261,11 +261,11 @@ class TriCutTool(ipw.HBox):
 
     Parameters
     ----------
-    fig:
+    figure:
         The 3d figure that contains the point clouds to be cut.
     """
 
-    def __init__(self, fig: View):
+    def __init__(self, figure: View):
 
         self._fig = fig
         limits = self._fig.get_limits()
