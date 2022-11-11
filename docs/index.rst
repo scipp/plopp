@@ -65,6 +65,7 @@ Get in touch
    user-guide/image-plot
    user-guide/slicer-plot
    user-guide/inspector-plot
+   user-guide/linecutter-plot
    user-guide/super-plot
    user-guide/scatter3d-plot
 

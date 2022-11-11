@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .plot import plot
 from .common import require_interactive_backend, preprocess
 from .figure import figure1d, figure2d
 from ..core import input_node, node, Node, View
@@ -9,7 +8,7 @@ from ..core.utils import coord_as_bin_edges
 
 import scipp as sc
 from numpy import ndarray
-from typing import Any, Union, Dict, Optional, Literal
+from typing import Any, Union, Dict, Literal, Optional
 
 
 def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
@@ -17,6 +16,7 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
               *,
               operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
               orientation: Literal['horizontal', 'vertical'] = 'horizontal',
+              crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
               **kwargs):
     """
     Inspector takes in a three-dimensional input and applies a reduction operation
@@ -47,6 +47,11 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
     orientation:
         Display the two panels side-by-side ('horizontal') or one below the other
         ('vertical').
+    crop:
+        Set the axis limits. Limits should be given as a dict with one entry per
+        dimension to be cropped. Each entry should be a nested dict containing scalar
+        values for ``'min'`` and/or ``'max'``. Example:
+        ``da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})``
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
 
@@ -72,12 +77,13 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
         da.coords[d] = coord_as_bin_edges(da, d)
 
     a = input_node(da)
-    p = plot(getattr(sc, operation)(da, dim=dim))
+    op_node = node(getattr(sc, operation), dim=dim)(a)
+    fig2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
     fig1d = figure1d()
-    p.add_tool(InspectTool, root_node=a, fig1d=fig1d)
+    fig2d.add_tool(InspectTool, root_node=a, fig1d=fig1d)
 
     from ..widgets import Box
-    out = [p, fig1d]
+    out = [fig2d, fig1d]
     if orientation == 'horizontal':
         out = [out]
     return Box(out)
