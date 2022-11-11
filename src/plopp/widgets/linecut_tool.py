@@ -1,8 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core import input_node, node, Node, View
-from ..core.utils import coord_as_bin_edges
+from ..core import node, Node, View
 from ..graphics.fig2d import Figure2d
 from .tools import DrawLinesTool
 
@@ -10,7 +9,7 @@ from functools import partial
 import numpy as np
 import scipp as sc
 from scipy.interpolate import interp2d
-from typing import Any, Union, Dict, Literal, Optional
+from typing import Any, Dict, Optional
 
 
 def interpolator(xy, interp_func, resolution):

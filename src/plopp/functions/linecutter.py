@@ -3,11 +3,11 @@
 
 from .plot import plot
 from .common import require_interactive_backend
-from .figure import figure1d, figure2d
+from .figure import figure1d
 
 import scipp as sc
 from numpy import ndarray
-from typing import Any, Union, Dict, Literal
+from typing import Union, Literal
 
 
 def linecutter(obj: Union[ndarray, sc.Variable, sc.DataArray],

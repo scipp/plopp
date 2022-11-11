@@ -267,7 +267,7 @@ class TriCutTool(ipw.HBox):
 
     def __init__(self, figure: View):
 
-        self._fig = fig
+        self._fig = figure
         limits = self._fig.get_limits()
         self.cut_x = Cut3dTool(view=self._fig,
                                direction='x',

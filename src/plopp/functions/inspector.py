@@ -3,12 +3,12 @@
 
 from .common import require_interactive_backend, preprocess
 from .figure import figure1d, figure2d
-from ..core import input_node, node, Node, View
+from ..core import input_node, node
 from ..core.utils import coord_as_bin_edges
 
 import scipp as sc
 from numpy import ndarray
-from typing import Any, Union, Dict, Literal, Optional
+from typing import Union, Dict, Literal, Optional
 
 
 def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
