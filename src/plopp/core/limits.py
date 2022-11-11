@@ -15,7 +15,7 @@ def find_limits(x: Variable,
     v = x.values
     finite_inds = np.isfinite(v)
     if np.sum(finite_inds) == 0:
-        return (scalar(np.nan, unit=x.unit), scalar(np.nan, unit=x.unit))
+        raise ValueError("No finite values were found in array. Cannot compute limits.")
     finite_vals = v[finite_inds]
     if scale == "log":
         finite_min = np.amin(finite_vals, initial=np.inf, where=finite_vals > 0)
