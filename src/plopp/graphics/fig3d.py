@@ -6,7 +6,7 @@ from .canvas3d import Canvas3d
 from .colormapper import ColorMapper
 
 import scipp as sc
-from typing import Literal, Tuple
+from typing import Literal, Tuple, Union
 
 
 class Figure3d(BaseFig):
@@ -35,9 +35,11 @@ class Figure3d(BaseFig):
     norm:
         Control the scaling on the vertical axis.
     vmin:
-        Lower bound for the vertical axis.
+        Lower bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
     vmax:
-        Upper bound for the vertical axis.
+        Upper bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
     title:
         The figure title.
     figsize:
@@ -54,9 +56,9 @@ class Figure3d(BaseFig):
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: Literal['linear', 'log'] = 'linear',
-                 vmin: sc.Variable = None,
-                 vmax: sc.Variable = None,
-                 figsize: Tuple[float, float] = None,
+                 vmin: Union[sc.Variable, int, float] = None,
+                 vmax: Union[sc.Variable, int, float] = None,
+                 figsize: Tuple[int, int] = (600, 400),
                  title: str = None,
                  **kwargs):
 

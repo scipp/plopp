@@ -7,7 +7,7 @@ from .canvas import Canvas
 from .line import Line
 
 import scipp as sc
-from typing import Dict, Literal, Tuple
+from typing import Any, Dict, Literal, Optional, Tuple, Union
 
 
 class Figure1d(BaseFig):
@@ -23,9 +23,11 @@ class Figure1d(BaseFig):
     norm:
         Control the scaling on the vertical axis.
     vmin:
-        Lower bound for the vertical axis.
+        Lower bound for the vertical axis. If a number (without a unit) is supplied,
+        it is assumed that the unit is the same as the current vertical axis unit.
     vmax:
-        Upper bound for the vertical axis.
+        Upper bound for the vertical axis. If a number (without a unit) is supplied,
+        it is assumed that the unit is the same as the current vertical axis unit.
     scale:
         Control the scaling of the horizontal axis.
     errorbars:
@@ -43,6 +45,13 @@ class Figure1d(BaseFig):
         The figure title.
     figsize:
         The width and height of the figure, in inches.
+    ax:
+        If supplied, use these axes to create the figure. If none are supplied, the
+        canvas will create its own axes.
+    format:
+        Format of the figure displayed in the Jupyter notebook. If ``None``, a SVG is
+        created as long as the number of markers in the figure is not too large. If too
+        many markers are drawn, a PNG image is created instead.
     **kwargs:
         All other kwargs are forwarded to Matplotlib:
 
@@ -53,16 +62,18 @@ class Figure1d(BaseFig):
     def __init__(self,
                  *nodes,
                  norm: Literal['linear', 'log'] = 'linear',
-                 vmin: sc.Variable = None,
-                 vmax: sc.Variable = None,
-                 scale: Dict[str, str] = None,
+                 vmin: Optional[Union[sc.Variable, int, float]] = None,
+                 vmax: Optional[Union[sc.Variable, int, float]] = None,
+                 scale: Optional[Dict[str, str]] = None,
                  errorbars: bool = True,
                  mask_color: str = 'black',
                  aspect: Literal['auto', 'equal'] = 'auto',
                  grid: bool = False,
-                 crop: Dict[str, Dict[str, sc.Variable]] = None,
-                 title: str = None,
-                 figsize: Tuple[float, float] = None,
+                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+                 title: Optional[str] = None,
+                 figsize: Tuple[float, float] = (6., 4.),
+                 ax: Optional[Any] = None,
+                 format: Optional[Literal['svg', 'png']] = None,
                  **kwargs):
 
         super().__init__(*nodes)
@@ -71,17 +82,22 @@ class Figure1d(BaseFig):
         self._errorbars = errorbars
         self._mask_color = mask_color
         self._kwargs = kwargs
+        self._repr_format = format
         self.canvas = Canvas(cbar=False,
                              aspect=aspect,
                              grid=grid,
                              figsize=figsize,
-                             title=title)
+                             title=title,
+                             ax=ax,
+                             vmin=vmin,
+                             vmax=vmax)
         self.canvas.yscale = norm
 
         self.render()
         self.canvas.autoscale()
         if crop is not None:
             self.crop(**crop)
+        self.canvas.fit_to_page()
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
@@ -112,18 +128,15 @@ class Figure1d(BaseFig):
             self.artists[key] = line
             if line.label:
                 self.canvas.legend()
+            self.dims['x'] = new_values.dim
 
-            self.dims['x'] = {
-                'dim': new_values.dim,
-                'unit': new_values.meta[new_values.dim].unit
-            }
-
-            self.canvas.xlabel = name_with_unit(
-                var=new_values.meta[self.dims['x']['dim']])
+            self.canvas.xunit = new_values.meta[new_values.dim].unit
+            self.canvas.yunit = new_values.unit
+            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
 
-            if self.dims['x']['dim'] in self._scale:
-                self.canvas.xscale = self._scale[self.dims['x']['dim']]
+            if self.dims['x'] in self._scale:
+                self.canvas.xscale = self._scale[self.dims['x']]
 
         else:
             self.artists[key].update(new_values=new_values)
@@ -140,9 +153,4 @@ class Figure1d(BaseFig):
         **limits:
             Min and max limits for each dimension to be cropped.
         """
-        self.canvas.crop(
-            x={
-                'dim': self.dims['x']['dim'],
-                'unit': self.dims['x']['unit'],
-                **limits[self.dims['x']['dim']]
-            })
+        self.canvas.crop(x=limits[self.dims['x']])

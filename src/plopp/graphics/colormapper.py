@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import merge_masks
+from ..core.utils import merge_masks, maybe_variable_to_number
 from .utils import fig_to_bytes, silent_mpl_figure
 
 from copy import copy
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colorbar import ColorbarBase
 import numpy as np
 import scipp as sc
-from typing import Literal, Tuple
+from typing import Literal, Optional, Tuple, Union
 
 
 def _get_cmap(name: str, nan_color: str = None) -> Colormap:
@@ -55,6 +55,9 @@ class ColorMapper:
     cax:
         The axes to use for the colorbar. If none are supplied, the ColorMapper will
         create its own axes.
+    cbar:
+        Create a colorbar if ``True``. If ``False``, no colorbar is made even if ``cax``
+        is defined.
     cmap:
         The name of the colormap for the data
         (see https://matplotlib.org/stable/tutorials/colors/colormaps.html).
@@ -65,9 +68,11 @@ class ColorMapper:
     norm:
         The colorscale normalization.
     vmin:
-        The minimum value for the colorscale range.
+        The minimum value for the colorscale range. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the data unit.
     vmax:
-        The maximum value for the colorscale range.
+        The maximum value for the colorscale range. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the data unit.
     nan_color:
         The color used for representing NAN values.
     figsize:
@@ -75,14 +80,15 @@ class ColorMapper:
     """
 
     def __init__(self,
-                 cax: plt.Axes = None,
+                 cax: Optional[plt.Axes] = None,
+                 cbar: bool = True,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: Literal['linear', 'log'] = 'linear',
-                 vmin: sc.Variable = None,
-                 vmax: sc.Variable = None,
-                 nan_color: str = None,
-                 figsize: Tuple[float, float] = None):
+                 vmin: Optional[Union[sc.Variable, int, float]] = None,
+                 vmax: Optional[Union[sc.Variable, int, float]] = None,
+                 nan_color: Optional[str] = None,
+                 figsize: Optional[Tuple[float, float]] = None):
 
         self.cax = cax
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
@@ -95,8 +101,8 @@ class ColorMapper:
 
         # Note that we need to set vmin/vmax for the LogNorm, if not an error is
         # raised when making the colorbar before any call to update is made.
-        self.normalizer = Normalize() if self.norm == 'linear' else LogNorm(vmin=1,
-                                                                            vmax=2)
+        self.normalizer = Normalize(
+            vmin=0, vmax=1) if self.norm == 'linear' else LogNorm(vmin=1, vmax=2)
         self.colorbar = None
         self.unit = None
         self.name = None
@@ -104,15 +110,15 @@ class ColorMapper:
         self.artists = {}
         self.widget = None
 
-        if self.cax is None:
-            dpi = 100
-            height_inches = (figsize[1] / dpi) if figsize is not None else 6
-            with silent_mpl_figure():
-                fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
-            self.cax = fig.add_axes([0.05, 0.02, 0.2, 1.0])
-
-        self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
-        self.cax.yaxis.set_label_coords(-1.1, 0.5)
+        if cbar:
+            if self.cax is None:
+                dpi = 100
+                height_inches = (figsize[1] / dpi) if figsize is not None else 6
+                with silent_mpl_figure():
+                    fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
+                self.cax = fig.add_axes([0.05, 0.02, 0.2, 0.98])
+            self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
+            self.cax.yaxis.set_label_coords(-0.9, 0.5)
 
     def __setitem__(self, key, val):
         self.artists[key] = val
@@ -163,13 +169,11 @@ class ColorMapper:
         """
         vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm))
         if self.user_vmin is not None:
-            assert self.user_vmin.unit == data.unit
-            self.vmin = self.user_vmin.value
+            self.vmin = maybe_variable_to_number(self.user_vmin, unit=self.unit)
         elif vmin.value < self.vmin:
             self.vmin = vmin.value
         if self.user_vmax is not None:
-            assert self.user_vmax.unit == data.unit
-            self.vmax = self.user_vmax.value
+            self.vmax = maybe_variable_to_number(self.user_vmax, unit=self.unit)
         elif vmax.value > self.vmax:
             self.vmax = vmax.value
 
@@ -202,6 +206,15 @@ class ColorMapper:
         key:
             The id of the node that provided this data.
         """
+        if self.unit is None:
+            self.unit = data.unit
+            self.name = data.name
+            if self.cax is not None:
+                self.cax.set_ylabel(f'{self.name} [{self.unit}]')
+        elif data.unit != self.unit:
+            raise ValueError(f'Incompatible unit: colormapper has unit {self.unit}, '
+                             f'new data has unit {data.unit}.')
+
         old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
 
@@ -213,11 +226,6 @@ class ColorMapper:
         else:
             self.normalizer.vmin = self.vmin
             self.normalizer.vmax = self.vmax
-
-        if self.unit is None:
-            self.unit = data.unit
-            self.name = data.name
-            self.cax.set_ylabel(f'{self.name} [{self.unit}]')
 
         if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
             self._set_artists_colors(key=key)
@@ -236,5 +244,6 @@ class ColorMapper:
         self.normalizer.vmin = self.vmin
         self.normalizer.vmax = self.vmax
         self._set_artists_colors()
-        self.colorbar.mappable.norm = self.normalizer
-        self._update_colorbar_widget()
+        if self.colorbar is not None:
+            self.colorbar.mappable.norm = self.normalizer
+            self._update_colorbar_widget()

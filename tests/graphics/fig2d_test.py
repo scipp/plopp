@@ -5,6 +5,7 @@ from plopp.data import data_array
 from plopp.graphics.fig2d import Figure2d
 from plopp.graphics.mesh import Mesh
 from plopp import input_node
+import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 import pytest
@@ -86,6 +87,27 @@ def test_crop():
     assert fig.canvas.ax.get_ylim() == (ymin.value, ymax.value)
 
 
+def test_crop_no_variable():
+    da = data_array(ndim=2)
+    xmin = 2.1
+    xmax = 102.0
+    ymin = 5.5
+    ymax = 22.3
+    fig = Figure2d(input_node(da),
+                   crop={
+                       'xx': {
+                           'min': xmin,
+                           'max': xmax
+                       },
+                       'yy': {
+                           'min': ymin,
+                           'max': ymax
+                       }
+                   })
+    assert fig.canvas.ax.get_xlim() == (xmin, xmax)
+    assert fig.canvas.ax.get_ylim() == (ymin, ymax)
+
+
 def test_cbar():
     da = data_array(ndim=2, binedges=True)
     fig = Figure2d(input_node(da), cbar=False)
@@ -157,3 +179,26 @@ def test_figsize():
     size = (8.1, 8.3)
     fig = Figure2d(input_node(da), figsize=size)
     assert np.allclose(fig.canvas.fig.get_size_inches(), size)
+
+
+def test_grid():
+    da = data_array(ndim=2)
+    fig = Figure2d(input_node(da), grid=True)
+    assert fig.canvas.ax.xaxis.get_gridlines()[0].get_visible()
+
+
+def test_ax():
+    fig, ax = plt.subplots()
+    assert len(ax.collections) == 0
+    da = data_array(ndim=2)
+    _ = Figure2d(input_node(da), ax=ax)
+    assert len(ax.collections) == 1
+
+
+def test_cax():
+    fig, ax = plt.subplots()
+    cax = fig.add_axes([0.9, 0.02, 0.05, 0.98])
+    assert len(cax.collections) == 0
+    da = data_array(ndim=2)
+    _ = Figure2d(input_node(da), ax=ax, cax=cax)
+    assert len(cax.collections) > 0

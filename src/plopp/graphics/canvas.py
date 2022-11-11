@@ -2,14 +2,15 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import number_to_variable
+from ..core.utils import maybe_variable_to_number
 from .utils import fig_to_bytes, silent_mpl_figure
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import QuadMesh
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 import scipp as sc
-from typing import Dict, Literal, Tuple
+from typing import Dict, Literal, Tuple, Union
 
 
 def _none_if_not_finite(x):
@@ -27,6 +28,9 @@ class Canvas:
     ax:
         If supplied, use these axes to create the figure. If none are supplied, the
         canvas will create its own axes.
+    cax:
+        If supplied, use these axes for the colorbar. If none are supplied, and a
+        colorbar is required, the canvas will create its own axes.
     figsize:
         The width and height of the figure, in inches.
     title:
@@ -34,9 +38,13 @@ class Canvas:
     grid:
         Display the figure grid if ``True``.
     vmin:
-        The minimum value for the vertical axis.
+        The minimum value for the vertical axis. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the current vertical axis
+        unit.
     vmax:
-        The maximum value for the vertical axis.
+        The maximum value for the vertical axis. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the current vertical axis
+        unit.
     aspect:
         The aspect ratio for the axes.
     scale:
@@ -48,45 +56,39 @@ class Canvas:
 
     def __init__(self,
                  ax: plt.Axes = None,
-                 figsize: Tuple[float, float] = None,
+                 cax: plt.Axes = None,
+                 figsize: Tuple[float, float] = (6., 4.),
                  title: str = None,
                  grid: bool = False,
-                 vmin: sc.Variable = None,
-                 vmax: sc.Variable = None,
+                 vmin: Union[sc.Variable, int, float] = None,
+                 vmax: Union[sc.Variable, int, float] = None,
                  aspect: Literal['auto', 'equal'] = 'auto',
                  scale: Dict[str, str] = None,
                  cbar: bool = False):
 
         self.fig = None
         self.ax = ax
+        self.cax = cax
         self._user_vmin = vmin
         self._user_vmax = vmax
         self._scale = {} if scale is None else scale
+        self.xunit = None
+        self.yunit = None
+        self._own_axes = False
 
         if self.ax is None:
-            if figsize is None:
-                figsize = (6, 4)
+            self._own_axes = True
             with silent_mpl_figure():
-                self.fig = plt.figure(figsize=figsize, dpi=96)
-            left = 0.11
-            right = 0.9
-            bottom = 0.11
-            top = 0.95
-            if cbar:
-                cbar_width = 0.03
-                cbar_gap = 0.04
-                self.ax = self.fig.add_axes(
-                    [left, bottom, right - left - cbar_width - cbar_gap, top - bottom])
-                self.cax = self.fig.add_axes(
-                    [right - cbar_width, bottom, cbar_width, top - bottom])
-            else:
-                self.ax = self.fig.add_axes([left, bottom, right - left, top - bottom])
-                self.cax = None
+                self.fig, self.ax = plt.subplots(figsize=figsize)
             if hasattr(self.fig.canvas, "on_widget_constructed"):
                 self.fig.canvas.toolbar_visible = False
                 self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
+
+        if cbar and self.cax is None:
+            divider = make_axes_locatable(self.ax)
+            self.cax = divider.append_axes("right", "4%", pad="5%")
 
         self.ax.set_aspect(aspect)
         self.ax.set_title(title)
@@ -136,6 +138,11 @@ class Canvas:
                 self._xmax = max(self._xmax, right.value)
                 self._ymin = min(self._ymin, bottom.value)
                 self._ymax = max(self._ymax, top.value)
+        if self._user_vmin is not None:
+            self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
+        if self._user_vmax is not None:
+            self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
+
         self.ax.set_xlim(_none_if_not_finite(self._xmin),
                          _none_if_not_finite(self._xmax))
         self.ax.set_ylim(_none_if_not_finite(self._ymin),
@@ -180,7 +187,7 @@ class Canvas:
         """
         for xy, lims in limits.items():
             getattr(self.ax, f'set_{xy}lim')(*[
-                sc.to_unit(number_to_variable(lims[m]), unit=lims['unit']).value
+                maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
                 for m in ('min', 'max') if m in lims
             ])
 
@@ -263,3 +270,10 @@ class Canvas:
         self._ymin = np.inf
         self._ymax = np.NINF
         self.autoscale()
+
+    def fit_to_page(self):
+        """
+        Trim the margins around the figure.
+        """
+        if self._own_axes:
+            self.fig.tight_layout()

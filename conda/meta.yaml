@@ -14,8 +14,9 @@ requirements:
   run:
     - python >=3.8
     - python-dateutil
-    - scipp
     - matplotlib
+  run_constrained:
+    - scipp >=0.12
 
 test:
   imports:
@@ -24,6 +25,7 @@ test:
     - pytest
     - ipywidgets
     - pythreejs
+    - scipp >=0.12
     - scipy
   source_files:
     - tests/

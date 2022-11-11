@@ -8,7 +8,7 @@ from .colormapper import ColorMapper
 from .mesh import Mesh
 
 import scipp as sc
-from typing import Dict, Literal, Tuple
+from typing import Any, Dict, Literal, Optional, Tuple, Union
 
 
 class Figure2d(BaseFig):
@@ -31,9 +31,11 @@ class Figure2d(BaseFig):
     norm:
         Control the scaling on the vertical axis.
     vmin:
-        Lower bound for the vertical axis.
+        Lower bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
     vmax:
-        Upper bound for the vertical axis.
+        Upper bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
     scale:
         Control the scaling of the horizontal axis.
     aspect:
@@ -49,6 +51,16 @@ class Figure2d(BaseFig):
         The figure title.
     figsize:
         The width and height of the figure, in inches.
+    ax:
+        If supplied, use these axes to create the figure. If none are supplied, the
+        canvas will create its own axes.
+    cax:
+        If supplied, use these axes for the colorbar. If none are supplied, and a
+        colorbar is required, the canvas will create its own axes.
+    format:
+        Format of the figure displayed in the Jupyter notebook. If ``None``, a SVG is
+        created as long as the number of markers in the figure is not too large. If too
+        many markers are drawn, a PNG image is created instead.
     **kwargs:
         All other kwargs are forwarded to the Mesh artist.
     """
@@ -58,27 +70,34 @@ class Figure2d(BaseFig):
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: Literal['linear', 'log'] = 'linear',
-                 vmin: sc.Variable = None,
-                 vmax: sc.Variable = None,
-                 scale: Dict[str, str] = None,
+                 vmin: Optional[Union[sc.Variable, int, float]] = None,
+                 vmax: Optional[Union[sc.Variable, int, float]] = None,
+                 scale: Optional[Dict[str, str]] = None,
                  aspect: Literal['auto', 'equal'] = 'auto',
                  grid: bool = False,
-                 crop: Dict[str, Dict[str, sc.Variable]] = None,
+                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
                  cbar: bool = True,
-                 title: str = None,
-                 figsize: Tuple[float, float] = None,
+                 title: Optional[str] = None,
+                 figsize: Tuple[float, float] = (6., 4.),
+                 ax: Optional[Any] = None,
+                 cax: Optional[Any] = None,
+                 format: Optional[Literal['svg', 'png']] = None,
                  **kwargs):
 
         super().__init__(*nodes)
 
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
+        self._repr_format = format
         self.canvas = Canvas(cbar=cbar,
                              aspect=aspect,
                              grid=grid,
                              title=title,
-                             figsize=figsize)
+                             figsize=figsize,
+                             ax=ax,
+                             cax=cax)
         self.colormapper = ColorMapper(cmap=cmap,
+                                       cbar=cbar,
                                        mask_cmap=mask_cmap,
                                        norm=norm,
                                        vmin=vmin,
@@ -89,6 +108,7 @@ class Figure2d(BaseFig):
         self.canvas.autoscale()
         if crop is not None:
             self.crop(**crop)
+        self.canvas.fit_to_page()
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
@@ -115,25 +135,16 @@ class Figure2d(BaseFig):
             mesh = Mesh(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = mesh
             self.colormapper[key] = mesh
-            self.dims.update({
-                "x": {
-                    'dim': new_values.dims[1],
-                    'unit': new_values.meta[new_values.dims[1]].unit
-                },
-                "y": {
-                    'dim': new_values.dims[0],
-                    'unit': new_values.meta[new_values.dims[0]].unit
-                }
-            })
+            self.dims.update({"x": new_values.dims[1], "y": new_values.dims[0]})
 
-            self.canvas.xlabel = name_with_unit(
-                var=new_values.meta[self.dims['x']['dim']])
-            self.canvas.ylabel = name_with_unit(
-                var=new_values.meta[self.dims['y']['dim']])
-            if self.dims['x']['dim'] in self._scale:
-                self.canvas.xscale = self._scale[self.dims['x']['dim']]
-            if self.dims['y']['dim'] in self._scale:
-                self.canvas.yscale = self._scale[self.dims['y']['dim']]
+            self.canvas.xunit = new_values.meta[new_values.dims[1]].unit
+            self.canvas.yunit = new_values.meta[new_values.dims[0]].unit
+            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
+            self.canvas.ylabel = name_with_unit(var=new_values.meta[self.dims['y']])
+            if self.dims['x'] in self._scale:
+                self.canvas.xscale = self._scale[self.dims['x']]
+            if self.dims['y'] in self._scale:
+                self.canvas.yscale = self._scale[self.dims['y']]
 
         self.artists[key].update(new_values=new_values)
         self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
@@ -157,14 +168,4 @@ class Figure2d(BaseFig):
         **limits:
             Min and max limits for each dimension to be cropped.
         """
-        self.canvas.crop(
-            **{
-                xy: {
-                    **{
-                        'dim': self.dims[xy]['dim'],
-                        'unit': self.dims[xy]['unit']
-                    },
-                    **limits[self.dims[xy]['dim']]
-                }
-                for xy in 'xy'
-            })
+        self.canvas.crop(**{xy: limits[self.dims[xy]] for xy in 'xy'})

@@ -29,6 +29,8 @@ def coord_as_bin_edges(da: sc.DataArray, key: str, dim: str = None) -> sc.Variab
         x = sc.arange(dim, float(x.shape[0]), unit=x.unit)
     if da.meta.is_edges(key, dim=dim):
         return x
+    if x.dtype in ('int32', 'int64'):
+        x = x.to(dtype='float64')
     if x.sizes[dim] < 2:
         half = sc.scalar(0.5, unit=x.unit)
         return sc.concat([x[dim, 0:1] - half, x[dim, 0:1] + half], dim)
@@ -65,7 +67,7 @@ def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
                                                                to=dim)
 
 
-def number_to_variable(x: Union[int, float, sc.Variable]) -> sc.Variable:
+def number_to_variable(x: Union[int, float, sc.Variable], unit: str) -> sc.Variable:
     """
     Convert the input int or float to a variable.
 
@@ -74,7 +76,28 @@ def number_to_variable(x: Union[int, float, sc.Variable]) -> sc.Variable:
     x:
         The input int or float.
     """
-    return sc.scalar(x, unit=None) if isinstance(x, (int, float)) else x
+    return sc.scalar(x, unit=unit) if isinstance(x, (int, float)) else x.to(unit=unit)
+
+
+def maybe_variable_to_number(x: Union[int, float, sc.Variable],
+                             unit=None) -> Union[int, float]:
+    """
+    If the input is a variable, return its value.
+    If a unit is requested, perform the conversion to that unit first.
+    If the input is a number, return it unchanged.
+
+    Parameters
+    ----------
+    x:
+        The input number or variable.
+    unit:
+        Convert the input to that unit if not ``None``.
+    """
+    if hasattr(x, 'unit'):
+        if unit is not None:
+            x = x.to(unit=unit)
+        x = x.values
+    return x
 
 
 def name_with_unit(var: sc.Variable, name: str = None) -> str:

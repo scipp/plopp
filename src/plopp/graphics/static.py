@@ -6,6 +6,17 @@ from .fig2d import Figure2d
 from .utils import fig_to_bytes
 
 
+def _make_png_repr(fig):
+    return {'image/png': fig_to_bytes(fig, form='png')}
+
+
+def _make_svg_repr(fig):
+    return {'image/svg+xml': fig_to_bytes(fig, form='svg').decode()}
+
+
+REPR_MAP = {'png': _make_png_repr, 'svg': _make_svg_repr}
+
+
 class Static:
     """
     Mixin class to provide the svg repr for static figures, as well as a method to
@@ -16,10 +27,16 @@ class Static:
         """
         Mimebundle display representation for jupyter notebooks.
         """
-        return {
-            'text/plain': 'Figure',
-            'image/svg+xml': fig_to_bytes(self.canvas.fig, form='svg').decode()
-        }
+        out = {'text/plain': 'Figure'}
+        if self._repr_format is not None:
+            repr_maker = REPR_MAP[self._repr_format.lower()]
+        else:
+            npoints = 0
+            for line in self.canvas.ax.lines:
+                npoints += len(line.get_xdata())
+            repr_maker = REPR_MAP['png' if (npoints > 20_000) else 'svg']
+        out.update(repr_maker(self.canvas.fig))
+        return out
 
     def to_widget(self):
         """
