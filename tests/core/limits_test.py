@@ -28,12 +28,27 @@ def test_find_limits_with_nan():
     assert sc.identical(lims[1], sc.scalar(10., unit='m'))
 
 
+def test_find_limits_with_inf():
+    x = sc.arange('x', 11., unit='m')
+    x.values[5] = np.inf
+    lims = find_limits(x)
+    assert sc.identical(lims[0], sc.scalar(0., unit='m'))
+    assert sc.identical(lims[1], sc.scalar(10., unit='m'))
+
+
 def test_find_limits_with_ninf():
     x = sc.arange('x', 11., unit='m')
     x.values[5] = np.NINF
     lims = find_limits(x)
     assert sc.identical(lims[0], sc.scalar(0., unit='m'))
     assert sc.identical(lims[1], sc.scalar(10., unit='m'))
+
+
+def test_find_limits_no_finite_values():
+    x = sc.array(dims=['x'], values=[np.nan, np.inf, np.NINF, np.nan], unit='m')
+    lims = find_limits(x)
+    assert sc.isnan(lims[0])
+    assert sc.isnan(lims[1])
 
 
 def test_fix_empty_range():

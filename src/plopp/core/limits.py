@@ -12,7 +12,10 @@ def find_limits(x: Variable,
     Find sensible limits, depending on linear or log scale.
     """
     v = x.values
-    finite_vals = v[np.isfinite(v)]
+    finite_inds = np.isfinite(v)
+    if np.sum(finite_inds) == 0:
+        return (scalar(np.nan, unit=x.unit), scalar(np.nan, unit=x.unit))
+    finite_vals = v[finite_inds]
     if scale == "log":
         finite_min = np.amin(finite_vals, initial=np.inf, where=finite_vals > 0)
     else:
