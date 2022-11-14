@@ -28,12 +28,10 @@ def test_update():
 
 def test_update_not_1d_raises():
     fig = Figure1d()
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError, match="Figure1d can only be used to plot 1-D data."):
         fig.update(data_array(ndim=2), key='data2d')
-    assert str(e.value) == "Figure1d can only be used to plot 1-D data."
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError, match="Figure1d can only be used to plot 1-D data."):
         fig.update(data_array(ndim=3), key='data3d')
-    assert str(e.value) == "Figure1d can only be used to plot 1-D data."
 
 
 def test_create_with_node():

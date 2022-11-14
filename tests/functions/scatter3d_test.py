@@ -20,10 +20,8 @@ def test_scatter3d_from_xyz():
 
 def test_scatter3d_raises_with_both_pos_and_xyz():
     da = scatter_data()
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(ValueError, match=r'If pos \(position\) is defined, all of'):
         pp.scatter3d(da, pos='position', x='x', y='y', z='z')
-    assert str(e.value) == ('If pos (position) is defined, all of '
-                            'x (x), y (y), and z (z) must be None.')
 
 
 def test_scatter3d_dimensions_are_flattened():

@@ -4,6 +4,7 @@
 from plopp.core.limits import find_limits, fix_empty_range
 import scipp as sc
 import numpy as np
+import pytest
 
 
 def test_find_limits():
@@ -28,12 +29,26 @@ def test_find_limits_with_nan():
     assert sc.identical(lims[1], sc.scalar(10., unit='m'))
 
 
+def test_find_limits_with_inf():
+    x = sc.arange('x', 11., unit='m')
+    x.values[5] = np.inf
+    lims = find_limits(x)
+    assert sc.identical(lims[0], sc.scalar(0., unit='m'))
+    assert sc.identical(lims[1], sc.scalar(10., unit='m'))
+
+
 def test_find_limits_with_ninf():
     x = sc.arange('x', 11., unit='m')
     x.values[5] = np.NINF
     lims = find_limits(x)
     assert sc.identical(lims[0], sc.scalar(0., unit='m'))
     assert sc.identical(lims[1], sc.scalar(10., unit='m'))
+
+
+def test_find_limits_no_finite_values_raises():
+    x = sc.array(dims=['x'], values=[np.nan, np.inf, np.NINF, np.nan], unit='m')
+    with pytest.raises(ValueError, match="No finite values were found in array"):
+        _ = find_limits(x)
 
 
 def test_fix_empty_range():

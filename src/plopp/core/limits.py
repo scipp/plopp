@@ -10,9 +10,13 @@ def find_limits(x: Variable,
                 scale: Literal['linear', 'log'] = 'linear') -> Tuple[Variable, ...]:
     """
     Find sensible limits, depending on linear or log scale.
+    If there are no finite values in the array, return NaN for both min and max values.
     """
     v = x.values
-    finite_vals = v[np.isfinite(v)]
+    finite_inds = np.isfinite(v)
+    if np.sum(finite_inds) == 0:
+        raise ValueError("No finite values were found in array. Cannot compute limits.")
+    finite_vals = v[finite_inds]
     if scale == "log":
         finite_min = np.amin(finite_vals, initial=np.inf, where=finite_vals > 0)
     else:
