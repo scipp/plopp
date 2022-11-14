@@ -60,13 +60,11 @@ def test_plot_coord_with_no_unit():
 
 
 def test_plot_rejects_large_input():
-    error_message = "may take very long or use an excessive amount of memory"
-    with pytest.raises(ValueError) as e1d:
+    error_match = "may take very long or use an excessive amount of memory"
+    with pytest.raises(ValueError, match=error_match):
         pp.plot(np.random.random(1_100_000))
-    assert error_message in str(e1d)
-    with pytest.raises(ValueError) as e2d:
+    with pytest.raises(ValueError, match=error_match):
         pp.plot(np.random.random((3000, 2500)))
-    assert error_message in str(e2d)
 
 
 def test_plot_ignore_size_disables_size_check():

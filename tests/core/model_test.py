@@ -147,8 +147,7 @@ def test_cannot_remove_node_with_children():
     a = Node(lambda: 5)
     b = node(lambda x: x - 2)(x=a)
     av = DataView(a)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(RuntimeError, match="Cannot delete node"):
         a.remove()
-    assert "Cannot delete node" in str(e.value)
     assert b in a.children
     assert av in a.views
