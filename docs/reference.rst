@@ -63,6 +63,8 @@ Widgets and tools
    widgets.tools.ButtonTool
    widgets.tools.CameraTool
    widgets.tools.ColorTool
+   widgets.tools.DrawLinesTool
+   widgets.tools.DrawPointsTool
    widgets.tools.HomeTool
    widgets.tools.LogNormTool
    widgets.tools.LogxTool
@@ -70,7 +72,6 @@ Widgets and tools
    widgets.tools.MultiToggleTool
    widgets.tools.OutlineTool
    widgets.tools.PanZoomTool
-   widgets.tools.PointsTool
    widgets.tools.SaveTool
    widgets.tools.ToggleTool
 
