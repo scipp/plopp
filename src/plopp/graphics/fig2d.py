@@ -128,6 +128,8 @@ class Figure2d(BaseFig):
         if new_values.ndim != 2:
             raise ValueError("Figure2d can only be used to plot 2-D data.")
 
+        need_fit_to_page = len(self.artists) == 0
+
         self.colormapper.update(data=new_values, key=key)
 
         if key not in self.artists:
@@ -151,6 +153,8 @@ class Figure2d(BaseFig):
 
         if draw:
             self.canvas.draw()
+            if need_fit_to_page:
+                self.canvas.fit_to_page()
 
     def toggle_norm(self):
         """

@@ -13,7 +13,7 @@ from scipy.interpolate import interp2d
 from typing import Any, Dict, Optional
 
 
-def interpolator(xy, interp_func, resolution):
+def interpolator(xy, interp_func, resolution, data_unit, distance_unit):
     x1 = xy['x'][0]
     y1 = xy['y'][0]
     x2 = xy['x'][1]
@@ -23,13 +23,14 @@ def interpolator(xy, interp_func, resolution):
     yvalues = np.linspace(y1, y2, resolution)
 
     profile = np.array([interp_func(x, y)[0] for x, y in zip(xvalues, yvalues)])
-    out = sc.DataArray(data=sc.array(dims=['distance'], values=profile),
+    out = sc.DataArray(data=sc.array(dims=['distance'], values=profile, unit=data_unit),
                        coords={
                            'distance':
                            sc.array(dims=['distance'],
                                     values=np.linalg.norm(
                                         [xvalues - xvalues[0], yvalues - yvalues[0]],
-                                        axis=0))
+                                        axis=0),
+                                    unit=distance_unit)
                        })
     return out
 
@@ -58,13 +59,20 @@ class LineCutTool(DrawLinesTool):
                                  "has more than one artist.")
             data = list(figure.graph_nodes.values())[0].request_data()
         self._data_array = data
+        if (self._data_array.coords[figure.dims['x']].unit == self._data_array.coords[
+                figure.dims['y']].unit):
+            distance_unit = self._data_array.coords[figure.dims['x']].unit
+        else:
+            distance_unit = ''
         self._interpolator = partial(
             interpolator,
             interp_func=interp2d(
                 coord_as_midpoints(self._data_array, key=figure.dims['x']).values,
                 coord_as_midpoints(self._data_array, key=figure.dims['y']).values,
                 self._data_array.values),
-            resolution=resolution)
+            resolution=resolution,
+            data_unit=self._data_array.unit,
+            distance_unit=distance_unit)
 
         self._fig1d = fig1d
         self._event_nodes = {}

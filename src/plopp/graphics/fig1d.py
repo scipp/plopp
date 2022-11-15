@@ -117,6 +117,8 @@ class Figure1d(BaseFig):
         if new_values.ndim != 1:
             raise ValueError("Figure1d can only be used to plot 1-D data.")
 
+        need_fit_to_page = len(self.artists) == 0
+
         if key not in self.artists:
 
             line = Line(canvas=self.canvas,
@@ -143,6 +145,8 @@ class Figure1d(BaseFig):
 
         if draw:
             self.canvas.autoscale()
+            if need_fit_to_page:
+                self.canvas.fit_to_page()
 
     def crop(self, **limits):
         """
