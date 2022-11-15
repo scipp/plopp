@@ -50,6 +50,7 @@ class InspectTool(DrawPointsTool):
         inspect_node = slice_dims(self._root_node, event_node)
         inspect_node.add_view(self._fig1d)
         self._fig1d.update(new_values=inspect_node.request_data(), key=inspect_node.id)
+        self._fig1d.artists[inspect_node.id].color = change['artist'].get_color()
 
     def update_node(self, change: Dict[str, Any]):
         event = change['event']

@@ -82,6 +82,7 @@ class LineCutTool(DrawLinesTool):
         cut_node = node(self._interpolator)(xy=draw_node)
         cut_node.add_view(self._fig1d)
         self._fig1d.update(new_values=cut_node.request_data(), key=cut_node.id)
+        self._fig1d.artists[cut_node.id].color = change['artist'].get_color()
 
     def update_node(self, change: Dict[str, Any]):
         line_data = change['artist'].get_xydata()
