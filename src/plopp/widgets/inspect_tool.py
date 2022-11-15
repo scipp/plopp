@@ -19,6 +19,15 @@ class InspectTool(DrawPointsTool):
         1d figure.
       - When a point is removed from the 2d figure, remove the corresponding line from
         the 1d figure.
+
+    Parameters
+    ----------
+    figure:
+        The main (two-dimensional) figure where the tool will draw points.
+    root_node:
+        The node that provides the original (three-dimensional) data.
+    fig1d:
+        The secondary figure where the tool will display the results.
     """
 
     def __init__(self, figure: View, root_node: Node, fig1d: View):

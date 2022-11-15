@@ -44,6 +44,20 @@ class LineCutTool(DrawLinesTool):
         corresponding cut in the 1d figure.
       - When a line is removed from the 2d figure, remove the corresponding cut from
         the 1d figure.
+
+    Parameters
+    ----------
+    figure:
+        The main (two_dimensional) figure where the tool will draw lines.
+    fig1d:
+        The secondary figure where the tool will display the cut results.
+    data:
+        If there are more than one artists (2d meshes) on the main figure, we need to
+        specify which artist should the cuts be taken from. Typically this is not the
+        case, the data can just be determined from the main figure and this argument can
+        be omitted.
+    resolution:
+        The number of sampling points to use along the line cut.
     """
 
     def __init__(self,
