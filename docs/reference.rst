@@ -66,8 +66,6 @@ Widgets and tools
    widgets.tools.DrawLinesTool
    widgets.tools.DrawPointsTool
    widgets.tools.HomeTool
-   widgets.tools.InspectTool
-   widgets.tools.LineCutTool
    widgets.tools.LogNormTool
    widgets.tools.LogxTool
    widgets.tools.LogyTool
@@ -77,5 +75,7 @@ Widgets and tools
    widgets.tools.SaveTool
    widgets.tools.ToggleTool
 
-   widgets.cut3d.Cut3dTool
-   widgets.cut3d.TriCutTool
+   widgets.InspectTool
+   widgets.LineCutTool
+   widgets.Cut3dTool
+   widgets.TriCutTool

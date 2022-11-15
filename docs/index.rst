@@ -83,3 +83,4 @@ Get in touch
    :hidden:
 
    reference
+   Release notes <https://github.com/scipp/plopp/releases>
