@@ -66,6 +66,8 @@ Widgets and tools
    widgets.tools.DrawLinesTool
    widgets.tools.DrawPointsTool
    widgets.tools.HomeTool
+   widgets.tools.InspectTool
+   widgets.tools.LineCutTool
    widgets.tools.LogNormTool
    widgets.tools.LogxTool
    widgets.tools.LogyTool
