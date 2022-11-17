@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
-# from .slicer import Slicer
+from .slicer import Slicer
 from ..core import Node, View
 from ..core.utils import coord_element_to_string
 
@@ -103,9 +103,9 @@ def superplot(obj: Union[sc.typing.VariableLike, ndarray],
     da = preprocess(obj, crop=crop, ignore_size=True)
     if keep is None:
         keep = da.dims[-1]
-    sl = Slicer(da=da, keep=[keep], crop=crop, **kwargs)
-    save_tool = LineSaveTool(data_node=sl.slice_node,
+    sl = Slicer(da, keep=[keep], crop=crop, **kwargs)
+    save_tool = LineSaveTool(data_node=sl.slice_nodes[0],
                              slider_node=sl.slider_node,
-                             fig=sl.fig)
+                             fig=sl.figure)
     from ..widgets import Box
-    return Box([[sl.fig, save_tool.widget], sl.slider])
+    return Box([[sl.figure, save_tool.widget], sl.slider])
