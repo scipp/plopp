@@ -72,4 +72,4 @@ def test_with_mismatching_data_arrays_raises():
     b = data_array(ndim=2) * 2.5
     b.coords['xx'] *= 1.1
     with pytest.raises(sc.DatasetError):
-        sl = Slicer({'a': a, 'b': b}, keep=['xx'])
+        _ = Slicer({'a': a, 'b': b}, keep=['xx'])

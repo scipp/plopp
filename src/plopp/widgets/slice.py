@@ -6,7 +6,7 @@ from ..core import node
 
 import ipywidgets as ipw
 import scipp as sc
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict
 
 
 class SliceWidget(ipw.VBox):
