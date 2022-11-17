@@ -14,6 +14,25 @@ from matplotlib.colors import to_hex
 import uuid
 
 
+class Superplot:
+
+    def __init__(self,
+                 obj: Union[sc.typing.VariableLike, ndarray],
+                 keep: str = None,
+                 *,
+                 crop: Dict[str, Dict[str, sc.Variable]] = None,
+                 **kwargs):
+        da = preprocess(obj, crop=crop, ignore_size=True)
+        if keep is None:
+            keep = da.dims[-1]
+        self.slicer = Slicer(da, keep=[keep], crop=crop, **kwargs)
+        self.linesavetool = LineSaveTool(data_node=self.slicer.slice_nodes[0],
+                                         slider_node=self.slicer.slider_node,
+                                         fig=self.slicer.figure)
+        self.figure = self.slicer.figure
+        self.slider = self.slicer.slider
+
+
 class LineSaveTool:
     """
     Create a tool that is used to copy and save the currently displayed 1D line on a
@@ -100,12 +119,13 @@ def superplot(obj: Union[sc.typing.VariableLike, ndarray],
         to save/delete lines.
     """
     require_interactive_backend('superplot')
-    da = preprocess(obj, crop=crop, ignore_size=True)
-    if keep is None:
-        keep = da.dims[-1]
-    sl = Slicer(da, keep=[keep], crop=crop, **kwargs)
-    save_tool = LineSaveTool(data_node=sl.slice_nodes[0],
-                             slider_node=sl.slider_node,
-                             fig=sl.figure)
+    sp = Superplot(obj=obj, keep=keep, crop=crop, **kwargs)
+    # da = preprocess(obj, crop=crop, ignore_size=True)
+    # if keep is None:
+    #     keep = da.dims[-1]
+    # sl = Slicer(da, keep=[keep], crop=crop, **kwargs)
+    # save_tool = LineSaveTool(data_node=sl.slice_nodes[0],
+    #                          slider_node=sl.slider_node,
+    #                          fig=sl.figure)
     from ..widgets import Box
-    return Box([[sl.figure, save_tool.widget], sl.slider])
+    return Box([[sp.figure, sp.linesavetool.widget], sp.slider])
