@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
-from .slicer import Slicer
+# from .slicer import Slicer
 from ..core import Node, View
 from ..core.utils import coord_element_to_string
 
