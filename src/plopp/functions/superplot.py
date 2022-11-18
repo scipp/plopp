@@ -9,28 +9,9 @@ from ..core.utils import coord_element_to_string
 from functools import partial
 import scipp as sc
 from numpy import ndarray
-from typing import Any, Union, Dict
+from typing import Any, Union, Dict, Optional
 from matplotlib.colors import to_hex
 import uuid
-
-
-class Superplot:
-
-    def __init__(self,
-                 obj: Union[sc.typing.VariableLike, ndarray],
-                 keep: str = None,
-                 *,
-                 crop: Dict[str, Dict[str, sc.Variable]] = None,
-                 **kwargs):
-        da = preprocess(obj, crop=crop, ignore_size=True)
-        if keep is None:
-            keep = da.dims[-1]
-        self.slicer = Slicer(da, keep=[keep], crop=crop, **kwargs)
-        self.linesavetool = LineSaveTool(data_node=self.slicer.slice_nodes[0],
-                                         slider_node=self.slicer.slider_node,
-                                         fig=self.slicer.figure)
-        self.figure = self.slicer.figure
-        self.slider = self.slicer.slider
 
 
 class LineSaveTool:
@@ -85,10 +66,53 @@ class LineSaveTool:
         self._update_container()
 
 
+class Superplot:
+    """
+    Object that slicing all but one dimension of the input, with a slider per sliced
+    dimension, below the figure.
+    It also has a ``LineSaveTool`` for saving the currently displayed line.
+
+    Parameters
+    ----------
+    obj:
+        The object to be plotted.
+    keep:
+        The single dimension to be kept, all remaining dimensions will be sliced.
+        This should be a single string. If no dim is provided, the last/inner dim will
+        be kept.
+    crop:
+        Set the axis limits. Limits should be given as a dict with one entry per
+        dimension to be cropped. Each entry should be a nested dict containing scalar
+        values for `'min'` and/or `'max'`. Example:
+        `da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})`
+    **kwargs:
+        See :py:func:`plopp.plot` for the full list of line customization arguments.
+    """
+
+    def __init__(self,
+                 obj: Union[sc.typing.VariableLike, ndarray],
+                 keep: Optional[str] = None,
+                 *,
+                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+                 **kwargs):
+        da = preprocess(obj, crop=crop, ignore_size=True)
+        if keep is None:
+            keep = da.dims[-1]
+        if isinstance(keep, (list, tuple)):
+            raise TypeError(
+                "The keep argument must be a single string, not a list or tuple.")
+        self.slicer = Slicer(da, keep=[keep], crop=crop, **kwargs)
+        self.linesavetool = LineSaveTool(data_node=self.slicer.slice_nodes[0],
+                                         slider_node=self.slicer.slider_node,
+                                         fig=self.slicer.figure)
+        self.figure = self.slicer.figure
+        self.slider = self.slicer.slider
+
+
 def superplot(obj: Union[sc.typing.VariableLike, ndarray],
-              keep: str = None,
+              keep: Optional[str] = None,
               *,
-              crop: Dict[str, Dict[str, sc.Variable]] = None,
+              crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
               **kwargs):
     """
     Plot a multi-dimensional object as a one-dimensional line, slicing all but one
@@ -120,12 +144,5 @@ def superplot(obj: Union[sc.typing.VariableLike, ndarray],
     """
     require_interactive_backend('superplot')
     sp = Superplot(obj=obj, keep=keep, crop=crop, **kwargs)
-    # da = preprocess(obj, crop=crop, ignore_size=True)
-    # if keep is None:
-    #     keep = da.dims[-1]
-    # sl = Slicer(da, keep=[keep], crop=crop, **kwargs)
-    # save_tool = LineSaveTool(data_node=sl.slice_nodes[0],
-    #                          slider_node=sl.slider_node,
-    #                          fig=sl.figure)
     from ..widgets import Box
     return Box([[sp.figure, sp.linesavetool.widget], sp.slider])
