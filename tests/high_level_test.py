@@ -113,7 +113,7 @@ def test_node_sum_data_along_y():
 def test_slice_3d_cube():
     da = data_array(ndim=3)
     a = input_node(da)
-    sl = SliceWidget(da, ['zz'])
+    sl = SliceWidget(sizes={'zz': da.sizes['zz']}, coords=da.coords)
     w = widget_node(sl)
 
     slice_node = slice_dims(a, w)
@@ -126,7 +126,7 @@ def test_slice_3d_cube():
 def test_3d_image_slicer_with_connected_side_histograms():
     da = data_array(ndim=3)
     a = input_node(da)
-    sl = SliceWidget(da, ['zz'])
+    sl = SliceWidget(sizes={'zz': da.sizes['zz']}, coords=da.coords)
     w = widget_node(sl)
 
     sliced = slice_dims(a, w)

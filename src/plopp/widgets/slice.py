@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from scipp import DataArray
 from ..core.utils import coord_element_to_string
 from ..core import node
 
 import ipywidgets as ipw
-from typing import Any, Callable, Dict, List
+import scipp as sc
+from typing import Any, Callable, Dict
 
 
 class SliceWidget(ipw.VBox):
@@ -24,18 +24,18 @@ class SliceWidget(ipw.VBox):
         The dimensions to make sliders for.
     """
 
-    def __init__(self, data_array: DataArray, dims: List[str]):
-        self._slider_dims = dims
+    def __init__(self, sizes: Dict[str, int], coords: Dict[str, sc.Variable]):
+        self._slider_dims = list(sizes.keys())
         self.controls = {}
         self.view = None
         children = []
 
-        for dim in dims:
-            coord = data_array.meta[dim]
+        for dim in self._slider_dims:
+            coord = coords[dim]
             slider = ipw.IntSlider(step=1,
                                    description=dim,
                                    min=0,
-                                   max=data_array.sizes[dim] - 1,
+                                   max=sizes[dim] - 1,
                                    continuous_update=True,
                                    readout=False,
                                    layout={"width": "200px"},
@@ -85,7 +85,7 @@ class SliceWidget(ipw.VBox):
 
 
 @node
-def slice_dims(data_array: DataArray, slices: Dict[str, slice]) -> DataArray:
+def slice_dims(data_array: sc.DataArray, slices: Dict[str, slice]) -> sc.DataArray:
     """
     Slice the data according to input slices.
 
