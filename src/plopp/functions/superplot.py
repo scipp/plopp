@@ -68,9 +68,17 @@ class LineSaveTool:
 
 class Superplot:
     """
-    Object that slicing all but one dimension of the input, with a slider per sliced
+    Class that slices all but one dimension of the input, with a slider per sliced
     dimension, below the figure.
     It also has a ``LineSaveTool`` for saving the currently displayed line.
+
+    Note:
+
+    This class primarily exists to facilitate unit testing. When running unit tests, we
+    are not in a Jupyter notebook, and the generated figures are not widgets that can
+    be placed in the `Box` widget container at the end of the `superplot` function.
+    We therefore place most of the code for creating a Superplot in this class, which is
+    under unit test coverage. The thin `superplot` wrapper is not covered by unit tests.
 
     Parameters
     ----------

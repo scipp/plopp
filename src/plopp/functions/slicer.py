@@ -16,6 +16,14 @@ class Slicer:
     Class that slices out dimensions from the data and displays the resulting data as
     either a 1D line or a 2D image.
 
+    Note:
+
+    This class primarily exists to facilitate unit testing. When running unit tests, we
+    are not in a Jupyter notebook, and the generated figures are not widgets that can
+    be placed in the `Box` widget container at the end of the `slicer` function.
+    We therefore place most of the code for creating a Slicer in this class, which is
+    under unit test coverage. The thin `slicer` wrapper is not covered by unit tests.
+
     Parameters
     ----------
     obj:
