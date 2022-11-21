@@ -12,8 +12,7 @@ def test_creation_keep_two_dims():
     sl = Slicer(da, keep=['xx', 'yy'])
     assert sl.slider.value == {'zz': 0}
     assert sl.slider.controls['zz']['slider'].max == da.sizes['zz'] - 1
-    assert sc.identical(
-        list(sl.figure.graph_nodes.values())[0].request_data(), da['zz', 0])
+    assert sc.identical(sl.slice_nodes[0].request_data(), da['zz', 0])
 
 
 def test_creation_keep_one_dim():
