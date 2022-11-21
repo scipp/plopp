@@ -74,6 +74,7 @@ Get in touch
    :hidden:
 
    customization/subplots
+   customization/tweaking-figures
 
 .. toctree::
    :caption: Examples
