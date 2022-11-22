@@ -1,23 +1,21 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data import data_array
-from plopp.functions.slicer import Slicer
-from plopp.functions.superplot import LineSaveTool
+from plopp.data.testing import data_array
+from plopp.functions.superplot import Superplot
 import scipp as sc
 
 
 def test_creation():
     da = data_array(ndim=2)
-    sl = Slicer(da=da, keep=['xx'])
-    tool = LineSaveTool(data_node=sl.slice_node, slider_node=sl.slider_node, fig=sl.fig)
-    assert len(tool._lines) == 0
+    sp = Superplot(da, keep='xx')
+    assert len(sp.linesavetool._lines) == 0
 
 
 def test_save_line():
     da = data_array(ndim=2)
-    sl = Slicer(da=da, keep=['xx'])
-    tool = LineSaveTool(data_node=sl.slice_node, slider_node=sl.slider_node, fig=sl.fig)
+    sp = Superplot(da, keep='xx')
+    tool = sp.linesavetool
     assert len(tool._lines) == 0
     tool.save_line()
     assert len(tool._lines) == 1
@@ -25,7 +23,7 @@ def test_save_line():
     assert sc.identical(line['line']._data, da['yy', 0])
     assert len(tool.container.children) == 1
 
-    sl.slider.controls['yy']['slider'].value = 5
+    sp.slider.controls['yy']['slider'].value = 5
     tool.save_line()
     assert len(tool._lines) == 2
     line = list(tool._lines.values())[-1]
@@ -35,13 +33,13 @@ def test_save_line():
 
 def test_remove_line():
     da = data_array(ndim=2)
-    sl = Slicer(da=da, keep=['xx'])
-    tool = LineSaveTool(data_node=sl.slice_node, slider_node=sl.slider_node, fig=sl.fig)
+    sp = Superplot(da, keep='xx')
+    tool = sp.linesavetool
     assert len(tool._lines) == 0
     tool.save_line()
-    sl.slider.controls['yy']['slider'].value = 5
+    sp.slider.controls['yy']['slider'].value = 5
     tool.save_line()
-    sl.slider.controls['yy']['slider'].value = 15
+    sp.slider.controls['yy']['slider'].value = 15
     tool.save_line()
     assert len(tool._lines) == 3
     assert len(tool.container.children) == 3
@@ -61,8 +59,8 @@ def test_remove_line():
 
 def test_change_line_color():
     da = data_array(ndim=2)
-    sl = Slicer(da=da, keep=['xx'])
-    tool = LineSaveTool(data_node=sl.slice_node, slider_node=sl.slider_node, fig=sl.fig)
+    sp = Superplot(da, keep='xx')
+    tool = sp.linesavetool
     tool.save_line()
     line_id = list(tool._lines.keys())[-1]
     tool.change_line_color(change={'new': '#000000'}, line_id=line_id)

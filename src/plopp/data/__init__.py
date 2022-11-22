@@ -3,4 +3,5 @@
 
 # flake8: noqa F401
 
-from .generated import variable, data_array, dataset, scatter_data
+from .factory import variable, data_array, dataset, scatter_data
+from . import testing

@@ -2,15 +2,16 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from plopp.widgets import SliceWidget, slice_dims
-from plopp.data import data_array
+from plopp.data.testing import data_array
 from scipp import identical
 
 
 def test_slice_creation():
     da = data_array(ndim=3)
-    dims = ['xx', 'yy']
-    sw = SliceWidget(da, dims=dims)
-    assert sw._slider_dims == dims
+    sizes = da.sizes.copy()
+    del sizes['zz']
+    sw = SliceWidget(sizes=sizes, coords=da.coords)
+    assert sw._slider_dims == ['yy', 'xx']
     assert sw.controls['xx']['slider'].min == 0
     assert sw.controls['xx']['slider'].max == da.sizes['xx'] - 1
     assert sw.controls['xx']['slider'].description == 'xx'
@@ -21,8 +22,9 @@ def test_slice_creation():
 
 def test_slice_value_property():
     da = data_array(ndim=3)
-    dims = ['xx', 'yy']
-    sw = SliceWidget(da, dims=dims)
+    sizes = da.sizes.copy()
+    del sizes['zz']
+    sw = SliceWidget(sizes=sizes, coords=da.coords)
     sw.controls['xx']['slider'].value = 10
     sw.controls['yy']['slider'].value = 15
     assert sw.value == {'xx': 10, 'yy': 15}
@@ -32,8 +34,9 @@ def test_slice_label_updates():
     da = data_array(ndim=3)
     da.coords['xx'] *= 1.1
     da.coords['yy'] *= 3.3
-    dims = ['xx', 'yy']
-    sw = SliceWidget(da, dims=dims)
+    sizes = da.sizes.copy()
+    del sizes['zz']
+    sw = SliceWidget(sizes=sizes, coords=da.coords)
     assert sw.controls['xx']['label'].value == '0.0 [m]'
     sw.controls['xx']['slider'].value = 10
     assert sw.controls['xx']['label'].value == '11.0 [m]'

@@ -14,7 +14,8 @@ filterwarnings = [
   "error",
   "ignore::UserWarning",
   'ignore:\n            Sentinel is not a public part of the traitlets API:DeprecationWarning',
-  'ignore:Auto-removal of grids by pcolor:matplotlib._api.deprecation.MatplotlibDeprecationWarning',]
+  'ignore:Auto-removal of grids by pcolor:matplotlib._api.deprecation.MatplotlibDeprecationWarning',
+  'ignore:Jupyter is migrating its paths:DeprecationWarning',]
 
 [tool.mypy]
 mypy_path = "src"

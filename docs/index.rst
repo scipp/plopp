@@ -70,6 +70,14 @@ Get in touch
    user-guide/scatter3d-plot
 
 .. toctree::
+   :caption: Custom figures
+   :maxdepth: 3
+   :hidden:
+
+   customization/subplots
+   customization/tweaking-figures
+
+.. toctree::
    :caption: Examples
    :maxdepth: 3
    :hidden:
