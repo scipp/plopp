@@ -3,7 +3,7 @@
 
 import numpy as np
 import plopp as pp
-from plopp.data import data_array, dataset
+from plopp.data.testing import data_array, dataset
 import pytest
 import scipp as sc
 

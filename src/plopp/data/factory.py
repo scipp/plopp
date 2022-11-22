@@ -3,16 +3,17 @@
 
 import numpy as np
 import scipp as sc
-from typing import List
+from typing import List, Optional
 
-dim_list = ['xx', 'yy', 'zz', 'time', 'temperature']
+default_dim_list = ['x', 'y', 'z', 'time', 'temperature']
 
 
 def variable(ndim: int = 1,
              variances: bool = False,
-             dims: List[str] = None,
              dtype: str = 'float64',
-             unit: str = 'm/s') -> sc.Variable:
+             unit: str = 'm/s',
+             dims: Optional[List[str]] = None,
+             dim_list: List[str] = default_dim_list) -> sc.Variable:
     """
     Generate a sample ``Variable`` containing data based on a sine function.
 
@@ -22,12 +23,14 @@ def variable(ndim: int = 1,
         The number of dimensions.
     variances:
         Add variances to the output if ``True``.
-    dims:
-        List of dimension labels. If ``None``, they will be auto-generated.
     dtype:
         The output variable's data type.
     unit:
         The output variable's unit.
+    dims:
+        List of dimension labels. If ``None``, they will be auto-generated.
+    dim_list:
+        List of dimension labels to use if no ``dims`` are provided.
     """
 
     shapes = np.arange(50, 0, -10)[:ndim]
@@ -53,9 +56,10 @@ def data_array(ndim: int = 1,
                masks: bool = False,
                attrs: bool = False,
                ragged: bool = False,
-               dims: List[str] = None,
                dtype: str = 'float64',
-               unit: str = 'm/s') -> sc.DataArray:
+               unit: str = 'm/s',
+               dims: Optional[List[str]] = None,
+               dim_list: List[str] = default_dim_list) -> sc.DataArray:
     """
     Generate a sample ``DataArray`` containing data based on a sine function, with
     coordinates. Optionally add masks, labels, attributes.
@@ -78,17 +82,24 @@ def data_array(ndim: int = 1,
         Add attributes if ``True``.
     ragged:
         Make one of the coordinates two-dimensional.
-    dims:
-        List of dimension labels. If ``None``, they will be auto-generated.
     dtype:
         The output variable's data type.
     unit:
         The output variable's unit.
+    dims:
+        List of dimension labels. If ``None``, they will be auto-generated.
+    dim_list:
+        List of dimension labels to use if no ``dims`` are provided.
     """
 
     coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K']))
 
-    data = variable(ndim=ndim, variances=variances, dims=dims, dtype=dtype, unit=unit)
+    data = variable(ndim=ndim,
+                    variances=variances,
+                    dims=dims,
+                    dtype=dtype,
+                    unit=unit,
+                    dim_list=dim_list)
 
     coord_dict = {
         data.dims[i]: sc.arange(data.dims[i],
