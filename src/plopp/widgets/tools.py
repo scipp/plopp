@@ -181,7 +181,7 @@ class DrawLinesTool(ToggleTool):
     value:
         Set the toggle button value on creation.
     ax:
-        The Matplotlib axes where the points will be drawn.
+        The Matplotlib axes where the lines will be drawn.
     """
 
     def __init__(self, figure: View, value: bool = False, n=None, **kwargs):
@@ -197,6 +197,36 @@ class DrawLinesTool(ToggleTool):
             self.lines.start()
         else:
             self.lines.stop()
+
+
+class DrawRectsTool(ToggleTool):
+    """
+    Tool to draw rectangles on a figure.
+
+    Parameters
+    ----------
+    value:
+        Set the toggle button value on creation.
+    ax:
+        The Matplotlib axes where the rectangles will be drawn.
+    """
+
+    def __init__(self, figure: View, value: bool = False, **kwargs):
+        from mpltoolbox import Rectangles
+        self.rects = Rectangles(ax=figure.canvas.ax, autostart=False)
+        super().__init__(callback=self.start_stop,
+                         value=value,
+                         icon='vector-square',
+                         **kwargs)
+
+    def start_stop(self):
+        """
+        Toggle start or stop of the tool.
+        """
+        if self.value:
+            self.rects.start()
+        else:
+            self.rects.stop()
 
 
 class ColorTool(ipw.HBox):
