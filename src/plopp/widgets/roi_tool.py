@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core import Node, View
+from ..core import Node, View, node
 from ..graphics.fig2d import Figure2d
 from .tools import DrawRectsTool
+from .slice import slice_dims
 
 from plopp import View
-from typing import Dict, Any, Callable
+from typing import Dict, Any, Callable, Optional
 import scipp as sc
 
 
@@ -19,7 +20,7 @@ def _get_patch_artist(change):
                                               '_patch') else change['artist']
 
 
-class RoiTool(DrawRectsTool):
+class ROITool(DrawRectsTool):
     """
     Tool to draw rectangular regions-of-interest on a 2D figure.
     An ``operation`` can be provided, which is a function that will be applied to the
@@ -68,7 +69,7 @@ class RoiTool(DrawRectsTool):
         corners = change['artist'].get_corners()
         x = [c[0] for c in corners]
         y = [c[1] for c in corners]
-        rect_node = pp.Node(
+        rect_node = Node(
             lambda: {
                 self._xdim:
                 slice(sc.scalar(min(x), unit=self._xunit),
@@ -80,7 +81,7 @@ class RoiTool(DrawRectsTool):
         self._event_nodes[rect_node.id] = rect_node
         change['artist'].nodeid = rect_node.id
         roi_node = slice_dims(self._root_node, rect_node)
-        op_node = pp.node(
+        op_node = node(
             self._operation)(roi_node) if self._operation is not None else roi_node
         op_node.add_view(self._output_fig)
         self._output_fig.update(new_values=op_node.request_data(), key=op_node.id)

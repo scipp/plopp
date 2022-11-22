@@ -11,3 +11,4 @@ from .tools import ButtonTool, ToggleTool, DrawPointsTool, DrawLinesTool, ColorT
 from .cut3d import Cut3dTool, TriCutTool
 from .inspect_tool import InspectTool
 from .linecut_tool import LineCutTool
+from .roi_tool import ROITool
