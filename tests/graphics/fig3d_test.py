@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data import scatter_data
+from plopp.data.testing import scatter_data
 from plopp.graphics.fig3d import Figure3d
 from plopp.graphics.point_cloud import PointCloud
 from plopp import input_node

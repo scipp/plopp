@@ -154,3 +154,11 @@ class Figure1d(BaseFig):
             Min and max limits for each dimension to be cropped.
         """
         self.canvas.crop(x=limits[self.dims['x']])
+
+    @property
+    def fig(self):
+        return self.canvas.fig
+
+    @property
+    def ax(self):
+        return self.canvas.ax

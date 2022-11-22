@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data import data_array
+from plopp.data.testing import data_array
 from plopp.graphics.colormapper import ColorMapper
 import scipp as sc
 import numpy as np

@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from plopp.widgets import SliceWidget, slice_dims
-from plopp.data import data_array
+from plopp.data.testing import data_array
 from scipp import identical
 
 
