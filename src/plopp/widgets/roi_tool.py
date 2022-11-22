@@ -2,11 +2,9 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core import Node, View, node
-from ..graphics.fig2d import Figure2d
 from .tools import DrawRectsTool
 from .slice import slice_dims
 
-from plopp import View
 from typing import Dict, Any, Callable, Optional
 import scipp as sc
 
