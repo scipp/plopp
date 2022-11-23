@@ -6,7 +6,6 @@
 from .figure import figure1d, figure2d, figure3d
 from .plot import plot
 from .inspector import inspector
-from .linecutter import linecutter
 from .scatter3d import scatter3d
 from .slicer import slicer
 from .superplot import superplot

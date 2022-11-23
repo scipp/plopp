@@ -76,6 +76,5 @@ Widgets and tools
    widgets.tools.ToggleTool
 
    widgets.InspectTool
-   widgets.LineCutTool
    widgets.Cut3dTool
    widgets.TriCutTool

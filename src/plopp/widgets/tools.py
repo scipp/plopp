@@ -172,33 +172,6 @@ class DrawPointsTool(ToggleTool):
             self.points.stop()
 
 
-class DrawLinesTool(ToggleTool):
-    """
-    Tool to add lines onto a figure.
-
-    Parameters
-    ----------
-    value:
-        Set the toggle button value on creation.
-    ax:
-        The Matplotlib axes where the points will be drawn.
-    """
-
-    def __init__(self, figure: View, value: bool = False, n=None, **kwargs):
-        from mpltoolbox import Lines
-        self.lines = Lines(ax=figure.canvas.ax, n=n, autostart=False)
-        super().__init__(callback=self.start_stop, value=value, icon='slash', **kwargs)
-
-    def start_stop(self):
-        """
-        Toggle start or stop of the tool.
-        """
-        if self.value:
-            self.lines.start()
-        else:
-            self.lines.stop()
-
-
 class ColorTool(ipw.HBox):
     """
     Tool for saving lines and controlling their color.
