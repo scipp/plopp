@@ -63,7 +63,6 @@ Widgets and tools
    widgets.tools.ButtonTool
    widgets.tools.CameraTool
    widgets.tools.ColorTool
-   widgets.tools.DrawLinesTool
    widgets.tools.DrawPointsTool
    widgets.tools.HomeTool
    widgets.tools.LogNormTool
