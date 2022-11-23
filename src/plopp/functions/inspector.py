@@ -10,60 +10,65 @@ import scipp as sc
 from numpy import ndarray
 from typing import Any, Union, Dict, Literal
 
+# class InspectorEventHandler:
+#     """
+#     Class that handles the events triggered by the :class:`PointsTool` tool.
+#     This defines the actions to perform when:
 
-class InspectorEventHandler:
-    """
-    Class that handles the events triggered by the :class:`PointsTool` tool.
-    This defines the actions to perform when:
+#       - a point is added to the 2D figure
+#       - a point is dragged on the 2D figure
+#       - a point is removed from the 2D figure
+#     """
 
-      - a point is added to the 2D figure
-      - a point is dragged on the 2D figure
-      - a point is removed from the 2D figure
-    """
+#     def __init__(self, data_array: sc.DataArray, root_node: Node, fig1d: View,
+#                  fig2d: View):
+#         self._data_array = data_array
+#         self._root_node = root_node
+#         self._fig1d = fig1d
+#         self._event_nodes = {}
+#         self._xdim = fig2d.dims['x']
+#         self._ydim = fig2d.dims['y']
 
-    def __init__(self, data_array: sc.DataArray, root_node: Node, fig1d: View,
-                 fig2d: View):
-        self._data_array = data_array
-        self._root_node = root_node
-        self._fig1d = fig1d
-        self._event_nodes = {}
-        self._xdim = fig2d.dims['x']
-        self._ydim = fig2d.dims['y']
+#     def make_node(self, change: Dict[str, Any]):
+#         from ..widgets import slice_dims
+#         event = change['event']
+#         event_node = Node(
+#             func=lambda: {
+#                 self._xdim:
+#                 sc.scalar(event.xdata, unit=self._data_array.meta[self._xdim].unit),
+#                 self._ydim:
+#                 sc.scalar(event.ydata, unit=self._data_array.meta[self._ydim].unit)
+#             })
+#         self._event_nodes[event_node.id] = event_node
+#         change['artist'].nodeid = event_node.id
+#         inspect_node = slice_dims(self._root_node, event_node)
+#         inspect_node.add_view(self._fig1d)
+#         self._fig1d.update(new_values=inspect_node.request_data(), key=inspect_node.id)
 
-    def make_node(self, change: Dict[str, Any]):
-        from ..widgets import slice_dims
-        event = change['event']
-        event_node = Node(
-            func=lambda: {
-                self._xdim:
-                sc.scalar(event.xdata, unit=self._data_array.meta[self._xdim].unit),
-                self._ydim:
-                sc.scalar(event.ydata, unit=self._data_array.meta[self._ydim].unit)
-            })
-        self._event_nodes[event_node.id] = event_node
-        change['artist'].nodeid = event_node.id
-        inspect_node = slice_dims(self._root_node, event_node)
-        inspect_node.add_view(self._fig1d)
-        self._fig1d.update(new_values=inspect_node.request_data(), key=inspect_node.id)
+#     def update_node(self, change: Dict[str, Any]):
+#         event = change['event']
+#         n = self._event_nodes[change['artist'].nodeid]
+#         n.func = lambda: {
+#             self._xdim: sc.scalar(event.xdata,
+#                                   unit=self._data_array.meta[self._xdim].unit),
+#             self._ydim: sc.scalar(event.ydata,
+#                                   unit=self._data_array.meta[self._ydim].unit)
+#         }
+#         n.notify_children(change)
 
-    def update_node(self, change: Dict[str, Any]):
-        event = change['event']
-        n = self._event_nodes[change['artist'].nodeid]
-        n.func = lambda: {
-            self._xdim: sc.scalar(event.xdata,
-                                  unit=self._data_array.meta[self._xdim].unit),
-            self._ydim: sc.scalar(event.ydata,
-                                  unit=self._data_array.meta[self._ydim].unit)
-        }
-        n.notify_children(change)
+#     def remove_node(self, change: Dict[str, Any]):
+#         n = self._event_nodes[change['artist'].nodeid]
+#         pnode = n.children[0]
+#         self._fig1d.artists[pnode.id].remove()
+#         self._fig1d.canvas.draw()
+#         pnode.remove()
+#         n.remove()
 
-    def remove_node(self, change: Dict[str, Any]):
-        n = self._event_nodes[change['artist'].nodeid]
-        pnode = n.children[0]
-        self._fig1d.artists[pnode.id].remove()
-        self._fig1d.canvas.draw()
-        pnode.remove()
-        n.remove()
+
+def inspect(da, change):
+    x = sc.scalar(change['event'].xdata, 'm')
+    y = sc.scalar(change['event'].ydata, 'm')
+    return da['x', x]['y', y]
 
 
 def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
@@ -134,6 +139,7 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
     op_node = node(getattr(sc, operation), dim=dim)(a)
     f2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
     f1d = figure1d()
+
     ev_handler = InspectorEventHandler(data_array=da, root_node=a, fig1d=f1d, fig2d=f2d)
     pts = PointsTool(ax=f2d.canvas.ax, tooltip='Add inspector points')
     pts.points.on_create = ev_handler.make_node
