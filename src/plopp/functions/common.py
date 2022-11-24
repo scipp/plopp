@@ -66,6 +66,16 @@ def _check_size(da: DataArray):
                          "default. To bypass this check, use `ignore_size=True`.")
 
 
+def check_not_binned(obj):
+    if obj.bins is not None:
+        params = ', '.join([f'{dim}=100' for dim in obj.dims])
+        raise ValueError("Cannot plot binned data, it must be histogrammed first, "
+                f"e.g., using ``obj.hist()`` or obj.hist({params})`` for a data array "
+                "or variable ``obj`` to be plotted."
+                "See https://scipp.github.io/generated/functions/scipp.hist.html for "
+                "more details.")
+
+
 def preprocess(obj: Union[ndarray, Variable, DataArray],
                crop: Dict[str, Dict[str, Variable]] = None,
                name: str = '',
@@ -90,6 +100,7 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
         Do not perform a size check on the object before plotting it.
     """
     out = _to_data_array(obj)
+    check_not_binned(out)
     if not out.name:
         out.name = name
     crop = {} if crop is None else crop

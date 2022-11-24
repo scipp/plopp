@@ -72,3 +72,8 @@ def test_with_mismatching_data_arrays_raises():
     b.coords['xx'] *= 1.1
     with pytest.raises(sc.DatasetError):
         _ = Slicer({'a': a, 'b': b}, keep=['xx'])
+
+def test_raises_ValueError_when_given_binned_data():
+    da = sc.data.table_xyz(100).bin(x=10, y=20)
+    with pytest.raises(ValueError, match='Cannot plot binned data'):
+        Slicer(da, keep=['x'])
