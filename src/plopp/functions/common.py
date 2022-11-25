@@ -71,8 +71,7 @@ def check_not_binned(obj):
         params = ', '.join([f'{dim}=100' for dim in obj.dims])
         raise ValueError(
             "Cannot plot binned data, it must be histogrammed first, "
-            f"e.g., using ``obj.hist()`` or obj.hist({params})`` for a data array "
-            "or variable ``obj`` to be plotted."
+            f"e.g., using ``obj.hist()`` or obj.hist({params})``."
             "See https://scipp.github.io/generated/functions/scipp.hist.html for "
             "more details.")
 
