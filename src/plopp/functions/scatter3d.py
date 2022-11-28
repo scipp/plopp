@@ -2,6 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core import input_node
+from .common import check_not_binned
 
 import scipp as sc
 from typing import Literal, Tuple, Union
@@ -64,6 +65,8 @@ def scatter3d(da: sc.DataArray,
     """
     from ..functions import figure3d
     from ..widgets import Box, ToggleTool, TriCutTool
+
+    check_not_binned(da)
 
     if pos is not None:
         if any((x, y, z)):

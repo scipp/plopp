@@ -40,3 +40,12 @@ def test_scatter3d_dimensions_are_flattened():
                       coords={'position': sc.geometry.position(x, y, z)})
     p = pp.scatter3d(da, pos="position")
     assert list(p.children[0].artists.values())[0].data.ndim == 1
+
+
+def test_raises_ValueError_when_given_binned_data():
+    nx = 10
+    da = sc.data.table_xyz(100).bin(x=nx)
+    x = sc.linspace(dim='x', start=-10.0, stop=10.0, num=nx, unit='m')
+    da.coords['position'] = sc.geometry.position(x, x, x)
+    with pytest.raises(ValueError, match='Cannot plot binned data'):
+        pp.scatter3d(da, pos='position')

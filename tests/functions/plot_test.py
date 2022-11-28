@@ -216,3 +216,9 @@ def test_kwarg_as_dict():
     p = pp.plot({'a': da, 'b': 0.2 * da}, color={'a': 'red', 'b': 'black'})
     assert _get_line(p, 0).get_color() == 'red'
     assert _get_line(p, 1).get_color() == 'black'
+
+
+def test_raises_ValueError_when_given_binned_data():
+    da = sc.data.table_xyz(100).bin(x=10, y=20)
+    with pytest.raises(ValueError, match='Cannot plot binned data'):
+        pp.plot(da)
