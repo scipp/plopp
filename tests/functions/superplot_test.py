@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+import pytest
 
 from plopp.data.testing import data_array
 from plopp.functions.superplot import Superplot
@@ -65,3 +66,9 @@ def test_change_line_color():
     line_id = list(tool._lines.keys())[-1]
     tool.change_line_color(change={'new': '#000000'}, line_id=line_id)
     assert tool._lines[line_id]['line'].color == '#000000'
+
+
+def test_raises_ValueError_when_given_binned_data():
+    da = sc.data.table_xyz(100).bin(x=10, y=20)
+    with pytest.raises(ValueError, match='Cannot plot binned data'):
+        Superplot(da, keep='x')
