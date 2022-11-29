@@ -5,27 +5,29 @@
 #
 #    pip-compile-multi
 #
-asttokens==2.0.8
+asttokens==2.2.0
     # via stack-data
 backcall==0.2.0
     # via ipython
+comm==0.1.1
+    # via ipykernel
 confuse==2.0.0
     # via scipp
-debugpy==1.6.3
+debugpy==1.6.4
     # via ipykernel
 decorator==5.1.1
     # via ipython
 entrypoints==0.4
     # via jupyter-client
-executing==1.0.0
+executing==1.2.0
     # via stack-data
 graphlib-backport==1.0.3
     # via scipp
 ipydatawidgets==4.3.2
     # via pythreejs
-ipykernel==6.15.3
+ipykernel==6.18.2
     # via ipywidgets
-ipython==8.5.0
+ipython==8.7.0
     # via
     #   ipykernel
     #   ipywidgets
@@ -33,11 +35,11 @@ ipywidgets==8.0.2
     # via
     #   ipydatawidgets
     #   pythreejs
-jedi==0.18.1
+jedi==0.18.2
     # via ipython
-jupyter-client==7.3.5
+jupyter-client==7.4.7
     # via ipykernel
-jupyter-core==4.11.1
+jupyter-core==5.1.0
     # via jupyter-client
 jupyterlab-widgets==3.0.3
     # via ipywidgets
@@ -45,11 +47,11 @@ matplotlib-inline==0.1.6
     # via
     #   ipykernel
     #   ipython
-nest-asyncio==1.5.5
+nest-asyncio==1.5.6
     # via
     #   ipykernel
     #   jupyter-client
-numpy==1.23.3
+numpy==1.23.5
     # via
     #   ipydatawidgets
     #   pythreejs
@@ -62,9 +64,11 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-prompt-toolkit==3.0.31
+platformdirs==2.5.4
+    # via jupyter-core
+prompt-toolkit==3.0.33
     # via ipython
-psutil==5.9.2
+psutil==5.9.4
     # via ipykernel
 ptyprocess==0.7.0
     # via pexpect
@@ -77,27 +81,28 @@ pyparsing==3.0.9
 python-dateutil==2.8.2
     # via jupyter-client
 pythreejs==2.4.1
-    # via -r base.in
+    # via -r requirements/base.in
 pyyaml==6.0
     # via confuse
 pyzmq==24.0.1
     # via
     #   ipykernel
     #   jupyter-client
-scipp==0.17.0
-    # via -r base.in
+scipp==22.11.0
+    # via -r requirements/base.in
 six==1.16.0
     # via
     #   asttokens
     #   python-dateutil
-stack-data==0.5.0
+stack-data==0.6.2
     # via ipython
 tornado==6.2
     # via
     #   ipykernel
     #   jupyter-client
-traitlets==5.4.0
+traitlets==5.6.0
     # via
+    #   comm
     #   ipykernel
     #   ipython
     #   ipywidgets

@@ -9,27 +9,29 @@ attrs==22.1.0
     # via jsonschema
 fastjsonschema==2.16.2
     # via nbformat
-flake8==5.0.4
+flake8==6.0.0
     # via -r requirements/static.in
-jsonschema==4.16.0
+jsonschema==4.17.1
     # via nbformat
-jupyter-core==4.11.1
+jupyter-core==5.1.0
     # via nbformat
 mccabe==0.7.0
     # via flake8
-nbformat==5.6.0
+nbformat==5.7.0
     # via nbstripout
-nbstripout==0.6.0
+nbstripout==0.6.1
     # via -r requirements/static.in
-pycodestyle==2.9.1
+platformdirs==2.5.4
+    # via jupyter-core
+pycodestyle==2.10.0
     # via flake8
-pyflakes==2.5.0
+pyflakes==3.0.1
     # via flake8
-pyrsistent==0.18.1
+pyrsistent==0.19.2
     # via jsonschema
 toml==0.10.2
     # via -r requirements/static.in
-traitlets==5.4.0
+traitlets==5.6.0
     # via
     #   jupyter-core
     #   nbformat
