@@ -74,5 +74,8 @@ Widgets and tools
    widgets.tools.SaveTool
    widgets.tools.ToggleTool
 
+   widgets.drawing.DrawingTool
+   widgets.drawing.PointsTool
+
    widgets.cut3d.Cut3dTool
    widgets.cut3d.TriCutTool

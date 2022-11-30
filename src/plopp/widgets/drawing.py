@@ -2,7 +2,6 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ..core import Node, node, View
-from ..graphics import InteractiveFig1d, InteractiveFig2d
 from .tools import ToggleTool
 from functools import partial
 import scipp as sc
@@ -10,6 +9,7 @@ from typing import Callable, Any, Union
 
 
 def is_figure(x):
+    from ..graphics import InteractiveFig1d, InteractiveFig2d
     return isinstance(x, (InteractiveFig1d, InteractiveFig2d))
 
 
@@ -47,6 +47,7 @@ class DrawingTool(ToggleTool):
         super().__init__(callback=self.start_stop, value=value, **kwargs)
 
         self._figure = figure
+        self._destination_is_fig = is_figure(self._figure)
         self._input_node = input_node
         self._draw_nodes = {}
         self._output_nodes = {}
@@ -67,7 +68,7 @@ class DrawingTool(ToggleTool):
         artist.nodeid = nodeid
         output_node = node(self._func)(self._input_node, draw_node)
         self._output_nodes[nodeid] = output_node
-        if is_figure(self._destination):
+        if self._destination_is_fig:
             output_node.add_view(self._destination)
             self._destination.update(new_values=output_node(), key=output_node.id)
             self._destination.artists[output_node.id].color = artist.color
@@ -83,7 +84,7 @@ class DrawingTool(ToggleTool):
         nodeid = artist.nodeid
         draw_node = self._draw_nodes[nodeid]
         output_node = self._output_nodes[nodeid]
-        if is_figure(self._destination):
+        if self._destination_is_fig:
             self._destination.artists[output_node.id].remove()
         output_node.remove()
         draw_node.remove()
