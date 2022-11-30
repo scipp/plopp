@@ -33,6 +33,8 @@ class DrawingTool(ToggleTool):
         be a figure, or another graph node.
     value:
         Activate the tool upon creation if ``True``.
+    **kwargs:
+        Additional arguments are forwarded to the ``ToggleTool`` constructor.
     """
 
     def __init__(self,
@@ -105,19 +107,27 @@ class PointsTool(DrawingTool):
 
     Parameters
     ----------
+    figure:
+        The figure where the tool will draw things (points, lines, shapes...).
+    input_node:
+        The node that provides the raw data which is shown in ``figure``.
+    tool:
+        The Mpltoolbox tool to use (Points, Lines, Rectangles, Ellipses...).
+    func:
+        The function to be used to make a node whose parents will be the ``input_node``
+        and a node yielding the current state of the tool (current position, size).
+    destination:
+        Where the output from the ``func`` node will be then sent on. This can either
+        be a figure, or another graph node.
     value:
-        Set the toggle button value on creation.
-    ax:
-        The Matplotlib axes where the points will be drawn.
+        Activate the tool upon creation if ``True``.
+    **kwargs:
+        Additional arguments are forwarded to the ``ToggleTool`` constructor.
     """
 
-    def __init__(self, value=False, **kwargs):
+    def __init__(self, **kwargs):
         from mpltoolbox import Points
-        # Points(ax=ax, autostart=False, mec='w')
-        super().__init__(value=value,
-                         tool=partial(Points, mec='w'),
-                         icon='crosshairs',
-                         **kwargs)
+        super().__init__(tool=partial(Points, mec='w'), icon='crosshairs', **kwargs)
 
     def convert_raw_data(self, artist):
         return lambda: {
