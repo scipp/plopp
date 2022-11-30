@@ -9,9 +9,9 @@ confuse==2.0.0
     # via scipp
 graphlib-backport==1.0.3
     # via scipp
-numpy==1.23.4
+numpy==1.23.5
     # via scipp
 pyyaml==6.0
     # via confuse
-scipp==0.17.0
-    # via -r mini.in
+scipp==22.11.0
+    # via -r requirements/mini.in
