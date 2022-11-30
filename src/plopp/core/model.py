@@ -37,6 +37,9 @@ class Node:
         self._data = None
         self.name = None
 
+    def __call__(self):
+        return self.request_data()
+
     @property
     def id(self):
         """

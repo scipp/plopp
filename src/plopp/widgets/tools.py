@@ -142,34 +142,34 @@ class PanZoomTool(MultiToggleTool):
             self._canvas.reset_mode()
 
 
-class PointsTool(ToggleTool):
-    """
-    Tool to add point markers onto a figure.
+# class PointsTool(ToggleTool):
+#     """
+#     Tool to add point markers onto a figure.
 
-    Parameters
-    ----------
-    value:
-        Set the toggle button value on creation.
-    ax:
-        The Matplotlib axes where the points will be drawn.
-    """
+#     Parameters
+#     ----------
+#     value:
+#         Set the toggle button value on creation.
+#     ax:
+#         The Matplotlib axes where the points will be drawn.
+#     """
 
-    def __init__(self, value: bool = False, ax: Axes = None, **kwargs):
-        from mpltoolbox import Points
-        self.points = Points(ax=ax, autostart=False, mec='w')
-        super().__init__(callback=self.start_stop,
-                         value=value,
-                         icon='crosshairs',
-                         **kwargs)
+#     def __init__(self, value: bool = False, ax: Axes = None, **kwargs):
+#         from mpltoolbox import Points
+#         self.points = Points(ax=ax, autostart=False, mec='w')
+#         super().__init__(callback=self.start_stop,
+#                          value=value,
+#                          icon='crosshairs',
+#                          **kwargs)
 
-    def start_stop(self):
-        """
-        Toggle start or stop of the tool.
-        """
-        if self.value:
-            self.points.start()
-        else:
-            self.points.stop()
+#     def start_stop(self):
+#         """
+#         Toggle start or stop of the tool.
+#         """
+#         if self.value:
+#             self.points.start()
+#         else:
+#             self.points.stop()
 
 
 class ColorTool(ipw.HBox):
