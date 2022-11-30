@@ -7,7 +7,6 @@ from ..graphics import Canvas
 import ipywidgets as ipw
 from functools import partial
 from typing import Callable
-from matplotlib.pyplot import Axes
 
 
 class ButtonTool(ipw.Button):
