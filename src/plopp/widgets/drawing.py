@@ -14,6 +14,26 @@ def is_figure(x):
 
 
 class DrawingTool(ToggleTool):
+    """
+    Interface between Plopp and Mpltoolbox.
+
+    Parameters
+    ----------
+    figure:
+        The figure where the tool will draw things (points, lines, shapes...).
+    input_node:
+        The node that provides the raw data which is shown in ``figure``.
+    tool:
+        The Mpltoolbox tool to use (Points, Lines, Rectangles, Ellipses...).
+    func:
+        The function to be used to make a node whose parents will be the ``input_node``
+        and a node yielding the current state of the tool (current position, size).
+    destination:
+        Where the output from the ``func`` node will be then sent on. This can either
+        be a figure, or another graph node.
+    value:
+        Activate the tool upon creation if ``True``.
+    """
 
     def __init__(self,
                  figure: View,
@@ -47,7 +67,6 @@ class DrawingTool(ToggleTool):
         artist.nodeid = nodeid
         output_node = node(self._func)(self._input_node, draw_node)
         self._output_nodes[nodeid] = output_node
-        # print(self._destination, type(self._destination))
         if is_figure(self._destination):
             output_node.add_view(self._destination)
             self._destination.update(new_values=output_node(), key=output_node.id)

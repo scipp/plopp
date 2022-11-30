@@ -9,3 +9,4 @@ from .slice import SliceWidget, slice_dims
 from .toolbar import Toolbar
 from .tools import ButtonTool, ToggleTool, ColorTool
 from .cut3d import Cut3dTool, TriCutTool
+from .drawing import DrawingTool, PointsTool
