@@ -57,9 +57,9 @@ def test_2d_image_smoothing_slider():
     sigma_node = widget_node(sl)
 
     try:
-        from scipp.ndimage import gaussian_filter
-    except ImportError:
         from scipp.scipy.ndimage import gaussian_filter
+    except ImportError:
+        from scipp.ndimage import gaussian_filter
     smooth_node = node(gaussian_filter)(a, sigma=sigma_node)
 
     fig = figure2d(smooth_node)
