@@ -264,4 +264,5 @@ linkcheck_ignore = [
 
 nbsphinx_thumbnails = {
     'examples/gallery/nyc-taxi': '_static/gallery/nyc-taxi-thumbnail.png',
+    'examples/gallery/masking-a-range': '_static/gallery/masking-a-range-thumbnail.png',
 }
