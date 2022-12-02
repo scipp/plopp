@@ -6,10 +6,6 @@ from .tools import ToggleTool
 from functools import partial
 import scipp as sc
 from typing import Callable, Any, Union
-try:
-    import mpltoolbox as tbx
-except ImportError:
-    pass
 
 
 def is_figure(x):
@@ -121,8 +117,13 @@ def get_points_info(artist, figure):
     }
 
 
+def make_points(**kwargs):
+    from mpltoolbox import Points
+    return Points(**kwargs)
+
+
 PointsTool = partial(DrawingTool,
-                     tool=partial(tbx.Points, mec='w'),
+                     tool=partial(make_points, mec='w'),
                      get_artist_info=get_points_info,
                      icon='crosshairs')
 """
