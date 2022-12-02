@@ -5,7 +5,7 @@ ipympl
 ipywidgets
 mpltoolbox
 nbsphinx
-nbconvert==7.0.0
+nbconvert
 pooch
 requests
 scipy

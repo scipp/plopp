@@ -9,8 +9,6 @@ asttokens==2.2.0
     # via stack-data
 backcall==0.2.0
     # via ipython
-comm==0.1.1
-    # via ipykernel
 confuse==2.0.0
     # via scipp
 debugpy==1.6.4
@@ -25,7 +23,7 @@ graphlib-backport==1.0.3
     # via scipp
 ipydatawidgets==4.3.2
     # via pythreejs
-ipykernel==6.18.2
+ipykernel==6.17.1
     # via ipywidgets
 ipython==8.7.0
     # via
@@ -102,7 +100,6 @@ tornado==6.2
     #   jupyter-client
 traitlets==5.6.0
     # via
-    #   comm
     #   ipykernel
     #   ipython
     #   ipywidgets
