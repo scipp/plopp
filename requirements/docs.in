@@ -5,7 +5,6 @@ ipympl
 ipywidgets
 mpltoolbox
 nbsphinx
-nbconvert
 pooch
 requests
 scipy
