@@ -36,9 +36,9 @@ class DrawingTool(ToggleTool):
         Where the output from the ``func`` node will be then sent on. This can either
         be a figure, or another graph node.
     get_artist_info:
-        A function that return another function which will convert the properties of the
-        artist that produced the event to something (usually a dict) that is usable by
-        the ``destination``.
+        A function that returns another function which will convert the properties of
+        the artist that produced the event to something (usually a dict) that is usable
+        by the ``destination``.
     value:
         Activate the tool upon creation if ``True``.
     **kwargs:
