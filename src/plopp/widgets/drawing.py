@@ -6,6 +6,10 @@ from .tools import ToggleTool
 from functools import partial
 import scipp as sc
 from typing import Callable, Any, Union
+try:
+    import mpltoolbox as tbx
+except ImportError:
+    pass
 
 
 def is_figure(x):
@@ -31,6 +35,10 @@ class DrawingTool(ToggleTool):
     destination:
         Where the output from the ``func`` node will be then sent on. This can either
         be a figure, or another graph node.
+    get_artist_info:
+        A function that return another function which will convert the properties of the
+        artist that produced the event to something (usually a dict) that is usable by
+        the ``destination``.
     value:
         Activate the tool upon creation if ``True``.
     **kwargs:
@@ -43,6 +51,7 @@ class DrawingTool(ToggleTool):
                  tool: Any,
                  func: Callable,
                  destination: Union[View, Node],
+                 get_artist_info: Callable,
                  value: bool = False,
                  **kwargs):
 
@@ -56,15 +65,13 @@ class DrawingTool(ToggleTool):
         self._func = func
         self._tool = tool(ax=self._figure.ax, autostart=False)
         self._destination = destination
+        self._get_artist_info = get_artist_info
         self._tool.on_create(self.make_node)
         self._tool.on_change(self.update_node)
         self._tool.on_remove(self.remove_node)
 
-    def convert_raw_data(self, artist):
-        return lambda: artist
-
     def make_node(self, artist):
-        draw_node = Node(self.convert_raw_data(artist))
+        draw_node = Node(self._get_artist_info(artist=artist, figure=self._figure))
         nodeid = draw_node.id
         self._draw_nodes[nodeid] = draw_node
         artist.nodeid = nodeid
@@ -79,7 +86,7 @@ class DrawingTool(ToggleTool):
 
     def update_node(self, artist):
         n = self._draw_nodes[artist.nodeid]
-        n.func = self.convert_raw_data(artist)
+        n.func = self._get_artist_info(artist=artist, figure=self._figure)
         n.notify_children(artist)
 
     def remove_node(self, artist):
@@ -101,42 +108,40 @@ class DrawingTool(ToggleTool):
             self._tool.stop()
 
 
-class PointsTool(DrawingTool):
-    """
-    Tool to add point markers onto a figure.
+def get_points_info(artist, figure):
+    return lambda: {
+        'x': {
+            'dim': figure.dims['x'],
+            'value': sc.scalar(artist.x, unit=figure.canvas.xunit)
+        },
+        'y': {
+            'dim': figure.dims['y'],
+            'value': sc.scalar(artist.y, unit=figure.canvas.yunit)
+        },
+    }
 
-    Parameters
-    ----------
-    figure:
-        The figure where the tool will draw things (points, lines, shapes...).
-    input_node:
-        The node that provides the raw data which is shown in ``figure``.
-    tool:
-        The Mpltoolbox tool to use (Points, Lines, Rectangles, Ellipses...).
-    func:
-        The function to be used to make a node whose parents will be the ``input_node``
-        and a node yielding the current state of the tool (current position, size).
-    destination:
-        Where the output from the ``func`` node will be then sent on. This can either
-        be a figure, or another graph node.
-    value:
-        Activate the tool upon creation if ``True``.
-    **kwargs:
-        Additional arguments are forwarded to the ``ToggleTool`` constructor.
-    """
 
-    def __init__(self, **kwargs):
-        from mpltoolbox import Points
-        super().__init__(tool=partial(Points, mec='w'), icon='crosshairs', **kwargs)
+PointsTool = partial(DrawingTool,
+                     tool=partial(tbx.Points, mec='w'),
+                     get_artist_info=get_points_info,
+                     icon='crosshairs')
+"""
+Tool to add point markers onto a figure.
 
-    def convert_raw_data(self, artist):
-        return lambda: {
-            'x': {
-                'dim': self._figure.dims['x'],
-                'value': sc.scalar(artist.x, unit=self._figure.canvas.xunit)
-            },
-            'y': {
-                'dim': self._figure.dims['y'],
-                'value': sc.scalar(artist.y, unit=self._figure.canvas.yunit)
-            },
-        }
+Parameters
+----------
+figure:
+    The figure where the tool will draw things (points, lines, shapes...).
+input_node:
+    The node that provides the raw data which is shown in ``figure``.
+func:
+    The function to be used to make a node whose parents will be the ``input_node``
+    and a node yielding the current state of the tool (current position, size).
+destination:
+    Where the output from the ``func`` node will be then sent on. This can either
+    be a figure, or another graph node.
+value:
+    Activate the tool upon creation if ``True``.
+**kwargs:
+    Additional arguments are forwarded to the ``ToggleTool`` constructor.
+"""
