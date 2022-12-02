@@ -3,67 +3,18 @@
 
 from .common import require_interactive_backend, preprocess
 from .figure import figure1d, figure2d
-from ..core import input_node, node, Node, View
+from ..core import input_node, node
 from ..core.utils import coord_as_bin_edges
 
 import scipp as sc
 from numpy import ndarray
-from typing import Any, Union, Dict, Literal
+from typing import Union, Dict, Literal
 
 
-class InspectorEventHandler:
-    """
-    Class that handles the events triggered by the :class:`PointsTool` tool.
-    This defines the actions to perform when:
-
-      - a point is added to the 2D figure
-      - a point is dragged on the 2D figure
-      - a point is removed from the 2D figure
-    """
-
-    def __init__(self, data_array: sc.DataArray, root_node: Node, fig1d: View,
-                 fig2d: View):
-        self._data_array = data_array
-        self._root_node = root_node
-        self._fig1d = fig1d
-        self._event_nodes = {}
-        self._xdim = fig2d.dims['x']
-        self._ydim = fig2d.dims['y']
-
-    def make_node(self, change: Dict[str, Any]):
-        from ..widgets import slice_dims
-        event = change['event']
-        event_node = Node(
-            func=lambda: {
-                self._xdim:
-                sc.scalar(event.xdata, unit=self._data_array.meta[self._xdim].unit),
-                self._ydim:
-                sc.scalar(event.ydata, unit=self._data_array.meta[self._ydim].unit)
-            })
-        self._event_nodes[event_node.id] = event_node
-        change['artist'].nodeid = event_node.id
-        inspect_node = slice_dims(self._root_node, event_node)
-        inspect_node.add_view(self._fig1d)
-        self._fig1d.update(new_values=inspect_node.request_data(), key=inspect_node.id)
-
-    def update_node(self, change: Dict[str, Any]):
-        event = change['event']
-        n = self._event_nodes[change['artist'].nodeid]
-        n.func = lambda: {
-            self._xdim: sc.scalar(event.xdata,
-                                  unit=self._data_array.meta[self._xdim].unit),
-            self._ydim: sc.scalar(event.ydata,
-                                  unit=self._data_array.meta[self._ydim].unit)
-        }
-        n.notify_children(change)
-
-    def remove_node(self, change: Dict[str, Any]):
-        n = self._event_nodes[change['artist'].nodeid]
-        pnode = n.children[0]
-        self._fig1d.artists[pnode.id].remove()
-        self._fig1d.canvas.draw()
-        pnode.remove()
-        n.remove()
+def slice_xy(da, xy):
+    x = xy['x']
+    y = xy['y']
+    return da[y['dim'], y['value']][x['dim'], x['value']]
 
 
 def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
@@ -115,15 +66,13 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
     :
         A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
-    from ..widgets import PointsTool
-
     if obj.ndim != 3:
         raise ValueError('The inspector plot currently only work with '
                          f'three-dimensional data, found {obj.ndim} dims.')
     require_interactive_backend('inspector')
 
     da = preprocess(obj, crop=crop, ignore_size=True)
-    a = input_node(da)
+    in_node = input_node(da)
     if dim is None:
         dim = da.dims[-1]
 
@@ -131,16 +80,13 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
     for d in set(da.dims) - {dim}:
         da.coords[d] = coord_as_bin_edges(da, d)
 
-    op_node = node(getattr(sc, operation), dim=dim)(a)
+    op_node = node(getattr(sc, operation), dim=dim)(in_node)
     f2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
     f1d = figure1d()
-    ev_handler = InspectorEventHandler(data_array=da, root_node=a, fig1d=f1d, fig2d=f2d)
-    pts = PointsTool(ax=f2d.canvas.ax, tooltip='Add inspector points')
-    pts.points.on_create = ev_handler.make_node
-    pts.points.on_vertex_move = ev_handler.update_node
-    pts.points.on_remove = ev_handler.remove_node
+
+    from ..widgets import PointsTool, Box
+    pts = PointsTool(figure=f2d, input_node=in_node, func=slice_xy, destination=f1d)
     f2d.toolbar['inspect'] = pts
-    from ..widgets import Box
     out = [f2d, f1d]
     if orientation == 'horizontal':
         out = [out]

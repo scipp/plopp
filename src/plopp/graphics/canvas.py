@@ -233,7 +233,10 @@ class Canvas:
         """
         Reset the Matplotlib toolbar mode to nothing, to disable all Zoom/Pan tools.
         """
-        self.fig.canvas.toolbar.mode = ''
+        if self.fig.canvas.toolbar.mode == 'zoom rect':
+            self.zoom()
+        elif self.fig.canvas.toolbar.mode == 'pan/zoom':
+            self.pan()
 
     def zoom(self):
         """
