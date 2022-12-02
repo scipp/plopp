@@ -70,7 +70,6 @@ Widgets and tools
    widgets.tools.MultiToggleTool
    widgets.tools.OutlineTool
    widgets.tools.PanZoomTool
-   widgets.tools.PointsTool
    widgets.tools.SaveTool
    widgets.tools.ToggleTool
 
