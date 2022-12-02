@@ -104,7 +104,11 @@ class DrawingTool(ToggleTool):
             self._tool.stop()
 
 
-def get_points_info(artist, figure):
+def _get_points_info(artist, figure):
+    """
+    Convert the raw (x, y) position of a point to a dict containing the dimensions of
+    each axis, and scalar values with units.
+    """
     return lambda: {
         'x': {
             'dim': figure.dims['x'],
@@ -117,14 +121,18 @@ def get_points_info(artist, figure):
     }
 
 
-def make_points(**kwargs):
+def _make_points(**kwargs):
+    """
+    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
+    hard dependency.
+    """
     from mpltoolbox import Points
     return Points(**kwargs)
 
 
 PointsTool = partial(DrawingTool,
-                     tool=partial(make_points, mec='w'),
-                     get_artist_info=get_points_info,
+                     tool=partial(_make_points, mec='w'),
+                     get_artist_info=_get_points_info,
                      icon='crosshairs')
 """
 Tool to add point markers onto a figure.
