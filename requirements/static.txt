@@ -11,7 +11,7 @@ fastjsonschema==2.16.2
     # via nbformat
 flake8==6.0.0
     # via -r requirements/static.in
-jsonschema==4.17.1
+jsonschema==4.17.3
     # via nbformat
 jupyter-core==5.1.0
     # via nbformat

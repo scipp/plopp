@@ -60,7 +60,7 @@ jinja2==3.1.2
     #   nbconvert
     #   nbsphinx
     #   sphinx
-jsonschema==4.17.1
+jsonschema==4.17.3
     # via nbformat
 jupyterlab-pygments==0.2.2
     # via nbconvert
@@ -78,7 +78,7 @@ mistune==2.0.4
     # via nbconvert
 mpltoolbox==0.3.0
     # via -r requirements/docs.in
-nbclient==0.7.1
+nbclient==0.7.2
     # via nbconvert
 nbconvert==7.2.5
     # via nbsphinx

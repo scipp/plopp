@@ -1,2 +1,3 @@
 pythreejs
 scipp
+ipython==8.5.0
