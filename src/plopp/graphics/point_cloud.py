@@ -3,7 +3,7 @@
 
 import numpy as np
 import scipp as sc
-from typing import Tuple
+from typing import Tuple, Union
 
 
 class PointCloud:
@@ -26,15 +26,14 @@ class PointCloud:
         The opacity of the points.
     """
 
-    def __init__(
-            self,
-            *,
-            x: str,
-            y: str,
-            z: str,
-            data: sc.DataArray,
-            pixel_size: float = 1,  # TODO: pixel_size should have units
-            opacity: float = 1):
+    def __init__(self,
+                 *,
+                 x: str,
+                 y: str,
+                 z: str,
+                 data: sc.DataArray,
+                 pixel_size: Union[sc.Variable, float] = 1,
+                 opacity: float = 1):
         """
         Make a point cloud using pythreejs
         """
@@ -44,7 +43,17 @@ class PointCloud:
         self._x = x
         self._y = y
         self._z = z
+
         self._pixel_size = pixel_size
+        if hasattr(self._pixel_size, 'unit'):
+            if len(set([self._data.meta[dim].unit for dim in [x, y, z]])) > 1:
+                raise ValueError(
+                    f'The supplied pixel_size has unit {self._pixel_size.unit}, but '
+                    f'the spatial coordinates do not all have the same units. In this '
+                    'case the pixel_size should just be a float with no unit.')
+            else:
+                self._pixel_size = self._pixel_size.to(dtype=float).to(
+                    unit=self._data.meta[x].unit).value
 
         self.geometry = p3.BufferGeometry(
             attributes={
