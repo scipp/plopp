@@ -49,7 +49,7 @@ class PointCloud:
             if len(set([self._data.meta[dim].unit for dim in [x, y, z]])) > 1:
                 raise ValueError(
                     f'The supplied pixel_size has unit {self._pixel_size.unit}, but '
-                    f'the spatial coordinates do not all have the same units. In this '
+                    'the spatial coordinates do not all have the same units. In this '
                     'case the pixel_size should just be a float with no unit.')
             else:
                 self._pixel_size = self._pixel_size.to(dtype=float).to(

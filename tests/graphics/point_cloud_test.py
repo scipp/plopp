@@ -85,7 +85,7 @@ def test_pixel_size_cannot_have_units_when_spatial_dimensions_have_different_uni
     da.coords['x'] = new_x
     reference = PointCloud(data=da, x='x', y='y', z='z', pixel_size=1)
     with pytest.raises(ValueError, match='The supplied pixel_size has unit'):
-        PointCloud(data=da, x='x', y='y', z='z', pixel_size=sc.scalar(2, unit='m'))
+        PointCloud(data=da, x='x', y='y', z='z', pixel_size=sc.scalar(2.5, unit='m'))
     # Ok if no unit supplied
     cloud = PointCloud(data=da, x='x', y='y', z='z', pixel_size=2.5)
     assert cloud.material.size == 2.5 * reference.material.size
