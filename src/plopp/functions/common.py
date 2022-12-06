@@ -79,7 +79,8 @@ def check_not_binned(obj):
 def preprocess(obj: Union[ndarray, Variable, DataArray],
                crop: Dict[str, Dict[str, Variable]] = None,
                name: str = '',
-               ignore_size: bool = False):
+               ignore_size: bool = False,
+               use=None):
     """
     Pre-process input data for plotting.
     This involves:
@@ -117,4 +118,10 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
         out = out[dim, start:start + width + 2]
     if not ignore_size:
         _check_size(out)
+    if use is not None:
+        renamed_dims = {}
+        for dim in use:
+            underlying = out.meta[dim].dims[-1]
+            renamed_dims[underlying] = dim
+        out = out.rename_dims(**renamed_dims)
     return out

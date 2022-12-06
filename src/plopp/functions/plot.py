@@ -25,6 +25,7 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
          vmin: Union[Variable, int, float] = None,
          vmax: Union[Variable, int, float] = None,
          figsize: Tuple[float, float] = (6., 4.),
+         use=None,
          **kwargs):
     """Plot a Scipp object.
 
@@ -96,7 +97,7 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
             for name, item in obj.items()
         ]
     else:
-        data_arrays = [preprocess(obj, crop=crop, ignore_size=ignore_size)]
+        data_arrays = [preprocess(obj, crop=crop, ignore_size=ignore_size, use=use)]
 
     ndims = set()
     for da in data_arrays:
