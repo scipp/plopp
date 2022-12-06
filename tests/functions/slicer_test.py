@@ -78,3 +78,11 @@ def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         Slicer(da, keep=['x'])
+
+
+def test_raises_when_requested_keep_dims_do_not_exist():
+    da = data_array(ndim=3)
+    with pytest.raises(
+            ValueError,
+            match='Slicer plot: one or more of the requested dims to be kept'):
+        sl = Slicer(da, keep=['time'])

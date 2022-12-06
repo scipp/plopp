@@ -66,6 +66,10 @@ class Slicer:
         if len(keep) == 0:
             raise ValueError(
                 'Slicer plot: the list of dims to be kept cannot be empty.')
+        if not all(dim in ds.dims for dim in keep):
+            raise ValueError(
+                f"Slicer plot: one or more of the requested dims to be kept {keep} "
+                f"were not found in the input's dimensions {ds.dims}.")
 
         from ..widgets import SliceWidget, slice_dims
 
