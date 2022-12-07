@@ -6,7 +6,7 @@ from ..core.utils import number_to_variable
 from matplotlib import get_backend
 from numpy import ndarray, prod
 from scipp import Variable, DataArray, arange
-from typing import Dict, Union
+from typing import Dict, List, Union, Optional
 
 
 def is_interactive_backend():
@@ -77,10 +77,10 @@ def check_not_binned(obj):
 
 
 def preprocess(obj: Union[ndarray, Variable, DataArray],
-               crop: Dict[str, Dict[str, Variable]] = None,
+               crop: Optional[Dict[str, Dict[str, Variable]]] = None,
                name: str = '',
                ignore_size: bool = False,
-               use=None):
+               coords: Optional[List[Union[str, Variable]]] = None):
     """
     Pre-process input data for plotting.
     This involves:
@@ -99,6 +99,12 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
         Override the input's name if it has none.
     ignore_size:
         Do not perform a size check on the object before plotting it.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
+        The list can contain both strings and ``Variable``s.
+        In the case of a string, the coordinate with the corresponding name in the
+        input data array will be used. In the case of a ``Variable``, it will replace
+        the corresponding dimension coordinate directly.
     """
     out = _to_data_array(obj)
     check_not_binned(out)
@@ -118,10 +124,15 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
         out = out[dim, start:start + width + 2]
     if not ignore_size:
         _check_size(out)
-    if use is not None:
+    if coords is not None:
         renamed_dims = {}
-        for dim in use:
-            underlying = out.meta[dim].dims[-1]
-            renamed_dims[underlying] = dim
+        if isinstance(coords, str):
+            coords = [coords]
+        for dim_or_var in coords:
+            if isinstance(dim_or_var, str):
+                underlying = out.meta[dim_or_var].dims[-1]
+                renamed_dims[underlying] = dim_or_var
+            else:
+                out.coords[dim_or_var.dims[-1]] = dim_or_var
         out = out.rename_dims(**renamed_dims)
     return out

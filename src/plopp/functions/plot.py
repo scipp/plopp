@@ -8,24 +8,25 @@ from .common import preprocess
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
 from numpy import ndarray
-from typing import Union, Dict, Literal, Tuple
+from typing import Union, Dict, List, Literal, Tuple, Optional
 
 
 def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
+         *,
          aspect: Literal['auto', 'equal'] = 'auto',
          cbar: bool = True,
-         crop: Dict[str, Dict[str, Variable]] = None,
+         coords: Optional[List[Union[str, Variable]]] = None,
+         crop: Optional[Dict[str, Dict[str, Variable]]] = None,
          errorbars: bool = True,
+         figsize: Tuple[float, float] = (6., 4.),
          grid: bool = False,
          ignore_size: bool = False,
          mask_color: str = 'black',
          norm: Literal['linear', 'log'] = 'linear',
-         scale: Dict[str, str] = None,
-         title: str = None,
-         vmin: Union[Variable, int, float] = None,
-         vmax: Union[Variable, int, float] = None,
-         figsize: Tuple[float, float] = (6., 4.),
-         use=None,
+         scale: Optional[Dict[str, str]] = None,
+         title: Optional[str] = None,
+         vmin: Optional[Union[Variable, int, float]] = None,
+         vmax: Optional[Union[Variable, int, float]] = None,
          **kwargs):
     """Plot a Scipp object.
 
@@ -37,6 +38,12 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         Aspect ratio for the axes.
     cbar:
         Show colorbar in 2d plots if ``True``.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
+        The list can contain both strings and ``Variable``s.
+        In the case of a string, the coordinate with the corresponding name in the
+        input data array will be used. In the case of a ``Variable``, it will replace
+        the corresponding dimension coordinate directly.
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped. Each entry should be a nested dict containing scalar
@@ -44,6 +51,8 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         ``da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})``
     errorbars:
         Show errorbars in 1d plots if ``True``.
+    figsize:
+        The width and height of the figure, in inches.
     grid:
         Show grid if ``True``.
     ignore_size:
@@ -65,8 +74,6 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
     vmax:
         Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
         2d plots).
-    figsize:
-        The width and height of the figure, in inches.
     **kwargs:
         All other kwargs are directly forwarded to Matplotlib, the underlying plotting
         library. The underlying functions called are the following:
@@ -93,11 +100,16 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
 
     if isinstance(obj, (dict, Dataset)):
         data_arrays = [
-            preprocess(item, crop=crop, name=name, ignore_size=ignore_size)
-            for name, item in obj.items()
+            preprocess(item,
+                       crop=crop,
+                       name=name,
+                       ignore_size=ignore_size,
+                       coords=coords) for name, item in obj.items()
         ]
     else:
-        data_arrays = [preprocess(obj, crop=crop, ignore_size=ignore_size, use=use)]
+        data_arrays = [
+            preprocess(obj, crop=crop, ignore_size=ignore_size, coords=coords)
+        ]
 
     ndims = set()
     for da in data_arrays:
