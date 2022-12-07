@@ -222,3 +222,33 @@ def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         pp.plot(da)
+
+
+def test_use_non_dimension_coords_strings():
+    da = data_array(ndim=2, binedges=True)
+    da.coords['xx2'] = 7.5 * da.coords['xx']
+    da.coords['yy2'] = 3.3 * da.coords['yy']
+    p = pp.plot(da, coords=['xx2', 'yy2'])
+    assert p.dims['x'] == 'xx2'
+    assert p.dims['y'] == 'yy2'
+    assert p.canvas._xmax == 7.5 * da.coords['xx'].max().value
+    assert p.canvas._ymax == 3.3 * da.coords['yy'].max().value
+
+
+def test_use_non_dimension_coords_variables():
+    da = data_array(ndim=2, binedges=True)
+    xx2 = 7.5 * da.coords['xx']
+    yy2 = 3.3 * da.coords['yy']
+    p = pp.plot(da, coords=[xx2, yy2])
+    assert p.dims['x'] == 'xx'
+    assert p.dims['y'] == 'yy'
+    assert p.canvas._xmax == 7.5 * da.coords['xx'].max().value
+    assert p.canvas._ymax == 3.3 * da.coords['yy'].max().value
+
+
+def test_use_non_dimension_coords_dataset():
+    ds = dataset(ndim=1)
+    ds.coords['xx2'] = 6.6 * ds.coords['xx']
+    p = pp.plot(ds, coords=['xx2'])
+    assert p.dims['x'] == 'xx2'
+    assert p.canvas._xmax > 6.6 * ds.coords['xx'].max().value
