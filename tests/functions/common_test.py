@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-import numpy as np
 import plopp as pp
-from plopp.data.testing import data_array, dataset
+from plopp.data.testing import data_array
 from plopp.functions.common import preprocess
 import pytest
 import scipp as sc

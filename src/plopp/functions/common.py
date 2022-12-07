@@ -35,9 +35,9 @@ def _to_data_array(obj: Union[ndarray, sc.Variable, sc.DataArray]):
     out = obj
     if isinstance(out, ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
-        out = Variable(dims=dims, values=out)
+        out = sc.Variable(dims=dims, values=out)
     if isinstance(out, sc.Variable):
-        out = DataArray(data=out)
+        out = sc.DataArray(data=out)
     out = out.copy(deep=False)
     for dim, size in out.sizes.items():
         if dim not in out.meta:
