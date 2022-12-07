@@ -5,8 +5,9 @@ from ..core.utils import number_to_variable
 
 from matplotlib import get_backend
 from numpy import ndarray, prod
-from scipp import Variable, DataArray, arange
+import scipp as sc
 from typing import Dict, List, Union, Optional
+import warnings
 
 
 def is_interactive_backend():
@@ -26,7 +27,7 @@ def require_interactive_backend(func: str):
                            "notebook.")
 
 
-def _to_data_array(obj: Union[ndarray, Variable, DataArray]):
+def _to_data_array(obj: Union[ndarray, sc.Variable, sc.DataArray]):
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
     missing.
@@ -35,16 +36,16 @@ def _to_data_array(obj: Union[ndarray, Variable, DataArray]):
     if isinstance(out, ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
         out = Variable(dims=dims, values=out)
-    if isinstance(out, Variable):
+    if isinstance(out, sc.Variable):
         out = DataArray(data=out)
     out = out.copy(deep=False)
     for dim, size in out.sizes.items():
         if dim not in out.meta:
-            out.coords[dim] = arange(dim, size, unit=None)
+            out.coords[dim] = sc.arange(dim, size, unit=None)
     return out
 
 
-def _to_variable_if_not_none(x: Variable, unit: str) -> Union[None, Variable]:
+def _to_variable_if_not_none(x: sc.Variable, unit: str) -> Union[None, sc.Variable]:
     """
     Convert input to the required unit if it is not ``None``.
     """
@@ -52,7 +53,7 @@ def _to_variable_if_not_none(x: Variable, unit: str) -> Union[None, Variable]:
         return number_to_variable(x, unit=unit)
 
 
-def _check_size(da: DataArray):
+def _check_size(da: sc.DataArray):
     """
     Prevent slow figure rendering by raising an error if the data array exceeds a
     default size.
@@ -76,11 +77,11 @@ def check_not_binned(obj):
             "more details.")
 
 
-def preprocess(obj: Union[ndarray, Variable, DataArray],
-               crop: Optional[Dict[str, Dict[str, Variable]]] = None,
+def preprocess(obj: Union[ndarray, sc.Variable, sc.DataArray],
+               crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
                name: str = '',
                ignore_size: bool = False,
-               coords: Optional[List[Union[str, Variable]]] = None):
+               coords: Optional[List[Union[str, sc.Variable]]] = None):
     """
     Pre-process input data for plotting.
     This involves:
@@ -88,6 +89,7 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
       - converting the input to a data array
       - filling in missing dimension coords if needed
       - slicing out the parts that are not needed if cropping is requested
+      - renaming dimensions if non-dimension coordinates are to be used
 
     Parameters
     ----------
@@ -135,4 +137,13 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
             else:
                 out.coords[dim_or_var.dims[-1]] = dim_or_var
         out = out.rename_dims(**renamed_dims)
+    for name, coord in out.meta.items():
+        if coord.ndim < 2:
+            if not (sc.allsorted(coord, coord.dim, order='ascending')
+                    or sc.allsorted(coord, coord.dim, order='descending')):
+                warnings.warn(
+                    'The input contains a coordinate with unsorted values. '
+                    'The results may be unpredictable. Coordinates can be sorted using '
+                    '`scipp.sort(data, dim="dim_to_be_sorted", order="ascending")`.',
+                    UserWarning)
     return out
