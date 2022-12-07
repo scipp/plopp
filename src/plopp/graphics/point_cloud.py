@@ -32,7 +32,7 @@ class PointCloud:
                  y: str,
                  z: str,
                  data: sc.DataArray,
-                 pixel_size: Union[sc.Variable, float] = 1,
+                 pixel_size: Union[sc.Variable, float, int] = 1,
                  opacity: float = 1):
         """
         Make a point cloud using pythreejs
