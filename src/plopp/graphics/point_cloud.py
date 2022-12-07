@@ -52,8 +52,8 @@ class PointCloud:
                     'the spatial coordinates do not all have the same units. In this '
                     'case the pixel_size should just be a float with no unit.')
             else:
-                self._pixel_size = self._pixel_size.to(dtype=float).to(
-                    unit=self._data.meta[x].unit).value
+                self._pixel_size = self._pixel_size.to(
+                    dtype=float, unit=self._data.meta[x].unit).value
 
         self.geometry = p3.BufferGeometry(
             attributes={
