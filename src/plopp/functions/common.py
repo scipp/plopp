@@ -77,6 +77,10 @@ def check_not_binned(obj):
             "more details.")
 
 
+def _all_dims_sorted(var, order='ascending'):
+    return all([sc.allsorted(var, dim, order=order) for dim in var.dims])
+
+
 def preprocess(obj: Union[ndarray, sc.Variable, sc.DataArray],
                crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
                name: str = '',
@@ -103,10 +107,9 @@ def preprocess(obj: Union[ndarray, sc.Variable, sc.DataArray],
         Do not perform a size check on the object before plotting it.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
-        The list can contain both strings and ``Variable``s.
+        The list can contain both strings and ``scipp.Variable``s.
         In the case of a string, the coordinate with the corresponding name in the
-        input data array will be used. In the case of a ``Variable``, it will replace
-        the corresponding dimension coordinate directly.
+        input data array will be used.
     """
     out = _to_data_array(obj)
     check_not_binned(out)
@@ -139,8 +142,8 @@ def preprocess(obj: Union[ndarray, sc.Variable, sc.DataArray],
         out = out.rename_dims(**renamed_dims)
     for name, coord in out.coords.items():
         if coord.ndim > 0:
-            if not (sc.allsorted(coord, coord.dim, order='ascending')
-                    or sc.allsorted(coord, coord.dim, order='descending')):
+            if not (_all_dims_sorted(coord, order='ascending')
+                    or _all_dims_sorted(coord, order='descending')):
                 warnings.warn(
                     'The input contains a coordinate with unsorted values. '
                     'The results may be unpredictable. Coordinates can be sorted using '
