@@ -5,13 +5,6 @@ import plopp as pp
 from plopp.data.testing import data_array, scatter_data
 from plopp.graphics.interactive import (InteractiveFig1d, InteractiveFig2d,
                                         InteractiveFig3d)
-import pytest
-import matplotlib as mpl
-
-
-@pytest.fixture
-def use_ipympl():
-    mpl.use('module://ipympl.backend_nbagg')
 
 
 def test_create_fig1d(use_ipympl):

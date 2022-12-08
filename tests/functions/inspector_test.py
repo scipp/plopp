@@ -5,8 +5,7 @@ import scipp as sc
 import plopp as pp
 
 
-@pytest.mark.skip(reason="Requires widget backend")
-def test_raises_ValueError_when_given_binned_data():
+def test_raises_ValueError_when_given_binned_data(use_ipympl):
     da = sc.data.table_xyz(100).bin(x=10, y=20, z=30)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         pp.inspector(da, orientation='vertical')
