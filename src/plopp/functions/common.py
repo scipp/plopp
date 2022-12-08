@@ -137,8 +137,8 @@ def preprocess(obj: Union[ndarray, sc.Variable, sc.DataArray],
             else:
                 out.coords[dim_or_var.dims[-1]] = dim_or_var
         out = out.rename_dims(**renamed_dims)
-    for name, coord in out.meta.items():
-        if coord.ndim < 2:
+    for name, coord in out.coords.items():
+        if coord.ndim > 0:
             if not (sc.allsorted(coord, coord.dim, order='ascending')
                     or sc.allsorted(coord, coord.dim, order='descending')):
                 warnings.warn(
