@@ -20,11 +20,18 @@ class InteractiveFig1d(VBox):
         self._fig = Figure1d(*args, **kwargs)
         self.toolbar = Toolbar(
             tools={
-                'home': tools.HomeTool(self._fig.canvas.autoscale),
-                'panzoom': tools.PanZoomTool(canvas=self._fig.canvas),
-                'logx': tools.LogxTool(self._fig.canvas.logx),
-                'logy': tools.LogyTool(self._fig.canvas.logy),
-                'save': tools.SaveTool(self._fig.canvas.save)
+                'home':
+                tools.HomeTool(self._fig.canvas.autoscale),
+                'panzoom':
+                tools.PanZoomTool(canvas=self._fig.canvas),
+                'logx':
+                tools.LogxTool(self._fig.canvas.logx,
+                               value=self._fig.canvas.xscale == 'log'),
+                'logy':
+                tools.LogyTool(self._fig.canvas.logy,
+                               value=self._fig.canvas.yscale == 'log'),
+                'save':
+                tools.SaveTool(self._fig.canvas.save)
             })
 
         self.left_bar = VBar([self.toolbar])
@@ -61,12 +68,21 @@ class InteractiveFig2d(VBox):
         self._fig = Figure2d(*args, **kwargs)
         self.toolbar = Toolbar(
             tools={
-                'home': tools.HomeTool(self._fig.canvas.autoscale),
-                'panzoom': tools.PanZoomTool(canvas=self._fig.canvas),
-                'logx': tools.LogxTool(self._fig.canvas.logx),
-                'logy': tools.LogyTool(self._fig.canvas.logy),
-                'lognorm': tools.LogNormTool(self._fig.toggle_norm),
-                'save': tools.SaveTool(self._fig.canvas.save)
+                'home':
+                tools.HomeTool(self._fig.canvas.autoscale),
+                'panzoom':
+                tools.PanZoomTool(canvas=self._fig.canvas),
+                'logx':
+                tools.LogxTool(self._fig.canvas.logx,
+                               value=self._fig.canvas.xscale == 'log'),
+                'logy':
+                tools.LogyTool(self._fig.canvas.logy,
+                               value=self._fig.canvas.yscale == 'log'),
+                'lognorm':
+                tools.LogNormTool(self._fig.toggle_norm,
+                                  value=self._fig.colormapper.norm == 'log'),
+                'save':
+                tools.SaveTool(self._fig.canvas.save)
             })
 
         self.left_bar = VBar([self.toolbar])
@@ -121,7 +137,8 @@ class InteractiveFig3d(VBox):
                                  tooltip='Camera to Z normal. '
                                  'Click twice to flip the view direction.'),
                 'lognorm':
-                tools.LogNormTool(self._fig.colormapper.toggle_norm),
+                tools.LogNormTool(self._fig.colormapper.toggle_norm,
+                                  value=self._fig.colormapper.norm == 'log'),
                 'box':
                 tools.OutlineTool(self._fig.canvas.toggle_outline),
                 'axes':
