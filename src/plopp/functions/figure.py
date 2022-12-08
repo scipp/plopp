@@ -10,7 +10,7 @@ def figure1d(*args, **kwargs):
     use.
     """
     if is_interactive_backend():
-        from ..graphics import InteractiveFig1d
+        from ..graphics.interactive import InteractiveFig1d
         return InteractiveFig1d(*args, **kwargs)
     else:
         from ..graphics import StaticFig1d
@@ -23,7 +23,7 @@ def figure2d(*args, **kwargs):
     use.
     """
     if is_interactive_backend():
-        from ..graphics import InteractiveFig2d
+        from ..graphics.interactive import InteractiveFig2d
         return InteractiveFig2d(*args, **kwargs)
     else:
         from ..graphics import StaticFig2d
@@ -34,5 +34,5 @@ def figure3d(*args, **kwargs):
     """
     Make a 3d figure.
     """
-    from ..graphics import InteractiveFig3d
+    from ..graphics.interactive import InteractiveFig3d
     return InteractiveFig3d(*args, **kwargs)
