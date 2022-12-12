@@ -15,7 +15,7 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
          *,
          aspect: Literal['auto', 'equal'] = 'auto',
          cbar: bool = True,
-         coords: Optional[List[Union[str, Variable]]] = None,
+         coords: Optional[List[str]] = None,
          crop: Optional[Dict[str, Dict[str, Variable]]] = None,
          errorbars: bool = True,
          figsize: Tuple[float, float] = (6., 4.),
@@ -40,9 +40,6 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         Show colorbar in 2d plots if ``True``.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
-        The list can contain both strings and ``scipp.Variable``s.
-        In the case of a string, the coordinate with the corresponding name in the
-        input data array will be used.
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped. Each entry should be a nested dict containing scalar

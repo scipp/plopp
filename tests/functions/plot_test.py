@@ -224,24 +224,13 @@ def test_raises_ValueError_when_given_binned_data():
         pp.plot(da)
 
 
-def test_use_non_dimension_coords_strings():
+def test_use_non_dimension_coords():
     da = data_array(ndim=2, binedges=True)
     da.coords['xx2'] = 7.5 * da.coords['xx']
     da.coords['yy2'] = 3.3 * da.coords['yy']
     p = pp.plot(da, coords=['xx2', 'yy2'])
     assert p.dims['x'] == 'xx2'
     assert p.dims['y'] == 'yy2'
-    assert p.canvas._xmax == 7.5 * da.coords['xx'].max().value
-    assert p.canvas._ymax == 3.3 * da.coords['yy'].max().value
-
-
-def test_use_non_dimension_coords_variables():
-    da = data_array(ndim=2, binedges=True)
-    xx2 = 7.5 * da.coords['xx']
-    yy2 = 3.3 * da.coords['yy']
-    p = pp.plot(da, coords=[xx2, yy2])
-    assert p.dims['x'] == 'xx'
-    assert p.dims['y'] == 'yy'
     assert p.canvas._xmax == 7.5 * da.coords['xx'].max().value
     assert p.canvas._ymax == 3.3 * da.coords['yy'].max().value
 

@@ -14,7 +14,7 @@ def test_preprocess_raises_ValueError_when_given_binned_data():
         preprocess(da)
 
 
-def test_preprocess_use_non_dimension_coords_strings():
+def test_preprocess_use_non_dimension_coords():
     da = data_array(ndim=2)
     da.coords['xx2'] = 7.5 * da.coords['xx']
     da.coords['yy2'] = 3.3 * da.coords['yy']
@@ -22,16 +22,6 @@ def test_preprocess_use_non_dimension_coords_strings():
     assert set(out.dims) == {'xx2', 'yy2'}
     assert out.coords['xx2'].max() == 7.5 * da.coords['xx'].max()
     assert out.coords['yy2'].max() == 3.3 * da.coords['yy'].max()
-
-
-def test_preprocess_use_non_dimension_coords_variables():
-    da = data_array(ndim=2)
-    xx2 = 7.5 * da.coords['xx']
-    yy2 = 3.3 * da.coords['yy']
-    out = preprocess(da, coords=[xx2, yy2])
-    assert set(out.dims) == {'xx', 'yy'}
-    assert out.coords['xx'].max() == 7.5 * da.coords['xx'].max()
-    assert out.coords['yy'].max() == 3.3 * da.coords['yy'].max()
 
 
 def test_preprocess_warns_when_coordinate_is_not_sorted():
