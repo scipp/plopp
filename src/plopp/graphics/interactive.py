@@ -31,7 +31,7 @@ class InteractiveFig1d(VBox):
                 tools.LogyTool(self._fig.canvas.logy,
                                value=self._fig.canvas.yscale == 'log'),
                 'save':
-                tools.SaveTool(self._fig.canvas.save)
+                tools.SaveTool(self._fig.canvas.save_figure)
             })
 
         self.left_bar = VBar([self.toolbar])
@@ -82,7 +82,7 @@ class InteractiveFig2d(VBox):
                 tools.LogNormTool(self._fig.toggle_norm,
                                   value=self._fig.colormapper.norm == 'log'),
                 'save':
-                tools.SaveTool(self._fig.canvas.save)
+                tools.SaveTool(self._fig.canvas.save_figure)
             })
 
         self.left_bar = VBar([self.toolbar])
