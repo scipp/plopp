@@ -165,8 +165,8 @@ class Canvas:
         Parameters
         ----------
         filename:
-            Name of the output file. Possible file extensions are ``.jpg``, ``.png``
-            and ``.pdf``.
+            Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
+            ``.svg``, and ``.pdf``.
         """
         self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
 

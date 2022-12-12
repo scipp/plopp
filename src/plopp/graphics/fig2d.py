@@ -191,7 +191,7 @@ class Figure2d(BaseFig):
         Parameters
         ----------
         filename:
-            Name of the output file. Possible file extensions are ``.jpg``, ``.png``
-            and ``.pdf``.
+            Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
+            ``.svg``, and ``.pdf``.
         """
         self.canvas.savefig(filename=filename, **kwargs)
