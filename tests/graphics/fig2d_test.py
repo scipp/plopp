@@ -204,10 +204,11 @@ def test_cax():
     assert len(cax.collections) > 0
 
 
-def test_save_to_disk():
+@pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
+def test_save_to_disk(ext):
     da = data_array(ndim=2)
     fig = Figure2d(input_node(da))
     with tempfile.TemporaryDirectory() as path:
-        fname = os.path.join(path, 'plopp_fig2d.pdf')
+        fname = os.path.join(path, f'plopp_fig2d.{ext}')
         fig.save(filename=fname)
         assert os.path.isfile(fname)

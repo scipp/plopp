@@ -186,10 +186,11 @@ def test_ax():
     assert len(ax.lines) > 0
 
 
-def test_save_to_disk():
+@pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
+def test_save_to_disk(ext):
     da = data_array(ndim=1)
     fig = Figure1d(input_node(da))
     with tempfile.TemporaryDirectory() as path:
-        fname = os.path.join(path, 'plopp_fig1d.pdf')
+        fname = os.path.join(path, f'plopp_fig1d.{ext}')
         fig.save(filename=fname)
         assert os.path.isfile(fname)
