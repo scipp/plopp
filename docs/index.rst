@@ -67,6 +67,7 @@ Get in touch
    user-guide/inspector-plot
    user-guide/super-plot
    user-guide/scatter3d-plot
+   user-guide/saving-figures
 
 .. toctree::
    :caption: Custom figures
