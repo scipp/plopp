@@ -3,6 +3,8 @@
 
 from plopp.graphics.canvas import Canvas
 import scipp as sc
+import tempfile
+import os
 
 
 def test_creation():
@@ -83,3 +85,11 @@ def test_crop_no_variable():
     })
     assert canvas.ax.get_xlim() == (xmin, xmax)
     assert canvas.ax.get_ylim() == (ymin, ymax)
+
+
+def test_save_to_disk():
+    canvas = Canvas()
+    with tempfile.TemporaryDirectory() as path:
+        fname = os.path.join(path, 'plopp_fig.pdf')
+        canvas.savefig(filename=fname)
+        assert os.path.isfile(fname)

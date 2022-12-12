@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 import pytest
+import tempfile
+import os
 
 
 def test_empty():
@@ -182,3 +184,12 @@ def test_ax():
     da = data_array(ndim=1)
     _ = Figure1d(input_node(da), ax=ax)
     assert len(ax.lines) > 0
+
+
+def test_save_to_disk():
+    da = data_array(ndim=1)
+    fig = Figure1d(input_node(da))
+    with tempfile.TemporaryDirectory() as path:
+        fname = os.path.join(path, 'plopp_fig1d.pdf')
+        fig.save(filename=fname)
+        assert os.path.isfile(fname)

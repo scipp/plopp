@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 import pytest
+import tempfile
+import os
 
 
 def test_empty():
@@ -200,3 +202,12 @@ def test_cax():
     da = data_array(ndim=2)
     _ = Figure2d(input_node(da), ax=ax, cax=cax)
     assert len(cax.collections) > 0
+
+
+def test_save_to_disk():
+    da = data_array(ndim=2)
+    fig = Figure2d(input_node(da))
+    with tempfile.TemporaryDirectory() as path:
+        fname = os.path.join(path, 'plopp_fig2d.pdf')
+        fig.save(filename=fname)
+        assert os.path.isfile(fname)
