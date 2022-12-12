@@ -181,3 +181,17 @@ class Figure2d(BaseFig):
     @property
     def cax(self):
         return self.canvas.cax
+
+    def save(self, filename: str, **kwargs):
+        """
+        Save the figure to file.
+        The default directory for writing the file is the same as the
+        directory where the script or notebook is running.
+
+        Parameters
+        ----------
+        filename:
+            Name of the output file. Possible file extensions are ``.jpg``, ``.png``
+            and ``.pdf``.
+        """
+        self.canvas.savefig(filename=filename, **kwargs)
