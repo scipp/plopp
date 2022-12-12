@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .outline import Outline
-
 from copy import copy
 import numpy as np
 from scipp import Variable
@@ -53,6 +51,7 @@ class Canvas3d:
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
+        from .outline import Outline
         if self.outline is not None:
             self.remove(self.outline)
         self.outline = Outline(limits=limits)

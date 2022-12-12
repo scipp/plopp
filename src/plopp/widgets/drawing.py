@@ -9,7 +9,7 @@ from typing import Callable, Any, Union
 
 
 def is_figure(x):
-    from ..graphics import InteractiveFig1d, InteractiveFig2d
+    from ..graphics.interactive import InteractiveFig1d, InteractiveFig2d
     return isinstance(x, (InteractiveFig1d, InteractiveFig2d))
 
 

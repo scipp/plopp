@@ -21,3 +21,8 @@ def close_figures():
     yield
     for fig in map(plt.figure, plt.get_fignums()):
         plt.close(fig)
+
+
+@pytest.fixture
+def use_ipympl():
+    matplotlib.use('module://ipympl.backend_nbagg')

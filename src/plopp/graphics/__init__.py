@@ -5,6 +5,5 @@
 
 from .canvas import Canvas
 from .canvas3d import Canvas3d
-from .interactive import InteractiveFig1d, InteractiveFig2d, InteractiveFig3d
 from .static import StaticFig1d, StaticFig2d
 from .colormapper import ColorMapper
