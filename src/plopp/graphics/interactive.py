@@ -20,18 +20,15 @@ class InteractiveFig1d(VBox):
         self._fig = Figure1d(*args, **kwargs)
         self.toolbar = Toolbar(
             tools={
-                'home':
-                tools.HomeTool(self._fig.canvas.autoscale),
-                'panzoom':
-                tools.PanZoomTool(canvas=self._fig.canvas),
-                'logx':
-                tools.LogxTool(self._fig.canvas.logx,
-                               value=self._fig.canvas.xscale == 'log'),
-                'logy':
-                tools.LogyTool(self._fig.canvas.logy,
-                               value=self._fig.canvas.yscale == 'log'),
-                'save':
-                tools.SaveTool(self._fig.canvas.save_figure)
+                'home': tools.HomeTool(self._fig.canvas.autoscale),
+                'panzoom': tools.PanZoomTool(canvas=self._fig.canvas),
+                # 'logx':
+                # tools.LogxTool(self._fig.canvas.logx,
+                #                value=self._fig.canvas.xscale == 'log'),
+                # 'logy':
+                # tools.LogyTool(self._fig.canvas.logy,
+                #                value=self._fig.canvas.yscale == 'log'),
+                'save': tools.SaveTool(self._fig.canvas.save_figure)
             })
 
         self.left_bar = VBar([self.toolbar])
@@ -43,9 +40,12 @@ class InteractiveFig1d(VBox):
             self.top_bar,
             HBox([
                 self.left_bar,
-                self._fig.canvas.to_image()
-                if is_sphinx_build() else self._fig.canvas.fig.canvas, self.right_bar
-            ]), self.bottom_bar
+                # self._fig.canvas.to_image()
+                # if is_sphinx_build() else self._fig.canvas.fig.canvas, self.right_bar
+                self._fig.canvas.fig,
+                self.right_bar
+            ]),
+            self.bottom_bar
         ])
 
     def __getattr__(self, key):

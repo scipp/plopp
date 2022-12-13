@@ -3,8 +3,9 @@
 
 from ..core.utils import name_with_unit
 from .basefig import BaseFig
-from .canvas import Canvas
-from .line import Line
+# from .canvas import Canvas
+# from .line import Line
+from ..backends.plotly import Canvas, Line
 
 import scipp as sc
 from typing import Any, Dict, Literal, Optional, Tuple, Union
@@ -91,7 +92,7 @@ class Figure1d(BaseFig):
                              ax=ax,
                              vmin=vmin,
                              vmax=vmax)
-        self.canvas.yscale = norm
+        # self.canvas.yscale = norm
 
         self.render()
         self.canvas.autoscale()
@@ -132,8 +133,8 @@ class Figure1d(BaseFig):
 
             self.canvas.xunit = new_values.meta[new_values.dim].unit
             self.canvas.yunit = new_values.unit
-            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
-            self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
+            # self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
+            # self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
 
             if self.dims['x'] in self._scale:
                 self.canvas.xscale = self._scale[self.dims['x']]
