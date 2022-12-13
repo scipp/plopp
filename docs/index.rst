@@ -84,6 +84,7 @@ Get in touch
 
    examples/custom-interfaces
    examples/gallery
+   examples/faq
 
 .. toctree::
    :caption: Reference
