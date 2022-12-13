@@ -3,7 +3,7 @@
 
 import numpy as np
 import plopp as pp
-from plopp.data.testing import scatter_data
+from plopp.data.testing import scatter
 import pytest
 import scipp as sc
 
