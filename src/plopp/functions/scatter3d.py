@@ -68,7 +68,7 @@ def scatter3d(da: sc.DataArray,
 
     if 'ax' in kwargs:
         raise ValueError(
-            'Keyword `ax` detected. Embedding 3D scatter plots inside Matplotlib axes '
+            'Keyword "ax" detected. Embedding 3D scatter plots inside Matplotlib axes '
             'is not supported. See '
             'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'  # noqa: E501
         )
