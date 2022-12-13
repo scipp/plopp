@@ -200,11 +200,12 @@ class Line:
         """
         self._data = new_values
         new_values = self._make_data()
+        self._fig.data[0].y = new_values["values"]["y"]
 
-        self._line.update({
-            'x': new_values["values"]["x"],
-            'y': new_values["values"]["y"]
-        })
+        # self._line.update({
+        #     'x': new_values["values"]["x"],
+        #     'y': new_values["values"]["y"]
+        # })
         # if new_values["mask"] is not None:
         #     self._mask.set_data(new_values["values"]["x"], new_values["mask"]["y"])
         #     self._mask.set_visible(True)
