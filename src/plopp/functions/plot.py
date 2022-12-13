@@ -4,6 +4,7 @@
 from .figure import figure1d, figure2d
 from ..core import input_node
 from .common import preprocess
+from collections.abc import Mapping
 
 from scipp import Variable, Dataset
 from scipp.typing import VariableLike
@@ -94,7 +95,7 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         'figsize': figsize
     }
 
-    if isinstance(obj, (dict, Dataset)):
+    if isinstance(obj, (Mapping, Dataset)):
         data_arrays = [
             preprocess(item,
                        crop=crop,
