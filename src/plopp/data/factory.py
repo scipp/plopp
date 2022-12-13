@@ -156,7 +156,7 @@ def dataset(entries: List[str] = None, **kwargs) -> sc.Dataset:
     return ds
 
 
-def scatter_data(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
+def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
     """
     Generate some three-dimensional scatter data, based on a normal distribution.
 
