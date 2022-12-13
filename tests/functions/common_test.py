@@ -36,9 +36,9 @@ def test_preprocess_no_warning_if_dtype_cannot_be_sorted():
     da = data_array(ndim=1)
     da.coords['vecs'] = sc.vectors(dims=['xx'],
                                    values=np.random.random((da.sizes['xx'], 3)))
-    out = preprocess(da)
+    out = preprocess(da)  # no warning should be emitted
     assert 'vecs' in out.coords
     da.coords['strings'] = sc.array(dims=['xx'],
                                     values=list('ba' * (da.sizes['xx'] // 2)))
-    out = preprocess(da)
+    out = preprocess(da)  # no warning should be emitted
     assert 'strings' in out.coords
