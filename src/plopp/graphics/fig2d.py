@@ -138,8 +138,7 @@ class Figure2d(BaseFig):
             self.canvas.yunit = ycoord.unit
             self.colormapper.unit = new_values.unit
         else:
-            new_values.data = check_dim_and_maybe_convert_unit(
-                new_values.data, unit=self.colormapper.unit)
+            new_values.data = new_values.data.to(unit=self.colormapper.unit, copy=False)
             new_values.coords[xdim] = check_dim_and_maybe_convert_unit(
                 xcoord, dim=self.dims['x'], unit=self.canvas.xunit)
             new_values.coords[ydim] = check_dim_and_maybe_convert_unit(

@@ -124,8 +124,7 @@ class Figure1d(BaseFig):
             self.canvas.xunit = coord.unit
             self.canvas.yunit = new_values.unit
         else:
-            new_values.data = check_dim_and_maybe_convert_unit(new_values.data,
-                                                               unit=self.canvas.yunit)
+            new_values.data = new_values.data.to(unit=self.canvas.yunit, copy=False)
             new_values.coords[dim] = check_dim_and_maybe_convert_unit(
                 coord, dim=self.dims['x'], unit=self.canvas.xunit)
 
