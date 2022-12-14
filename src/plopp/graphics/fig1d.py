@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.utils import name_with_unit
+from ..core.utils import name_with_unit, check_dim_and_maybe_convert_unit
 from .basefig import BaseFig
 from .canvas import Canvas
 from .line import Line
@@ -117,6 +117,18 @@ class Figure1d(BaseFig):
         if new_values.ndim != 1:
             raise ValueError("Figure1d can only be used to plot 1-D data.")
 
+        dim = new_values.dim
+        coord = new_values.coords[dim]
+        if 'x' not in self.dims:
+            self.dims['x'] = dim
+            self.canvas.xunit = coord.unit
+            self.canvas.yunit = new_values.unit
+        else:
+            new_values.data = check_dim_and_maybe_convert_unit(new_values.data,
+                                                               unit=self.canvas.yunit)
+            new_values.coords[dim] = check_dim_and_maybe_convert_unit(
+                coord, dim=self.dims['x'], unit=self.canvas.xunit)
+
         if key not in self.artists:
 
             line = Line(canvas=self.canvas,
@@ -128,27 +140,6 @@ class Figure1d(BaseFig):
             self.artists[key] = line
             if line.label:
                 self.canvas.legend()
-            if 'x' not in self.dims:
-                self.dims['x'] = new_values.dim
-            elif self.dims['x'] != new_values.dim:
-                raise sc.DimensionError(
-                    f'The supplied data has dimension {new_values.dim} which is '
-                    f'incompatible with the figure dimension {self.dims["x"]}.')
-
-            if self.canvas.xunit is None:
-                self.canvas.xunit = new_values.meta[new_values.dim].unit
-            elif self.canvas.xunit != new_values.meta[new_values.dim].unit:
-                raise sc.UnitError(
-                    f'The supplied data coordinate for the horizontal axis has unit '
-                    f'{new_values.meta[new_values.dim].unit} which is incompatible '
-                    f'with the figure X-axis units {self.canvas.xunit}.')
-
-            if self.canvas.yunit is None:
-                self.canvas.yunit = new_values.unit
-            elif self.canvas.yunit != new_values.unit:
-                raise sc.UnitError(
-                    f'The supplied data has unit {new_values.unit} which is '
-                    f'incompatible with the figure Y-axis units {self.canvas.yunit}.')
 
             self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")

@@ -171,3 +171,15 @@ def coord_element_to_string(x: sc.Variable) -> str:
     if x.unit is not None:
         out += f" [{x.unit}]"
     return out
+
+
+def check_dim_and_maybe_convert_unit(x: sc.Variable, unit: str, dim: str = None):
+    """
+    Raise exception if the dimension of the supplied variable is different from the
+    requested dimension.
+    Then, if the variable unit differs from the requested unit, attempt a conversion.
+    """
+    if (dim is not None) and (x.dim != dim):
+        raise sc.DimensionError(f'The supplied variable has dimension {x.dim} which is '
+                                f'incompatible with the requested dimension {dim}.')
+    return x.to(unit=unit, copy=False)
