@@ -23,6 +23,7 @@ test:
     - plopp
   requires:
     - pytest
+    - ipympl
     - ipywidgets
     - pythreejs
     - scipp >=0.12
