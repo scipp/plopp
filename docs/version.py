@@ -10,8 +10,14 @@ import argparse
 
 def _get_releases(repo: str, organization: str = 'scipp') -> List[Version]:
     """Return reversed sorted list of release tag names."""
-    r = requests.get(f'https://api.github.com/repos/{organization}/{repo}/releases')
-    if r.status_code != 200:
+    max_tries = 3
+    ok = False
+    for n in range(max_tries):
+        r = requests.get(f'https://api.github.com/repos/{organization}/{repo}/releases')
+        ok = r.status_code == 200
+        if ok:
+            break
+    if not ok:
         return []
     data = r.json()
     return sorted([parse(e['tag_name']) for e in data if not e['draft']], reverse=True)
