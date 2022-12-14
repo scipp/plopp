@@ -71,10 +71,18 @@ def test_with_mismatching_data_arrays_raises():
     b = data_array(ndim=2) * 2.5
     b.coords['xx'] *= 1.1
     with pytest.raises(sc.DatasetError):
-        _ = Slicer({'a': a, 'b': b}, keep=['xx'])
+        Slicer({'a': a, 'b': b}, keep=['xx'])
 
 
 def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         Slicer(da, keep=['x'])
+
+
+def test_raises_when_requested_keep_dims_do_not_exist():
+    da = data_array(ndim=3)
+    with pytest.raises(
+            ValueError,
+            match='Slicer plot: one or more of the requested dims to be kept'):
+        Slicer(da, keep=['time'])

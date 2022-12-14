@@ -158,15 +158,15 @@ class Canvas:
 
     def savefig(self, filename: str, **kwargs):
         """
-        Save plot to file.
+        Save the figure to file.
         The default directory for writing the file is the same as the
         directory where the script or notebook is running.
 
         Parameters
         ----------
         filename:
-            Save the figure to file. Possible file extensions are ``.jpg``, ``.png``
-            and ``.pdf``.
+            Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
+            ``.svg``, and ``.pdf``.
         """
         self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
 
@@ -250,7 +250,7 @@ class Canvas:
         """
         self.fig.canvas.toolbar.pan()
 
-    def save(self):
+    def save_figure(self):
         """
         Save the figure to a PNG file via a pop-up dialog.
         """

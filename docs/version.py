@@ -3,15 +3,21 @@
 
 import sys
 from typing import List
-from packaging.version import parse, Version, LegacyVersion
+from packaging.version import parse, Version, InvalidVersion
 import requests
 import argparse
 
 
 def _get_releases(repo: str, organization: str = 'scipp') -> List[Version]:
     """Return reversed sorted list of release tag names."""
-    r = requests.get(f'https://api.github.com/repos/{organization}/{repo}/releases')
-    if r.status_code != 200:
+    max_tries = 3
+    ok = False
+    for n in range(max_tries):
+        r = requests.get(f'https://api.github.com/repos/{organization}/{repo}/releases')
+        ok = r.status_code == 200
+        if ok:
+            break
+    if not ok:
         return []
     data = r.json()
     return sorted([parse(e['tag_name']) for e in data if not e['draft']], reverse=True)
@@ -24,10 +30,11 @@ class VersionInfo:
 
     def _to_version(self, version) -> Version:
         if isinstance(version, str):
-            version = parse(version)
-            # When not building for a tagged release we may get, e.g., 'main'.
-            # Pretend this means the current latest release.
-            if isinstance(version, LegacyVersion):
+            try:
+                return parse(version)
+            except InvalidVersion:
+                # When not building for a tagged release we may get, e.g., 'main'.
+                # Pretend this means the current latest release.
                 return self._releases[0]
         return version
 

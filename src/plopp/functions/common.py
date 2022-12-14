@@ -4,9 +4,10 @@
 from ..core.utils import number_to_variable
 
 from matplotlib import get_backend
-from numpy import ndarray, prod
-from scipp import Variable, DataArray, arange
-from typing import Dict, Union
+import numpy as np
+import scipp as sc
+from typing import Dict, List, Union, Optional
+import warnings
 
 
 def is_interactive_backend():
@@ -26,25 +27,25 @@ def require_interactive_backend(func: str):
                            "notebook.")
 
 
-def _to_data_array(obj: Union[ndarray, Variable, DataArray]):
+def _to_data_array(obj: Union[np.ndarray, sc.Variable, sc.DataArray]):
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
     missing.
     """
     out = obj
-    if isinstance(out, ndarray):
+    if isinstance(out, np.ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
-        out = Variable(dims=dims, values=out)
-    if isinstance(out, Variable):
-        out = DataArray(data=out)
+        out = sc.Variable(dims=dims, values=out)
+    if isinstance(out, sc.Variable):
+        out = sc.DataArray(data=out)
     out = out.copy(deep=False)
     for dim, size in out.sizes.items():
         if dim not in out.meta:
-            out.coords[dim] = arange(dim, size, unit=None)
+            out.coords[dim] = sc.arange(dim, size, unit=None)
     return out
 
 
-def _to_variable_if_not_none(x: Variable, unit: str) -> Union[None, Variable]:
+def _to_variable_if_not_none(x: sc.Variable, unit: str) -> Union[None, sc.Variable]:
     """
     Convert input to the required unit if it is not ``None``.
     """
@@ -52,7 +53,7 @@ def _to_variable_if_not_none(x: Variable, unit: str) -> Union[None, Variable]:
         return number_to_variable(x, unit=unit)
 
 
-def _check_size(da: DataArray):
+def _check_size(da: sc.DataArray):
     """
     Prevent slow figure rendering by raising an error if the data array exceeds a
     default size.
@@ -60,7 +61,7 @@ def _check_size(da: DataArray):
     limits = {1: 1_000_000, 2: 2500 * 2500}
     if da.ndim not in limits:
         raise ValueError("plot can only handle 1d and 2d data.")
-    if prod(da.shape) > limits[da.ndim]:
+    if np.prod(da.shape) > limits[da.ndim]:
         raise ValueError(f"Plotting data of size {da.shape} may take very long or use "
                          "an excessive amount of memory. This is therefore disabled by "
                          "default. To bypass this check, use `ignore_size=True`.")
@@ -76,10 +77,15 @@ def check_not_binned(obj):
             "more details.")
 
 
-def preprocess(obj: Union[ndarray, Variable, DataArray],
-               crop: Dict[str, Dict[str, Variable]] = None,
+def _all_dims_sorted(var, order='ascending'):
+    return all([sc.allsorted(var, dim, order=order) for dim in var.dims])
+
+
+def preprocess(obj: Union[np.ndarray, sc.Variable, sc.DataArray],
+               crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
                name: str = '',
-               ignore_size: bool = False):
+               ignore_size: bool = False,
+               coords: Optional[List[str]] = None):
     """
     Pre-process input data for plotting.
     This involves:
@@ -87,6 +93,7 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
       - converting the input to a data array
       - filling in missing dimension coords if needed
       - slicing out the parts that are not needed if cropping is requested
+      - renaming dimensions if non-dimension coordinates are to be used
 
     Parameters
     ----------
@@ -98,6 +105,8 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
         Override the input's name if it has none.
     ignore_size:
         Do not perform a size check on the object before plotting it.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
     """
     out = _to_data_array(obj)
     check_not_binned(out)
@@ -117,4 +126,25 @@ def preprocess(obj: Union[ndarray, Variable, DataArray],
         out = out[dim, start:start + width + 2]
     if not ignore_size:
         _check_size(out)
+    if coords is not None:
+        renamed_dims = {}
+        if isinstance(coords, str):
+            coords = [coords]
+        for dim in coords:
+            underlying = out.meta[dim].dims[-1]
+            renamed_dims[underlying] = dim
+        out = out.rename_dims(**renamed_dims)
+    for name, coord in out.coords.items():
+        if coord.ndim > 0:
+            try:
+                if not (_all_dims_sorted(coord, order='ascending')
+                        or _all_dims_sorted(coord, order='descending')):
+                    warnings.warn(
+                        'The input contains a coordinate with unsorted values. '
+                        'The results may be unpredictable. '
+                        'Coordinates can be sorted using '
+                        '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
+                        UserWarning)
+            except sc.DTypeError:
+                pass
     return out

@@ -156,7 +156,7 @@ def dataset(entries: List[str] = None, **kwargs) -> sc.Dataset:
     return ds
 
 
-def scatter_data(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
+def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
     """
     Generate some three-dimensional scatter data, based on a normal distribution.
 
@@ -180,3 +180,35 @@ def scatter_data(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
                             'y': vec.fields.y,
                             'z': vec.fields.z
                         })
+
+
+def data1d(**kwargs):
+    return data_array(ndim=1, **kwargs)
+
+
+def data2d(**kwargs):
+    return data_array(ndim=2, **kwargs)
+
+
+def data3d(**kwargs):
+    return data_array(ndim=3, **kwargs)
+
+
+def histogram1d(**kwargs):
+    return data_array(ndim=1, binedges=True, **kwargs)
+
+
+def histogram2d(**kwargs):
+    return data_array(ndim=2, binedges=True, **kwargs)
+
+
+def histogram3d(**kwargs):
+    return data_array(ndim=3, binedges=True, **kwargs)
+
+
+def dataset1d(**kwargs):
+    return dataset(ndim=1, **kwargs)
+
+
+def dataset2d(**kwargs):
+    return dataset(ndim=2, **kwargs)

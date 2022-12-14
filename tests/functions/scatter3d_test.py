@@ -3,23 +3,23 @@
 
 import numpy as np
 import plopp as pp
-from plopp.data.testing import scatter_data
+from plopp.data.testing import scatter
 import pytest
 import scipp as sc
 
 
 def test_scatter3d_from_pos():
-    da = scatter_data()
+    da = scatter()
     pp.scatter3d(da, pos='position')
 
 
 def test_scatter3d_from_xyz():
-    da = scatter_data()
+    da = scatter()
     pp.scatter3d(da, x='x', y='y', z='z')
 
 
 def test_scatter3d_raises_with_both_pos_and_xyz():
-    da = scatter_data()
+    da = scatter()
     with pytest.raises(ValueError, match=r'If pos \(position\) is defined, all of'):
         pp.scatter3d(da, pos='position', x='x', y='y', z='z')
 
@@ -49,3 +49,9 @@ def test_raises_ValueError_when_given_binned_data():
     da.coords['position'] = sc.geometry.position(x, x, x)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         pp.scatter3d(da, pos='position')
+
+
+def test_raises_ValueError_when_given_ax_kwarg():
+    da = scatter()
+    with pytest.raises(ValueError, match='Keyword "ax" detected'):
+        pp.scatter3d(da, x='x', y='y', z='z', ax='dummy')
