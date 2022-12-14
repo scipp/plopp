@@ -182,4 +182,4 @@ def check_dim_and_maybe_convert_unit(x: sc.Variable, dim: str, unit: str):
     if x.dim != dim:
         raise sc.DimensionError(f'The supplied variable has dimension {x.dim} which is '
                                 f'incompatible with the requested dimension {dim}.')
-    return x.to(unit=unit, copy=False)
+    return x.to(unit=unit, copy=False) if unit is not None else x
