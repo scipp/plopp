@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 import plopp as pp
-from plopp.data.testing import data_array, scatter_data
+from plopp.data.testing import data_array, scatter
 from plopp.graphics.interactive import (InteractiveFig1d, InteractiveFig2d,
                                         InteractiveFig3d)
 
@@ -67,6 +67,6 @@ def test_log_norm_2d_toolbar_button(use_ipympl):
 
 
 def test_log_norm_3d_toolbar_button():
-    da = scatter_data()
+    da = scatter()
     fig = InteractiveFig3d(pp.input_node(da), x='x', y='y', z='z', norm='log')
     assert fig.toolbar['lognorm'].value

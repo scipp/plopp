@@ -86,8 +86,10 @@ Get in touch
    examples/gallery
 
 .. toctree::
-   :caption: Reference
+   :caption: About
    :maxdepth: 3
    :hidden:
 
    reference
+   faq
+   Release notes <https://github.com/scipp/plopp/releases>

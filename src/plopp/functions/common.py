@@ -4,7 +4,7 @@
 from ..core.utils import number_to_variable
 
 from matplotlib import get_backend
-from numpy import ndarray, prod
+import numpy as np
 import scipp as sc
 from typing import Dict, List, Union, Optional
 import warnings
@@ -27,13 +27,13 @@ def require_interactive_backend(func: str):
                            "notebook.")
 
 
-def _to_data_array(obj: Union[ndarray, sc.Variable, sc.DataArray]):
+def _to_data_array(obj: Union[np.ndarray, sc.Variable, sc.DataArray]):
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
     missing.
     """
     out = obj
-    if isinstance(out, ndarray):
+    if isinstance(out, np.ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
         out = sc.Variable(dims=dims, values=out)
     if isinstance(out, sc.Variable):
@@ -61,7 +61,7 @@ def _check_size(da: sc.DataArray):
     limits = {1: 1_000_000, 2: 2500 * 2500}
     if da.ndim not in limits:
         raise ValueError("plot can only handle 1d and 2d data.")
-    if prod(da.shape) > limits[da.ndim]:
+    if np.prod(da.shape) > limits[da.ndim]:
         raise ValueError(f"Plotting data of size {da.shape} may take very long or use "
                          "an excessive amount of memory. This is therefore disabled by "
                          "default. To bypass this check, use `ignore_size=True`.")
@@ -81,7 +81,7 @@ def _all_dims_sorted(var, order='ascending'):
     return all([sc.allsorted(var, dim, order=order) for dim in var.dims])
 
 
-def preprocess(obj: Union[ndarray, sc.Variable, sc.DataArray],
+def preprocess(obj: Union[np.ndarray, sc.Variable, sc.DataArray],
                crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
                name: str = '',
                ignore_size: bool = False,
@@ -136,11 +136,15 @@ def preprocess(obj: Union[ndarray, sc.Variable, sc.DataArray],
         out = out.rename_dims(**renamed_dims)
     for name, coord in out.coords.items():
         if coord.ndim > 0:
-            if not (_all_dims_sorted(coord, order='ascending')
-                    or _all_dims_sorted(coord, order='descending')):
-                warnings.warn(
-                    'The input contains a coordinate with unsorted values. '
-                    'The results may be unpredictable. Coordinates can be sorted using '
-                    '`scipp.sort(data, dim="dim_to_be_sorted", order="ascending")`.',
-                    UserWarning)
+            try:
+                if not (_all_dims_sorted(coord, order='ascending')
+                        or _all_dims_sorted(coord, order='descending')):
+                    warnings.warn(
+                        'The input contains a coordinate with unsorted values. '
+                        'The results may be unpredictable. '
+                        'Coordinates can be sorted using '
+                        '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
+                        UserWarning)
+            except sc.DTypeError:
+                pass
     return out

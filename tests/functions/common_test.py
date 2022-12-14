@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-import plopp as pp
 from plopp.data.testing import data_array
 from plopp.functions.common import preprocess
 import pytest
+import numpy as np
 import scipp as sc
 
 
@@ -25,8 +25,20 @@ def test_preprocess_use_non_dimension_coords():
 
 
 def test_preprocess_warns_when_coordinate_is_not_sorted():
-    da = pp.data.data_array(ndim=1)
-    unsorted = sc.concat([da['x', 20:], da['x', :20]], dim='x')
+    da = data_array(ndim=1)
+    unsorted = sc.concat([da['xx', 20:], da['xx', :20]], dim='xx')
     with pytest.warns(UserWarning,
                       match='The input contains a coordinate with unsorted values'):
         preprocess(unsorted)
+
+
+def test_preprocess_no_warning_if_dtype_cannot_be_sorted():
+    da = data_array(ndim=1)
+    da.coords['vecs'] = sc.vectors(dims=['xx'],
+                                   values=np.random.random((da.sizes['xx'], 3)))
+    out = preprocess(da)  # no warning should be emitted
+    assert 'vecs' in out.coords
+    da.coords['strings'] = sc.array(dims=['xx'],
+                                    values=list('ba' * (da.sizes['xx'] // 2)))
+    out = preprocess(da)  # no warning should be emitted
+    assert 'strings' in out.coords

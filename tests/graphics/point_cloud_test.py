@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.data.testing import scatter_data
+from plopp.data.testing import scatter
 from plopp.graphics.point_cloud import PointCloud
 
 import numpy as np
@@ -10,7 +10,7 @@ import pytest
 
 
 def test_creation():
-    da = scatter_data()
+    da = scatter()
     cloud = PointCloud(data=da, x='x', y='y', z='z')
     assert sc.identical(cloud._data, da)
     assert np.allclose(cloud.geometry.attributes['position'].array,
@@ -18,7 +18,7 @@ def test_creation():
 
 
 def test_update():
-    da = scatter_data()
+    da = scatter()
     cloud = PointCloud(data=da, x='x', y='y', z='z')
     cloud.update(da)
     assert sc.identical(cloud._data, da)
@@ -27,7 +27,7 @@ def test_update():
 
 
 def test_get_limits():
-    da = scatter_data()
+    da = scatter()
     pix = 0.5
     cloud = PointCloud(data=da, x='x', y='y', z='z', pixel_size=pix)
     xlims, ylims, zlims = cloud.get_limits()
@@ -40,7 +40,7 @@ def test_get_limits():
 
 
 def test_get_limits_flat_panel():
-    da = scatter_data()
+    da = scatter()
     da.coords['z'] *= 0.
     pix = 0.5
     cloud = PointCloud(data=da, x='x', y='y', z='z', pixel_size=pix)
@@ -59,14 +59,14 @@ def test_pixel_size():
     the size, depending on the device pixel ratio. Making a reference with a default
     size of 1 makes it easier to test.
     """
-    da = scatter_data()
+    da = scatter()
     reference = PointCloud(data=da, x='x', y='y', z='z', pixel_size=1)
     cloud = PointCloud(data=da, x='x', y='y', z='z', pixel_size=sc.scalar(2, unit='m'))
     assert cloud.material.size == 2.0 * reference.material.size
 
 
 def test_pixel_size_unit_conversion():
-    da = scatter_data()
+    da = scatter()
     reference = PointCloud(data=da, x='x', y='y', z='z', pixel_size=1)
     cloud = PointCloud(data=da,
                        x='x',
@@ -79,7 +79,7 @@ def test_pixel_size_unit_conversion():
 
 
 def test_pixel_size_cannot_have_units_when_spatial_dimensions_have_different_units():
-    da = scatter_data()
+    da = scatter()
     new_x = da.coords['x'].copy()
     new_x.unit = 's'
     da.coords['x'] = new_x
