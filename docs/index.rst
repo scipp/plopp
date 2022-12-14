@@ -84,11 +84,12 @@ Get in touch
 
    examples/custom-interfaces
    examples/gallery
-   examples/faq
 
 .. toctree::
-   :caption: Reference
+   :caption: About
    :maxdepth: 3
    :hidden:
 
    reference
+   faq
+   Release notes <https://github.com/scipp/plopp/releases>
