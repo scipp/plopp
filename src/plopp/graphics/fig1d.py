@@ -128,10 +128,28 @@ class Figure1d(BaseFig):
             self.artists[key] = line
             if line.label:
                 self.canvas.legend()
-            self.dims['x'] = new_values.dim
+            if 'x' not in self.dims:
+                self.dims['x'] = new_values.dim
+            elif self.dims['x'] != new_values.dim:
+                raise sc.DimensionError(
+                    f'The supplied data has dimension {new_values.dim} which is '
+                    f'incompatible with the figure dimension {self.dims["x"]}.')
 
-            self.canvas.xunit = new_values.meta[new_values.dim].unit
-            self.canvas.yunit = new_values.unit
+            if self.canvas.xunit is None:
+                self.canvas.xunit = new_values.meta[new_values.dim].unit
+            elif self.canvas.xunit != new_values.meta[new_values.dim].unit:
+                raise sc.UnitError(
+                    f'The supplied data coordinate for the horizontal axis has unit '
+                    f'{new_values.meta[new_values.dim].unit} which is incompatible '
+                    f'with the figure X-axis units {self.canvas.xunit}.')
+
+            if self.canvas.yunit is None:
+                self.canvas.yunit = new_values.unit
+            elif self.canvas.yunit != new_values.unit:
+                raise sc.UnitError(
+                    f'The supplied data has unit {new_values.unit} which is '
+                    f'incompatible with the figure Y-axis units {self.canvas.yunit}.')
+
             self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
 

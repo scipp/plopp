@@ -194,3 +194,25 @@ def test_save_to_disk(ext):
         fname = os.path.join(path, f'plopp_fig1d.{ext}')
         fig.save(filename=fname)
         assert os.path.isfile(fname)
+
+
+def test_raises_for_new_data_with_incompatible_dimension():
+    x = data_array(ndim=1)
+    y = x.rename(xx='yy')
+    with pytest.raises(sc.DimensionError):
+        Figure1d(input_node(x), input_node(y))
+
+
+def test_raises_for_new_data_with_incompatible_unit():
+    a = data_array(ndim=1)
+    b = a * a
+    with pytest.raises(sc.UnitError):
+        Figure1d(input_node(a), input_node(b))
+
+
+def test_raises_for_new_data_with_incompatible_coord_unit():
+    a = data_array(ndim=1)
+    b = a.copy()
+    b.coords['xx'] = a.coords['xx'] * a.coords['xx']
+    with pytest.raises(sc.UnitError):
+        Figure1d(input_node(a), input_node(b))
