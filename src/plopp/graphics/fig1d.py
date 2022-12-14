@@ -119,7 +119,7 @@ class Figure1d(BaseFig):
 
         dim = new_values.dim
         coord = new_values.coords[dim]
-        if 'x' not in self.dims:
+        if not self.dims:
             self.dims['x'] = dim
             self.canvas.xunit = coord.unit
             self.canvas.yunit = new_values.unit
