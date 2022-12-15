@@ -5,3 +5,4 @@
 
 from .canvas import Canvas
 from .line import Line
+from .figure import figure1d, figure2d

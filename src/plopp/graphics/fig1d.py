@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from .. import config
 from ..core.utils import name_with_unit
 from .basefig import BaseFig
 # from .canvas import Canvas
 # from .line import Line
 # from ..backends.plotly import Canvas, Line
-from .. import backend
 
 import scipp as sc
 from typing import Any, Dict, Literal, Optional, Tuple, Union
@@ -90,14 +90,15 @@ class Figure1d(BaseFig):
         self._mask_color = mask_color
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = backend.Canvas(cbar=False,
-                                     aspect=aspect,
-                                     grid=grid,
-                                     figsize=figsize,
-                                     title=title,
-                                     ax=ax,
-                                     vmin=vmin,
-                                     vmax=vmax)
+        # Canvas = manager.get_canvas(backend)
+        self.canvas = config.canvas(cbar=False,
+                                    aspect=aspect,
+                                    grid=grid,
+                                    figsize=figsize,
+                                    title=title,
+                                    ax=ax,
+                                    vmin=vmin,
+                                    vmax=vmax)
         self.canvas.yscale = norm
 
         self.render()
@@ -126,12 +127,13 @@ class Figure1d(BaseFig):
 
         if key not in self.artists:
 
-            line = backend.Line(canvas=self.canvas,
-                                data=new_values,
-                                number=len(self.artists),
-                                errorbars=self._errorbars,
-                                mask_color=self._mask_color,
-                                **self._kwargs)
+            # Line = manager.get_line(backend)
+            line = config.line(canvas=self.canvas,
+                               data=new_values,
+                               number=len(self.artists),
+                               errorbars=self._errorbars,
+                               mask_color=self._mask_color,
+                               **self._kwargs)
             self.artists[key] = line
             if line.label:
                 self.canvas.legend()

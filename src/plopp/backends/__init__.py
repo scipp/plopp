@@ -3,24 +3,23 @@
 
 # flake8: noqa E402, F401
 
-from . import plotly
-from . import matplotlib
+# from . import manager
+# from . import matplotlib
 
+# class BackendManager:
 
-class Backend:
+#     def __init__(self):
+#         if kind == 'matplotlib':
+#             self.canvas = matplotlib.Canvas
+#             self.line = matplotlib.Line
+#         elif kind == 'plotly':
+#             self.canvas = plotly.Canvas
+#             self.line = plotly.Line
 
-    def __init__(self, kind='matplotlib'):
-        if kind == 'matplotlib':
-            self.canvas = matplotlib.Canvas
-            self.line = matplotlib.Line
-        elif kind == 'plotly':
-            self.canvas = plotly.Canvas
-            self.line = plotly.Line
-
-    def switch(self, kind):
-        if kind == 'matplotlib':
-            self.canvas = matplotlib.Canvas
-            self.line = matplotlib.Line
-        elif kind == 'plotly':
-            self.canvas = plotly.Canvas
-            self.line = plotly.Line
+#     def switch(self, kind):
+#         if kind == 'matplotlib':
+#             self.canvas = matplotlib.Canvas
+#             self.line = matplotlib.Line
+#         elif kind == 'plotly':
+#             self.canvas = plotly.Canvas
+#             self.line = plotly.Line
