@@ -21,7 +21,7 @@ class Config:
         if self.backend == 'matplotlib':
             from .backends.matplotlib import Line as LineMpl
             return LineMpl
-        elif backend == 'plotly':
+        elif self.backend == 'plotly':
             from .backends.plotly import Line as LinePlotly
             return LinePlotly
 
@@ -29,7 +29,7 @@ class Config:
         if self.backend == 'matplotlib':
             from .backends.matplotlib import figure1d as fig1d_mpl
             return fig1d_mpl(*args, **kwargs)
-        elif backend == 'plotly':
+        elif self.backend == 'plotly':
             from .backends.plotly import figure1d as fig1d_plotly
             return fig1d_plotly(*args, **kwargs)
 
@@ -37,7 +37,7 @@ class Config:
         if self.backend == 'matplotlib':
             from .backends.matplotlib import figure2d as fig2d_mpl
             return fig2d_mpl(*args, **kwargs)
-        elif backend == 'plotly':
+        elif self.backend == 'plotly':
             from .backends.plotly import figure2d as fig2d_plotly
             return fig2d_plotly(*args, **kwargs)
 
