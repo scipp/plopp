@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from ..core.utils import make_compatible
 from .basefig import BaseFig
 from .canvas3d import Canvas3d
 from .colormapper import ColorMapper
@@ -105,17 +106,14 @@ class Figure3d(BaseFig):
             self.canvas.zunit = zcoord.unit
             self.colormapper.unit = new_values.unit
         else:
-            new_values.data = new_values.data.to(unit=self.colormapper.unit, copy=False)
+            new_values.data = make_compatible(new_values.data,
+                                              unit=self.colormapper.unit)
             new_values.coords[self._x] = new_values.coords[self._x].to(
                 unit=self.canvas.xunit, copy=False)
             new_values.coords[self._y] = new_values.coords[self._y].to(
                 unit=self.canvas.yunit, copy=False)
             new_values.coords[self._z] = new_values.coords[self._z].to(
                 unit=self.canvas.zunit, copy=False)
-            # new_values.coords[self._y] = check_dim_and_maybe_convert_unit(
-            #     ycoord, dim=self.dims['y'], unit=self.canvas.yunit)
-            # new_values.coords[self._z] = check_dim_and_maybe_convert_unit(
-            #     zcoord, dim=self.dims['z'], unit=self.canvas.zunit)
 
         self.colormapper.update(data=new_values, key=key)
 

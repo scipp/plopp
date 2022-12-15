@@ -3,7 +3,7 @@
 
 from functools import reduce
 import scipp as sc
-from typing import Dict, Union
+from typing import Dict, Union, Optional
 import uuid
 
 
@@ -173,18 +173,32 @@ def coord_element_to_string(x: sc.Variable) -> str:
     return out
 
 
-def check_dim_and_maybe_convert_unit(x: sc.Variable, dim: str, unit: str):
+def make_compatible(x: sc.Variable,
+                    *,
+                    unit: Union[str, None],
+                    dim: Optional[str] = None):
     """
-    Raise exception if the dimension of the supplied variable is different from the
+    Raise exception if the dimensions of the supplied variable do not contain the
     requested dimension.
     Then, if the variable unit differs from the requested unit, attempt a conversion.
+
+    Parameters
+    ----------
+    x:
+        The input variable.
+    unit:
+        Attempt unit conversion to this unit if the input variable has a different unit.
+    dim:
+        If supplied, check that the dim is found in the input variable's dimensions.
     """
-    if x.dim != dim:
-        raise sc.DimensionError(f'The supplied variable has dimension {x.dim} which is '
-                                f'incompatible with the requested dimension {dim}.')
-    if unit is not None:
-        return x.to(unit=unit, copy=False)
-    if x.unit is not None:
-        raise sc.UnitError(f'The supplied variable has unit {x.unit} which is '
-                           'incompatible with the requested unit None.')
+    if (dim is not None) and (dim not in x.dims):
+        raise sc.DimensionError(
+            f'The supplied variable has dimension {x.dims} which is '
+            f'incompatible with the requested dimension {dim}.')
+    if x.unit != unit:
+        if unit is not None:
+            return x.to(unit=unit, dtype=float)
+        else:
+            raise sc.UnitError(f'The supplied variable has unit {x.unit} which is '
+                               'incompatible with the requested unit None/<no unit>.')
     return x

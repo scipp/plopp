@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.utils import name_with_unit, check_dim_and_maybe_convert_unit
+from ..core.utils import name_with_unit, make_compatible
 from .basefig import BaseFig
 from .canvas import Canvas
 from .line import Line
@@ -124,9 +124,10 @@ class Figure1d(BaseFig):
             self.canvas.xunit = coord.unit
             self.canvas.yunit = new_values.unit
         else:
-            new_values.data = new_values.data.to(unit=self.canvas.yunit, copy=False)
-            new_values.coords[dim] = check_dim_and_maybe_convert_unit(
-                coord, dim=self.dims['x'], unit=self.canvas.xunit)
+            new_values.data = make_compatible(new_values.data, unit=self.canvas.yunit)
+            new_values.coords[dim] = make_compatible(coord,
+                                                     dim=self.dims['x'],
+                                                     unit=self.canvas.xunit)
 
         if key not in self.artists:
 

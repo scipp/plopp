@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.utils import name_with_unit, check_dim_and_maybe_convert_unit
+from ..core.utils import name_with_unit, make_compatible
 from .basefig import BaseFig
 from .canvas import Canvas
 from .colormapper import ColorMapper
@@ -138,11 +138,14 @@ class Figure2d(BaseFig):
             self.canvas.yunit = ycoord.unit
             self.colormapper.unit = new_values.unit
         else:
-            new_values.data = new_values.data.to(unit=self.colormapper.unit, copy=False)
-            new_values.coords[xdim] = check_dim_and_maybe_convert_unit(
-                xcoord, dim=self.dims['x'], unit=self.canvas.xunit)
-            new_values.coords[ydim] = check_dim_and_maybe_convert_unit(
-                ycoord, dim=self.dims['y'], unit=self.canvas.yunit)
+            new_values.data = make_compatible(new_values.data,
+                                              unit=self.colormapper.unit)
+            new_values.coords[xdim] = make_compatible(xcoord,
+                                                      dim=self.dims['x'],
+                                                      unit=self.canvas.xunit)
+            new_values.coords[ydim] = make_compatible(ycoord,
+                                                      dim=self.dims['y'],
+                                                      unit=self.canvas.yunit)
 
         self.colormapper.update(data=new_values, key=key)
 
