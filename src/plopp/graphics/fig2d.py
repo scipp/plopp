@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from .. import config
 from ..core.utils import name_with_unit
 from .basefig import BaseFig
 from .canvas import Canvas
 from .colormapper import ColorMapper
-from .mesh import Mesh
+# from .mesh import Mesh
 
 import scipp as sc
 from typing import Any, Dict, Literal, Optional, Tuple, Union
@@ -89,13 +90,13 @@ class Figure2d(BaseFig):
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = Canvas(cbar=cbar,
-                             aspect=aspect,
-                             grid=grid,
-                             title=title,
-                             figsize=figsize,
-                             ax=ax,
-                             cax=cax)
+        self.canvas = config.canvas(cbar=cbar,
+                                    aspect=aspect,
+                                    grid=grid,
+                                    title=title,
+                                    figsize=figsize,
+                                    ax=ax,
+                                    cax=cax)
         self.colormapper = ColorMapper(cmap=cmap,
                                        cbar=cbar,
                                        mask_cmap=mask_cmap,
@@ -132,7 +133,7 @@ class Figure2d(BaseFig):
 
         if key not in self.artists:
 
-            mesh = Mesh(canvas=self.canvas, data=new_values, **self._kwargs)
+            mesh = config.mesh(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = mesh
             self.colormapper[key] = mesh
             self.dims.update({"x": new_values.dims[1], "y": new_values.dims[0]})

@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from .. import config
 from .common import require_interactive_backend, preprocess
-from .figure import figure1d, figure2d
+# from .figure import figure1d, figure2d
 from ..core import input_node, widget_node
 
 import scipp as sc
@@ -84,9 +85,9 @@ class Slicer:
             slice_dims(data_node, self.slider_node) for data_node in self.data_nodes
         ]
         if len(keep) == 1:
-            self.figure = figure1d(*self.slice_nodes, crop=crop, **kwargs)
+            self.figure = config.figure1d(*self.slice_nodes, crop=crop, **kwargs)
         elif len(keep) == 2:
-            self.figure = figure2d(*self.slice_nodes, crop=crop, **kwargs)
+            self.figure = config.figure2d(*self.slice_nodes, crop=crop, **kwargs)
 
 
 def slicer(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],

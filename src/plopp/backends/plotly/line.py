@@ -108,45 +108,54 @@ class Line:
             'color': f'C{number}'
         }
 
-        if data["hist"]:
-            self._line = self._ax.step(data["values"]["x"],
-                                       data["values"]["y"],
-                                       label=self.label,
-                                       zorder=10,
-                                       **{
-                                           **default_step_style,
-                                           **kwargs
-                                       })[0]
+        line_shape = None
+        mode = 'markers'
+        # line_shape='vh'
 
-            self._mask = self._ax.step(data["values"]["x"], data[mask_data_key]["y"])[0]
-            self._mask.update_from(self._line)
-            self._mask.set_color(mask_color)
-            self._mask.set_label(None)
-            self._mask.set_linewidth(self._mask.get_linewidth() * 3)
-            self._mask.set_zorder(self._mask.get_zorder() - 1)
-            self._mask.set_visible(has_mask)
-        else:
-            self._line = go.Scatter(x=data["values"]["x"],
-                                    y=data["values"]["y"],
-                                    mode='markers')
-            # self._line = self._ax.plot(data["values"]["x"],
-            #                            data["values"]["y"],
-            #                            label=self.label,
-            #                            zorder=10,
-            #                            **{
-            #                                **default_plot_style,
-            #                                **kwargs
-            #                            })[0]
-            # self._mask = self._ax.plot(data["values"]["x"],
-            #                            data[mask_data_key]["y"],
-            #                            zorder=11,
-            #                            mec=mask_color,
-            #                            mfc="None",
-            #                            mew=3.0,
-            #                            linestyle="none",
-            #                            marker=self._line.get_marker(),
-            #                            visible=has_mask)[0]
-            self._fig.add_trace(self._line)
+        if data["hist"]:
+            line_shape = 'vh'
+            mode = 'lines'
+        #     self._line = self._ax.step(data["values"]["x"],
+        #                                data["values"]["y"],
+        #                                label=self.label,
+        #                                zorder=10,
+        #                                **{
+        #                                    **default_step_style,
+        #                                    **kwargs
+        #                                })[0]
+
+        #     self._mask = self._ax.step(data["values"]["x"], data[mask_data_key]["y"])[0]
+        #     self._mask.update_from(self._line)
+        #     self._mask.set_color(mask_color)
+        #     self._mask.set_label(None)
+        #     self._mask.set_linewidth(self._mask.get_linewidth() * 3)
+        #     self._mask.set_zorder(self._mask.get_zorder() - 1)
+        #     self._mask.set_visible(has_mask)
+        # else:
+        print('line_shape', line_shape)
+        self._line = go.Scatter(x=data["values"]["x"],
+                                y=data["values"]["y"],
+                                name=self.label,
+                                mode=mode,
+                                line_shape=line_shape)
+        # self._line = self._ax.plot(data["values"]["x"],
+        #                            data["values"]["y"],
+        #                            label=self.label,
+        #                            zorder=10,
+        #                            **{
+        #                                **default_plot_style,
+        #                                **kwargs
+        #                            })[0]
+        # self._mask = self._ax.plot(data["values"]["x"],
+        #                            data[mask_data_key]["y"],
+        #                            zorder=11,
+        #                            mec=mask_color,
+        #                            mfc="None",
+        #                            mew=3.0,
+        #                            linestyle="none",
+        #                            marker=self._line.get_marker(),
+        #                            visible=has_mask)[0]
+        self._fig.add_trace(self._line)
 
         # # Add error bars
         # if errorbars and ("e" in data["variances"]):

@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .fig1d import Figure1d
-from .fig2d import Figure2d
-
-from ..widgets import Toolbar, HBar, VBar, tools
-from ..widgets.common import is_sphinx_build
+from ...graphics.fig1d import Figure1d
+from ...graphics.fig2d import Figure2d
+from ...graphics.fig3d import Figure3d
+from ...widgets import Toolbar, HBar, VBar, tools
+# from ...widgets.common import is_sphinx_build
 
 from ipywidgets import VBox, HBox
 

@@ -12,7 +12,7 @@ class Config:
         if self.backend == 'matplotlib':
             from .backends.matplotlib import Canvas as CanvasMpl
             return CanvasMpl
-        elif backend == 'plotly':
+        elif self.backend == 'plotly':
             from .backends.plotly import Canvas as CanvasPlotly
             return CanvasPlotly
 
@@ -24,6 +24,15 @@ class Config:
         elif self.backend == 'plotly':
             from .backends.plotly import Line as LinePlotly
             return LinePlotly
+
+    @property
+    def mesh(self):
+        if self.backend == 'matplotlib':
+            from .backends.matplotlib import Mesh as MeshMpl
+            return MeshMpl
+        elif self.backend == 'plotly':
+            from .backends.plotly import Mesh as MeshPlotly
+            return MeshPlotly
 
     def figure1d(self, *args, **kwargs):
         if self.backend == 'matplotlib':
