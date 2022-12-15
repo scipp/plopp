@@ -20,15 +20,18 @@ class InteractiveFig1d(VBox):
         self._fig = Figure1d(*args, **kwargs)
         self.toolbar = Toolbar(
             tools={
-                'home': tools.HomeTool(self._fig.canvas.autoscale),
-                'panzoom': tools.PanZoomTool(canvas=self._fig.canvas),
-                # 'logx':
-                # tools.LogxTool(self._fig.canvas.logx,
-                #                value=self._fig.canvas.xscale == 'log'),
-                # 'logy':
-                # tools.LogyTool(self._fig.canvas.logy,
-                #                value=self._fig.canvas.yscale == 'log'),
-                'save': tools.SaveTool(self._fig.canvas.save_figure)
+                'home':
+                tools.HomeTool(self._fig.canvas.autoscale),
+                'panzoom':
+                tools.PanZoomTool(canvas=self._fig.canvas),
+                'logx':
+                tools.LogxTool(self._fig.canvas.logx,
+                               value=self._fig.canvas.xscale == 'log'),
+                'logy':
+                tools.LogyTool(self._fig.canvas.logy,
+                               value=self._fig.canvas.yscale == 'log'),
+                'save':
+                tools.SaveTool(self._fig.canvas.save_figure)
             })
 
         self.left_bar = VBar([self.toolbar])

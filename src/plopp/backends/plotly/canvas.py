@@ -236,19 +236,20 @@ class Canvas:
 
     @property
     def xscale(self):
-        return self.ax.get_xscale()
+        return self.fig.layout.xaxis.type
 
     @xscale.setter
     def xscale(self, scale: Literal['linear', 'log']):
-        self.ax.set_xscale(scale)
+        self.fig.update_xaxes(type=scale)
 
     @property
     def yscale(self):
-        return self.ax.get_yscale()
+        return self.fig.layout.yaxis.type
 
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):
-        self.ax.set_yscale(scale)
+        # self.ax.set_yscale(scale)
+        self.fig.update_yaxes(type=scale)
 
     def reset_mode(self):
         """
