@@ -5,7 +5,8 @@ from ..core.utils import name_with_unit
 from .basefig import BaseFig
 # from .canvas import Canvas
 # from .line import Line
-from ..backends.plotly import Canvas, Line
+# from ..backends.plotly import Canvas, Line
+from .. import backend
 
 import scipp as sc
 from typing import Any, Dict, Literal, Optional, Tuple, Union
@@ -79,20 +80,25 @@ class Figure1d(BaseFig):
 
         super().__init__(*nodes)
 
+        # from .. import backend
+        # # from .canvas import Canvas
+        # # from .line import Line
+        # from ..backends.plotly import Canvas, Line
+
         self._scale = {} if scale is None else scale
         self._errorbars = errorbars
         self._mask_color = mask_color
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = Canvas(cbar=False,
-                             aspect=aspect,
-                             grid=grid,
-                             figsize=figsize,
-                             title=title,
-                             ax=ax,
-                             vmin=vmin,
-                             vmax=vmax)
-        # self.canvas.yscale = norm
+        self.canvas = backend.Canvas(cbar=False,
+                                     aspect=aspect,
+                                     grid=grid,
+                                     figsize=figsize,
+                                     title=title,
+                                     ax=ax,
+                                     vmin=vmin,
+                                     vmax=vmax)
+        self.canvas.yscale = norm
 
         self.render()
         self.canvas.autoscale()
@@ -120,12 +126,12 @@ class Figure1d(BaseFig):
 
         if key not in self.artists:
 
-            line = Line(canvas=self.canvas,
-                        data=new_values,
-                        number=len(self.artists),
-                        errorbars=self._errorbars,
-                        mask_color=self._mask_color,
-                        **self._kwargs)
+            line = backend.Line(canvas=self.canvas,
+                                data=new_values,
+                                number=len(self.artists),
+                                errorbars=self._errorbars,
+                                mask_color=self._mask_color,
+                                **self._kwargs)
             self.artists[key] = line
             if line.label:
                 self.canvas.legend()
@@ -133,8 +139,8 @@ class Figure1d(BaseFig):
 
             self.canvas.xunit = new_values.meta[new_values.dim].unit
             self.canvas.yunit = new_values.unit
-            # self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
-            # self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
+            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
+            self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
 
             if self.dims['x'] in self._scale:
                 self.canvas.xscale = self._scale[self.dims['x']]

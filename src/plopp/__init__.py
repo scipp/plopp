@@ -9,6 +9,10 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
+from .backends import Backend
+
+backend = Backend()
+
 from .core import Node, View, node, input_node, widget_node, show_graph
 from .functions import (figure1d, figure2d, figure3d, plot, slicer, inspector,
                         scatter3d, superplot)
@@ -39,3 +43,8 @@ def unpatch_scipp():
     setattr(sc.DataArray, 'plot', pl)
     setattr(sc.Dataset, 'plot', pl)
     setattr(sc, 'plot', pl)
+
+
+def use(new_backend):
+    global backend
+    backend.switch(new_backend)

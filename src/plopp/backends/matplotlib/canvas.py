@@ -3,9 +3,7 @@
 
 from ...core.limits import find_limits, fix_empty_range
 from ...core.utils import maybe_variable_to_number
-# from .utils import fig_to_bytes, silent_mpl_figure
-
-import plotly.graph_objects as go
+from ...graphics.utils import fig_to_bytes, silent_mpl_figure
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import QuadMesh
@@ -68,21 +66,7 @@ class Canvas:
                  scale: Dict[str, str] = None,
                  cbar: bool = False):
 
-        self.fig = go.FigureWidget(
-            layout={
-                'modebar_remove': [
-                    'zoom', 'pan', 'select', 'toImage', 'zoomIn', 'zoomOut',
-                    'autoScale', 'resetScale', 'lasso2d'
-                ],
-                'margin': {
-                    'l': 0,
-                    'r': 0,
-                    't': 0,
-                    'b': 0
-                },
-                'dragmode':
-                False
-            })
+        self.fig = None
         self.ax = ax
         self.cax = cax
         self._user_vmin = vmin
@@ -92,23 +76,23 @@ class Canvas:
         self.yunit = None
         self._own_axes = False
 
-        # if self.ax is None:
-        #     self._own_axes = True
-        #     with silent_mpl_figure():
-        #         self.fig, self.ax = plt.subplots(figsize=figsize)
-        #     if hasattr(self.fig.canvas, "on_widget_constructed"):
-        #         self.fig.canvas.toolbar_visible = False
-        #         self.fig.canvas.header_visible = False
-        # else:
-        #     self.fig = self.ax.get_figure()
+        if self.ax is None:
+            self._own_axes = True
+            with silent_mpl_figure():
+                self.fig, self.ax = plt.subplots(figsize=figsize)
+            if hasattr(self.fig.canvas, "on_widget_constructed"):
+                self.fig.canvas.toolbar_visible = False
+                self.fig.canvas.header_visible = False
+        else:
+            self.fig = self.ax.get_figure()
 
-        # if cbar and self.cax is None:
-        #     divider = make_axes_locatable(self.ax)
-        #     self.cax = divider.append_axes("right", "4%", pad="5%")
+        if cbar and self.cax is None:
+            divider = make_axes_locatable(self.ax)
+            self.cax = divider.append_axes("right", "4%", pad="5%")
 
-        # self.ax.set_aspect(aspect)
-        # self.ax.set_title(title)
-        # self.ax.grid(grid)
+        self.ax.set_aspect(aspect)
+        self.ax.set_title(title)
+        self.ax.grid(grid)
 
         self._xmin = np.inf
         self._xmax = np.NINF
@@ -132,9 +116,6 @@ class Canvas:
         draw:
             Make a draw call to the figure if ``True``.
         """
-        self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
-        # self.fig.layout.xaxis.autorange = True
-        return
         if self.ax.lines:
             self.ax.relim()
             self.ax.autoscale()
@@ -173,8 +154,7 @@ class Canvas:
         """
         Make a draw call to the underlying figure.
         """
-        return
-        # self.fig.canvas.draw_idle()
+        self.fig.canvas.draw_idle()
 
     def savefig(self, filename: str, **kwargs):
         """
@@ -215,64 +195,60 @@ class Canvas:
         """
         Add a legend to the figure.
         """
-        return
         self.ax.legend()
 
     @property
     def xlabel(self):
-        # return self.ax.get_xlabel()
-        return self.fig.layout.xaxis.title
+        return self.ax.get_xlabel()
 
     @xlabel.setter
     def xlabel(self, lab: str):
-        self.fig.layout.xaxis.title = lab
+        self.ax.set_xlabel(lab)
 
     @property
     def ylabel(self):
-        return self.fig.layout.yaxis.title
+        return self.ax.get_ylabel()
 
     @ylabel.setter
     def ylabel(self, lab: str):
-        self.fig.layout.yaxis.title = lab
+        self.ax.set_ylabel(lab)
 
     @property
     def xscale(self):
-        return self.fig.layout.xaxis.type
+        return self.ax.get_xscale()
 
     @xscale.setter
     def xscale(self, scale: Literal['linear', 'log']):
-        self.fig.update_xaxes(type=scale)
+        self.ax.set_xscale(scale)
 
     @property
     def yscale(self):
-        return self.fig.layout.yaxis.type
+        return self.ax.get_yscale()
 
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):
-        # self.ax.set_yscale(scale)
-        self.fig.update_yaxes(type=scale)
+        self.ax.set_yscale(scale)
 
     def reset_mode(self):
         """
         Reset the Matplotlib toolbar mode to nothing, to disable all Zoom/Pan tools.
         """
-        self.fig.update_layout(dragmode=False)
-        # if self.fig.canvas.toolbar.mode == 'zoom rect':
-        #     self.zoom()
-        # elif self.fig.canvas.toolbar.mode == 'pan/zoom':
-        #     self.pan()
+        if self.fig.canvas.toolbar.mode == 'zoom rect':
+            self.zoom()
+        elif self.fig.canvas.toolbar.mode == 'pan/zoom':
+            self.pan()
 
     def zoom(self):
         """
         Activate the underlying Matplotlib zoom tool.
         """
-        self.fig.update_layout(dragmode='zoom')
+        self.fig.canvas.toolbar.zoom()
 
     def pan(self):
         """
         Activate the underlying Matplotlib pan tool.
         """
-        self.fig.update_layout(dragmode='pan')
+        self.fig.canvas.toolbar.pan()
 
     def save_figure(self):
         """
@@ -302,6 +278,5 @@ class Canvas:
         """
         Trim the margins around the figure.
         """
-        return
         if self._own_axes:
             self.fig.tight_layout()
