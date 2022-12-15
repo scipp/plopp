@@ -68,7 +68,21 @@ class Canvas:
                  scale: Dict[str, str] = None,
                  cbar: bool = False):
 
-        self.fig = go.FigureWidget()
+        self.fig = go.FigureWidget(
+            layout={
+                'modebar_remove': [
+                    'zoom', 'pan', 'select', 'toImage', 'zoomIn', 'zoomOut',
+                    'autoScale', 'resetScale', 'lasso2d'
+                ],
+                'margin': {
+                    'l': 0,
+                    'r': 0,
+                    't': 0,
+                    'b': 0
+                },
+                'dragmode':
+                False
+            })
         self.ax = ax
         self.cax = cax
         self._user_vmin = vmin
@@ -118,6 +132,8 @@ class Canvas:
         draw:
             Make a draw call to the figure if ``True``.
         """
+        self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
+        # self.fig.layout.xaxis.autorange = True
         return
         if self.ax.lines:
             self.ax.relim()
@@ -238,22 +254,23 @@ class Canvas:
         """
         Reset the Matplotlib toolbar mode to nothing, to disable all Zoom/Pan tools.
         """
-        if self.fig.canvas.toolbar.mode == 'zoom rect':
-            self.zoom()
-        elif self.fig.canvas.toolbar.mode == 'pan/zoom':
-            self.pan()
+        self.fig.update_layout(dragmode=False)
+        # if self.fig.canvas.toolbar.mode == 'zoom rect':
+        #     self.zoom()
+        # elif self.fig.canvas.toolbar.mode == 'pan/zoom':
+        #     self.pan()
 
     def zoom(self):
         """
         Activate the underlying Matplotlib zoom tool.
         """
-        self.fig.canvas.toolbar.zoom()
+        self.fig.update_layout(dragmode='zoom')
 
     def pan(self):
         """
         Activate the underlying Matplotlib pan tool.
         """
-        self.fig.canvas.toolbar.pan()
+        self.fig.update_layout(dragmode='pan')
 
     def save_figure(self):
         """
