@@ -278,7 +278,7 @@ class Canvas:
         """
         Save the figure to a PNG file via a pop-up dialog.
         """
-        self.fig.canvas.toolbar.save_figure()
+        self.fig.write_image('figure.png')
 
     def logx(self):
         """
