@@ -53,6 +53,7 @@ class Line:
         self._dim = None
         self._unit = None
         self.label = data.name
+        self._line_index = None
 
         self._dim = self._data.dim
         self._unit = self._data.unit
@@ -110,6 +111,7 @@ class Line:
 
         line_shape = None
         mode = 'markers'
+        error_y = None
         # line_shape='vh'
 
         if data["hist"]:
@@ -132,12 +134,18 @@ class Line:
         #     self._mask.set_zorder(self._mask.get_zorder() - 1)
         #     self._mask.set_visible(has_mask)
         # else:
-        print('line_shape', line_shape)
+        # print('line_shape', line_shape)
+
+        if errorbars and ("e" in data["variances"]):
+            error_y = {'type': 'data', 'array': data["variances"]["e"]}
+            self._error = True
+
         self._line = go.Scatter(x=data["values"]["x"],
                                 y=data["values"]["y"],
                                 name=self.label,
                                 mode=mode,
-                                line_shape=line_shape)
+                                line_shape=line_shape,
+                                error_y=error_y)
         # self._line = self._ax.plot(data["values"]["x"],
         #                            data["values"]["y"],
         #                            label=self.label,
@@ -155,6 +163,7 @@ class Line:
         #                            linestyle="none",
         #                            marker=self._line.get_marker(),
         #                            visible=has_mask)[0]
+        self._line_index = len(self._fig.data)
         self._fig.add_trace(self._line)
 
         # # Add error bars
@@ -209,7 +218,10 @@ class Line:
         """
         self._data = new_values
         new_values = self._make_data()
-        self._fig.data[0].y = new_values["values"]["y"]
+        update = {'x': new_values["values"]["x"], 'y': new_values["values"]["y"]}
+        if (self._error is not None) and ("e" in new_values["variances"]):
+            update['error_y'] = {'array': new_values["variances"]["e"]}
+        self._fig.data[self._line_index].update(update)
 
         # self._line.update({
         #     'x': new_values["values"]["x"],
