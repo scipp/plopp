@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.core.utils import coord_as_bin_edges, make_compatible
+from plopp.core.utils import coord_as_bin_edges
 import scipp as sc
-import pytest
 
 
 def test_coord_as_bin_edges_midpoints_input():
