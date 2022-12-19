@@ -29,6 +29,9 @@ class Canvas3d:
 
         import pythreejs as p3
 
+        self.xunit = None
+        self.yunit = None
+        self.zunit = None
         self.outline = None
         self.axticks = None
         self.figsize = figsize

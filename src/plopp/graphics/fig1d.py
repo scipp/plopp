@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.utils import name_with_unit
+from ..core.utils import name_with_unit, make_compatible
 from .basefig import BaseFig
 from .canvas import Canvas
 from .line import Line
@@ -117,6 +117,18 @@ class Figure1d(BaseFig):
         if new_values.ndim != 1:
             raise ValueError("Figure1d can only be used to plot 1-D data.")
 
+        dim = new_values.dim
+        coord = new_values.coords[dim]
+        if not self.dims:
+            self.dims['x'] = dim
+            self.canvas.xunit = coord.unit
+            self.canvas.yunit = new_values.unit
+        else:
+            new_values.data = make_compatible(new_values.data, unit=self.canvas.yunit)
+            new_values.coords[dim] = make_compatible(coord,
+                                                     dim=self.dims['x'],
+                                                     unit=self.canvas.xunit)
+
         if key not in self.artists:
 
             line = Line(canvas=self.canvas,
@@ -128,10 +140,7 @@ class Figure1d(BaseFig):
             self.artists[key] = line
             if line.label:
                 self.canvas.legend()
-            self.dims['x'] = new_values.dim
 
-            self.canvas.xunit = new_values.meta[new_values.dim].unit
-            self.canvas.yunit = new_values.unit
             self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
 
