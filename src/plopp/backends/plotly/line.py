@@ -53,7 +53,7 @@ class Line:
         self._dim = None
         self._unit = None
         self.label = data.name
-        self._line_index = None
+        # self._line_index = None
 
         self._dim = self._data.dim
         self._unit = self._data.unit
@@ -163,8 +163,11 @@ class Line:
         #                            linestyle="none",
         #                            marker=self._line.get_marker(),
         #                            visible=has_mask)[0]
-        self._line_index = len(self._fig.data)
+        # self._line_index = len(self._fig.data)
         self._fig.add_trace(self._line)
+        # Need to re-define the line because it seems that the Scatter trace that ends
+        # up in the figure is a copy of the one above.
+        self._line = self._fig.data[-1]
 
         # # Add error bars
         # if errorbars and ("e" in data["variances"]):
@@ -221,7 +224,8 @@ class Line:
         update = {'x': new_values["values"]["x"], 'y': new_values["values"]["y"]}
         if (self._error is not None) and ("e" in new_values["variances"]):
             update['error_y'] = {'array': new_values["variances"]["e"]}
-        self._fig.data[self._line_index].update(update)
+        # self._fig.data[self._line_index].update(update)
+        self._line.update(update)
 
         # self._line.update({
         #     'x': new_values["values"]["x"],
@@ -240,13 +244,13 @@ class Line:
         #                                 new_values["variances"]["y"],
         #                                 new_values["variances"]["e"]))
 
-    def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
-        """
-        Update the positions of the errorbars when `update_data` is called.
-        """
-        arr1 = np.repeat(x, 2)
-        arr2 = np.array([y - e, y + e]).T.flatten()
-        return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
+    # def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
+    #     """
+    #     Update the positions of the errorbars when `update_data` is called.
+    #     """
+    #     arr1 = np.repeat(x, 2)
+    #     arr2 = np.array([y - e, y + e]).T.flatten()
+    #     return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
 
     def remove(self):
         """
@@ -262,10 +266,8 @@ class Line:
         """
         The line color.
         """
-        return self._line.get_color()
+        return self._line.line.color
 
     @color.setter
     def color(self, val):
-        self._line.set_color(val)
-        if self._error is not None:
-            self._error.set_color(val)
+        self._line.line.color = val
