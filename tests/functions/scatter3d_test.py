@@ -42,6 +42,13 @@ def test_scatter3d_dimensions_are_flattened():
     assert list(p.children[0].artists.values())[0].data.ndim == 1
 
 
+def test_scatter3d_can_plot_scalar_data():
+    da = sc.DataArray(data=sc.scalar(1.2),
+                      coords={'position': sc.vector(value=[1, 2, 3])})
+    p = pp.scatter3d(da, pos='position')
+    assert list(p.children[0].artists.values())[0].data.ndim == 1
+
+
 def test_raises_ValueError_when_given_binned_data():
     nx = 10
     da = sc.data.table_xyz(100).bin(x=nx)
