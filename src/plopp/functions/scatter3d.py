@@ -66,6 +66,13 @@ def scatter3d(da: sc.DataArray,
     from ..functions import figure3d
     from ..widgets import Box, ToggleTool, TriCutTool
 
+    if 'ax' in kwargs:
+        raise ValueError(
+            'Keyword "ax" detected. Embedding 3D scatter plots inside Matplotlib axes '
+            'is not supported. See '
+            'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'  # noqa: E501
+        )
+
     check_not_binned(da)
 
     if pos is not None:

@@ -212,3 +212,48 @@ def test_save_to_disk(ext):
         fname = os.path.join(path, f'plopp_fig2d.{ext}')
         fig.save(filename=fname)
         assert os.path.isfile(fname)
+
+
+def test_raises_for_new_data_with_incompatible_dimension():
+    a = data_array(ndim=2)
+    b = a.rename(xx='zz')
+    with pytest.raises(sc.DimensionError):
+        Figure2d(input_node(a), input_node(b))
+
+
+def test_raises_for_new_data_with_incompatible_unit():
+    a = data_array(ndim=2)
+    b = a * a
+    with pytest.raises(sc.UnitError):
+        Figure2d(input_node(a), input_node(b))
+
+
+def test_raises_for_new_data_with_incompatible_coord_unit():
+    a = data_array(ndim=2)
+    b = a.copy()
+    b.coords['xx'] = a.coords['xx'] * a.coords['xx']
+    with pytest.raises(sc.UnitError):
+        Figure2d(input_node(a), input_node(b))
+
+
+def test_converts_new_data_units():
+    a = data_array(ndim=2, unit='m')
+    b = data_array(ndim=2, unit='cm')
+    anode = input_node(a)
+    bnode = input_node(b)
+    fig = Figure2d(anode, bnode)
+    assert sc.identical(fig.artists[anode.id]._data, a)
+    assert sc.identical(fig.artists[bnode.id]._data, b.to(unit='m'))
+
+
+def test_converts_new_data_coordinate_units():
+    a = data_array(ndim=2)
+    b = data_array(ndim=2)
+    b.coords['xx'].unit = 'cm'
+    anode = input_node(a)
+    bnode = input_node(b)
+    fig = Figure2d(anode, bnode)
+    assert sc.identical(fig.artists[anode.id]._data, a)
+    c = b.copy()
+    c.coords['xx'] = c.coords['xx'].to(unit='m')
+    assert sc.identical(fig.artists[bnode.id]._data, c)

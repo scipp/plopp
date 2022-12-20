@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .. import config
-from ..core.utils import name_with_unit
+from ..core.utils import name_with_unit, make_compatible
 from .basefig import BaseFig
 from .canvas import Canvas
 from .colormapper import ColorMapper
@@ -129,6 +129,25 @@ class Figure2d(BaseFig):
         if new_values.ndim != 2:
             raise ValueError("Figure2d can only be used to plot 2-D data.")
 
+        xdim = new_values.dims[1]
+        xcoord = new_values.coords[xdim]
+        ydim = new_values.dims[0]
+        ycoord = new_values.coords[ydim]
+        if not self.dims:
+            self.dims.update({"x": xdim, "y": ydim})
+            self.canvas.xunit = xcoord.unit
+            self.canvas.yunit = ycoord.unit
+            self.colormapper.unit = new_values.unit
+        else:
+            new_values.data = make_compatible(new_values.data,
+                                              unit=self.colormapper.unit)
+            new_values.coords[xdim] = make_compatible(xcoord,
+                                                      dim=self.dims['x'],
+                                                      unit=self.canvas.xunit)
+            new_values.coords[ydim] = make_compatible(ycoord,
+                                                      dim=self.dims['y'],
+                                                      unit=self.canvas.yunit)
+
         self.colormapper.update(data=new_values, key=key)
 
         if key not in self.artists:
@@ -140,6 +159,7 @@ class Figure2d(BaseFig):
 
             self.canvas.xunit = new_values.meta[new_values.dims[1]].unit
             self.canvas.yunit = new_values.meta[new_values.dims[0]].unit
+
             self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
             self.canvas.ylabel = name_with_unit(var=new_values.meta[self.dims['y']])
             if self.dims['x'] in self._scale:

@@ -194,3 +194,60 @@ def test_save_to_disk(ext):
         fname = os.path.join(path, f'plopp_fig1d.{ext}')
         fig.save(filename=fname)
         assert os.path.isfile(fname)
+
+
+def test_raises_for_new_data_with_incompatible_dimension():
+    x = data_array(ndim=1)
+    y = x.rename(xx='yy')
+    with pytest.raises(sc.DimensionError):
+        Figure1d(input_node(x), input_node(y))
+
+
+def test_raises_for_new_data_with_incompatible_unit():
+    a = data_array(ndim=1)
+    b = a * a
+    with pytest.raises(sc.UnitError):
+        Figure1d(input_node(a), input_node(b))
+
+
+def test_raises_for_new_data_with_incompatible_coord_unit():
+    a = data_array(ndim=1)
+    b = a.copy()
+    b.coords['xx'] = a.coords['xx'] * a.coords['xx']
+    with pytest.raises(sc.UnitError):
+        Figure1d(input_node(a), input_node(b))
+
+
+def test_converts_new_data_units():
+    a = data_array(ndim=1, unit='m')
+    b = data_array(ndim=1, unit='cm')
+    anode = input_node(a)
+    bnode = input_node(b)
+    fig = Figure1d(anode, bnode)
+    assert sc.identical(fig.artists[anode.id]._data, a)
+    assert sc.identical(fig.artists[bnode.id]._data, b.to(unit='m'))
+
+
+def test_converts_new_data_coordinate_units():
+    a = data_array(ndim=1)
+    b = data_array(ndim=1)
+    b.coords['xx'].unit = 'cm'
+    anode = input_node(a)
+    bnode = input_node(b)
+    fig = Figure1d(anode, bnode)
+    assert sc.identical(fig.artists[anode.id]._data, a)
+    c = b.copy()
+    c.coords['xx'] = c.coords['xx'].to(unit='m')
+    assert sc.identical(fig.artists[bnode.id]._data, c)
+
+
+def test_converts_new_data_units_integers():
+    a = sc.DataArray(data=sc.array(dims=['x'], values=[1, 2, 3, 4, 5], unit='m'),
+                     coords={'x': sc.arange('x', 5., unit='s')})
+    b = sc.DataArray(data=sc.array(dims=['x'], values=[10, 20, 30, 40, 50], unit='cm'),
+                     coords={'x': sc.arange('x', 5., unit='s')})
+    anode = input_node(a)
+    bnode = input_node(b)
+    fig = Figure1d(anode, bnode)
+    assert sc.identical(fig.artists[anode.id]._data, a)
+    assert sc.identical(fig.artists[bnode.id]._data, b.to(unit='m', dtype=float))

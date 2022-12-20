@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from ..core.utils import make_compatible
 from .basefig import BaseFig
 from .canvas3d import Canvas3d
 from .colormapper import ColorMapper
@@ -94,6 +95,25 @@ class Figure3d(BaseFig):
         draw:
             This argument is ignored for the 3d figure update.
         """
+
+        xcoord = new_values.coords[self._x]
+        ycoord = new_values.coords[self._y]
+        zcoord = new_values.coords[self._z]
+        if not self.dims:
+            self.dims.update({'x': self._x, 'y': self._y, 'z': self._z})
+            self.canvas.xunit = xcoord.unit
+            self.canvas.yunit = ycoord.unit
+            self.canvas.zunit = zcoord.unit
+            self.colormapper.unit = new_values.unit
+        else:
+            new_values.data = make_compatible(new_values.data,
+                                              unit=self.colormapper.unit)
+            new_values.coords[self._x] = new_values.coords[self._x].to(
+                unit=self.canvas.xunit, copy=False)
+            new_values.coords[self._y] = new_values.coords[self._y].to(
+                unit=self.canvas.yunit, copy=False)
+            new_values.coords[self._z] = new_values.coords[self._z].to(
+                unit=self.canvas.zunit, copy=False)
 
         self.colormapper.update(data=new_values, key=key)
 

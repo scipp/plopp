@@ -206,8 +206,9 @@ class ColorMapper:
         key:
             The id of the node that provided this data.
         """
-        if self.unit is None:
-            self.unit = data.unit
+        if self.name is None:
+            if self.unit is None:
+                self.unit = data.unit
             self.name = data.name
             if self.cax is not None:
                 self.cax.set_ylabel(f'{self.name} [{self.unit}]')
