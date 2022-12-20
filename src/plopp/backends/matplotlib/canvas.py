@@ -80,7 +80,7 @@ class Canvas:
             self._own_axes = True
             with silent_mpl_figure():
                 self.fig, self.ax = plt.subplots(figsize=figsize)
-            if hasattr(self.fig.canvas, "on_widget_constructed"):
+            if self.is_widget():
                 self.fig.canvas.toolbar_visible = False
                 self.fig.canvas.header_visible = False
         else:
@@ -99,12 +99,21 @@ class Canvas:
         self._ymin = np.inf
         self._ymax = np.NINF
 
+    def is_widget(self):
+        return hasattr(self.fig.canvas, "on_widget_constructed")
+
     def to_image(self):
         """
         Convert the underlying Matplotlib figure to an image widget from ``ipywidgets``.
         """
         from ipywidgets import Image
         return Image(value=fig_to_bytes(self.fig), format='png')
+
+    def to_widget(self):
+        if self.is_widget():
+            return self.fig.canvas
+        else:
+            return self.to_image()
 
     def autoscale(self, draw: bool = True):
         """

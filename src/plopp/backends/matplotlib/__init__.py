@@ -6,4 +6,4 @@
 from .canvas import Canvas
 from .line import Line
 from .mesh import Mesh
-from .figure import figure1d, figure2d
+from .figure import Fig1d, Fig2d

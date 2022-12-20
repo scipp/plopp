@@ -8,47 +8,52 @@ class Config:
         self.backend = backend
 
     @property
-    def canvas(self):
+    def Canvas(self):
         if self.backend == 'matplotlib':
             from .backends.matplotlib import Canvas as CanvasMpl
             return CanvasMpl
-        elif self.backend == 'plotly':
-            from .backends.plotly import Canvas as CanvasPlotly
-            return CanvasPlotly
+        # elif self.backend == 'plotly':
+        #     from .backends.plotly import Canvas as CanvasPlotly
+        #     return CanvasPlotly
 
     @property
-    def line(self):
+    def Line(self):
         if self.backend == 'matplotlib':
             from .backends.matplotlib import Line as LineMpl
             return LineMpl
-        elif self.backend == 'plotly':
-            from .backends.plotly import Line as LinePlotly
-            return LinePlotly
+        # elif self.backend == 'plotly':
+        #     from .backends.plotly import Line as LinePlotly
+        #     return LinePlotly
 
     @property
-    def mesh(self):
+    def Mesh(self):
         if self.backend == 'matplotlib':
             from .backends.matplotlib import Mesh as MeshMpl
             return MeshMpl
-        elif self.backend == 'plotly':
-            from .backends.plotly import Mesh as MeshPlotly
-            return MeshPlotly
+        # elif self.backend == 'plotly':
+        #     from .backends.plotly import Mesh as MeshPlotly
+        #     return MeshPlotly
 
-    def figure1d(self, *args, **kwargs):
-        if self.backend == 'matplotlib':
-            from .backends.matplotlib import figure1d as fig1d_mpl
-            return fig1d_mpl(*args, **kwargs)
-        elif self.backend == 'plotly':
-            from .backends.plotly import figure1d as fig1d_plotly
-            return fig1d_plotly(*args, **kwargs)
+    # def Fig1d(self, *args, **kwargs):
+    #     if self.backend == 'matplotlib':
+    #         from .backends.matplotlib import figure1d as fig1d_mpl
+    #         return fig1d_mpl(*args, **kwargs)
+    #     # elif self.backend == 'plotly':
+    #     #     from .backends.plotly import figure1d as fig1d_plotly
+    #     #     return fig1d_plotly(*args, **kwargs)
 
-    def figure2d(self, *args, **kwargs):
+    def Fig1d(self, *args, FigConstructor, **kwargs):
         if self.backend == 'matplotlib':
-            from .backends.matplotlib import figure2d as fig2d_mpl
-            return fig2d_mpl(*args, **kwargs)
-        elif self.backend == 'plotly':
-            from .backends.plotly import figure2d as fig2d_plotly
-            return fig2d_plotly(*args, **kwargs)
+            from .backends.matplotlib import Fig1d as Fig1d_mpl
+            return Fig1d_mpl(*args, FigConstructor=FigConstructor, **kwargs)
+
+    def Fig2d(self, *args, FigConstructor, **kwargs):
+        if self.backend == 'matplotlib':
+            from .backends.matplotlib import Fig2d as Fig2d_mpl
+            return Fig2d_mpl(*args, FigConstructor=FigConstructor, **kwargs)
+        # elif self.backend == 'plotly':
+        #     from .backends.plotly import figure2d as fig2d_plotly
+        #     return fig2d_plotly(*args, **kwargs)
 
 
 # def line(backend):
