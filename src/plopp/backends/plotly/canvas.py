@@ -59,7 +59,7 @@ class Canvas:
     def __init__(self,
                  ax: plt.Axes = None,
                  cax: plt.Axes = None,
-                 figsize: Tuple[float, float] = (6., 4.),
+                 figsize: Tuple[float, float] = (600, 400),
                  title: str = None,
                  grid: bool = False,
                  vmin: Union[sc.Variable, int, float] = None,
@@ -81,7 +81,11 @@ class Canvas:
                     'b': 0
                 },
                 'dragmode':
-                False
+                False,
+                'width':
+                600,
+                'height':
+                400
             })
         self.ax = ax
         self.cax = cax
