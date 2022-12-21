@@ -1,12 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .. import config
+from .. import backends
 from ..core.utils import name_with_unit, make_compatible
 from .basefig import BaseFig
-# from .canvas import Canvas
 from .colormapper import ColorMapper
-# from .mesh import Mesh
 
 import scipp as sc
 from typing import Any, Dict, Literal, Optional, Tuple, Union
@@ -16,7 +14,7 @@ class FigImage(BaseFig):
     """
     Figure that makes a visual representation of two-dimensional data.
     It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
-    function that generates :class:`Mesh` artists.
+    function that generates :class:`Image` artists.
 
     Parameters
     ----------
@@ -63,7 +61,7 @@ class FigImage(BaseFig):
         created as long as the number of markers in the figure is not too large. If too
         many markers are drawn, a PNG image is created instead.
     **kwargs:
-        All other kwargs are forwarded to the Mesh artist.
+        All other kwargs are forwarded to the Image artist.
     """
 
     def __init__(self,
@@ -90,13 +88,13 @@ class FigImage(BaseFig):
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = config.Canvas(cbar=cbar,
-                                    aspect=aspect,
-                                    grid=grid,
-                                    title=title,
-                                    figsize=figsize,
-                                    ax=ax,
-                                    cax=cax)
+        self.canvas = backends.Canvas2d(cbar=cbar,
+                                        aspect=aspect,
+                                        grid=grid,
+                                        title=title,
+                                        figsize=figsize,
+                                        ax=ax,
+                                        cax=cax)
         self.colormapper = ColorMapper(cmap=cmap,
                                        cbar=cbar,
                                        mask_cmap=mask_cmap,
@@ -118,7 +116,7 @@ class FigImage(BaseFig):
         Parameters
         ----------
         new_values:
-            New data to create or update a :class:`Mesh` object from.
+            New data to create or update a :class:`Image` object from.
         key:
             The id of the node that sent the new data.
         draw:
@@ -152,9 +150,9 @@ class FigImage(BaseFig):
 
         if key not in self.artists:
 
-            mesh = config.Mesh(canvas=self.canvas, data=new_values, **self._kwargs)
-            self.artists[key] = mesh
-            self.colormapper[key] = mesh
+            image = backends.Image(canvas=self.canvas, data=new_values, **self._kwargs)
+            self.artists[key] = image
+            self.colormapper[key] = image
             self.dims.update({"x": new_values.dims[1], "y": new_values.dims[0]})
 
             self.canvas.xunit = new_values.meta[new_values.dims[1]].unit
