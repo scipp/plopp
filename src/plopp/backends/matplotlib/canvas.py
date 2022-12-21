@@ -57,14 +57,15 @@ class Canvas:
     def __init__(self,
                  ax: plt.Axes = None,
                  cax: plt.Axes = None,
-                 figsize: Tuple[float, float] = (6., 4.),
+                 figsize: Optional[Tuple[float, float]] = None,
                  title: str = None,
                  grid: bool = False,
                  vmin: Union[sc.Variable, int, float] = None,
                  vmax: Union[sc.Variable, int, float] = None,
                  aspect: Literal['auto', 'equal'] = 'auto',
                  scale: Dict[str, str] = None,
-                 cbar: bool = False):
+                 cbar: bool = False,
+                 **ignored):
 
         self.fig = None
         self.ax = ax
@@ -79,7 +80,8 @@ class Canvas:
         if self.ax is None:
             self._own_axes = True
             with silent_mpl_figure():
-                self.fig, self.ax = plt.subplots(figsize=figsize)
+                self.fig, self.ax = plt.subplots(
+                    figsize=(6., 4.) if figsize is None else figsize)
             if self.is_widget():
                 self.fig.canvas.toolbar_visible = False
                 self.fig.canvas.header_visible = False

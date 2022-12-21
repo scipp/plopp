@@ -80,7 +80,7 @@ class ColorMapper:
     """
 
     def __init__(self,
-                 cax: Optional[plt.Axes] = None,
+                 canvas: Optional[Any] = None,
                  cbar: bool = True,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
@@ -90,7 +90,7 @@ class ColorMapper:
                  nan_color: Optional[str] = None,
                  figsize: Optional[Tuple[float, float]] = None):
 
-        self.cax = cax
+        self.cax = canvas.cax if canvas is not None else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin

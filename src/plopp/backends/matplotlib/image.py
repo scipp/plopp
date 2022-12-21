@@ -77,6 +77,8 @@ class Image:
 
         self._ax = canvas.ax
         self._data = data
+        kwargs.pop('ax', None)
+        kwargs.pop('cax', None)
         # If the grid is visible on the axes, we need to set that on again after we
         # call pcolormesh, because that turns the grid off automatically.
         # See https://github.com/matplotlib/matplotlib/issues/15600.

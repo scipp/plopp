@@ -61,22 +61,23 @@ class FigLine(BaseFig):
         - ``matplotlib.pyplot.step`` for 1d data with a bin-edge coordinate
     """
 
-    def __init__(self,
-                 *nodes,
-                 norm: Literal['linear', 'log'] = 'linear',
-                 vmin: Optional[Union[sc.Variable, int, float]] = None,
-                 vmax: Optional[Union[sc.Variable, int, float]] = None,
-                 scale: Optional[Dict[str, str]] = None,
-                 errorbars: bool = True,
-                 mask_color: str = 'black',
-                 aspect: Literal['auto', 'equal'] = 'auto',
-                 grid: bool = False,
-                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
-                 title: Optional[str] = None,
-                 figsize: Tuple[float, float] = (6., 4.),
-                 ax: Optional[Any] = None,
-                 format: Optional[Literal['svg', 'png']] = None,
-                 **kwargs):
+    def __init__(
+            self,
+            *nodes,
+            norm: Literal['linear', 'log'] = 'linear',
+            vmin: Optional[Union[sc.Variable, int, float]] = None,
+            vmax: Optional[Union[sc.Variable, int, float]] = None,
+            scale: Optional[Dict[str, str]] = None,
+            errorbars: bool = True,
+            mask_color: str = 'black',
+            aspect: Literal['auto', 'equal'] = 'auto',
+            grid: bool = False,
+            crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+            title: Optional[str] = None,
+            figsize: Tuple[float, float] = None,
+            # ax: Optional[Any] = None,
+            format: Optional[Literal['svg', 'png']] = None,
+            **kwargs):
 
         super().__init__(*nodes)
 
@@ -90,15 +91,14 @@ class FigLine(BaseFig):
         self._mask_color = mask_color
         self._kwargs = kwargs
         self._repr_format = format
-        # Canvas = manager.get_canvas(backend)
         self.canvas = backends.Canvas2d(cbar=False,
                                         aspect=aspect,
                                         grid=grid,
                                         figsize=figsize,
                                         title=title,
-                                        ax=ax,
                                         vmin=vmin,
-                                        vmax=vmax)
+                                        vmax=vmax,
+                                        **kwargs)
         self.canvas.yscale = norm
 
         self.render()

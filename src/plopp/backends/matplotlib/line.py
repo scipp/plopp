@@ -43,6 +43,7 @@ class Line:
 
         self._ax = canvas.ax
         self._data = data
+        kwargs.pop('ax', None)
 
         args = _parse_dicts_in_kwargs(kwargs, name=data.name)
 
