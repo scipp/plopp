@@ -37,34 +37,34 @@ from .. import backends
 #     return InteractiveFig3d(*args, **kwargs)
 
 
-def figure1d(*args, mode='line', **kwargs):
+def figure1d(*args, style='line', **kwargs):
 
-    if mode == 'line':
+    if style == 'line':
         # from ..configfig2d import Fig2d
         from .figline import FigLine
 
         return backends.Fig1d(*args, FigConstructor=FigLine, **kwargs)
 
-    raise ValueError(f'Unsupported mode={mode} for figure1d.')
+    raise ValueError(f'Unsupported style={style} for figure1d.')
 
 
-def figure2d(*args, mode='image', **kwargs):
+def figure2d(*args, style='image', **kwargs):
 
-    if mode == 'image':
+    if style == 'image':
         # from ..configfig2d import Fig2d
         from .figimage import FigImage
 
         return backends.Fig2d(*args, FigConstructor=FigImage, **kwargs)
 
-    raise ValueError(f'Unsupported mode={mode} for figure2d.')
+    raise ValueError(f'Unsupported style={style} for figure2d.')
 
 
-def figure3d(*args, mode='scatter', **kwargs):
+def figure3d(*args, style='scatter', **kwargs):
 
-    if mode == 'scatter':
+    if style == 'scatter':
         # from .fig3d import Fig3d
         from .figscatter3d import FigScatter3d
 
         return backends.Fig3d(*args, FigConstructor=FigScatter3d, **kwargs)
 
-    raise ValueError(f'Unsupported mode={mode} for figure3d.')
+    raise ValueError(f'Unsupported style={style} for figure3d.')

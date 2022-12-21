@@ -64,25 +64,22 @@ class FigImage(BaseFig):
         All other kwargs are forwarded to the Image artist.
     """
 
-    def __init__(
-            self,
-            *nodes,
-            cmap: str = 'viridis',
-            mask_cmap: str = 'gray',
-            norm: Literal['linear', 'log'] = 'linear',
-            vmin: Optional[Union[sc.Variable, int, float]] = None,
-            vmax: Optional[Union[sc.Variable, int, float]] = None,
-            scale: Optional[Dict[str, str]] = None,
-            aspect: Literal['auto', 'equal'] = 'auto',
-            grid: bool = False,
-            crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
-            cbar: bool = True,
-            title: Optional[str] = None,
-            figsize: Optional[Tuple[float, float]] = None,
-            # ax: Optional[Any] = None,
-            # cax: Optional[Any] = None,
-            format: Optional[Literal['svg', 'png']] = None,
-            **kwargs):
+    def __init__(self,
+                 *nodes,
+                 cmap: str = 'viridis',
+                 mask_cmap: str = 'gray',
+                 norm: Literal['linear', 'log'] = 'linear',
+                 vmin: Optional[Union[sc.Variable, int, float]] = None,
+                 vmax: Optional[Union[sc.Variable, int, float]] = None,
+                 scale: Optional[Dict[str, str]] = None,
+                 aspect: Literal['auto', 'equal'] = 'auto',
+                 grid: bool = False,
+                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+                 cbar: bool = True,
+                 title: Optional[str] = None,
+                 figsize: Optional[Tuple[float, float]] = None,
+                 format: Optional[Literal['svg', 'png']] = None,
+                 **kwargs):
 
         super().__init__(*nodes)
 

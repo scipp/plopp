@@ -45,7 +45,10 @@ class Line:
         self._fig = canvas.fig
         self._data = data
 
+        print("KWARGS", kwargs)
+
         args = _parse_dicts_in_kwargs(kwargs, name=data.name)
+        print("ARGS", args)
 
         self._line = None
         self._mask = None
@@ -53,16 +56,15 @@ class Line:
         self._dim = None
         self._unit = None
         self.label = data.name
-        # self._line_index = None
 
         self._dim = self._data.dim
         self._unit = self._data.unit
         self._coord = self._data.meta[self._dim]
 
-        aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
-        for key, alias in aliases.items():
-            if key in args:
-                args[alias] = args.pop(key)
+        # aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
+        # for key, alias in aliases.items():
+        #     if key in args:
+        #         args[alias] = args.pop(key)
 
         self._make_line(data=self._make_data(), number=number, **args)
 
@@ -71,6 +73,8 @@ class Line:
                    number: int,
                    errorbars: bool = True,
                    mask_color: str = 'black',
+                   mode='markers',
+                   marker=None,
                    **kwargs):
         """
         Create either plot markers or a step function, depending on whether the data
@@ -93,24 +97,25 @@ class Line:
             - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
             - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
         """
+        print('MARKER = ', marker)
         has_mask = data["mask"] is not None
         mask_data_key = "mask" if has_mask else "values"
 
-        default_step_style = {
-            'linestyle': 'solid',
-            'linewidth': 1.5,
-            'color': f'C{number}'
-        }
-        markers = list(Line2D.markers.keys())
-        default_plot_style = {
-            'linestyle': 'none',
-            'linewidth': 1.5,
-            'marker': markers[(number + 2) % len(markers)],
-            'color': f'C{number}'
-        }
+        # default_step_style = {
+        #     'linestyle': 'solid',
+        #     'linewidth': 1.5,
+        #     'color': f'C{number}'
+        # }
+        # markers = list(Line2D.markers.keys())
+        # default_plot_style = {
+        #     'linestyle': 'none',
+        #     'linewidth': 1.5,
+        #     'marker': markers[(number + 2) % len(markers)],
+        #     'color': f'C{number}'
+        # }
 
         line_shape = None
-        mode = 'markers'
+        # mode = 'markers'
         error_y = None
         # line_shape='vh'
 
@@ -136,6 +141,10 @@ class Line:
         # else:
         # print('line_shape', line_shape)
 
+        # if 'mode' in kwargs:
+        #     mode = kwargs.pop('mode')
+        # line_args = kwargs
+
         if errorbars and ("e" in data["variances"]):
             error_y = {'type': 'data', 'array': data["variances"]["e"]}
             self._error = True
@@ -144,8 +153,10 @@ class Line:
                                 y=data["values"]["y"],
                                 name=self.label,
                                 mode=mode,
+                                marker=marker,
                                 line_shape=line_shape,
-                                error_y=error_y)
+                                error_y=error_y,
+                                line=kwargs)
         # self._line = self._ax.plot(data["values"]["x"],
         #                            data["values"]["y"],
         #                            label=self.label,

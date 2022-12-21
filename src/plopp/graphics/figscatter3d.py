@@ -3,7 +3,7 @@
 
 from ..core.utils import make_compatible
 from .basefig import BaseFig
-from ..backends.pythreejs.canvas import Canvas
+from .. import backends
 from .colormapper import ColorMapper
 
 import scipp as sc
@@ -70,7 +70,7 @@ class FigScatter3d(BaseFig):
         self._z = z
         self._kwargs = kwargs
 
-        self.canvas = Canvas(figsize=figsize)
+        self.canvas = backends.Canvas3d(figsize=figsize)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,
@@ -118,12 +118,11 @@ class FigScatter3d(BaseFig):
         self.colormapper.update(data=new_values, key=key)
 
         if key not in self.artists:
-            from .point_cloud import PointCloud
-            pts = PointCloud(data=new_values,
-                             x=self._x,
-                             y=self._y,
-                             z=self._z,
-                             **self._kwargs)
+            pts = backends.PointCloud(data=new_values,
+                                      x=self._x,
+                                      y=self._y,
+                                      z=self._z,
+                                      **self._kwargs)
             self.artists[key] = pts
             self.colormapper[key] = pts
             self.canvas.add(pts.points)

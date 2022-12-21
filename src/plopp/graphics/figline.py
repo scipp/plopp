@@ -61,30 +61,23 @@ class FigLine(BaseFig):
         - ``matplotlib.pyplot.step`` for 1d data with a bin-edge coordinate
     """
 
-    def __init__(
-            self,
-            *nodes,
-            norm: Literal['linear', 'log'] = 'linear',
-            vmin: Optional[Union[sc.Variable, int, float]] = None,
-            vmax: Optional[Union[sc.Variable, int, float]] = None,
-            scale: Optional[Dict[str, str]] = None,
-            errorbars: bool = True,
-            mask_color: str = 'black',
-            aspect: Literal['auto', 'equal'] = 'auto',
-            grid: bool = False,
-            crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
-            title: Optional[str] = None,
-            figsize: Tuple[float, float] = None,
-            # ax: Optional[Any] = None,
-            format: Optional[Literal['svg', 'png']] = None,
-            **kwargs):
+    def __init__(self,
+                 *nodes,
+                 norm: Literal['linear', 'log'] = 'linear',
+                 vmin: Optional[Union[sc.Variable, int, float]] = None,
+                 vmax: Optional[Union[sc.Variable, int, float]] = None,
+                 scale: Optional[Dict[str, str]] = None,
+                 errorbars: bool = True,
+                 mask_color: str = 'black',
+                 aspect: Literal['auto', 'equal'] = 'auto',
+                 grid: bool = False,
+                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+                 title: Optional[str] = None,
+                 figsize: Tuple[float, float] = None,
+                 format: Optional[Literal['svg', 'png']] = None,
+                 **kwargs):
 
         super().__init__(*nodes)
-
-        # from .. import backend
-        # # from .canvas import Canvas
-        # # from .line import Line
-        # from ..backends.plotly import Canvas, Line
 
         self._scale = {} if scale is None else scale
         self._errorbars = errorbars
@@ -139,7 +132,6 @@ class FigLine(BaseFig):
 
         if key not in self.artists:
 
-            # Line = manager.get_line(backend)
             line = backends.Line(canvas=self.canvas,
                                  data=new_values,
                                  number=len(self.artists),

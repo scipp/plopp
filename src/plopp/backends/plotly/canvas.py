@@ -56,17 +56,18 @@ class Canvas:
         Add axes to host a colorbar if ``True``.
     """
 
-    def __init__(self,
-                 ax: plt.Axes = None,
-                 cax: plt.Axes = None,
-                 figsize: Tuple[float, float] = None,
-                 title: str = None,
-                 grid: bool = False,
-                 vmin: Union[sc.Variable, int, float] = None,
-                 vmax: Union[sc.Variable, int, float] = None,
-                 aspect: Literal['auto', 'equal'] = 'auto',
-                 scale: Dict[str, str] = None,
-                 cbar: bool = False):
+    def __init__(
+            self,
+            #  ax: plt.Axes = None,
+            #  cax: plt.Axes = None,
+            figsize: Tuple[float, float] = None,
+            title: str = None,
+            grid: bool = False,
+            vmin: Union[sc.Variable, int, float] = None,
+            vmax: Union[sc.Variable, int, float] = None,
+            aspect: Literal['auto', 'equal'] = 'auto',
+            scale: Dict[str, str] = None,
+            cbar: bool = False):
 
         self.fig = go.FigureWidget(
             layout={
@@ -87,8 +88,9 @@ class Canvas:
                 'height':
                 400 if figsize is None else figsize[1]
             })
-        self.ax = ax
-        self.cax = cax
+        # self.ax = ax
+        # self.cax = cax
+        self.figsize = figsize
         self._user_vmin = vmin
         self._user_vmax = vmax
         self._scale = {} if scale is None else scale
@@ -114,10 +116,10 @@ class Canvas:
         # self.ax.set_title(title)
         # self.ax.grid(grid)
 
-        self._xmin = np.inf
-        self._xmax = np.NINF
-        self._ymin = np.inf
-        self._ymax = np.NINF
+        # self._xmin = np.inf
+        # self._xmax = np.NINF
+        # self._ymin = np.inf
+        # self._ymax = np.NINF
 
     def to_widget(self):
         return self.fig
@@ -134,6 +136,23 @@ class Canvas:
         """
         self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
         # self.fig.layout.xaxis.autorange = True
+        current_yrange = self.fig.layout.yaxis.range
+        ymin = None
+        ymax = None
+        if self._user_vmin is not None:
+            ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
+        elif current_yrange is not None:
+            ymin = current_yrange[0]
+        if self._user_vmax is not None:
+            ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
+        elif current_yrange is not None:
+            ymax = current_yrange[1]
+        # print(ymin, ymax)
+        # print(None not in (ymin, ymax))
+
+        if None not in (ymin, ymax):
+            # print("SETTING RANGE")
+            self.fig.update_yaxes(range=[ymin, ymax])
         return
         if self.ax.lines:
             self.ax.relim()

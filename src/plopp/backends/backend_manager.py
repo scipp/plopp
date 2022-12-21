@@ -23,6 +23,9 @@ class BackendManager(dict):
         if self['3d'] == 'pythreejs':
             from .pythreejs import Canvas as CanvasP3js
             return CanvasP3js
+        elif self['3d'] == 'plotly':
+            from .plotly import Canvas as CanvasPlotly
+            return CanvasPlotly
         raise ValueError(f'Unsupported backend \'{self["3d"]}\' for Canvas3d.')
 
     @property
@@ -41,6 +44,13 @@ class BackendManager(dict):
             from .matplotlib import Image as ImageMpl
             return ImageMpl
         raise ValueError(f'Unsupported backend \'{self["2d"]}\' for Image (2D).')
+
+    @property
+    def PointCloud(self):
+        if self['3d'] == 'pythreejs':
+            from .pythreejs import PointCloud as PointCloudP3js
+            return PointCloudP3js
+        raise ValueError(f'Unsupported backend \'{self["3d"]}\' for PointCloud (3D).')
 
     @property
     def Fig1d(self):
