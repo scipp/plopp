@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..core.utils import value_to_string
+from ...core.utils import value_to_string
 
 import pythreejs as p3
 import numpy as np

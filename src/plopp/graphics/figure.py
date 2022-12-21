@@ -62,9 +62,9 @@ def figure2d(*args, mode='image', **kwargs):
 def figure3d(*args, mode='scatter', **kwargs):
 
     if mode == 'scatter':
-        from .fig3d import Fig3d
+        # from .fig3d import Fig3d
         from .figscatter3d import FigScatter3d
 
-        return Fig3d(*args, FigConstructor=FigScatter3d, **kwargs)
+        return backends.Fig3d(*args, FigConstructor=FigScatter3d, **kwargs)
 
     raise ValueError(f'Unsupported mode={mode} for figure3d.')

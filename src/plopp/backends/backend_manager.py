@@ -19,6 +19,13 @@ class BackendManager(dict):
         raise ValueError(f'Unsupported backend {self["2d"]} for Canvas2d.')
 
     @property
+    def Canvas3d(self):
+        if self['3d'] == 'pythreejs':
+            from .pythreejs import Canvas as CanvasP3js
+            return CanvasP3js
+        raise ValueError(f'Unsupported backend {self["3d"]} for Canvas3d.')
+
+    @property
     def Line(self):
         if self['2d'] == 'matplotlib':
             from .matplotlib import Line as LineMpl
@@ -30,7 +37,7 @@ class BackendManager(dict):
 
     @property
     def Image(self):
-        if self.backend == 'matplotlib':
+        if self['2d'] == 'matplotlib':
             from .matplotlib import Image as ImageMpl
             return ImageMpl
         raise ValueError(f'Unsupported backend {self["2d"]} for Image (2D).')
@@ -47,7 +54,21 @@ class BackendManager(dict):
 
     @property
     def Fig2d(self):
-        if self.backend == 'matplotlib':
+        if self['2d'] == 'matplotlib':
             from .matplotlib import Fig2d as Fig2dMpl
             return Fig2dMpl
         raise ValueError(f'Unsupported backend {self["2d"]} for Fig2d.')
+
+    @property
+    def Fig2d(self):
+        if self['2d'] == 'matplotlib':
+            from .matplotlib import Fig2d as Fig2dMpl
+            return Fig2dMpl
+        raise ValueError(f'Unsupported backend {self["2d"]} for Fig2d.')
+
+    @property
+    def Fig3d(self):
+        if self['3d'] == 'pythreejs':
+            from .pythreejs import Fig3d as Fig3dP3js
+            return Fig3dP3js
+        raise ValueError(f'Unsupported backend {self["3d"]} for Fig3d.')
