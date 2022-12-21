@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .. import config
+from .. import backends
 
 # from .common import is_interactive_backend
 
@@ -43,7 +43,7 @@ def figure1d(*args, mode='line', **kwargs):
         # from ..configfig2d import Fig2d
         from .figline import FigLine
 
-        return config.Fig1d(*args, FigConstructor=FigLine, **kwargs)
+        return backends.Fig1d(*args, FigConstructor=FigLine, **kwargs)
 
     raise ValueError(f'Unsupported mode={mode} for figure1d.')
 
@@ -54,7 +54,7 @@ def figure2d(*args, mode='image', **kwargs):
         # from ..configfig2d import Fig2d
         from .figimage import FigImage
 
-        return config.Fig2d(*args, FigConstructor=FigImage, **kwargs)
+        return backends.Fig2d(*args, FigConstructor=FigImage, **kwargs)
 
     raise ValueError(f'Unsupported mode={mode} for figure2d.')
 

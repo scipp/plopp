@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .. import config
+from .. import backends
 from ..core.utils import name_with_unit, make_compatible
 from .basefig import BaseFig
 # from .canvas import Canvas
@@ -91,14 +91,14 @@ class FigLine(BaseFig):
         self._kwargs = kwargs
         self._repr_format = format
         # Canvas = manager.get_canvas(backend)
-        self.canvas = config.Canvas(cbar=False,
-                                    aspect=aspect,
-                                    grid=grid,
-                                    figsize=figsize,
-                                    title=title,
-                                    ax=ax,
-                                    vmin=vmin,
-                                    vmax=vmax)
+        self.canvas = backends.Canvas2d(cbar=False,
+                                        aspect=aspect,
+                                        grid=grid,
+                                        figsize=figsize,
+                                        title=title,
+                                        ax=ax,
+                                        vmin=vmin,
+                                        vmax=vmax)
         self.canvas.yscale = norm
 
         self.render()
@@ -140,12 +140,12 @@ class FigLine(BaseFig):
         if key not in self.artists:
 
             # Line = manager.get_line(backend)
-            line = config.Line(canvas=self.canvas,
-                               data=new_values,
-                               number=len(self.artists),
-                               errorbars=self._errorbars,
-                               mask_color=self._mask_color,
-                               **self._kwargs)
+            line = backends.Line(canvas=self.canvas,
+                                 data=new_values,
+                                 number=len(self.artists),
+                                 errorbars=self._errorbars,
+                                 mask_color=self._mask_color,
+                                 **self._kwargs)
             self.artists[key] = line
             if line.label:
                 self.canvas.legend()

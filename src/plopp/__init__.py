@@ -11,9 +11,9 @@ except importlib.metadata.PackageNotFoundError:
 
 # from .backends import Backend
 
-from .config import Config
+from .backends.backend_manager import BackendManager
 
-config = Config()
+backends = BackendManager()
 
 from .core import Node, View, node, input_node, widget_node, show_graph
 from .functions import (figure1d, figure2d, figure3d, plot, slicer, inspector,
@@ -47,5 +47,5 @@ def unpatch_scipp():
     setattr(sc, 'plot', pl)
 
 
-def use(new_backend):
-    config.backend = new_backend
+# def use(new_backend):
+#     config.backend = new_backend

@@ -119,12 +119,8 @@ class Canvas:
         self._ymin = np.inf
         self._ymax = np.NINF
 
-    def to_image(self):
-        """
-        Convert the underlying Matplotlib figure to an image widget from ``ipywidgets``.
-        """
-        from ipywidgets import Image
-        return Image(value=fig_to_bytes(self.fig), format='png')
+    def to_widget(self):
+        return self.fig
 
     def autoscale(self, draw: bool = True):
         """

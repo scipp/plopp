@@ -50,7 +50,7 @@ def _from_data_array_to_pcolormesh(data, coords, dim_1d, dim_2d):
     return out['x'], out['y'], z
 
 
-class Mesh:
+class Image:
     """
     Artist to represent two-dimensional data.
 
