@@ -2,7 +2,6 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
-from .figure import figure1d, figure2d
 from ..core import input_node, node
 from ..core.utils import coord_as_bin_edges
 

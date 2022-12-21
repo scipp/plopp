@@ -10,7 +10,7 @@ from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy as np
 import scipp as sc
-from typing import Dict, Literal, Tuple, Union
+from typing import Dict, Literal, Tuple, Union, Optional
 
 
 def _none_if_not_finite(x):

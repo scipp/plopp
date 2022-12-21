@@ -20,7 +20,7 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
          coords: Optional[List[str]] = None,
          crop: Optional[Dict[str, Dict[str, Variable]]] = None,
          errorbars: bool = True,
-         figsize: Tuple[float, float] = (6., 4.),
+         figsize: Tuple[float, float] = None,
          grid: bool = False,
          ignore_size: bool = False,
          mask_color: str = 'black',
