@@ -2,40 +2,40 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from plopp.data.testing import data_array
-from plopp.graphics.canvas import Canvas
-from plopp.graphics.mesh import Mesh
+from plopp.backends.matplotlib.canvas import Canvas
+from plopp.backends.matplotlib.image import Image
 import scipp as sc
 
 
-def test_mesh_creation():
+def test_image_creation():
     da = data_array(ndim=2)
-    mesh = Mesh(canvas=Canvas(), data=da)
-    assert sc.identical(mesh._data, da)
+    image = Image(canvas=Canvas(), data=da)
+    assert sc.identical(image._data, da)
 
 
-def test_mesh_creation_binedges():
+def test_image_creation_binedges():
     da = data_array(ndim=2, binedges=True)
-    mesh = Mesh(canvas=Canvas(), data=da)
-    assert sc.identical(mesh._data, da)
+    image = Image(canvas=Canvas(), data=da)
+    assert sc.identical(image._data, da)
 
 
-def test_mesh_creation_masks():
+def test_image_creation_masks():
     da = data_array(ndim=2, masks=True)
-    mesh = Mesh(canvas=Canvas(), data=da)
-    assert sc.identical(mesh._data, da)
+    image = Image(canvas=Canvas(), data=da)
+    assert sc.identical(image._data, da)
 
 
-def test_mesh_creation_ragged_coord():
+def test_image_creation_ragged_coord():
     da = data_array(ndim=2, ragged=True)
-    mesh = Mesh(canvas=Canvas(), data=da)
-    assert mesh._dim_2d == ('x', 'xx')
-    assert mesh._dim_1d == ('y', 'yy')
-    assert sc.identical(mesh._data, da)
+    image = Image(canvas=Canvas(), data=da)
+    assert image._dim_2d == ('x', 'xx')
+    assert image._dim_1d == ('y', 'yy')
+    assert sc.identical(image._data, da)
 
 
-def test_mesh_update():
+def test_image_update():
     da = data_array(ndim=2)
-    mesh = Mesh(canvas=Canvas(), data=da)
-    assert sc.identical(mesh._data, da)
-    mesh.update(da * 2.5)
-    assert sc.identical(mesh._data, da * 2.5)
+    image = Image(canvas=Canvas(), data=da)
+    assert sc.identical(image._data, da)
+    image.update(da * 2.5)
+    assert sc.identical(image._data, da * 2.5)

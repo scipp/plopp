@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.graphics.canvas3d import Canvas3d
-from plopp.graphics.outline import Outline
+from plopp.backends.pythreejs.canvas import Canvas
+from plopp.backends.pythreejs.outline import Outline
 import scipp as sc
 from copy import copy
 
@@ -14,7 +14,7 @@ def _make_limits():
 
 
 def test_creation():
-    canvas = Canvas3d(figsize=(700, 450))
+    canvas = Canvas(figsize=(700, 450))
     assert canvas.renderer.width == 700
     assert canvas.renderer.height == 450
     assert all(
@@ -23,7 +23,7 @@ def test_creation():
 
 
 def test_make_outline():
-    canvas = Canvas3d()
+    canvas = Canvas()
     assert canvas.outline is None
     canvas.make_outline(limits=_make_limits())
     assert isinstance(canvas.outline, Outline)
@@ -31,7 +31,7 @@ def test_make_outline():
 
 
 def test_camera_home():
-    canvas = Canvas3d()
+    canvas = Canvas()
     canvas._update_camera(limits=_make_limits())
     original = copy(canvas.camera.position)
     canvas.camera.position = [10, 20, 30]
@@ -40,7 +40,7 @@ def test_camera_home():
 
 
 def test_camera_x():
-    canvas = Canvas3d()
+    canvas = Canvas()
     canvas._update_camera(limits=_make_limits())
     center = copy(canvas.camera_backup["center"])
     canvas.camera.position = [10, 20, 30]
@@ -55,7 +55,7 @@ def test_camera_x():
 
 
 def test_camera_y():
-    canvas = Canvas3d()
+    canvas = Canvas()
     canvas._update_camera(limits=_make_limits())
     center = copy(canvas.camera_backup["center"])
     canvas.camera.position = [10, 20, 30]
@@ -70,7 +70,7 @@ def test_camera_y():
 
 
 def test_camera_z():
-    canvas = Canvas3d()
+    canvas = Canvas()
     canvas._update_camera(limits=_make_limits())
     center = copy(canvas.camera_backup["center"])
     canvas.camera.position = [10, 20, 30]
@@ -85,7 +85,7 @@ def test_camera_z():
 
 
 def test_toggle_axes_3d():
-    canvas = Canvas3d()
+    canvas = Canvas()
     assert canvas.axes_3d.visible
     canvas.toggle_axes3d()
     assert not canvas.axes_3d.visible
@@ -94,7 +94,7 @@ def test_toggle_axes_3d():
 
 
 def test_toggle_outline():
-    canvas = Canvas3d()
+    canvas = Canvas()
     canvas.make_outline(limits=_make_limits())
     assert canvas.outline.visible
     canvas.toggle_outline()

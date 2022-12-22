@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp.graphics.canvas import Canvas
+from plopp.backends.matplotlib.canvas import Canvas
 import scipp as sc
 import pytest
 import tempfile

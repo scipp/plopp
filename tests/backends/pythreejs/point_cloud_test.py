@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from plopp.data.testing import scatter
-from plopp.graphics.point_cloud import PointCloud
+from plopp.backends.pythreejs.point_cloud import PointCloud
 
 import numpy as np
 import scipp as sc

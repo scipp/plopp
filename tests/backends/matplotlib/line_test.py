@@ -2,8 +2,8 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from plopp.data.testing import data_array
-from plopp.graphics.canvas import Canvas
-from plopp.graphics.line import Line
+from plopp.backends.matplotlib.canvas import Canvas
+from plopp.backends.matplotlib.line import Line
 import numpy as np
 import scipp as sc
 
