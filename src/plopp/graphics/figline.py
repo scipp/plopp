@@ -136,8 +136,6 @@ class FigLine(BaseFig):
                                  mask_color=self._mask_color,
                                  **self._kwargs)
             self.artists[key] = line
-            # if line.label:
-            #     self.canvas.legend()
 
             self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")

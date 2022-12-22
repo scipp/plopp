@@ -2,7 +2,6 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import BUTTON_LAYOUT, is_sphinx_build
-# from ..graphics import Canvas
 
 import ipywidgets as ipw
 from functools import partial

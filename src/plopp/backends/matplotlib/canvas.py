@@ -200,12 +200,6 @@ class Canvas:
                 for m in ('min', 'max') if m in lims
             ])
 
-    # def legend(self):
-    #     """
-    #     Add a legend to the figure.
-    #     """
-    #     self.ax.legend()
-
     @property
     def title(self) -> str:
         return self.ax.get_title()
