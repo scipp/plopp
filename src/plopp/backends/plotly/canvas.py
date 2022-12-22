@@ -79,7 +79,7 @@ class Canvas:
                 'margin': {
                     'l': 0,
                     'r': 0,
-                    't': 0,
+                    't': 0 if title is None else 40,
                     'b': 0
                 },
                 'dragmode':
@@ -94,7 +94,7 @@ class Canvas:
         self.figsize = figsize
         self._user_vmin = vmin
         self._user_vmax = vmax
-        self._scale = {} if scale is None else scale
+        # self._scale = {} if scale is None else scale
         self.xunit = None
         self.yunit = None
         self._own_axes = False
@@ -116,6 +116,8 @@ class Canvas:
         # self.ax.set_aspect(aspect)
         # self.ax.set_title(title)
         # self.ax.grid(grid)
+        if title:
+            self.title = title
 
         # self._xmin = np.inf
         # self._xmax = np.NINF
@@ -175,12 +177,6 @@ class Canvas:
         else:
             self.fig.write_image(filename)
 
-    # def show(self):
-    #     """
-    #     Make a call to Matplotlib's underlying ``show`` function.
-    #     """
-    #     self.fig.show()
-
     def crop(self, **limits):
         """
         Set the axes limits according to the crop parameters.
@@ -196,16 +192,19 @@ class Canvas:
                 for m in ('min', 'max') if m in lims
             ])
 
-    # def legend(self):
-    #     """
-    #     Add a legend to the figure.
-    #     """
-    #     return
-    #     self.ax.legend()
+    @property
+    def title(self) -> str:
+        return self.fig.layout.title
+
+    @title.setter
+    def title(self, title: str):
+        layout = self.fig.layout
+        if layout.margin.t == 0:
+            layout.margin.t = 40
+        layout.title = title
 
     @property
     def xlabel(self):
-        # return self.ax.get_xlabel()
         return self.fig.layout.xaxis.title
 
     @xlabel.setter
@@ -236,6 +235,54 @@ class Canvas:
     def yscale(self, scale: Literal['linear', 'log']):
         # self.ax.set_yscale(scale)
         self.fig.update_yaxes(type=scale)
+
+    @property
+    def xmin(self):
+        return self.fig.layout.xaxis.range[0]
+
+    @xmin.setter
+    def xmin(self, value: float):
+        self.fig.layout.xaxis.range = [value, self.xmax]
+
+    @property
+    def xmax(self):
+        return self.fig.layout.xaxis.range[1]
+
+    @xmax.setter
+    def xmax(self, value: float):
+        self.fig.layout.xaxis.range = [self.xmin, value]
+
+    @property
+    def xrange(self):
+        return self.fig.layout.xaxis.range
+
+    @xrange.setter
+    def xrange(self, value: float):
+        self.fig.layout.xaxis.range = value
+
+    @property
+    def ymin(self):
+        return self.fig.layout.yaxis.range[0]
+
+    @ymin.setter
+    def ymin(self, value: float):
+        self.fig.layout.yaxis.range = [value, self.ymax]
+
+    @property
+    def ymax(self):
+        return self.fig.layout.yaxis.range[1]
+
+    @ymax.setter
+    def ymax(self, value: float):
+        self.fig.layout.yaxis.range = [self.ymin, value]
+
+    @property
+    def yrange(self):
+        return self.fig.layout.yaxis.range
+
+    @yrange.setter
+    def yrange(self, value: float):
+        self.fig.layout.yaxis.range = value
 
     def reset_mode(self):
         """
@@ -269,18 +316,14 @@ class Canvas:
         """
         Toggle the scale between ``linear`` and ``log`` along the horizontal axis.
         """
-        self.xscale = 'log' if self.xscale == 'linear' else 'linear'
-        self._xmin = np.inf
-        self._xmax = np.NINF
+        self.xscale = 'log' if self.xscale in ('linear', None) else 'linear'
         self.autoscale()
 
     def logy(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """
-        self.yscale = 'log' if self.yscale == 'linear' else 'linear'
-        self._ymin = np.inf
-        self._ymax = np.NINF
+        self.yscale = 'log' if self.yscale in ('linear', None) else 'linear'
         self.autoscale()
 
     def finalize(self):

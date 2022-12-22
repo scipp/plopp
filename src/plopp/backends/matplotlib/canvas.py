@@ -208,7 +208,15 @@ class Canvas:
     #     self.ax.legend()
 
     @property
-    def xlabel(self):
+    def title(self) -> str:
+        return self.ax.get_title()
+
+    @title.setter
+    def title(self, title: str):
+        self.ax.set_title(title)
+
+    @property
+    def xlabel(self) -> str:
         return self.ax.get_xlabel()
 
     @xlabel.setter
@@ -216,7 +224,7 @@ class Canvas:
         self.ax.set_xlabel(lab)
 
     @property
-    def ylabel(self):
+    def ylabel(self) -> str:
         return self.ax.get_ylabel()
 
     @ylabel.setter
@@ -224,7 +232,7 @@ class Canvas:
         self.ax.set_ylabel(lab)
 
     @property
-    def xscale(self):
+    def xscale(self) -> str:
         return self.ax.get_xscale()
 
     @xscale.setter
@@ -232,7 +240,7 @@ class Canvas:
         self.ax.set_xscale(scale)
 
     @property
-    def yscale(self):
+    def yscale(self) -> str:
         return self.ax.get_yscale()
 
     @yscale.setter
@@ -240,7 +248,7 @@ class Canvas:
         self.ax.set_yscale(scale)
 
     @property
-    def xmin(self):
+    def xmin(self) -> float:
         return self.ax.get_xlim()[0]
 
     @xmin.setter
@@ -248,7 +256,7 @@ class Canvas:
         self.ax.set_xlim(value, self.xmax)
 
     @property
-    def xmax(self):
+    def xmax(self) -> float:
         return self.ax.get_xlim()[1]
 
     @xmax.setter
@@ -256,7 +264,7 @@ class Canvas:
         self.ax.set_xlim(self.xmin, value)
 
     @property
-    def xrange(self):
+    def xrange(self) -> Tuple[float]:
         return self.ax.get_xlim()
 
     @xrange.setter
@@ -264,7 +272,7 @@ class Canvas:
         self.ax.set_xlim(value)
 
     @property
-    def ymin(self):
+    def ymin(self) -> float:
         return self.ax.get_ylim()[0]
 
     @ymin.setter
@@ -272,7 +280,7 @@ class Canvas:
         self.ax.set_ylim(value, self.ymax)
 
     @property
-    def ymax(self):
+    def ymax(self) -> float:
         return self.ax.get_ylim()[1]
 
     @ymax.setter
@@ -280,7 +288,7 @@ class Canvas:
         self.ax.set_ylim(self.ymin, value)
 
     @property
-    def yrange(self):
+    def yrange(self) -> Tuple[float]:
         return self.ax.get_ylim()
 
     @yrange.setter
