@@ -10,6 +10,7 @@ from numpy.typing import ArrayLike
 from typing import Dict
 from matplotlib.lines import Line2D
 import plotly.graph_objects as go
+from plotly.colors import DEFAULT_PLOTLY_COLORS
 
 
 def _parse_dicts_in_kwargs(kwargs, name):
@@ -45,10 +46,7 @@ class Line:
         self._fig = canvas.fig
         self._data = data
 
-        print("KWARGS", kwargs)
-
         args = _parse_dicts_in_kwargs(kwargs, name=data.name)
-        print("ARGS", args)
 
         self._line = None
         self._mask = None
@@ -97,22 +95,11 @@ class Line:
             - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
             - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
         """
-        print('MARKER = ', marker)
         has_mask = data["mask"] is not None
         mask_data_key = "mask" if has_mask else "values"
 
-        # default_step_style = {
-        #     'linestyle': 'solid',
-        #     'linewidth': 1.5,
-        #     'color': f'C{number}'
-        # }
-        # markers = list(Line2D.markers.keys())
-        # default_plot_style = {
-        #     'linestyle': 'none',
-        #     'linewidth': 1.5,
-        #     'marker': markers[(number + 2) % len(markers)],
-        #     'color': f'C{number}'
-        # }
+        default_line_style = {'color': DEFAULT_PLOTLY_COLORS[number]}
+        default_marker_style = {'symbol': number % 53}
 
         line_shape = None
         # mode = 'markers'
@@ -149,14 +136,18 @@ class Line:
             error_y = {'type': 'data', 'array': data["variances"]["e"]}
             self._error = True
 
-        self._line = go.Scatter(x=data["values"]["x"],
-                                y=data["values"]["y"],
-                                name=self.label,
-                                mode=mode,
-                                marker=marker,
-                                line_shape=line_shape,
-                                error_y=error_y,
-                                line=kwargs)
+        self._line = go.Scatter(
+            x=data["values"]["x"],
+            y=data["values"]["y"],
+            name=self.label,
+            mode=mode,
+            marker=default_marker_style if marker is None else marker,
+            line_shape=line_shape,
+            error_y=error_y,
+            line={
+                **default_line_style,
+                **kwargs
+            })
         # self._line = self._ax.plot(data["values"]["x"],
         #                            data["values"]["y"],
         #                            label=self.label,

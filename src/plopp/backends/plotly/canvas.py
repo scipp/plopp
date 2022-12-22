@@ -67,7 +67,8 @@ class Canvas:
             vmax: Union[sc.Variable, int, float] = None,
             aspect: Literal['auto', 'equal'] = 'auto',
             scale: Dict[str, str] = None,
-            cbar: bool = False):
+            cbar: bool = False,
+            **ignored):
 
         self.fig = go.FigureWidget(
             layout={
