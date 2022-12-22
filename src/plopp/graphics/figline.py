@@ -116,7 +116,7 @@ class FigLine(BaseFig):
             once all artists have been updated.
         """
         if new_values.ndim != 1:
-            raise ValueError("Figure1d can only be used to plot 1-D data.")
+            raise ValueError("FigLine can only be used to plot 1-D data.")
 
         dim = new_values.dim
         coord = new_values.coords[dim]

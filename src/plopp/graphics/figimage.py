@@ -122,7 +122,7 @@ class FigImage(BaseFig):
             once all artists have been updated.
         """
         if new_values.ndim != 2:
-            raise ValueError("Figure2d can only be used to plot 2-D data.")
+            raise ValueError("FigImage can only be used to plot 2-D data.")
 
         xdim = new_values.dims[1]
         xcoord = new_values.coords[xdim]

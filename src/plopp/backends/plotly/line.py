@@ -141,8 +141,8 @@ class Line:
             error_y = {'type': 'data', 'array': data["variances"]["e"]}
             self._error = True
 
-        self._line = go.Scatter(x=data["values"]["x"],
-                                y=data["values"]["y"],
+        self._line = go.Scatter(x=np.asarray(data["values"]["x"]),
+                                y=np.asarray(data["values"]["y"]),
                                 name=self.label,
                                 mode=mode,
                                 marker=marker_style,
@@ -172,8 +172,8 @@ class Line:
         if data["hist"]:
             line_style['color'] = mask_color
 
-        self._mask = go.Scatter(x=data["values"]["x"],
-                                y=data[mask_data_key]["y"],
+        self._mask = go.Scatter(x=np.asarray(data["values"]["x"]),
+                                y=np.asarray(data[mask_data_key]["y"]),
                                 name=self.label,
                                 mode=mode,
                                 marker=marker_style,

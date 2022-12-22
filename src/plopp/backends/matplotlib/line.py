@@ -153,7 +153,7 @@ class Line:
                                             zorder=10,
                                             fmt="none")
 
-        if self._line.label:
+        if self.label:
             self._ax.legend()
 
     def _preprocess_hist(self, data: dict) -> dict:

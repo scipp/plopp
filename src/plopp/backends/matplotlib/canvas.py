@@ -239,6 +239,54 @@ class Canvas:
     def yscale(self, scale: Literal['linear', 'log']):
         self.ax.set_yscale(scale)
 
+    @property
+    def xmin(self):
+        return self.ax.get_xlim()[0]
+
+    @xmin.setter
+    def xmin(self, value: float):
+        self.ax.set_xlim(value, self.xmax)
+
+    @property
+    def xmax(self):
+        return self.ax.get_xlim()[1]
+
+    @xmax.setter
+    def xmax(self, value: float):
+        self.ax.set_xlim(self.xmin, value)
+
+    @property
+    def xrange(self):
+        return self.ax.get_xlim()
+
+    @xrange.setter
+    def xrange(self, value: float):
+        self.ax.set_xlim(value)
+
+    @property
+    def ymin(self):
+        return self.ax.get_ylim()[0]
+
+    @ymin.setter
+    def ymin(self, value: float):
+        self.ax.set_ylim(value, self.ymax)
+
+    @property
+    def ymax(self):
+        return self.ax.get_ylim()[1]
+
+    @ymax.setter
+    def ymax(self, value: float):
+        self.ax.set_ylim(self.ymin, value)
+
+    @property
+    def yrange(self):
+        return self.ax.get_ylim()
+
+    @yrange.setter
+    def yrange(self, value: float):
+        self.ax.set_ylim(value)
+
     def reset_mode(self):
         """
         Reset the Matplotlib toolbar mode to nothing, to disable all Zoom/Pan tools.

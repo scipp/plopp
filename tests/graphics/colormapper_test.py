@@ -7,6 +7,7 @@ import scipp as sc
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize, LogNorm
+from dataclasses import dataclass
 
 
 class DummyChild:
@@ -163,6 +164,10 @@ def test_colorbar_is_not_created_if_cbar_false():
 
 
 def test_colorbar_cbar_false_overrides_cax():
-    fig, ax = plt.subplots(figsize=(1, 4))
-    mapper = ColorMapper(cbar=False, cax=ax)
+
+    @dataclass
+    class Canvas:
+        cax: int
+
+    mapper = ColorMapper(cbar=False, canvas=Canvas(cax=0))
     assert mapper.colorbar is None
