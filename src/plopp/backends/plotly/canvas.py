@@ -1,22 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ...core.limits import find_limits, fix_empty_range
 from ...core.utils import maybe_variable_to_number
-# from .utils import fig_to_bytes, silent_mpl_figure
 
 import plotly.graph_objects as go
-
-import matplotlib.pyplot as plt
-from matplotlib.collections import QuadMesh
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-import numpy as np
 import scipp as sc
 from typing import Dict, Literal, Tuple, Union
-
-
-def _none_if_not_finite(x):
-    return x if np.isfinite(x) else None
 
 
 class Canvas:
@@ -56,19 +45,16 @@ class Canvas:
         Add axes to host a colorbar if ``True``.
     """
 
-    def __init__(
-            self,
-            #  ax: plt.Axes = None,
-            #  cax: plt.Axes = None,
-            figsize: Tuple[float, float] = None,
-            title: str = None,
-            grid: bool = False,
-            vmin: Union[sc.Variable, int, float] = None,
-            vmax: Union[sc.Variable, int, float] = None,
-            aspect: Literal['auto', 'equal'] = 'auto',
-            scale: Dict[str, str] = None,
-            cbar: bool = False,
-            **ignored):
+    def __init__(self,
+                 figsize: Tuple[float, float] = None,
+                 title: str = None,
+                 grid: bool = False,
+                 vmin: Union[sc.Variable, int, float] = None,
+                 vmax: Union[sc.Variable, int, float] = None,
+                 aspect: Literal['auto', 'equal'] = 'auto',
+                 scale: Dict[str, str] = None,
+                 cbar: bool = False,
+                 **ignored):
 
         self.fig = go.FigureWidget(
             layout={
@@ -89,40 +75,14 @@ class Canvas:
                 'height':
                 400 if figsize is None else figsize[1]
             })
-        # self.ax = ax
-        # self.cax = cax
         self.figsize = figsize
         self._user_vmin = vmin
         self._user_vmax = vmax
-        # self._scale = {} if scale is None else scale
         self.xunit = None
         self.yunit = None
         self._own_axes = False
-
-        # if self.ax is None:
-        #     self._own_axes = True
-        #     with silent_mpl_figure():
-        #         self.fig, self.ax = plt.subplots(figsize=figsize)
-        #     if hasattr(self.fig.canvas, "on_widget_constructed"):
-        #         self.fig.canvas.toolbar_visible = False
-        #         self.fig.canvas.header_visible = False
-        # else:
-        #     self.fig = self.ax.get_figure()
-
-        # if cbar and self.cax is None:
-        #     divider = make_axes_locatable(self.ax)
-        #     self.cax = divider.append_axes("right", "4%", pad="5%")
-
-        # self.ax.set_aspect(aspect)
-        # self.ax.set_title(title)
-        # self.ax.grid(grid)
         if title:
             self.title = title
-
-        # self._xmin = np.inf
-        # self._xmax = np.NINF
-        # self._ymin = np.inf
-        # self._ymax = np.NINF
 
     def to_widget(self):
         return self.fig
@@ -151,13 +111,6 @@ class Canvas:
             self.fig.update_yaxes(range=[ymin, ymax])
         else:
             self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
-
-    # def draw(self):
-    #     """
-    #     Make a draw call to the underlying figure.
-    #     """
-    #     return
-    #     # self.fig.canvas.draw_idle()
 
     def savefig(self, filename: str):
         """
@@ -233,7 +186,6 @@ class Canvas:
 
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):
-        # self.ax.set_yscale(scale)
         self.fig.update_yaxes(type=scale)
 
     @property
@@ -289,10 +241,6 @@ class Canvas:
         Reset the Matplotlib toolbar mode to nothing, to disable all Zoom/Pan tools.
         """
         self.fig.update_layout(dragmode=False)
-        # if self.fig.canvas.toolbar.mode == 'zoom rect':
-        #     self.zoom()
-        # elif self.fig.canvas.toolbar.mode == 'pan/zoom':
-        #     self.pan()
 
     def zoom(self):
         """

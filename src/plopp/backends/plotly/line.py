@@ -6,11 +6,8 @@ from .canvas import Canvas
 
 import scipp as sc
 import numpy as np
-from numpy.typing import ArrayLike
 from typing import Dict
-from matplotlib.lines import Line2D
 import plotly.graph_objects as go
-# from plotly.colors import DEFAULT_PLOTLY_COLORS
 from plotly.colors import qualitative as plotly_colors
 
 
@@ -55,15 +52,9 @@ class Line:
         self._dim = None
         self._unit = None
         self.label = data.name
-
         self._dim = self._data.dim
         self._unit = self._data.unit
         self._coord = self._data.meta[self._dim]
-
-        # aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
-        # for key, alias in aliases.items():
-        #     if key in args:
-        #         args[alias] = args.pop(key)
 
         self._make_line(data=self._make_data(), number=number, **args)
 
@@ -104,35 +95,11 @@ class Line:
         default_marker_style = {'symbol': number % 53}
 
         line_shape = None
-        # mode = 'markers'
         error_y = None
-        # line_shape='vh'
 
         if data["hist"]:
             line_shape = 'vh'
             mode = 'lines'
-        #     self._line = self._ax.step(data["values"]["x"],
-        #                                data["values"]["y"],
-        #                                label=self.label,
-        #                                zorder=10,
-        #                                **{
-        #                                    **default_step_style,
-        #                                    **kwargs
-        #                                })[0]
-
-        #     self._mask = self._ax.step(data["values"]["x"], data[mask_data_key]["y"])[0]
-        #     self._mask.update_from(self._line)
-        #     self._mask.set_color(mask_color)
-        #     self._mask.set_label(None)
-        #     self._mask.set_linewidth(self._mask.get_linewidth() * 3)
-        #     self._mask.set_zorder(self._mask.get_zorder() - 1)
-        #     self._mask.set_visible(has_mask)
-        # else:
-        # print('line_shape', line_shape)
-
-        # if 'mode' in kwargs:
-        #     mode = kwargs.pop('mode')
-        # line_args = kwargs
 
         marker_style = default_marker_style if marker is None else marker
         line_style = {**default_line_style, **kwargs}
@@ -149,16 +116,6 @@ class Line:
                                 line_shape=line_shape,
                                 error_y=error_y,
                                 line=line_style)
-        # self._line = self._ax.plot(data["values"]["x"],
-        #                            data["values"]["y"],
-        #                            label=self.label,
-        #                            zorder=10,
-        #                            **{
-        #                                **default_plot_style,
-        #                                **kwargs
-        #                            })[0]
-
-        # marker_style = self._line.marker
 
         marker_line_style = {'width': 3, 'color': mask_color}
         if 'line' in marker_style:
@@ -243,35 +200,14 @@ class Line:
         update = {'x': new_values["values"]["x"], 'y': new_values["values"]["y"]}
         if (self._error is not None) and ("e" in new_values["variances"]):
             update['error_y'] = {'array': new_values["variances"]["e"]}
-        # self._fig.data[self._line_index].update(update)
         self._line.update(update)
 
-        # self._line.update({
-        #     'x': new_values["values"]["x"],
-        #     'y': new_values["values"]["y"]
-        # })
         if new_values["mask"] is not None:
             update = {'x': new_values["values"]["x"], 'y': new_values["mask"]["y"]}
-            # self._mask.set_data(new_values["values"]["x"], new_values["mask"]["y"])
             self._mask.update(update)
             self._mask.visible = True
         else:
             self._mask.visible = False
-
-        # if (self._error is not None) and ("e" in new_values["variances"]):
-        #     coll = self._error.get_children()[0]
-        #     coll.set_segments(
-        #         self._change_segments_y(new_values["variances"]["x"],
-        #                                 new_values["variances"]["y"],
-        #                                 new_values["variances"]["e"]))
-
-    # def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
-    #     """
-    #     Update the positions of the errorbars when `update_data` is called.
-    #     """
-    #     arr1 = np.repeat(x, 2)
-    #     arr2 = np.array([y - e, y + e]).T.flatten()
-    #     return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
 
     def remove(self):
         """

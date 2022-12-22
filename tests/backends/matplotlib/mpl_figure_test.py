@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from plopp import input_node
-from plopp.data.testing import data_array, scatter
 from plopp.graphics.figline import FigLine
 from plopp.graphics.figimage import FigImage
 from plopp.backends.matplotlib import Fig1d, Fig2d

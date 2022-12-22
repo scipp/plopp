@@ -9,8 +9,6 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-# from .backends import Backend
-
 from .backends.backend_manager import BackendManager
 
 backends = BackendManager()
@@ -45,7 +43,3 @@ def unpatch_scipp():
     setattr(sc.DataArray, 'plot', pl)
     setattr(sc.Dataset, 'plot', pl)
     setattr(sc, 'plot', pl)
-
-
-# def use(new_backend):
-#     config.backend = new_backend

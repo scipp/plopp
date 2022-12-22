@@ -7,7 +7,7 @@ from .basefig import BaseFig
 from .colormapper import ColorMapper
 
 import scipp as sc
-from typing import Any, Dict, Literal, Optional, Tuple, Union
+from typing import Dict, Literal, Optional, Tuple, Union
 
 
 class FigImage(BaseFig):

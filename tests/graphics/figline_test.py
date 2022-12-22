@@ -4,7 +4,6 @@
 from plopp.data.testing import data_array
 from plopp.graphics.figline import FigLine
 from plopp import backends, input_node
-import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 import pytest

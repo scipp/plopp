@@ -70,13 +70,6 @@ class BackendManager(dict):
         raise ValueError(f'Unsupported backend \'{self["2d"]}\' for Fig2d.')
 
     @property
-    def Fig2d(self):
-        if self['2d'] == 'matplotlib':
-            from .matplotlib import Fig2d as Fig2dMpl
-            return Fig2dMpl
-        raise ValueError(f'Unsupported backend \'{self["2d"]}\' for Fig2d.')
-
-    @property
     def Fig3d(self):
         if self['3d'] == 'pythreejs':
             from .pythreejs import Fig3d as Fig3dP3js

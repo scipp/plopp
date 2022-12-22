@@ -72,7 +72,6 @@ class Canvas:
         self.cax = cax
         self._user_vmin = vmin
         self._user_vmax = vmax
-        self._scale = {} if scale is None else scale
         self.xunit = None
         self.yunit = None
         self._own_axes = False

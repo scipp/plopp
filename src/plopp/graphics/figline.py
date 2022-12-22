@@ -4,12 +4,9 @@
 from .. import backends
 from ..core.utils import name_with_unit, make_compatible
 from .basefig import BaseFig
-# from .canvas import Canvas
-# from .line import Line
-# from ..backends.plotly import Canvas, Line
 
 import scipp as sc
-from typing import Any, Dict, Literal, Optional, Tuple, Union
+from typing import Dict, Literal, Optional, Tuple, Union
 
 
 class FigLine(BaseFig):

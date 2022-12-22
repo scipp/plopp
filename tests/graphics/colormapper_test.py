@@ -5,7 +5,6 @@ from plopp.data.testing import data_array
 from plopp.graphics.colormapper import ColorMapper
 import scipp as sc
 import numpy as np
-import matplotlib.pyplot as plt
 from matplotlib.colors import Normalize, LogNorm
 from dataclasses import dataclass
 
