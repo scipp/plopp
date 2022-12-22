@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-# from .figure import figure1d, figure2d
 from ..graphics import figure1d, figure2d
 from ..core import input_node
 from .common import preprocess

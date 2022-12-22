@@ -2,7 +2,6 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from ...widgets import Toolbar, HBar, VBar, tools
-# from ...widgets.common import is_sphinx_build
 
 from ipywidgets import VBox, HBox
 

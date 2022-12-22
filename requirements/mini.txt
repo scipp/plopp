@@ -5,7 +5,7 @@
 #
 #    pip-compile-multi
 #
-attrs==22.1.0
+attrs==22.2.0
     # via pytest
 confuse==2.0.0
     # via scipp
@@ -15,17 +15,17 @@ graphlib-backport==1.0.3
     # via scipp
 iniconfig==1.1.1
     # via pytest
-numpy==1.23.5
+numpy==1.24.0
     # via scipp
 packaging==22.0
     # via pytest
 pluggy==1.0.0
     # via pytest
 pytest==7.2.0
-    # via -r requirements/miniplot.in
+    # via -r requirements/mini.in
 pyyaml==6.0
     # via confuse
 scipp==22.11.0
-    # via -r requirements/miniplot.in
+    # via -r requirements/mini.in
 tomli==2.0.1
     # via pytest
