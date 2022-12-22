@@ -153,6 +153,9 @@ class Line:
                                             zorder=10,
                                             fmt="none")
 
+        if self._line.label:
+            self._ax.legend()
+
     def _preprocess_hist(self, data: dict) -> dict:
         """
         Convert 1d data to be plotted to internal format, e.g., padding

@@ -98,7 +98,7 @@ class FigLine(BaseFig):
         self.canvas.autoscale()
         if crop is not None:
             self.crop(**crop)
-        self.canvas.fit_to_page()
+        self.canvas.finalize()
 
     def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
         """
@@ -139,8 +139,8 @@ class FigLine(BaseFig):
                                  mask_color=self._mask_color,
                                  **self._kwargs)
             self.artists[key] = line
-            if line.label:
-                self.canvas.legend()
+            # if line.label:
+            #     self.canvas.legend()
 
             self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")

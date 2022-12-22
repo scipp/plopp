@@ -117,7 +117,7 @@ class Canvas:
         else:
             return self.to_image()
 
-    def autoscale(self, draw: bool = True):
+    def autoscale(self):
         """
         Matplotlib's autoscale only takes lines into account. We require a special
         handling for meshes, which is part of the axes collections.
@@ -158,8 +158,7 @@ class Canvas:
                          _none_if_not_finite(self._xmax))
         self.ax.set_ylim(_none_if_not_finite(self._ymin),
                          _none_if_not_finite(self._ymax))
-        if draw:
-            self.draw()
+        self.draw()
 
     def draw(self):
         """
@@ -202,11 +201,11 @@ class Canvas:
                 for m in ('min', 'max') if m in lims
             ])
 
-    def legend(self):
-        """
-        Add a legend to the figure.
-        """
-        self.ax.legend()
+    # def legend(self):
+    #     """
+    #     Add a legend to the figure.
+    #     """
+    #     self.ax.legend()
 
     @property
     def xlabel(self):
@@ -285,7 +284,7 @@ class Canvas:
         self._ymax = np.NINF
         self.autoscale()
 
-    def fit_to_page(self):
+    def finalize(self):
         """
         Trim the margins around the figure.
         """

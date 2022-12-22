@@ -125,7 +125,7 @@ class Canvas:
     def to_widget(self):
         return self.fig
 
-    def autoscale(self, draw: bool = True):
+    def autoscale(self):
         """
         Matplotlib's autoscale only takes lines into account. We require a special
         handling for meshes, which is part of the axes collections.
@@ -136,67 +136,28 @@ class Canvas:
             Make a draw call to the figure if ``True``.
         """
         self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
-        # self.fig.layout.xaxis.autorange = True
-        current_yrange = self.fig.layout.yaxis.range
         ymin = None
         ymax = None
-        if self._user_vmin is not None:
+        if (self._user_vmin is not None) or (self._user_vmax is not None):
+            if None in (self._user_vmin, self._user_vmax):
+                raise ValueError('With the Plotly backend, you have to specify both '
+                                 'vmin and vmax.')
             ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
-        elif current_yrange is not None:
-            ymin = current_yrange[0]
-        if self._user_vmax is not None:
             ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
-        elif current_yrange is not None:
-            ymax = current_yrange[1]
-        # print(ymin, ymax)
-        # print(None not in (ymin, ymax))
-
-        if None not in (ymin, ymax):
-            # print("SETTING RANGE")
+            self.fig.update_layout(yaxis={'autorange': False},
+                                   xaxis={'autorange': True})
             self.fig.update_yaxes(range=[ymin, ymax])
-        return
-        if self.ax.lines:
-            self.ax.relim()
-            self.ax.autoscale()
-            xmin, xmax = self.ax.get_xlim()
-            ymin, ymax = self.ax.get_ylim()
-            self._xmin = min(self._xmin, xmin)
-            self._xmax = max(self._xmax, xmax)
-            self._ymin = min(self._ymin, ymin)
-            self._ymax = max(self._ymax, ymax)
-        for c in self.ax.collections:
-            if isinstance(c, QuadMesh):
-                coords = c.get_coordinates()
-                left, right = fix_empty_range(
-                    find_limits(sc.array(dims=['x', 'y'], values=coords[..., 0]),
-                                scale=self.xscale))
-                bottom, top = fix_empty_range(
-                    find_limits(sc.array(dims=['x', 'y'], values=coords[..., 1]),
-                                scale=self.yscale))
-                self._xmin = min(self._xmin, left.value)
-                self._xmax = max(self._xmax, right.value)
-                self._ymin = min(self._ymin, bottom.value)
-                self._ymax = max(self._ymax, top.value)
-        if self._user_vmin is not None:
-            self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
-        if self._user_vmax is not None:
-            self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
+        else:
+            self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
 
-        self.ax.set_xlim(_none_if_not_finite(self._xmin),
-                         _none_if_not_finite(self._xmax))
-        self.ax.set_ylim(_none_if_not_finite(self._ymin),
-                         _none_if_not_finite(self._ymax))
-        if draw:
-            self.draw()
+    # def draw(self):
+    #     """
+    #     Make a draw call to the underlying figure.
+    #     """
+    #     return
+    #     # self.fig.canvas.draw_idle()
 
-    def draw(self):
-        """
-        Make a draw call to the underlying figure.
-        """
-        return
-        # self.fig.canvas.draw_idle()
-
-    def savefig(self, filename: str, **kwargs):
+    def savefig(self, filename: str):
         """
         Save the figure to file.
         The default directory for writing the file is the same as the
@@ -206,15 +167,19 @@ class Canvas:
         ----------
         filename:
             Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
-            ``.svg``, and ``.pdf``.
+            ``.svg``, ``.pdf``, and ``.html`.
         """
-        self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
+        ext = filename.split('.')[-1]
+        if ext == 'html':
+            self.fig.write_html(filename)
+        else:
+            self.fig.write_image(filename)
 
-    def show(self):
-        """
-        Make a call to Matplotlib's underlying ``show`` function.
-        """
-        self.fig.show()
+    # def show(self):
+    #     """
+    #     Make a call to Matplotlib's underlying ``show`` function.
+    #     """
+    #     self.fig.show()
 
     def crop(self, **limits):
         """
@@ -226,17 +191,17 @@ class Canvas:
             Min and max limits for each dimension to be cropped.
         """
         for xy, lims in limits.items():
-            getattr(self.ax, f'set_{xy}lim')(*[
+            getattr(self.fig, f'update_{xy}axes')(range=[
                 maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
                 for m in ('min', 'max') if m in lims
             ])
 
-    def legend(self):
-        """
-        Add a legend to the figure.
-        """
-        return
-        self.ax.legend()
+    # def legend(self):
+    #     """
+    #     Add a legend to the figure.
+    #     """
+    #     return
+    #     self.ax.legend()
 
     @property
     def xlabel(self):
@@ -318,10 +283,7 @@ class Canvas:
         self._ymax = np.NINF
         self.autoscale()
 
-    def fit_to_page(self):
+    def finalize(self):
         """
-        Trim the margins around the figure.
         """
         return
-        if self._own_axes:
-            self.fig.tight_layout()

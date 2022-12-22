@@ -166,45 +166,36 @@ class Line:
         else:
             marker_style['line'] = marker_line_style
         if 'width' in line_style:
-            line_style['width'] *= 3
+            line_style['width'] *= 5
         else:
-            line_style['width'] = 3
+            line_style['width'] = 5
+        if data["hist"]:
+            line_style['color'] = mask_color
 
-        self._mask = go.Scatter(
-            x=data["values"]["x"],
-            y=data["values"]["y"],
-            name=self.label,
-            mode=mode,
-            marker=marker_style,
-            line_shape=line_shape,
-            # error_y=error_y,
-            line=line_style,
-            visible=has_mask)
-        # self._mask = self._ax.plot(data["values"]["x"],
-        #                            data[]["y"],
-        #                            zorder=11,
-        #                            mec=mask_color,
-        #                            mfc="None",
-        #                            mew=3.0,
-        #                            linestyle="none",
-        #                            marker=self._line.get_marker(),
-        #                            visible=has_mask)[0]
-        # self._line_index = len(self._fig.data)
-        self._fig.add_trace(self._line)
-        # Need to re-define the line because it seems that the Scatter trace that ends
-        # up in the figure is a copy of the one above.
-        self._line = self._fig.data[-1]
-        self._fig.add_trace(self._mask)
-        self._mask = self._fig.data[-1]
+        self._mask = go.Scatter(x=data["values"]["x"],
+                                y=data[mask_data_key]["y"],
+                                name=self.label,
+                                mode=mode,
+                                marker=marker_style,
+                                line_shape=line_shape,
+                                line=line_style,
+                                visible=has_mask,
+                                showlegend=False)
 
-        # # Add error bars
-        # if errorbars and ("e" in data["variances"]):
-        #     self._error = self._ax.errorbar(data["variances"]["x"],
-        #                                     data["variances"]["y"],
-        #                                     yerr=data["variances"]["e"],
-        #                                     color=self._line.get_color(),
-        #                                     zorder=10,
-        #                                     fmt="none")
+        # Below, we need to re-define the line because it seems that the Scatter trace
+        # that ends up in the figure is a copy of the one above.
+        # Plotly has no concept of zorder, so we need to add the traces in a specific
+        # order
+        if data["hist"]:
+            self._fig.add_trace(self._mask)
+            self._mask = self._fig.data[-1]
+            self._fig.add_trace(self._line)
+            self._line = self._fig.data[-1]
+        else:
+            self._fig.add_trace(self._line)
+            self._line = self._fig.data[-1]
+            self._fig.add_trace(self._mask)
+            self._mask = self._fig.data[-1]
 
     def _preprocess_hist(self, data: dict) -> dict:
         """
@@ -259,11 +250,13 @@ class Line:
         #     'x': new_values["values"]["x"],
         #     'y': new_values["values"]["y"]
         # })
-        # if new_values["mask"] is not None:
-        #     self._mask.set_data(new_values["values"]["x"], new_values["mask"]["y"])
-        #     self._mask.set_visible(True)
-        # else:
-        #     self._mask.set_visible(False)
+        if new_values["mask"] is not None:
+            update = {'x': new_values["values"]["x"], 'y': new_values["mask"]["y"]}
+            # self._mask.set_data(new_values["values"]["x"], new_values["mask"]["y"])
+            self._mask.update(update)
+            self._mask.visible = True
+        else:
+            self._mask.visible = False
 
         # if (self._error is not None) and ("e" in new_values["variances"]):
         #     coll = self._error.get_children()[0]
