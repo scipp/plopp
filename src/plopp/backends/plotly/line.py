@@ -10,7 +10,8 @@ from numpy.typing import ArrayLike
 from typing import Dict
 from matplotlib.lines import Line2D
 import plotly.graph_objects as go
-from plotly.colors import DEFAULT_PLOTLY_COLORS
+# from plotly.colors import DEFAULT_PLOTLY_COLORS
+from plotly.colors import qualitative as plotly_colors
 
 
 def _parse_dicts_in_kwargs(kwargs, name):
@@ -98,7 +99,8 @@ class Line:
         has_mask = data["mask"] is not None
         mask_data_key = "mask" if has_mask else "values"
 
-        default_line_style = {'color': DEFAULT_PLOTLY_COLORS[number]}
+        default_colors = plotly_colors.Plotly
+        default_line_style = {'color': default_colors[number % len(default_colors)]}
         default_marker_style = {'symbol': number % 53}
 
         line_shape = None
@@ -132,22 +134,21 @@ class Line:
         #     mode = kwargs.pop('mode')
         # line_args = kwargs
 
+        marker_style = default_marker_style if marker is None else marker
+        line_style = {**default_line_style, **kwargs}
+
         if errorbars and ("e" in data["variances"]):
             error_y = {'type': 'data', 'array': data["variances"]["e"]}
             self._error = True
 
-        self._line = go.Scatter(
-            x=data["values"]["x"],
-            y=data["values"]["y"],
-            name=self.label,
-            mode=mode,
-            marker=default_marker_style if marker is None else marker,
-            line_shape=line_shape,
-            error_y=error_y,
-            line={
-                **default_line_style,
-                **kwargs
-            })
+        self._line = go.Scatter(x=data["values"]["x"],
+                                y=data["values"]["y"],
+                                name=self.label,
+                                mode=mode,
+                                marker=marker_style,
+                                line_shape=line_shape,
+                                error_y=error_y,
+                                line=line_style)
         # self._line = self._ax.plot(data["values"]["x"],
         #                            data["values"]["y"],
         #                            label=self.label,
@@ -156,8 +157,31 @@ class Line:
         #                                **default_plot_style,
         #                                **kwargs
         #                            })[0]
+
+        # marker_style = self._line.marker
+
+        marker_line_style = {'width': 3, 'color': mask_color}
+        if 'line' in marker_style:
+            marker_style['line'].update(marker_line_style)
+        else:
+            marker_style['line'] = marker_line_style
+        if 'width' in line_style:
+            line_style['width'] *= 3
+        else:
+            line_style['width'] = 3
+
+        self._mask = go.Scatter(
+            x=data["values"]["x"],
+            y=data["values"]["y"],
+            name=self.label,
+            mode=mode,
+            marker=marker_style,
+            line_shape=line_shape,
+            # error_y=error_y,
+            line=line_style,
+            visible=has_mask)
         # self._mask = self._ax.plot(data["values"]["x"],
-        #                            data[mask_data_key]["y"],
+        #                            data[]["y"],
         #                            zorder=11,
         #                            mec=mask_color,
         #                            mfc="None",
@@ -170,6 +194,8 @@ class Line:
         # Need to re-define the line because it seems that the Scatter trace that ends
         # up in the figure is a copy of the one above.
         self._line = self._fig.data[-1]
+        self._fig.add_trace(self._mask)
+        self._mask = self._fig.data[-1]
 
         # # Add error bars
         # if errorbars and ("e" in data["variances"]):
