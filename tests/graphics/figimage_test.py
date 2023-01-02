@@ -113,6 +113,13 @@ def test_save_to_disk(ext):
         assert os.path.isfile(fname)
 
 
+def test_save_to_disk_with_bad_extension_raises():
+    da = data_array(ndim=2)
+    fig = FigImage(input_node(da))
+    with pytest.raises(ValueError):
+        fig.save(filename='plopp_fig2d.txt')
+
+
 def test_raises_for_new_data_with_incompatible_dimension():
     a = data_array(ndim=2)
     b = a.rename(xx='zz')
