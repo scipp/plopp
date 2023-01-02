@@ -29,7 +29,7 @@ def test_line_creation_bin_edges():
 def test_line_with_errorbars():
     da = data_array(ndim=1, variances=True)
     line = Line(canvas=Canvas(), data=da)
-    assert np.allclose(line._line.error_y['array'], sc.stddevs(da.data).values)
+    assert np.allclose(line._error.error_y['array'], sc.stddevs(da.data).values)
 
 
 def test_line_hide_errorbars():
@@ -58,14 +58,14 @@ def test_line_update_with_errorbars():
     da = data_array(ndim=1, variances=True)
     line = Line(canvas=Canvas(), data=da)
     assert np.allclose(line._line.y, da.values)
-    assert np.allclose(line._line.error_y['array'], sc.stddevs(da.data).values)
+    assert np.allclose(line._error.error_y['array'], sc.stddevs(da.data).values)
     new_values = da * 3.3
     new_values.variances = da.variances
     line.update(new_values)
     assert np.allclose(line._line.y, da.values * 3.3)
-    assert np.allclose(line._line.error_y['array'], sc.stddevs(da.data).values)
+    assert np.allclose(line._error.error_y['array'], sc.stddevs(da.data).values)
     new_values = 1.0 * da
     new_values.variances = da.variances * 4.0
     line.update(new_values)
     assert np.allclose(line._line.y, da.values)
-    assert np.allclose(line._line.error_y['array'], sc.stddevs(da.data).values * 2.0)
+    assert np.allclose(line._error.error_y['array'], sc.stddevs(da.data).values * 2.0)
