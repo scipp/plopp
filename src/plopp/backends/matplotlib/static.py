@@ -24,12 +24,6 @@ class StaticFig:
 
         self._fig = FigConstructor(*args, **kwargs)
 
-    def __getattr__(self, key):
-        return getattr(self._fig, key)
-
-    def __dir__(self):
-        return dir(self._fig)
-
     def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
         """
         Mimebundle display representation for jupyter notebooks.
@@ -50,3 +44,36 @@ class StaticFig:
         Convert the Matplotlib figure to an image widget.
         """
         return self._fig.canvas.to_image()
+
+    @property
+    def fig(self):
+        return self._fig.canvas.fig
+
+    @property
+    def ax(self):
+        return self._fig.canvas.ax
+
+    @property
+    def cax(self):
+        return self.canvas.cax
+
+    @property
+    def canvas(self):
+        return self._fig.canvas
+
+    @property
+    def artists(self):
+        return self._fig.artists
+
+    @property
+    def graph_nodes(self):
+        return self._fig.graph_nodes
+
+    def crop(self, *args, **kwargs):
+        return self._fig.crop(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        return self._fig.save(*args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        return self._fig.update(*args, **kwargs)

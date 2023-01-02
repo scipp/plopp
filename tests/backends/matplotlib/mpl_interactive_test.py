@@ -8,13 +8,6 @@ from plopp.graphics.figimage import FigImage
 from plopp.backends.matplotlib.interactive import InteractiveFig1d, InteractiveFig2d
 
 
-def test_getattr_from_figure(use_ipympl):
-    fig1d = InteractiveFig1d(FigConstructor=FigLine)
-    assert hasattr(fig1d, 'canvas')
-    fig2d = InteractiveFig2d(FigConstructor=FigImage)
-    assert hasattr(fig2d, 'colormapper')
-
-
 def test_logx_1d_toolbar_button(use_ipympl):
     da = data_array(ndim=1)
     fig = InteractiveFig1d(input_node(da), FigConstructor=FigLine, scale={'xx': 'log'})

@@ -45,14 +45,34 @@ class InteractiveFig1d(VBox):
             ]), self.bottom_bar
         ])
 
-    def __getattr__(self, key):
-        try:
-            return getattr(super(), key)
-        except AttributeError:
-            return getattr(self._fig, key)
+    @property
+    def fig(self):
+        return self._fig.canvas.fig
 
-    def __dir__(self):
-        return list(set(dir(VBox) + dir(super()) + dir(self._fig)))
+    @property
+    def ax(self):
+        return self._fig.canvas.ax
+
+    @property
+    def canvas(self):
+        return self._fig.canvas
+
+    @property
+    def artists(self):
+        return self._fig.artists
+
+    @property
+    def graph_nodes(self):
+        return self._fig.graph_nodes
+
+    def crop(self, *args, **kwargs):
+        return self._fig.crop(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        return self._fig.save(*args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        return self._fig.update(*args, **kwargs)
 
 
 class InteractiveFig2d(VBox):
@@ -96,11 +116,35 @@ class InteractiveFig2d(VBox):
             ]), self.bottom_bar
         ])
 
-    def __getattr__(self, key):
-        try:
-            return getattr(super(), key)
-        except AttributeError:
-            return getattr(self._fig, key)
+    @property
+    def fig(self):
+        return self._fig.canvas.fig
 
-    def __dir__(self):
-        return list(set(dir(VBox) + dir(super()) + dir(self._fig)))
+    @property
+    def ax(self):
+        return self._fig.canvas.ax
+
+    @property
+    def cax(self):
+        return self.canvas.cax
+
+    @property
+    def canvas(self):
+        return self._fig.canvas
+
+    @property
+    def artists(self):
+        return self._fig.artists
+
+    @property
+    def graph_nodes(self):
+        return self._fig.graph_nodes
+
+    def crop(self, *args, **kwargs):
+        return self._fig.crop(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        return self._fig.save(*args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        return self._fig.update(*args, **kwargs)

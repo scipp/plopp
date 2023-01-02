@@ -187,18 +187,6 @@ class FigImage(BaseFig):
         """
         self.canvas.crop(**{xy: limits[self.dims[xy]] for xy in 'xy'})
 
-    @property
-    def fig(self):
-        return self.canvas.fig
-
-    @property
-    def ax(self):
-        return self.canvas.ax
-
-    @property
-    def cax(self):
-        return self.canvas.cax
-
     def save(self, filename: str, **kwargs):
         """
         Save the figure to file.

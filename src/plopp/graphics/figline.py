@@ -161,14 +161,6 @@ class FigLine(BaseFig):
         """
         self.canvas.crop(x=limits[self.dims['x']])
 
-    @property
-    def fig(self):
-        return self.canvas.fig
-
-    @property
-    def ax(self):
-        return self.canvas.ax
-
     def save(self, filename: str, **kwargs):
         """
         Save the figure to file.

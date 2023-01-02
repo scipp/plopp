@@ -52,11 +52,26 @@ class Fig3d(VBox):
                   self._fig.canvas.to_widget(), self.right_bar]), self.bottom_bar
         ])
 
-    def __getattr__(self, key):
-        try:
-            return getattr(super(), key)
-        except AttributeError:
-            return getattr(self._fig, key)
+    @property
+    def canvas(self):
+        return self._fig.canvas
 
-    def __dir__(self):
-        return list(set(dir(VBox) + dir(super()) + dir(self._fig)))
+    @property
+    def artists(self):
+        return self._fig.artists
+
+    @property
+    def graph_nodes(self):
+        return self._fig.graph_nodes
+
+    def update(self, *args, **kwargs):
+        return self._fig.update(*args, **kwargs)
+
+    def get_limits(self, *args, **kwargs):
+        return self._fig.get_limits(*args, **kwargs)
+
+    def set_opacity(self, *args, **kwargs):
+        return self._fig.set_opacity(*args, **kwargs)
+
+    def remove(self, *args, **kwargs):
+        return self._fig.remove(*args, **kwargs)

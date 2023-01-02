@@ -41,11 +41,23 @@ class Fig1d(VBox):
                   self._fig.canvas.to_widget(), self.right_bar]), self.bottom_bar
         ])
 
-    def __getattr__(self, key):
-        try:
-            return getattr(super(), key)
-        except AttributeError:
-            return getattr(self._fig, key)
+    @property
+    def canvas(self):
+        return self._fig.canvas
 
-    def __dir__(self):
-        return list(set(dir(VBox) + dir(super()) + dir(self._fig)))
+    @property
+    def artists(self):
+        return self._fig.artists
+
+    @property
+    def graph_nodes(self):
+        return self._fig.graph_nodes
+
+    def crop(self, *args, **kwargs):
+        return self._fig.crop(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        return self._fig.save(*args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        return self._fig.update(*args, **kwargs)
