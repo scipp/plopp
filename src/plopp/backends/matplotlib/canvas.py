@@ -47,9 +47,6 @@ class Canvas:
         unit.
     aspect:
         The aspect ratio for the axes.
-    scale:
-        Change axis scaling between ``log`` and ``linear``. For example, specify
-        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
     cbar:
         Add axes to host a colorbar if ``True``.
     """
@@ -63,7 +60,6 @@ class Canvas:
                  vmin: Union[sc.Variable, int, float] = None,
                  vmax: Union[sc.Variable, int, float] = None,
                  aspect: Literal['auto', 'equal'] = 'auto',
-                 scale: Dict[str, str] = None,
                  cbar: bool = False,
                  **ignored):
 

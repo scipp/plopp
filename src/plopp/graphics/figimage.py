@@ -36,7 +36,8 @@ class FigImage(BaseFig):
         Upper bound for the colorbar. If a number (without a unit) is supplied, it is
         assumed that the unit is the same as the data unit.
     scale:
-        Control the scaling of the horizontal axis.
+        Control the scaling of the horizontal axis. For example, specify
+        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
     aspect:
         Aspect ratio for the axes.
     grid:

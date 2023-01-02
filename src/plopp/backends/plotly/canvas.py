@@ -10,24 +10,16 @@ from typing import Dict, Literal, Tuple, Union
 
 class Canvas:
     """
-    Matplotlib-based canvas used to render 2D graphics.
+    Plotly-based canvas used to render 2D graphics.
     It provides a figure and some axes, as well as functions for controlling the zoom,
     panning, and the scale of the axes.
 
     Parameters
     ----------
-    ax:
-        If supplied, use these axes to create the figure. If none are supplied, the
-        canvas will create its own axes.
-    cax:
-        If supplied, use these axes for the colorbar. If none are supplied, and a
-        colorbar is required, the canvas will create its own axes.
     figsize:
         The width and height of the figure, in inches.
     title:
         The title to be placed above the figure.
-    grid:
-        Display the figure grid if ``True``.
     vmin:
         The minimum value for the vertical axis. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the current vertical axis
@@ -36,11 +28,6 @@ class Canvas:
         The maximum value for the vertical axis. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the current vertical axis
         unit.
-    aspect:
-        The aspect ratio for the axes.
-    scale:
-        Change axis scaling between ``log`` and ``linear``. For example, specify
-        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
     cbar:
         Add axes to host a colorbar if ``True``.
     """
@@ -48,11 +35,8 @@ class Canvas:
     def __init__(self,
                  figsize: Tuple[float, float] = None,
                  title: str = None,
-                 grid: bool = False,
                  vmin: Union[sc.Variable, int, float] = None,
                  vmax: Union[sc.Variable, int, float] = None,
-                 aspect: Literal['auto', 'equal'] = 'auto',
-                 scale: Dict[str, str] = None,
                  cbar: bool = False,
                  **ignored):
 
@@ -89,15 +73,8 @@ class Canvas:
 
     def autoscale(self):
         """
-        Matplotlib's autoscale only takes lines into account. We require a special
-        handling for meshes, which is part of the axes collections.
-
-        Parameters
-        ----------
-        draw:
-            Make a draw call to the figure if ``True``.
+        Auto-scale the axes ranges to show all data in the canvas.
         """
-        self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
         ymin = None
         ymax = None
         if (self._user_vmin is not None) or (self._user_vmax is not None):

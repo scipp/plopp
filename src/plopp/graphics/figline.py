@@ -28,7 +28,8 @@ class FigLine(BaseFig):
         Upper bound for the vertical axis. If a number (without a unit) is supplied,
         it is assumed that the unit is the same as the current vertical axis unit.
     scale:
-        Control the scaling of the horizontal axis.
+        Control the scaling of the horizontal axis. For example, specify
+        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
     errorbars:
         Hide errorbars if ``False``.
     mask_color:
