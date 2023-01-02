@@ -63,6 +63,15 @@ class Canvas:
                  cbar: bool = False,
                  **ignored):
 
+        # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
+        # creates both the canvas and an artist object (Line or Image). The figure
+        # accepts keyword arguments, and has to somehow forward them to the canvas and
+        # the artist. Since the figure has no detailed knowledge of the underlying
+        # backend that implements the canvas, it cannot have specific arguments (such
+        # as `ax` for specifying Matplotlib axes).
+        # Instead, we forward all the kwargs from the figure to both the canvas and the
+        # artist, and filter out the artist kwargs with `**ignored`.
+
         self.fig = None
         self.ax = ax
         self.cax = cax

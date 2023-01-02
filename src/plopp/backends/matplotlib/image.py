@@ -77,6 +77,8 @@ class Image:
 
         self._ax = canvas.ax
         self._data = data
+        # Because all keyword arguments from the figure are forwarded to both the canvas
+        # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
         kwargs.pop('cax', None)
         # If the grid is visible on the axes, we need to set that on again after we
