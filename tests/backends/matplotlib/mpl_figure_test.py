@@ -3,7 +3,7 @@
 
 from plopp.graphics.figline import FigLine
 from plopp.graphics.figimage import FigImage
-from plopp.backends.matplotlib import Fig1d, Fig2d
+from plopp.backends.matplotlib.figure import Fig1d, Fig2d
 from plopp.backends.matplotlib.static import StaticFig
 from plopp.backends.matplotlib.interactive import InteractiveFig1d, InteractiveFig2d
 

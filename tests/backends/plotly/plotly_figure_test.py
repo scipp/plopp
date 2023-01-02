@@ -4,7 +4,7 @@
 from plopp import input_node
 from plopp.data.testing import data_array
 from plopp.graphics.figline import FigLine
-from plopp.backends.plotly import Fig1d
+from plopp.backends.plotly.figure import Fig1d
 
 
 def test_logx_1d_toolbar_button():
