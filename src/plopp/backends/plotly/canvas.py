@@ -5,7 +5,7 @@ from ...core.utils import maybe_variable_to_number
 
 import plotly.graph_objects as go
 import scipp as sc
-from typing import Dict, Literal, Tuple, Union
+from typing import Literal, Tuple, Union
 
 
 class Canvas:
