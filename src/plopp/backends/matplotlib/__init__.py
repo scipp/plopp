@@ -7,8 +7,4 @@ from .canvas import Canvas
 from .line import Line
 from .image import Image
 from .figure import Fig1d, Fig2d
-
-
-def is_interactive():
-    from .utils import is_interactive_backend
-    return is_interactive_backend()
+from .backend import MatplotlibBackend
