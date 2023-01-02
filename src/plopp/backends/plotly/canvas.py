@@ -157,7 +157,7 @@ class Canvas:
         layout.title = title
 
     @property
-    def xlabel(self):
+    def xlabel(self) -> str:
         return self.fig.layout.xaxis.title
 
     @xlabel.setter
@@ -165,7 +165,7 @@ class Canvas:
         self.fig.layout.xaxis.title = lab
 
     @property
-    def ylabel(self):
+    def ylabel(self) -> str:
         return self.fig.layout.yaxis.title
 
     @ylabel.setter
@@ -173,7 +173,7 @@ class Canvas:
         self.fig.layout.yaxis.title = lab
 
     @property
-    def xscale(self):
+    def xscale(self) -> str:
         return self.fig.layout.xaxis.type
 
     @xscale.setter
@@ -181,7 +181,7 @@ class Canvas:
         self.fig.update_xaxes(type=scale)
 
     @property
-    def yscale(self):
+    def yscale(self) -> str:
         return self.fig.layout.yaxis.type
 
     @yscale.setter
@@ -189,7 +189,7 @@ class Canvas:
         self.fig.update_yaxes(type=scale)
 
     @property
-    def xmin(self):
+    def xmin(self) -> float:
         return self.fig.layout.xaxis.range[0]
 
     @xmin.setter
@@ -197,7 +197,7 @@ class Canvas:
         self.fig.layout.xaxis.range = [value, self.xmax]
 
     @property
-    def xmax(self):
+    def xmax(self) -> float:
         return self.fig.layout.xaxis.range[1]
 
     @xmax.setter
@@ -205,15 +205,15 @@ class Canvas:
         self.fig.layout.xaxis.range = [self.xmin, value]
 
     @property
-    def xrange(self):
+    def xrange(self) -> Tuple[float]:
         return self.fig.layout.xaxis.range
 
     @xrange.setter
-    def xrange(self, value: float):
+    def xrange(self, value: Tuple[float]):
         self.fig.layout.xaxis.range = value
 
     @property
-    def ymin(self):
+    def ymin(self) -> float:
         return self.fig.layout.yaxis.range[0]
 
     @ymin.setter
@@ -221,7 +221,7 @@ class Canvas:
         self.fig.layout.yaxis.range = [value, self.ymax]
 
     @property
-    def ymax(self):
+    def ymax(self) -> float:
         return self.fig.layout.yaxis.range[1]
 
     @ymax.setter
@@ -229,11 +229,11 @@ class Canvas:
         self.fig.layout.yaxis.range = [self.ymin, value]
 
     @property
-    def yrange(self):
+    def yrange(self) -> Tuple[float]:
         return self.fig.layout.yaxis.range
 
     @yrange.setter
-    def yrange(self, value: float):
+    def yrange(self, value: Tuple[float]):
         self.fig.layout.yaxis.range = value
 
     def reset_mode(self):

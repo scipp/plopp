@@ -93,7 +93,8 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         'title': title,
         'vmin': vmin,
         'vmax': vmax,
-        'figsize': figsize
+        'figsize': figsize,
+        **kwargs
     }
 
     if isinstance(obj, (Mapping, Dataset)):
@@ -120,16 +121,12 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         return figure1d(*[input_node(da) for da in data_arrays],
                         errorbars=errorbars,
                         mask_color=mask_color,
-                        **common_args,
-                        **kwargs)
+                        **common_args)
     elif ndim == 2:
         return figure2d(*[input_node(da) for da in data_arrays],
                         aspect=aspect,
                         cbar=cbar,
-                        **{
-                            **common_args,
-                            **kwargs
-                        })
+                        **common_args)
     else:
         raise ValueError('The plot function can only plot 1d and 2d data, got input '
                          f'with {ndim} dimensions')

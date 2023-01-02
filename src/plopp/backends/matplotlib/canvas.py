@@ -261,7 +261,7 @@ class Canvas:
         return self.ax.get_xlim()
 
     @xrange.setter
-    def xrange(self, value: float):
+    def xrange(self, value: Tuple[float]):
         self.ax.set_xlim(value)
 
     @property
@@ -285,7 +285,7 @@ class Canvas:
         return self.ax.get_ylim()
 
     @yrange.setter
-    def yrange(self, value: float):
+    def yrange(self, value: Tuple[float]):
         self.ax.set_ylim(value)
 
     def reset_mode(self):
