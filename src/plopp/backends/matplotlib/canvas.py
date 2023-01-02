@@ -331,7 +331,8 @@ class Canvas:
 
     def finalize(self):
         """
-        Trim the margins around the figure.
+        Finalize is called at the end of figure creation. Add any polishing operations
+        here: trim the margins around the figure.
         """
         if self._own_axes:
             self.fig.tight_layout()

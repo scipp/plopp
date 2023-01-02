@@ -92,7 +92,7 @@ class Line:
 
         default_colors = plotly_colors.Plotly
         default_line_style = {'color': default_colors[number % len(default_colors)]}
-        default_marker_style = {'symbol': number % 53}
+        default_marker_style = {'symbol': number % 53}  # Plotly has 52 marker styles
 
         line_shape = None
         error_y = None

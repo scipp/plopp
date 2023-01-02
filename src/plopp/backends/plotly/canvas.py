@@ -215,19 +215,19 @@ class Canvas:
 
     def reset_mode(self):
         """
-        Reset the Matplotlib toolbar mode to nothing, to disable all Zoom/Pan tools.
+        Reset the modebar mode to nothing, to disable all zoom/pan tools.
         """
         self.fig.update_layout(dragmode=False)
 
     def zoom(self):
         """
-        Activate the underlying Matplotlib zoom tool.
+        Activate the underlying Plotly zoom tool.
         """
         self.fig.update_layout(dragmode='zoom')
 
     def pan(self):
         """
-        Activate the underlying Matplotlib pan tool.
+        Activate the underlying Plotly pan tool.
         """
         self.fig.update_layout(dragmode='pan')
 
@@ -242,16 +242,16 @@ class Canvas:
         Toggle the scale between ``linear`` and ``log`` along the horizontal axis.
         """
         self.xscale = 'log' if self.xscale in ('linear', None) else 'linear'
-        self.autoscale()
 
     def logy(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """
         self.yscale = 'log' if self.yscale in ('linear', None) else 'linear'
-        self.autoscale()
 
     def finalize(self):
         """
+        Finalize is called at the end of figure creation. Add any polishing operations
+        here.
         """
         return
