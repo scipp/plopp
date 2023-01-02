@@ -6,3 +6,7 @@
 from .canvas import Canvas
 from .line import Line
 from .figure import Fig1d
+
+
+def is_interactive():
+    return True

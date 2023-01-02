@@ -39,3 +39,20 @@ def silent_mpl_figure():
         yield
     if revert:
         mpl.use(backend_)
+
+
+def is_interactive_backend():
+    """
+    Return `True` if the current backend used by Matplotlib is the widget backend.
+    """
+    return 'ipympl' in mpl.get_backend()
+
+
+def require_interactive_backend(func: str):
+    """
+    Raise an error if the current backend in use is non-interactive.
+    """
+    if not is_interactive_backend():
+        raise RuntimeError(f"The {func} can only be used with the interactive widget "
+                           "backend. Use `%matplotlib widget` at the start of your "
+                           "notebook.")

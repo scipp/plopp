@@ -95,7 +95,6 @@ class Line:
         default_marker_style = {'symbol': number % 53}  # Plotly has 52 marker styles
 
         line_shape = None
-        error_y = None
 
         if data["hist"]:
             line_shape = 'vh'
@@ -104,18 +103,26 @@ class Line:
         marker_style = default_marker_style if marker is None else marker
         line_style = {**default_line_style, **kwargs}
 
-        if errorbars and ("e" in data["variances"]):
-            error_y = {'type': 'data', 'array': data["variances"]["e"]}
-            self._error = True
-
         self._line = go.Scatter(x=np.asarray(data["values"]["x"]),
                                 y=np.asarray(data["values"]["y"]),
                                 name=self.label,
                                 mode=mode,
                                 marker=marker_style,
                                 line_shape=line_shape,
-                                error_y=error_y,
                                 line=line_style)
+
+        if errorbars and ("e" in data["variances"]):
+            self._error = go.Scatter(x=np.asarray(data["variances"]["x"]),
+                                     y=np.asarray(data["variances"]["y"]),
+                                     line=line_style,
+                                     name=self.label,
+                                     mode='markers',
+                                     marker={'opacity': 0},
+                                     error_y={
+                                         'type': 'data',
+                                         'array': data["variances"]["e"]
+                                     },
+                                     showlegend=False)
 
         marker_line_style = {'width': 3, 'color': mask_color}
         if 'line' in marker_style:
@@ -148,9 +155,15 @@ class Line:
             self._mask = self._fig.data[-1]
             self._fig.add_trace(self._line)
             self._line = self._fig.data[-1]
+            if self._error is not None:
+                self._fig.add_trace(self._error)
+                self._error = self._fig.data[-1]
         else:
             self._fig.add_trace(self._line)
             self._line = self._fig.data[-1]
+            if self._error is not None:
+                self._fig.add_trace(self._error)
+                self._error = self._fig.data[-1]
             self._fig.add_trace(self._mask)
             self._mask = self._fig.data[-1]
 
@@ -197,17 +210,28 @@ class Line:
         """
         self._data = new_values
         new_values = self._make_data()
-        update = {'x': new_values["values"]["x"], 'y': new_values["values"]["y"]}
-        if (self._error is not None) and ("e" in new_values["variances"]):
-            update['error_y'] = {'array': new_values["variances"]["e"]}
-        self._line.update(update)
 
-        if new_values["mask"] is not None:
-            update = {'x': new_values["values"]["x"], 'y': new_values["mask"]["y"]}
-            self._mask.update(update)
-            self._mask.visible = True
-        else:
-            self._mask.visible = False
+        with self._fig.batch_update():
+            self._line.update({
+                'x': new_values["values"]["x"],
+                'y': new_values["values"]["y"]
+            })
+
+            if (self._error is not None) and ("e" in new_values["variances"]):
+                self._error.update({
+                    'x': new_values["variances"]["x"],
+                    'y': new_values["variances"]["y"],
+                    'error_y': {
+                        'array': new_values["variances"]["e"]
+                    }
+                })
+
+            if new_values["mask"] is not None:
+                update = {'x': new_values["values"]["x"], 'y': new_values["mask"]["y"]}
+                self._mask.update(update)
+                self._mask.visible = True
+            else:
+                self._mask.visible = False
 
     def remove(self):
         """

@@ -9,6 +9,16 @@ class BackendManager(dict):
         self.update(backends)
 
     @property
+    def is_interactive(self):
+        if self['2d'] == 'matplotlib':
+            from .matplotlib import is_interactive as is_interactive_mpl
+            return is_interactive_mpl()
+        elif self['2d'] == 'plotly':
+            from .plotly import is_interactive as is_interactive_plotly
+            return is_interactive_plotly()
+        raise ValueError(f'Unsupported backend \'{self["2d"]}\' for is_interactive.')
+
+    @property
     def Canvas2d(self):
         if self['2d'] == 'matplotlib':
             from .matplotlib import Canvas as CanvasMpl
