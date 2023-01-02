@@ -27,16 +27,16 @@ class BackendManager:
 
     def _sync(self):
         if self._mapping['2d'] == 'matplotlib':
-            from .matplotlib.backend import MatplotlibBackend
+            from .matplotlib import MatplotlibBackend
             self._backends['2d'] = MatplotlibBackend()
         elif self._mapping['2d'] == 'plotly':
-            from .plotly.backend import PlotlyBackend
+            from .plotly import PlotlyBackend
             self._backends['2d'] = PlotlyBackend()
         else:
             raise ValueError(f'Unsupported 2d backend \'{self._mapping["2d"]}\'.')
 
         if self._mapping['3d'] == 'pythreejs':
-            from .pythreejs.backend import PythreejsBackend
+            from .pythreejs import PythreejsBackend
             self._backends['3d'] = PythreejsBackend()
         else:
             raise ValueError(f'Unsupported 3d backend \'{self._mapping["3d"]}\'.')

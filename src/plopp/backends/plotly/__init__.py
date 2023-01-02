@@ -1,12 +1,24 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-# flake8: noqa E402, F401
 
-from .canvas import Canvas
-from .line import Line
-from .figure import Fig1d
+class PlotlyBackend:
 
+    @property
+    def is_interactive(self):
+        return True
 
-def is_interactive():
-    return True
+    @property
+    def Canvas2d(self):
+        from .canvas import Canvas as CanvasPlotly
+        return CanvasPlotly
+
+    @property
+    def Line(self):
+        from .line import Line as LinePlotly
+        return LinePlotly
+
+    @property
+    def Fig1d(self):
+        from .figure import Fig1d as Fig1dPlotly
+        return Fig1dPlotly
