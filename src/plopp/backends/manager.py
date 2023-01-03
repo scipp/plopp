@@ -46,49 +46,57 @@ class BackendManager:
 
     def canvas2d(self, *args, **kwargs):
         try:
-            return self._backends['2d'].canvas2d(*args, **kwargs)
+            _canvas2d = self._backends['2d'].canvas2d
         except AttributeError:
             raise ValueError(f'Unsupported backend \'{self["2d"]}\' for canvas2d.')
+        return _canvas2d(*args, **kwargs)
 
     def canvas3d(self, *args, **kwargs):
         try:
-            return self._backends['3d'].canvas3d(*args, **kwargs)
+            _canvas3d = self._backends['3d'].canvas3d
         except AttributeError:
             raise ValueError(f'Unsupported backend \'{self["3d"]}\' for canvas3d.')
+        return _canvas3d(*args, **kwargs)
 
     def line(self, *args, **kwargs):
         try:
-            return self._backends['2d'].line(*args, **kwargs)
+            _line = self._backends['2d'].line
         except AttributeError:
             raise ValueError(f'Unsupported backend \'{self["2d"]}\' for line (1D).')
+        return _line(*args, **kwargs)
 
     def image(self, *args, **kwargs):
         try:
-            return self._backends['2d'].image(*args, **kwargs)
+            _image = self._backends['2d'].image
         except AttributeError:
             raise ValueError(f'Unsupported backend \'{self["2d"]}\' for image (2D).')
+        return _image(*args, **kwargs)
 
     def point_cloud(self, *args, **kwargs):
         try:
-            return self._backends['3d'].point_cloud(*args, **kwargs)
+            _point_cloud = self._backends['3d'].point_cloud
         except AttributeError:
             raise ValueError(
                 f'Unsupported backend \'{self["3d"]}\' for point_cloud (3D).')
+        return _point_cloud(*args, **kwargs)
 
     def figure1d(self, *args, **kwargs):
         try:
-            return self._backends['2d'].figure1d(*args, **kwargs)
+            _figure1d = self._backends['2d'].figure1d
         except AttributeError:
             raise ValueError(f'Unsupported backend \'{self["2d"]}\' for figure1d.')
+        return _figure1d(*args, **kwargs)
 
     def figure2d(self, *args, **kwargs):
         try:
-            return self._backends['2d'].figure2d(*args, **kwargs)
+            _figure2d = self._backends['2d'].figure2d
         except AttributeError:
             raise ValueError(f'Unsupported backend \'{self["2d"]}\' for figure2d.')
+        return _figure2d(*args, **kwargs)
 
     def figure3d(self, *args, **kwargs):
         try:
-            return self._backends['3d'].figure3d(*args, **kwargs)
+            _figure3d = self._backends['3d'].figure3d
         except AttributeError:
             raise ValueError(f'Unsupported backend \'{self["3d"]}\' for figure3d.')
+        return _figure3d(*args, **kwargs)
