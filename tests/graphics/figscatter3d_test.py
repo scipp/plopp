@@ -3,7 +3,7 @@
 
 from plopp.data.testing import scatter
 from plopp.graphics.figscatter3d import FigScatter3d
-from plopp import backends, input_node
+from plopp import input_node
 import scipp as sc
 import pytest
 
@@ -13,7 +13,6 @@ def test_creation():
     fig = FigScatter3d(input_node(da), x='x', y='y', z='z')
     assert len(fig.artists) == 1
     key = list(fig.artists.keys())[0]
-    assert isinstance(fig.artists[key], backends.PointCloud)
     assert sc.identical(fig.artists[key]._data, da)
 
 

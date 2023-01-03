@@ -4,32 +4,26 @@
 
 class MatplotlibBackend:
 
-    @property
     def is_interactive(self):
         from .utils import is_interactive_backend
         return is_interactive_backend()
 
-    @property
-    def Canvas2d(self):
+    def canvas2d(self, *args, **kwargs):
         from .canvas import Canvas as CanvasMpl
-        return CanvasMpl
+        return CanvasMpl(*args, **kwargs)
 
-    @property
-    def Line(self):
+    def line(self, *args, **kwargs):
         from .line import Line as LineMpl
-        return LineMpl
+        return LineMpl(*args, **kwargs)
 
-    @property
-    def Image(self):
+    def image(self, *args, **kwargs):
         from .image import Image as ImageMpl
-        return ImageMpl
+        return ImageMpl(*args, **kwargs)
 
-    @property
-    def Fig1d(self):
-        from .figure import Fig1d as Fig1dMpl
-        return Fig1dMpl
+    def figure1d(self, *args, **kwargs):
+        from .figure import figure1d as fig1d_mpl
+        return fig1d_mpl(*args, **kwargs)
 
-    @property
-    def Fig2d(self):
-        from .figure import Fig2d as Fig2dMpl
-        return Fig2dMpl
+    def figure2d(self, *args, **kwargs):
+        from .figure import figure2d as fig2d_mpl
+        return fig2d_mpl(*args, **kwargs)

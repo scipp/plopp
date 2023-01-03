@@ -4,21 +4,17 @@
 
 class PythreejsBackend:
 
-    @property
     def is_interactive(self):
         return True
 
-    @property
-    def Canvas3d(self):
+    def canvas3d(self, *args, **kwargs):
         from .canvas import Canvas as CanvasP3js
-        return CanvasP3js
+        return CanvasP3js(*args, **kwargs)
 
-    @property
-    def PointCloud(self):
+    def point_cloud(self, *args, **kwargs):
         from .point_cloud import PointCloud as PointCloudP3js
-        return PointCloudP3js
+        return PointCloudP3js(*args, **kwargs)
 
-    @property
-    def Fig3d(self):
+    def figure3d(self, *args, **kwargs):
         from .figure import Fig3d as Fig3dP3js
-        return Fig3dP3js
+        return Fig3dP3js(*args, **kwargs)

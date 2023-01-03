@@ -70,7 +70,7 @@ class FigScatter3d(BaseFig):
         self._z = z
         self._kwargs = kwargs
 
-        self.canvas = backends.Canvas3d(figsize=figsize)
+        self.canvas = backends.canvas3d(figsize=figsize)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,
@@ -118,11 +118,11 @@ class FigScatter3d(BaseFig):
         self.colormapper.update(data=new_values, key=key)
 
         if key not in self.artists:
-            pts = backends.PointCloud(data=new_values,
-                                      x=self._x,
-                                      y=self._y,
-                                      z=self._z,
-                                      **self._kwargs)
+            pts = backends.point_cloud(data=new_values,
+                                       x=self._x,
+                                       y=self._y,
+                                       z=self._z,
+                                       **self._kwargs)
             self.artists[key] = pts
             self.colormapper[key] = pts
             self.canvas.add(pts.points)

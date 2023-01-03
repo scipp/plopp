@@ -4,21 +4,17 @@
 
 class PlotlyBackend:
 
-    @property
     def is_interactive(self):
         return True
 
-    @property
-    def Canvas2d(self):
+    def canvas2d(self, *args, **kwargs):
         from .canvas import Canvas as CanvasPlotly
-        return CanvasPlotly
+        return CanvasPlotly(*args, **kwargs)
 
-    @property
-    def Line(self):
+    def line(self, *args, **kwargs):
         from .line import Line as LinePlotly
-        return LinePlotly
+        return LinePlotly(*args, **kwargs)
 
-    @property
-    def Fig1d(self):
+    def figure1d(self, *args, **kwargs):
         from .figure import Fig1d as Fig1dPlotly
-        return Fig1dPlotly
+        return Fig1dPlotly(*args, **kwargs)

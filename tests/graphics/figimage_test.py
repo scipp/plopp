@@ -3,7 +3,7 @@
 
 from plopp.data.testing import data_array
 from plopp.graphics.figimage import FigImage
-from plopp import backends, input_node
+from plopp import input_node
 import scipp as sc
 import pytest
 import tempfile
@@ -21,7 +21,6 @@ def test_update():
     da = data_array(ndim=2)
     key = 'data2d'
     fig.update(da, key=key)
-    assert isinstance(fig.artists[key], backends.Image)
     assert sc.identical(fig.artists[key]._data, da)
 
 

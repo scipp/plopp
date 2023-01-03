@@ -87,7 +87,7 @@ class FigImage(BaseFig):
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = backends.Canvas2d(cbar=cbar,
+        self.canvas = backends.canvas2d(cbar=cbar,
                                         aspect=aspect,
                                         grid=grid,
                                         title=title,
@@ -148,7 +148,7 @@ class FigImage(BaseFig):
 
         if key not in self.artists:
 
-            image = backends.Image(canvas=self.canvas, data=new_values, **self._kwargs)
+            image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = image
             self.colormapper[key] = image
             self.dims.update({"x": new_values.dims[1], "y": new_values.dims[0]})

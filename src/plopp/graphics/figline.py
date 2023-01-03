@@ -82,7 +82,7 @@ class FigLine(BaseFig):
         self._mask_color = mask_color
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = backends.Canvas2d(cbar=False,
+        self.canvas = backends.canvas2d(cbar=False,
                                         aspect=aspect,
                                         grid=grid,
                                         figsize=figsize,
@@ -130,7 +130,7 @@ class FigLine(BaseFig):
 
         if key not in self.artists:
 
-            line = backends.Line(canvas=self.canvas,
+            line = backends.line(canvas=self.canvas,
                                  data=new_values,
                                  number=len(self.artists),
                                  errorbars=self._errorbars,

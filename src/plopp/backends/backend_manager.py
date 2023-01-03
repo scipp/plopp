@@ -41,63 +41,54 @@ class BackendManager:
         else:
             raise ValueError(f'Unsupported 3d backend \'{self._mapping["3d"]}\'.')
 
-    @property
     def is_interactive(self):
-        return self._backends['2d'].is_interactive
+        return self._backends['2d'].is_interactive()
 
-    @property
-    def Canvas2d(self):
+    def canvas2d(self, *args, **kwargs):
         try:
-            return self._backends['2d'].Canvas2d
+            return self._backends['2d'].canvas2d(*args, **kwargs)
         except AttributeError:
-            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for Canvas2d.')
+            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for canvas2d.')
 
-    @property
-    def Canvas3d(self):
+    def canvas3d(self, *args, **kwargs):
         try:
-            return self._backends['3d'].Canvas3d
+            return self._backends['3d'].canvas3d(*args, **kwargs)
         except AttributeError:
-            raise ValueError(f'Unsupported backend \'{self["3d"]}\' for Canvas3d.')
+            raise ValueError(f'Unsupported backend \'{self["3d"]}\' for canvas3d.')
 
-    @property
-    def Line(self):
+    def line(self, *args, **kwargs):
         try:
-            return self._backends['2d'].Line
+            return self._backends['2d'].line(*args, **kwargs)
         except AttributeError:
-            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for Line (1D).')
+            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for line (1D).')
 
-    @property
-    def Image(self):
+    def image(self, *args, **kwargs):
         try:
-            return self._backends['2d'].Image
+            return self._backends['2d'].image(*args, **kwargs)
         except AttributeError:
-            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for Image (2D).')
+            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for image (2D).')
 
-    @property
-    def PointCloud(self):
+    def point_cloud(self, *args, **kwargs):
         try:
-            return self._backends['3d'].PointCloud
+            return self._backends['3d'].point_cloud(*args, **kwargs)
         except AttributeError:
             raise ValueError(
-                f'Unsupported backend \'{self["3d"]}\' for PointCloud (3D).')
+                f'Unsupported backend \'{self["3d"]}\' for point_cloud (3D).')
 
-    @property
-    def Fig1d(self):
+    def figure1d(self, *args, **kwargs):
         try:
-            return self._backends['2d'].Fig1d
+            return self._backends['2d'].figure1d(*args, **kwargs)
         except AttributeError:
-            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for Fig1d.')
+            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for figure1d.')
 
-    @property
-    def Fig2d(self):
+    def figure2d(self, *args, **kwargs):
         try:
-            return self._backends['2d'].Fig2d
+            return self._backends['2d'].figure2d(*args, **kwargs)
         except AttributeError:
-            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for Fig2d.')
+            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for figure2d.')
 
-    @property
-    def Fig3d(self):
+    def figure3d(self, *args, **kwargs):
         try:
-            return self._backends['3d'].Fig3d
+            return self._backends['3d'].figure3d(*args, **kwargs)
         except AttributeError:
-            raise ValueError(f'Unsupported backend \'{self["3d"]}\' for Fig3d.')
+            raise ValueError(f'Unsupported backend \'{self["3d"]}\' for figure3d.')
