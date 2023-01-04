@@ -22,7 +22,7 @@ project = u'plopp'
 copyright = u'2022 Scipp contributors'
 author = u'Scipp contributors'
 
-version_info = VersionInfo(repo=project)
+version_info = VersionInfo()
 long_version = plopp.__version__
 outdated = not version_info.is_latest(long_version)
 
@@ -37,10 +37,10 @@ def add_buttons(
     base = "https://scipp.github.io"
     l1 = []
     l1.append({"type": "link", "text": "scipp", "url": f"{base}"})
+    l1.append({"type": "link", "text": "plopp", "url": f"{base}/plopp"})
     l1.append({"type": "link", "text": "scippnexus", "url": f"{base}/scippnexus"})
     l1.append({"type": "link", "text": "scippneutron", "url": f"{base}/scippneutron"})
     l1.append({"type": "link", "text": "ess", "url": f"{base}/ess"})
-    l1.append({"type": "link", "text": "plopp", "url": f"{base}/plopp"})
     header_buttons = context["header_buttons"]
     header_buttons.append({
         "type": "group",

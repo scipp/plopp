@@ -1,32 +1,29 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+import git
 import sys
 from typing import List
 from packaging.version import parse, Version, InvalidVersion
-import requests
 import argparse
 
 
-def _get_releases(repo: str, organization: str = 'scipp') -> List[Version]:
+def _get_releases() -> List[Version]:
     """Return reversed sorted list of release tag names."""
-    max_tries = 3
-    ok = False
-    for n in range(max_tries):
-        r = requests.get(f'https://api.github.com/repos/{organization}/{repo}/releases')
-        ok = r.status_code == 200
-        if ok:
-            break
-    if not ok:
-        return []
-    data = r.json()
-    return sorted([parse(e['tag_name']) for e in data if not e['draft']], reverse=True)
+    tags = git.Repo('..').tags
+    versions = []
+    for t in tags:
+        try:
+            versions.append(parse(t.name))
+        except InvalidVersion:
+            pass
+    return sorted(versions, reverse=True)
 
 
 class VersionInfo:
 
-    def __init__(self, repo: str, organization: str = 'scipp'):
-        self._releases = _get_releases(repo=repo, organization=organization)
+    def __init__(self):
+        self._releases = _get_releases()
 
     def _to_version(self, version) -> Version:
         if isinstance(version, str):
@@ -79,8 +76,8 @@ class VersionInfo:
                 return release
 
 
-def main(repo: str, action: str, version: str) -> int:
-    info = VersionInfo(repo=repo)
+def main(action: str, version: str) -> int:
+    info = VersionInfo()
     if action == 'is-latest':
         print(info.is_latest(version))
     elif action == 'is-new':
@@ -94,7 +91,6 @@ def main(repo: str, action: str, version: str) -> int:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--repo', dest='repo', required=True, help='Repository name')
     parser.add_argument('--action',
                         choices=['is-latest', 'is-new', 'get-replaced', 'get-target'],
                         required=True,
