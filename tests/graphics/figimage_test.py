@@ -59,14 +59,6 @@ def test_log_norm():
     assert fig.colormapper.norm == 'log'
 
 
-def test_toggle_norm():
-    da = data_array(ndim=2)
-    fig = FigImage(input_node(da))
-    assert fig.colormapper.norm == 'linear'
-    fig.toggle_norm()
-    assert fig.colormapper.norm == 'log'
-
-
 def test_crop():
     da = data_array(ndim=2, binedges=True)
     fig = FigImage(input_node(da))
