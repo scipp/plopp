@@ -9,6 +9,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 from typing import Dict
 from matplotlib.lines import Line2D
+import uuid
 
 
 def _parse_dicts_in_kwargs(kwargs, name):
@@ -41,7 +42,8 @@ class Line:
 
     def __init__(self, canvas: Canvas, data: sc.DataArray, number: int = 0, **kwargs):
 
-        self._ax = canvas.ax
+        self._canvas = canvas
+        self._ax = self._canvas.ax
         self._data = data
         # Because all keyword arguments from the figure are forwarded to both the canvas
         # and the line, we need to remove the arguments that belong to the canvas.
@@ -55,10 +57,10 @@ class Line:
         self._dim = None
         self._unit = None
         self.label = data.name
-
         self._dim = self._data.dim
         self._unit = self._data.unit
         self._coord = self._data.meta[self._dim]
+        self._id = uuid.uuid4().hex
 
         aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
         for key, alias in aliases.items():
@@ -245,3 +247,4 @@ class Line:
         self._line.set_color(val)
         if self._error is not None:
             self._error.set_color(val)
+        self._canvas.draw()

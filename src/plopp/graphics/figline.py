@@ -98,7 +98,7 @@ class FigLine(BaseFig):
             self.crop(**crop)
         self.canvas.finalize()
 
-    def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
+    def update(self, new_values: sc.DataArray, key: str):
         """
         Add new line or update line values.
 
@@ -108,10 +108,6 @@ class FigLine(BaseFig):
             New data to create or update a :class:`Line` object from.
         key:
             The id of the node that sent the new data.
-        draw:
-            Draw the figure after the update if ``True``. Set this to ``False`` when
-            doing batch updates of multiple artists, and then manually call ``draw``
-            once all artists have been updated.
         """
         if new_values.ndim != 1:
             raise ValueError("FigLine can only be used to plot 1-D data.")
@@ -147,8 +143,7 @@ class FigLine(BaseFig):
         else:
             self.artists[key].update(new_values=new_values)
 
-        if draw:
-            self.canvas.autoscale()
+        self.canvas.autoscale()
 
     def crop(self, **limits):
         """

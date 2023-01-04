@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ...widgets import Toolbar, HBar, VBar, tools
+from ...widgets import HBar, VBar, make_toolbar_canvas2d
 
 from ipywidgets import VBox, HBox
 
@@ -14,22 +14,7 @@ class Fig1d(VBox):
     def __init__(self, *args, FigConstructor, **kwargs):
 
         self._fig = FigConstructor(*args, **kwargs)
-        self.toolbar = Toolbar(
-            tools={
-                'home':
-                tools.HomeTool(self._fig.canvas.autoscale),
-                'panzoom':
-                tools.PanZoomTool(canvas=self._fig.canvas),
-                'logx':
-                tools.LogxTool(self._fig.canvas.logx,
-                               value=self._fig.canvas.xscale == 'log'),
-                'logy':
-                tools.LogyTool(self._fig.canvas.logy,
-                               value=self._fig.canvas.yscale == 'log'),
-                'save':
-                tools.SaveTool(self._fig.canvas.save_figure)
-            })
-
+        self.toolbar = make_toolbar_canvas2d(canvas=self._fig.canvas)
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar()
         self.bottom_bar = HBar()

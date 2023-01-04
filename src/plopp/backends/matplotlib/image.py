@@ -6,6 +6,7 @@ from .canvas import Canvas
 
 import numpy as np
 import scipp as sc
+import uuid
 
 
 def _find_dim_of_2d_coord(coords):
@@ -75,8 +76,10 @@ class Image:
                  rasterized: bool = True,
                  **kwargs):
 
-        self._ax = canvas.ax
+        self._canvas = canvas
+        self._ax = self._canvas.ax
         self._data = data
+        self._id = uuid.uuid4().hex
         # Because all keyword arguments from the figure are forwarded to both the canvas
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
@@ -147,6 +150,7 @@ class Image:
             The array of rgba colors.
         """
         self._mesh.set_facecolors(rgba.reshape(np.prod(rgba.shape[:-1]), 4))
+        self._canvas.draw()
 
     def update(self, new_values: sc.DataArray):
         """

@@ -35,7 +35,7 @@ class BaseFig(View):
         """
         node_id = message["node_id"]
         new_values = self.graph_nodes[node_id].request_data()
-        self.update(new_values=new_values, key=node_id, draw=True)
+        self.update(new_values=new_values, key=node_id)
 
     @abstractmethod
     def update(self, new_values: sc.DataArray, key: str, draw: bool):
@@ -52,4 +52,4 @@ class BaseFig(View):
         """
         for node in self.graph_nodes.values():
             new_values = node.request_data()
-            self.update(new_values=new_values, key=node.id, draw=False)
+            self.update(new_values=new_values, key=node.id)

@@ -7,6 +7,7 @@ from .canvas import Canvas
 import scipp as sc
 import numpy as np
 from typing import Dict
+import uuid
 import plotly.graph_objects as go
 from plotly.colors import qualitative as plotly_colors
 
@@ -55,6 +56,7 @@ class Line:
         self._dim = self._data.dim
         self._unit = self._data.unit
         self._coord = self._data.meta[self._dim]
+        self._id = uuid.uuid4().hex
 
         self._make_line(data=self._make_data(), number=number, **args)
 
@@ -166,6 +168,10 @@ class Line:
                 self._error = self._fig.data[-1]
             self._fig.add_trace(self._mask)
             self._mask = self._fig.data[-1]
+        self._line._plopp_id = self._id
+        self._mask._plopp_id = self._id
+        if self._error is not None:
+            self._error._plopp_id = self._id
 
     def _preprocess_hist(self, data: dict) -> dict:
         """
@@ -237,10 +243,9 @@ class Line:
         """
         Remove the line, masks and errorbar artists from the canvas.
         """
-        self._line.remove()
-        self._mask.remove()
-        if self._error is not None:
-            self._error.remove()
+        self._fig.data = [
+            trace for trace in list(self._fig.data) if trace._plopp_id != self._id
+        ]
 
     @property
     def color(self):

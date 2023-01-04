@@ -107,7 +107,7 @@ class FigImage(BaseFig):
             self.crop(**crop)
         self.canvas.finalize()
 
-    def update(self, new_values: sc.DataArray, key: str, draw: bool = True):
+    def update(self, new_values: sc.DataArray, key: str):
         """
         Add new image or update image array with new values.
 
@@ -117,10 +117,6 @@ class FigImage(BaseFig):
             New data to create or update a :class:`Image` object from.
         key:
             The id of the node that sent the new data.
-        draw:
-            Draw the figure after the update if ``True``. Set this to ``False`` when
-            doing batch updates of multiple artists, and then manually call ``draw``
-            once all artists have been updated.
         """
         if new_values.ndim != 2:
             raise ValueError("FigImage can only be used to plot 2-D data.")
@@ -165,16 +161,6 @@ class FigImage(BaseFig):
 
         self.artists[key].update(new_values=new_values)
         self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
-
-        if draw:
-            self.canvas.draw()
-
-    def toggle_norm(self):
-        """
-        Toggle the colormapper norm.
-        """
-        self.colormapper.toggle_norm()
-        self.canvas.draw()
 
     def crop(self, **limits):
         """

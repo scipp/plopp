@@ -314,6 +314,17 @@ class Canvas:
         """
         self.fig.canvas.toolbar.pan()
 
+    def panzoom(self, value: Literal['pan', 'zoom', None]):
+        """
+        Activate or deactivate the pan or zoom tool, depending on the input value.
+        """
+        if value == 'zoom':
+            self.zoom()
+        elif value == 'pan':
+            self.pan()
+        elif value is None:
+            self.reset_mode()
+
     def save_figure(self):
         """
         Save the figure to a PNG file via a pop-up dialog.
