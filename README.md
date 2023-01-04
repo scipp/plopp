@@ -4,6 +4,7 @@
 [![Anaconda-Server Badge](https://anaconda.org/scipp/plopp/badges/version.svg)](https://anaconda.org/scipp/plopp)
 [![Documentation](https://img.shields.io/badge/docs-online-success)](https://scipp.github.io/plopp/)
 [![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/528859752.svg)](https://zenodo.org/badge/latestdoi/528859752)
 
 # Plopp
 
