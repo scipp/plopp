@@ -22,10 +22,10 @@ packaging==22.0
 pluggy==1.0.0
     # via pytest
 pytest==7.2.0
-    # via -r requirements/miniplot.in
+    # via -r requirements/mini.in
 pyyaml==6.0
     # via confuse
 scipp==22.11.0
-    # via -r requirements/miniplot.in
+    # via -r requirements/mini.in
 tomli==2.0.1
     # via pytest
