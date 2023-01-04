@@ -4,6 +4,7 @@
 import numpy as np
 import scipp as sc
 from typing import Tuple, Union
+import uuid
 
 
 class PointCloud:
@@ -43,6 +44,7 @@ class PointCloud:
         self._x = x
         self._y = y
         self._z = z
+        self._id = uuid.uuid4().hex
 
         self._pixel_size = pixel_size
         if hasattr(self._pixel_size, 'unit'):
