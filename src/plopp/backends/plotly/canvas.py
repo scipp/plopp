@@ -191,11 +191,11 @@ class Canvas:
         self.fig.layout.xaxis.range = [self.xmin, value]
 
     @property
-    def xrange(self) -> Tuple[float]:
+    def xrange(self) -> Tuple[float, float]:
         return self.fig.layout.xaxis.range
 
     @xrange.setter
-    def xrange(self, value: Tuple[float]):
+    def xrange(self, value: Tuple[float, float]):
         self.fig.layout.xaxis.range = value
 
     @property
@@ -215,11 +215,11 @@ class Canvas:
         self.fig.layout.yaxis.range = [self.ymin, value]
 
     @property
-    def yrange(self) -> Tuple[float]:
+    def yrange(self) -> Tuple[float, float]:
         return self.fig.layout.yaxis.range
 
     @yrange.setter
-    def yrange(self, value: Tuple[float]):
+    def yrange(self, value: Tuple[float, float]):
         self.fig.layout.yaxis.range = value
 
     def reset_mode(self):

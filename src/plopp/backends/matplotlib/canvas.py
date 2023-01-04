@@ -262,11 +262,11 @@ class Canvas:
         self.ax.set_xlim(self.xmin, value)
 
     @property
-    def xrange(self) -> Tuple[float]:
+    def xrange(self) -> Tuple[float, float]:
         return self.ax.get_xlim()
 
     @xrange.setter
-    def xrange(self, value: Tuple[float]):
+    def xrange(self, value: Tuple[float, float]):
         self.ax.set_xlim(value)
 
     @property
@@ -286,11 +286,11 @@ class Canvas:
         self.ax.set_ylim(self.ymin, value)
 
     @property
-    def yrange(self) -> Tuple[float]:
+    def yrange(self) -> Tuple[float, float]:
         return self.ax.get_ylim()
 
     @yrange.setter
-    def yrange(self, value: Tuple[float]):
+    def yrange(self, value: Tuple[float, float]):
         self.ax.set_ylim(value)
 
     def reset_mode(self):
