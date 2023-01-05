@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ...common import is_sphinx_build
 from ...core.limits import find_limits, fix_empty_range
 from ...core.utils import maybe_variable_to_number
-from .utils import fig_to_bytes, silent_mpl_figure
+from .utils import fig_to_bytes, silent_mpl_figure, is_sphinx_build
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import QuadMesh
