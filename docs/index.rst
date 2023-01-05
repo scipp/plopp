@@ -57,17 +57,17 @@ Get in touch
 - Report bugs (including unclear, missing, or wrong documentation!), suggest features or view the source code `on GitHub <https://github.com/scipp/plopp>`_.
 
 .. toctree::
-   :caption: User Guide
+   :caption: Basic Usage
    :maxdepth: 3
    :hidden:
 
-   user-guide/line-plot
-   user-guide/image-plot
-   user-guide/slicer-plot
-   user-guide/inspector-plot
-   user-guide/super-plot
-   user-guide/scatter3d-plot
-   user-guide/saving-figures
+   basics/line-plot
+   basics/image-plot
+   basics/slicer-plot
+   basics/inspector-plot
+   basics/super-plot
+   basics/scatter3d-plot
+   basics/saving-figures
 
 .. toctree::
    :caption: Custom figures
@@ -90,6 +90,7 @@ Get in touch
    :maxdepth: 3
    :hidden:
 
-   reference
-   faq
+   about/reference
+   about/faq
+   about/about
    Release notes <https://github.com/scipp/plopp/releases>
