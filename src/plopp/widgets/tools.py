@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .common import BUTTON_LAYOUT, is_sphinx_build
+from ..common import is_sphinx_build
+from .style import BUTTON_LAYOUT
 
 import ipywidgets as ipw
 from functools import partial

@@ -16,5 +16,5 @@ class PlotlyBackend:
         return LinePlotly(*args, **kwargs)
 
     def figure1d(self, *args, **kwargs):
-        from .figure import Fig1d as Fig1dPlotly
-        return Fig1dPlotly(*args, **kwargs)
+        from .figure import Figure as FigPlotly
+        return FigPlotly(*args, **kwargs)

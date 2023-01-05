@@ -16,5 +16,5 @@ class PythreejsBackend:
         return PointCloudP3js(*args, **kwargs)
 
     def figure3d(self, *args, **kwargs):
-        from .figure import Fig3d as Fig3dP3js
-        return Fig3dP3js(*args, **kwargs)
+        from .figure import Figure as FigP3js
+        return FigP3js(*args, **kwargs)

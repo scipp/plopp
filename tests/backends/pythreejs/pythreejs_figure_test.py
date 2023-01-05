@@ -3,16 +3,16 @@
 
 from plopp import input_node
 from plopp.data.testing import scatter
-from plopp.backends.pythreejs.figure import Fig3d
+from plopp.backends.pythreejs.figure import Figure
 from plopp.graphics.figscatter3d import FigScatter3d
 
 
 def test_log_norm_3d_toolbar_button():
     da = scatter()
-    fig = Fig3d(input_node(da),
-                FigConstructor=FigScatter3d,
-                x='x',
-                y='y',
-                z='z',
-                norm='log')
+    fig = Figure(input_node(da),
+                 FigConstructor=FigScatter3d,
+                 x='x',
+                 y='y',
+                 z='z',
+                 norm='log')
     assert fig.toolbar['lognorm'].value

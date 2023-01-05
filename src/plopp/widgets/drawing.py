@@ -9,8 +9,8 @@ from typing import Callable, Any, Union
 
 
 def is_figure(x):
-    from ..backends.matplotlib.interactive import InteractiveFig1d, InteractiveFig2d
-    return isinstance(x, (InteractiveFig1d, InteractiveFig2d))
+    from ..backends.matplotlib.interactive import InteractiveFig
+    return isinstance(x, InteractiveFig)
 
 
 class DrawingTool(ToggleTool):

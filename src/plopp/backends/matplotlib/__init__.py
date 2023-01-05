@@ -21,9 +21,13 @@ class MatplotlibBackend:
         return ImageMpl(*args, **kwargs)
 
     def figure1d(self, *args, **kwargs):
-        from .figure import figure1d as fig1d_mpl
-        return fig1d_mpl(*args, **kwargs)
+        from .utils import is_interactive_backend
+        if is_interactive_backend():
+            from .interactive import InteractiveFig
+            return InteractiveFig(*args, **kwargs)
+        else:
+            from .static import StaticFig
+            return StaticFig(*args, **kwargs)
 
     def figure2d(self, *args, **kwargs):
-        from .figure import figure2d as fig2d_mpl
-        return fig2d_mpl(*args, **kwargs)
+        return self.figure1d(*args, **kwargs)

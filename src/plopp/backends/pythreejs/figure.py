@@ -5,7 +5,7 @@ from ...widgets import HBar, VBar, make_toolbar_canvas3d
 from ipywidgets import VBox, HBox
 
 
-class Fig3d(VBox):
+class Figure(VBox):
     """
     Create a figure to represent three-dimensional data.
     """

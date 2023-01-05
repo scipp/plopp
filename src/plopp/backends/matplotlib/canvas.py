@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
+from ...common import is_sphinx_build
 from ...core.limits import find_limits, fix_empty_range
 from ...core.utils import maybe_variable_to_number
 from .utils import fig_to_bytes, silent_mpl_figure
@@ -116,7 +117,7 @@ class Canvas:
         return Image(value=fig_to_bytes(self.fig), format='png')
 
     def to_widget(self):
-        if self.is_widget():
+        if self.is_widget() and not is_sphinx_build():
             return self.fig.canvas
         else:
             return self.to_image()
