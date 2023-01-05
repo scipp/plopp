@@ -6,7 +6,7 @@ from ...widgets import HBar, VBar, make_toolbar_canvas2d
 from ipywidgets import VBox, HBox
 
 
-class Fig1d(VBox):
+class Figure(VBox):
     """
     Create an interactive figure to represent one-dimensional data.
     """

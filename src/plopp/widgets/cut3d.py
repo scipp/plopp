@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .common import BUTTON_LAYOUT
+from .style import BUTTON_LAYOUT
 from ..core import node, View
 
 import asyncio

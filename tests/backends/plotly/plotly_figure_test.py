@@ -4,16 +4,16 @@
 from plopp import input_node
 from plopp.data.testing import data_array
 from plopp.graphics.figline import FigLine
-from plopp.backends.plotly.figure import Fig1d
+from plopp.backends.plotly.figure import Figure
 
 
 def test_logx_1d_toolbar_button():
     da = data_array(ndim=1)
-    fig = Fig1d(input_node(da), FigConstructor=FigLine, scale={'xx': 'log'})
+    fig = Figure(input_node(da), FigConstructor=FigLine, scale={'xx': 'log'})
     assert fig.toolbar['logx'].value
 
 
 def test_logy_1d_toolbar_button():
     da = data_array(ndim=1)
-    fig = Fig1d(input_node(da), FigConstructor=FigLine, norm='log')
+    fig = Figure(input_node(da), FigConstructor=FigLine, norm='log')
     assert fig.toolbar['logy'].value
