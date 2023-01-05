@@ -25,7 +25,6 @@ test:
     - pytest
     - ipympl
     - ipywidgets
-    - plotly
     - pythreejs
     - scipp >=0.12
     - scipy

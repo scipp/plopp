@@ -7,6 +7,11 @@ import pytest
 import tempfile
 import os
 
+try:
+    import plotly  # noqa: F401
+except ImportError:
+    pytestmark = pytest.mark.skip(reason="Plotly is not installed.")
+
 
 def test_creation():
     title = 'My canvas'
