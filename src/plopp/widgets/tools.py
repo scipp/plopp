@@ -2,7 +2,6 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import BUTTON_LAYOUT, is_sphinx_build
-from ..graphics import Canvas
 
 import ipywidgets as ipw
 from functools import partial
@@ -123,22 +122,17 @@ class PanZoomTool(MultiToggleTool):
         Set the initially selected button. No button selected if ``None``.
     """
 
-    def __init__(self, canvas: Canvas, value: bool = None, **kwargs):
-        self._canvas = canvas
-        super().__init__(callback=self._pan_zoom,
+    def __init__(self, callback: Callable, value: bool = None, **kwargs):
+        self._callback = callback
+        super().__init__(callback=self._panzoom,
                          options=[('', 'pan'), (' ', 'zoom')],
                          icons=['arrows', 'search-plus'],
                          tooltips=['Pan', 'Zoom'],
                          value=value,
                          **kwargs)
 
-    def _pan_zoom(self):
-        if self.value == 'zoom':
-            self._canvas.zoom()
-        elif self.value == 'pan':
-            self._canvas.pan()
-        elif self.value is None:
-            self._canvas.reset_mode()
+    def _panzoom(self):
+        self._callback(self.value)
 
 
 class ColorTool(ipw.HBox):

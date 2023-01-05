@@ -3,7 +3,6 @@ gitpython
 graphviz
 h5py
 ipympl
-ipywidgets
 mpltoolbox
 nbsphinx
 pooch

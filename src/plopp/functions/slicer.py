@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
 from .common import require_interactive_backend, preprocess
-from .figure import figure1d, figure2d
+from ..graphics import figure1d, figure2d
 from ..core import input_node, widget_node
 
 import scipp as sc

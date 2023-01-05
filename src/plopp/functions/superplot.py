@@ -57,11 +57,9 @@ class LineSaveTool:
 
     def change_line_color(self, change: Dict[str, Any], line_id: str):
         self._lines[line_id]['line'].color = change['new']
-        self._fig.canvas.draw()
 
     def remove_line(self, change: Dict[str, Any], line_id: str):
         self._lines[line_id]['line'].remove()
-        self._fig.canvas.draw()
         del self._lines[line_id]
         self._update_container()
 

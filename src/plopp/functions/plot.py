@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from .figure import figure1d, figure2d
+from ..graphics import figure1d, figure2d
 from ..core import input_node
 from .common import preprocess
 from collections.abc import Mapping
@@ -19,7 +19,7 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
          coords: Optional[List[str]] = None,
          crop: Optional[Dict[str, Dict[str, Variable]]] = None,
          errorbars: bool = True,
-         figsize: Tuple[float, float] = (6., 4.),
+         figsize: Tuple[float, float] = None,
          grid: bool = False,
          ignore_size: bool = False,
          mask_color: str = 'black',
@@ -84,6 +84,7 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
     :
         A figure.
     """
+
     common_args = {
         'crop': crop,
         'grid': grid,
@@ -92,7 +93,8 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         'title': title,
         'vmin': vmin,
         'vmax': vmax,
-        'figsize': figsize
+        'figsize': figsize,
+        **kwargs
     }
 
     if isinstance(obj, (Mapping, Dataset)):
@@ -119,16 +121,12 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         return figure1d(*[input_node(da) for da in data_arrays],
                         errorbars=errorbars,
                         mask_color=mask_color,
-                        **common_args,
-                        **kwargs)
+                        **common_args)
     elif ndim == 2:
         return figure2d(*[input_node(da) for da in data_arrays],
                         aspect=aspect,
                         cbar=cbar,
-                        **{
-                            **common_args,
-                            **kwargs
-                        })
+                        **common_args)
     else:
         raise ValueError('The plot function can only plot 1d and 2d data, got input '
                          f'with {ndim} dimensions')

@@ -6,7 +6,7 @@
 from .box import Box, HBar, VBar
 from .checkboxes import Checkboxes
 from .slice import SliceWidget, slice_dims
-from .toolbar import Toolbar
+from .toolbar import Toolbar, make_toolbar_canvas2d, make_toolbar_canvas3d
 from .tools import ButtonTool, ToggleTool, ColorTool
 from .cut3d import Cut3dTool, TriCutTool
 from .drawing import DrawingTool, PointsTool

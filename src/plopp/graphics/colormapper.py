@@ -3,7 +3,7 @@
 
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks, maybe_variable_to_number
-from .utils import fig_to_bytes, silent_mpl_figure
+from ..backends.matplotlib.utils import fig_to_bytes, silent_mpl_figure
 
 from copy import copy
 import matplotlib as mpl
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colorbar import ColorbarBase
 import numpy as np
 import scipp as sc
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Tuple, Union, Any
 
 
 def _get_cmap(name: str, nan_color: str = None) -> Colormap:
@@ -80,7 +80,7 @@ class ColorMapper:
     """
 
     def __init__(self,
-                 cax: Optional[plt.Axes] = None,
+                 canvas: Optional[Any] = None,
                  cbar: bool = True,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
@@ -90,7 +90,7 @@ class ColorMapper:
                  nan_color: Optional[str] = None,
                  figsize: Optional[Tuple[float, float]] = None):
 
-        self.cax = cax
+        self.cax = canvas.cax if canvas is not None else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin

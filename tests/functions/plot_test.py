@@ -143,7 +143,7 @@ def test_kwarg_scale():
 def test_kwarg_cmap():
     da = data_array(ndim=2)
     p = pp.plot(da, cmap='magma')
-    assert p.colormapper.cmap.name == 'magma'
+    assert p._fig.colormapper.cmap.name == 'magma'
 
 
 def test_kwarg_scale_2d():
@@ -229,8 +229,8 @@ def test_use_non_dimension_coords():
     da.coords['xx2'] = 7.5 * da.coords['xx']
     da.coords['yy2'] = 3.3 * da.coords['yy']
     p = pp.plot(da, coords=['xx2', 'yy2'])
-    assert p.dims['x'] == 'xx2'
-    assert p.dims['y'] == 'yy2'
+    assert p._fig.dims['x'] == 'xx2'
+    assert p._fig.dims['y'] == 'yy2'
     assert p.canvas._xmax == 7.5 * da.coords['xx'].max().value
     assert p.canvas._ymax == 3.3 * da.coords['yy'].max().value
 
@@ -239,5 +239,5 @@ def test_use_non_dimension_coords_dataset():
     ds = dataset(ndim=1)
     ds.coords['xx2'] = 6.6 * ds.coords['xx']
     p = pp.plot(ds, coords=['xx2'])
-    assert p.dims['x'] == 'xx2'
+    assert p._fig.dims['x'] == 'xx2'
     assert p.canvas._xmax > 6.6 * ds.coords['xx'].max().value

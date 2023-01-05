@@ -63,7 +63,7 @@ def scatter3d(da: sc.DataArray,
     :
         A three-dimensional interactive scatter plot.
     """
-    from ..functions import figure3d
+    from ..graphics import figure3d
     from ..widgets import Box, ToggleTool, TriCutTool
 
     if 'ax' in kwargs:

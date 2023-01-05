@@ -5,7 +5,7 @@
 #
 #    pip-compile-multi
 #
-attrs==22.1.0
+attrs==22.2.0
     # via jsonschema
 fastjsonschema==2.16.2
     # via nbformat
@@ -17,11 +17,11 @@ jupyter-core==5.1.0
     # via nbformat
 mccabe==0.7.0
     # via flake8
-nbformat==5.7.0
+nbformat==5.7.1
     # via nbstripout
 nbstripout==0.6.1
     # via -r requirements/static.in
-platformdirs==2.5.4
+platformdirs==2.6.0
     # via jupyter-core
 pycodestyle==2.10.0
     # via flake8
@@ -31,7 +31,7 @@ pyrsistent==0.19.2
     # via jsonschema
 toml==0.10.2
     # via -r requirements/static.in
-traitlets==5.6.0
+traitlets==5.8.0
     # via
     #   jupyter-core
     #   nbformat
