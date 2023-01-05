@@ -1,17 +1,23 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
 
-from ..common import is_sphinx_build
 from .style import BUTTON_LAYOUT
 
 import ipywidgets as ipw
 from functools import partial
-from typing import Callable
+from typing import Callable, List, Optional, Union
 
 
 class ButtonTool(ipw.Button):
     """
     Create a button with a callback that is called when the button is clicked.
+
+    Parameters
+    ----------
+    callback:
+        The function that will be called when the button is clicked.
+    **kwargs:
+        All other kwargs are forwarded to ipywidgets.Button.
     """
 
     def __init__(self, callback: Callable = None, **kwargs):
@@ -27,6 +33,13 @@ class ToggleTool(ipw.ToggleButton):
     """
     Create a toggle button with a callback that is called when the button is
     toggled.
+
+    Parameters
+    ----------
+    callback:
+        The function that will be called when the button is toggled.
+    **kwargs:
+        All other kwargs are forwarded to ipywidgets.ToggleButton.
     """
 
     def __init__(self, callback: Callable, **kwargs):
@@ -38,43 +51,76 @@ class ToggleTool(ipw.ToggleButton):
         self.callback()
 
 
-class MultiToggleTool(ipw.ToggleButtons):
+class MultiToggleTool(ipw.VBox):
     """
     Create toggle buttons with a callback that is called when one of the buttons is
     toggled. In addition to ipywidgets ToggleButtons, when you click the button
     which is already selected, it resets the value to `None` (no button selected).
+
+    Parameters
+    ----------
+    callback:
+        The function that will be called when the one of the buttons is toggled.
+    options:
+        A list of values for the different buttons (one button per value will be
+        created).
+    icons:
+        A list of icons (one icon per button).
+    tooltips:
+        A list of tooltips (one tooltip per button).
+    descriptions:
+        A list of descriptions (one description per button).
+    value:
+        If given, the value of the button with the corresponding option will be set to
+        True.
+    **kwargs:
+        All other kwargs are forwarded to ipywidgets.ToggleButton.
     """
 
-    def __init__(self, callback: Callable, **kwargs):
-        args = {
-            'layout': {
-                "width": "40px",
-                "padding": "0px 0px 0px 0px"
-            },
-            'style': {
-                'button_width':
-                # See https://github.com/jupyter-widgets/ipywidgets/issues/2517
-                BUTTON_LAYOUT['layout']['width'] if is_sphinx_build() else '17px',
-                'description_width':
-                '0px'
-            }
-        }
-        super().__init__(**{**args, **kwargs})
-        self.callback = callback
-        self._current_value = self.value
-        self.observe(self, names='value')
-        self.on_msg(self.reset)
+    def __init__(self,
+                 callback: Callable,
+                 options: List[str],
+                 icons: Optional[List[str]] = None,
+                 tooltips: List[str] = None,
+                 descriptions: List[str] = None,
+                 value: Optional[str] = None,
+                 **kwargs):
 
-    def __call__(self, *ignored):
+        self.callback = callback
+        self._options = options
+        self._buttons = {}
+        for i, key in enumerate(self._options):
+            tb = ipw.ToggleButton(
+                icon=icons[i] if icons is not None else None,
+                tooltip=tooltips[i] if tooltips is not None else None,
+                description=descriptions[i] if descriptions is not None else '',
+                value=key == value,
+                **{
+                    **BUTTON_LAYOUT,
+                    **kwargs
+                })
+            tb._option = key
+            tb.observe(self, names='value')
+            self._buttons[key] = tb
+        self._lock = False
+        super().__init__(list(self._buttons.values()))
+
+    def __call__(self, change: dict):
+        if self._lock:
+            return
+        key = change['owner']._option
+        self._lock = True
+        for name in set(self._buttons.keys()) - {key}:
+            if self._buttons[name].value:
+                self._buttons[name].value = False
+        self._lock = False
         self.callback()
 
-    def reset(self, owner: ipw.Widget, *ignored):
-        """
-        If the currently selected button is clicked again, reset value to None.
-        """
-        if owner.value == self._current_value:
-            self.value = None
-        self._current_value = owner.value
+    @property
+    def value(self) -> Union[str, None]:
+        for b in self._buttons.values():
+            if b.value:
+                return b._option
 
 
 HomeTool = partial(ButtonTool, icon='home', tooltip='Autoscale view')
@@ -126,7 +172,7 @@ class PanZoomTool(MultiToggleTool):
     def __init__(self, callback: Callable, value: bool = None, **kwargs):
         self._callback = callback
         super().__init__(callback=self._panzoom,
-                         options=[('', 'pan'), (' ', 'zoom')],
+                         options=['pan', 'zoom'],
                          icons=['arrows', 'search-plus'],
                          tooltips=['Pan', 'Zoom'],
                          value=value,
