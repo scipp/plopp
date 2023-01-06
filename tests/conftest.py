@@ -31,7 +31,8 @@ def use_ipympl():
 def pytest_sessionfinish(session, exitstatus):
     """
     When running no tests (e.g. in the noplotly tox env), pytest returns the exit code
-    5, which causes the tox to fail. We use this to catch the exit status and convert it to 0.
+    5, which causes the tox to fail. We use this to catch the exit status and convert
+    it to 0.
     See https://github.com/pytest-dev/pytest/issues/2393#issuecomment-452634365
     """
     if exitstatus == 5:
