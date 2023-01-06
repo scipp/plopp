@@ -26,3 +26,13 @@ def close_figures():
 @pytest.fixture
 def use_ipympl():
     matplotlib.use('module://ipympl.backend_nbagg')
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """
+    When running no tests (e.g. in the noplotly tox env), pytest returns the exit code
+    5, which causes the tox to fail. We use this to catch the exit status and convert it to 0.
+    See https://github.com/pytest-dev/pytest/issues/2393#issuecomment-452634365
+    """
+    if exitstatus == 5:
+        session.exitstatus = 0

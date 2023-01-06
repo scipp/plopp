@@ -9,13 +9,13 @@ attrs==22.2.0
     # via pytest
 confuse==2.0.0
     # via scipp
-exceptiongroup==1.0.4
+exceptiongroup==1.1.0
     # via pytest
 graphlib-backport==1.0.3
     # via scipp
 iniconfig==1.1.1
     # via pytest
-numpy==1.24.0
+numpy==1.24.1
     # via scipp
 packaging==22.0
     # via pytest
