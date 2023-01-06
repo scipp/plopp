@@ -8,8 +8,6 @@ import scipp as sc
 import numpy as np
 from typing import Dict
 import uuid
-import plotly.graph_objects as go
-from plotly.colors import qualitative as plotly_colors
 
 
 def _parse_dicts_in_kwargs(kwargs, name):
@@ -89,6 +87,9 @@ class Line:
             - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
             - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
         """
+        import plotly.graph_objects as go
+        from plotly.colors import qualitative as plotly_colors
+
         has_mask = data["mask"] is not None
         mask_data_key = "mask" if has_mask else "values"
 

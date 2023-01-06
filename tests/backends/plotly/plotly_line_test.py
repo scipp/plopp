@@ -5,13 +5,10 @@ from plopp.data.testing import data_array
 from plopp.backends.plotly.canvas import Canvas
 from plopp.backends.plotly.line import Line
 import numpy as np
-import pytest
 import scipp as sc
+import pytest
 
-try:
-    import plotly  # noqa: F401
-except ImportError:
-    pytestmark = pytest.mark.skip(reason="Plotly is not installed.")
+pytest.importorskip("plotly")
 
 
 def test_line_creation():

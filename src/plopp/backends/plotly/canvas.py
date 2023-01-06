@@ -3,7 +3,6 @@
 
 from ...core.utils import maybe_variable_to_number
 
-import plotly.graph_objects as go
 import scipp as sc
 from typing import Literal, Tuple, Union
 
@@ -49,6 +48,7 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
+        import plotly.graph_objects as go
         self.fig = go.FigureWidget(
             layout={
                 'modebar_remove': [

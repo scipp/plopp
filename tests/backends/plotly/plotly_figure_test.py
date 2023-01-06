@@ -7,10 +7,7 @@ from plopp.graphics.figline import FigLine
 from plopp.backends.plotly.figure import Figure
 import pytest
 
-try:
-    import plotly  # noqa: F401
-except ImportError:
-    pytestmark = pytest.mark.skip(reason="Plotly is not installed.")
+pytest.importorskip("plotly")
 
 
 def test_logx_1d_toolbar_button():
