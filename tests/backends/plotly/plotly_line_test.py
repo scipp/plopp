@@ -6,6 +6,9 @@ from plopp.backends.plotly.canvas import Canvas
 from plopp.backends.plotly.line import Line
 import numpy as np
 import scipp as sc
+import pytest
+
+pytest.importorskip("plotly")
 
 
 def test_line_creation():

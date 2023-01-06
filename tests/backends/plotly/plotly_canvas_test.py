@@ -7,6 +7,8 @@ import pytest
 import tempfile
 import os
 
+pytest.importorskip("plotly")
+
 
 def test_creation():
     title = 'My canvas'

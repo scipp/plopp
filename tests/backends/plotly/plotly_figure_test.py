@@ -5,6 +5,9 @@ from plopp import input_node
 from plopp.data.testing import data_array
 from plopp.graphics.figline import FigLine
 from plopp.backends.plotly.figure import Figure
+import pytest
+
+pytest.importorskip("plotly")
 
 
 def test_logx_1d_toolbar_button():

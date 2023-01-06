@@ -32,7 +32,7 @@ comm==0.1.2
     # via ipykernel
 confuse==2.0.0
     # via scipp
-debugpy==1.6.4
+debugpy==1.6.5
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -52,7 +52,7 @@ idna==3.4
     # via
     #   anyio
     #   jsonschema
-importlib-metadata==5.2.0
+importlib-metadata==6.0.0
     # via nbconvert
 ipydatawidgets==4.3.2
     # via pythreejs
@@ -99,7 +99,7 @@ jupyter-client==7.4.8
     #   nbclassic
     #   nbclient
     #   notebook
-jupyter-core==5.1.0
+jupyter-core==5.1.2
     # via
     #   jupyter-client
     #   jupyter-server
@@ -110,7 +110,7 @@ jupyter-core==5.1.0
     #   notebook
 jupyter-events==0.5.0
     # via jupyter-server
-jupyter-server==2.0.4
+jupyter-server==2.0.6
     # via
     #   nbclassic
     #   notebook-shim
@@ -156,7 +156,7 @@ notebook==6.5.2
     # via widgetsnbextension
 notebook-shim==0.2.2
     # via nbclassic
-numpy==1.24.0
+numpy==1.24.1
     # via
     #   ipydatawidgets
     #   pythreejs
@@ -174,7 +174,7 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-platformdirs==2.6.0
+platformdirs==2.6.2
     # via jupyter-core
 prometheus-client==0.15.0
     # via
@@ -193,11 +193,11 @@ pure-eval==0.2.2
     # via stack-data
 pycparser==2.21
     # via cffi
-pygments==2.13.0
+pygments==2.14.0
     # via
     #   ipython
     #   nbconvert
-pyrsistent==0.19.2
+pyrsistent==0.19.3
     # via jsonschema
 python-dateutil==2.8.2
     # via
