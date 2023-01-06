@@ -24,7 +24,7 @@ jobs:
           fetch-depth: 0  # history required so cmake can determine version
 
       - uses: conda-incubator/setup-miniconda@v2
-      - run: conda install --yes conda-build boa
+      - run: conda install -c conda-forge --yes conda-build boa
       - run: conda mambabuild --channel conda-forge --channel scipp --python=3.8 --no-anaconda-upload --override-channels --output-folder conda/package conda
 
       - uses: actions/upload-artifact@v2
