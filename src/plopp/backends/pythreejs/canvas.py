@@ -35,6 +35,7 @@ class Canvas:
         self.outline = None
         self.axticks = None
         self.figsize = figsize
+        self.title = title
         width, height = self.figsize
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)

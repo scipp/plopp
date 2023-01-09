@@ -53,3 +53,26 @@ class Figure(VBox):
 
     def remove(self, *args, **kwargs):
         return self._fig.remove(*args, **kwargs)
+
+    def save(self, filename):
+        """
+        Save the figure to a standalone HTML file.
+        The default directory for writing the file is the same as the
+        directory where the script or notebook is running.
+
+        Parameters
+        ----------
+        filename:
+            Name of the output HTML file.
+        """
+        from ipywidgets.embed import dependency_state, embed_minimal_html
+        out = HBox([self._fig.canvas.to_widget(), self.right_bar])
+        # Garbage collection for embedded html output:
+        # https://github.com/jupyter-widgets/pythreejs/issues/217
+        state = dependency_state(out)
+        # convert and write to file
+        embed_minimal_html(
+            filename,
+            out,
+            title=self._fig.canvas.title if self._fig.canvas.title else 'figure3d',
+            state=state)
