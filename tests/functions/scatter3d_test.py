@@ -32,14 +32,14 @@ def test_scatter3d_dimensions_are_flattened():
     da = sc.DataArray(data=sc.array(dims=['x', 'y'], values=np.random.rand(nx, ny)),
                       coords={'position': sc.geometry.position(x, y, 0.0 * sc.units.m)})
     p = pp.scatter3d(da, pos="position")
-    assert list(p.children[0].artists.values())[0].data.ndim == 1
+    assert list(p[0].artists.values())[0].data.ndim == 1
     nz = 12
     z = sc.linspace(dim='z', start=-10.0, stop=10.0, num=nz, unit='m')
     da = sc.DataArray(data=sc.array(dims=['x', 'y', 'z'],
                                     values=np.random.rand(nx, ny, nz)),
                       coords={'position': sc.geometry.position(x, y, z)})
     p = pp.scatter3d(da, pos="position")
-    assert list(p.children[0].artists.values())[0].data.ndim == 1
+    assert list(p[0].artists.values())[0].data.ndim == 1
 
 
 def test_raises_ValueError_when_given_binned_data():

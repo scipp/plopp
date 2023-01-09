@@ -9,6 +9,9 @@ class Bar:
     A simple mixin to provide add and remove helper methods for HBox/VBox containers.
     """
 
+    def __getitem__(self, ind):
+        return self.children[ind]
+
     def add(self, obj: Widget):
         """
         Append a widget to the list of children.
@@ -38,7 +41,7 @@ class HBar(HBox, Bar):
     pass
 
 
-class Box(VBox):
+class Box(VBar):
     """
     Container widget that accepts a list of items. For each item in the list, if the
     item is itself a list, it will be made into a horizontal row of the underlying
@@ -53,8 +56,7 @@ class Box(VBox):
     """
 
     def __init__(self, widgets):
-        self.widgets = widgets
         children = []
-        for view in self.widgets:
-            children.append(HBox(view) if isinstance(view, (list, tuple)) else view)
+        for view in widgets:
+            children.append(HBar(view) if isinstance(view, (list, tuple)) else view)
         super().__init__(children)
