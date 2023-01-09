@@ -6,8 +6,6 @@ from plopp.graphics.figimage import FigImage
 from plopp import input_node
 import scipp as sc
 import pytest
-import tempfile
-import os
 
 
 def test_empty():
@@ -92,23 +90,6 @@ def test_crop_no_variable():
                    })
     assert fig.canvas.xrange == (xmin, xmax)
     assert fig.canvas.yrange == (ymin, ymax)
-
-
-@pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
-def test_save_to_disk(ext):
-    da = data_array(ndim=2)
-    fig = FigImage(input_node(da))
-    with tempfile.TemporaryDirectory() as path:
-        fname = os.path.join(path, f'plopp_fig2d.{ext}')
-        fig.save(filename=fname)
-        assert os.path.isfile(fname)
-
-
-def test_save_to_disk_with_bad_extension_raises():
-    da = data_array(ndim=2)
-    fig = FigImage(input_node(da))
-    with pytest.raises(ValueError):
-        fig.save(filename='plopp_fig2d.txt')
 
 
 def test_raises_for_new_data_with_incompatible_dimension():

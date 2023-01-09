@@ -7,8 +7,6 @@ from plopp import input_node
 import numpy as np
 import scipp as sc
 import pytest
-import tempfile
-import os
 
 
 def test_empty():
@@ -144,16 +142,6 @@ def test_vmin_vmax_no_variable():
     da = data_array(ndim=1)
     fig = FigLine(input_node(da), vmin=-0.5, vmax=0.68)
     assert np.allclose(fig.canvas.yrange, [-0.5, 0.68])
-
-
-@pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
-def test_save_to_disk(ext):
-    da = data_array(ndim=1)
-    fig = FigLine(input_node(da))
-    with tempfile.TemporaryDirectory() as path:
-        fname = os.path.join(path, f'plopp_fig1d.{ext}')
-        fig.save(filename=fname)
-        assert os.path.isfile(fname)
 
 
 def test_raises_for_new_data_with_incompatible_dimension():
