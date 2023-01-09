@@ -64,3 +64,6 @@ class InteractiveFig(VBox):
 
     def update(self, *args, **kwargs):
         return self._fig.update(*args, **kwargs)
+
+    def notify_view(self, *args, **kwargs):
+        return self._fig.notify_view(*args, **kwargs)
