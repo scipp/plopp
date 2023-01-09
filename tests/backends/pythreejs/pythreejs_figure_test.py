@@ -16,3 +16,17 @@ def test_log_norm_3d_toolbar_button():
                  z='z',
                  norm='log')
     assert fig.toolbar['lognorm'].value
+
+
+def test_save_to_html():
+    da = scatter()
+    fig = Figure(input_node(da),
+                 FigConstructor=FigScatter3d,
+                 x='x',
+                 y='y',
+                 z='z',
+                 norm='log')
+    with tempfile.TemporaryDirectory() as path:
+        fname = os.path.join(path, f'plopp_fig.html')
+        fig.save(filename=fname)
+        assert os.path.isfile(fname)
