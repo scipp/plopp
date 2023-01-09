@@ -27,7 +27,7 @@ class LineSaveTool:
 
     def __init__(self, data_node: Node, slider_node: Node, fig: View):
         import ipywidgets as ipw
-        from .box import VBar
+        from ..widgets.box import VBar
         self._data_node = data_node
         self._slider_node = slider_node
         self._fig = fig
