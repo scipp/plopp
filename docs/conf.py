@@ -263,6 +263,10 @@ linkcheck_ignore = [
 # -- Options for nbsphinx gallery------------------------------------------
 
 nbsphinx_thumbnails = {
-    'examples/gallery/nyc-taxi': '_static/gallery/nyc-taxi-thumbnail.png',
-    'examples/gallery/masking-a-range': '_static/gallery/masking-a-range-thumbnail.png',
+    'examples/gallery/nyc-taxi':
+    '_static/gallery/nyc-taxi-thumbnail.png',
+    'examples/gallery/masking-a-range':
+    '_static/gallery/masking-a-range-thumbnail.png',
+    'examples/gallery/rectangle-selection':
+    '_static/gallery/rectangle-selection-thumbnail.png',
 }

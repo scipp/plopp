@@ -68,10 +68,12 @@ class DrawingTool(ToggleTool):
 
     def make_node(self, artist):
         draw_node = Node(self._get_artist_info(artist=artist, figure=self._figure))
+        draw_node.name = f'Draw node {len(self._draw_nodes)}'
         nodeid = draw_node.id
         self._draw_nodes[nodeid] = draw_node
         artist.nodeid = nodeid
         output_node = node(self._func)(self._input_node, draw_node)
+        output_node.name = f'Output node {len(self._output_nodes)}'
         self._output_nodes[nodeid] = output_node
         if self._destination_is_fig:
             output_node.add_view(self._destination)

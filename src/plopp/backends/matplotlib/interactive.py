@@ -56,6 +56,10 @@ class InteractiveFig(VBox):
     def graph_nodes(self):
         return self._fig.graph_nodes
 
+    @property
+    def id(self):
+        return self._fig.id
+
     def crop(self, *args, **kwargs):
         return self._fig.crop(*args, **kwargs)
 
