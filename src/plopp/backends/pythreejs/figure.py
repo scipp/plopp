@@ -3,6 +3,7 @@
 
 from ...widgets import HBar, VBar, make_toolbar_canvas3d
 from ipywidgets import VBox, HBox
+import os
 
 
 class Figure(VBox):
@@ -65,6 +66,9 @@ class Figure(VBox):
         filename:
             Name of the output HTML file.
         """
+        ext = os.path.splitext(filename)[1]
+        if ext.lower() != '.html':
+            raise ValueError('File extension must be .html for saving 3d figures.')
         from ipywidgets.embed import dependency_state, embed_minimal_html
         out = HBox([self._fig.canvas.to_widget(), self.right_bar])
         # Garbage collection for embedded html output:

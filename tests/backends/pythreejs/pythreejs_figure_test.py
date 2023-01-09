@@ -5,6 +5,7 @@ from plopp import input_node
 from plopp.data.testing import scatter
 from plopp.backends.pythreejs.figure import Figure
 from plopp.graphics.figscatter3d import FigScatter3d
+import pytest
 import tempfile
 import os
 
@@ -29,6 +30,18 @@ def test_save_to_html():
                  z='z',
                  norm='log')
     with tempfile.TemporaryDirectory() as path:
-        fname = os.path.join(path, 'plopp_fig.html')
+        fname = os.path.join(path, 'plopp_fig3d.html')
         fig.save(filename=fname)
         assert os.path.isfile(fname)
+
+
+def test_save_to_html_with_bad_extension_raises():
+    da = scatter()
+    fig = Figure(input_node(da),
+                 FigConstructor=FigScatter3d,
+                 x='x',
+                 y='y',
+                 z='z',
+                 norm='log')
+    with pytest.raises(ValueError, match=r'File extension must be \.html'):
+        fig.save(filename='plopp_fig3d.png')
