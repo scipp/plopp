@@ -27,14 +27,15 @@ class LineSaveTool:
 
     def __init__(self, data_node: Node, slider_node: Node, fig: View):
         import ipywidgets as ipw
+        from ..widgets.box import VBar
         self._data_node = data_node
         self._slider_node = slider_node
         self._fig = fig
         self._lines = {}
         self.button = ipw.Button(description='Save line')
         self.button.on_click(self.save_line)
-        self.container = ipw.VBox()
-        self.widget = ipw.VBox([self.button, self.container], layout={'width': '350px'})
+        self.container = VBar()
+        self.widget = VBar([self.button, self.container], layout={'width': '350px'})
 
     def _update_container(self):
         self.container.children = [line['tool'] for line in self._lines.values()]
