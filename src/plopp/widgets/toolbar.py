@@ -66,7 +66,7 @@ def make_toolbar_canvas2d(canvas: Any,
     if colormapper is not None:
         tool_list['lognorm'] = tools.LogNormTool(colormapper.toggle_norm,
                                                  value=colormapper.norm == 'log')
-    tool_list['save'] = tools.SaveTool(canvas.save_figure)
+    tool_list['save'] = tools.SaveTool(canvas.download_figure)
     return Toolbar(tools=tool_list)
 
 
