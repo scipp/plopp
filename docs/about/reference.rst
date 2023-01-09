@@ -35,17 +35,23 @@ Graphics
 .. autosummary::
    :toctree: generated
 
-   graphics.Canvas
-   graphics.canvas3d.Canvas3d
    graphics.ColorMapper
-   graphics.fig1d.Figure1d
-   graphics.fig2d.Figure2d
-   graphics.fig3d.Figure3d
-   graphics.line.Line
-   graphics.mesh.Mesh
-   graphics.outline.Outline
-   graphics.point_cloud.PointCloud
+   graphics.FigImage
+   graphics.FigLine
+   graphics.FigScatter3d
+   graphics.figure1d
+   graphics.figure2d
+   graphics.figure3d
 
+Backends
+========
+
+.. autosummary::
+   :toctree: generated
+
+   backends.matplotlib.MatplotlibBackend
+   backends.plotly.PlotlyBackend
+   backends.pythreejs.PythreejsBackend
 
 Widgets and tools
 =================
