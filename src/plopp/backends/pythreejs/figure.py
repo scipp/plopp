@@ -43,6 +43,10 @@ class Figure(VBox):
     def graph_nodes(self):
         return self._fig.graph_nodes
 
+    @property
+    def id(self):
+        return self._fig.id
+
     def update(self, *args, **kwargs):
         return self._fig.update(*args, **kwargs)
 
