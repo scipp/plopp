@@ -170,7 +170,7 @@ class Canvas:
         """
         self.fig.canvas.draw_idle()
 
-    def savefig(self, filename: str, **kwargs):
+    def save(self, filename: str, **kwargs):
         """
         Save the figure to file.
         The default directory for writing the file is the same as the
@@ -325,7 +325,7 @@ class Canvas:
         elif value is None:
             self.reset_mode()
 
-    def save_figure(self):
+    def download_figure(self):
         """
         Save the figure to a PNG file via a pop-up dialog.
         """

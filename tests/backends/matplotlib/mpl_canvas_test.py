@@ -93,5 +93,11 @@ def test_save_to_disk(ext):
     canvas = Canvas()
     with tempfile.TemporaryDirectory() as path:
         fname = os.path.join(path, f'plopp_fig.{ext}')
-        canvas.savefig(filename=fname)
+        canvas.save(filename=fname)
         assert os.path.isfile(fname)
+
+
+def test_save_to_disk_with_bad_extension_raises():
+    canvas = Canvas()
+    with pytest.raises(ValueError):
+        canvas.save(filename='plopp_fig.txt')

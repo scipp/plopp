@@ -155,17 +155,3 @@ class FigLine(BaseFig):
             Min and max limits for each dimension to be cropped.
         """
         self.canvas.crop(x=limits[self.dims['x']])
-
-    def save(self, filename: str, **kwargs):
-        """
-        Save the figure to file.
-        The default directory for writing the file is the same as the
-        directory where the script or notebook is running.
-
-        Parameters
-        ----------
-        filename:
-            Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
-            ``.svg``, and ``.pdf``.
-        """
-        self.canvas.savefig(filename=filename, **kwargs)
