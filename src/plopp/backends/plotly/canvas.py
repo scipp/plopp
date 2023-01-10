@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from ...core.utils import maybe_variable_to_number
 
@@ -98,7 +98,7 @@ class Canvas:
         else:
             self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
 
-    def savefig(self, filename: str):
+    def save(self, filename: str):
         """
         Save the figure to file.
         The default directory for writing the file is the same as the
@@ -251,7 +251,7 @@ class Canvas:
         elif value is None:
             self.reset_mode()
 
-    def save_figure(self):
+    def download_figure(self):
         """
         Save the figure to a PNG file via a pop-up dialog.
         """

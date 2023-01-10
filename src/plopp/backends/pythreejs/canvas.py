@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
 import numpy as np
@@ -35,6 +35,7 @@ class Canvas:
         self.outline = None
         self.axticks = None
         self.figsize = figsize
+        self.title = title
         width, height = self.figsize
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)

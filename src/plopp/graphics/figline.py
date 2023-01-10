@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from .. import backends
 from ..core.utils import name_with_unit, make_compatible
@@ -155,17 +155,3 @@ class FigLine(BaseFig):
             Min and max limits for each dimension to be cropped.
         """
         self.canvas.crop(x=limits[self.dims['x']])
-
-    def save(self, filename: str, **kwargs):
-        """
-        Save the figure to file.
-        The default directory for writing the file is the same as the
-        directory where the script or notebook is running.
-
-        Parameters
-        ----------
-        filename:
-            Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
-            ``.svg``, and ``.pdf``.
-        """
-        self.canvas.savefig(filename=filename, **kwargs)

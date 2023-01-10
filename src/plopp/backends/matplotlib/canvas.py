@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from ...core.limits import find_limits, fix_empty_range
 from ...core.utils import maybe_variable_to_number
@@ -170,7 +170,7 @@ class Canvas:
         """
         self.fig.canvas.draw_idle()
 
-    def savefig(self, filename: str, **kwargs):
+    def save(self, filename: str, **kwargs):
         """
         Save the figure to file.
         The default directory for writing the file is the same as the
@@ -325,7 +325,7 @@ class Canvas:
         elif value is None:
             self.reset_mode()
 
-    def save_figure(self):
+    def download_figure(self):
         """
         Save the figure to a PNG file via a pop-up dialog.
         """

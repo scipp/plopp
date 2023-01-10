@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from ..graphics import ColorMapper
 from . import tools
@@ -66,7 +66,7 @@ def make_toolbar_canvas2d(canvas: Any,
     if colormapper is not None:
         tool_list['lognorm'] = tools.LogNormTool(colormapper.toggle_norm,
                                                  value=colormapper.norm == 'log')
-    tool_list['save'] = tools.SaveTool(canvas.save_figure)
+    tool_list['save'] = tools.SaveTool(canvas.download_figure)
     return Toolbar(tools=tool_list)
 
 

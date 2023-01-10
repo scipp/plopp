@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from ...widgets import HBar, VBar, make_toolbar_canvas2d
 
@@ -42,11 +42,30 @@ class Figure(VBox):
     def graph_nodes(self):
         return self._fig.graph_nodes
 
-    def crop(self, *args, **kwargs):
-        return self._fig.crop(*args, **kwargs)
+    def crop(self, **limits):
+        """
+        Set the axes limits according to the crop parameters.
 
-    def save(self, *args, **kwargs):
-        return self._fig.save(*args, **kwargs)
+        Parameters
+        ----------
+        **limits:
+            Min and max limits for each dimension to be cropped.
+        """
+        return self._fig.crop(**limits)
+
+    def save(self, filename, **kwargs):
+        """
+        Save the figure to file.
+        The default directory for writing the file is the same as the
+        directory where the script or notebook is running.
+
+        Parameters
+        ----------
+        filename:
+            Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
+            ``.svg``, ``.pdf``, and ``html``.
+        """
+        return self._fig.canvas.save(filename, **kwargs)
 
     def update(self, *args, **kwargs):
         return self._fig.update(*args, **kwargs)

@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
 import plopp as pp
 from plopp.data.testing import data_array, dataset
 import pytest
 import scipp as sc
+import tempfile
+import os
 
 
 def test_plot_ndarray():
@@ -78,7 +80,7 @@ def test_plot_2d_coord():
 
 
 def test_plot_2d_coord_with_mask():
-    da = pp.data.data_array(ndim=2, ragged=True)
+    da = data_array(ndim=2, ragged=True)
     da.masks['negative'] = da.data < sc.scalar(0, unit='m/s')
     pp.plot(da)
 
@@ -241,3 +243,30 @@ def test_use_non_dimension_coords_dataset():
     p = pp.plot(ds, coords=['xx2'])
     assert p._fig.dims['x'] == 'xx2'
     assert p.canvas._xmax > 6.6 * ds.coords['xx'].max().value
+
+
+@pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
+def test_save_to_disk_1d(ext):
+    da = data_array(ndim=1)
+    fig = pp.plot(da)
+    with tempfile.TemporaryDirectory() as path:
+        fname = os.path.join(path, f'plopp_fig1d.{ext}')
+        fig.save(filename=fname)
+        assert os.path.isfile(fname)
+
+
+@pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
+def test_save_to_disk_2d(ext):
+    da = data_array(ndim=2)
+    fig = pp.plot(da)
+    with tempfile.TemporaryDirectory() as path:
+        fname = os.path.join(path, f'plopp_fig2d.{ext}')
+        fig.save(filename=fname)
+        assert os.path.isfile(fname)
+
+
+def test_save_to_disk_with_bad_extension_raises():
+    da = data_array(ndim=2)
+    fig = pp.plot(da)
+    with pytest.raises(ValueError):
+        fig.save(filename='plopp_fig2d.txt')

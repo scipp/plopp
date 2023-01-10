@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import doctest
 from datetime import date
@@ -19,7 +19,7 @@ from version import VersionInfo  # noqa: E402
 
 # General information about the project.
 project = u'plopp'
-copyright = u'2022 Scipp contributors'
+copyright = u'2023 Scipp contributors'
 author = u'Scipp contributors'
 
 version_info = VersionInfo()
