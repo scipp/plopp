@@ -42,6 +42,10 @@ class Figure(VBox):
     def graph_nodes(self):
         return self._fig.graph_nodes
 
+    @property
+    def id(self):
+        return self._fig.id
+
     def crop(self, **limits):
         """
         Set the axes limits according to the crop parameters.
@@ -69,3 +73,6 @@ class Figure(VBox):
 
     def update(self, *args, **kwargs):
         return self._fig.update(*args, **kwargs)
+
+    def notify_view(self, *args, **kwargs):
+        return self._fig.notify_view(*args, **kwargs)

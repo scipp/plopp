@@ -43,8 +43,15 @@ class Figure(VBox):
     def graph_nodes(self):
         return self._fig.graph_nodes
 
+    @property
+    def id(self):
+        return self._fig.id
+
     def update(self, *args, **kwargs):
         return self._fig.update(*args, **kwargs)
+
+    def notify_view(self, *args, **kwargs):
+        return self._fig.notify_view(*args, **kwargs)
 
     def get_limits(self, *args, **kwargs):
         return self._fig.get_limits(*args, **kwargs)
