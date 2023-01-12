@@ -88,7 +88,7 @@ def scatter3d(da: sc.DataArray,
         coords = {k: da.meta[k] for k in (x, y, z)}
 
     to_plot = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
-    if to_plot.ndim > 1:
+    if to_plot.ndim != 1:
         to_plot = to_plot.flatten(to=uuid.uuid4().hex)
     fig = figure3d(input_node(to_plot),
                    x=x,
