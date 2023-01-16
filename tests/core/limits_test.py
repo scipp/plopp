@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp.core.limits import find_limits, fix_empty_range
-import scipp as sc
 import numpy as np
 import pytest
+import scipp as sc
+
+from plopp.core.limits import find_limits, fix_empty_range
 
 
 def test_find_limits():

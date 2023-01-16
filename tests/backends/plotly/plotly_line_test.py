@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp.data.testing import data_array
+import numpy as np
+import pytest
+import scipp as sc
+
 from plopp.backends.plotly.canvas import Canvas
 from plopp.backends.plotly.line import Line
-import numpy as np
-import scipp as sc
-import pytest
+from plopp.data.testing import data_array
 
 pytest.importorskip("plotly")
 

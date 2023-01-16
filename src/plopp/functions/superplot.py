@@ -1,17 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .common import require_interactive_backend, preprocess
-from .slicer import Slicer
+import uuid
+from functools import partial
+from typing import Any, Dict, Optional, Union
+
+import scipp as sc
+from matplotlib.colors import to_hex
+from numpy import ndarray
+
 from ..core import Node, View
 from ..core.utils import coord_element_to_string
-
-from functools import partial
-import scipp as sc
-from numpy import ndarray
-from typing import Any, Union, Dict, Optional
-from matplotlib.colors import to_hex
-import uuid
+from .common import preprocess, require_interactive_backend
+from .slicer import Slicer
 
 
 class LineSaveTool:
@@ -27,6 +28,7 @@ class LineSaveTool:
 
     def __init__(self, data_node: Node, slider_node: Node, fig: View):
         import ipywidgets as ipw
+
         from ..widgets.box import VBar
         self._data_node = data_node
         self._slider_node = slider_node

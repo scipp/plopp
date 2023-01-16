@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from typing import Literal, Tuple
+
 import numpy as np
-from scipp import scalar, Variable
-from typing import Tuple, Literal
+from scipp import Variable, scalar
 
 
 def find_limits(x: Variable,

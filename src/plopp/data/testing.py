@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from . import factory as fa
 from functools import partial
+
+from . import factory as fa
 
 testing_dim_list = ['xx', 'yy', 'zz', 'time', 'temperature']
 

@@ -2,9 +2,10 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
+from typing import Any, Tuple
+
 import numpy as np
 from scipp import Variable
-from typing import Any, Tuple
 
 
 class Canvas:

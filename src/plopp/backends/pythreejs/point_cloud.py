@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import uuid
+from typing import Tuple, Union
+
 import numpy as np
 import scipp as sc
-from typing import Tuple, Union
-import uuid
 
 
 class PointCloud:

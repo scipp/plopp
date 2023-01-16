@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ...core.utils import maybe_variable_to_number
+from typing import Literal, Tuple, Union
 
 import scipp as sc
-from typing import Literal, Tuple, Union
+
+from ...core.utils import maybe_variable_to_number
 
 
 class Canvas:

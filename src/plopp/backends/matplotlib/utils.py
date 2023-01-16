@@ -3,9 +3,10 @@
 
 from contextlib import contextmanager
 from io import BytesIO
+from typing import Literal
+
 import matplotlib as mpl
 from matplotlib.pyplot import Figure
-from typing import Literal
 
 
 def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
@@ -66,8 +67,8 @@ def _running_in_jupyter() -> bool:
     but also Jupyter console and qtconsole.
     """
     try:
-        from IPython import get_ipython
         import ipykernel.zmqshell
+        from IPython import get_ipython
     except ImportError:
         # Cannot be Jupyter if IPython is not installed.
         return False

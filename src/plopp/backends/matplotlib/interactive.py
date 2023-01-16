@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ...widgets import HBar, VBar, make_toolbar_canvas2d
+from ipywidgets import HBox, VBox
 
-from ipywidgets import VBox, HBox
+from ...widgets import HBar, VBar, make_toolbar_canvas2d
 
 
 class InteractiveFig(VBox):

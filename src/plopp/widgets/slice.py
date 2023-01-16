@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .box import VBar
-from ..core.utils import coord_element_to_string
-from ..core import node
+from typing import Any, Callable, Dict
 
 import ipywidgets as ipw
 import scipp as sc
-from typing import Any, Callable, Dict
+
+from ..core import node
+from ..core.utils import coord_element_to_string
+from .box import VBar
 
 
 class SliceWidget(VBar):

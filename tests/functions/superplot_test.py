@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 import pytest
+import scipp as sc
 
 from plopp.data.testing import data_array
 from plopp.functions.superplot import Superplot
-import scipp as sc
 
 
 def test_creation():

@@ -1,13 +1,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import os
+import tempfile
+
 import numpy as np
-import plopp as pp
-from plopp.data.testing import data_array, dataset
 import pytest
 import scipp as sc
-import tempfile
-import os
+
+import plopp as pp
+from plopp.data.testing import data_array, dataset
 
 
 def test_plot_ndarray():

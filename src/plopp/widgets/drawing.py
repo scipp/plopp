@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..core import Node, node, View
-from .tools import ToggleTool
 from functools import partial
+from typing import Any, Callable, Union
+
 import scipp as sc
-from typing import Callable, Any, Union
+
+from ..core import Node, View, node
+from .tools import ToggleTool
 
 
 def is_figure(x):

@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ...widgets import HBar, VBar, make_toolbar_canvas3d
-from ipywidgets import VBox, HBox
 import os
+
+from ipywidgets import HBox, VBox
+
+from ...widgets import HBar, VBar, make_toolbar_canvas3d
 
 
 class Figure(VBox):

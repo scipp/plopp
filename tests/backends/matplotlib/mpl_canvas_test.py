@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp.backends.matplotlib.canvas import Canvas
-import scipp as sc
-import pytest
-import tempfile
 import os
+import tempfile
+
+import pytest
+import scipp as sc
+
+from plopp.backends.matplotlib.canvas import Canvas
 
 
 def test_creation():

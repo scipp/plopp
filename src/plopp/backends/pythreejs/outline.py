@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ...core.utils import value_to_string
+from typing import List, Tuple
 
-import pythreejs as p3
 import numpy as np
+import pythreejs as p3
 from matplotlib import ticker
 from scipp import Variable
-from typing import List, Tuple
+
+from ...core.utils import value_to_string
 
 
 def _get_delta(x: Variable, axis: int) -> float:

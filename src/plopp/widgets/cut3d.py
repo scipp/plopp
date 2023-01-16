@@ -1,14 +1,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .style import BUTTON_LAYOUT
-from ..core import node, View
-
 import asyncio
+from typing import Any, Callable, Dict, Literal, Tuple
+
 import ipywidgets as ipw
 import numpy as np
 import scipp as sc
-from typing import Any, Callable, Dict, Literal, Tuple
+
+from ..core import View, node
+from .style import BUTTON_LAYOUT
 
 
 class Timer:

@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from dataclasses import dataclass
+
+import numpy as np
+import scipp as sc
+from matplotlib.colors import LogNorm, Normalize
+
 from plopp.data.testing import data_array
 from plopp.graphics.colormapper import ColorMapper
-import scipp as sc
-import numpy as np
-from matplotlib.colors import Normalize, LogNorm
-from dataclasses import dataclass
 
 
 class DummyChild:

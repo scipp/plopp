@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .style import BUTTON_LAYOUT
-
-import ipywidgets as ipw
 from functools import partial
 from typing import Callable, List, Optional, Union
+
+import ipywidgets as ipw
+
+from .style import BUTTON_LAYOUT
 
 
 class ButtonTool(ipw.Button):
@@ -147,14 +148,14 @@ OutlineTool = partial(ToggleTool,
                       value=True,
                       icon='codepen',
                       tooltip='Toggle outline visibility')
-"""Toggle outline visbility tool"""
+"""Toggle outline visibility tool"""
 
 AxesTool = partial(ToggleTool,
                    value=True,
                    description='\u27C0',
                    style={'font_weight': 'bold'},
                    tooltip='Toggle visibility of XYZ axes')
-"""Toggle RGB axes helper visbility tool"""
+"""Toggle RGB axes helper visibility tool"""
 
 
 class PanZoomTool(MultiToggleTool):

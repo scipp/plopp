@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .. import backends
-from ..core.utils import number_to_variable
+import warnings
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import scipp as sc
-from typing import Dict, List, Union, Optional
-import warnings
+
+from .. import backends
+from ..core.utils import number_to_variable
 
 
 def require_interactive_backend(func: str):

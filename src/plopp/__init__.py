@@ -4,6 +4,7 @@
 # flake8: noqa E402, F401
 
 import importlib.metadata
+
 try:
     __version__ = importlib.metadata.version(__package__ or __name__)
 except importlib.metadata.PackageNotFoundError:
@@ -13,11 +14,10 @@ from .backends.manager import BackendManager
 
 backends = BackendManager()
 
-from .core import Node, View, node, input_node, widget_node, show_graph
-from .graphics import figure1d, figure2d, figure3d
-from .functions import plot, slicer, inspector, scatter3d, superplot
-
 from . import data
+from .core import Node, View, input_node, node, show_graph, widget_node
+from .functions import inspector, plot, scatter3d, slicer, superplot
+from .graphics import figure1d, figure2d, figure3d
 
 
 def patch_scipp():

@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import pytest
+import scipp as sc
+
+from plopp import input_node
 from plopp.data.testing import scatter
 from plopp.graphics.figscatter3d import FigScatter3d
-from plopp import input_node
-import scipp as sc
-import pytest
 
 
 def test_creation():

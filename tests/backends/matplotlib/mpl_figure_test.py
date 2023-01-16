@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp.graphics.figline import FigLine
-from plopp.graphics.figimage import FigImage
 from plopp.backends.matplotlib import MatplotlibBackend
-from plopp.backends.matplotlib.static import StaticFig
 from plopp.backends.matplotlib.interactive import InteractiveFig
+from plopp.backends.matplotlib.static import StaticFig
+from plopp.graphics.figimage import FigImage
+from plopp.graphics.figline import FigLine
 
 
 def test_create_static_fig1d():
