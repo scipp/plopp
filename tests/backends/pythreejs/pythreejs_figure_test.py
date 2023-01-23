@@ -1,13 +1,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp import input_node
-from plopp.data.testing import scatter
-from plopp.backends.pythreejs.figure import Figure
-from plopp.graphics.figscatter3d import FigScatter3d
-import pytest
-import tempfile
 import os
+import tempfile
+
+import pytest
+
+from plopp import input_node
+from plopp.backends.pythreejs.figure import Figure
+from plopp.data.testing import scatter
+from plopp.graphics.figscatter3d import FigScatter3d
 
 
 def test_log_norm_3d_toolbar_button():

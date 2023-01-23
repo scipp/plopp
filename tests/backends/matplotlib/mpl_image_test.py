@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp.data.testing import data_array
+import scipp as sc
+
 from plopp.backends.matplotlib.canvas import Canvas
 from plopp.backends.matplotlib.image import Image
-import scipp as sc
+from plopp.data.testing import data_array
 
 
 def test_image_creation():

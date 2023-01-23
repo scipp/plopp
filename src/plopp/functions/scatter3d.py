@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..core import input_node
-from .common import check_not_binned
+import uuid
+from typing import Literal, Tuple, Union
 
 import scipp as sc
-from typing import Literal, Tuple, Union
-import uuid
+
+from ..core import input_node
+from .common import check_not_binned
 
 
 def scatter3d(da: sc.DataArray,

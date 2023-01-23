@@ -7,9 +7,32 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 
+[tool.bandit]
+# Excluding tests because bandit doesn't like `assert`.
+exclude_dirs = ["docs/conf.py", "tests", "install"]
+
+[tool.codespell]
+ignore-words-list = "elemt"
+skip = "./.git,./install,./build,./.tox,*/*_cache,*/.virtual_documents,*/.ipynb_checkpoints,*.pdf,*.svg"
+
+[tool.isort]
+skip_gitignore = true
+line_length = 88
+multi_line_output = 2  # for compatibility with yapf
+
+[tool.mypy]
+mypy_path = "src"
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
-addopts = "-ra -v"
+minversion = "7.0"
 testpaths = "tests"
+addopts = """
+--strict-config
+--strict-markers
+-ra
+-v
+"""
 filterwarnings = [
   "error",
   "ignore::UserWarning",
@@ -18,7 +41,3 @@ filterwarnings = [
   'ignore:Jupyter is migrating its paths:DeprecationWarning',
   'ignore:Passing unrecognized arguments to super:DeprecationWarning',
   'ignore:distutils Version classes are deprecated:DeprecationWarning',]
-
-[tool.mypy]
-mypy_path = "src"
-ignore_missing_imports = true

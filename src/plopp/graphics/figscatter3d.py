@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..core.utils import make_compatible
-from .basefig import BaseFig
-from .. import backends
-from .colormapper import ColorMapper
+from typing import Literal, Tuple, Union
 
 import scipp as sc
-from typing import Literal, Tuple, Union
+
+from .. import backends
+from ..core.utils import make_compatible
+from .basefig import BaseFig
+from .colormapper import ColorMapper
 
 
 class FigScatter3d(BaseFig):

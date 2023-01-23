@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from plopp import input_node
 from plopp.data.testing import scatter
 from plopp.graphics.figscatter3d import FigScatter3d
 from plopp.widgets import TriCutTool
-from plopp import input_node
 
 
 def test_show_hide_cuts():

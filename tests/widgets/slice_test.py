@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp.widgets import SliceWidget, slice_dims
-from plopp.data.testing import data_array
 from scipp import identical
+
+from plopp.data.testing import data_array
+from plopp.widgets import SliceWidget, slice_dims
 
 
 def test_slice_creation():

@@ -2,10 +2,11 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
-import plopp as pp
-from plopp.data.testing import scatter
 import pytest
 import scipp as sc
+
+import plopp as pp
+from plopp.data.testing import scatter
 
 
 def test_scatter3d_from_pos():

@@ -2,10 +2,10 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from plopp import input_node
-from plopp.data.testing import data_array
-from plopp.graphics.figline import FigLine
-from plopp.graphics.figimage import FigImage
 from plopp.backends.matplotlib.interactive import InteractiveFig
+from plopp.data.testing import data_array
+from plopp.graphics.figimage import FigImage
+from plopp.graphics.figline import FigLine
 
 
 def test_logx_1d_toolbar_button(use_ipympl):

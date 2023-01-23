@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .. import backends
-from ..core.utils import number_to_variable
+import warnings
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import scipp as sc
-from typing import Dict, List, Union, Optional
-import warnings
+
+from .. import backends
+from ..core.utils import number_to_variable
 
 
 def require_interactive_backend(func: str):
@@ -133,8 +134,8 @@ def preprocess(obj: Union[np.ndarray, sc.Variable, sc.DataArray],
                 if not (_all_dims_sorted(coord, order='ascending')
                         or _all_dims_sorted(coord, order='descending')):
                     warnings.warn(
-                        'The input contains a coordinate with unsorted values. '
-                        'The results may be unpredictable. '
+                        'The input contains a coordinate with unsorted values '
+                        f'({name}). The results may be unpredictable. '
                         'Coordinates can be sorted using '
                         '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
                         UserWarning)

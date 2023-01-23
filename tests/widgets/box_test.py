@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp.widgets import VBar, HBar
 import ipywidgets as ipw
 import pytest
+
+from plopp.widgets import HBar, VBar
 
 
 @pytest.mark.parametrize('Bar', [VBar, HBar])

@@ -1,12 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp.data.testing import scatter
-from plopp.backends.pythreejs.point_cloud import PointCloud
-
 import numpy as np
-import scipp as sc
 import pytest
+import scipp as sc
+
+from plopp.backends.pythreejs.point_cloud import PointCloud
+from plopp.data.testing import scatter
 
 
 def test_creation():

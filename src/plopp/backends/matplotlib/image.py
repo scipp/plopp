@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ...core.utils import coord_as_bin_edges, repeat, merge_masks
-from .canvas import Canvas
+import uuid
 
 import numpy as np
 import scipp as sc
-import uuid
+
+from ...core.utils import coord_as_bin_edges, merge_masks, repeat
+from .canvas import Canvas
 
 
 def _find_dim_of_2d_coord(coords):

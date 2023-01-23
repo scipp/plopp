@@ -3,8 +3,8 @@
 
 # flake8: noqa E402, F401
 
-from .plot import plot
 from .inspector import inspector
+from .plot import plot
 from .scatter3d import scatter3d
 from .slicer import slicer
 from .superplot import superplot

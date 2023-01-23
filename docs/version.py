@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import git
+import argparse
 import sys
 from typing import List
-from packaging.version import parse, Version, InvalidVersion
-import argparse
+
+import git
+from packaging.version import InvalidVersion, Version, parse
 
 
 def _get_releases() -> List[Version]:

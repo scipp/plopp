@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .. import backends
-from ..core.utils import name_with_unit, make_compatible
-from .basefig import BaseFig
+from typing import Dict, Literal, Optional, Tuple, Union
 
 import scipp as sc
-from typing import Dict, Literal, Optional, Tuple, Union
+
+from .. import backends
+from ..core.utils import make_compatible, name_with_unit
+from .basefig import BaseFig
 
 
 class FigLine(BaseFig):

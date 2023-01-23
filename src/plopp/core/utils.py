@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from functools import reduce
-import scipp as sc
-from typing import Dict, Union, Optional
 import uuid
+from functools import reduce
+from typing import Dict, Optional, Union
+
+import scipp as sc
 
 
 def coord_as_bin_edges(da: sc.DataArray, key: str, dim: str = None) -> sc.Variable:

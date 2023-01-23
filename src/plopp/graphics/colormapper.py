@@ -1,18 +1,19 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import merge_masks, maybe_variable_to_number
-from ..backends.matplotlib.utils import fig_to_bytes, silent_mpl_figure
-
 from copy import copy
+from typing import Any, Literal, Optional, Tuple, Union
+
 import matplotlib as mpl
-from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap, Colormap
 import matplotlib.pyplot as plt
-from matplotlib.colorbar import ColorbarBase
 import numpy as np
 import scipp as sc
-from typing import Literal, Optional, Tuple, Union, Any
+from matplotlib.colorbar import ColorbarBase
+from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normalize
+
+from ..backends.matplotlib.utils import fig_to_bytes, silent_mpl_figure
+from ..core.limits import find_limits, fix_empty_range
+from ..core.utils import maybe_variable_to_number, merge_masks
 
 
 def _get_cmap(name: str, nan_color: str = None) -> Colormap:

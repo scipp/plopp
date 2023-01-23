@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import uuid
+from typing import Dict
+
+import numpy as np
+import scipp as sc
+
 from ...core.utils import merge_masks
 from .canvas import Canvas
-
-import scipp as sc
-import numpy as np
-from typing import Dict
-import uuid
 
 
 def _parse_dicts_in_kwargs(kwargs, name):

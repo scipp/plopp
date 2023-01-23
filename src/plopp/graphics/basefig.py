@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..core import View
-
 from abc import abstractmethod
-import scipp as sc
 from typing import Any, Dict
+
+import scipp as sc
+
+from ..core import View
 
 
 class BaseFig(View):

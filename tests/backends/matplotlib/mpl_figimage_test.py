@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp.data.testing import data_array
-from plopp.graphics.figimage import FigImage
-from plopp import input_node
 import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
+
+from plopp import input_node
+from plopp.data.testing import data_array
+from plopp.graphics.figimage import FigImage
 
 
 def test_cbar():

@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..graphics import ColorMapper
-from . import tools
+from typing import Any, Dict, Optional
 
 from ipywidgets import VBox
-from typing import Any, Dict, Optional
+
+from ..graphics import ColorMapper
+from . import tools
 
 
 class Toolbar(VBox):

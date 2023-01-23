@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from copy import copy
+
+import scipp as sc
+
 from plopp.backends.pythreejs.canvas import Canvas
 from plopp.backends.pythreejs.outline import Outline
-import scipp as sc
-from copy import copy
 
 
 def _make_limits():

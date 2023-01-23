@@ -1,15 +1,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..graphics import figure1d, figure2d
-from ..core import input_node
-from .common import preprocess
 from collections.abc import Mapping
+from typing import Dict, List, Literal, Optional, Tuple, Union
 
-from scipp import Variable, Dataset
-from scipp.typing import VariableLike
 from numpy import ndarray
-from typing import Union, Dict, List, Literal, Tuple, Optional
+from scipp import Dataset, Variable
+from scipp.typing import VariableLike
+
+from ..core import input_node
+from ..graphics import figure1d, figure2d
+from .common import preprocess
 
 
 def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
