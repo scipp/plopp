@@ -9,6 +9,7 @@ repos:
       - id: check-yaml
         exclude: conda/meta.yaml
       - id: detect-private-key
+      - id: end-of-file-fixer
       - id: trailing-whitespace
         args: [ --markdown-linebreak-ext=md ]
         exclude: '\.svg'
