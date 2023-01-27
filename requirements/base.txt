@@ -52,8 +52,6 @@ idna==3.4
     # via
     #   anyio
     #   jsonschema
-importlib-metadata==6.0.0
-    # via nbconvert
 ipydatawidgets==4.3.2
     # via pythreejs
 ipykernel==6.19.4
@@ -63,7 +61,7 @@ ipykernel==6.19.4
     #   notebook
 ipython==8.5.0
     # via
-    #   -r requirements/base.in
+    #   -r base.in
     #   ipykernel
     #   ipywidgets
 ipython-genutils==0.2.0
@@ -73,7 +71,7 @@ ipython-genutils==0.2.0
     #   notebook
 ipywidgets==7.7.2
     # via
-    #   -r requirements/base.in
+    #   -r base.in
     #   ipydatawidgets
     #   pythreejs
 isoduration==20.11.0
@@ -206,7 +204,7 @@ python-dateutil==2.8.2
 python-json-logger==2.0.4
     # via jupyter-events
 pythreejs==2.4.1
-    # via -r requirements/base.in
+    # via -r base.in
 pyyaml==6.0
     # via
     #   confuse
@@ -222,8 +220,8 @@ rfc3339-validator==0.1.4
     # via jsonschema
 rfc3986-validator==0.1.1
     # via jsonschema
-scipp==22.11.0
-    # via -r requirements/base.in
+scipp==23.1.1
+    # via -r base.in
 send2trash==1.8.0
     # via
     #   jupyter-server
@@ -291,5 +289,3 @@ websocket-client==1.4.2
     # via jupyter-server
 widgetsnbextension==3.6.1
     # via ipywidgets
-zipp==3.11.0
-    # via importlib-metadata
