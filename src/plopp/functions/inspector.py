@@ -1,14 +1,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .common import require_interactive_backend, preprocess
-from .figure import figure1d, figure2d
-from ..core import input_node, node
-from ..core.utils import coord_as_bin_edges
+from typing import Dict, Literal, Union
 
 import scipp as sc
 from numpy import ndarray
-from typing import Union, Dict, Literal
+
+from ..core import input_node, node
+from ..core.utils import coord_as_bin_edges
+from ..graphics import figure1d, figure2d
+from .common import preprocess, require_interactive_backend
 
 
 def slice_xy(da, xy):
@@ -84,7 +85,7 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
     f2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
     f1d = figure1d()
 
-    from ..widgets import PointsTool, Box
+    from ..widgets import Box, PointsTool
     pts = PointsTool(figure=f2d, input_node=in_node, func=slice_xy, destination=f1d)
     f2d.toolbar['inspect'] = pts
     out = [f2d, f1d]

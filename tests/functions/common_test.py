@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+
+import numpy as np
+import pytest
+import scipp as sc
 
 from plopp.data.testing import data_array
 from plopp.functions.common import preprocess
-import pytest
-import numpy as np
-import scipp as sc
 
 
 def test_preprocess_raises_ValueError_when_given_binned_data():

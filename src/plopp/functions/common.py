@@ -1,28 +1,22 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..core.utils import number_to_variable
+import warnings
+from typing import Dict, List, Optional, Union
 
-from matplotlib import get_backend
 import numpy as np
 import scipp as sc
-from typing import Dict, List, Union, Optional
-import warnings
 
-
-def is_interactive_backend():
-    """
-    Return `True` if the current backend used by Matplotlib is the widget backend.
-    """
-    return 'ipympl' in get_backend()
+from .. import backends
+from ..core.utils import number_to_variable
 
 
 def require_interactive_backend(func: str):
     """
     Raise an error if the current backend in use is non-interactive.
     """
-    if not is_interactive_backend():
-        raise RuntimeError(f"The {func} can only be used with the interactive widget "
+    if not backends.is_interactive():
+        raise RuntimeError(f"The {func} can only be used with an interactive backend "
                            "backend. Use `%matplotlib widget` at the start of your "
                            "notebook.")
 
@@ -140,8 +134,8 @@ def preprocess(obj: Union[np.ndarray, sc.Variable, sc.DataArray],
                 if not (_all_dims_sorted(coord, order='ascending')
                         or _all_dims_sorted(coord, order='descending')):
                     warnings.warn(
-                        'The input contains a coordinate with unsorted values. '
-                        'The results may be unpredictable. '
+                        'The input contains a coordinate with unsorted values '
+                        f'({name}). The results may be unpredictable. '
                         'Coordinates can be sorted using '
                         '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
                         UserWarning)

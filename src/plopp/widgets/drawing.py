@@ -1,16 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..core import Node, node, View
-from .tools import ToggleTool
 from functools import partial
+from typing import Any, Callable, Union
+
 import scipp as sc
-from typing import Callable, Any, Union
+
+from ..core import Node, View, node
+from .tools import ToggleTool
 
 
 def is_figure(x):
-    from ..graphics.interactive import InteractiveFig1d, InteractiveFig2d
-    return isinstance(x, (InteractiveFig1d, InteractiveFig2d))
+    from ..backends.matplotlib.interactive import InteractiveFig
+    return isinstance(x, InteractiveFig)
 
 
 class DrawingTool(ToggleTool):
@@ -68,15 +70,18 @@ class DrawingTool(ToggleTool):
 
     def make_node(self, artist):
         draw_node = Node(self._get_artist_info(artist=artist, figure=self._figure))
+        draw_node.name = f'Draw node {len(self._draw_nodes)}'
         nodeid = draw_node.id
         self._draw_nodes[nodeid] = draw_node
         artist.nodeid = nodeid
         output_node = node(self._func)(self._input_node, draw_node)
+        output_node.name = f'Output node {len(self._output_nodes)}'
         self._output_nodes[nodeid] = output_node
         if self._destination_is_fig:
-            output_node.add_view(self._destination)
+            output_node.add_view(self._destination._fig)
             self._destination.update(new_values=output_node(), key=output_node.id)
-            self._destination.artists[output_node.id].color = artist.color
+            self._destination.artists[output_node.id].color = artist.color if hasattr(
+                artist, 'color') else artist.edgecolor
         elif isinstance(self._destination, Node):
             self._destination.parents.append(output_node)
 

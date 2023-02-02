@@ -1,3 +1,4 @@
 pythreejs
 scipp
 ipython==8.5.0
+ipywidgets==7.7.2  # plotly does not work with ipywidgets>=8

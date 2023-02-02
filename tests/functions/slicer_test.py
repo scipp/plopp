@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+
+import pytest
+import scipp as sc
 
 from plopp.data.testing import data_array, dataset
 from plopp.functions.slicer import Slicer
-import scipp as sc
-import pytest
 
 
 def test_creation_keep_two_dims():

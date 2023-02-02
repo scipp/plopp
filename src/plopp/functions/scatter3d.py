@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+
+import uuid
+from typing import Literal, Tuple, Union
+
+import scipp as sc
 
 from ..core import input_node
 from .common import check_not_binned
-
-import scipp as sc
-from typing import Literal, Tuple, Union
-import uuid
 
 
 def scatter3d(da: sc.DataArray,
@@ -63,7 +64,7 @@ def scatter3d(da: sc.DataArray,
     :
         A three-dimensional interactive scatter plot.
     """
-    from ..functions import figure3d
+    from ..graphics import figure3d
     from ..widgets import Box, ToggleTool, TriCutTool
 
     if 'ax' in kwargs:

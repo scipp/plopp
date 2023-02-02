@@ -1,15 +1,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ..core.utils import coord_element_to_string
-from ..core import node
+from typing import Any, Callable, Dict
 
 import ipywidgets as ipw
 import scipp as sc
-from typing import Any, Callable, Dict
+
+from ..core import node
+from ..core.utils import coord_element_to_string
+from .box import VBar
 
 
-class SliceWidget(ipw.VBox):
+class SliceWidget(VBar):
     """
     Widgets containing a slider for each of the requested dimensions.
     The widget uses the input data array to determine the range each slider should have.
@@ -25,6 +27,7 @@ class SliceWidget(ipw.VBox):
     """
 
     def __init__(self, sizes: Dict[str, int], coords: Dict[str, sc.Variable]):
+
         self._slider_dims = list(sizes.keys())
         self.controls = {}
         self.view = None

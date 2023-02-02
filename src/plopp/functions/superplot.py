@@ -1,17 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .common import require_interactive_backend, preprocess
-from .slicer import Slicer
+import uuid
+from functools import partial
+from typing import Any, Dict, Optional, Union
+
+import scipp as sc
+from matplotlib.colors import to_hex
+from numpy import ndarray
+
 from ..core import Node, View
 from ..core.utils import coord_element_to_string
-
-from functools import partial
-import scipp as sc
-from numpy import ndarray
-from typing import Any, Union, Dict, Optional
-from matplotlib.colors import to_hex
-import uuid
+from .common import preprocess, require_interactive_backend
+from .slicer import Slicer
 
 
 class LineSaveTool:
@@ -27,14 +28,16 @@ class LineSaveTool:
 
     def __init__(self, data_node: Node, slider_node: Node, fig: View):
         import ipywidgets as ipw
+
+        from ..widgets.box import VBar
         self._data_node = data_node
         self._slider_node = slider_node
         self._fig = fig
         self._lines = {}
         self.button = ipw.Button(description='Save line')
         self.button.on_click(self.save_line)
-        self.container = ipw.VBox()
-        self.widget = ipw.VBox([self.button, self.container], layout={'width': '350px'})
+        self.container = VBar()
+        self.widget = VBar([self.button, self.container], layout={'width': '350px'})
 
     def _update_container(self):
         self.container.children = [line['tool'] for line in self._lines.values()]
@@ -57,11 +60,9 @@ class LineSaveTool:
 
     def change_line_color(self, change: Dict[str, Any], line_id: str):
         self._lines[line_id]['line'].color = change['new']
-        self._fig.canvas.draw()
 
     def remove_line(self, change: Dict[str, Any], line_id: str):
         self._lines[line_id]['line'].remove()
-        self._fig.canvas.draw()
         del self._lines[line_id]
         self._update_container()
 

@@ -1,0 +1,26 @@
+# Build artefacts
+build
+dist
+src/plopp.egg-info
+
+# Documentation
+html
+docs/generated
+
+# Caches
+.tox
+*.ipynb_checkpoints
+__pycache__/
+.virtual_documents
+.hypothesis
+.pytest_cache
+.mypy_cache
+
+# Editor config / caches
+.idea/
+.vscode/
+.vs/
+
+# Environments
+Pipfile
+venv

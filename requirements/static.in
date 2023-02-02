@@ -1,4 +1,1 @@
-flake8
-nbstripout
-toml
-yapf
+pre-commit

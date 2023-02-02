@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from html import escape
-import ipywidgets as ipw
 from typing import Callable, Dict, List
+
+import ipywidgets as ipw
 
 
 class Checkboxes(ipw.HBox):

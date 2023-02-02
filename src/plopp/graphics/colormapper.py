@@ -1,18 +1,19 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
-
-from ..core.limits import find_limits, fix_empty_range
-from ..core.utils import merge_masks, maybe_variable_to_number
-from .utils import fig_to_bytes, silent_mpl_figure
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
+from typing import Any, Literal, Optional, Tuple, Union
+
 import matplotlib as mpl
-from matplotlib.colors import Normalize, LogNorm, LinearSegmentedColormap, Colormap
 import matplotlib.pyplot as plt
-from matplotlib.colorbar import ColorbarBase
 import numpy as np
 import scipp as sc
-from typing import Literal, Optional, Tuple, Union
+from matplotlib.colorbar import ColorbarBase
+from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normalize
+
+from ..backends.matplotlib.utils import fig_to_bytes, silent_mpl_figure
+from ..core.limits import find_limits, fix_empty_range
+from ..core.utils import maybe_variable_to_number, merge_masks
 
 
 def _get_cmap(name: str, nan_color: str = None) -> Colormap:
@@ -80,7 +81,7 @@ class ColorMapper:
     """
 
     def __init__(self,
-                 cax: Optional[plt.Axes] = None,
+                 canvas: Optional[Any] = None,
                  cbar: bool = True,
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
@@ -90,7 +91,7 @@ class ColorMapper:
                  nan_color: Optional[str] = None,
                  figsize: Optional[Tuple[float, float]] = None):
 
-        self.cax = cax
+        self.cax = canvas.cax if canvas is not None else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin
@@ -206,8 +207,9 @@ class ColorMapper:
         key:
             The id of the node that provided this data.
         """
-        if self.unit is None:
-            self.unit = data.unit
+        if self.name is None:
+            if self.unit is None:
+                self.unit = data.unit
             self.name = data.name
             if self.cax is not None:
                 self.cax.set_ylabel(f'{self.name} [{self.unit}]')

@@ -1,17 +1,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import doctest
-from datetime import date
-import plopp
-
 import os
 import sys
-
+from datetime import date
 from typing import Any, Dict, Optional
+
+import sphinx_book_theme
 from docutils.nodes import document
 from sphinx.application import Sphinx
-import sphinx_book_theme
+
+import plopp
 
 sys.path.insert(0, os.path.abspath('.'))
 
@@ -19,10 +19,10 @@ from version import VersionInfo  # noqa: E402
 
 # General information about the project.
 project = u'plopp'
-copyright = u'2022 Scipp contributors'
+copyright = u'2023 Scipp contributors'
 author = u'Scipp contributors'
 
-version_info = VersionInfo(repo=project)
+version_info = VersionInfo()
 long_version = plopp.__version__
 outdated = not version_info.is_latest(long_version)
 
@@ -37,10 +37,10 @@ def add_buttons(
     base = "https://scipp.github.io"
     l1 = []
     l1.append({"type": "link", "text": "scipp", "url": f"{base}"})
+    l1.append({"type": "link", "text": "plopp", "url": f"{base}/plopp"})
     l1.append({"type": "link", "text": "scippnexus", "url": f"{base}/scippnexus"})
     l1.append({"type": "link", "text": "scippneutron", "url": f"{base}/scippneutron"})
     l1.append({"type": "link", "text": "ess", "url": f"{base}/ess"})
-    l1.append({"type": "link", "text": "plopp", "url": f"{base}/plopp"})
     header_buttons = context["header_buttons"]
     header_buttons.append({
         "type": "group",
@@ -263,6 +263,10 @@ linkcheck_ignore = [
 # -- Options for nbsphinx gallery------------------------------------------
 
 nbsphinx_thumbnails = {
-    'examples/gallery/nyc-taxi': '_static/gallery/nyc-taxi-thumbnail.png',
-    'examples/gallery/masking-a-range': '_static/gallery/masking-a-range-thumbnail.png',
+    'examples/gallery/nyc-taxi':
+    '_static/gallery/nyc-taxi-thumbnail.png',
+    'examples/gallery/masking-a-range':
+    '_static/gallery/masking-a-range-thumbnail.png',
+    'examples/gallery/rectangle-selection':
+    '_static/gallery/rectangle-selection-thumbnail.png',
 }

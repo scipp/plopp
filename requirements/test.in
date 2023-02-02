@@ -1,4 +1,6 @@
 -r base.in
 ipympl
+kaleido
+plotly
 pytest
 scipy

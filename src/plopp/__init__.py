@@ -1,19 +1,23 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 # flake8: noqa E402, F401
 
 import importlib.metadata
+
 try:
     __version__ = importlib.metadata.version(__package__ or __name__)
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-from .core import Node, View, node, input_node, widget_node, show_graph
-from .functions import (figure1d, figure2d, figure3d, plot, slicer, inspector,
-                        scatter3d, superplot)
+from .backends.manager import BackendManager
+
+backends = BackendManager()
 
 from . import data
+from .core import Node, View, input_node, node, show_graph, widget_node
+from .functions import inspector, plot, scatter3d, slicer, superplot
+from .graphics import figure1d, figure2d, figure3d
 
 
 def patch_scipp():

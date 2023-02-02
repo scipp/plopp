@@ -1,10 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from functools import reduce
-import scipp as sc
-from typing import Dict, Union
 import uuid
+from functools import reduce
+from typing import Dict, Optional, Union
+
+import scipp as sc
 
 
 def coord_as_bin_edges(da: sc.DataArray, key: str, dim: str = None) -> sc.Variable:
@@ -171,3 +172,34 @@ def coord_element_to_string(x: sc.Variable) -> str:
     if x.unit is not None:
         out += f" [{x.unit}]"
     return out
+
+
+def make_compatible(x: sc.Variable,
+                    *,
+                    unit: Union[str, None],
+                    dim: Optional[str] = None):
+    """
+    Raise exception if the dimensions of the supplied variable do not contain the
+    requested dimension.
+    Then, if the variable unit differs from the requested unit, attempt a conversion.
+
+    Parameters
+    ----------
+    x:
+        The input variable.
+    unit:
+        Attempt unit conversion to this unit if the input variable has a different unit.
+    dim:
+        If supplied, check that the dim is found in the input variable's dimensions.
+    """
+    if (dim is not None) and (dim not in x.dims):
+        raise sc.DimensionError(
+            f'The supplied variable has dimension {x.dims} which is '
+            f'incompatible with the requested dimension {dim}.')
+    if x.unit != unit:
+        if unit is not None:
+            return x.to(unit=unit, dtype=float)
+        else:
+            raise sc.UnitError(f'The supplied variable has unit {x.unit} which is '
+                               'incompatible with the requested unit None/<no unit>.')
+    return x

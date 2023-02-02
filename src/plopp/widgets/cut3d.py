@@ -1,14 +1,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
-
-from .common import BUTTON_LAYOUT
-from ..core import node, View
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import asyncio
+from functools import partial
+from typing import Any, Callable, Dict, Literal, Tuple
+
 import ipywidgets as ipw
 import numpy as np
 import scipp as sc
-from typing import Any, Callable, Dict, Literal, Tuple
+
+from ..core import View, node
+from .style import BUTTON_LAYOUT
 
 
 class Timer:
@@ -197,6 +199,10 @@ class Cut3dTool(ipw.HBox):
         """
         Add a point cloud representing the points that intersect the cut plane.
         """
+
+        def select(da, s):
+            return da[s]
+
         for n in self._nodes:
             da = n.request_data()
             delta = sc.scalar((self.slider.max - self.slider.min) * self.thickness,
@@ -204,7 +210,7 @@ class Cut3dTool(ipw.HBox):
             pos = sc.scalar(self.slider.value, unit=self._unit)
             selection = sc.abs(da.meta[self._dim] - pos) < delta
             if selection.sum().value > 0:
-                self.select_nodes[n.id] = node(lambda da: da[selection])(da=n)
+                self.select_nodes[n.id] = node(partial(select, s=selection))(da=n)
                 self.select_nodes[n.id].add_view(self._view)
                 self._view.update(
                     self.select_nodes[n.id].request_data(),

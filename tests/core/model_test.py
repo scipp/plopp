@@ -1,9 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp import Node, node, View
 from functools import partial
+
 import pytest
+
+from plopp import Node, View, node
 
 
 class SimpleView(View):

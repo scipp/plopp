@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
-import plopp as pp
-from plopp.data.testing import scatter
 import pytest
 import scipp as sc
+
+import plopp as pp
+from plopp.data.testing import scatter
 
 
 def test_scatter3d_from_pos():
@@ -32,14 +33,14 @@ def test_scatter3d_dimensions_are_flattened():
     da = sc.DataArray(data=sc.array(dims=['x', 'y'], values=np.random.rand(nx, ny)),
                       coords={'position': sc.geometry.position(x, y, 0.0 * sc.units.m)})
     p = pp.scatter3d(da, pos="position")
-    assert list(p.children[0].artists.values())[0].data.ndim == 1
+    assert list(p[0].artists.values())[0].data.ndim == 1
     nz = 12
     z = sc.linspace(dim='z', start=-10.0, stop=10.0, num=nz, unit='m')
     da = sc.DataArray(data=sc.array(dims=['x', 'y', 'z'],
                                     values=np.random.rand(nx, ny, nz)),
                       coords={'position': sc.geometry.position(x, y, z)})
     p = pp.scatter3d(da, pos="position")
-    assert list(p.children[0].artists.values())[0].data.ndim == 1
+    assert list(p[0].artists.values())[0].data.ndim == 1
 
 
 def test_scatter3d_can_plot_scalar_data():

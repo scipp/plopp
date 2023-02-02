@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import scipp as sc
-from plopp import figure1d, figure2d, node, input_node, widget_node
-from plopp.widgets import Checkboxes, SliceWidget, slice_dims, Box
-from plopp.data.testing import data_array, dataset
 import ipywidgets as ipw
+import scipp as sc
+
+from plopp import figure1d, figure2d, input_node, node, widget_node
+from plopp.data.testing import data_array, dataset
+from plopp.widgets import Box, Checkboxes, SliceWidget, slice_dims
 
 
 @node

@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2022 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import uuid
 from functools import partial
 from itertools import chain
-from typing import Callable, Any
-import uuid
+from typing import Any, Callable
 
 
 class Node:
