@@ -176,7 +176,7 @@ class Line:
                     (data["mask"]["y"][0:1], data["mask"]["y"]))
         if self._data.variances is not None:
             if hist:
-                if 'datetime' in str(x.dtype):
+                if x.dtype.kind == 'M':
                     xint = x.astype(int)
                     xmid = (0.5 * (xint[1:] + xint[:-1])).astype(int)
                     xvars = np.array(xmid, dtype=x.dtype)

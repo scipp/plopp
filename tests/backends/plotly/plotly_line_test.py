@@ -73,3 +73,18 @@ def test_line_update_with_errorbars():
     line.update(new_values)
     assert np.allclose(line._line.y, da.values)
     assert np.allclose(line._error.error_y['array'], sc.stddevs(da.data).values * 2.0)
+
+
+def test_line_datetime_binedges_with_errorbars():
+    t = np.arange(np.datetime64('2017-03-16T20:58:17'),
+                  np.datetime64('2017-03-16T21:15:17'), 20)
+    time = sc.array(dims=['time'], values=t)
+    v = np.random.rand(time.sizes['time'] - 1)
+    da = sc.DataArray(data=sc.array(dims=['time'], values=10 * v, variances=v),
+                      coords={'time': time})
+    xint = t.astype(int)
+    xmid = (0.5 * (xint[1:] + xint[:-1])).astype(int)
+    expected = np.array(xmid, dtype=t.dtype)
+    line = Line(canvas=Canvas(), data=da)
+    # Note that allclose does not work on datetime dtypes
+    assert np.allclose(line._error.x.astype(int), expected.astype(int))
