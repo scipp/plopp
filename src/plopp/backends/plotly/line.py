@@ -189,7 +189,16 @@ class Line:
                 data["mask"]["y"] = np.concatenate(
                     (data["mask"]["y"][0:1], data["mask"]["y"]))
         if self._data.variances is not None:
-            data["variances"]["x"] = 0.5 * (x[1:] + x[:-1]) if hist else x
+            if hist:
+                if 'datetime' in str(x.dtype):
+                    xint = x.astype(int)
+                    xmid = (0.5 * (xint[1:] + xint[:-1])).astype(int)
+                    xvars = np.array(xmid, dtype=x.dtype)
+                else:
+                    xvars = 0.5 * (xint[1:] + xint[:-1])
+            else:
+                xvars = x
+            data["variances"]["x"] = xvars
         data["variances"]["y"] = y
         data["hist"] = hist
         return data
