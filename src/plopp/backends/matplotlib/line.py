@@ -97,8 +97,6 @@ class Line:
             - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
             - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
         """
-        has_mask = data["mask"] is not None
-        mask_data_key = "mask" if has_mask else "values"
 
         default_step_style = {
             'linestyle': 'solid',
@@ -114,8 +112,8 @@ class Line:
         }
 
         if data["hist"]:
-            self._line = self._ax.step(data["values"]["x"],
-                                       data["values"]["y"],
+            self._line = self._ax.step(data["values"]["x"].values,
+                                       data["values"]["y"].values,
                                        label=self.label,
                                        zorder=10,
                                        **{
@@ -123,37 +121,38 @@ class Line:
                                            **kwargs
                                        })[0]
 
-            self._mask = self._ax.step(data["values"]["x"], data[mask_data_key]["y"])[0]
+            self._mask = self._ax.step(data['mask']['x'].values,
+                                       data['mask']['y'].values)[0]
             self._mask.update_from(self._line)
             self._mask.set_color(mask_color)
             self._mask.set_label(None)
             self._mask.set_linewidth(self._mask.get_linewidth() * 3)
             self._mask.set_zorder(self._mask.get_zorder() - 1)
-            self._mask.set_visible(has_mask)
+            self._mask.set_visible(data['mask']['visible'])
         else:
-            self._line = self._ax.plot(data["values"]["x"],
-                                       data["values"]["y"],
+            self._line = self._ax.plot(data["values"]["x"].values,
+                                       data["values"]["y"].values,
                                        label=self.label,
                                        zorder=10,
                                        **{
                                            **default_plot_style,
                                            **kwargs
                                        })[0]
-            self._mask = self._ax.plot(data["values"]["x"],
-                                       data[mask_data_key]["y"],
+            self._mask = self._ax.plot(data['mask']['x'].values,
+                                       data['mask']['y'].values,
                                        zorder=11,
                                        mec=mask_color,
                                        mfc="None",
                                        mew=3.0,
                                        linestyle="none",
                                        marker=self._line.get_marker(),
-                                       visible=has_mask)[0]
+                                       visible=data['mask']['visible'])[0]
 
         # Add error bars
-        if errorbars and ("e" in data["variances"]):
-            self._error = self._ax.errorbar(data["variances"]["x"],
-                                            data["variances"]["y"],
-                                            yerr=data["variances"]["e"],
+        if errorbars and (data['stddevs'] is not None):
+            self._error = self._ax.errorbar(data['stddevs']['x'].values,
+                                            data['stddevs']['y'].values,
+                                            yerr=data['stddevs']['e'].values,
                                             color=self._line.get_color(),
                                             zorder=10,
                                             fmt="none")
@@ -161,46 +160,31 @@ class Line:
         if self.label:
             self._ax.legend()
 
-    def _preprocess_hist(self, data: dict) -> dict:
-        """
-        Convert 1d data to be plotted to internal format, e.g., padding
-        histograms and duplicating info for variances.
-        """
-        x = data["values"]["x"]
-        y = data["values"]["y"]
-        hist = len(x) != len(y)
-        if hist:
-            data["values"]["y"] = np.concatenate((y[0:1], y))
-            if data["mask"] is not None:
-                data["mask"]["y"] = np.concatenate(
-                    (data["mask"]["y"][0:1], data["mask"]["y"]))
-        if self._data.variances is not None:
-            if hist:
-                if x.dtype.kind == 'M':
-                    xint = x.astype(int)
-                    xmid = (0.5 * (xint[1:] + xint[:-1])).astype(int)
-                    xvars = np.array(xmid, dtype=x.dtype)
-                else:
-                    xvars = 0.5 * (xint[1:] + xint[:-1])
-            else:
-                xvars = x
-            data["variances"]["x"] = xvars
-        data["variances"]["y"] = y
-        data["hist"] = hist
-        return data
-
     def _make_data(self) -> dict:
-        data = {"values": {}, "variances": {}, "mask": None}
-        data["values"]["x"] = self._data.meta[self._dim].values
-        data["values"]["y"] = self._data.values
+        x = self._data.meta[self._dim]
+        y = self._data.data
+        hist = len(x) != len(y)
+        error = None
+        mask = {'x': x, 'y': y, 'visible': False}
         if self._data.variances is not None:
-            data["variances"]["e"] = sc.stddevs(self._data.data).values
+            error = {'x': sc.midpoints(x) if hist else x, 'y': y, 'e': sc.stddevs(y)}
         if len(self._data.masks):
-            one_mask = merge_masks(self._data.masks).values
-            data["mask"] = {
-                "y": np.where(one_mask, data["values"]["y"], None).astype(np.float32)
-            }
-        return self._preprocess_hist(data)
+            one_mask = merge_masks(self._data.masks)
+            masked = self._data[one_mask]
+            mask = {'x': masked.meta[self._dim], 'y': masked.data, 'visible': True}
+        if hist:
+            y = sc.concat([y[0:1], y], dim=self._dim)
+            if mask is not None:
+                mask['y'] = sc.concat([mask['y'][0:1], mask['y']], dim=self._dim)
+        return {
+            'values': {
+                'x': x,
+                'y': y
+            },
+            'stddevs': error,
+            'mask': mask,
+            'hist': hist
+        }
 
     def update(self, new_values: sc.DataArray):
         """
@@ -214,19 +198,21 @@ class Line:
         self._data = new_values
         new_values = self._make_data()
 
-        self._line.set_data(new_values["values"]["x"], new_values["values"]["y"])
-        if new_values["mask"] is not None:
-            self._mask.set_data(new_values["values"]["x"], new_values["mask"]["y"])
+        self._line.set_data(new_values['values']['x'].values,
+                            new_values['values']['y'].values)
+        if new_values['mask']['visible']:
+            self._mask.set_data(new_values['mask']['x'].values,
+                                new_values['mask']['y'].values)
             self._mask.set_visible(True)
         else:
             self._mask.set_visible(False)
 
-        if (self._error is not None) and ("e" in new_values["variances"]):
+        if (self._error is not None) and (new_values['stddevs'] is not None):
             coll = self._error.get_children()[0]
             coll.set_segments(
-                self._change_segments_y(new_values["variances"]["x"],
-                                        new_values["variances"]["y"],
-                                        new_values["variances"]["e"]))
+                self._change_segments_y(new_values['stddevs']['x'].values,
+                                        new_values['stddevs']['y'].values,
+                                        new_values['stddevs']['e'].values))
 
     def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
         """

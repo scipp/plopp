@@ -91,8 +91,8 @@ class Line:
         import plotly.graph_objects as go
         from plotly.colors import qualitative as plotly_colors
 
-        has_mask = data["mask"] is not None
-        mask_data_key = "mask" if has_mask else "values"
+        # has_mask = data["mask"] is not None
+        # mask_data_key = "mask" if has_mask else "values"
 
         default_colors = plotly_colors.Plotly
         default_line_style = {'color': default_colors[number % len(default_colors)]}
@@ -107,24 +107,24 @@ class Line:
         marker_style = default_marker_style if marker is None else marker
         line_style = {**default_line_style, **kwargs}
 
-        self._line = go.Scatter(x=np.asarray(data["values"]["x"]),
-                                y=np.asarray(data["values"]["y"]),
+        self._line = go.Scatter(x=np.asarray(data['values']['x'].values),
+                                y=np.asarray(data['values']['y'].values),
                                 name=self.label,
                                 mode=mode,
                                 marker=marker_style,
                                 line_shape=line_shape,
                                 line=line_style)
 
-        if errorbars and ("e" in data["variances"]):
-            self._error = go.Scatter(x=np.asarray(data["variances"]["x"]),
-                                     y=np.asarray(data["variances"]["y"]),
+        if errorbars and (data['stddevs'] is not None):
+            self._error = go.Scatter(x=np.asarray(data['stddevs']['x'].values),
+                                     y=np.asarray(data['stddevs']['y'].values),
                                      line=line_style,
                                      name=self.label,
                                      mode='markers',
                                      marker={'opacity': 0},
                                      error_y={
                                          'type': 'data',
-                                         'array': data["variances"]["e"]
+                                         'array': data['stddevs']['e'].values
                                      },
                                      showlegend=False)
 
@@ -140,14 +140,14 @@ class Line:
         if data["hist"]:
             line_style['color'] = mask_color
 
-        self._mask = go.Scatter(x=np.asarray(data["values"]["x"]),
-                                y=np.asarray(data[mask_data_key]["y"]),
+        self._mask = go.Scatter(x=np.asarray(data['mask']['x'].values),
+                                y=np.asarray(data['mask']['y'].values),
                                 name=self.label,
                                 mode=mode,
                                 marker=marker_style,
                                 line_shape=line_shape,
                                 line=line_style,
-                                visible=has_mask,
+                                visible=data['mask']['visible'],
                                 showlegend=False)
 
         # Below, we need to re-define the line because it seems that the Scatter trace
@@ -175,46 +175,31 @@ class Line:
         if self._error is not None:
             self._error._plopp_id = self._id
 
-    def _preprocess_hist(self, data: dict) -> dict:
-        """
-        Convert 1d data to be plotted to internal format, e.g., padding
-        histograms and duplicating info for variances.
-        """
-        x = data["values"]["x"]
-        y = data["values"]["y"]
-        hist = len(x) != len(y)
-        if hist:
-            data["values"]["y"] = np.concatenate((y[0:1], y))
-            if data["mask"] is not None:
-                data["mask"]["y"] = np.concatenate(
-                    (data["mask"]["y"][0:1], data["mask"]["y"]))
-        if self._data.variances is not None:
-            if hist:
-                if x.dtype.kind == 'M':
-                    xint = x.astype(int)
-                    xmid = (0.5 * (xint[1:] + xint[:-1])).astype(int)
-                    xvars = np.array(xmid, dtype=x.dtype)
-                else:
-                    xvars = 0.5 * (xint[1:] + xint[:-1])
-            else:
-                xvars = x
-            data["variances"]["x"] = xvars
-        data["variances"]["y"] = y
-        data["hist"] = hist
-        return data
-
     def _make_data(self) -> dict:
-        data = {"values": {}, "variances": {}, "mask": None}
-        data["values"]["x"] = self._data.meta[self._dim].values
-        data["values"]["y"] = self._data.values
+        x = self._data.meta[self._dim]
+        y = self._data.data
+        hist = len(x) != len(y)
+        error = None
+        mask = {'x': x, 'y': y, 'visible': False}
         if self._data.variances is not None:
-            data["variances"]["e"] = sc.stddevs(self._data.data).values
+            error = {'x': sc.midpoints(x) if hist else x, 'y': y, 'e': sc.stddevs(y)}
         if len(self._data.masks):
-            one_mask = merge_masks(self._data.masks).values
-            data["mask"] = {
-                "y": np.where(one_mask, data["values"]["y"], None).astype(np.float32)
-            }
-        return self._preprocess_hist(data)
+            one_mask = merge_masks(self._data.masks)
+            masked = self._data[one_mask]
+            mask = {'x': masked.meta[self._dim], 'y': masked.data, 'visible': True}
+        if hist:
+            y = sc.concat([y[0:1], y], dim=self._dim)
+            if mask is not None:
+                mask['y'] = sc.concat([mask['y'][0:1], mask['y']], dim=self._dim)
+        return {
+            'values': {
+                'x': x,
+                'y': y
+            },
+            'stddevs': error,
+            'mask': mask,
+            'hist': hist
+        }
 
     def update(self, new_values: sc.DataArray):
         """
@@ -230,21 +215,24 @@ class Line:
 
         with self._fig.batch_update():
             self._line.update({
-                'x': new_values["values"]["x"],
-                'y': new_values["values"]["y"]
+                'x': new_values['values']['x'].values,
+                'y': new_values['values']['y'].values
             })
 
-            if (self._error is not None) and ("e" in new_values["variances"]):
+            if (self._error is not None) and (new_values['stddevs'] is not None):
                 self._error.update({
-                    'x': new_values["variances"]["x"],
-                    'y': new_values["variances"]["y"],
+                    'x': new_values['stddevs']['x'].values,
+                    'y': new_values['stddevs']['y'].values,
                     'error_y': {
-                        'array': new_values["variances"]["e"]
+                        'array': new_values['stddevs']['e'].values
                     }
                 })
 
-            if new_values["mask"] is not None:
-                update = {'x': new_values["values"]["x"], 'y': new_values["mask"]["y"]}
+            if new_values['mask']['visible']:
+                update = {
+                    'x': new_values['mask']['x'].values,
+                    'y': new_values['mask']['y'].values
+                }
                 self._mask.update(update)
                 self._mask.visible = True
             else:
