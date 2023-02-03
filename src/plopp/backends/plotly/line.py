@@ -91,9 +91,6 @@ class Line:
         import plotly.graph_objects as go
         from plotly.colors import qualitative as plotly_colors
 
-        # has_mask = data["mask"] is not None
-        # mask_data_key = "mask" if has_mask else "values"
-
         default_colors = plotly_colors.Plotly
         default_line_style = {'color': default_colors[number % len(default_colors)]}
         default_marker_style = {'symbol': number % 53}  # Plotly has 52 marker styles
