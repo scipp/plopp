@@ -36,6 +36,12 @@ def test_line_with_errorbars():
     assert np.allclose(line._error.error_y['array'], sc.stddevs(da.data).values)
 
 
+def test_line_with_bin_edges_and_errorbars():
+    da = data_array(ndim=1, binedges=True, variances=True)
+    line = Line(canvas=Canvas(), data=da)
+    assert np.allclose(line._error.x, sc.midpoints(da.meta['xx']).values)
+
+
 def test_line_hide_errorbars():
     da = data_array(ndim=1, variances=True)
     line = Line(canvas=Canvas(), data=da, errorbars=False)
@@ -46,6 +52,21 @@ def test_line_with_mask():
     da = data_array(ndim=1, masks=True)
     line = Line(canvas=Canvas(), data=da)
     assert line._mask.visible
+
+
+def test_line_with_mask_and_binedges():
+    da = data_array(ndim=1, binedges=True, masks=True)
+    line = Line(canvas=Canvas(), data=da)
+    assert line._mask.visible
+
+
+def test_line_with_two_masks():
+    da = data_array(ndim=1, masks=True)
+    da.masks['two'] = da.coords['xx'] > sc.scalar(25, unit='m')
+    line = Line(canvas=Canvas(), data=da)
+    expected = da.data[da.masks['mask'] | da.masks['two']].values
+    y = line._mask.y
+    assert np.allclose(y[~np.isnan(y)], expected)
 
 
 def test_line_update():

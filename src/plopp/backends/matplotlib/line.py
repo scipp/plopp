@@ -112,8 +112,8 @@ class Line:
         }
 
         if data["hist"]:
-            self._line = self._ax.step(data["values"]["x"].values,
-                                       data["values"]["y"].values,
+            self._line = self._ax.step(data['values']['x'],
+                                       data['values']['y'],
                                        label=self.label,
                                        zorder=10,
                                        **{
@@ -121,8 +121,7 @@ class Line:
                                            **kwargs
                                        })[0]
 
-            self._mask = self._ax.step(data['mask']['x'].values,
-                                       data['mask']['y'].values)[0]
+            self._mask = self._ax.step(data['mask']['x'], data['mask']['y'])[0]
             self._mask.update_from(self._line)
             self._mask.set_color(mask_color)
             self._mask.set_label(None)
@@ -130,16 +129,16 @@ class Line:
             self._mask.set_zorder(self._mask.get_zorder() - 1)
             self._mask.set_visible(data['mask']['visible'])
         else:
-            self._line = self._ax.plot(data["values"]["x"].values,
-                                       data["values"]["y"].values,
+            self._line = self._ax.plot(data['values']['x'],
+                                       data['values']['y'],
                                        label=self.label,
                                        zorder=10,
                                        **{
                                            **default_plot_style,
                                            **kwargs
                                        })[0]
-            self._mask = self._ax.plot(data['mask']['x'].values,
-                                       data['mask']['y'].values,
+            self._mask = self._ax.plot(data['mask']['x'],
+                                       data['mask']['y'],
                                        zorder=11,
                                        mec=mask_color,
                                        mfc="None",
@@ -150,9 +149,9 @@ class Line:
 
         # Add error bars
         if errorbars and (data['stddevs'] is not None):
-            self._error = self._ax.errorbar(data['stddevs']['x'].values,
-                                            data['stddevs']['y'].values,
-                                            yerr=data['stddevs']['e'].values,
+            self._error = self._ax.errorbar(data['stddevs']['x'],
+                                            data['stddevs']['y'],
+                                            yerr=data['stddevs']['e'],
                                             color=self._line.get_color(),
                                             zorder=10,
                                             fmt="none")
@@ -165,21 +164,28 @@ class Line:
         y = self._data.data
         hist = len(x) != len(y)
         error = None
-        mask = {'x': x, 'y': y, 'visible': False}
+        mask = {'x': x.values, 'y': y.values, 'visible': False}
         if self._data.variances is not None:
-            error = {'x': sc.midpoints(x) if hist else x, 'y': y, 'e': sc.stddevs(y)}
+            error = {
+                'x': sc.midpoints(x).values if hist else x.values,
+                'y': y.values,
+                'e': sc.stddevs(y).values
+            }
         if len(self._data.masks):
-            one_mask = merge_masks(self._data.masks)
-            masked = self._data[one_mask]
-            mask = {'x': masked.meta[self._dim], 'y': masked.data, 'visible': True}
+            one_mask = merge_masks(self._data.masks).values
+            mask = {
+                'x': x.values,
+                'y': np.where(one_mask, y.values, np.nan),
+                'visible': True
+            }
         if hist:
             y = sc.concat([y[0:1], y], dim=self._dim)
             if mask is not None:
-                mask['y'] = sc.concat([mask['y'][0:1], mask['y']], dim=self._dim)
+                mask['y'] = np.concatenate([mask['y'][0:1], mask['y']])
         return {
             'values': {
-                'x': x,
-                'y': y
+                'x': x.values,
+                'y': y.values
             },
             'stddevs': error,
             'mask': mask,
@@ -198,11 +204,9 @@ class Line:
         self._data = new_values
         new_values = self._make_data()
 
-        self._line.set_data(new_values['values']['x'].values,
-                            new_values['values']['y'].values)
+        self._line.set_data(new_values['values']['x'], new_values['values']['y'])
         if new_values['mask']['visible']:
-            self._mask.set_data(new_values['mask']['x'].values,
-                                new_values['mask']['y'].values)
+            self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
             self._mask.set_visible(True)
         else:
             self._mask.set_visible(False)
@@ -210,9 +214,9 @@ class Line:
         if (self._error is not None) and (new_values['stddevs'] is not None):
             coll = self._error.get_children()[0]
             coll.set_segments(
-                self._change_segments_y(new_values['stddevs']['x'].values,
-                                        new_values['stddevs']['y'].values,
-                                        new_values['stddevs']['e'].values))
+                self._change_segments_y(new_values['stddevs']['x'],
+                                        new_values['stddevs']['y'],
+                                        new_values['stddevs']['e']))
 
     def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
         """

@@ -107,8 +107,8 @@ class Line:
         marker_style = default_marker_style if marker is None else marker
         line_style = {**default_line_style, **kwargs}
 
-        self._line = go.Scatter(x=np.asarray(data['values']['x'].values),
-                                y=np.asarray(data['values']['y'].values),
+        self._line = go.Scatter(x=np.asarray(data['values']['x']),
+                                y=np.asarray(data['values']['y']),
                                 name=self.label,
                                 mode=mode,
                                 marker=marker_style,
@@ -116,15 +116,15 @@ class Line:
                                 line=line_style)
 
         if errorbars and (data['stddevs'] is not None):
-            self._error = go.Scatter(x=np.asarray(data['stddevs']['x'].values),
-                                     y=np.asarray(data['stddevs']['y'].values),
+            self._error = go.Scatter(x=np.asarray(data['stddevs']['x']),
+                                     y=np.asarray(data['stddevs']['y']),
                                      line=line_style,
                                      name=self.label,
                                      mode='markers',
                                      marker={'opacity': 0},
                                      error_y={
                                          'type': 'data',
-                                         'array': data['stddevs']['e'].values
+                                         'array': data['stddevs']['e']
                                      },
                                      showlegend=False)
 
@@ -140,8 +140,8 @@ class Line:
         if data["hist"]:
             line_style['color'] = mask_color
 
-        self._mask = go.Scatter(x=np.asarray(data['mask']['x'].values),
-                                y=np.asarray(data['mask']['y'].values),
+        self._mask = go.Scatter(x=np.asarray(data['mask']['x']),
+                                y=np.asarray(data['mask']['y']),
                                 name=self.label,
                                 mode=mode,
                                 marker=marker_style,
@@ -180,21 +180,28 @@ class Line:
         y = self._data.data
         hist = len(x) != len(y)
         error = None
-        mask = {'x': x, 'y': y, 'visible': False}
+        mask = {'x': x.values, 'y': y.values, 'visible': False}
         if self._data.variances is not None:
-            error = {'x': sc.midpoints(x) if hist else x, 'y': y, 'e': sc.stddevs(y)}
+            error = {
+                'x': sc.midpoints(x).values if hist else x.values,
+                'y': y.values,
+                'e': sc.stddevs(y).values
+            }
         if len(self._data.masks):
-            one_mask = merge_masks(self._data.masks)
-            masked = self._data[one_mask]
-            mask = {'x': masked.meta[self._dim], 'y': masked.data, 'visible': True}
+            one_mask = merge_masks(self._data.masks).values
+            mask = {
+                'x': x.values,
+                'y': np.where(one_mask, y.values, np.nan),
+                'visible': True
+            }
         if hist:
             y = sc.concat([y[0:1], y], dim=self._dim)
             if mask is not None:
-                mask['y'] = sc.concat([mask['y'][0:1], mask['y']], dim=self._dim)
+                mask['y'] = np.concatenate([mask['y'][0:1], mask['y']])
         return {
             'values': {
-                'x': x,
-                'y': y
+                'x': x.values,
+                'y': y.values
             },
             'stddevs': error,
             'mask': mask,
@@ -215,24 +222,21 @@ class Line:
 
         with self._fig.batch_update():
             self._line.update({
-                'x': new_values['values']['x'].values,
-                'y': new_values['values']['y'].values
+                'x': new_values['values']['x'],
+                'y': new_values['values']['y']
             })
 
             if (self._error is not None) and (new_values['stddevs'] is not None):
                 self._error.update({
-                    'x': new_values['stddevs']['x'].values,
-                    'y': new_values['stddevs']['y'].values,
+                    'x': new_values['stddevs']['x'],
+                    'y': new_values['stddevs']['y'],
                     'error_y': {
-                        'array': new_values['stddevs']['e'].values
+                        'array': new_values['stddevs']['e']
                     }
                 })
 
             if new_values['mask']['visible']:
-                update = {
-                    'x': new_values['mask']['x'].values,
-                    'y': new_values['mask']['y'].values
-                }
+                update = {'x': new_values['mask']['x'], 'y': new_values['mask']['y']}
                 self._mask.update(update)
                 self._mask.visible = True
             else:
