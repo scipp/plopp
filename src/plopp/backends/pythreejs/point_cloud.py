@@ -8,6 +8,13 @@ import numpy as np
 import scipp as sc
 
 
+def _check_ndim(data):
+    if data.ndim != 1:
+        raise ValueError('PointCloud only accepts one dimensional data, '
+                         f'found {data.ndim} dimensions. You should flatten your data '
+                         '(using sc.flatten) before sending it to the point cloud.')
+
+
 class PointCloud:
     """
     Artist to represent a three-dimensional point cloud/scatter plot.
@@ -41,6 +48,7 @@ class PointCloud:
         """
         import pythreejs as p3
 
+        _check_ndim(data)
         self._data = data
         self._x = x
         self._y = y
@@ -101,6 +109,7 @@ class PointCloud:
         new_values:
             New data to update the point cloud values from.
         """
+        _check_ndim(new_values)
         self._data = new_values
 
     def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:

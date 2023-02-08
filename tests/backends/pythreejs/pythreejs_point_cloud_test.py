@@ -89,3 +89,20 @@ def test_pixel_size_cannot_have_units_when_spatial_dimensions_have_different_uni
     # Ok if no unit supplied
     cloud = PointCloud(data=da, x='x', y='y', z='z', pixel_size=2.5)
     assert cloud.material.size == 2.5 * reference.material.size
+
+
+def test_creation_raises_when_data_is_not_1d():
+    da = scatter()
+    da2d = sc.broadcast(da, sizes={**da.sizes, **{'time': 10}})
+    with pytest.raises(ValueError,
+                       match='PointCloud only accepts one dimensional data'):
+        PointCloud(data=da2d, x='x', y='y', z='z')
+
+
+def test_update_raises_when_data_is_not_1d():
+    da = scatter()
+    cloud = PointCloud(data=da, x='x', y='y', z='z')
+    da2d = sc.broadcast(da, sizes={**da.sizes, **{'time': 10}})
+    with pytest.raises(ValueError,
+                       match='PointCloud only accepts one dimensional data'):
+        cloud.update(da2d)

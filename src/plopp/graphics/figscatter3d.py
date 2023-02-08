@@ -52,9 +52,9 @@ class FigScatter3d(BaseFig):
 
     def __init__(self,
                  *nodes,
-                 x: str,
-                 y: str,
-                 z: str,
+                 x: str = 'x',
+                 y: str = 'y',
+                 z: str = 'z',
                  cmap: str = 'viridis',
                  mask_cmap: str = 'gray',
                  norm: Literal['linear', 'log'] = 'linear',
@@ -96,7 +96,6 @@ class FigScatter3d(BaseFig):
         draw:
             This argument is ignored for the 3d figure update.
         """
-
         xcoord = new_values.coords[self._x]
         ycoord = new_values.coords[self._y]
         zcoord = new_values.coords[self._z]

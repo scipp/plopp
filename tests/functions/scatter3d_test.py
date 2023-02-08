@@ -19,6 +19,11 @@ def test_scatter3d_from_xyz():
     pp.scatter3d(da, x='x', y='y', z='z')
 
 
+def test_scatter3d_from_xyz_using_defaults():
+    da = scatter()
+    pp.scatter3d(da)
+
+
 def test_scatter3d_raises_with_both_pos_and_xyz():
     da = scatter()
     with pytest.raises(ValueError, match=r'If pos \(position\) is defined, all of'):

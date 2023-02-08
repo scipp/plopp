@@ -40,10 +40,13 @@ def scatter3d(da: sc.DataArray,
         The data array containing the data and the coordinates.
     x:
         The name of the coordinate that is to be used for the X positions.
+        Default is 'x'.
     y:
         The name of the coordinate that is to be used for the Y positions.
+        Default is 'y'.
     z:
         The name of the coordinate that is to be used for the Z positions.
+        Default is 'z'.
     pos:
         The name of the vector coordinate that is to be used for the positions.
     norm:
@@ -86,6 +89,9 @@ def scatter3d(da: sc.DataArray,
             (z := f'{pos}.z'): da.meta[pos].fields.z
         }
     else:
+        x = x if x is not None else 'x'
+        y = y if y is not None else 'y'
+        z = z if z is not None else 'z'
         coords = {k: da.meta[k] for k in (x, y, z)}
 
     to_plot = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
