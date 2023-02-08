@@ -4,7 +4,35 @@
 from .. import backends
 
 
-def figure1d(*args, style='line', **kwargs):
+def figure1d(*args, style: str = 'line', **kwargs):
+    """
+    Create a figure to represent one-dimensional data from one or more graph node(s).
+    By default, this will return a :class:`FigLine` (see the documentation of this
+    class for a list of available customization arguments).
+
+    Parameters
+    ----------
+    style:
+        The type of figure to create. Currently, only ``'line'`` is supported.
+
+    Examples
+    --------
+    Create an input node and attach a figure1d as a view:
+
+      >>> in_node = pp.input_node(da)
+      >>> fig = pp.figure1d(in_node)
+
+    Visualize two data arrays on the same figure:
+
+      >>> a_node = pp.input_node(a)
+      >>> b_node = pp.input_node(b)
+      >>> fig = pp.figure1d(a_node, b_node)
+
+    With a customization argument to make the vertical scale logarithmic:
+
+      >>> in_node = pp.input_node(da)
+      >>> fig = pp.figure1d(in_node, norm='log')
+    """
 
     if style == 'line':
         from .figline import FigLine
@@ -14,7 +42,29 @@ def figure1d(*args, style='line', **kwargs):
     raise ValueError(f'Unsupported style={style} for figure1d.')
 
 
-def figure2d(*args, style='image', **kwargs):
+def figure2d(*args, style: str = 'image', **kwargs):
+    """
+    Create a figure to represent two-dimensional data from a graph node.
+    By default, this will return a :class:`FigImage` (see the documentation of this
+    class for a list of available customization arguments).
+
+    Parameters
+    ----------
+    style:
+        The type of figure to create. Currently, only ``'image'`` is supported.
+
+    Examples
+    --------
+    Create an input node and attach a figure2d as a view:
+
+      >>> in_node = pp.input_node(da)
+      >>> fig = pp.figure2d(in_node)
+
+    With a customization argument to make the color scale logarithmic:
+
+      >>> in_node = pp.input_node(da)
+      >>> fig = pp.figure2d(in_node, norm='log')
+    """
 
     if style == 'image':
         from .figimage import FigImage
@@ -24,7 +74,29 @@ def figure2d(*args, style='image', **kwargs):
     raise ValueError(f'Unsupported style={style} for figure2d.')
 
 
-def figure3d(*args, style='scatter', **kwargs):
+def figure3d(*args, style: str = 'scatter', **kwargs):
+    """
+    Create a figure to represent three-dimensional data from a graph node.
+    By default, this will return a :class:`FigScatter3d` (see the documentation of this
+    class for a list of available customization arguments).
+
+    Parameters
+    ----------
+    style:
+        The type of figure to create. Currently, only ``'scatter'`` is supported.
+
+    Examples
+    --------
+    Create an input node and attach a figure3d as a view:
+
+      >>> in_node = pp.input_node(da)
+      >>> fig = pp.figure3d(in_node)
+
+    With a customization argument to make the color scale logarithmic:
+
+      >>> in_node = pp.input_node(da)
+      >>> fig = pp.figure3d(in_node, norm='log')
+    """
 
     if style == 'scatter':
         from .figscatter3d import FigScatter3d
