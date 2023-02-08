@@ -7,8 +7,8 @@ from .. import backends
 def figure1d(*args, style: str = 'line', **kwargs):
     """
     Create a figure to represent one-dimensional data from one or more graph node(s).
-    By default, this will return a :class:`FigLine` (see the documentation of this
-    class for a list of available customization arguments).
+    By default, this will return a figure built from :class:`FigLine` (see the
+    documentation of this class for a list of available customization arguments).
 
     Parameters
     ----------
@@ -45,8 +45,8 @@ def figure1d(*args, style: str = 'line', **kwargs):
 def figure2d(*args, style: str = 'image', **kwargs):
     """
     Create a figure to represent two-dimensional data from a graph node.
-    By default, this will return a :class:`FigImage` (see the documentation of this
-    class for a list of available customization arguments).
+    By default, this will return a figure built from :class:`FigImage` (see the
+    documentation of this class for a list of available customization arguments).
 
     Parameters
     ----------
@@ -77,8 +77,8 @@ def figure2d(*args, style: str = 'image', **kwargs):
 def figure3d(*args, style: str = 'scatter', **kwargs):
     """
     Create a figure to represent three-dimensional data from a graph node.
-    By default, this will return a :class:`FigScatter3d` (see the documentation of this
-    class for a list of available customization arguments).
+    By default, this will return a figure built from :class:`FigScatter3d` (see the
+    documentation of this class for a list of available customization arguments).
 
     Parameters
     ----------
