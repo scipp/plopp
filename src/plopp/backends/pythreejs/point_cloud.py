@@ -12,7 +12,7 @@ def _check_ndim(data):
     if data.ndim != 1:
         raise ValueError('PointCloud only accepts one dimensional data, '
                          f'found {data.ndim} dimensions. You should flatten your data '
-                         '(using sc.flatten) before sending it to the point cloud.')
+                         '(using scipp.flatten) before sending it to the point cloud.')
 
 
 class PointCloud:
