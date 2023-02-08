@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from typing import Literal
+
 from .. import backends
 
 
-def figure1d(*args, style: str = 'line', **kwargs):
+def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     """
     Create a figure to represent one-dimensional data from one or more graph node(s).
     By default, this will return a figure built from :class:`FigLine` (see the
@@ -13,7 +15,7 @@ def figure1d(*args, style: str = 'line', **kwargs):
     Parameters
     ----------
     style:
-        The type of figure to create. Currently, only ``'line'`` is supported.
+        The type of figure to create.
 
     Examples
     --------
@@ -42,7 +44,7 @@ def figure1d(*args, style: str = 'line', **kwargs):
     raise ValueError(f'Unsupported style={style} for figure1d.')
 
 
-def figure2d(*args, style: str = 'image', **kwargs):
+def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     """
     Create a figure to represent two-dimensional data from a graph node.
     By default, this will return a figure built from :class:`FigImage` (see the
@@ -51,7 +53,7 @@ def figure2d(*args, style: str = 'image', **kwargs):
     Parameters
     ----------
     style:
-        The type of figure to create. Currently, only ``'image'`` is supported.
+        The type of figure to create.
 
     Examples
     --------
@@ -74,7 +76,7 @@ def figure2d(*args, style: str = 'image', **kwargs):
     raise ValueError(f'Unsupported style={style} for figure2d.')
 
 
-def figure3d(*args, style: str = 'scatter', **kwargs):
+def figure3d(*args, style: Literal['scatter'] = 'scatter', **kwargs):
     """
     Create a figure to represent three-dimensional data from a graph node.
     By default, this will return a figure built from :class:`FigScatter3d` (see the
@@ -83,7 +85,7 @@ def figure3d(*args, style: str = 'scatter', **kwargs):
     Parameters
     ----------
     style:
-        The type of figure to create. Currently, only ``'scatter'`` is supported.
+        The type of figure to create.
 
     Examples
     --------
