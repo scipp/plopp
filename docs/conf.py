@@ -269,4 +269,6 @@ nbsphinx_thumbnails = {
     '_static/gallery/masking-a-range-thumbnail.png',
     'examples/gallery/rectangle-selection':
     '_static/gallery/rectangle-selection-thumbnail.png',
+    'examples/gallery/scatter3d-with-threshold':
+    '_static/gallery/scatter3d-with-threshold-thumbnail.png',
 }

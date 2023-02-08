@@ -43,16 +43,6 @@ Graphics
    graphics.figure2d
    graphics.figure3d
 
-Backends
-========
-
-.. autosummary::
-   :toctree: generated
-
-   backends.matplotlib.MatplotlibBackend
-   backends.plotly.PlotlyBackend
-   backends.pythreejs.PythreejsBackend
-
 Widgets and tools
 =================
 
@@ -84,3 +74,14 @@ Widgets and tools
 
    widgets.cut3d.Cut3dTool
    widgets.cut3d.TriCutTool
+
+Backends
+========
+
+.. toctree::
+   :caption: Backends
+   :maxdepth: 1
+
+   reference/matplotlib
+   reference/plotly
+   reference/pythreejs
