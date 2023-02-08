@@ -148,8 +148,8 @@ def superplot(obj: Union[sc.typing.VariableLike, ndarray],
     Returns
     -------
     :
-        A :class:`Box` which will contain a :class:`Figure`, slider widgets and a tool
-        to save/delete lines.
+        A :class:`widgets.Box` which will contain a :class:`graphics.FigLine`, slider
+        widgets and a tool to save/delete lines.
     """
     require_interactive_backend('superplot')
     sp = Superplot(obj=obj, keep=keep, crop=crop, **kwargs)
