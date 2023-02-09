@@ -27,6 +27,8 @@ def _to_data_array(obj: Union[np.ndarray, sc.Variable, sc.DataArray]):
     missing.
     """
     out = obj
+    if isinstance(out, list):
+        out = np.array(out)
     if isinstance(out, np.ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
         out = sc.Variable(dims=dims, values=out)
