@@ -16,6 +16,10 @@ def test_plot_ndarray():
     pp.plot(np.arange(50.))
 
 
+def test_plot_list():
+    pp.plot([1, 2, 3, 4, 5])
+
+
 def test_plot_variable():
     pp.plot(sc.arange('x', 50.))
 
@@ -40,6 +44,10 @@ def test_plot_dataset():
 
 def test_plot_dict_of_ndarrays():
     pp.plot({'a': np.arange(50.), 'b': np.arange(60.)})
+
+
+def test_plot_dict_of_lists():
+    pp.plot({'a': [1, 2, 3, 4], 'b': [4, 5, 6, 7]})
 
 
 def test_plot_dict_of_variables():
