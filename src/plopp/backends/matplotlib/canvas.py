@@ -125,8 +125,9 @@ class Canvas:
         width:
             The line width to be used for the output image.
         """
-        from PIL import Image
         from io import BytesIO
+
+        from PIL import Image
         buf = BytesIO()
         self.fig.savefig(buf, format='png', bbox_inches='tight')
         im = Image.open(buf)
