@@ -116,6 +116,37 @@ class Canvas:
         from ipywidgets import Image
         return Image(value=fig_to_bytes(self.fig), format='png')
 
+    def to_ascii(self, width: int = 100) -> str:
+        """
+        Convert the underlying Matplotlib figure to ASCII art.
+
+        Parameters
+        ----------
+        width:
+            The line width to be used for the output image.
+        """
+        from PIL import Image
+        from io import BytesIO
+        buf = BytesIO()
+        self.fig.savefig(buf, format='png', bbox_inches='tight')
+        im = Image.open(buf)
+        ASCII_CHARS = ('$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]'
+                       '?-_+~i!lI;:,"^`')
+        # Resize image
+        w, h = im.size
+        # Additional fudge factor of 1.65 because terminal characters are tall
+        ratio = h / w / 1.65
+        height = int(width * ratio)
+        im = im.resize((width, height))
+        # Convert to grayscale
+        im = im.convert("L")
+        # Convert to ASCII
+        pixels = im.getdata()
+        div = 256 / len(ASCII_CHARS)
+        text = "".join([ASCII_CHARS[int(pixel / div)] for pixel in pixels])
+        pixel_count = len(text)
+        return "\n".join(text[i:(i + width)] for i in range(0, pixel_count, width))
+
     def to_widget(self):
         if self.is_widget() and not is_sphinx_build():
             return self.fig.canvas
