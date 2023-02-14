@@ -4,6 +4,7 @@
 from copy import copy
 from typing import Any, Tuple
 
+import ipywidgets as ipw
 import numpy as np
 from scipp import Variable
 
@@ -21,7 +22,8 @@ class Canvas:
     figsize:
         The width and height of the renderer in pixels.
     title:
-        The title to be placed above the figure.
+        The title to be placed above the figure. It is possible to use HTML formatting
+        to customize the title appearance.
     """
 
     def __init__(self, figsize: Tuple[int, int] = (600, 400), title: str = None):
@@ -36,7 +38,8 @@ class Canvas:
         self.outline = None
         self.axticks = None
         self.figsize = figsize
-        self.title = title
+        self._title_text = title
+        self._title = self._make_title()
         width, height = self.figsize
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
@@ -170,3 +173,20 @@ class Canvas:
         Remove an object from the ``scene``.
         """
         self.scene.remove(obj)
+
+    def _make_title(self):
+        if self._title_text:
+            html = (f'<div style="text-align: center; width: {self.figsize[0]}px">'
+                    f'{self._title_text}</div>')
+        else:
+            html = None
+        return ipw.HTML(html)
+
+    @property
+    def title(self) -> str:
+        return self._title_text
+
+    @title.setter
+    def title(self, text: str):
+        self._title_text = text
+        self._title = self._make_title()

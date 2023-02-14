@@ -71,7 +71,7 @@ class FigScatter3d(BaseFig):
         self._z = z
         self._kwargs = kwargs
 
-        self.canvas = backends.canvas3d(figsize=figsize)
+        self.canvas = backends.canvas3d(figsize=figsize, title=title)
         self.colormapper = ColorMapper(cmap=cmap,
                                        mask_cmap=mask_cmap,
                                        norm=norm,

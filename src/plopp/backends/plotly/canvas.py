@@ -137,11 +137,13 @@ class Canvas:
         return self.fig.layout.title
 
     @title.setter
-    def title(self, title: str):
+    def title(self, text: str):
         layout = self.fig.layout
-        if layout.margin.t == 0:
+        if not text:
+            layout.margin.t = 0
+        elif layout.margin.t == 0:
             layout.margin.t = 40
-        layout.title = title
+        layout.title = text
 
     @property
     def xlabel(self) -> str:
