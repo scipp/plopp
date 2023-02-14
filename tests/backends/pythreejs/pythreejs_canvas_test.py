@@ -103,3 +103,12 @@ def test_toggle_outline():
     assert not canvas.outline.visible
     canvas.toggle_outline()
     assert canvas.outline.visible
+
+
+def test_creation_with_title():
+    text = 'My title'
+    canvas = Canvas(figsize=(700, 450), title=text)
+    assert canvas.title == text
+    html = '<i>My</i> <b>title</b>'
+    canvas = Canvas(figsize=(700, 450), title=html)
+    assert canvas.title == html
