@@ -21,7 +21,7 @@ class Figure(VBox):
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar([self._fig.colormapper.to_widget()])
         self.bottom_bar = HBar()
-        self.top_bar = HBar()
+        self.top_bar = HBar([self._fig.canvas._title])
 
         super().__init__([
             self.top_bar,

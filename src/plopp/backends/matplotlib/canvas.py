@@ -211,8 +211,8 @@ class Canvas:
         return self.ax.get_title()
 
     @title.setter
-    def title(self, title: str):
-        self.ax.set_title(title)
+    def title(self, text: str):
+        self.ax.set_title(text)
 
     @property
     def xlabel(self) -> str:
