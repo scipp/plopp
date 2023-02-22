@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from plopp import input_node, node, show_graph
 from views import SimpleView
+
+from plopp import input_node, node, show_graph
 
 
 def has_edge(graph, node1, node2):

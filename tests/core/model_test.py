@@ -4,9 +4,9 @@
 from functools import partial
 
 import pytest
+from views import DataView, SimpleView
 
 from plopp import Node, node
-from views import SimpleView, DataView
 
 
 def test_two_nodes_parent_child():
