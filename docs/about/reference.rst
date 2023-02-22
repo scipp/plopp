@@ -79,7 +79,6 @@ Backends
 ========
 
 .. toctree::
-   :caption: Backends
    :maxdepth: 1
 
    reference/matplotlib
@@ -89,8 +88,8 @@ Backends
 Other
 =====
 
-.. toctree::
-   :maxdepth: 1
+.. autosummary::
+   :toctree: generated
 
    patch_scipp
    unpatch_scipp

@@ -126,14 +126,14 @@ class Node:
 
 def node(func: Callable, *args, **kwargs) -> Callable:
     """
-    Create a ``Node`` from a callable. The additional arguments will be parent nodes to
-    the returned node.
+    Create a :class:`Node` from a callable.
+    The additional arguments will be parent nodes to the returned node.
     This can also be used as a decorator.
 
     Parameters
     ----------
     func:
-        The callable to create the ``Node``.
+        The callable to create the :class:`Node`.
     """
     partialized = partial(func, *args, **kwargs)
 

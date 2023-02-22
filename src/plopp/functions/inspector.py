@@ -27,7 +27,7 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
               **kwargs):
     """
     Inspector takes in a three-dimensional input and applies a reduction operation
-    (``sum`` by default) along one of the dimensions specified by ``dim``.
+    (``'sum'`` by default) along one of the dimensions specified by ``dim``.
     It displays the result as a two-dimensional image.
     In addition, an 'inspection' tool is available in the toolbar which allows to place
     markers on the image which perform slicing at that position to retain only the third
