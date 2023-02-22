@@ -136,3 +136,26 @@ def test_converts_new_data_coordinate_units():
     c = b.copy()
     c.coords['xx'] = c.coords['xx'].to(unit='m')
     assert sc.identical(fig.artists[bnode.id]._data, c)
+
+
+def test_colorbar_label_has_correct_unit():
+    da = data_array(ndim=2, unit='K')
+    fig = FigImage(input_node(da))
+    assert fig.canvas.cblabel == '[K]'
+
+
+def test_colorbar_label_has_correct_name():
+    da = data_array(ndim=2, unit='K')
+    name = 'My Experimental Data'
+    da.name = name
+    fig = FigImage(input_node(da))
+    assert fig.canvas.cblabel == name + ' [K]'
+
+
+def test_colorbar_label_has_no_name_with_multiple_artists():
+    a = data_array(ndim=2, unit='K')
+    b = 3.3 * a
+    a.name = 'A data'
+    b.name = 'B data'
+    fig = FigImage(input_node(a), input_node(b))
+    assert fig.canvas.cblabel == '[K]'
