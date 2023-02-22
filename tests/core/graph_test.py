@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from plopp import input_node, node, show_graph
+from views import SimpleView
 
 
 def has_edge(graph, node1, node2):
@@ -90,3 +91,21 @@ def test_two_grandchildren_have_common_parent():
     assert has_edge(g, d.id, e.id)
     assert has_edge(g, d.id, f.id)
     assert has_edge(g, c.id, f.id)
+
+
+def test_graph_with_views():
+    #    [ a ]
+    #     / \
+    #    /   \
+    # [ b ] [ View ]
+    #   |
+    #   |
+    # [ View ]
+    a = input_node(5)
+    b = node(lambda x: x - 2)(x=a)
+    av = SimpleView(a)
+    bv = SimpleView(b)
+    g = show_graph(a)
+    assert has_edge(g, a.id, b.id)
+    assert has_edge(g, a.id, av.id)
+    assert has_edge(g, b.id, bv.id)

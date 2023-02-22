@@ -6,16 +6,7 @@ from functools import partial
 import pytest
 
 from plopp import Node, View, node
-
-
-class SimpleView(View):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.value = None
-
-    def notify_view(self, message):
-        self.value = message
+from views import SimpleView, DataView
 
 
 def test_two_nodes_parent_child():
@@ -71,17 +62,6 @@ def test_two_children_notify_children():
     assert bv.value['message'] == msg
     assert 'node_id' in cv.value
     assert cv.value['message'] == msg
-
-
-class DataView(View):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.data = None
-
-    def notify_view(self, message):
-        node_id = message["node_id"]
-        self.data = self.graph_nodes[node_id].request_data()
 
 
 def test_two_children_request_data():
