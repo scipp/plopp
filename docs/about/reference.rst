@@ -85,3 +85,13 @@ Backends
    reference/matplotlib
    reference/plotly
    reference/pythreejs
+
+Other
+=====
+
+.. toctree::
+   :maxdepth: 1
+
+   patch_scipp
+   unpatch_scipp
+   show

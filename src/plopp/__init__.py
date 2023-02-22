@@ -43,3 +43,14 @@ def unpatch_scipp():
     setattr(sc.DataArray, 'plot', pl)
     setattr(sc.Dataset, 'plot', pl)
     setattr(sc, 'plot', pl)
+
+
+def show():
+    """
+    A function to display all the currently opened figures (note that this only applies
+    to the figures created via the Matplotlib backend).
+    See https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html for more
+    details.
+    """
+    import matplotlib.pyplot as plt
+    plt.show()
