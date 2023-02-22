@@ -5,7 +5,7 @@ from functools import partial
 
 import pytest
 
-from plopp import Node, View, node
+from plopp import Node, node
 from views import SimpleView, DataView
 
 
