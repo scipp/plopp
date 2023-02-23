@@ -124,6 +124,13 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
                         mask_color=mask_color,
                         **common_args)
     elif ndim == 2:
+        if len(data_arrays) > 1:
+            raise ValueError(
+                'The plot function can only plot a single 2d data entry. If you want '
+                'to create multiple figures, see the documentation on subplots at '
+                'https://scipp.github.io/plopp/customization/subplots.html. If you '
+                'want to plot two images onto the same axes, use the lower-level '
+                'plopp.figure2d function.')
         return figure2d(*[input_node(da) for da in data_arrays],
                         aspect=aspect,
                         cbar=cbar,
