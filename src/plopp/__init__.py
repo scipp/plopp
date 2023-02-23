@@ -22,9 +22,9 @@ from .graphics import figure1d, figure2d, figure3d
 
 def patch_scipp():
     """
-    Running this replaces the `plot` function from Scipp with the plopp `plot` wrapper.
-    This patches the Variable, DataArray, Dataset classes, as well as the main `plot`
-    function in the Scipp module.
+    Running this replaces the ``plot`` function from Scipp with the plopp ``plot``
+    wrapper. This patches the ``Variable``, ``DataArray``, ``Dataset`` classes,
+    as well as the main ``plot`` function in the Scipp module.
     """
     import scipp as sc
     setattr(sc.Variable, 'plot', plot)
@@ -43,3 +43,14 @@ def unpatch_scipp():
     setattr(sc.DataArray, 'plot', pl)
     setattr(sc.Dataset, 'plot', pl)
     setattr(sc, 'plot', pl)
+
+
+def show():
+    """
+    A function to display all the currently opened figures (note that this only applies
+    to the figures created via the Matplotlib backend).
+    See https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html for more
+    details.
+    """
+    import matplotlib.pyplot as plt
+    plt.show()

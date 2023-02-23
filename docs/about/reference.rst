@@ -79,9 +79,18 @@ Backends
 ========
 
 .. toctree::
-   :caption: Backends
    :maxdepth: 1
 
    reference/matplotlib
    reference/plotly
    reference/pythreejs
+
+Other
+=====
+
+.. autosummary::
+   :toctree: generated
+
+   patch_scipp
+   unpatch_scipp
+   show
