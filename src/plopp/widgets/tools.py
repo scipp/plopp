@@ -52,6 +52,28 @@ class ToggleTool(ipw.ToggleButton):
         self.callback()
 
 
+class DropdownTool(ipw.Dropdown):
+    """
+    Create a dropdown menu with a callback that is called when the selected value is
+    changed.
+
+    Parameters
+    ----------
+    callback:
+        The function that will be called when the selected value is changed.
+    **kwargs:
+        All other kwargs are forwarded to ipywidgets.Dropdown.
+    """
+
+    def __init__(self, callback: Callable, **kwargs):
+        super().__init__(**{**BUTTON_LAYOUT, **kwargs})
+        self.callback = callback
+        self.observe(self, names='value')
+
+    def __call__(self, *ignored):
+        self.callback(self.value)
+
+
 class MultiToggleTool(ipw.VBox):
     """
     Create toggle buttons with a callback that is called when one of the buttons is

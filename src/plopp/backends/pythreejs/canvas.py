@@ -190,3 +190,11 @@ class Canvas:
     def title(self, text: str):
         self._title_text = text
         self._title = self._make_title()
+
+    def set_resolution(self, resolution):
+        if resolution is None:
+            return
+        width, height = resolution
+        self.renderer.width = width
+        self.renderer.height = height
+        self.camera.aspect = width / height
