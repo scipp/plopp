@@ -231,6 +231,14 @@ class Canvas:
         self.ax.set_ylabel(lab)
 
     @property
+    def cblabel(self) -> str:
+        return self.cax.get_ylabel()
+
+    @cblabel.setter
+    def cblabel(self, lab: str):
+        self.cax.set_ylabel(lab)
+
+    @property
     def xscale(self) -> str:
         return self.ax.get_xscale()
 

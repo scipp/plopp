@@ -207,15 +207,21 @@ class ColorMapper:
         key:
             The id of the node that provided this data.
         """
-        if self.name is None:
-            if self.unit is None:
-                self.unit = data.unit
-            self.name = data.name
-            if self.cax is not None:
-                self.cax.set_ylabel(f'{self.name} [{self.unit}]')
+        if self.unit is None:
+            self.unit = data.unit
         elif data.unit != self.unit:
             raise ValueError(f'Incompatible unit: colormapper has unit {self.unit}, '
                              f'new data has unit {data.unit}.')
+
+        if self.name is None:
+            self.name = data.name
+        elif data.name != self.name:
+            self.name = ''
+        if self.cax is not None:
+            text = self.name
+            if self.unit is not None:
+                text += f'{" " if self.name else ""}[{self.unit}]'
+            self.cax.set_ylabel(text)
 
         old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)

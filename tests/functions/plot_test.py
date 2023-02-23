@@ -280,3 +280,11 @@ def test_save_to_disk_with_bad_extension_raises():
     fig = pp.plot(da)
     with pytest.raises(ValueError):
         fig.save(filename='plopp_fig2d.txt')
+
+
+def test_plot_raises_with_multiple_2d_inputs():
+    a = data_array(ndim=2)
+    b = 3.3 * a
+    with pytest.raises(ValueError,
+                       match='The plot function can only plot a single 2d data entry'):
+        pp.plot({'a': a, 'b': b})
