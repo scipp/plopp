@@ -52,26 +52,47 @@ class ToggleTool(ipw.ToggleButton):
         self.callback()
 
 
-class DropdownTool(ipw.Dropdown):
-    """
-    Create a dropdown menu with a callback that is called when the selected value is
-    changed.
+# class DropdownTool(ipw.Dropdown):
+#     """
+#     Create a dropdown menu with a callback that is called when the selected value is
+#     changed.
 
-    Parameters
-    ----------
-    callback:
-        The function that will be called when the selected value is changed.
-    **kwargs:
-        All other kwargs are forwarded to ipywidgets.Dropdown.
-    """
+#     Parameters
+#     ----------
+#     callback:
+#         The function that will be called when the selected value is changed.
+#     **kwargs:
+#         All other kwargs are forwarded to ipywidgets.Dropdown.
+#     """
 
-    def __init__(self, callback: Callable, **kwargs):
-        super().__init__(**{**BUTTON_LAYOUT, **kwargs})
+#     def __init__(self, callback: Callable, **kwargs):
+#         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
+#         self.callback = callback
+#         self.observe(self, names='value')
+
+#     def __call__(self, *ignored):
+#         self.callback(self.value)
+
+
+class PlusMinusTool(ipw.HBox):
+
+    def __init__(self, callback, **kwargs):
+        layout = {'width': '16px', 'padding': '0px'}
+        self._plus = ipw.Button(icon='plus', layout=layout, **kwargs)
+        self._minus = ipw.Button(icon='minus', layout=layout, **kwargs)
+
         self.callback = callback
-        self.observe(self, names='value')
+        # self._callback_plus = callbacks['plus']
+        # self._callback_minus = callbacks['minus']
+        self._plus.on_click(self.plus)
+        self._minus.on_click(self.minus)
+        super().__init__([self._plus, self._minus])
 
-    def __call__(self, *ignored):
-        self.callback(self.value)
+    def plus(self, *ignored):
+        self.callback['plus']()
+
+    def minus(self, *ignored):
+        self.callback['minus']()
 
 
 class MultiToggleTool(ipw.VBox):
