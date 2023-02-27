@@ -47,13 +47,13 @@ def test_cut_thickness():
     tri.cut_x.button.value = True
     pts = list(fig.artists.values())[-1]
     npoints = pts.geometry.attributes['position'].array.shape[0]
-    tri.cut_x.button_plus.click()
+    tri.cut_x.plus_minus.plus()
     new_pts = list(fig.artists.values())[-1]
     assert npoints < new_pts.geometry.attributes['position'].array.shape[0]
-    tri.cut_x.button_minus.click()
+    tri.cut_x.plus_minus.minus()
     new_pts = list(fig.artists.values())[-1]
     assert npoints == new_pts.geometry.attributes['position'].array.shape[0]
-    tri.cut_x.button_minus.click()
+    tri.cut_x.plus_minus.minus()
     new_pts = list(fig.artists.values())[-1]
     assert npoints > new_pts.geometry.attributes['position'].array.shape[0]
 

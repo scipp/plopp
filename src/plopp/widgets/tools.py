@@ -52,6 +52,33 @@ class ToggleTool(ipw.ToggleButton):
         self.callback()
 
 
+class PlusMinusTool(ipw.HBox):
+
+    def __init__(self, plus, minus):
+        layout = {'width': '16px', 'padding': '0px'}
+        self.callback = {'plus': plus.pop('callback'), 'minus': minus.pop('callback')}
+        self._plus = ipw.Button(icon='plus', **{**{'layout': layout}, **plus})
+        self._minus = ipw.Button(icon='minus', **{**{'layout': layout}, **minus})
+        self._plus.on_click(self.plus)
+        self._minus.on_click(self.minus)
+        super().__init__([self._minus, self._plus])
+
+    def plus(self, *ignored):
+        self.callback['plus']()
+
+    def minus(self, *ignored):
+        self.callback['minus']()
+
+    @property
+    def disabled(self):
+        return self._plus.disabled
+
+    @disabled.setter
+    def disabled(self, value):
+        self._plus.disabled = value
+        self._minus.disabled = value
+
+
 class MultiToggleTool(ipw.VBox):
     """
     Create toggle buttons with a callback that is called when one of the buttons is

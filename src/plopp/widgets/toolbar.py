@@ -23,7 +23,11 @@ class Toolbar(VBox):
         self.tools = {}
         if tools is not None:
             for key, tool in tools.items():
-                setattr(self, key, tool.callback)
+                if isinstance(tool.callback, dict):
+                    for name, cb in tool.callback.items():
+                        setattr(self, name, cb)
+                else:
+                    setattr(self, key, tool.callback)
                 self.tools[key] = tool
 
         super().__init__()
@@ -107,7 +111,18 @@ def make_toolbar_canvas3d(canvas: Any,
         tool_list['lognorm'] = tools.LogNormTool(colormapper.toggle_norm,
                                                  value=colormapper.norm == 'log')
     tool_list.update({
-        'box': tools.OutlineTool(canvas.toggle_outline),
-        'axes': tools.AxesTool(canvas.toggle_axes3d)
+        'box':
+        tools.OutlineTool(canvas.toggle_outline),
+        'axes':
+        tools.AxesTool(canvas.toggle_axes3d),
+        'size':
+        tools.PlusMinusTool(plus={
+            'callback': canvas.bigger,
+            'tooltip': 'Increase canvas size'
+        },
+                            minus={
+                                'callback': canvas.smaller,
+                                'tooltip': 'Decrease canvas size'
+                            })
     })
     return Toolbar(tools=tool_list)

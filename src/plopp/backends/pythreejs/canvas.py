@@ -37,7 +37,7 @@ class Canvas:
         self.zunit = None
         self.outline = None
         self.axticks = None
-        self.figsize = figsize
+        self.figsize = np.asarray(figsize)
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
@@ -190,3 +190,16 @@ class Canvas:
     def title(self, text: str):
         self._title_text = text
         self._title = self._make_title()
+
+    def bigger(self):
+        self.figsize = (self.figsize * 1.2).astype(int)
+        self._update_size()
+
+    def smaller(self):
+        self.figsize = (self.figsize / 1.2).astype(int)
+        self._update_size()
+
+    def _update_size(self):
+        self.renderer.width = self.figsize[0]
+        self.renderer.height = self.figsize[1]
+        self.camera.aspect = self.figsize[0] / self.figsize[1]
