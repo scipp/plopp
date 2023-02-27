@@ -11,6 +11,7 @@ import scipp as sc
 
 from ..core import View, node
 from .style import BUTTON_LAYOUT
+from .tools import PlusMinusTool
 
 
 class Timer:
@@ -146,28 +147,26 @@ class Cut3dTool(ipw.HBox):
         self.unit_label = ipw.Label(f'[{self._unit}]')
         ipw.jslink((self.slider, "value"), (self.readout, "value"))
 
-        layout = {'width': '16px', 'padding': '0px'}
-        self.button_plus = ipw.Button(icon='plus',
-                                      layout=layout,
-                                      disabled=not value,
-                                      tooltip='Increase cut thickness')
-        self.button_minus = ipw.Button(icon='minus',
-                                       layout=layout,
-                                       disabled=not value,
-                                       tooltip='Decrease cut thickness')
+        self.plus_minus = PlusMinusTool(plus={
+            'callback': self.increase_thickness,
+            'tooltip': 'Increase cut thickness',
+            'disabled': not value
+        },
+                                        minus={
+                                            'callback': self.decrease_thickness,
+                                            'tooltip': 'Decrease cut thickness',
+                                            'disabled': not value
+                                        })
 
         self.button.observe(self.toggle, names='value')
         self.slider.observe(self.move, names='value')
         self.slider.observe(self.update_cut, names='value')
-        self.button_plus.on_click(self.increase_thickness)
-        self.button_minus.on_click(self.decrease_thickness)
 
         self._nodes = list(self._view.graph_nodes.values())
         self.select_nodes = {}
 
         super().__init__([
-            ipw.VBox([self.button,
-                      ipw.HBox([self.button_plus, self.button_minus])]),
+            ipw.VBox([self.button, self.plus_minus]),
             ipw.VBox(
                 [self.slider, ipw.HBox([self.readout, self.unit_label])],
                 layout={'align_items': 'center'})
@@ -178,7 +177,7 @@ class Cut3dTool(ipw.HBox):
         Toggle the tool on and off.
         """
         self.outline.visible = change['new']
-        for widget in (self.slider, self.button_plus, self.button_minus, self.readout):
+        for widget in (self.slider, self.plus_minus, self.readout):
             widget.disabled = not change['new']
         if change['new']:
             self._add_cut()
@@ -243,7 +242,7 @@ class Cut3dTool(ipw.HBox):
         """
         return self.button.value
 
-    def increase_thickness(self, _):
+    def increase_thickness(self):
         """
         Increase the thickness of the cut.
         """
@@ -251,7 +250,7 @@ class Cut3dTool(ipw.HBox):
         self._remove_cut()
         self._add_cut()
 
-    def decrease_thickness(self, _):
+    def decrease_thickness(self):
         """
         Decrease the thickness of the cut.
         """

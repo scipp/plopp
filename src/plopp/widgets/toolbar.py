@@ -116,10 +116,13 @@ def make_toolbar_canvas3d(canvas: Any,
         'axes':
         tools.AxesTool(canvas.toggle_axes3d),
         'size':
-        tools.PlusMinusTool({
-            'plus': canvas.bigger,
-            'minus': canvas.smaller
+        tools.PlusMinusTool(plus={
+            'callback': canvas.bigger,
+            'tooltip': 'Increase canvas size'
         },
-                            tooltip='Canvas size')
+                            minus={
+                                'callback': canvas.smaller,
+                                'tooltip': 'Decrease canvas size'
+                            })
     })
     return Toolbar(tools=tool_list)
