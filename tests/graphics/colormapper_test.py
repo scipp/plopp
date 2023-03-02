@@ -71,6 +71,20 @@ def test_rescale_limits_do_not_shrink():
     assert mapper.vmax == da.max().value
 
 
+def test_correct_normalizer_limits():
+    da = sc.DataArray(data=sc.array(dims=['y', 'x'], values=[[1, 2], [3, 4]]))
+    mapper = ColorMapper()
+    mapper.update(data=da, key=None)
+    assert mapper.vmin == da.min().value
+    assert mapper.vmax == da.max().value
+    # The normalizer initially has limits [0, 1].
+    # In Matplotlib, if we set the normalizer vmin value (1) equal to the current vmax,
+    # it will silently set it to something smaller, e.g. 0.9.
+    # Our implementation needs to work around this.
+    assert mapper.normalizer.vmin == da.min().value
+    assert mapper.normalizer.vmax == da.max().value
+
+
 def test_vmin_vmax():
     da = data_array(ndim=2, unit='K')
     vmin = sc.scalar(-0.1, unit='K')
