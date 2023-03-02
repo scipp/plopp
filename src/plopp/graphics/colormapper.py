@@ -43,6 +43,13 @@ def _get_cmap(name: str, nan_color: str = None) -> Colormap:
     return cmap
 
 
+def _get_normalizer(norm: str) -> Normalize:
+    """
+    Get an appropriate normalizer depending on the scaling.
+    """
+    return Normalize(vmin=0, vmax=1) if norm == 'linear' else LogNorm(vmin=1, vmax=2)
+
+
 class ColorMapper:
     """
     A class that handles conversion between data values and RGBA colors.
@@ -102,8 +109,7 @@ class ColorMapper:
 
         # Note that we need to set vmin/vmax for the LogNorm, if not an error is
         # raised when making the colorbar before any call to update is made.
-        self.normalizer = Normalize(
-            vmin=0, vmax=1) if self.norm == 'linear' else LogNorm(vmin=1, vmax=2)
+        self.normalizer = _get_normalizer(self.norm)
         self.colorbar = None
         self.unit = None
         self.name = None
@@ -194,6 +200,19 @@ class ColorMapper:
         for k in keys:
             self.artists[k].set_colors(self.rgba(self.artists[k].data))
 
+    def _set_normalizer_limits(self):
+        """
+        Synchronize the underlying normalizer limits to the current state.
+        """
+        # Note that the order matters here, as for a normalizer vmin cannot be set above
+        # the current vmax.
+        if self.vmin >= self.normalizer.vmax:
+            self.normalizer.vmax = self.vmax
+            self.normalizer.vmin = self.vmin
+        else:
+            self.normalizer.vmin = self.vmin
+            self.normalizer.vmax = self.vmax
+
     def update(self, data: sc.DataArray, key: str):
         """
         Update the colorscale bounds taking into account new values.
@@ -225,15 +244,7 @@ class ColorMapper:
 
         old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
-
-        # Note that the order matters here, as for a normalizer vmin cannot be set above
-        # the current vmax.
-        if self.vmin > self.normalizer.vmax:
-            self.normalizer.vmax = self.vmax
-            self.normalizer.vmin = self.vmin
-        else:
-            self.normalizer.vmin = self.vmin
-            self.normalizer.vmax = self.vmax
+        self._set_normalizer_limits()
 
         if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
             self._set_artists_colors(key=key)
@@ -244,13 +255,12 @@ class ColorMapper:
         Toggle the norm flag, between `linear` and `log`.
         """
         self.norm = "log" if self.norm == 'linear' else 'linear'
-        self.normalizer = Normalize() if self.norm == 'linear' else LogNorm()
+        self.normalizer = _get_normalizer(self.norm)
         self.vmin = np.inf
         self.vmax = np.NINF
         for artist in self.artists.values():
             self.autoscale(data=artist._data)
-        self.normalizer.vmin = self.vmin
-        self.normalizer.vmax = self.vmax
+        self._set_normalizer_limits()
         self._set_artists_colors()
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
