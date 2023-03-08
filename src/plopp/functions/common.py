@@ -21,7 +21,8 @@ def require_interactive_backend(func: str):
                            "notebook.")
 
 
-def _to_data_array(obj: Union[np.ndarray, sc.Variable, sc.DataArray]):
+def _to_data_array(
+        obj: Union[list, np.ndarray, sc.Variable, sc.DataArray]) -> sc.DataArray:
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
     missing.
@@ -34,6 +35,8 @@ def _to_data_array(obj: Union[np.ndarray, sc.Variable, sc.DataArray]):
         out = sc.Variable(dims=dims, values=out)
     if isinstance(out, sc.Variable):
         out = sc.DataArray(data=out)
+    if not isinstance(out, sc.DataArray):
+        raise ValueError(f"Cannot convert input of type {type(obj)} to a DataArray.")
     out = out.copy(deep=False)
     for dim, size in out.sizes.items():
         if dim not in out.meta:
