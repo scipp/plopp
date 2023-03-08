@@ -236,6 +236,16 @@ def test_raises_ValueError_when_given_binned_data():
         pp.plot(da)
 
 
+def test_raises_ValueError_when_given_unsupported_data_type():
+    a = data_array(ndim=1)
+    b = a * 2.0
+    c = a * 3.0
+    d = a * 4.0
+    nested_dict = {'group1': {'a': a, 'b': b}, 'group2': {'c': c, 'd': d}}
+    with pytest.raises(ValueError, match='Cannot convert input of type'):
+        pp.plot(nested_dict)
+
+
 def test_use_non_dimension_coords():
     da = data_array(ndim=2, binedges=True)
     da.coords['xx2'] = 7.5 * da.coords['xx']
