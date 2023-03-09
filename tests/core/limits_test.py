@@ -22,6 +22,13 @@ def test_find_limits_log():
     assert sc.identical(lims[1], sc.scalar(10., unit='m'))
 
 
+def test_find_limits_log_int():
+    x = sc.arange('x', 11, unit='m')
+    lims = find_limits(x, scale='log')
+    assert sc.identical(lims[0], sc.scalar(1, unit='m'))
+    assert sc.identical(lims[1], sc.scalar(10, unit='m'))
+
+
 def test_find_limits_with_nan():
     x = sc.arange('x', 11., unit='m')
     x.values[5] = np.nan

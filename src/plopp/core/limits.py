@@ -19,7 +19,8 @@ def find_limits(x: Variable,
         raise ValueError("No finite values were found in array. Cannot compute limits.")
     finite_vals = v[finite_inds]
     if scale == "log":
-        finite_min = np.amin(finite_vals, initial=np.inf, where=finite_vals > 0)
+        initial = (np.finfo if v.dtype.kind == 'f' else np.iinfo)(v.dtype).max
+        finite_min = np.amin(finite_vals, initial=initial, where=finite_vals > 0)
     else:
         finite_min = np.amin(finite_vals)
     finite_max = np.amax(finite_vals)
