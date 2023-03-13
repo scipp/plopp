@@ -13,7 +13,7 @@ from plopp.data.testing import data_array, dataset
 
 
 def test_plot_ndarray():
-    pp.plot(np.arange(50.))
+    pp.plot(np.arange(50.0))
 
 
 def test_plot_list():
@@ -21,7 +21,7 @@ def test_plot_list():
 
 
 def test_plot_variable():
-    pp.plot(sc.arange('x', 50.))
+    pp.plot(sc.arange('x', 50.0))
 
 
 def test_plot_data_array():
@@ -43,7 +43,7 @@ def test_plot_dataset():
 
 
 def test_plot_dict_of_ndarrays():
-    pp.plot({'a': np.arange(50.), 'b': np.arange(60.)})
+    pp.plot({'a': np.arange(50.0), 'b': np.arange(60.0)})
 
 
 def test_plot_dict_of_lists():
@@ -51,7 +51,7 @@ def test_plot_dict_of_lists():
 
 
 def test_plot_dict_of_variables():
-    pp.plot({'a': sc.arange('x', 50.), 'b': sc.arange('x', 60.)})
+    pp.plot({'a': sc.arange('x', 50.0), 'b': sc.arange('x', 60.0)})
 
 
 def test_plot_dict_of_data_arrays():
@@ -169,10 +169,8 @@ def test_kwarg_crop_1d_min_max():
     da = data_array(ndim=1)
     p = pp.plot(
         da,
-        crop={'xx': {
-            'min': sc.scalar(20, unit='m'),
-            'max': sc.scalar(40, unit='m')
-        }})
+        crop={'xx': {'min': sc.scalar(20, unit='m'), 'max': sc.scalar(40, unit='m')}},
+    )
     assert np.array_equal(p.canvas.ax.get_xlim(), [20, 40])
 
 
@@ -198,16 +196,13 @@ def test_kwarg_crop_1d_with_no_unit():
 
 def test_kwarg_crop_2d():
     da = data_array(ndim=2)
-    p = pp.plot(da,
-                crop={
-                    'xx': {
-                        'min': sc.scalar(20, unit='m')
-                    },
-                    'yy': {
-                        'min': sc.scalar(10, unit='m'),
-                        'max': sc.scalar(4000, unit='cm')
-                    }
-                })
+    p = pp.plot(
+        da,
+        crop={
+            'xx': {'min': sc.scalar(20, unit='m')},
+            'yy': {'min': sc.scalar(10, unit='m'), 'max': sc.scalar(4000, unit='cm')},
+        },
+    )
     assert p.canvas.ax.get_xlim()[0] == 20
     assert np.array_equal(p.canvas.ax.get_ylim(), [10, 40])
 
@@ -295,6 +290,7 @@ def test_save_to_disk_with_bad_extension_raises():
 def test_plot_raises_with_multiple_2d_inputs():
     a = data_array(ndim=2)
     b = 3.3 * a
-    with pytest.raises(ValueError,
-                       match='The plot function can only plot a single 2d data entry'):
+    with pytest.raises(
+        ValueError, match='The plot function can only plot a single 2d data entry'
+    ):
         pp.plot({'a': a, 'b': b})

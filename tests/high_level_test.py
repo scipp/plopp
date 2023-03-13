@@ -71,7 +71,7 @@ def test_2d_image_smoothing_slider():
 def test_2d_image_with_masks():
     da = data_array(ndim=2)
     da.masks['m1'] = da.data < sc.scalar(0.0, unit='m/s')
-    da.masks['m2'] = da.coords['xx'] > sc.scalar(30., unit='m')
+    da.masks['m2'] = da.coords['xx'] > sc.scalar(30.0, unit='m')
 
     a = input_node(da)
 

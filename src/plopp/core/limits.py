@@ -7,8 +7,9 @@ import numpy as np
 from scipp import Variable, scalar
 
 
-def find_limits(x: Variable,
-                scale: Literal['linear', 'log'] = 'linear') -> Tuple[Variable, ...]:
+def find_limits(
+    x: Variable, scale: Literal['linear', 'log'] = 'linear'
+) -> Tuple[Variable, ...]:
     """
     Find sensible limits, depending on linear or log scale.
     If there are no finite values in the array, return NaN for both min and max values.

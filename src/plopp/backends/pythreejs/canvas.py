@@ -27,7 +27,6 @@ class Canvas:
     """
 
     def __init__(self, figsize: Tuple[int, int] = (600, 400), title: str = None):
-
         # TODO: the title is still unused.
 
         import pythreejs as p3
@@ -46,14 +45,17 @@ class Canvas:
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
         self.outline = None
-        self.scene = p3.Scene(children=[self.camera, self.axes_3d],
-                              background="#f0f0f0")
+        self.scene = p3.Scene(
+            children=[self.camera, self.axes_3d], background="#f0f0f0"
+        )
         self.controls = p3.OrbitControls(controlling=self.camera)
-        self.renderer = p3.Renderer(camera=self.camera,
-                                    scene=self.scene,
-                                    controls=[self.controls],
-                                    width=width,
-                                    height=height)
+        self.renderer = p3.Renderer(
+            camera=self.camera,
+            scene=self.scene,
+            controls=[self.controls],
+            width=width,
+            height=height,
+        )
 
     def to_widget(self):
         return self.renderer
@@ -63,6 +65,7 @@ class Canvas:
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
         from .outline import Outline
+
         if self.outline is not None:
             self.remove(self.outline)
         self.outline = Outline(limits=limits)
@@ -95,13 +98,19 @@ class Canvas:
         self.camera_backup["reset"] = copy(self.camera.position)
         self.camera_backup["center"] = tuple(copy(center))
         self.camera_backup["x_normal"] = [
-            center[0] - distance_from_center * box_mean_size, center[1], center[2]
+            center[0] - distance_from_center * box_mean_size,
+            center[1],
+            center[2],
         ]
         self.camera_backup["y_normal"] = [
-            center[0], center[1] - distance_from_center * box_mean_size, center[2]
+            center[0],
+            center[1] - distance_from_center * box_mean_size,
+            center[2],
         ]
         self.camera_backup["z_normal"] = [
-            center[0], center[1], center[2] - distance_from_center * box_mean_size
+            center[0],
+            center[1],
+            center[2] - distance_from_center * box_mean_size,
         ]
 
     def home(self):
@@ -176,8 +185,10 @@ class Canvas:
 
     def _make_title(self):
         if self._title_text:
-            html = (f'<div style="text-align: center; width: {self.figsize[0]}px">'
-                    f'{self._title_text}</div>')
+            html = (
+                f'<div style="text-align: center; width: {self.figsize[0]}px">'
+                f'{self._title_text}</div>'
+            )
         else:
             html = None
         return ipw.HTML(html)

@@ -18,13 +18,15 @@ def slice_xy(da, xy):
     return da[y['dim'], y['value']][x['dim'], x['value']]
 
 
-def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
-              dim: str = None,
-              *,
-              operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
-              orientation: Literal['horizontal', 'vertical'] = 'horizontal',
-              crop: Dict[str, Dict[str, sc.Variable]] = None,
-              **kwargs):
+def inspector(
+    obj: Union[ndarray, sc.Variable, sc.DataArray],
+    dim: str = None,
+    *,
+    operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
+    orientation: Literal['horizontal', 'vertical'] = 'horizontal',
+    crop: Dict[str, Dict[str, sc.Variable]] = None,
+    **kwargs,
+):
     """
     Inspector takes in a three-dimensional input and applies a reduction operation
     (``'sum'`` by default) along one of the dimensions specified by ``dim``.
@@ -68,8 +70,10 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
         A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
     if obj.ndim != 3:
-        raise ValueError('The inspector plot currently only work with '
-                         f'three-dimensional data, found {obj.ndim} dims.')
+        raise ValueError(
+            'The inspector plot currently only work with '
+            f'three-dimensional data, found {obj.ndim} dims.'
+        )
     require_interactive_backend('inspector')
 
     da = preprocess(obj, crop=crop, ignore_size=True)
@@ -86,6 +90,7 @@ def inspector(obj: Union[ndarray, sc.Variable, sc.DataArray],
     f1d = figure1d()
 
     from ..widgets import Box, PointsTool
+
     pts = PointsTool(figure=f2d, input_node=in_node, func=slice_xy, destination=f1d)
     f2d.toolbar['inspect'] = pts
     out = [f2d, f1d]

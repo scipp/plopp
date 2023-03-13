@@ -27,6 +27,7 @@ def patch_scipp():
     as well as the main ``plot`` function in the Scipp module.
     """
     import scipp as sc
+
     setattr(sc.Variable, 'plot', plot)
     setattr(sc.DataArray, 'plot', plot)
     setattr(sc.Dataset, 'plot', plot)
@@ -39,6 +40,7 @@ def unpatch_scipp():
     """
     import scipp as sc
     from scipp.plotting import plot as pl
+
     setattr(sc.Variable, 'plot', pl)
     setattr(sc.DataArray, 'plot', pl)
     setattr(sc.Dataset, 'plot', pl)
@@ -53,4 +55,5 @@ def show():
     details.
     """
     import matplotlib.pyplot as plt
+
     plt.show()

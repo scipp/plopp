@@ -84,6 +84,6 @@ def test_raises_ValueError_when_given_binned_data():
 def test_raises_when_requested_keep_dims_do_not_exist():
     da = data_array(ndim=3)
     with pytest.raises(
-            ValueError,
-            match='Slicer plot: one or more of the requested dims to be kept'):
+        ValueError, match='Slicer plot: one or more of the requested dims to be kept'
+    ):
         Slicer(da, keep=['time'])

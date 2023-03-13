@@ -106,12 +106,14 @@ def test_line_update_with_errorbars():
 
 
 def test_line_datetime_binedges_with_errorbars():
-    t = np.arange(np.datetime64('2017-03-16T20:58:17'),
-                  np.datetime64('2017-03-16T21:15:17'), 20)
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
     time = sc.array(dims=['time'], values=t)
     v = np.random.rand(time.sizes['time'] - 1)
-    da = sc.DataArray(data=sc.array(dims=['time'], values=10 * v, variances=v),
-                      coords={'time': time})
+    da = sc.DataArray(
+        data=sc.array(dims=['time'], values=10 * v, variances=v), coords={'time': time}
+    )
     # Checking for the locations of the errorbars is slightly strange, as the
     # get_segments() method from the LineCollection gives x values as floats, not
     # datetime, and comparing with the original data is thus difficult as the floats

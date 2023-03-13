@@ -50,13 +50,16 @@ def test_crop():
     xmax = sc.scalar(102.0, unit='m')
     ymin = sc.scalar(5.5, unit='m')
     ymax = sc.scalar(22.3, unit='m')
-    canvas.crop(x={
-        'min': xmin,
-        'max': xmax,
-    }, y={
-        'min': ymin,
-        'max': ymax,
-    })
+    canvas.crop(
+        x={
+            'min': xmin,
+            'max': xmax,
+        },
+        y={
+            'min': ymin,
+            'max': ymax,
+        },
+    )
     assert canvas.ax.get_xlim() == (xmin.value, xmax.value)
     assert canvas.ax.get_ylim() == (ymin.value, ymax.value)
 
@@ -68,7 +71,7 @@ def test_crop_unit_conversion():
     xmin = sc.scalar(2.1, unit='m')
     xmax = sc.scalar(3.3, unit='m')
     canvas.crop(x={'min': xmin, 'max': xmax})
-    assert canvas.ax.get_xlim() == (210., 330.)
+    assert canvas.ax.get_xlim() == (210.0, 330.0)
 
 
 def test_crop_no_variable():
@@ -79,13 +82,16 @@ def test_crop_no_variable():
     xmax = 102.0
     ymin = 5.5
     ymax = 22.3
-    canvas.crop(x={
-        'min': xmin,
-        'max': xmax,
-    }, y={
-        'min': ymin,
-        'max': ymax,
-    })
+    canvas.crop(
+        x={
+            'min': xmin,
+            'max': xmax,
+        },
+        y={
+            'min': ymin,
+            'max': ymax,
+        },
+    )
     assert canvas.ax.get_xlim() == (xmin, xmax)
     assert canvas.ax.get_ylim() == (ymin, ymax)
 

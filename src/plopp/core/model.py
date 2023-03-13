@@ -57,7 +57,8 @@ class Node:
         """
         if self.children:
             raise RuntimeError(
-                f"Cannot delete node because it has children {self.children}.")
+                f"Cannot delete node because it has children {self.children}."
+            )
         for view in self.views:
             del view.graph_nodes[self.id]
         for parent in chain(self.parents, self.kwparents.values()):
@@ -76,8 +77,7 @@ class Node:
         if self._data is None:
             args = (parent.request_data() for parent in self.parents)
             kwargs = {
-                key: parent.request_data()
-                for key, parent in self.kwparents.items()
+                key: parent.request_data() for key, parent in self.kwparents.items()
             }
             self._data = self.func(*args, **kwargs)
         return self._data
@@ -174,7 +174,8 @@ def widget_node(widget) -> Node:
     # TODO: Our custom widgets have a '_plopp_observe' method instead of 'observe'
     # because inheriting from VBox causes errors when overriding the 'observe' method
     # (see https://bit.ly/3SggPVS).
-    func = widget._plopp_observe_ if hasattr(widget,
-                                             '_plopp_observe_') else widget.observe
+    func = (
+        widget._plopp_observe_ if hasattr(widget, '_plopp_observe_') else widget.observe
+    )
     func(n.notify_children, names="value")
     return n

@@ -39,13 +39,14 @@ def _from_data_array_to_pcolormesh(data, coords, dim_1d, dim_2d):
     # Broadcast 1d coord to 2d and repeat along 1d dim
     # TODO: It may be more efficient here to first repeat and then broadcast, but
     # the current order is simpler in implementation.
-    broadcasted_coord = repeat(sc.broadcast(coords[dim_1d[0]],
-                                            sizes={
-                                                **coords[dim_2d[0]].sizes,
-                                                **coords[dim_1d[0]].sizes
-                                            }).transpose(data.dims),
-                               dim=dim_1d[1],
-                               n=2)
+    broadcasted_coord = repeat(
+        sc.broadcast(
+            coords[dim_1d[0]],
+            sizes={**coords[dim_2d[0]].sizes, **coords[dim_1d[0]].sizes},
+        ).transpose(data.dims),
+        dim=dim_1d[1],
+        n=2,
+    )
     # Repeat 2d coord along 1d dim
     repeated_coord = repeat(coords[dim_2d[0]].transpose(data.dims), dim=dim_1d[1], n=2)
     out = {dim_1d[0]: broadcasted_coord[dim_1d[1], 1:-1], dim_2d[0]: repeated_coord}
@@ -70,13 +71,14 @@ class Image:
         Additional arguments are forwarded to Matplotlib's ``pcolormesh``.
     """
 
-    def __init__(self,
-                 canvas: Canvas,
-                 data: sc.DataArray,
-                 shading: str = 'auto',
-                 rasterized: bool = True,
-                 **kwargs):
-
+    def __init__(
+        self,
+        canvas: Canvas,
+        data: sc.DataArray,
+        shading: str = 'auto',
+        rasterized: bool = True,
+        **kwargs,
+    ):
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
@@ -96,7 +98,7 @@ class Image:
         for i, k in enumerate('yx'):
             to_dim_search[k] = {
                 'dim': self._data.dims[i],
-                'var': self._data.meta[self._data.dims[i]]
+                'var': self._data.meta[self._data.dims[i]],
             }
             bin_edge_coords[k] = coord_as_bin_edges(self._data, self._data.dims[i])
             if self._data.meta[self._data.dims[i]].dtype == str:
@@ -105,16 +107,20 @@ class Image:
         self._dim_1d, self._dim_2d = _get_dims_of_1d_and_2d_coords(to_dim_search)
         self._mesh = None
 
-        x, y, z = _from_data_array_to_pcolormesh(data=self._data.data,
-                                                 coords=bin_edge_coords,
-                                                 dim_1d=self._dim_1d,
-                                                 dim_2d=self._dim_2d)
-        self._mesh = self._ax.pcolormesh(x.values,
-                                         y.values,
-                                         z.values,
-                                         shading=shading,
-                                         rasterized=rasterized,
-                                         **kwargs)
+        x, y, z = _from_data_array_to_pcolormesh(
+            data=self._data.data,
+            coords=bin_edge_coords,
+            dim_1d=self._dim_1d,
+            dim_2d=self._dim_2d,
+        )
+        self._mesh = self._ax.pcolormesh(
+            x.values,
+            y.values,
+            z.values,
+            shading=shading,
+            rasterized=rasterized,
+            **kwargs,
+        )
         self._mesh.set_array(None)
 
         for xy, var in string_labels.items():
@@ -130,15 +136,21 @@ class Image:
         Get the Mesh's data in a form that may have been tweaked, compared to the
         original data, in the case of a two-dimensional coordinate.
         """
-        out = sc.DataArray(data=_maybe_repeat_values(
-            data=self._data.data, dim_1d=self._dim_1d, dim_2d=self._dim_2d))
+        out = sc.DataArray(
+            data=_maybe_repeat_values(
+                data=self._data.data, dim_1d=self._dim_1d, dim_2d=self._dim_2d
+            )
+        )
         if self._data.masks:
-            out.masks['one_mask'] = _maybe_repeat_values(data=sc.broadcast(
-                merge_masks(self._data.masks),
-                dims=self._data.dims,
-                shape=self._data.shape),
-                                                         dim_1d=self._dim_1d,
-                                                         dim_2d=self._dim_2d)
+            out.masks['one_mask'] = _maybe_repeat_values(
+                data=sc.broadcast(
+                    merge_masks(self._data.masks),
+                    dims=self._data.dims,
+                    shape=self._data.shape,
+                ),
+                dim_1d=self._dim_1d,
+                dim_2d=self._dim_2d,
+            )
         return out
 
     def set_colors(self, rgba: np.ndarray):

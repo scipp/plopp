@@ -53,7 +53,6 @@ class ToggleTool(ipw.ToggleButton):
 
 
 class PlusMinusTool(ipw.HBox):
-
     def __init__(self, plus, minus):
         layout = {'width': '16px', 'padding': '0px'}
         self.callback = {'plus': plus.pop('callback'), 'minus': minus.pop('callback')}
@@ -105,15 +104,16 @@ class MultiToggleTool(ipw.VBox):
         All other kwargs are forwarded to ipywidgets.ToggleButton.
     """
 
-    def __init__(self,
-                 callback: Callable,
-                 options: List[str],
-                 icons: Optional[List[str]] = None,
-                 tooltips: List[str] = None,
-                 descriptions: List[str] = None,
-                 value: Optional[str] = None,
-                 **kwargs):
-
+    def __init__(
+        self,
+        callback: Callable,
+        options: List[str],
+        icons: Optional[List[str]] = None,
+        tooltips: List[str] = None,
+        descriptions: List[str] = None,
+        value: Optional[str] = None,
+        **kwargs
+    ):
         self.callback = callback
         self._options = options
         self._buttons = {}
@@ -123,10 +123,8 @@ class MultiToggleTool(ipw.VBox):
                 tooltip=tooltips[i] if tooltips is not None else None,
                 description=descriptions[i] if descriptions is not None else '',
                 value=key == value,
-                **{
-                    **BUTTON_LAYOUT,
-                    **kwargs
-                })
+                **{**BUTTON_LAYOUT, **kwargs}
+            )
             tb._option = key
             tb.observe(self, names='value')
             self._buttons[key] = tb
@@ -160,9 +158,9 @@ LogxTool = partial(ToggleTool, description='logx', tooltip='Toggle X axis scale'
 LogyTool = partial(ToggleTool, description='logy', tooltip='Toggle Y axis scale')
 """Toggle vertical axis scale tool."""
 
-LogNormTool = partial(ToggleTool,
-                      description='log',
-                      tooltip='Toggle colorscale normalization')
+LogNormTool = partial(
+    ToggleTool, description='log', tooltip='Toggle colorscale normalization'
+)
 """Toggle normalization scale tool."""
 
 SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
@@ -171,17 +169,18 @@ SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
 CameraTool = partial(ButtonTool, icon='camera', tooltip='Autoscale view')
 """Tool for changing the position of the camera in a 3d scene."""
 
-OutlineTool = partial(ToggleTool,
-                      value=True,
-                      icon='codepen',
-                      tooltip='Toggle outline visibility')
+OutlineTool = partial(
+    ToggleTool, value=True, icon='codepen', tooltip='Toggle outline visibility'
+)
 """Toggle outline visibility tool"""
 
-AxesTool = partial(ToggleTool,
-                   value=True,
-                   description='\u27C0',
-                   style={'font_weight': 'bold'},
-                   tooltip='Toggle visibility of XYZ axes')
+AxesTool = partial(
+    ToggleTool,
+    value=True,
+    description='\u27C0',
+    style={'font_weight': 'bold'},
+    tooltip='Toggle visibility of XYZ axes',
+)
 """Toggle RGB axes helper visibility tool"""
 
 
@@ -199,12 +198,14 @@ class PanZoomTool(MultiToggleTool):
 
     def __init__(self, callback: Callable, value: bool = None, **kwargs):
         self._callback = callback
-        super().__init__(callback=self._panzoom,
-                         options=['pan', 'zoom'],
-                         icons=['arrows', 'search-plus'],
-                         tooltips=['Pan', 'Zoom'],
-                         value=value,
-                         **kwargs)
+        super().__init__(
+            callback=self._panzoom,
+            options=['pan', 'zoom'],
+            icons=['arrows', 'search-plus'],
+            tooltips=['Pan', 'Zoom'],
+            value=value,
+            **kwargs
+        )
 
     def _panzoom(self):
         self._callback(self.value)
@@ -226,9 +227,8 @@ class ColorTool(ipw.HBox):
     def __init__(self, text: str, color: str):
         layout = ipw.Layout(display="flex", justify_content="flex-end", width='150px')
         self.text = ipw.Label(value=text, layout=layout)
-        self.color = ipw.ColorPicker(concise=True,
-                                     value=color,
-                                     description='',
-                                     layout={'width': "30px"})
+        self.color = ipw.ColorPicker(
+            concise=True, value=color, description='', layout={'width': "30px"}
+        )
         self.button = ipw.Button(icon='times', **BUTTON_LAYOUT)
         super().__init__([self.text, self.color, self.button])

@@ -14,20 +14,22 @@ class Figure(VBox):
     """
 
     def __init__(self, *args, FigConstructor, **kwargs):
-
         self._fig = FigConstructor(*args, **kwargs)
-        self.toolbar = make_toolbar_canvas3d(canvas=self._fig.canvas,
-                                             colormapper=self._fig.colormapper)
+        self.toolbar = make_toolbar_canvas3d(
+            canvas=self._fig.canvas, colormapper=self._fig.colormapper
+        )
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar([self._fig.colormapper.to_widget()])
         self.bottom_bar = HBar()
         self.top_bar = HBar([self._fig.canvas._title])
 
-        super().__init__([
-            self.top_bar,
-            HBox([self.left_bar,
-                  self._fig.canvas.to_widget(), self.right_bar]), self.bottom_bar
-        ])
+        super().__init__(
+            [
+                self.top_bar,
+                HBox([self.left_bar, self._fig.canvas.to_widget(), self.right_bar]),
+                self.bottom_bar,
+            ]
+        )
 
     @property
     def canvas(self):
@@ -79,6 +81,7 @@ class Figure(VBox):
         if ext.lower() != '.html':
             raise ValueError('File extension must be .html for saving 3d figures.')
         from ipywidgets.embed import dependency_state, embed_minimal_html
+
         out = HBox([self._fig.canvas.to_widget(), self.right_bar])
         # Garbage collection for embedded html output:
         # https://github.com/jupyter-widgets/pythreejs/issues/217
@@ -88,4 +91,5 @@ class Figure(VBox):
             filename,
             out,
             title=self._fig.canvas.title if self._fig.canvas.title else 'figure3d',
-            state=state)
+            state=state,
+        )

@@ -50,20 +50,21 @@ class FigScatter3d(BaseFig):
         All other kwargs are forwarded to the PointCloud artist.
     """
 
-    def __init__(self,
-                 *nodes,
-                 x: str = 'x',
-                 y: str = 'y',
-                 z: str = 'z',
-                 cmap: str = 'viridis',
-                 mask_cmap: str = 'gray',
-                 norm: Literal['linear', 'log'] = 'linear',
-                 vmin: Union[sc.Variable, int, float] = None,
-                 vmax: Union[sc.Variable, int, float] = None,
-                 figsize: Tuple[int, int] = (600, 400),
-                 title: str = None,
-                 **kwargs):
-
+    def __init__(
+        self,
+        *nodes,
+        x: str = 'x',
+        y: str = 'y',
+        z: str = 'z',
+        cmap: str = 'viridis',
+        mask_cmap: str = 'gray',
+        norm: Literal['linear', 'log'] = 'linear',
+        vmin: Union[sc.Variable, int, float] = None,
+        vmax: Union[sc.Variable, int, float] = None,
+        figsize: Tuple[int, int] = (600, 400),
+        title: str = None,
+        **kwargs
+    ):
         super().__init__(*nodes)
 
         self._x = x
@@ -72,13 +73,15 @@ class FigScatter3d(BaseFig):
         self._kwargs = kwargs
 
         self.canvas = backends.canvas3d(figsize=figsize, title=title)
-        self.colormapper = ColorMapper(cmap=cmap,
-                                       mask_cmap=mask_cmap,
-                                       norm=norm,
-                                       vmin=vmin,
-                                       vmax=vmax,
-                                       nan_color="#f0f0f0",
-                                       figsize=self.canvas.figsize)
+        self.colormapper = ColorMapper(
+            cmap=cmap,
+            mask_cmap=mask_cmap,
+            norm=norm,
+            vmin=vmin,
+            vmax=vmax,
+            nan_color="#f0f0f0",
+            figsize=self.canvas.figsize,
+        )
 
         self._original_artists = [n.id for n in nodes]
         self.render()
@@ -106,23 +109,25 @@ class FigScatter3d(BaseFig):
             self.canvas.zunit = zcoord.unit
             self.colormapper.unit = new_values.unit
         else:
-            new_values.data = make_compatible(new_values.data,
-                                              unit=self.colormapper.unit)
+            new_values.data = make_compatible(
+                new_values.data, unit=self.colormapper.unit
+            )
             new_values.coords[self._x] = new_values.coords[self._x].to(
-                unit=self.canvas.xunit, copy=False)
+                unit=self.canvas.xunit, copy=False
+            )
             new_values.coords[self._y] = new_values.coords[self._y].to(
-                unit=self.canvas.yunit, copy=False)
+                unit=self.canvas.yunit, copy=False
+            )
             new_values.coords[self._z] = new_values.coords[self._z].to(
-                unit=self.canvas.zunit, copy=False)
+                unit=self.canvas.zunit, copy=False
+            )
 
         self.colormapper.update(data=new_values, key=key)
 
         if key not in self.artists:
-            pts = backends.point_cloud(data=new_values,
-                                       x=self._x,
-                                       y=self._y,
-                                       z=self._z,
-                                       **self._kwargs)
+            pts = backends.point_cloud(
+                data=new_values, x=self._x, y=self._y, z=self._z, **self._kwargs
+            )
             self.artists[key] = pts
             self.colormapper[key] = pts
             self.canvas.add(pts.points)
@@ -156,9 +161,11 @@ class FigScatter3d(BaseFig):
                 zmin = zlims[0]
             if zmax is None or zlims[1] > zmax:
                 zmax = zlims[1]
-        return (sc.concat([xmin, xmax],
-                          dim=self._x), sc.concat([ymin, ymax], dim=self._y),
-                sc.concat([zmin, zmax], dim=self._z))
+        return (
+            sc.concat([xmin, xmax], dim=self._x),
+            sc.concat([ymin, ymax], dim=self._y),
+            sc.concat([zmin, zmax], dim=self._z),
+        )
 
     def set_opacity(self, alpha: float):
         """

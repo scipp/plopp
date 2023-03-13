@@ -12,6 +12,7 @@ from .tools import ToggleTool
 
 def is_figure(x):
     from ..backends.matplotlib.interactive import InteractiveFig
+
     return isinstance(x, InteractiveFig)
 
 
@@ -43,16 +44,17 @@ class DrawingTool(ToggleTool):
         Additional arguments are forwarded to the ``ToggleTool`` constructor.
     """
 
-    def __init__(self,
-                 figure: View,
-                 input_node: Node,
-                 tool: Any,
-                 func: Callable,
-                 destination: Union[View, Node],
-                 get_artist_info: Callable,
-                 value: bool = False,
-                 **kwargs):
-
+    def __init__(
+        self,
+        figure: View,
+        input_node: Node,
+        tool: Any,
+        func: Callable,
+        destination: Union[View, Node],
+        get_artist_info: Callable,
+        value: bool = False,
+        **kwargs,
+    ):
         super().__init__(callback=self.start_stop, value=value, **kwargs)
 
         self._figure = figure
@@ -80,8 +82,9 @@ class DrawingTool(ToggleTool):
         if self._destination_is_fig:
             output_node.add_view(self._destination._fig)
             self._destination.update(new_values=output_node(), key=output_node.id)
-            self._destination.artists[output_node.id].color = artist.color if hasattr(
-                artist, 'color') else artist.edgecolor
+            self._destination.artists[output_node.id].color = (
+                artist.color if hasattr(artist, 'color') else artist.edgecolor
+            )
         elif isinstance(self._destination, Node):
             self._destination.parents.append(output_node)
 
@@ -117,11 +120,11 @@ def _get_points_info(artist, figure):
     return lambda: {
         'x': {
             'dim': figure.dims['x'],
-            'value': sc.scalar(artist.x, unit=figure.canvas.xunit)
+            'value': sc.scalar(artist.x, unit=figure.canvas.xunit),
         },
         'y': {
             'dim': figure.dims['y'],
-            'value': sc.scalar(artist.y, unit=figure.canvas.yunit)
+            'value': sc.scalar(artist.y, unit=figure.canvas.yunit),
         },
     }
 
@@ -132,13 +135,16 @@ def _make_points(**kwargs):
     hard dependency.
     """
     from mpltoolbox import Points
+
     return Points(**kwargs)
 
 
-PointsTool = partial(DrawingTool,
-                     tool=partial(_make_points, mec='w'),
-                     get_artist_info=_get_points_info,
-                     icon='crosshairs')
+PointsTool = partial(
+    DrawingTool,
+    tool=partial(_make_points, mec='w'),
+    get_artist_info=_get_points_info,
+    icon='crosshairs',
+)
 """
 Tool to add point markers onto a figure.
 

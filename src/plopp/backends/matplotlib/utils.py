@@ -54,9 +54,11 @@ def require_interactive_backend(func: str):
     Raise an error if the current backend in use is non-interactive.
     """
     if not is_interactive_backend():
-        raise RuntimeError(f"The {func} can only be used with the interactive widget "
-                           "backend. Use `%matplotlib widget` at the start of your "
-                           "notebook.")
+        raise RuntimeError(
+            f"The {func} can only be used with the interactive widget "
+            "backend. Use `%matplotlib widget` at the start of your "
+            "notebook."
+        )
 
 
 def _running_in_jupyter() -> bool:
@@ -83,6 +85,7 @@ def is_sphinx_build() -> bool:
     if not _running_in_jupyter():
         return False
     from IPython import get_ipython
+
     ipy = get_ipython()
     cfg = ipy.config
     meta = cfg["Session"]["metadata"]

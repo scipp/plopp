@@ -3,7 +3,6 @@
 
 
 class PlotlyBackend:
-
     def is_interactive(self):
         """
         Returns ``True`` if the backend currently in use allows for interactive figures.
@@ -15,6 +14,7 @@ class PlotlyBackend:
         See :class:`canvas.Canvas` for details.
         """
         from .canvas import Canvas as CanvasPlotly
+
         return CanvasPlotly(*args, **kwargs)
 
     def line(self, *args, **kwargs):
@@ -22,6 +22,7 @@ class PlotlyBackend:
         See :class:`line.Line` for details.
         """
         from .line import Line as LinePlotly
+
         return LinePlotly(*args, **kwargs)
 
     def figure1d(self, *args, **kwargs):
@@ -29,4 +30,5 @@ class PlotlyBackend:
         See :class:`figure.Figure` for details.
         """
         from .figure import Figure as FigPlotly
+
         return FigPlotly(*args, **kwargs)

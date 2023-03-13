@@ -60,22 +60,23 @@ class FigLine(BaseFig):
         - ``matplotlib.pyplot.step`` for 1d data with a bin-edge coordinate
     """
 
-    def __init__(self,
-                 *nodes,
-                 norm: Literal['linear', 'log'] = 'linear',
-                 vmin: Optional[Union[sc.Variable, int, float]] = None,
-                 vmax: Optional[Union[sc.Variable, int, float]] = None,
-                 scale: Optional[Dict[str, str]] = None,
-                 errorbars: bool = True,
-                 mask_color: str = 'black',
-                 aspect: Literal['auto', 'equal'] = 'auto',
-                 grid: bool = False,
-                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
-                 title: Optional[str] = None,
-                 figsize: Tuple[float, float] = None,
-                 format: Optional[Literal['svg', 'png']] = None,
-                 **kwargs):
-
+    def __init__(
+        self,
+        *nodes,
+        norm: Literal['linear', 'log'] = 'linear',
+        vmin: Optional[Union[sc.Variable, int, float]] = None,
+        vmax: Optional[Union[sc.Variable, int, float]] = None,
+        scale: Optional[Dict[str, str]] = None,
+        errorbars: bool = True,
+        mask_color: str = 'black',
+        aspect: Literal['auto', 'equal'] = 'auto',
+        grid: bool = False,
+        crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+        title: Optional[str] = None,
+        figsize: Tuple[float, float] = None,
+        format: Optional[Literal['svg', 'png']] = None,
+        **kwargs
+    ):
         super().__init__(*nodes)
 
         self._scale = {} if scale is None else scale
@@ -83,14 +84,16 @@ class FigLine(BaseFig):
         self._mask_color = mask_color
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = backends.canvas2d(cbar=False,
-                                        aspect=aspect,
-                                        grid=grid,
-                                        figsize=figsize,
-                                        title=title,
-                                        vmin=vmin,
-                                        vmax=vmax,
-                                        **kwargs)
+        self.canvas = backends.canvas2d(
+            cbar=False,
+            aspect=aspect,
+            grid=grid,
+            figsize=figsize,
+            title=title,
+            vmin=vmin,
+            vmax=vmax,
+            **kwargs
+        )
         self.canvas.yscale = norm
 
         self.render()
@@ -121,18 +124,19 @@ class FigLine(BaseFig):
             self.canvas.yunit = new_values.unit
         else:
             new_values.data = make_compatible(new_values.data, unit=self.canvas.yunit)
-            new_values.coords[dim] = make_compatible(coord,
-                                                     dim=self.dims['x'],
-                                                     unit=self.canvas.xunit)
+            new_values.coords[dim] = make_compatible(
+                coord, dim=self.dims['x'], unit=self.canvas.xunit
+            )
 
         if key not in self.artists:
-
-            line = backends.line(canvas=self.canvas,
-                                 data=new_values,
-                                 number=len(self.artists),
-                                 errorbars=self._errorbars,
-                                 mask_color=self._mask_color,
-                                 **self._kwargs)
+            line = backends.line(
+                canvas=self.canvas,
+                data=new_values,
+                number=len(self.artists),
+                errorbars=self._errorbars,
+                mask_color=self._mask_color,
+                **self._kwargs
+            )
             self.artists[key] = line
 
             self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])

@@ -13,25 +13,26 @@ def _make_graphviz_digraph(*args, **kwargs):
         raise RuntimeError(
             "Failed to import `graphviz`. "
             "Use `pip install graphviz` (requires installed `graphviz` executable) or "
-            "`conda install -c conda-forge python-graphviz`.")
+            "`conda install -c conda-forge python-graphviz`."
+        )
     return Digraph(*args, **kwargs)
 
 
 def _walk_graph(start, nodes, edges, views, hide_views):
-    label = escape(str(
-        start.func)) + '\nid = ' + start.id if start.name is None else escape(
-            start.name)
+    label = (
+        escape(str(start.func)) + '\nid = ' + start.id
+        if start.name is None
+        else escape(start.name)
+    )
     nodes[start.id] = label
     for child in start.children:
         if start.id not in edges:
             edges[start.id] = {child.id}
         else:
             edges[start.id].add(child.id)
-        _walk_graph(start=child,
-                    nodes=nodes,
-                    edges=edges,
-                    views=views,
-                    hide_views=hide_views)
+        _walk_graph(
+            start=child, nodes=nodes, edges=edges, views=views, hide_views=hide_views
+        )
     for parent in start.parents + list(start.kwparents.values()):
         key = parent.id
         if key not in nodes:
@@ -39,11 +40,13 @@ def _walk_graph(start, nodes, edges, views, hide_views):
                 edges[key] = {start.id}
             else:
                 edges[key].add(start.id)
-            _walk_graph(start=parent,
-                        nodes=nodes,
-                        edges=edges,
-                        views=views,
-                        hide_views=hide_views)
+            _walk_graph(
+                start=parent,
+                nodes=nodes,
+                edges=edges,
+                views=views,
+                hide_views=hide_views,
+            )
     if not hide_views:
         for view in start.views:
             views[view.id] = view.__class__.__name__
@@ -86,9 +89,7 @@ def show_graph(node: Node, hide_views: bool = False):
     nodes = {}
     edges = {}
     views = {}
-    _walk_graph(start=node,
-                nodes=nodes,
-                edges=edges,
-                views=views,
-                hide_views=hide_views)
+    _walk_graph(
+        start=node, nodes=nodes, edges=edges, views=views, hide_views=hide_views
+    )
     return _make_graph(dot=dot, nodes=nodes, edges=edges, views=views)

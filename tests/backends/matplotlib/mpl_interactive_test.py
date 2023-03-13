@@ -22,12 +22,9 @@ def test_logy_1d_toolbar_button(use_ipympl):
 
 def test_logxy_2d_toolbar_buttons(use_ipympl):
     da = data_array(ndim=2)
-    fig = InteractiveFig(input_node(da),
-                         FigConstructor=FigImage,
-                         scale={
-                             'xx': 'log',
-                             'yy': 'log'
-                         })
+    fig = InteractiveFig(
+        input_node(da), FigConstructor=FigImage, scale={'xx': 'log', 'yy': 'log'}
+    )
     assert fig.toolbar['logx'].value
     assert fig.toolbar['logy'].value
 

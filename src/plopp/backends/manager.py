@@ -3,7 +3,6 @@
 
 
 class BackendManager:
-
     def __init__(self):
         self._mapping = {'2d': 'matplotlib', '3d': 'pythreejs'}
         self._backends = {}
@@ -28,15 +27,18 @@ class BackendManager:
     def _sync(self):
         if self._mapping['2d'] == 'matplotlib':
             from .matplotlib import MatplotlibBackend
+
             self._backends['2d'] = MatplotlibBackend()
         elif self._mapping['2d'] == 'plotly':
             from .plotly import PlotlyBackend
+
             self._backends['2d'] = PlotlyBackend()
         else:
             raise ValueError(f'Unsupported 2d backend \'{self._mapping["2d"]}\'.')
 
         if self._mapping['3d'] == 'pythreejs':
             from .pythreejs import PythreejsBackend
+
             self._backends['3d'] = PythreejsBackend()
         else:
             raise ValueError(f'Unsupported 3d backend \'{self._mapping["3d"]}\'.')
@@ -77,7 +79,8 @@ class BackendManager:
             _point_cloud = self._backends['3d'].point_cloud
         except AttributeError:
             raise ValueError(
-                f'Unsupported backend \'{self["3d"]}\' for point_cloud (3D).')
+                f'Unsupported backend \'{self["3d"]}\' for point_cloud (3D).'
+            )
         return _point_cloud(*args, **kwargs)
 
     def figure1d(self, *args, **kwargs):

@@ -87,17 +87,18 @@ class ColorMapper:
         The size of the figure next to which the colorbar will be displayed.
     """
 
-    def __init__(self,
-                 canvas: Optional[Any] = None,
-                 cbar: bool = True,
-                 cmap: str = 'viridis',
-                 mask_cmap: str = 'gray',
-                 norm: Literal['linear', 'log'] = 'linear',
-                 vmin: Optional[Union[sc.Variable, int, float]] = None,
-                 vmax: Optional[Union[sc.Variable, int, float]] = None,
-                 nan_color: Optional[str] = None,
-                 figsize: Optional[Tuple[float, float]] = None):
-
+    def __init__(
+        self,
+        canvas: Optional[Any] = None,
+        cbar: bool = True,
+        cmap: str = 'viridis',
+        mask_cmap: str = 'gray',
+        norm: Literal['linear', 'log'] = 'linear',
+        vmin: Optional[Union[sc.Variable, int, float]] = None,
+        vmax: Optional[Union[sc.Variable, int, float]] = None,
+        nan_color: Optional[str] = None,
+        figsize: Optional[Tuple[float, float]] = None,
+    ):
         self.cax = canvas.cax if canvas is not None else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
@@ -138,6 +139,7 @@ class ColorMapper:
         Convert the colorbar into a widget for use with other ``ipywidgets``.
         """
         import ipywidgets as ipw
+
         self.widget = ipw.HTML()
         self._update_colorbar_widget()
         return self.widget
@@ -229,8 +231,10 @@ class ColorMapper:
         if self.unit is None:
             self.unit = data.unit
         elif data.unit != self.unit:
-            raise ValueError(f'Incompatible unit: colormapper has unit {self.unit}, '
-                             f'new data has unit {data.unit}.')
+            raise ValueError(
+                f'Incompatible unit: colormapper has unit {self.unit}, '
+                f'new data has unit {data.unit}.'
+            )
 
         if self.name is None:
             self.name = data.name

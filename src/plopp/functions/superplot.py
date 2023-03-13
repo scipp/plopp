@@ -30,6 +30,7 @@ class LineSaveTool:
         import ipywidgets as ipw
 
         from ..widgets.box import VBar
+
         self._data_node = data_node
         self._slider_node = slider_node
         self._fig = fig
@@ -44,18 +45,22 @@ class LineSaveTool:
 
     def save_line(self, change: Dict[str, Any] = None):
         from ..widgets import ColorTool
+
         line_id = uuid.uuid4().hex
         data = self._data_node.request_data()
         self._fig.update(data, key=line_id)
         slice_values = self._slider_node.request_data()
-        text = ', '.join(f'{k}: {coord_element_to_string(data.meta[k])}'
-                         for k, it in slice_values.items())
+        text = ', '.join(
+            f'{k}: {coord_element_to_string(data.meta[k])}'
+            for k, it in slice_values.items()
+        )
         line = self._fig.artists[line_id]
         tool = ColorTool(text=text, color=to_hex(line.color))
         self._lines[line_id] = {'line': line, 'tool': tool}
         self._update_container()
-        tool.color.observe(partial(self.change_line_color, line_id=line_id),
-                           names='value')
+        tool.color.observe(
+            partial(self.change_line_color, line_id=line_id), names='value'
+        )
         tool.button.on_click(partial(self.remove_line, line_id=line_id))
 
     def change_line_color(self, change: Dict[str, Any], line_id: str):
@@ -98,31 +103,38 @@ class Superplot:
         See :py:func:`plopp.plot` for the full list of line customization arguments.
     """
 
-    def __init__(self,
-                 obj: Union[sc.typing.VariableLike, ndarray],
-                 keep: Optional[str] = None,
-                 *,
-                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
-                 **kwargs):
+    def __init__(
+        self,
+        obj: Union[sc.typing.VariableLike, ndarray],
+        keep: Optional[str] = None,
+        *,
+        crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+        **kwargs,
+    ):
         da = preprocess(obj, crop=crop, ignore_size=True)
         if keep is None:
             keep = da.dims[-1]
         if isinstance(keep, (list, tuple)):
             raise TypeError(
-                "The keep argument must be a single string, not a list or tuple.")
+                "The keep argument must be a single string, not a list or tuple."
+            )
         self.slicer = Slicer(da, keep=[keep], crop=crop, **kwargs)
-        self.linesavetool = LineSaveTool(data_node=self.slicer.slice_nodes[0],
-                                         slider_node=self.slicer.slider_node,
-                                         fig=self.slicer.figure)
+        self.linesavetool = LineSaveTool(
+            data_node=self.slicer.slice_nodes[0],
+            slider_node=self.slicer.slider_node,
+            fig=self.slicer.figure,
+        )
         self.figure = self.slicer.figure
         self.slider = self.slicer.slider
 
 
-def superplot(obj: Union[sc.typing.VariableLike, ndarray],
-              keep: Optional[str] = None,
-              *,
-              crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
-              **kwargs):
+def superplot(
+    obj: Union[sc.typing.VariableLike, ndarray],
+    keep: Optional[str] = None,
+    *,
+    crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+    **kwargs,
+):
     """
     Plot a multi-dimensional object as a one-dimensional line, slicing all but one
     dimension. This will produce one slider per sliced dimension, below the figure.
@@ -154,4 +166,5 @@ def superplot(obj: Union[sc.typing.VariableLike, ndarray],
     require_interactive_backend('superplot')
     sp = Superplot(obj=obj, keep=keep, crop=crop, **kwargs)
     from ..widgets import Box
+
     return Box([[sp.figure, sp.linesavetool.widget], sp.slider])
