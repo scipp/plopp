@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
-from typing import Any, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 import ipywidgets as ipw
 import numpy as np
@@ -26,9 +26,11 @@ class Canvas:
         to customize the title appearance.
     """
 
-    def __init__(self, figsize: Tuple[int, int] = (600, 400), title: str = None):
-        # TODO: the title is still unused.
-
+    def __init__(self,
+                 figsize: Tuple[int, int] = (600, 400),
+                 title: Optional[str] = None,
+                 camera: Optional[Dict[str, Union[float, Tuple[float,
+                                                               ...]]]] = None):
         import pythreejs as p3
 
         self.xunit = None
@@ -40,14 +42,14 @@ class Canvas:
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
+        self._user_camera = camera if camera is not None else {}
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
         self.outline = None
-        self.scene = p3.Scene(
-            children=[self.camera, self.axes_3d], background="#f0f0f0"
-        )
+        self.scene = p3.Scene(children=[self.camera, self.axes_3d],
+                              background="#f0f0f0")
         self.controls = p3.OrbitControls(controlling=self.camera)
         self.renderer = p3.Renderer(
             camera=self.camera,
@@ -83,19 +85,24 @@ class Canvas:
         """
         center = [var.mean().value for var in limits]
         distance_from_center = 1.2
-        box_size = np.array([(limits[i][1] - limits[i][0]).value for i in range(3)])
-        camera_position = list(np.array(center) + distance_from_center * box_size)
-        camera_lookat = tuple(center)
-        self.camera.position = camera_position
-        cam_pos_norm = np.linalg.norm(self.camera.position)
+        box_size = np.array([(limits[i][1] - limits[i][0]).value
+                             for i in range(3)])
+        self.camera.position = self._user_camera.get(
+            'position',
+            list(np.array(center) + distance_from_center * box_size))
+        camera_dist = np.linalg.norm(
+            np.array(self.camera.position) - np.array(center))
         box_mean_size = np.linalg.norm(box_size)
-        self.camera.near = 0.01 * box_mean_size
-        self.camera.far = 5.0 * cam_pos_norm
+        self.camera.near = self._user_camera.get('near', 0.01 * box_mean_size)
+        self.camera.far = self._user_camera.get(
+            'far', 5 * max(box_mean_size, camera_dist))
+        camera_lookat = tuple(self._user_camera.get('look_at', center))
         self.controls.target = camera_lookat
         self.camera.lookAt(camera_lookat)
 
         # Save camera settings
         self.camera_backup["reset"] = copy(self.camera.position)
+        self.camera_backup["look_at"] = copy(camera_lookat)
         self.camera_backup["center"] = tuple(copy(center))
         self.camera_backup["x_normal"] = [
             center[0] - distance_from_center * box_mean_size,
@@ -117,25 +124,29 @@ class Canvas:
         """
         Reset the camera position.
         """
-        self.move_camera(position=self.camera_backup["reset"])
+        self.move_camera(position=self.camera_backup["reset"],
+                         look_at=self.camera_backup["look_at"])
 
     def camera_x_normal(self):
         """
         View scene along the X normal.
         """
-        self._camera_normal(position=self.camera_backup["x_normal"].copy(), ind=0)
+        self._camera_normal(position=self.camera_backup["x_normal"].copy(),
+                            ind=0)
 
     def camera_y_normal(self):
         """
         View scene along the Y normal.
         """
-        self._camera_normal(position=self.camera_backup["y_normal"].copy(), ind=1)
+        self._camera_normal(position=self.camera_backup["y_normal"].copy(),
+                            ind=1)
 
     def camera_z_normal(self):
         """
         View scene along the Z normal.
         """
-        self._camera_normal(position=self.camera_backup["z_normal"].copy(), ind=2)
+        self._camera_normal(position=self.camera_backup["z_normal"].copy(),
+                            ind=2)
 
     def _camera_normal(self, position: Tuple[float, float, float], ind: int):
         """
@@ -143,10 +154,13 @@ class Canvas:
         to the requested position.
         """
         if np.allclose(self.camera.position, position):
-            position[ind] = 2.0 * self.camera_backup["center"][ind] - position[ind]
+            position[
+                ind] = 2.0 * self.camera_backup["center"][ind] - position[ind]
         self.move_camera(position=position)
 
-    def move_camera(self, position: Tuple[float, float, float]):
+    def move_camera(self,
+                    position: Tuple[float, float, float],
+                    look_at: Optional[Tuple[float, float, float]] = None):
         """
         Move the camera to the supplied position.
 
@@ -156,8 +170,10 @@ class Canvas:
             The new camera position.
         """
         self.camera.position = position
-        self.controls.target = self.camera_backup["center"]
-        self.camera.lookAt(self.camera_backup["center"])
+        if look_at is None:
+            look_at = self.camera_backup["center"]
+        self.controls.target = look_at
+        self.camera.lookAt(look_at)
 
     def toggle_outline(self):
         """
@@ -187,8 +203,7 @@ class Canvas:
         if self._title_text:
             html = (
                 f'<div style="text-align: center; width: {self.figsize[0]}px">'
-                f'{self._title_text}</div>'
-            )
+                f'{self._title_text}</div>')
         else:
             html = None
         return ipw.HTML(html)
