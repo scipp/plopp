@@ -21,10 +21,9 @@ def test_creation():
     canvas = Canvas(figsize=(700, 450))
     assert canvas.renderer.width == 700
     assert canvas.renderer.height == 450
-    assert all([
-        canvas.camera, canvas.scene, canvas.controls, canvas.renderer,
-        canvas.axes_3d
-    ])
+    assert all(
+        [canvas.camera, canvas.scene, canvas.controls, canvas.renderer, canvas.axes_3d]
+    )
     assert canvas.outline is None
 
 
@@ -91,7 +90,7 @@ def test_camera_z():
 
 
 def test_camera_user_position():
-    pos = (1.5, 22., -3.0)
+    pos = (1.5, 22.0, -3.0)
     canvas = Canvas(camera={'position': pos})
     canvas._update_camera(limits=_make_limits())
     assert canvas.camera.position == pos
@@ -101,21 +100,21 @@ def test_camera_user_position():
 
 
 def test_camera_user_look_at():
-    look_at = (6., -1., 1)
+    look_at = (6.0, -1.0, 1)
     canvas = Canvas(camera={'look_at': look_at})
     canvas._update_camera(limits=_make_limits())
     # Note we check the target of the controls, not the camera, because there is no
     # direct way to get the lookAt point from the camera.
     assert canvas.controls.target == look_at
     canvas.camera.position = (10, 20, 30)
-    canvas.camera.lookAt((77., 3., 0.))
+    canvas.camera.lookAt((77.0, 3.0, 0.0))
     canvas.home()
     assert canvas.controls.target == look_at
 
 
 def test_camera_user_near_far():
     near = 0.66
-    far = 1500.
+    far = 1500.0
     canvas = Canvas(camera={'near': near, 'far': far})
     canvas._update_camera(limits=_make_limits())
     assert canvas.camera.near == near
