@@ -177,11 +177,13 @@ OutlineTool = partial(ToggleTool,
                       tooltip='Toggle outline visibility')
 """Toggle outline visibility tool"""
 
-AxesTool = partial(ToggleTool,
-                   value=True,
-                   description='\u27C0',
-                   style={'font_weight': 'bold'},
-                   tooltip='Toggle visibility of XYZ axes')
+AxesTool = partial(
+    ToggleTool,
+    value=True,
+    #    description='\u27C0',
+    icon='uncharted',
+    style={'font_weight': 'bold'},
+    tooltip='Toggle visibility of XYZ axes')
 """Toggle RGB axes helper visibility tool"""
 
 
