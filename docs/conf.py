@@ -269,10 +269,19 @@ linkcheck_ignore = [
 ]
 
 # -- Options for nbsphinx gallery------------------------------------------
-
+notebook_root = os.path.join('examples', 'gallery')
+thumbnail_root = os.path.join('_static', 'gallery')
 nbsphinx_thumbnails = {
-    'examples/gallery/nyc-taxi': '_static/gallery/nyc-taxi-thumbnail.png',
-    'examples/gallery/masking-a-range': '_static/gallery/masking-a-range-thumbnail.png',
-    'examples/gallery/rectangle-selection': '_static/gallery/rectangle-selection-thumbnail.png',
-    'examples/gallery/scatter3d-with-threshold': '_static/gallery/scatter3d-with-threshold-thumbnail.png',
+    os.path.join(notebook_root, 'nyc-taxi'): os.path.join(
+        thumbnail_root, 'nyc-taxi-thumbnail.png'
+    ),
+    os.path.join(notebook_root, 'masking-a-range'): os.path.join(
+        thumbnail_root, 'masking-a-range-thumbnail.png'
+    ),
+    os.path.join(notebook_root, 'rectangle-selection'): os.path.join(
+        thumbnail_root, 'rectangle-selection-thumbnail.png'
+    ),
+    os.path.join(notebook_root, 'scatter3d-with-threshold'): os.path.join(
+        thumbnail_root, 'scatter3d-with-threshold-thumbnail.png'
+    ),
 }
