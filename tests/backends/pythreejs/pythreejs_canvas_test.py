@@ -247,7 +247,7 @@ def test_camera_user_variable_raises_when_axes_units_are_different(key):
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 's'
-    with pytest.raises(AssertionError):
+    with pytest.raises(sc.UnitError, match='All axes must have the same unit'):
         canvas._update_camera(limits=_make_limits())
 
 

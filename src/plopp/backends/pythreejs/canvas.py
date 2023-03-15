@@ -114,7 +114,12 @@ class Canvas:
 
         for key in set(self._raw_user_camera) & set(('near', 'far')):
             if isinstance(self._raw_user_camera[key], sc.Variable):
-                assert self.xunit == self.yunit == self.zunit
+                if not (self.xunit == self.yunit == self.zunit):
+                    raise sc.UnitError(
+                        'All axes must have the same unit when specifying a clipping '
+                        'plane with a unit. Units are: '
+                        f'{self.xunit}, {self.yunit}, {self.zunit}.'
+                    )
                 parsed_camera[key] = (
                     self._raw_user_camera[key].to(unit=self.xunit).value
                 )
