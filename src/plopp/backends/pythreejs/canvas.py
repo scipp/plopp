@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
-from functools import lru_cache
 from typing import Any, Dict, Optional, Tuple, Union
 
 import ipywidgets as ipw
@@ -57,7 +56,8 @@ class Canvas:
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
-        self._user_camera = camera if camera is not None else {}
+        self._raw_user_camera = camera if camera is not None else {}
+        self._user_camera = None
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
@@ -91,34 +91,35 @@ class Canvas:
         self._update_camera(limits=limits)
         self.axes_3d.scale = [self.camera.far] * 3
 
-    @lru_cache(maxsize=1)
     def _parse_user_camera(self):
         parsed_camera = {}
-        for key in set(self._user_camera) & set(('position', 'look_at')):
-            if isinstance(self._user_camera[key], sc.Variable):
+        for key in set(self._raw_user_camera) & set(('position', 'look_at')):
+            if isinstance(self._raw_user_camera[key], sc.Variable):
                 if self.xunit == self.yunit == self.zunit:
                     parsed_camera[key] = (
-                        self._user_camera[key].to(unit=self.xunit).value.tolist()
+                        self._raw_user_camera[key].to(unit=self.xunit).value.tolist()
                     )
                 else:
                     parsed_camera[key] = tuple(
-                        getattr(self._user_camera[key].fields, x).to(unit=u).value
+                        getattr(self._raw_user_camera[key].fields, x).to(unit=u).value
                         for x, u in zip('xyz', [self.xunit, self.yunit, self.zunit])
                     )
             else:
                 parsed_camera[key] = tuple(
                     x.to(unit=u).value if isinstance(x, sc.Variable) else x
                     for x, u in zip(
-                        self._user_camera[key], [self.xunit, self.yunit, self.zunit]
+                        self._raw_user_camera[key], [self.xunit, self.yunit, self.zunit]
                     )
                 )
 
-        for key in set(self._user_camera) & set(('near', 'far')):
-            if isinstance(self._user_camera[key], sc.Variable):
+        for key in set(self._raw_user_camera) & set(('near', 'far')):
+            if isinstance(self._raw_user_camera[key], sc.Variable):
                 assert self.xunit == self.yunit == self.zunit
-                parsed_camera[key] = self._user_camera[key].to(unit=self.xunit).value
+                parsed_camera[key] = (
+                    self._raw_user_camera[key].to(unit=self.xunit).value
+                )
             else:
-                parsed_camera[key] = self._user_camera[key]
+                parsed_camera[key] = self._raw_user_camera[key]
         return parsed_camera
 
     def _update_camera(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
@@ -129,7 +130,8 @@ class Canvas:
         This 'Home' position will be backed up so it can be used when resetting the
         camera via the ``home`` function.
         """
-        self._user_camera = self._parse_user_camera()
+        if self._user_camera is None:
+            self._user_camera = self._parse_user_camera()
 
         center = [var.mean().value for var in limits]
         distance_fudge_factor = 1.2
