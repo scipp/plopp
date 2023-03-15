@@ -46,6 +46,19 @@ class FigScatter3d(BaseFig):
         The figure title.
     figsize:
         The width and height of the figure, in pixels.
+    camera:
+        Camera configuration, in the form of a dict. Valid entries are:
+        - ``'position'``: the position of the camera, as a ``sc.vector`` or a list of
+          3 numbers
+        - ``'look_at'``: the point the camera is looking at, as a ``sc.vector`` or a
+          list of 3 numbers
+        - ``'near'``: the distance to the near clipping plane (how close to the camera
+          objects can be before they disappear), as a ``sc.scalar`` or a single number
+        - ``'far'``: the distance to the far clipping plane (how far from the camera
+          objects can be before they disappear), as a ``sc.scalar`` or a single number
+        If values are provided as raw numbers instead of Scipp variables, their unit
+        will be assumed to be the same as the unit of the ``x``, ``y``, and ``z``
+        coordinates.
     **kwargs:
         All other kwargs are forwarded to the PointCloud artist.
     """

@@ -2,11 +2,12 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
+from functools import lru_cache
 from typing import Any, Dict, Optional, Tuple, Union
 
 import ipywidgets as ipw
 import numpy as np
-from scipp import Variable
+import scipp as sc
 
 
 class Canvas:
@@ -24,6 +25,19 @@ class Canvas:
     title:
         The title to be placed above the figure. It is possible to use HTML formatting
         to customize the title appearance.
+    camera:
+        Camera configuration, in the form of a dict. Valid entries are:
+        - ``'position'``: the position of the camera, as a ``sc.vector`` or a list of
+          3 numbers
+        - ``'look_at'``: the point the camera is looking at, as a ``sc.vector`` or a
+          list of 3 numbers
+        - ``'near'``: the distance to the near clipping plane (how close to the camera
+          objects can be before they disappear), as a ``sc.scalar`` or a single number
+        - ``'far'``: the distance to the far clipping plane (how far from the camera
+          objects can be before they disappear), as a ``sc.scalar`` or a single number
+        If values are provided as raw numbers instead of Scipp variables, their unit
+        will be assumed to be the same as the unit of the ``x``, ``y``, and ``z``
+        coordinates.
     """
 
     def __init__(
@@ -64,7 +78,7 @@ class Canvas:
     def to_widget(self):
         return self.renderer
 
-    def make_outline(self, limits: Tuple[Variable, Variable, Variable]):
+    def make_outline(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
@@ -77,7 +91,37 @@ class Canvas:
         self._update_camera(limits=limits)
         self.axes_3d.scale = [self.camera.far] * 3
 
-    def _update_camera(self, limits: Tuple[Variable, Variable, Variable]):
+    @lru_cache(maxsize=1)
+    def _parse_user_camera(self):
+        parsed_camera = {}
+        for key in set(self._user_camera) & set(('position', 'look_at')):
+            if isinstance(self._user_camera[key], sc.Variable):
+                if self.xunit == self.yunit == self.zunit:
+                    parsed_camera[key] = (
+                        self._user_camera[key].to(unit=self.xunit).value.tolist()
+                    )
+                else:
+                    parsed_camera[key] = tuple(
+                        getattr(self._user_camera[key].fields, x).to(unit=u).value
+                        for x, u in zip('xyz', [self.xunit, self.yunit, self.zunit])
+                    )
+            else:
+                parsed_camera[key] = tuple(
+                    x.to(unit=u).value if isinstance(x, sc.Variable) else x
+                    for x, u in zip(
+                        self._user_camera[key], [self.xunit, self.yunit, self.zunit]
+                    )
+                )
+
+        for key in set(self._user_camera) & set(('near', 'far')):
+            if isinstance(self._user_camera[key], sc.Variable):
+                assert self.xunit == self.yunit == self.zunit
+                parsed_camera[key] = self._user_camera[key].to(unit=self.xunit).value
+            else:
+                parsed_camera[key] = self._user_camera[key]
+        return parsed_camera
+
+    def _update_camera(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
         """
         Update the camera position when a new object is added to the canvas.
         The camera will look at the mean position of all the objects, and its position
@@ -85,11 +129,13 @@ class Canvas:
         This 'Home' position will be backed up so it can be used when resetting the
         camera via the ``home`` function.
         """
+        self._user_camera = self._parse_user_camera()
+
         center = [var.mean().value for var in limits]
-        distance_from_center = 1.2
+        distance_fudge_factor = 1.2
         box_size = np.array([(limits[i][1] - limits[i][0]).value for i in range(3)])
         self.camera.position = self._user_camera.get(
-            'position', list(np.array(center) + distance_from_center * box_size)
+            'position', list(np.array(center) + distance_fudge_factor * box_size)
         )
         camera_dist = np.linalg.norm(np.array(self.camera.position) - np.array(center))
         box_mean_size = np.linalg.norm(box_size)
@@ -106,19 +152,19 @@ class Canvas:
         self.camera_backup["look_at"] = copy(camera_lookat)
         self.camera_backup["center"] = tuple(copy(center))
         self.camera_backup["x_normal"] = [
-            center[0] - distance_from_center * box_mean_size,
+            center[0] - distance_fudge_factor * box_mean_size,
             center[1],
             center[2],
         ]
         self.camera_backup["y_normal"] = [
             center[0],
-            center[1] - distance_from_center * box_mean_size,
+            center[1] - distance_fudge_factor * box_mean_size,
             center[2],
         ]
         self.camera_backup["z_normal"] = [
             center[0],
             center[1],
-            center[2] - distance_from_center * box_mean_size,
+            center[2] - distance_fudge_factor * box_mean_size,
         ]
 
     def home(self):
