@@ -78,17 +78,10 @@ def test_crop_no_variable():
     xmax = 102.0
     ymin = 5.5
     ymax = 22.3
-    fig = FigImage(input_node(da),
-                   crop={
-                       'xx': {
-                           'min': xmin,
-                           'max': xmax
-                       },
-                       'yy': {
-                           'min': ymin,
-                           'max': ymax
-                       }
-                   })
+    fig = FigImage(
+        input_node(da),
+        crop={'xx': {'min': xmin, 'max': xmax}, 'yy': {'min': ymin, 'max': ymax}},
+    )
     assert fig.canvas.xrange == (xmin, xmax)
     assert fig.canvas.yrange == (ymin, ymax)
 

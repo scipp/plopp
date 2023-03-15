@@ -35,22 +35,26 @@ def test_scatter3d_dimensions_are_flattened():
     ny = 12
     x = sc.linspace(dim='x', start=-10.0, stop=10.0, num=nx, unit='m')
     y = sc.linspace(dim='y', start=-10.0, stop=10.0, num=ny, unit='m')
-    da = sc.DataArray(data=sc.array(dims=['x', 'y'], values=np.random.rand(nx, ny)),
-                      coords={'position': sc.geometry.position(x, y, 0.0 * sc.units.m)})
+    da = sc.DataArray(
+        data=sc.array(dims=['x', 'y'], values=np.random.rand(nx, ny)),
+        coords={'position': sc.geometry.position(x, y, 0.0 * sc.units.m)},
+    )
     p = pp.scatter3d(da, pos="position")
     assert list(p[0].artists.values())[0].data.ndim == 1
     nz = 12
     z = sc.linspace(dim='z', start=-10.0, stop=10.0, num=nz, unit='m')
-    da = sc.DataArray(data=sc.array(dims=['x', 'y', 'z'],
-                                    values=np.random.rand(nx, ny, nz)),
-                      coords={'position': sc.geometry.position(x, y, z)})
+    da = sc.DataArray(
+        data=sc.array(dims=['x', 'y', 'z'], values=np.random.rand(nx, ny, nz)),
+        coords={'position': sc.geometry.position(x, y, z)},
+    )
     p = pp.scatter3d(da, pos="position")
     assert list(p[0].artists.values())[0].data.ndim == 1
 
 
 def test_scatter3d_can_plot_scalar_data():
-    da = sc.DataArray(data=sc.scalar(1.2),
-                      coords={'position': sc.vector(value=[1, 2, 3])})
+    da = sc.DataArray(
+        data=sc.scalar(1.2), coords={'position': sc.vector(value=[1, 2, 3])}
+    )
     p = pp.scatter3d(da, pos='position')
     assert list(p.children[0].artists.values())[0].data.ndim == 1
 

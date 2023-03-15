@@ -66,41 +66,41 @@ class FigImage(BaseFig):
         All other kwargs are forwarded to the Image artist.
     """
 
-    def __init__(self,
-                 *nodes,
-                 cmap: str = 'viridis',
-                 mask_cmap: str = 'gray',
-                 norm: Literal['linear', 'log'] = 'linear',
-                 vmin: Optional[Union[sc.Variable, int, float]] = None,
-                 vmax: Optional[Union[sc.Variable, int, float]] = None,
-                 scale: Optional[Dict[str, str]] = None,
-                 aspect: Literal['auto', 'equal'] = 'auto',
-                 grid: bool = False,
-                 crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
-                 cbar: bool = True,
-                 title: Optional[str] = None,
-                 figsize: Optional[Tuple[float, float]] = None,
-                 format: Optional[Literal['svg', 'png']] = None,
-                 **kwargs):
-
+    def __init__(
+        self,
+        *nodes,
+        cmap: str = 'viridis',
+        mask_cmap: str = 'gray',
+        norm: Literal['linear', 'log'] = 'linear',
+        vmin: Optional[Union[sc.Variable, int, float]] = None,
+        vmax: Optional[Union[sc.Variable, int, float]] = None,
+        scale: Optional[Dict[str, str]] = None,
+        aspect: Literal['auto', 'equal'] = 'auto',
+        grid: bool = False,
+        crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+        cbar: bool = True,
+        title: Optional[str] = None,
+        figsize: Optional[Tuple[float, float]] = None,
+        format: Optional[Literal['svg', 'png']] = None,
+        **kwargs
+    ):
         super().__init__(*nodes)
 
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = backends.canvas2d(cbar=cbar,
-                                        aspect=aspect,
-                                        grid=grid,
-                                        title=title,
-                                        figsize=figsize,
-                                        **kwargs)
-        self.colormapper = ColorMapper(cmap=cmap,
-                                       cbar=cbar,
-                                       mask_cmap=mask_cmap,
-                                       norm=norm,
-                                       vmin=vmin,
-                                       vmax=vmax,
-                                       canvas=self.canvas)
+        self.canvas = backends.canvas2d(
+            cbar=cbar, aspect=aspect, grid=grid, title=title, figsize=figsize, **kwargs
+        )
+        self.colormapper = ColorMapper(
+            cmap=cmap,
+            cbar=cbar,
+            mask_cmap=mask_cmap,
+            norm=norm,
+            vmin=vmin,
+            vmax=vmax,
+            canvas=self.canvas,
+        )
 
         self.render()
         self.canvas.autoscale()
@@ -132,19 +132,19 @@ class FigImage(BaseFig):
             self.canvas.yunit = ycoord.unit
             self.colormapper.unit = new_values.unit
         else:
-            new_values.data = make_compatible(new_values.data,
-                                              unit=self.colormapper.unit)
-            new_values.coords[xdim] = make_compatible(xcoord,
-                                                      dim=self.dims['x'],
-                                                      unit=self.canvas.xunit)
-            new_values.coords[ydim] = make_compatible(ycoord,
-                                                      dim=self.dims['y'],
-                                                      unit=self.canvas.yunit)
+            new_values.data = make_compatible(
+                new_values.data, unit=self.colormapper.unit
+            )
+            new_values.coords[xdim] = make_compatible(
+                xcoord, dim=self.dims['x'], unit=self.canvas.xunit
+            )
+            new_values.coords[ydim] = make_compatible(
+                ycoord, dim=self.dims['y'], unit=self.canvas.yunit
+            )
 
         self.colormapper.update(data=new_values, key=key)
 
         if key not in self.artists:
-
             image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = image
             self.colormapper[key] = image

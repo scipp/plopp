@@ -52,18 +52,19 @@ class Canvas:
         Add axes to host a colorbar if ``True``.
     """
 
-    def __init__(self,
-                 ax: plt.Axes = None,
-                 cax: plt.Axes = None,
-                 figsize: Optional[Tuple[float, float]] = None,
-                 title: str = None,
-                 grid: bool = False,
-                 vmin: Union[sc.Variable, int, float] = None,
-                 vmax: Union[sc.Variable, int, float] = None,
-                 aspect: Literal['auto', 'equal'] = 'auto',
-                 cbar: bool = False,
-                 **ignored):
-
+    def __init__(
+        self,
+        ax: plt.Axes = None,
+        cax: plt.Axes = None,
+        figsize: Optional[Tuple[float, float]] = None,
+        title: str = None,
+        grid: bool = False,
+        vmin: Union[sc.Variable, int, float] = None,
+        vmax: Union[sc.Variable, int, float] = None,
+        aspect: Literal['auto', 'equal'] = 'auto',
+        cbar: bool = False,
+        **ignored,
+    ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
         # creates both the canvas and an artist object (Line or Image). The figure
         # accepts keyword arguments, and has to somehow forward them to the canvas and
@@ -86,7 +87,8 @@ class Canvas:
             self._own_axes = True
             with silent_mpl_figure():
                 self.fig, self.ax = plt.subplots(
-                    figsize=(6., 4.) if figsize is None else figsize)
+                    figsize=(6.0, 4.0) if figsize is None else figsize
+                )
             if self.is_widget():
                 self.fig.canvas.toolbar_visible = False
                 self.fig.canvas.header_visible = False
@@ -114,6 +116,7 @@ class Canvas:
         Convert the underlying Matplotlib figure to an image widget from ``ipywidgets``.
         """
         from ipywidgets import Image
+
         return Image(value=fig_to_bytes(self.fig), format='png')
 
     def to_widget(self):
@@ -145,11 +148,17 @@ class Canvas:
             if isinstance(c, QuadMesh):
                 coords = c.get_coordinates()
                 left, right = fix_empty_range(
-                    find_limits(sc.array(dims=['x', 'y'], values=coords[..., 0]),
-                                scale=self.xscale))
+                    find_limits(
+                        sc.array(dims=['x', 'y'], values=coords[..., 0]),
+                        scale=self.xscale,
+                    )
+                )
                 bottom, top = fix_empty_range(
-                    find_limits(sc.array(dims=['x', 'y'], values=coords[..., 1]),
-                                scale=self.yscale))
+                    find_limits(
+                        sc.array(dims=['x', 'y'], values=coords[..., 1]),
+                        scale=self.yscale,
+                    )
+                )
                 self._xmin = min(self._xmin, left.value)
                 self._xmax = max(self._xmax, right.value)
                 self._ymin = min(self._ymin, bottom.value)
@@ -159,10 +168,12 @@ class Canvas:
         if self._user_vmax is not None:
             self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
 
-        self.ax.set_xlim(_none_if_not_finite(self._xmin),
-                         _none_if_not_finite(self._xmax))
-        self.ax.set_ylim(_none_if_not_finite(self._ymin),
-                         _none_if_not_finite(self._ymax))
+        self.ax.set_xlim(
+            _none_if_not_finite(self._xmin), _none_if_not_finite(self._xmax)
+        )
+        self.ax.set_ylim(
+            _none_if_not_finite(self._ymin), _none_if_not_finite(self._ymax)
+        )
         self.draw()
 
     def draw(self):
@@ -201,10 +212,13 @@ class Canvas:
             Min and max limits for each dimension to be cropped.
         """
         for xy, lims in limits.items():
-            getattr(self.ax, f'set_{xy}lim')(*[
-                maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
-                for m in ('min', 'max') if m in lims
-            ])
+            getattr(self.ax, f'set_{xy}lim')(
+                *[
+                    maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
+                    for m in ('min', 'max')
+                    if m in lims
+                ]
+            )
 
     @property
     def title(self) -> str:

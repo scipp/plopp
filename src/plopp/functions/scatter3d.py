@@ -10,19 +10,21 @@ from ..core import input_node
 from .common import check_not_binned
 
 
-def scatter3d(da: sc.DataArray,
-              *,
-              x: str = None,
-              y: str = None,
-              z: str = None,
-              pos: str = None,
-              figsize: Tuple[int, int] = (600, 400),
-              norm: Literal['linear', 'log'] = 'linear',
-              title: str = None,
-              vmin: Union[sc.Variable, int, float] = None,
-              vmax: Union[sc.Variable, int, float] = None,
-              cmap: str = 'viridis',
-              **kwargs):
+def scatter3d(
+    da: sc.DataArray,
+    *,
+    x: str = None,
+    y: str = None,
+    z: str = None,
+    pos: str = None,
+    figsize: Tuple[int, int] = (600, 400),
+    norm: Literal['linear', 'log'] = 'linear',
+    title: str = None,
+    vmin: Union[sc.Variable, int, float] = None,
+    vmax: Union[sc.Variable, int, float] = None,
+    cmap: str = 'viridis',
+    **kwargs,
+):
     """Make a three-dimensional scatter plot.
 
     To specify the positions of the scatter points, you can use:
@@ -81,12 +83,14 @@ def scatter3d(da: sc.DataArray,
 
     if pos is not None:
         if any((x, y, z)):
-            raise ValueError(f'If pos ({pos}) is defined, all of '
-                             f'x ({x}), y ({y}), and z ({z}) must be None.')
+            raise ValueError(
+                f'If pos ({pos}) is defined, all of '
+                f'x ({x}), y ({y}), and z ({z}) must be None.'
+            )
         coords = {
             (x := f'{pos}.x'): da.meta[pos].fields.x,
             (y := f'{pos}.y'): da.meta[pos].fields.y,
-            (z := f'{pos}.z'): da.meta[pos].fields.z
+            (z := f'{pos}.z'): da.meta[pos].fields.z,
         }
     else:
         x = x if x is not None else 'x'
@@ -97,19 +101,23 @@ def scatter3d(da: sc.DataArray,
     to_plot = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
     if to_plot.ndim != 1:
         to_plot = to_plot.flatten(to=uuid.uuid4().hex)
-    fig = figure3d(input_node(to_plot),
-                   x=x,
-                   y=y,
-                   z=z,
-                   figsize=figsize,
-                   norm=norm,
-                   title=title,
-                   vmin=vmin,
-                   vmax=vmax,
-                   cmap=cmap,
-                   **kwargs)
+    fig = figure3d(
+        input_node(to_plot),
+        x=x,
+        y=y,
+        z=z,
+        figsize=figsize,
+        norm=norm,
+        title=title,
+        vmin=vmin,
+        vmax=vmax,
+        cmap=cmap,
+        **kwargs,
+    )
     tri_cutter = TriCutTool(fig)
-    fig.toolbar['cut3d'] = ToggleTool(callback=tri_cutter.toggle_visibility,
-                                      icon='cube',
-                                      tooltip='Hide/show spatial cutting tool')
+    fig.toolbar['cut3d'] = ToggleTool(
+        callback=tri_cutter.toggle_visibility,
+        icon='cube',
+        tooltip='Hide/show spatial cutting tool',
+    )
     return Box([fig, tri_cutter])

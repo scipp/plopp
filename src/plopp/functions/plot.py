@@ -13,23 +13,25 @@ from ..graphics import figure1d, figure2d
 from .common import preprocess
 
 
-def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
-         *,
-         aspect: Literal['auto', 'equal'] = 'auto',
-         cbar: bool = True,
-         coords: Optional[List[str]] = None,
-         crop: Optional[Dict[str, Dict[str, Variable]]] = None,
-         errorbars: bool = True,
-         figsize: Tuple[float, float] = None,
-         grid: bool = False,
-         ignore_size: bool = False,
-         mask_color: str = 'black',
-         norm: Literal['linear', 'log'] = 'linear',
-         scale: Optional[Dict[str, str]] = None,
-         title: Optional[str] = None,
-         vmin: Optional[Union[Variable, int, float]] = None,
-         vmax: Optional[Union[Variable, int, float]] = None,
-         **kwargs):
+def plot(
+    obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
+    *,
+    aspect: Literal['auto', 'equal'] = 'auto',
+    cbar: bool = True,
+    coords: Optional[List[str]] = None,
+    crop: Optional[Dict[str, Dict[str, Variable]]] = None,
+    errorbars: bool = True,
+    figsize: Tuple[float, float] = None,
+    grid: bool = False,
+    ignore_size: bool = False,
+    mask_color: str = 'black',
+    norm: Literal['linear', 'log'] = 'linear',
+    scale: Optional[Dict[str, str]] = None,
+    title: Optional[str] = None,
+    vmin: Optional[Union[Variable, int, float]] = None,
+    vmax: Optional[Union[Variable, int, float]] = None,
+    **kwargs,
+):
     """Plot a Scipp object.
 
     Parameters
@@ -95,16 +97,15 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
         'vmin': vmin,
         'vmax': vmax,
         'figsize': figsize,
-        **kwargs
+        **kwargs,
     }
 
     if isinstance(obj, (Mapping, Dataset)):
         data_arrays = [
-            preprocess(item,
-                       crop=crop,
-                       name=name,
-                       ignore_size=ignore_size,
-                       coords=coords) for name, item in obj.items()
+            preprocess(
+                item, crop=crop, name=name, ignore_size=ignore_size, coords=coords
+            )
+            for name, item in obj.items()
         ]
     else:
         data_arrays = [
@@ -115,14 +116,18 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
     for da in data_arrays:
         ndims.add(da.ndim)
     if len(ndims) > 1:
-        raise ValueError('All items given to the plot function must have the same '
-                         f'number of dimensions. Found dimensions {ndims}.')
+        raise ValueError(
+            'All items given to the plot function must have the same '
+            f'number of dimensions. Found dimensions {ndims}.'
+        )
     ndim = ndims.pop()
     if ndim == 1:
-        return figure1d(*[input_node(da) for da in data_arrays],
-                        errorbars=errorbars,
-                        mask_color=mask_color,
-                        **common_args)
+        return figure1d(
+            *[input_node(da) for da in data_arrays],
+            errorbars=errorbars,
+            mask_color=mask_color,
+            **common_args,
+        )
     elif ndim == 2:
         if len(data_arrays) > 1:
             raise ValueError(
@@ -130,11 +135,16 @@ def plot(obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray
                 'to create multiple figures, see the documentation on subplots at '
                 'https://scipp.github.io/plopp/customization/subplots.html. If you '
                 'want to plot two images onto the same axes, use the lower-level '
-                'plopp.figure2d function.')
-        return figure2d(*[input_node(da) for da in data_arrays],
-                        aspect=aspect,
-                        cbar=cbar,
-                        **common_args)
+                'plopp.figure2d function.'
+            )
+        return figure2d(
+            *[input_node(da) for da in data_arrays],
+            aspect=aspect,
+            cbar=cbar,
+            **common_args,
+        )
     else:
-        raise ValueError('The plot function can only plot 1d and 2d data, got input '
-                         f'with {ndim} dimensions')
+        raise ValueError(
+            'The plot function can only plot 1d and 2d data, got input '
+            f'with {ndim} dimensions'
+        )

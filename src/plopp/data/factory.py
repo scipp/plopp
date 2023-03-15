@@ -9,12 +9,14 @@ import scipp as sc
 default_dim_list = ['x', 'y', 'z', 'time', 'temperature']
 
 
-def variable(ndim: int = 1,
-             variances: bool = False,
-             dtype: str = 'float64',
-             unit: str = 'm/s',
-             dims: Optional[List[str]] = None,
-             dim_list: List[str] = default_dim_list) -> sc.Variable:
+def variable(
+    ndim: int = 1,
+    variances: bool = False,
+    dtype: str = 'float64',
+    unit: str = 'm/s',
+    dims: Optional[List[str]] = None,
+    dim_list: List[str] = default_dim_list,
+) -> sc.Variable:
     """
     Generate a sample ``Variable`` containing data based on a sine function.
 
@@ -50,17 +52,19 @@ def variable(ndim: int = 1,
     return var
 
 
-def data_array(ndim: int = 1,
-               variances: bool = False,
-               binedges: bool = False,
-               labels: bool = False,
-               masks: bool = False,
-               attrs: bool = False,
-               ragged: bool = False,
-               dtype: str = 'float64',
-               unit: str = 'm/s',
-               dims: Optional[List[str]] = None,
-               dim_list: List[str] = default_dim_list) -> sc.DataArray:
+def data_array(
+    ndim: int = 1,
+    variances: bool = False,
+    binedges: bool = False,
+    labels: bool = False,
+    masks: bool = False,
+    attrs: bool = False,
+    ragged: bool = False,
+    dtype: str = 'float64',
+    unit: str = 'm/s',
+    dims: Optional[List[str]] = None,
+    dim_list: List[str] = default_dim_list,
+) -> sc.DataArray:
     """
     Generate a sample ``DataArray`` containing data based on a sine function, with
     coordinates. Optionally add masks, labels, attributes.
@@ -95,34 +99,39 @@ def data_array(ndim: int = 1,
 
     coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K']))
 
-    data = variable(ndim=ndim,
-                    variances=variances,
-                    dims=dims,
-                    dtype=dtype,
-                    unit=unit,
-                    dim_list=dim_list)
+    data = variable(
+        ndim=ndim,
+        variances=variances,
+        dims=dims,
+        dtype=dtype,
+        unit=unit,
+        dim_list=dim_list,
+    )
 
     coord_dict = {
-        data.dims[i]: sc.arange(data.dims[i],
-                                data.shape[i] + binedges,
-                                unit=coord_units[data.dims[i]],
-                                dtype=np.float64)
+        data.dims[i]: sc.arange(
+            data.dims[i],
+            data.shape[i] + binedges,
+            unit=coord_units[data.dims[i]],
+            dtype=np.float64,
+        )
         for i in range(ndim)
     }
     attr_dict = {}
     mask_dict = {}
 
     if labels:
-        coord_dict["lab"] = sc.linspace(data.dims[0],
-                                        101.,
-                                        105.,
-                                        data.shape[0],
-                                        unit='s')
+        coord_dict["lab"] = sc.linspace(
+            data.dims[0], 101.0, 105.0, data.shape[0], unit='s'
+        )
     if attrs:
-        attr_dict["attr"] = sc.linspace(data.dims[0], 10., 77., data.shape[0], unit='s')
+        attr_dict["attr"] = sc.linspace(
+            data.dims[0], 10.0, 77.0, data.shape[0], unit='s'
+        )
     if masks:
-        mask_dict["mask"] = sc.array(dims=data.dims,
-                                     values=np.where(data.values > 0, True, False))
+        mask_dict["mask"] = sc.array(
+            dims=data.dims, values=np.where(data.values > 0, True, False)
+        )
 
     if ragged:
         grid = []
@@ -132,9 +141,9 @@ def data_array(ndim: int = 1,
             else:
                 grid.append(coord_dict[dim].values)
         mesh = np.meshgrid(*grid, indexing="ij")
-        coord_dict[data.dims[-1]] = sc.array(dims=data.dims,
-                                             values=mesh[-1] +
-                                             np.indices(mesh[-1].shape)[0])
+        coord_dict[data.dims[-1]] = sc.array(
+            dims=data.dims, values=mesh[-1] + np.indices(mesh[-1].shape)[0]
+        )
     return sc.DataArray(data=data, coords=coord_dict, attrs=attr_dict, masks=mask_dict)
 
 
@@ -174,13 +183,15 @@ def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
     position = scale * rng.standard_normal(size=[npoints, 3])
     values = np.linalg.norm(position, axis=1)
     vec = sc.vectors(dims=['row'], unit='m', values=position)
-    return sc.DataArray(data=sc.array(dims=['row'], values=values, unit='K'),
-                        coords={
-                            'position': vec,
-                            'x': vec.fields.x,
-                            'y': vec.fields.y,
-                            'z': vec.fields.z
-                        })
+    return sc.DataArray(
+        data=sc.array(dims=['row'], values=values, unit='K'),
+        coords={
+            'position': vec,
+            'x': vec.fields.x,
+            'y': vec.fields.y,
+            'z': vec.fields.z,
+        },
+    )
 
 
 def data1d(**kwargs):

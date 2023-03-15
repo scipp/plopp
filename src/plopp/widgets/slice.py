@@ -27,7 +27,6 @@ class SliceWidget(VBar):
     """
 
     def __init__(self, sizes: Dict[str, int], coords: Dict[str, sc.Variable]):
-
         self._slider_dims = list(sizes.keys())
         self.controls = {}
         self.view = None
@@ -35,18 +34,22 @@ class SliceWidget(VBar):
 
         for dim in self._slider_dims:
             coord = coords[dim]
-            slider = ipw.IntSlider(step=1,
-                                   description=dim,
-                                   min=0,
-                                   max=sizes[dim] - 1,
-                                   continuous_update=True,
-                                   readout=False,
-                                   layout={"width": "200px"},
-                                   style={'description_width': 'initial'})
-            continuous_update = ipw.Checkbox(value=True,
-                                             tooltip="Continuous update",
-                                             indent=False,
-                                             layout={"width": "20px"})
+            slider = ipw.IntSlider(
+                step=1,
+                description=dim,
+                min=0,
+                max=sizes[dim] - 1,
+                continuous_update=True,
+                readout=False,
+                layout={"width": "200px"},
+                style={'description_width': 'initial'},
+            )
+            continuous_update = ipw.Checkbox(
+                value=True,
+                tooltip="Continuous update",
+                indent=False,
+                layout={"width": "20px"},
+            )
             label = ipw.Label(value=coord_element_to_string(coord[dim, 0]))
             ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
 
@@ -54,7 +57,7 @@ class SliceWidget(VBar):
                 'continuous': continuous_update,
                 'slider': slider,
                 'label': label,
-                'coord': coord
+                'coord': coord,
             }
             slider.observe(self._update_label, names='value')
             children.append(ipw.HBox([continuous_update, slider, label]))

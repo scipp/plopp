@@ -21,7 +21,6 @@ class StaticFig:
     """
 
     def __init__(self, *args, FigConstructor, **kwargs):
-
         self._fig = FigConstructor(*args, **kwargs)
 
     def _repr_mimebundle_(self, include=None, exclude=None) -> dict:

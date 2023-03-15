@@ -18,8 +18,9 @@ def _get_delta(x: Variable, axis: int) -> float:
     return (x[axis][1] - x[axis][0]).value
 
 
-def _get_offsets(limits: Tuple[Variable, Variable, Variable], axis: int,
-                 ind: int) -> np.ndarray:
+def _get_offsets(
+    limits: Tuple[Variable, Variable, Variable], axis: int, ind: int
+) -> np.ndarray:
     """
     Compute offsets for 3 dimensions, along the edges of the box.
     """
@@ -33,23 +34,27 @@ def _make_geometry(limits: Tuple[Variable, Variable, Variable]) -> p3.EdgesGeome
     Make a geometry to represent the edges of a cubic box.
     """
     return p3.EdgesGeometry(
-        p3.BoxBufferGeometry(width=_get_delta(limits, axis=0),
-                             height=_get_delta(limits, axis=1),
-                             depth=_get_delta(limits, axis=2)))
+        p3.BoxBufferGeometry(
+            width=_get_delta(limits, axis=0),
+            height=_get_delta(limits, axis=1),
+            depth=_get_delta(limits, axis=2),
+        )
+    )
 
 
-def _make_sprite(string: str,
-                 position: Tuple[float, float, float],
-                 color: str = "black",
-                 size: float = 1.0) -> p3.Sprite:
+def _make_sprite(
+    string: str,
+    position: Tuple[float, float, float],
+    color: str = "black",
+    size: float = 1.0,
+) -> p3.Sprite:
     """
     Make a text-based sprite for axis tick.
     """
-    sm = p3.SpriteMaterial(map=p3.TextTexture(string=string,
-                                              color=color,
-                                              size=300,
-                                              squareTexture=True),
-                           transparent=True)
+    sm = p3.SpriteMaterial(
+        map=p3.TextTexture(string=string, color=color, size=300, squareTexture=True),
+        transparent=True,
+    )
     return p3.Sprite(material=sm, position=position, scale=[size, size, size])
 
 
@@ -71,29 +76,31 @@ class Outline(p3.Group):
         A number to scale the tick size.
     """
 
-    def __init__(self,
-                 limits: Tuple[Variable, Variable, Variable],
-                 tick_size: float = None):
-
+    def __init__(
+        self, limits: Tuple[Variable, Variable, Variable], tick_size: float = None
+    ):
         center = [var.mean().value for var in limits]
         if tick_size is None:
             tick_size = 0.05 * np.mean([_get_delta(limits, axis=i) for i in range(3)])
 
-        self.box = p3.LineSegments(geometry=_make_geometry(limits),
-                                   material=p3.LineBasicMaterial(color='#000000'),
-                                   position=center)
+        self.box = p3.LineSegments(
+            geometry=_make_geometry(limits),
+            material=p3.LineBasicMaterial(color='#000000'),
+            position=center,
+        )
 
         self.ticks = self._make_ticks(limits=limits, tick_size=tick_size)
-        self.labels = self._make_labels(limits=limits,
-                                        center=center,
-                                        tick_size=tick_size)
+        self.labels = self._make_labels(
+            limits=limits, center=center, tick_size=tick_size
+        )
 
         super().__init__()
         for obj in (self.box, self.ticks, self.labels):
             self.add(obj)
 
-    def _make_ticks(self, limits: Tuple[Variable, Variable, Variable],
-                    tick_size: float) -> p3.Group:
+    def _make_ticks(
+        self, limits: Tuple[Variable, Variable, Variable], tick_size: float
+    ) -> p3.Group:
         """
         Create tick labels on outline edges
         """
@@ -106,13 +113,20 @@ class Outline(p3.Group):
                 if limits[axis][0].value <= tick <= limits[axis][1].value:
                     tick_pos = iden[axis] * tick + _get_offsets(limits, axis, 0)
                     ticks_group.add(
-                        _make_sprite(string=value_to_string(tick, precision=1),
-                                     position=tick_pos.tolist(),
-                                     size=tick_size))
+                        _make_sprite(
+                            string=value_to_string(tick, precision=1),
+                            position=tick_pos.tolist(),
+                            size=tick_size,
+                        )
+                    )
         return ticks_group
 
-    def _make_labels(self, limits: Tuple[Variable, Variable, Variable],
-                     center: List[float], tick_size: float) -> p3.Group:
+    def _make_labels(
+        self,
+        limits: Tuple[Variable, Variable, Variable],
+        center: List[float],
+        tick_size: float,
+    ) -> p3.Group:
         """
         Create axes labels (coord dimension and unit) on outline edges
         """
@@ -122,10 +136,15 @@ class Outline(p3.Group):
             # Offset labels 5% beyond axis ticks to reduce overlap
             delta = 0.05
             labels_group.add(
-                _make_sprite(string=axis_label,
-                             position=(np.roll([1, 0, 0], axis) * center[axis] +
-                                       (1.0 + delta) * _get_offsets(limits, axis, 0) -
-                                       delta * _get_offsets(limits, axis, 1)).tolist(),
-                             size=tick_size * 0.3 * len(axis_label)))
+                _make_sprite(
+                    string=axis_label,
+                    position=(
+                        np.roll([1, 0, 0], axis) * center[axis]
+                        + (1.0 + delta) * _get_offsets(limits, axis, 0)
+                        - delta * _get_offsets(limits, axis, 1)
+                    ).tolist(),
+                    size=tick_size * 0.3 * len(axis_label),
+                )
+            )
 
         return labels_group

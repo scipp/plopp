@@ -133,9 +133,11 @@ def test_vmax():
 
 def test_vmin_vmax():
     da = data_array(ndim=1)
-    fig = FigLine(input_node(da),
-                  vmin=sc.scalar(-0.5, unit='m/s'),
-                  vmax=sc.scalar(0.68, unit='m/s'))
+    fig = FigLine(
+        input_node(da),
+        vmin=sc.scalar(-0.5, unit='m/s'),
+        vmax=sc.scalar(0.68, unit='m/s'),
+    )
     assert np.allclose(fig.canvas.yrange, [-0.5, 0.68])
 
 
@@ -191,10 +193,14 @@ def test_converts_new_data_coordinate_units():
 
 
 def test_converts_new_data_units_integers():
-    a = sc.DataArray(data=sc.array(dims=['x'], values=[1, 2, 3, 4, 5], unit='m'),
-                     coords={'x': sc.arange('x', 5., unit='s')})
-    b = sc.DataArray(data=sc.array(dims=['x'], values=[10, 20, 30, 40, 50], unit='cm'),
-                     coords={'x': sc.arange('x', 5., unit='s')})
+    a = sc.DataArray(
+        data=sc.array(dims=['x'], values=[1, 2, 3, 4, 5], unit='m'),
+        coords={'x': sc.arange('x', 5.0, unit='s')},
+    )
+    b = sc.DataArray(
+        data=sc.array(dims=['x'], values=[10, 20, 30, 40, 50], unit='cm'),
+        coords={'x': sc.arange('x', 5.0, unit='s')},
+    )
     anode = input_node(a)
     bnode = input_node(b)
     fig = FigLine(anode, bnode)

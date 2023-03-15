@@ -32,14 +32,15 @@ class Canvas:
         Add axes to host a colorbar if ``True``.
     """
 
-    def __init__(self,
-                 figsize: Tuple[float, float] = None,
-                 title: str = None,
-                 vmin: Union[sc.Variable, int, float] = None,
-                 vmax: Union[sc.Variable, int, float] = None,
-                 cbar: bool = False,
-                 **ignored):
-
+    def __init__(
+        self,
+        figsize: Tuple[float, float] = None,
+        title: str = None,
+        vmin: Union[sc.Variable, int, float] = None,
+        vmax: Union[sc.Variable, int, float] = None,
+        cbar: bool = False,
+        **ignored,
+    ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
         # creates both the canvas and an artist object (Line or Image). The figure
         # accepts keyword arguments, and has to somehow forward them to the canvas and
@@ -50,25 +51,26 @@ class Canvas:
         # artist, and filter out the artist kwargs with `**ignored`.
 
         import plotly.graph_objects as go
+
         self.fig = go.FigureWidget(
             layout={
                 'modebar_remove': [
-                    'zoom', 'pan', 'select', 'toImage', 'zoomIn', 'zoomOut',
-                    'autoScale', 'resetScale', 'lasso2d'
+                    'zoom',
+                    'pan',
+                    'select',
+                    'toImage',
+                    'zoomIn',
+                    'zoomOut',
+                    'autoScale',
+                    'resetScale',
+                    'lasso2d',
                 ],
-                'margin': {
-                    'l': 0,
-                    'r': 0,
-                    't': 0 if title is None else 40,
-                    'b': 0
-                },
-                'dragmode':
-                False,
-                'width':
-                600 if figsize is None else figsize[0],
-                'height':
-                400 if figsize is None else figsize[1]
-            })
+                'margin': {'l': 0, 'r': 0, 't': 0 if title is None else 40, 'b': 0},
+                'dragmode': False,
+                'width': 600 if figsize is None else figsize[0],
+                'height': 400 if figsize is None else figsize[1],
+            }
+        )
         self.figsize = figsize
         self._user_vmin = vmin
         self._user_vmax = vmax
@@ -89,12 +91,15 @@ class Canvas:
         ymax = None
         if (self._user_vmin is not None) or (self._user_vmax is not None):
             if None in (self._user_vmin, self._user_vmax):
-                raise ValueError('With the Plotly backend, you have to specify both '
-                                 'vmin and vmax.')
+                raise ValueError(
+                    'With the Plotly backend, you have to specify both '
+                    'vmin and vmax.'
+                )
             ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
             ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
-            self.fig.update_layout(yaxis={'autorange': False},
-                                   xaxis={'autorange': True})
+            self.fig.update_layout(
+                yaxis={'autorange': False}, xaxis={'autorange': True}
+            )
             self.fig.update_yaxes(range=[ymin, ymax])
         else:
             self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
@@ -127,10 +132,13 @@ class Canvas:
             Min and max limits for each dimension to be cropped.
         """
         for xy, lims in limits.items():
-            getattr(self.fig, f'update_{xy}axes')(range=[
-                maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
-                for m in ('min', 'max') if m in lims
-            ])
+            getattr(self.fig, f'update_{xy}axes')(
+                range=[
+                    maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
+                    for m in ('min', 'max')
+                    if m in lims
+                ]
+            )
 
     @property
     def title(self) -> str:

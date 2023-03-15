@@ -42,12 +42,14 @@ def add_buttons(
     l1.append({"type": "link", "text": "scippneutron", "url": f"{base}/scippneutron"})
     l1.append({"type": "link", "text": "ess", "url": f"{base}/ess"})
     header_buttons = context["header_buttons"]
-    header_buttons.append({
-        "type": "group",
-        "buttons": l1,
-        "icon": "fa fa-caret-down",
-        "text": "Related projects"
-    })
+    header_buttons.append(
+        {
+            "type": "group",
+            "buttons": l1,
+            "icon": "fa fa-caret-down",
+            "text": "Related projects",
+        }
+    )
     releases = version_info.minor_releases(first='0.1')
     if outdated:
         current = f"{long_version} (outdated)"
@@ -59,17 +61,12 @@ def add_buttons(
         entries = releases[1:]
     lines = [{"type": "link", "text": latest, "url": f"{base}/{project}"}]
     for r in entries:
-        lines.append({
-            "type": "link",
-            "text": f"{r}",
-            "url": f"{base}/{project}/release/{r}"
-        })
-    header_buttons.append({
-        "type": "group",
-        "buttons": lines,
-        "icon": "fa fa-caret-down",
-        "text": current
-    })
+        lines.append(
+            {"type": "link", "text": f"{r}", "url": f"{base}/{project}/release/{r}"}
+        )
+    header_buttons.append(
+        {"type": "group", "buttons": lines, "icon": "fa fa-caret-down", "text": current}
+    )
 
 
 sphinx_book_theme.add_launch_buttons = add_buttons
@@ -105,7 +102,7 @@ intersphinx_mapping = {
     'numpy': ('https://numpy.org/doc/stable/', None),
     'scipp': ('https://scipp.github.io/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/', None),
-    'xarray': ('https://xarray.pydata.org/en/stable/', None)
+    'xarray': ('https://xarray.pydata.org/en/stable/', None),
 }
 
 # autodocs includes everything, even irrelevant API internals. autosummary
@@ -192,7 +189,8 @@ if outdated:
         f"⚠️ You are viewing the documentation for an old version of {project}. "
         f"Switch to <a href='https://scipp.github.io/{project}' "
         "style='color:white;text-decoration:underline;'"
-        ">latest</a> version. ⚠️")
+        ">latest</a> version. ⚠️"
+    )
 
 html_logo = "_static/logo.svg"
 html_favicon = "_static/favicon.ico"
@@ -230,8 +228,15 @@ man_pages = [(master_doc, 'scipp', u'scipp Documentation', [author], 1)]
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'scipp', u'scipp Documentation', author, 'scipp',
-     'One line description of project.', 'Miscellaneous'),
+    (
+        master_doc,
+        'scipp',
+        u'scipp Documentation',
+        author,
+        'scipp',
+        'One line description of project.',
+        'Miscellaneous',
+    ),
 ]
 
 # -- Options for Matplotlib in notebooks ----------------------------------
@@ -249,9 +254,12 @@ import scipp as sc
 
 # Using normalize whitespace because many __str__ functions in scipp produce
 # extraneous empty lines and it would look strange to include them in the docs.
-doctest_default_flags = doctest.ELLIPSIS | doctest.IGNORE_EXCEPTION_DETAIL | \
-                        doctest.DONT_ACCEPT_TRUE_FOR_1 | \
-                        doctest.NORMALIZE_WHITESPACE
+doctest_default_flags = (
+    doctest.ELLIPSIS
+    | doctest.IGNORE_EXCEPTION_DETAIL
+    | doctest.DONT_ACCEPT_TRUE_FOR_1
+    | doctest.NORMALIZE_WHITESPACE
+)
 
 # -- Options for linkcheck ------------------------------------------------
 
@@ -261,14 +269,19 @@ linkcheck_ignore = [
 ]
 
 # -- Options for nbsphinx gallery------------------------------------------
-
+notebook_root = os.path.join('examples', 'gallery')
+thumbnail_root = os.path.join('_static', 'gallery')
 nbsphinx_thumbnails = {
-    'examples/gallery/nyc-taxi':
-    '_static/gallery/nyc-taxi-thumbnail.png',
-    'examples/gallery/masking-a-range':
-    '_static/gallery/masking-a-range-thumbnail.png',
-    'examples/gallery/rectangle-selection':
-    '_static/gallery/rectangle-selection-thumbnail.png',
-    'examples/gallery/scatter3d-with-threshold':
-    '_static/gallery/scatter3d-with-threshold-thumbnail.png',
+    os.path.join(notebook_root, 'nyc-taxi'): os.path.join(
+        thumbnail_root, 'nyc-taxi-thumbnail.png'
+    ),
+    os.path.join(notebook_root, 'masking-a-range'): os.path.join(
+        thumbnail_root, 'masking-a-range-thumbnail.png'
+    ),
+    os.path.join(notebook_root, 'rectangle-selection'): os.path.join(
+        thumbnail_root, 'rectangle-selection-thumbnail.png'
+    ),
+    os.path.join(notebook_root, 'scatter3d-with-threshold'): os.path.join(
+        thumbnail_root, 'scatter3d-with-threshold-thumbnail.png'
+    ),
 }

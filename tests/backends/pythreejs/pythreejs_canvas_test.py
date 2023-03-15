@@ -10,9 +10,11 @@ from plopp.backends.pythreejs.outline import Outline
 
 
 def _make_limits():
-    return (sc.array(dims=['x'], values=[1.5, 3.5],
-                     unit='m'), sc.array(dims=['y'], values=[-5.0, 5.0], unit='m'),
-            sc.array(dims=['z'], values=[-0.1, 17.0], unit='m'))
+    return (
+        sc.array(dims=['x'], values=[1.5, 3.5], unit='m'),
+        sc.array(dims=['y'], values=[-5.0, 5.0], unit='m'),
+        sc.array(dims=['z'], values=[-0.1, 17.0], unit='m'),
+    )
 
 
 def test_creation():
@@ -20,7 +22,8 @@ def test_creation():
     assert canvas.renderer.width == 700
     assert canvas.renderer.height == 450
     assert all(
-        [canvas.camera, canvas.scene, canvas.controls, canvas.renderer, canvas.axes_3d])
+        [canvas.camera, canvas.scene, canvas.controls, canvas.renderer, canvas.axes_3d]
+    )
     assert canvas.outline is None
 
 

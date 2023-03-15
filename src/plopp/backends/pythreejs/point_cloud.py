@@ -10,9 +10,11 @@ import scipp as sc
 
 def _check_ndim(data):
     if data.ndim != 1:
-        raise ValueError('PointCloud only accepts one dimensional data, '
-                         f'found {data.ndim} dimensions. You should flatten your data '
-                         '(using scipp.flatten) before sending it to the point cloud.')
+        raise ValueError(
+            'PointCloud only accepts one dimensional data, '
+            f'found {data.ndim} dimensions. You should flatten your data '
+            '(using scipp.flatten) before sending it to the point cloud.'
+        )
 
 
 class PointCloud:
@@ -35,14 +37,16 @@ class PointCloud:
         The opacity of the points.
     """
 
-    def __init__(self,
-                 *,
-                 x: str,
-                 y: str,
-                 z: str,
-                 data: sc.DataArray,
-                 pixel_size: Union[sc.Variable, float, int] = 1,
-                 opacity: float = 1):
+    def __init__(
+        self,
+        *,
+        x: str,
+        y: str,
+        z: str,
+        data: sc.DataArray,
+        pixel_size: Union[sc.Variable, float, int] = 1,
+        opacity: float = 1,
+    ):
         """
         Make a point cloud using pythreejs
         """
@@ -61,32 +65,42 @@ class PointCloud:
                 raise ValueError(
                     f'The supplied pixel_size has unit {self._pixel_size.unit}, but '
                     'the spatial coordinates do not all have the same units. In this '
-                    'case the pixel_size should just be a float with no unit.')
+                    'case the pixel_size should just be a float with no unit.'
+                )
             else:
                 self._pixel_size = self._pixel_size.to(
-                    dtype=float, unit=self._data.meta[x].unit).value
+                    dtype=float, unit=self._data.meta[x].unit
+                ).value
 
         self.geometry = p3.BufferGeometry(
             attributes={
-                'position':
-                p3.BufferAttribute(array=np.array([
-                    self._data.meta[self._x].values.astype('float32'), self._data.meta[
-                        self._y].values.astype('float32'), self._data.meta[
-                            self._z].values.astype('float32')
-                ]).T),
-                'color':
-                p3.BufferAttribute(array=np.zeros(
-                    [self._data.meta[self._x].shape[0], 3], dtype='float32'))
-            })
+                'position': p3.BufferAttribute(
+                    array=np.array(
+                        [
+                            self._data.meta[self._x].values.astype('float32'),
+                            self._data.meta[self._y].values.astype('float32'),
+                            self._data.meta[self._z].values.astype('float32'),
+                        ]
+                    ).T
+                ),
+                'color': p3.BufferAttribute(
+                    array=np.zeros(
+                        [self._data.meta[self._x].shape[0], 3], dtype='float32'
+                    )
+                ),
+            }
+        )
 
         # TODO: a device pixel_ratio should probably be read from a config file
         pixel_ratio = 1.0
         # Note that an additional factor of 2.5 (obtained from trial and error) seems to
         # be required to get the sizes right in the scene.
-        self.material = p3.PointsMaterial(vertexColors='VertexColors',
-                                          size=2.5 * self._pixel_size * pixel_ratio,
-                                          transparent=True,
-                                          opacity=opacity)
+        self.material = p3.PointsMaterial(
+            vertexColors='VertexColors',
+            size=2.5 * self._pixel_size * pixel_ratio,
+            transparent=True,
+            opacity=opacity,
+        )
         self.points = p3.Points(geometry=self.geometry, material=self.material)
 
     def set_colors(self, rgba):
@@ -123,9 +137,11 @@ class PointCloud:
         dx = sc.scalar(half_pixel, unit=xcoord.unit)
         dy = sc.scalar(half_pixel, unit=ycoord.unit)
         dz = sc.scalar(half_pixel, unit=zcoord.unit)
-        return (sc.concat([xcoord.min() - dx, xcoord.max() + dx], dim=self._x),
-                sc.concat([ycoord.min() - dy, ycoord.max() + dy], dim=self._y),
-                sc.concat([zcoord.min() - dz, zcoord.max() + dz], dim=self._z))
+        return (
+            sc.concat([xcoord.min() - dx, xcoord.max() + dx], dim=self._x),
+            sc.concat([ycoord.min() - dy, ycoord.max() + dy], dim=self._y),
+            sc.concat([zcoord.min() - dz, zcoord.max() + dz], dim=self._z),
+        )
 
     @property
     def opacity(self):

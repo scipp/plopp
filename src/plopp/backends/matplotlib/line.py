@@ -42,7 +42,6 @@ class Line:
     """
 
     def __init__(self, canvas: Canvas, data: sc.DataArray, number: int = 0, **kwargs):
-
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
@@ -70,12 +69,14 @@ class Line:
 
         self._make_line(data=self._make_data(), number=number, **args)
 
-    def _make_line(self,
-                   data: Dict,
-                   number: int,
-                   errorbars: bool = True,
-                   mask_color: str = 'black',
-                   **kwargs):
+    def _make_line(
+        self,
+        data: Dict,
+        number: int,
+        errorbars: bool = True,
+        mask_color: str = 'black',
+        **kwargs,
+    ):
         """
         Create either plot markers or a step function, depending on whether the data
         contains bin edges or not.
@@ -101,25 +102,24 @@ class Line:
         default_step_style = {
             'linestyle': 'solid',
             'linewidth': 1.5,
-            'color': f'C{number}'
+            'color': f'C{number}',
         }
         markers = list(Line2D.markers.keys())
         default_plot_style = {
             'linestyle': 'none',
             'linewidth': 1.5,
             'marker': markers[(number + 2) % len(markers)],
-            'color': f'C{number}'
+            'color': f'C{number}',
         }
 
         if data["hist"]:
-            self._line = self._ax.step(data['values']['x'],
-                                       data['values']['y'],
-                                       label=self.label,
-                                       zorder=10,
-                                       **{
-                                           **default_step_style,
-                                           **kwargs
-                                       })[0]
+            self._line = self._ax.step(
+                data['values']['x'],
+                data['values']['y'],
+                label=self.label,
+                zorder=10,
+                **{**default_step_style, **kwargs},
+            )[0]
 
             self._mask = self._ax.step(data['mask']['x'], data['mask']['y'])[0]
             self._mask.update_from(self._line)
@@ -129,32 +129,35 @@ class Line:
             self._mask.set_zorder(self._mask.get_zorder() - 1)
             self._mask.set_visible(data['mask']['visible'])
         else:
-            self._line = self._ax.plot(data['values']['x'],
-                                       data['values']['y'],
-                                       label=self.label,
-                                       zorder=10,
-                                       **{
-                                           **default_plot_style,
-                                           **kwargs
-                                       })[0]
-            self._mask = self._ax.plot(data['mask']['x'],
-                                       data['mask']['y'],
-                                       zorder=11,
-                                       mec=mask_color,
-                                       mfc="None",
-                                       mew=3.0,
-                                       linestyle="none",
-                                       marker=self._line.get_marker(),
-                                       visible=data['mask']['visible'])[0]
+            self._line = self._ax.plot(
+                data['values']['x'],
+                data['values']['y'],
+                label=self.label,
+                zorder=10,
+                **{**default_plot_style, **kwargs},
+            )[0]
+            self._mask = self._ax.plot(
+                data['mask']['x'],
+                data['mask']['y'],
+                zorder=11,
+                mec=mask_color,
+                mfc="None",
+                mew=3.0,
+                linestyle="none",
+                marker=self._line.get_marker(),
+                visible=data['mask']['visible'],
+            )[0]
 
         # Add error bars
         if errorbars and (data['stddevs'] is not None):
-            self._error = self._ax.errorbar(data['stddevs']['x'],
-                                            data['stddevs']['y'],
-                                            yerr=data['stddevs']['e'],
-                                            color=self._line.get_color(),
-                                            zorder=10,
-                                            fmt="none")
+            self._error = self._ax.errorbar(
+                data['stddevs']['x'],
+                data['stddevs']['y'],
+                yerr=data['stddevs']['e'],
+                color=self._line.get_color(),
+                zorder=10,
+                fmt="none",
+            )
 
         if self.label:
             self._ax.legend()
@@ -169,27 +172,24 @@ class Line:
             error = {
                 'x': sc.midpoints(x).values if hist else x.values,
                 'y': y.values,
-                'e': sc.stddevs(y).values
+                'e': sc.stddevs(y).values,
             }
         if len(self._data.masks):
             one_mask = merge_masks(self._data.masks).values
             mask = {
                 'x': x.values,
                 'y': np.where(one_mask, y.values, np.nan),
-                'visible': True
+                'visible': True,
             }
         if hist:
             y = sc.concat([y[0:1], y], dim=self._dim)
             if mask is not None:
                 mask['y'] = np.concatenate([mask['y'][0:1], mask['y']])
         return {
-            'values': {
-                'x': x.values,
-                'y': y.values
-            },
+            'values': {'x': x.values, 'y': y.values},
             'stddevs': error,
             'mask': mask,
-            'hist': hist
+            'hist': hist,
         }
 
     def update(self, new_values: sc.DataArray):
@@ -214,9 +214,12 @@ class Line:
         if (self._error is not None) and (new_values['stddevs'] is not None):
             coll = self._error.get_children()[0]
             coll.set_segments(
-                self._change_segments_y(new_values['stddevs']['x'],
-                                        new_values['stddevs']['y'],
-                                        new_values['stddevs']['e']))
+                self._change_segments_y(
+                    new_values['stddevs']['x'],
+                    new_values['stddevs']['y'],
+                    new_values['stddevs']['e'],
+                )
+            )
 
     def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
         """

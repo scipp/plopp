@@ -5,7 +5,6 @@ from plopp import View
 
 
 class SimpleView(View):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.value = None
@@ -15,7 +14,6 @@ class SimpleView(View):
 
 
 class DataView(View):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.data = None

@@ -27,24 +27,29 @@ class Checkboxes(ipw.HBox):
         self.description = ipw.Label(value=description)
 
         for key in entries:
-            self.checkboxes[key] = ipw.Checkbox(value=value,
-                                                description=f"{escape(key)}",
-                                                indent=False,
-                                                layout={"width": "initial"})
+            self.checkboxes[key] = ipw.Checkbox(
+                value=value,
+                description=f"{escape(key)}",
+                indent=False,
+                layout={"width": "initial"},
+            )
 
         to_hbox = [
             self.description,
-            ipw.HBox(list(self.checkboxes.values()),
-                     layout=ipw.Layout(flex_flow='row wrap'))
+            ipw.HBox(
+                list(self.checkboxes.values()), layout=ipw.Layout(flex_flow='row wrap')
+            ),
         ]
 
         if len(self.checkboxes) > 1:
             # Add a master button to control all masks in one go
-            self.toggle_all_button = ipw.ToggleButton(value=value,
-                                                      description="Toggle all",
-                                                      disabled=False,
-                                                      button_style="",
-                                                      layout={"width": "initial"})
+            self.toggle_all_button = ipw.ToggleButton(
+                value=value,
+                description="Toggle all",
+                disabled=False,
+                button_style="",
+                layout={"width": "initial"},
+            )
             for cbox in self.checkboxes.values():
                 ipw.jsdlink((self.toggle_all_button, 'value'), (cbox, 'value'))
             to_hbox.insert(1, self.toggle_all_button)

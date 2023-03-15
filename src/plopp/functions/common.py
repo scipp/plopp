@@ -16,13 +16,16 @@ def require_interactive_backend(func: str):
     Raise an error if the current backend in use is non-interactive.
     """
     if not backends.is_interactive():
-        raise RuntimeError(f"The {func} can only be used with an interactive backend "
-                           "backend. Use `%matplotlib widget` at the start of your "
-                           "notebook.")
+        raise RuntimeError(
+            f"The {func} can only be used with an interactive backend "
+            "backend. Use `%matplotlib widget` at the start of your "
+            "notebook."
+        )
 
 
 def _to_data_array(
-        obj: Union[list, np.ndarray, sc.Variable, sc.DataArray]) -> sc.DataArray:
+    obj: Union[list, np.ndarray, sc.Variable, sc.DataArray]
+) -> sc.DataArray:
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
     missing.
@@ -61,9 +64,11 @@ def _check_size(da: sc.DataArray):
     if da.ndim not in limits:
         raise ValueError("plot can only handle 1d and 2d data.")
     if np.prod(da.shape) > limits[da.ndim]:
-        raise ValueError(f"Plotting data of size {da.shape} may take very long or use "
-                         "an excessive amount of memory. This is therefore disabled by "
-                         "default. To bypass this check, use `ignore_size=True`.")
+        raise ValueError(
+            f"Plotting data of size {da.shape} may take very long or use "
+            "an excessive amount of memory. This is therefore disabled by "
+            "default. To bypass this check, use `ignore_size=True`."
+        )
 
 
 def check_not_binned(obj):
@@ -73,18 +78,21 @@ def check_not_binned(obj):
             "Cannot plot binned data, it must be histogrammed first, "
             f"e.g., using ``obj.hist()`` or obj.hist({params})``."
             "See https://scipp.github.io/generated/functions/scipp.hist.html for "
-            "more details.")
+            "more details."
+        )
 
 
 def _all_dims_sorted(var, order='ascending'):
     return all([sc.allsorted(var, dim, order=order) for dim in var.dims])
 
 
-def preprocess(obj: Union[np.ndarray, sc.Variable, sc.DataArray],
-               crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
-               name: str = '',
-               ignore_size: bool = False,
-               coords: Optional[List[str]] = None):
+def preprocess(
+    obj: Union[np.ndarray, sc.Variable, sc.DataArray],
+    crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
+    name: str = '',
+    ignore_size: bool = False,
+    coords: Optional[List[str]] = None,
+):
     """
     Pre-process input data for plotting.
     This involves:
@@ -122,7 +130,7 @@ def preprocess(obj: Union[np.ndarray, sc.Variable, sc.DataArray],
         smax = _to_variable_if_not_none(sl.get('max'), unit=out.meta[dim].unit)
         start = max(out[dim, :smin].sizes[dim] - 1, 0)
         width = out[dim, smin:smax].sizes[dim]
-        out = out[dim, start:start + width + 2]
+        out = out[dim, start : start + width + 2]
     if not ignore_size:
         _check_size(out)
     if coords is not None:
@@ -136,14 +144,17 @@ def preprocess(obj: Union[np.ndarray, sc.Variable, sc.DataArray],
     for name, coord in out.coords.items():
         if coord.ndim > 0:
             try:
-                if not (_all_dims_sorted(coord, order='ascending')
-                        or _all_dims_sorted(coord, order='descending')):
+                if not (
+                    _all_dims_sorted(coord, order='ascending')
+                    or _all_dims_sorted(coord, order='descending')
+                ):
                     warnings.warn(
                         'The input contains a coordinate with unsorted values '
                         f'({name}). The results may be unpredictable. '
                         'Coordinates can be sorted using '
                         '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
-                        UserWarning)
+                        UserWarning,
+                    )
             except sc.DTypeError:
                 pass
     return out

@@ -13,8 +13,9 @@ def test_creation():
     da = scatter()
     cloud = PointCloud(data=da, x='x', y='y', z='z')
     assert sc.identical(cloud._data, da)
-    assert np.allclose(cloud.geometry.attributes['position'].array,
-                       da.coords['position'].values)
+    assert np.allclose(
+        cloud.geometry.attributes['position'].array, da.coords['position'].values
+    )
 
 
 def test_update():
@@ -41,7 +42,7 @@ def test_get_limits():
 
 def test_get_limits_flat_panel():
     da = scatter()
-    da.coords['z'] *= 0.
+    da.coords['z'] *= 0.0
     pix = 0.5
     cloud = PointCloud(data=da, x='x', y='y', z='z', pixel_size=pix)
     xlims, ylims, zlims = cloud.get_limits()
@@ -68,11 +69,9 @@ def test_pixel_size():
 def test_pixel_size_unit_conversion():
     da = scatter()
     reference = PointCloud(data=da, x='x', y='y', z='z', pixel_size=1)
-    cloud = PointCloud(data=da,
-                       x='x',
-                       y='y',
-                       z='z',
-                       pixel_size=sc.scalar(350, unit='cm'))
+    cloud = PointCloud(
+        data=da, x='x', y='y', z='z', pixel_size=sc.scalar(350, unit='cm')
+    )
     assert cloud.material.size == 3.5 * reference.material.size
     with pytest.raises(sc.UnitError):
         PointCloud(data=da, x='x', y='y', z='z', pixel_size=sc.scalar(350, unit='s'))
@@ -94,8 +93,9 @@ def test_pixel_size_cannot_have_units_when_spatial_dimensions_have_different_uni
 def test_creation_raises_when_data_is_not_1d():
     da = scatter()
     da2d = sc.broadcast(da, sizes={**da.sizes, **{'time': 10}})
-    with pytest.raises(ValueError,
-                       match='PointCloud only accepts one dimensional data'):
+    with pytest.raises(
+        ValueError, match='PointCloud only accepts one dimensional data'
+    ):
         PointCloud(data=da2d, x='x', y='y', z='z')
 
 
@@ -103,6 +103,7 @@ def test_update_raises_when_data_is_not_1d():
     da = scatter()
     cloud = PointCloud(data=da, x='x', y='y', z='z')
     da2d = sc.broadcast(da, sizes={**da.sizes, **{'time': 10}})
-    with pytest.raises(ValueError,
-                       match='PointCloud only accepts one dimensional data'):
+    with pytest.raises(
+        ValueError, match='PointCloud only accepts one dimensional data'
+    ):
         cloud.update(da2d)

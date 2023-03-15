@@ -92,16 +92,18 @@ class Cut3dTool(ipw.HBox):
         The kwargs are forwarded to the ToggleButton from ``ipywidgets``.
     """
 
-    def __init__(self,
-                 view: View,
-                 limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
-                 direction: Literal['x', 'y', 'z'],
-                 value: bool = False,
-                 color: str = 'red',
-                 linewidth: float = 1.5,
-                 **kwargs):
-
+    def __init__(
+        self,
+        view: View,
+        limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
+        direction: Literal['x', 'y', 'z'],
+        value: bool = False,
+        color: str = 'red',
+        linewidth: float = 1.5,
+        **kwargs,
+    ):
         import pythreejs as p3
+
         self._limits = limits
         self._direction = direction
         axis = 'xyz'.index(self._direction)
@@ -115,9 +117,11 @@ class Cut3dTool(ipw.HBox):
         height = (self._limits[h_axis][1] - self._limits[h_axis][0]).value
 
         self.outline = p3.LineSegments(
-            geometry=p3.EdgesGeometry(p3.PlaneBufferGeometry(width=width,
-                                                             height=height)),
-            material=p3.LineBasicMaterial(color=color, linewidth=linewidth))
+            geometry=p3.EdgesGeometry(
+                p3.PlaneBufferGeometry(width=width, height=height)
+            ),
+            material=p3.LineBasicMaterial(color=color, linewidth=linewidth),
+        )
         if self._direction == 'x':
             self.outline.rotateY(0.5 * np.pi)
         if self._direction == 'y':
@@ -131,32 +135,33 @@ class Cut3dTool(ipw.HBox):
         self._thickness_step = self.thickness * 0.25
 
         self.button = ipw.ToggleButton(value=value, **kwargs)
-        self.slider = ipw.FloatSlider(min=limits[axis][0].value,
-                                      max=limits[axis][1].value,
-                                      value=center[axis],
-                                      layout={
-                                          'width': '150px',
-                                          'padding': '0px'
-                                      },
-                                      disabled=not value,
-                                      readout=False)
+        self.slider = ipw.FloatSlider(
+            min=limits[axis][0].value,
+            max=limits[axis][1].value,
+            value=center[axis],
+            layout={'width': '150px', 'padding': '0px'},
+            disabled=not value,
+            readout=False,
+        )
         self.slider.step = (self.slider.max - self.slider.min) * self.thickness * 0.5
-        self.readout = ipw.FloatText(layout={'width': '70px'},
-                                     step=self.slider.step,
-                                     disabled=not value)
+        self.readout = ipw.FloatText(
+            layout={'width': '70px'}, step=self.slider.step, disabled=not value
+        )
         self.unit_label = ipw.Label(f'[{self._unit}]')
         ipw.jslink((self.slider, "value"), (self.readout, "value"))
 
-        self.plus_minus = PlusMinusTool(plus={
-            'callback': self.increase_thickness,
-            'tooltip': 'Increase cut thickness',
-            'disabled': not value
-        },
-                                        minus={
-                                            'callback': self.decrease_thickness,
-                                            'tooltip': 'Decrease cut thickness',
-                                            'disabled': not value
-                                        })
+        self.plus_minus = PlusMinusTool(
+            plus={
+                'callback': self.increase_thickness,
+                'tooltip': 'Increase cut thickness',
+                'disabled': not value,
+            },
+            minus={
+                'callback': self.decrease_thickness,
+                'tooltip': 'Decrease cut thickness',
+                'disabled': not value,
+            },
+        )
 
         self.button.observe(self.toggle, names='value')
         self.slider.observe(self.move, names='value')
@@ -165,12 +170,15 @@ class Cut3dTool(ipw.HBox):
         self._nodes = list(self._view.graph_nodes.values())
         self.select_nodes = {}
 
-        super().__init__([
-            ipw.VBox([self.button, self.plus_minus]),
-            ipw.VBox(
-                [self.slider, ipw.HBox([self.readout, self.unit_label])],
-                layout={'align_items': 'center'})
-        ])
+        super().__init__(
+            [
+                ipw.VBox([self.button, self.plus_minus]),
+                ipw.VBox(
+                    [self.slider, ipw.HBox([self.readout, self.unit_label])],
+                    layout={'align_items': 'center'},
+                ),
+            ]
+        )
 
     def toggle(self, change: Dict[str, Any]):
         """
@@ -204,8 +212,9 @@ class Cut3dTool(ipw.HBox):
 
         for n in self._nodes:
             da = n.request_data()
-            delta = sc.scalar((self.slider.max - self.slider.min) * self.thickness,
-                              unit=self._unit)
+            delta = sc.scalar(
+                (self.slider.max - self.slider.min) * self.thickness, unit=self._unit
+            )
             pos = sc.scalar(self.slider.value, unit=self._unit)
             selection = sc.abs(da.meta[self._dim] - pos) < delta
             if selection.sum().value > 0:
@@ -271,41 +280,46 @@ class TriCutTool(ipw.HBox):
     """
 
     def __init__(self, fig: View):
-
         self._fig = fig
         limits = self._fig.get_limits()
-        self.cut_x = Cut3dTool(view=self._fig,
-                               direction='x',
-                               limits=limits,
-                               description='X',
-                               icon='cube',
-                               **BUTTON_LAYOUT)
-        self.cut_y = Cut3dTool(view=self._fig,
-                               direction='y',
-                               limits=limits,
-                               description='Y',
-                               icon='cube',
-                               **BUTTON_LAYOUT)
-        self.cut_z = Cut3dTool(view=self._fig,
-                               direction='z',
-                               limits=limits,
-                               description='Z',
-                               icon='cube',
-                               **BUTTON_LAYOUT)
+        self.cut_x = Cut3dTool(
+            view=self._fig,
+            direction='x',
+            limits=limits,
+            description='X',
+            icon='cube',
+            **BUTTON_LAYOUT,
+        )
+        self.cut_y = Cut3dTool(
+            view=self._fig,
+            direction='y',
+            limits=limits,
+            description='Y',
+            icon='cube',
+            **BUTTON_LAYOUT,
+        )
+        self.cut_z = Cut3dTool(
+            view=self._fig,
+            direction='z',
+            limits=limits,
+            description='Z',
+            icon='cube',
+            **BUTTON_LAYOUT,
+        )
 
         self._fig.canvas.add(
-            [self.cut_x.outline, self.cut_y.outline, self.cut_z.outline])
+            [self.cut_x.outline, self.cut_y.outline, self.cut_z.outline]
+        )
 
-        self.opacity = ipw.BoundedFloatText(min=0,
-                                            max=0.5,
-                                            step=0.01,
-                                            disabled=True,
-                                            value=0.03,
-                                            style={'description_width': 'initial'},
-                                            layout={
-                                                'width': '50px',
-                                                'padding': '0px 0px 0px 0px'
-                                            })
+        self.opacity = ipw.BoundedFloatText(
+            min=0,
+            max=0.5,
+            step=0.01,
+            disabled=True,
+            value=0.03,
+            style={'description_width': 'initial'},
+            layout={'width': '50px', 'padding': '0px 0px 0px 0px'},
+        )
         self.opacity.observe(self._set_opacity, names='value')
 
         self.cut_x.button.observe(self._toggle_opacity, names='value')
@@ -313,10 +327,17 @@ class TriCutTool(ipw.HBox):
         self.cut_z.button.observe(self._toggle_opacity, names='value')
 
         space = ipw.HBox([], layout={'width': '10px'})
-        super().__init__([
-            self.cut_x, space, self.cut_y, space, self.cut_z, space,
-            ipw.VBox([ipw.Label('Opacity:'), self.opacity])
-        ])
+        super().__init__(
+            [
+                self.cut_x,
+                space,
+                self.cut_y,
+                space,
+                self.cut_z,
+                space,
+                ipw.VBox([ipw.Label('Opacity:'), self.opacity]),
+            ]
+        )
         self.layout.display = 'none'
 
     def _toggle_opacity(self, _):
