@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from collections.abc import Sequence
-from typing import Union
+# TODO: Change Sequence to collections.abc.Sequence when we drop support for Python 3.8
+
+from typing import Sequence, Union
 
 from scipp import Variable
 
