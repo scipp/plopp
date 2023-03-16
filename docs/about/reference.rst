@@ -85,6 +85,14 @@ Backends
    reference/plotly
    reference/pythreejs
 
+Custom types
+============
+
+.. autosummary::
+   :toctree: generated
+
+   core.customtypes.Camera
+
 Other
 =====
 

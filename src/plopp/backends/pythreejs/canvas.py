@@ -2,11 +2,13 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Optional, Tuple
 
 import ipywidgets as ipw
 import numpy as np
 import scipp as sc
+
+from ...core.customtypes import Camera
 
 
 class Canvas:
@@ -25,25 +27,14 @@ class Canvas:
         The title to be placed above the figure. It is possible to use HTML formatting
         to customize the title appearance.
     camera:
-        Camera configuration, in the form of a dict. Valid entries are:
-        - ``'position'``: the position of the camera, as a ``sc.vector`` or a list of
-          3 numbers
-        - ``'look_at'``: the point the camera is looking at, as a ``sc.vector`` or a
-          list of 3 numbers
-        - ``'near'``: the distance to the near clipping plane (how close to the camera
-          objects can be before they disappear), as a ``sc.scalar`` or a single number
-        - ``'far'``: the distance to the far clipping plane (how far from the camera
-          objects can be before they disappear), as a ``sc.scalar`` or a single number
-        If values are provided as raw numbers instead of Scipp variables, their unit
-        will be assumed to be the same as the unit of the ``x``, ``y``, and ``z``
-        coordinates.
+        Initial camera configuration (position, target).
     """
 
     def __init__(
         self,
         figsize: Tuple[int, int] = (600, 400),
         title: Optional[str] = None,
-        camera: Optional[Dict[str, Union[float, Tuple[float, ...]]]] = None,
+        camera: Optional[Camera] = None,
     ):
         import pythreejs as p3
 
@@ -56,7 +47,9 @@ class Canvas:
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
-        self._raw_user_camera = camera if camera is not None else {}
+        self._raw_user_camera = Camera(
+            **(camera if camera is not None else {})
+        ).asdict()
         self._user_camera = None
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
