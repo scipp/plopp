@@ -7,7 +7,7 @@ from typing import Literal, Optional, Tuple, Union
 import scipp as sc
 
 from ..core import input_node
-from ..core.customtypes import Camera
+from ..graphics import Camera
 from .common import check_not_binned
 
 
@@ -87,10 +87,8 @@ def scatter3d(
 
     if pos is not None:
         if any((x, y, z)):
-            raise ValueError(
-                f'If pos ({pos}) is defined, all of '
-                f'x ({x}), y ({y}), and z ({z}) must be None.'
-            )
+            raise ValueError(f'If pos ({pos}) is defined, all of '
+                             f'x ({x}), y ({y}), and z ({z}) must be None.')
         coords = {
             (x := f'{pos}.x'): da.meta[pos].fields.x,
             (y := f'{pos}.y'): da.meta[pos].fields.y,

@@ -8,7 +8,9 @@ from typing import Dict, Optional, Union
 import scipp as sc
 
 
-def coord_as_bin_edges(da: sc.DataArray, key: str, dim: str = None) -> sc.Variable:
+def coord_as_bin_edges(da: sc.DataArray,
+                       key: str,
+                       dim: str = None) -> sc.Variable:
     """
     If coordinate ``key`` in DataArray ``da`` is already bin edges, return it unchanged.
     If it is midpoints, return as bin edges.
@@ -64,26 +66,30 @@ def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
     new_dims.insert(index, dummy_dim)
     new_shape = list(x.shape)
     new_shape.insert(index, n)
-    return x.broadcast(dims=new_dims, shape=new_shape).flatten(
-        dims=[dim, dummy_dim], to=dim
-    )
+    return x.broadcast(dims=new_dims,
+                       shape=new_shape).flatten(dims=[dim, dummy_dim], to=dim)
 
 
-def number_to_variable(x: Union[int, float, sc.Variable], unit: str) -> sc.Variable:
+def maybe_number_to_variable(x: Union[int, float, sc.Variable],
+                             unit: Optional[str] = None) -> sc.Variable:
     """
-    Convert the input int or float to a variable.
+    If the input is a raw number, convert to a variable.
+    If a unit is requested, perform the conversion to that unit before returning.
+    If the input is a variable, return it (potentially converted to the requested unit).
 
     Parameters
     ----------
     x:
         The input int or float.
+    unit:
+        The unit to use for the output variable.
     """
-    return sc.scalar(x, unit=unit) if isinstance(x, (int, float)) else x.to(unit=unit)
+    return sc.scalar(x, unit=unit) if isinstance(x, (int, float)) else (x.to(
+        unit=unit) if unit is not None else x)
 
 
-def maybe_variable_to_number(
-    x: Union[int, float, sc.Variable], unit=None
-) -> Union[int, float]:
+def maybe_variable_to_number(x: Union[int, float, sc.Variable],
+                             unit=None) -> Union[int, float]:
     """
     If the input is a variable, return its value.
     If a unit is requested, perform the conversion to that unit first.
@@ -138,9 +144,8 @@ def value_to_string(val: Union[int, float], precision: int = 3) -> str:
     """
     if (not isinstance(val, float)) or (val == 0):
         text = str(val)
-    elif (abs(val) >= 10.0 ** (precision + 1)) or (
-        abs(val) <= 10.0 ** (-precision - 1)
-    ):
+    elif (abs(val) >= 10.0**(precision + 1)) or (abs(val) <= 10.0
+                                                 **(-precision - 1)):
         text = "{val:.{prec}e}".format(val=val, prec=precision)
     else:
         text = "{}".format(val)
@@ -177,9 +182,10 @@ def coord_element_to_string(x: sc.Variable) -> str:
     return out
 
 
-def make_compatible(
-    x: sc.Variable, *, unit: Union[str, None], dim: Optional[str] = None
-):
+def make_compatible(x: sc.Variable,
+                    *,
+                    unit: Union[str, None],
+                    dim: Optional[str] = None):
     """
     Raise exception if the dimensions of the supplied variable do not contain the
     requested dimension.
@@ -197,14 +203,12 @@ def make_compatible(
     if (dim is not None) and (dim not in x.dims):
         raise sc.DimensionError(
             f'The supplied variable has dimension {x.dims} which is '
-            f'incompatible with the requested dimension {dim}.'
-        )
+            f'incompatible with the requested dimension {dim}.')
     if x.unit != unit:
         if unit is not None:
             return x.to(unit=unit, dtype=float)
         else:
             raise sc.UnitError(
                 f'The supplied variable has unit {x.unit} which is '
-                'incompatible with the requested unit None/<no unit>.'
-            )
+                'incompatible with the requested unit None/<no unit>.')
     return x

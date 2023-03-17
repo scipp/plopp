@@ -8,7 +8,7 @@ import ipywidgets as ipw
 import numpy as np
 import scipp as sc
 
-from ...core.customtypes import Camera
+from ...graphics import Camera
 
 
 class Canvas:
@@ -47,18 +47,16 @@ class Canvas:
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
-        self._raw_user_camera = Camera(
-            **(camera if camera is not None else {})
-        ).asdict()
-        self._user_camera = None
+        # self._raw_user_camera = Camera(
+        #     **(camera if camera is not None else {})).asdict()
+        self._user_camera = camera
 
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
         self.outline = None
-        self.scene = p3.Scene(
-            children=[self.camera, self.axes_3d], background="#f0f0f0"
-        )
+        self.scene = p3.Scene(children=[self.camera, self.axes_3d],
+                              background="#f0f0f0")
         self.controls = p3.OrbitControls(controlling=self.camera)
         self.renderer = p3.Renderer(
             camera=self.camera,
@@ -71,7 +69,8 @@ class Canvas:
     def to_widget(self):
         return self.renderer
 
-    def make_outline(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
+    def make_outline(self, limits: Tuple[sc.Variable, sc.Variable,
+                                         sc.Variable]):
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
@@ -89,21 +88,18 @@ class Canvas:
         for key in set(self._raw_user_camera) & set(('position', 'look_at')):
             if isinstance(self._raw_user_camera[key], sc.Variable):
                 if self.xunit == self.yunit == self.zunit:
-                    parsed_camera[key] = (
-                        self._raw_user_camera[key].to(unit=self.xunit).value.tolist()
-                    )
+                    parsed_camera[key] = (self._raw_user_camera[key].to(
+                        unit=self.xunit).value.tolist())
                 else:
                     parsed_camera[key] = tuple(
-                        getattr(self._raw_user_camera[key].fields, x).to(unit=u).value
-                        for x, u in zip('xyz', [self.xunit, self.yunit, self.zunit])
-                    )
+                        getattr(self._raw_user_camera[key].fields, x).to(
+                            unit=u).value for x, u in zip(
+                                'xyz', [self.xunit, self.yunit, self.zunit]))
             else:
                 parsed_camera[key] = tuple(
                     x.to(unit=u).value if isinstance(x, sc.Variable) else x
-                    for x, u in zip(
-                        self._raw_user_camera[key], [self.xunit, self.yunit, self.zunit]
-                    )
-                )
+                    for x, u in zip(self._raw_user_camera[key],
+                                    [self.xunit, self.yunit, self.zunit]))
 
         for key in set(self._raw_user_camera) & set(('near', 'far')):
             if isinstance(self._raw_user_camera[key], sc.Variable):
@@ -111,16 +107,15 @@ class Canvas:
                     raise sc.UnitError(
                         'All axes must have the same unit when specifying a clipping '
                         'plane with a unit. Units are: '
-                        f'{self.xunit}, {self.yunit}, {self.zunit}.'
-                    )
-                parsed_camera[key] = (
-                    self._raw_user_camera[key].to(unit=self.xunit).value
-                )
+                        f'{self.xunit}, {self.yunit}, {self.zunit}.')
+                parsed_camera[key] = (self._raw_user_camera[key].to(
+                    unit=self.xunit).value)
             else:
                 parsed_camera[key] = self._raw_user_camera[key]
         return parsed_camera
 
-    def _update_camera(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
+    def _update_camera(self, limits: Tuple[sc.Variable, sc.Variable,
+                                           sc.Variable]):
         """
         Update the camera position when a new object is added to the canvas.
         The camera will look at the mean position of all the objects, and its position
@@ -133,16 +128,17 @@ class Canvas:
 
         center = [var.mean().value for var in limits]
         distance_fudge_factor = 1.2
-        box_size = np.array([(limits[i][1] - limits[i][0]).value for i in range(3)])
+        box_size = np.array([(limits[i][1] - limits[i][0]).value
+                             for i in range(3)])
         self.camera.position = self._user_camera.get(
-            'position', list(np.array(center) + distance_fudge_factor * box_size)
-        )
-        camera_dist = np.linalg.norm(np.array(self.camera.position) - np.array(center))
+            'position',
+            list(np.array(center) + distance_fudge_factor * box_size))
+        camera_dist = np.linalg.norm(
+            np.array(self.camera.position) - np.array(center))
         box_mean_size = np.linalg.norm(box_size)
         self.camera.near = self._user_camera.get('near', 0.01 * box_mean_size)
         self.camera.far = self._user_camera.get(
-            'far', 5 * max(box_mean_size, camera_dist)
-        )
+            'far', 5 * max(box_mean_size, camera_dist))
         camera_lookat = tuple(self._user_camera.get('look_at', center))
         self.controls.target = camera_lookat
         self.camera.lookAt(camera_lookat)
@@ -171,27 +167,29 @@ class Canvas:
         """
         Reset the camera position.
         """
-        self.move_camera(
-            position=self.camera_backup["reset"], look_at=self.camera_backup["look_at"]
-        )
+        self.move_camera(position=self.camera_backup["reset"],
+                         look_at=self.camera_backup["look_at"])
 
     def camera_x_normal(self):
         """
         View scene along the X normal.
         """
-        self._camera_normal(position=self.camera_backup["x_normal"].copy(), ind=0)
+        self._camera_normal(position=self.camera_backup["x_normal"].copy(),
+                            ind=0)
 
     def camera_y_normal(self):
         """
         View scene along the Y normal.
         """
-        self._camera_normal(position=self.camera_backup["y_normal"].copy(), ind=1)
+        self._camera_normal(position=self.camera_backup["y_normal"].copy(),
+                            ind=1)
 
     def camera_z_normal(self):
         """
         View scene along the Z normal.
         """
-        self._camera_normal(position=self.camera_backup["z_normal"].copy(), ind=2)
+        self._camera_normal(position=self.camera_backup["z_normal"].copy(),
+                            ind=2)
 
     def _camera_normal(self, position: Tuple[float, float, float], ind: int):
         """
@@ -199,7 +197,8 @@ class Canvas:
         to the requested position.
         """
         if np.allclose(self.camera.position, position):
-            position[ind] = 2.0 * self.camera_backup["center"][ind] - position[ind]
+            position[
+                ind] = 2.0 * self.camera_backup["center"][ind] - position[ind]
         self.move_camera(position=position)
 
     def move_camera(
@@ -249,8 +248,7 @@ class Canvas:
         if self._title_text:
             html = (
                 f'<div style="text-align: center; width: {self.figsize[0]}px">'
-                f'{self._title_text}</div>'
-            )
+                f'{self._title_text}</div>')
         else:
             html = None
         return ipw.HTML(html)

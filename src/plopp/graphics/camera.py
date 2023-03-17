@@ -7,10 +7,20 @@ from typing import Sequence, Union
 
 from scipp import Variable
 
+from ..core.utils import maybe_number_to_variable
+
+
+def _vector_to_tuple(vector: Union[Variable, Sequence[Variable],
+                                   Sequence[float]]):
+    if isinstance(vector, Variable):
+        return (vector.fields.x, vector.fields.y, vector.fields.z)
+    else:
+        return tuple(maybe_number_to_variable(v) for v in vector)
+
 
 class Camera:
     """
-    Camera configuration.
+    Camera configuration for three-dimensional plots.
     If values are provided as raw numbers instead of Scipp variables, their unit
     will be assumed to be the same as the unit of the spatial coordinates.
 
@@ -36,15 +46,19 @@ class Camera:
         near: Union[Variable, float] = None,
         far: Union[Variable, float] = None,
     ):
-        self.position = position
-        self.look_at = look_at
-        self.near = near
-        self.far = far
+        self.position = _vector_to_tuple(position)
+        self.look_at = _vector_to_tuple(look_at)
+        self.near = maybe_number_to_variable(near)
+        self.far = maybe_number_to_variable(far)
 
-    def asdict(self):
-        out = {}
-        for key in ('position', 'look_at', 'near', 'far'):
-            value = getattr(self, key)
-            if value is not None:
-                out[key] = value
-        return out
+    def get(self, key, default=None):
+        value = getattr(self, key)
+        return value if value is not None else default
+
+    # def asdict(self):
+    #     out = {}
+    #     for key in ('position', 'look_at', 'near', 'far'):
+    #         value = getattr(self, key)
+    #         if value is not None:
+    #             out[key] = value
+    #     return out

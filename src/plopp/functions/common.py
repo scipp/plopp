@@ -8,7 +8,7 @@ import numpy as np
 import scipp as sc
 
 from .. import backends
-from ..core.utils import number_to_variable
+from ..core.utils import maybe_number_to_variable
 
 
 def require_interactive_backend(func: str):
@@ -19,13 +19,12 @@ def require_interactive_backend(func: str):
         raise RuntimeError(
             f"The {func} can only be used with an interactive backend "
             "backend. Use `%matplotlib widget` at the start of your "
-            "notebook."
-        )
+            "notebook.")
 
 
 def _to_data_array(
-    obj: Union[list, np.ndarray, sc.Variable, sc.DataArray]
-) -> sc.DataArray:
+        obj: Union[list, np.ndarray, sc.Variable,
+                   sc.DataArray]) -> sc.DataArray:
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
     missing.
@@ -39,7 +38,8 @@ def _to_data_array(
     if isinstance(out, sc.Variable):
         out = sc.DataArray(data=out)
     if not isinstance(out, sc.DataArray):
-        raise ValueError(f"Cannot convert input of type {type(obj)} to a DataArray.")
+        raise ValueError(
+            f"Cannot convert input of type {type(obj)} to a DataArray.")
     out = out.copy(deep=False)
     for dim, size in out.sizes.items():
         if dim not in out.meta:
@@ -47,12 +47,13 @@ def _to_data_array(
     return out
 
 
-def _to_variable_if_not_none(x: sc.Variable, unit: str) -> Union[None, sc.Variable]:
+def _to_variable_if_not_none(x: sc.Variable,
+                             unit: str) -> Union[None, sc.Variable]:
     """
     Convert input to the required unit if it is not ``None``.
     """
     if x is not None:
-        return number_to_variable(x, unit=unit)
+        return maybe_number_to_variable(x, unit=unit)
 
 
 def _check_size(da: sc.DataArray):
@@ -67,8 +68,7 @@ def _check_size(da: sc.DataArray):
         raise ValueError(
             f"Plotting data of size {da.shape} may take very long or use "
             "an excessive amount of memory. This is therefore disabled by "
-            "default. To bypass this check, use `ignore_size=True`."
-        )
+            "default. To bypass this check, use `ignore_size=True`.")
 
 
 def check_not_binned(obj):
@@ -78,8 +78,7 @@ def check_not_binned(obj):
             "Cannot plot binned data, it must be histogrammed first, "
             f"e.g., using ``obj.hist()`` or obj.hist({params})``."
             "See https://scipp.github.io/generated/functions/scipp.hist.html for "
-            "more details."
-        )
+            "more details.")
 
 
 def _all_dims_sorted(var, order='ascending'):
@@ -130,7 +129,7 @@ def preprocess(
         smax = _to_variable_if_not_none(sl.get('max'), unit=out.meta[dim].unit)
         start = max(out[dim, :smin].sizes[dim] - 1, 0)
         width = out[dim, smin:smax].sizes[dim]
-        out = out[dim, start : start + width + 2]
+        out = out[dim, start:start + width + 2]
     if not ignore_size:
         _check_size(out)
     if coords is not None:
@@ -144,10 +143,8 @@ def preprocess(
     for name, coord in out.coords.items():
         if coord.ndim > 0:
             try:
-                if not (
-                    _all_dims_sorted(coord, order='ascending')
-                    or _all_dims_sorted(coord, order='descending')
-                ):
+                if not (_all_dims_sorted(coord, order='ascending')
+                        or _all_dims_sorted(coord, order='descending')):
                     warnings.warn(
                         'The input contains a coordinate with unsorted values '
                         f'({name}). The results may be unpredictable. '
