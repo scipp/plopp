@@ -7,7 +7,6 @@ import scipp as sc
 
 
 class Number:
-
     def __init__(self, value: Union[sc.Variable, int, float]):
         self._value = value
 

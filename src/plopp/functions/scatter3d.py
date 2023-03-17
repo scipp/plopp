@@ -87,8 +87,10 @@ def scatter3d(
 
     if pos is not None:
         if any((x, y, z)):
-            raise ValueError(f'If pos ({pos}) is defined, all of '
-                             f'x ({x}), y ({y}), and z ({z}) must be None.')
+            raise ValueError(
+                f'If pos ({pos}) is defined, all of '
+                f'x ({x}), y ({y}), and z ({z}) must be None.'
+            )
         coords = {
             (x := f'{pos}.x'): da.meta[pos].fields.x,
             (y := f'{pos}.y'): da.meta[pos].fields.y,

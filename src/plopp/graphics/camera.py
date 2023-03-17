@@ -10,8 +10,7 @@ from scipp import Variable
 from ..core.utils import maybe_number_to_variable
 
 
-def _vector_to_tuple(vector: Union[Variable, Sequence[Variable],
-                                   Sequence[float]]):
+def _vector_to_tuple(vector: Union[Variable, Sequence[Variable], Sequence[float]]):
     if isinstance(vector, Variable):
         return (vector.fields.x, vector.fields.y, vector.fields.z)
     else:
