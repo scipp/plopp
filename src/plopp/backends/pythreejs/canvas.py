@@ -47,8 +47,6 @@ class Canvas:
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
-        # self._raw_user_camera = Camera(
-        #     **(camera if camera is not None else {})).asdict()
         if camera is not None:
             if isinstance(camera, dict):
                 self._user_camera = Camera(**camera)
