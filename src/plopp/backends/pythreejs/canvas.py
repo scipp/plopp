@@ -107,8 +107,13 @@ class Canvas:
         camera_dist = np.linalg.norm(np.array(self.camera.position) - np.array(center))
         box_mean_size = np.linalg.norm(box_size)
         self.camera.near = self._user_camera.get('near', 0.01 * box_mean_size)
+        camera_to_origin = np.linalg.norm(
+            np.array(self.camera.position) - np.array([0, 0, 0])
+        )
+        center_to_origin = np.linalg.norm(np.array(center) - np.array([0, 0, 0]))
         self.camera.far = self._user_camera.get(
-            'far', 5 * max(box_mean_size, camera_dist)
+            'far',
+            5 * max(box_mean_size, camera_dist, camera_to_origin, center_to_origin),
         )
         camera_lookat = tuple(self._user_camera.get('look_at', center))
         self.controls.target = camera_lookat
