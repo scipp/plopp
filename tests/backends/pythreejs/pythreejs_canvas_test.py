@@ -8,6 +8,7 @@ import scipp as sc
 
 from plopp.backends.pythreejs.canvas import Canvas
 from plopp.backends.pythreejs.outline import Outline
+from plopp import Camera
 
 
 def _make_limits():
@@ -19,20 +20,18 @@ def _make_limits():
 
 
 def _assert_pos(expected, canvas, key):
-    assert (
-        expected == canvas.camera.position
-        if key == 'position'
-        else canvas.controls.target
-    )
+    assert (expected == canvas.camera.position
+            if key == 'position' else canvas.controls.target)
 
 
 def test_creation():
     canvas = Canvas(figsize=(700, 450))
     assert canvas.renderer.width == 700
     assert canvas.renderer.height == 450
-    assert all(
-        [canvas.camera, canvas.scene, canvas.controls, canvas.renderer, canvas.axes_3d]
-    )
+    assert all([
+        canvas.camera, canvas.scene, canvas.controls, canvas.renderer,
+        canvas.axes_3d
+    ])
     assert canvas.outline is None
 
 
@@ -101,7 +100,7 @@ def test_camera_z():
 @pytest.mark.parametrize('key', ['position', 'look_at'])
 def test_camera_user_tuple_of_floats(key):
     pos = (1.5, 22.0, -3.0)
-    canvas = Canvas(camera={key: pos})
+    canvas = Canvas(camera=Camera(**{key: pos}))
     canvas._update_camera(limits=_make_limits())
     _assert_pos(pos, canvas, key)
     setattr(canvas.camera, key, (10, 20, 30))
@@ -113,7 +112,7 @@ def test_camera_user_tuple_of_floats(key):
 def test_camera_user_vector(key):
     pos = (0, 1, 2)
     vec = sc.vector(pos, unit='m')
-    canvas = Canvas(camera={key: vec})
+    canvas = Canvas(camera=Camera(**{key: vec}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 'm'
@@ -124,7 +123,7 @@ def test_camera_user_vector(key):
 @pytest.mark.parametrize('key', ['position', 'look_at'])
 def test_camera_user_vector_unit_conversion(key):
     vec = sc.vector([0, 1, 2], unit='cm')
-    canvas = Canvas(camera={key: vec})
+    canvas = Canvas(camera=Camera(**{key: vec}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 'm'
@@ -135,7 +134,7 @@ def test_camera_user_vector_unit_conversion(key):
 @pytest.mark.parametrize('key', ['position', 'look_at'])
 def test_camera_user_vector_bad_unit_raises(key):
     vec = sc.vector([0, 1, 2], unit='s')
-    canvas = Canvas(camera={key: vec})
+    canvas = Canvas(camera=Camera(**{key: vec}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 'm'
@@ -146,7 +145,7 @@ def test_camera_user_vector_bad_unit_raises(key):
 @pytest.mark.parametrize('key', ['position', 'look_at'])
 def test_camera_user_vector_can_convert_a_single_field(key):
     vec = sc.vector([0, 1, 2], unit='m')
-    canvas = Canvas(camera={key: vec})
+    canvas = Canvas(camera=Camera(**{key: vec}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 'cm'
@@ -161,7 +160,7 @@ def test_camera_user_tuple_of_variables(key):
         sc.scalar(-12.0, unit='m'),
         sc.scalar(44.0, unit='m'),
     ]
-    canvas = Canvas(camera={key: pos})
+    canvas = Canvas(camera=Camera(**{key: pos}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 'm'
@@ -176,7 +175,7 @@ def test_camera_user_tuple_of_variables_unit_conversion(key):
         sc.scalar(-12.0, unit='cm'),
         sc.scalar(44.0, unit='mm'),
     ]
-    canvas = Canvas(camera={key: pos})
+    canvas = Canvas(camera=Camera(**{key: pos}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 'm'
@@ -191,7 +190,7 @@ def test_camera_user_tuple_of_variables_bad_unit_raises(key):
         sc.scalar(-12.0, unit='m'),
         sc.scalar(44.0, unit='m'),
     ]
-    canvas = Canvas(camera={key: pos})
+    canvas = Canvas(camera=Camera(**{key: pos}))
     canvas.xunit = 's'
     canvas.yunit = 's'
     canvas.zunit = 's'
@@ -202,7 +201,7 @@ def test_camera_user_tuple_of_variables_bad_unit_raises(key):
 @pytest.mark.parametrize('key', ['near', 'far'])
 def test_camera_user_float(key):
     value = 6.8
-    canvas = Canvas(camera={key: value})
+    canvas = Canvas(camera=Camera(**{key: value}))
     canvas._update_camera(limits=_make_limits())
     assert getattr(canvas.camera, key) == value
 
@@ -210,7 +209,7 @@ def test_camera_user_float(key):
 @pytest.mark.parametrize('key', ['near', 'far'])
 def test_camera_user_variable(key):
     value = sc.scalar(15.1, unit='m')
-    canvas = Canvas(camera={key: value})
+    canvas = Canvas(camera=Camera(**{key: value}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 'm'
@@ -221,7 +220,7 @@ def test_camera_user_variable(key):
 @pytest.mark.parametrize('key', ['near', 'far'])
 def test_camera_user_variable_unit_conversion(key):
     value = sc.scalar(33.0, unit='cm')
-    canvas = Canvas(camera={key: value})
+    canvas = Canvas(camera=Camera(**{key: value}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 'm'
@@ -232,7 +231,7 @@ def test_camera_user_variable_unit_conversion(key):
 @pytest.mark.parametrize('key', ['near', 'far'])
 def test_camera_user_variable_bad_unit_raises(key):
     value = sc.scalar(6.6, unit='s')
-    canvas = Canvas(camera={key: value})
+    canvas = Canvas(camera=Camera(**{key: value}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 'm'
@@ -243,12 +242,26 @@ def test_camera_user_variable_bad_unit_raises(key):
 @pytest.mark.parametrize('key', ['near', 'far'])
 def test_camera_user_variable_raises_when_axes_units_are_different(key):
     value = sc.scalar(5.66, unit='m')
-    canvas = Canvas(camera={key: value})
+    canvas = Canvas(camera=Camera(**{key: value}))
     canvas.xunit = 'm'
     canvas.yunit = 'm'
     canvas.zunit = 's'
     with pytest.raises(sc.UnitError, match='All axes must have the same unit'):
         canvas._update_camera(limits=_make_limits())
+
+
+def test_camera_user_from_dict():
+    pos = (1.5, 22.0, -3.0)
+    look = sc.vector([0., 100., 200.], unit='cm')
+    far = 1234.0
+    canvas = Canvas(camera={'position': pos, 'look_at': look, 'far': far})
+    canvas.xunit = 'm'
+    canvas.yunit = 'm'
+    canvas.zunit = 'm'
+    canvas._update_camera(limits=_make_limits())
+    assert pos == canvas.camera.position
+    assert (0., 1., 2.) == canvas.controls.target
+    assert far == canvas.camera.far
 
 
 def test_toggle_axes_3d():
