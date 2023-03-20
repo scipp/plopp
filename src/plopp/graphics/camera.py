@@ -42,10 +42,12 @@ class Camera:
 
     def __init__(
         self,
-        position: Optional[Union[sc.Variable, Sequence[sc.Variable],
-                                 Sequence[float]]] = None,
-        look_at: Optional[Union[sc.Variable, Sequence[sc.Variable],
-                                Sequence[float]]] = None,
+        position: Optional[
+            Union[sc.Variable, Sequence[sc.Variable], Sequence[float]]
+        ] = None,
+        look_at: Optional[
+            Union[sc.Variable, Sequence[sc.Variable], Sequence[float]]
+        ] = None,
         near: Optional[Union[sc.Variable, float]] = None,
         far: Optional[Union[sc.Variable, float]] = None,
     ):
@@ -73,10 +75,11 @@ class Camera:
         default:
             The default value to return if the attribute is not set.
         """
-        return self._parsed_contents.get(
-            key, default
-        ) if self._parsed_contents is not None else self._raw_contents.get(
-            key, default)
+        return (
+            self._parsed_contents.get(key, default)
+            if self._parsed_contents is not None
+            else self._raw_contents.get(key, default)
+        )
 
     def set_units(self, xunit: str, yunit: str, zunit: str):
         """
@@ -95,8 +98,9 @@ class Camera:
         self._parsed_contents = {}
         for key in set(self._raw_contents) & set(('position', 'look_at')):
             self._parsed_contents[key] = tuple(
-                maybe_variable_to_number(x, unit=u) for x, u in zip(
-                    self._raw_contents[key], [xunit, yunit, zunit]))
+                maybe_variable_to_number(x, unit=u)
+                for x, u in zip(self._raw_contents[key], [xunit, yunit, zunit])
+            )
 
         for key in set(self._raw_contents) & set(('near', 'far')):
             if isinstance(self._raw_contents[key], sc.Variable):
@@ -106,7 +110,8 @@ class Camera:
                         f'plane with a unit. Units are: {xunit}, {yunit}, {zunit}.'
                     )
             self._parsed_contents[key] = maybe_variable_to_number(
-                self._raw_contents[key], unit=xunit)
+                self._raw_contents[key], unit=xunit
+            )
 
     def has_units(self) -> bool:
         """
@@ -147,5 +152,7 @@ class Camera:
         self.get('far')
 
     def __repr__(self):
-        return (f'Camera(position={self.position}, look_at={self.look_at}, '
-                f'near={self.near}, far={self.far})')
+        return (
+            f'Camera(position={self.position}, look_at={self.look_at}, '
+            f'near={self.near}, far={self.far})'
+        )

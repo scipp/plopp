@@ -6,9 +6,9 @@ from copy import copy
 import pytest
 import scipp as sc
 
+from plopp import Camera
 from plopp.backends.pythreejs.canvas import Canvas
 from plopp.backends.pythreejs.outline import Outline
-from plopp import Camera
 
 
 def _make_limits():
@@ -20,18 +20,20 @@ def _make_limits():
 
 
 def _assert_pos(expected, canvas, key):
-    assert (expected == canvas.camera.position
-            if key == 'position' else canvas.controls.target)
+    assert (
+        expected == canvas.camera.position
+        if key == 'position'
+        else canvas.controls.target
+    )
 
 
 def test_creation():
     canvas = Canvas(figsize=(700, 450))
     assert canvas.renderer.width == 700
     assert canvas.renderer.height == 450
-    assert all([
-        canvas.camera, canvas.scene, canvas.controls, canvas.renderer,
-        canvas.axes_3d
-    ])
+    assert all(
+        [canvas.camera, canvas.scene, canvas.controls, canvas.renderer, canvas.axes_3d]
+    )
     assert canvas.outline is None
 
 
@@ -252,7 +254,7 @@ def test_camera_user_variable_raises_when_axes_units_are_different(key):
 
 def test_camera_user_from_dict():
     pos = (1.5, 22.0, -3.0)
-    look = sc.vector([0., 100., 200.], unit='cm')
+    look = sc.vector([0.0, 100.0, 200.0], unit='cm')
     far = 1234.0
     canvas = Canvas(camera={'position': pos, 'look_at': look, 'far': far})
     canvas.xunit = 'm'
@@ -260,7 +262,7 @@ def test_camera_user_from_dict():
     canvas.zunit = 'm'
     canvas._update_camera(limits=_make_limits())
     assert pos == canvas.camera.position
-    assert (0., 1., 2.) == canvas.controls.target
+    assert (0.0, 1.0, 2.0) == canvas.controls.target
     assert far == canvas.camera.far
 
 
