@@ -35,6 +35,7 @@ Graphics
 .. autosummary::
    :toctree: generated
 
+   graphics.Camera
    graphics.ColorMapper
    graphics.FigImage
    graphics.FigLine
@@ -84,14 +85,6 @@ Backends
    reference/matplotlib
    reference/plotly
    reference/pythreejs
-
-Custom types
-============
-
-.. autosummary::
-   :toctree: generated
-
-   core.customtypes.Camera
 
 Other
 =====
