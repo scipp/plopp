@@ -2,11 +2,13 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
-from typing import Any, Tuple
+from typing import Any, Optional, Tuple
 
 import ipywidgets as ipw
 import numpy as np
-from scipp import Variable
+import scipp as sc
+
+from ...graphics import Camera
 
 
 class Canvas:
@@ -24,11 +26,16 @@ class Canvas:
     title:
         The title to be placed above the figure. It is possible to use HTML formatting
         to customize the title appearance.
+    camera:
+        Initial camera configuration (position, target).
     """
 
-    def __init__(self, figsize: Tuple[int, int] = (600, 400), title: str = None):
-        # TODO: the title is still unused.
-
+    def __init__(
+        self,
+        figsize: Tuple[int, int] = (600, 400),
+        title: Optional[str] = None,
+        camera: Optional[Camera] = None,
+    ):
         import pythreejs as p3
 
         self.xunit = None
@@ -40,7 +47,7 @@ class Canvas:
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
-
+        self._user_camera = Camera() if camera is None else camera
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
@@ -60,7 +67,7 @@ class Canvas:
     def to_widget(self):
         return self.renderer
 
-    def make_outline(self, limits: Tuple[Variable, Variable, Variable]):
+    def make_outline(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
@@ -73,7 +80,7 @@ class Canvas:
         self._update_camera(limits=limits)
         self.axes_3d.scale = [self.camera.far] * 3
 
-    def _update_camera(self, limits: Tuple[Variable, Variable, Variable]):
+    def _update_camera(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
         """
         Update the camera position when a new object is added to the canvas.
         The camera will look at the mean position of all the objects, and its position
@@ -81,43 +88,57 @@ class Canvas:
         This 'Home' position will be backed up so it can be used when resetting the
         camera via the ``home`` function.
         """
+        if not self._user_camera.has_units():
+            self._user_camera.set_units(self.xunit, self.yunit, self.zunit)
+
         center = [var.mean().value for var in limits]
-        distance_from_center = 1.2
+        distance_fudge_factor = 1.2
         box_size = np.array([(limits[i][1] - limits[i][0]).value for i in range(3)])
-        camera_position = list(np.array(center) + distance_from_center * box_size)
-        camera_lookat = tuple(center)
-        self.camera.position = camera_position
-        cam_pos_norm = np.linalg.norm(self.camera.position)
+        self.camera.position = self._user_camera.get(
+            'position', list(np.array(center) + distance_fudge_factor * box_size)
+        )
+        camera_dist = np.linalg.norm(np.array(self.camera.position) - np.array(center))
         box_mean_size = np.linalg.norm(box_size)
-        self.camera.near = 0.01 * box_mean_size
-        self.camera.far = 5.0 * cam_pos_norm
+        self.camera.near = self._user_camera.get('near', 0.01 * box_mean_size)
+        camera_to_origin = np.linalg.norm(
+            np.array(self.camera.position) - np.array([0, 0, 0])
+        )
+        center_to_origin = np.linalg.norm(np.array(center) - np.array([0, 0, 0]))
+        self.camera.far = self._user_camera.get(
+            'far',
+            5 * max(box_mean_size, camera_dist, camera_to_origin, center_to_origin),
+        )
+        camera_lookat = tuple(self._user_camera.get('look_at', center))
         self.controls.target = camera_lookat
         self.camera.lookAt(camera_lookat)
 
         # Save camera settings
         self.camera_backup["reset"] = copy(self.camera.position)
+        self.camera_backup["look_at"] = copy(camera_lookat)
         self.camera_backup["center"] = tuple(copy(center))
         self.camera_backup["x_normal"] = [
-            center[0] - distance_from_center * box_mean_size,
+            center[0] - distance_fudge_factor * box_mean_size,
             center[1],
             center[2],
         ]
         self.camera_backup["y_normal"] = [
             center[0],
-            center[1] - distance_from_center * box_mean_size,
+            center[1] - distance_fudge_factor * box_mean_size,
             center[2],
         ]
         self.camera_backup["z_normal"] = [
             center[0],
             center[1],
-            center[2] - distance_from_center * box_mean_size,
+            center[2] - distance_fudge_factor * box_mean_size,
         ]
 
     def home(self):
         """
         Reset the camera position.
         """
-        self.move_camera(position=self.camera_backup["reset"])
+        self.move_camera(
+            position=self.camera_backup["reset"], look_at=self.camera_backup["look_at"]
+        )
 
     def camera_x_normal(self):
         """
@@ -146,7 +167,11 @@ class Canvas:
             position[ind] = 2.0 * self.camera_backup["center"][ind] - position[ind]
         self.move_camera(position=position)
 
-    def move_camera(self, position: Tuple[float, float, float]):
+    def move_camera(
+        self,
+        position: Tuple[float, float, float],
+        look_at: Optional[Tuple[float, float, float]] = None,
+    ):
         """
         Move the camera to the supplied position.
 
@@ -156,8 +181,10 @@ class Canvas:
             The new camera position.
         """
         self.camera.position = position
-        self.controls.target = self.camera_backup["center"]
-        self.camera.lookAt(self.camera_backup["center"])
+        if look_at is None:
+            look_at = self.camera_backup["center"]
+        self.controls.target = look_at
+        self.camera.lookAt(look_at)
 
     def toggle_outline(self):
         """

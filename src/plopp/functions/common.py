@@ -8,7 +8,7 @@ import numpy as np
 import scipp as sc
 
 from .. import backends
-from ..core.utils import number_to_variable
+from ..core.utils import maybe_number_to_variable
 
 
 def require_interactive_backend(func: str):
@@ -52,7 +52,7 @@ def _to_variable_if_not_none(x: sc.Variable, unit: str) -> Union[None, sc.Variab
     Convert input to the required unit if it is not ``None``.
     """
     if x is not None:
-        return number_to_variable(x, unit=unit)
+        return maybe_number_to_variable(x, unit=unit)
 
 
 def _check_size(da: sc.DataArray):
