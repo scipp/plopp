@@ -181,7 +181,11 @@ def coord_element_to_string(x: sc.Variable) -> str:
     x:
         The input variable (of length 1 or 2).
     """
-    out = value_to_string(x.values)
+    vals = x.values
+    if vals.shape:
+        out = ':'.join([value_to_string(v) for v in vals])
+    else:
+        out = value_to_string(float(vals))
     if x.unit is not None:
         out += f" [{x.unit}]"
     return out
