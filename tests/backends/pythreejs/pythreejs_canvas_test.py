@@ -252,20 +252,6 @@ def test_camera_user_variable_raises_when_axes_units_are_different(key):
         canvas._update_camera(limits=_make_limits())
 
 
-def test_camera_user_from_dict():
-    pos = (1.5, 22.0, -3.0)
-    look = sc.vector([0.0, 100.0, 200.0], unit='cm')
-    far = 1234.0
-    canvas = Canvas(camera={'position': pos, 'look_at': look, 'far': far})
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'm'
-    canvas._update_camera(limits=_make_limits())
-    assert pos == canvas.camera.position
-    assert (0.0, 1.0, 2.0) == canvas.controls.target
-    assert far == canvas.camera.far
-
-
 def test_toggle_axes_3d():
     canvas = Canvas()
     assert canvas.axes_3d.visible

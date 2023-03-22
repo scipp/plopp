@@ -47,14 +47,7 @@ class Canvas:
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
-        if camera is not None:
-            if isinstance(camera, dict):
-                self._user_camera = Camera(**camera)
-            else:
-                self._user_camera = camera
-        else:
-            self._user_camera = Camera()
-
+        self._user_camera = Camera() if camera is None else camera
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
