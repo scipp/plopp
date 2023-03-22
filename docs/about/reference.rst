@@ -35,6 +35,7 @@ Graphics
 .. autosummary::
    :toctree: generated
 
+   graphics.Camera
    graphics.ColorMapper
    graphics.FigImage
    graphics.FigLine

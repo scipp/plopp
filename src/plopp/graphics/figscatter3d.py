@@ -1,12 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal, Tuple, Union
+from typing import Literal, Optional, Tuple, Union
 
 import scipp as sc
 
 from .. import backends
 from ..core.utils import make_compatible
+from ..graphics import Camera
 from .basefig import BaseFig
 from .colormapper import ColorMapper
 
@@ -46,6 +47,8 @@ class FigScatter3d(BaseFig):
         The figure title.
     figsize:
         The width and height of the figure, in pixels.
+    camera:
+        Initial camera configuration (position, target).
     **kwargs:
         All other kwargs are forwarded to the PointCloud artist.
     """
@@ -59,10 +62,11 @@ class FigScatter3d(BaseFig):
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
-        vmin: Union[sc.Variable, int, float] = None,
-        vmax: Union[sc.Variable, int, float] = None,
+        vmin: Optional[Union[sc.Variable, int, float]] = None,
+        vmax: Optional[Union[sc.Variable, int, float]] = None,
         figsize: Tuple[int, int] = (600, 400),
-        title: str = None,
+        title: Optional[str] = None,
+        camera: Optional[Camera] = None,
         **kwargs
     ):
         super().__init__(*nodes)
@@ -72,7 +76,7 @@ class FigScatter3d(BaseFig):
         self._z = z
         self._kwargs = kwargs
 
-        self.canvas = backends.canvas3d(figsize=figsize, title=title)
+        self.canvas = backends.canvas3d(figsize=figsize, title=title, camera=camera)
         self.colormapper = ColorMapper(
             cmap=cmap,
             mask_cmap=mask_cmap,

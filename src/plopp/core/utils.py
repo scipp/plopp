@@ -69,16 +69,26 @@ def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
     )
 
 
-def number_to_variable(x: Union[int, float, sc.Variable], unit: str) -> sc.Variable:
+def maybe_number_to_variable(
+    x: Union[int, float, sc.Variable], unit: Optional[str] = None
+) -> sc.Variable:
     """
-    Convert the input int or float to a variable.
+    If the input is a raw number, convert to a variable.
+    If a unit is requested, perform the conversion to that unit before returning.
+    If the input is a variable, return it (potentially converted to the requested unit).
 
     Parameters
     ----------
     x:
         The input int or float.
+    unit:
+        The unit to use for the output variable.
     """
-    return sc.scalar(x, unit=unit) if isinstance(x, (int, float)) else x.to(unit=unit)
+    return (
+        sc.scalar(x, unit=unit)
+        if isinstance(x, (int, float))
+        else (x.to(unit=unit) if unit is not None else x)
+    )
 
 
 def maybe_variable_to_number(

@@ -2,11 +2,12 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Literal, Tuple, Union
+from typing import Literal, Optional, Tuple, Union
 
 import scipp as sc
 
 from ..core import input_node
+from ..graphics import Camera
 from .common import check_not_binned
 
 
@@ -23,6 +24,7 @@ def scatter3d(
     vmin: Union[sc.Variable, int, float] = None,
     vmax: Union[sc.Variable, int, float] = None,
     cmap: str = 'viridis',
+    camera: Optional[Camera] = None,
     **kwargs,
 ):
     """Make a three-dimensional scatter plot.
@@ -63,6 +65,8 @@ def scatter3d(
         Upper bound for the colorscale.
     cmap:
         The name of the colormap.
+    camera:
+        Initial camera configuration (position, target).
 
     Returns
     -------
@@ -112,6 +116,7 @@ def scatter3d(
         vmin=vmin,
         vmax=vmax,
         cmap=cmap,
+        camera=camera,
         **kwargs,
     )
     tri_cutter = TriCutTool(fig)

@@ -3,6 +3,7 @@
 
 # flake8: noqa E402, F401
 
+from .camera import Camera
 from .colormapper import ColorMapper
 from .figimage import FigImage
 from .figline import FigLine
