@@ -11,8 +11,8 @@ from numpy import ndarray
 
 from ..core import Node, View
 from ..core.utils import coord_element_to_string
+from ..graphics import figure1d
 from .common import preprocess, require_interactive_backend
-from .slicer import Slicer
 
 
 class LineSaveTool:
@@ -38,10 +38,13 @@ class LineSaveTool:
         self.button = ipw.Button(description='Save line')
         self.button.on_click(self.save_line)
         self.container = VBar()
-        self.widget = VBar([self.button, self.container], layout={'width': '350px'})
+        self.widget = VBar([self.button, self.container],
+                           layout={'width': '350px'})
 
     def _update_container(self):
-        self.container.children = [line['tool'] for line in self._lines.values()]
+        self.container.children = [
+            line['tool'] for line in self._lines.values()
+        ]
 
     def save_line(self, change: Dict[str, Any] = None):
         from ..widgets import ColorTool
@@ -50,17 +53,14 @@ class LineSaveTool:
         data = self._data_node.request_data()
         self._fig.update(data, key=line_id)
         slice_values = self._slider_node.request_data()
-        text = ', '.join(
-            f'{k}: {coord_element_to_string(data.meta[k])}'
-            for k, it in slice_values.items()
-        )
+        text = ', '.join(f'{k}: {coord_element_to_string(data.meta[k])}'
+                         for k, it in slice_values.items())
         line = self._fig.artists[line_id]
         tool = ColorTool(text=text, color=to_hex(line.color))
         self._lines[line_id] = {'line': line, 'tool': tool}
         self._update_container()
-        tool.color.observe(
-            partial(self.change_line_color, line_id=line_id), names='value'
-        )
+        tool.color.observe(partial(self.change_line_color, line_id=line_id),
+                           names='value')
         tool.button.on_click(partial(self.remove_line, line_id=line_id))
 
     def change_line_color(self, change: Dict[str, Any], line_id: str):
@@ -118,14 +118,16 @@ class Superplot:
             raise TypeError(
                 "The keep argument must be a single string, not a list or tuple."
             )
-        self.slicer = Slicer(da, keep=[keep], crop=crop, **kwargs)
+        from ..widgets import dimslicer
+        self.slider = dimslicer(da, keep=[keep])
+        self.figure = figure1d(*self.slider.output_nodes, crop=crop, **kwargs)
         self.linesavetool = LineSaveTool(
-            data_node=self.slicer.slice_nodes[0],
-            slider_node=self.slicer.slider_node,
-            fig=self.slicer.figure,
+            data_node=self.slider.output_nodes[0],
+            slider_node=self.slider.slider_node,
+            fig=self.figure,
         )
-        self.figure = self.slicer.figure
-        self.slider = self.slicer.slider
+        # self.figure = self.slicer.figure
+        # self.slider = self.slicer.slider
 
 
 def superplot(
