@@ -222,7 +222,7 @@ rfc3339-validator==0.1.4
     # via jsonschema
 rfc3986-validator==0.1.1
     # via jsonschema
-scipp==23.1.1
+scipp==23.3.0
     # via -r requirements/base.in
 send2trash==1.8.0
     # via
