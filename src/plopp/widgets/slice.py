@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Any, Callable, List, Dict
+from typing import Any, Callable, Dict, List
 
 import ipywidgets as ipw
 import scipp as sc
