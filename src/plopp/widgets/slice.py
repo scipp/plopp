@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Any, Callable, Dict
+from typing import Any, Callable, List, Dict
 
 import ipywidgets as ipw
 import scipp as sc
@@ -20,25 +20,29 @@ class SliceWidget(VBar):
 
     Parameters
     ----------
-    data_array:
+    da:
         The input data array.
     dims:
         The dimensions to make sliders for.
     """
 
-    def __init__(self, sizes: Dict[str, int], coords: Dict[str, sc.Variable]):
-        self._slider_dims = list(sizes.keys())
+    # def __init__(self, sizes: Dict[str, int], coords: Dict[str, sc.Variable]):
+    def __init__(self, da: sc.DataArray, dims: List[str]):
+        if isinstance(dims, str):
+            dims = [dims]
+        self._slider_dims = dims
         self.controls = {}
         self.view = None
         children = []
 
         for dim in self._slider_dims:
-            coord = coords[dim]
+            coord = da.meta[dim] if dim in da.meta else sc.arange(
+                dim, da.sizes[dim], unit=None)
             slider = ipw.IntSlider(
                 step=1,
                 description=dim,
                 min=0,
-                max=sizes[dim] - 1,
+                max=da.sizes[dim] - 1,
                 continuous_update=True,
                 readout=False,
                 layout={"width": "200px"},
@@ -51,7 +55,8 @@ class SliceWidget(VBar):
                 layout={"width": "20px"},
             )
             label = ipw.Label(value=coord_element_to_string(coord[dim, 0]))
-            ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
+            ipw.jslink((continuous_update, 'value'),
+                       (slider, 'continuous_update'))
 
             self.controls[dim] = {
                 'continuous': continuous_update,
@@ -87,11 +92,15 @@ class SliceWidget(VBar):
         The widget value, as a dict containing the dims as keys and the slider indices
         as values.
         """
-        return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
+        return {
+            dim: self.controls[dim]['slider'].value
+            for dim in self._slider_dims
+        }
 
 
 @node
-def slice_dims(data_array: sc.DataArray, slices: Dict[str, slice]) -> sc.DataArray:
+def slice_dims(data_array: sc.DataArray, slices: Dict[str,
+                                                      slice]) -> sc.DataArray:
     """
     Slice the data according to input slices.
 
