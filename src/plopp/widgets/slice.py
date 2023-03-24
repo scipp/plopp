@@ -26,7 +26,6 @@ class SliceWidget(VBar):
         The dimensions to make sliders for.
     """
 
-    # def __init__(self, sizes: Dict[str, int], coords: Dict[str, sc.Variable]):
     def __init__(self, da: sc.DataArray, dims: List[str]):
         if isinstance(dims, str):
             dims = [dims]
@@ -36,8 +35,11 @@ class SliceWidget(VBar):
         children = []
 
         for dim in self._slider_dims:
-            coord = da.meta[dim] if dim in da.meta else sc.arange(
-                dim, da.sizes[dim], unit=None)
+            coord = (
+                da.meta[dim]
+                if dim in da.meta
+                else sc.arange(dim, da.sizes[dim], unit=None)
+            )
             slider = ipw.IntSlider(
                 step=1,
                 description=dim,
@@ -55,8 +57,7 @@ class SliceWidget(VBar):
                 layout={"width": "20px"},
             )
             label = ipw.Label(value=coord_element_to_string(coord[dim, 0]))
-            ipw.jslink((continuous_update, 'value'),
-                       (slider, 'continuous_update'))
+            ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
 
             self.controls[dim] = {
                 'continuous': continuous_update,
@@ -92,15 +93,11 @@ class SliceWidget(VBar):
         The widget value, as a dict containing the dims as keys and the slider indices
         as values.
         """
-        return {
-            dim: self.controls[dim]['slider'].value
-            for dim in self._slider_dims
-        }
+        return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
 
 
 @node
-def slice_dims(data_array: sc.DataArray, slices: Dict[str,
-                                                      slice]) -> sc.DataArray:
+def slice_dims(data_array: sc.DataArray, slices: Dict[str, slice]) -> sc.DataArray:
     """
     Slice the data according to input slices.
 

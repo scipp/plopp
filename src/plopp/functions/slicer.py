@@ -80,10 +80,7 @@ class Slicer:
 
         self.data_nodes = [input_node(da) for da in ds.values()]
 
-        self.slider = SliceWidget(
-            sizes={dim: size for dim, size in ds.sizes.items() if dim not in keep},
-            coords=ds.meta,
-        )
+        self.slider = SliceWidget(ds, dims=[dim for dim in ds.dims if dim not in keep])
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [
             slice_dims(data_node, self.slider_node) for data_node in self.data_nodes
