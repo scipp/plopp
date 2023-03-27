@@ -9,9 +9,7 @@ from plopp.widgets import SliceWidget, slice_dims
 
 def test_slice_creation():
     da = data_array(ndim=3)
-    sizes = da.sizes.copy()
-    del sizes['zz']
-    sw = SliceWidget(sizes=sizes, coords=da.coords)
+    sw = SliceWidget(da, dims=['yy', 'xx'])
     assert sw._slider_dims == ['yy', 'xx']
     assert sw.controls['xx']['slider'].min == 0
     assert sw.controls['xx']['slider'].max == da.sizes['xx'] - 1
@@ -23,9 +21,7 @@ def test_slice_creation():
 
 def test_slice_value_property():
     da = data_array(ndim=3)
-    sizes = da.sizes.copy()
-    del sizes['zz']
-    sw = SliceWidget(sizes=sizes, coords=da.coords)
+    sw = SliceWidget(da, dims=['yy', 'xx'])
     sw.controls['xx']['slider'].value = 10
     sw.controls['yy']['slider'].value = 15
     assert sw.value == {'xx': 10, 'yy': 15}
@@ -35,9 +31,7 @@ def test_slice_label_updates():
     da = data_array(ndim=3)
     da.coords['xx'] *= 1.1
     da.coords['yy'] *= 3.3
-    sizes = da.sizes.copy()
-    del sizes['zz']
-    sw = SliceWidget(sizes=sizes, coords=da.coords)
+    sw = SliceWidget(da, dims=['yy', 'xx'])
     assert sw.controls['xx']['label'].value == '0.0 [m]'
     sw.controls['xx']['slider'].value = 10
     assert sw.controls['xx']['label'].value == '11.0 [m]'
