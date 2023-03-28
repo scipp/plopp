@@ -14,28 +14,34 @@ def _make_graphviz_digraph(*args, **kwargs):
         raise RuntimeError(
             "Failed to import `graphviz`. "
             "Use `pip install graphviz` (requires installed `graphviz` executable) or "
-            "`conda install -c conda-forge python-graphviz`.")
+            "`conda install -c conda-forge python-graphviz`."
+        )
     return Digraph(*args, **kwargs)
 
 
 def _walk_graph(start, nodes, edges, views, labels, hide_views):
-    label = (escape(str(start.func)) + '\nid = ' +
-             start.id if start.name is None else escape(start.name))
+    label = (
+        escape(str(start.func)) + '\nid = ' + start.id
+        if start.name is None
+        else escape(start.name)
+    )
     nodes[start.id] = label
     for child in start.children:
         if start.id not in edges:
             edges[start.id] = {child.id}
         else:
             edges[start.id].add(child.id)
-        _walk_graph(start=child,
-                    nodes=nodes,
-                    edges=edges,
-                    views=views,
-                    labels=labels,
-                    hide_views=hide_views)
+        _walk_graph(
+            start=child,
+            nodes=nodes,
+            edges=edges,
+            views=views,
+            labels=labels,
+            hide_views=hide_views,
+        )
     for arg_name, parent in chain(
-        ((f'arg_{i}', p) for i, p in enumerate(start.parents)),
-            start.kwparents.items()):
+        ((f'arg_{i}', p) for i, p in enumerate(start.parents)), start.kwparents.items()
+    ):
         key = parent.id
         if key not in labels:
             labels[key] = arg_name
@@ -66,17 +72,14 @@ def _make_graph(dot, nodes, edges, labels, views):
     for key, lab in nodes.items():
         dot.node(key, label=lab)
     for key, lab in views.items():
-        dot.node(key,
-                 label=lab,
-                 shape='ellipse',
-                 style='filled',
-                 color='lightgrey')
+        dot.node(key, label=lab, shape='ellipse', style='filled', color='lightgrey')
     for parent, children in edges.items():
         for child in children:
             dot.edge(
                 parent,
                 child,
-                label=labels.get(parent, '') if child not in views else '')
+                label=labels.get(parent, '') if child not in views else '',
+            )
     return dot
 
 
@@ -106,14 +109,12 @@ def show_graph(node: Node, hide_views: bool = False):
     # If input is a View, get the underlying node
     if hasattr(node, 'graph_nodes'):
         node = list(node.graph_nodes.values())[0]
-    _walk_graph(start=node,
-                nodes=nodes,
-                edges=edges,
-                views=views,
-                labels=labels,
-                hide_views=hide_views)
-    return _make_graph(dot=dot,
-                       nodes=nodes,
-                       edges=edges,
-                       labels=labels,
-                       views=views)
+    _walk_graph(
+        start=node,
+        nodes=nodes,
+        edges=edges,
+        views=views,
+        labels=labels,
+        hide_views=hide_views,
+    )
+    return _make_graph(dot=dot, nodes=nodes, edges=edges, labels=labels, views=views)

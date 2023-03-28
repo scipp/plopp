@@ -15,6 +15,7 @@ def test_two_nodes_parent_child():
     assert 'x' in b.kwparents
     assert a is b.kwparents['x']
     assert b in a.children
+    assert b() == 3
 
 
 def test_two_nodes_notify_children():
@@ -133,3 +134,26 @@ def test_cannot_remove_node_with_children():
         a.remove()
     assert b in a.children
     assert av in a.views
+
+
+def add(x, y):
+    return x + y
+
+
+def test_node_converts_raw_data_to_input_node():
+    a = Node(lambda: 5)
+    b = node(add)(x=a, y=2)
+    assert b.kwparents['x'] is a
+    assert 'y' in b.kwparents['y']
+    assert b.kwparents['y'].data == 2
+    assert b() == 7
+
+
+def test_node_names_from_args():
+    n = node(add)(1, 3)
+    assert n.name == 'add(arg_0, arg_1)'
+
+
+def test_node_names_from_kwargs():
+    n = node(add)(x=1, y=3)
+    assert n.name == 'add(x, y)'
