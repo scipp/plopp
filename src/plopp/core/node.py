@@ -58,10 +58,19 @@ class Node:
         for parent in chain(self.parents, self.kwparents.values()):
             parent.add_child(self)
         self._data = None
-        args_string = ', '.join(arg_name for arg_name in chain((
-            f'arg_{i}'
-            for i in range(len(self.parents))), self.kwparents.keys()))
-        self.name = f'{self.func.__name__}({args_string})'
+
+        # Set automatic name from function name and arguments
+        args_string = ''
+        if isinstance(func, partial) and func.args:
+            args_string += ', '.join(func.args) + ', '
+        args_string += ', '.join(f'arg_{i}'
+                                 for i in range(len(self.parents))) + ', '
+        if isinstance(func, partial) and func.keywords:
+            args_string += ', '.join(
+                [f'{key}={value}'
+                 for key, value in func.keywords.items()]) + ', '
+        args_string += ', '.join(self.kwparents.keys()) + ', '
+        self.name = f'{self.func.__name__}({args_string.strip(", ")})'
 
     def __call__(self):
         return self.request_data()
