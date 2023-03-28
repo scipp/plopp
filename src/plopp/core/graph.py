@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from html import escape
+from itertools import chain
 
 from .node import Node
 
@@ -17,7 +18,7 @@ def _make_graphviz_digraph(*args, **kwargs):
     return Digraph(*args, **kwargs)
 
 
-def _walk_graph(start, nodes, edges, views, hide_views):
+def _walk_graph(start, nodes, edges, views, labels, hide_views):
     label = (escape(str(start.func)) + '\nid = ' +
              start.id if start.name is None else escape(start.name))
     nodes[start.id] = label
@@ -30,9 +31,14 @@ def _walk_graph(start, nodes, edges, views, hide_views):
                     nodes=nodes,
                     edges=edges,
                     views=views,
+                    labels=labels,
                     hide_views=hide_views)
-    for parent in start.parents + list(start.kwparents.values()):
+    for arg_name, parent in chain(
+        ((f'arg_{i}', p) for i, p in enumerate(start.parents)),
+            start.kwparents.items()):
         key = parent.id
+        if key not in labels:
+            labels[key] = arg_name
         if key not in nodes:
             if key not in edges:
                 edges[key] = {start.id}
@@ -43,8 +49,10 @@ def _walk_graph(start, nodes, edges, views, hide_views):
                 nodes=nodes,
                 edges=edges,
                 views=views,
+                labels=labels,
                 hide_views=hide_views,
             )
+
     if not hide_views:
         for view in start.views:
             views[view.id] = view.__class__.__name__
@@ -54,7 +62,7 @@ def _walk_graph(start, nodes, edges, views, hide_views):
                 edges[start.id].add(view.id)
 
 
-def _make_graph(dot, nodes, edges, views):
+def _make_graph(dot, nodes, edges, labels, views):
     for key, lab in nodes.items():
         dot.node(key, label=lab)
     for key, lab in views.items():
@@ -65,7 +73,10 @@ def _make_graph(dot, nodes, edges, views):
                  color='lightgrey')
     for parent, children in edges.items():
         for child in children:
-            dot.edge(parent, child)
+            dot.edge(
+                parent,
+                child,
+                label=labels.get(parent, '') if child not in views else '')
     return dot
 
 
@@ -91,9 +102,18 @@ def show_graph(node: Node, hide_views: bool = False):
     nodes = {}
     edges = {}
     views = {}
+    labels = {}
+    # If input is a View, get the underlying node
+    if hasattr(node, 'graph_nodes'):
+        node = list(node.graph_nodes.values())[0]
     _walk_graph(start=node,
                 nodes=nodes,
                 edges=edges,
                 views=views,
+                labels=labels,
                 hide_views=hide_views)
-    return _make_graph(dot=dot, nodes=nodes, edges=edges, views=views)
+    return _make_graph(dot=dot,
+                       nodes=nodes,
+                       edges=edges,
+                       labels=labels,
+                       views=views)

@@ -19,7 +19,7 @@ class View:
     """
 
     def __init__(self, *nodes):
-        self._id = str(uuid.uuid1())
+        self._id = uuid.uuid4().hex
         self.graph_nodes = {}
         for node in nodes:
             node.add_view(self)

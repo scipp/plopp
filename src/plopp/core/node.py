@@ -3,7 +3,25 @@
 
 import uuid
 from itertools import chain
+from functools import partial
 from typing import Any, Callable
+
+
+def input_node(obj: Any):
+    """
+    Create a simple node that returns the supplied object when data is requested from
+    it. This node has no parents, and typically lives at the top of a graph to provide
+    the raw input data.
+
+    Parameters
+    ----------
+    obj:
+        The object to return when data is requested from the node.
+    """
+    n = Node(lambda: obj)
+
+    n.name = f'Input <{type(obj).__name__}>'
+    return n
 
 
 class Node:
@@ -27,23 +45,23 @@ class Node:
             raise ValueError(
                 "A node can only be created using a callable func.")
         self.func = func
-        self._id = str(uuid.uuid1())
+        self._id = uuid.uuid4().hex
         self.children = []
         self.views = []
-        self.parents = []
-        for i, p in enumerate(parents):
-            n = p if isinstance(p, Node) else Node(lambda: p)
-            n.name = f'arg_{i}'
-            self.parents.append(n)
-        self.kwparents = {}
-        for key, p in kwparents.items():
-            n = p if isinstance(p, Node) else Node(lambda: p)
-            n.name = key
-            self.kwparents[key] = n
+        self.parents = [
+            p if isinstance(p, Node) else input_node(p) for p in parents
+        ]
+        self.kwparents = {
+            key: p if isinstance(p, Node) else input_node(p)
+            for key, p in kwparents.items()
+        }
         for parent in chain(self.parents, self.kwparents.values()):
             parent.add_child(self)
         self._data = None
-        self.name = self.func.__name__ + str(self.func.__code__.co_varnames)
+        args_string = ', '.join(arg_name for arg_name in chain((
+            f'arg_{i}'
+            for i in range(len(self.parents))), self.kwparents.keys()))
+        self.name = f'{self.func.__name__}({args_string})'
 
     def __call__(self):
         return self.request_data()

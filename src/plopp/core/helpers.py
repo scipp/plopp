@@ -27,20 +27,6 @@ def node(func: Callable, *args, **kwargs) -> Callable:
     return make_node
 
 
-def input_node(obj: Any):
-    """
-    Create a simple node that returns the supplied object when data is requested from
-    it. This node has no parents, and typically lives at the top of a graph to provide
-    the raw input data.
-
-    Parameters
-    ----------
-    obj:
-        The object to return when data is requested from the node.
-    """
-    return Node(lambda: obj)
-
-
 def widget_node(widget) -> Node:
     """
     Create a node from a widget. When data is requested from it, it will return the
@@ -55,10 +41,11 @@ def widget_node(widget) -> Node:
         ``ipywidgets`` library, or a custom widget.
     """
     n = Node(func=lambda: widget.value)
+    n.name = f'Widget <{type(widget).__name__}: {type(widget.value).__name__}>'
     # TODO: Our custom widgets have a '_plopp_observe' method instead of 'observe'
     # because inheriting from VBox causes errors when overriding the 'observe' method
     # (see https://bit.ly/3SggPVS).
-    func = (widget._plopp_observe_
-            if hasattr(widget, '_plopp_observe_') else widget.observe)
-    func(n.notify_children, names="value")
+    observe_func = (widget._plopp_observe_
+                    if hasattr(widget, '_plopp_observe_') else widget.observe)
+    observe_func(n.notify_children, names="value")
     return n
