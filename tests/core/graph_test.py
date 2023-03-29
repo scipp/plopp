@@ -3,7 +3,7 @@
 
 from views import SimpleView
 
-from plopp import input_node, node, show_graph
+from plopp import Node, node, show_graph
 
 
 def has_edge(graph, node1, node2):
@@ -19,7 +19,7 @@ def test_two_nodes_parent_child():
     # [ a ]
     #   |
     # [ b ]
-    a = input_node(5)
+    a = Node(5)
     b = node(lambda x: x - 2)(a)
     g = show_graph(a)
     assert has_edge(g, a.id, b.id)
@@ -30,7 +30,7 @@ def test_two_children():
     #     / \
     #    /   \
     # [ b ] [ c ]
-    a = input_node(5)
+    a = Node(5)
     b = node(lambda x: x - 2)(a)
     c = node(lambda x: x + 2)(a)
     g = show_graph(a)
@@ -43,8 +43,8 @@ def test_two_parents():
     #    \   /
     #     \ /
     #    [ c ]
-    a = input_node(5)
-    b = input_node(9)
+    a = Node(5)
+    b = Node(9)
     c = node(lambda x, y: x + y)(a, b)
     g = show_graph(a)
     assert has_edge(g, a.id, c.id)
@@ -59,8 +59,8 @@ def test_two_parents_two_children():
     #       \  |
     #        \/
     #      [ d ]
-    a = input_node(5)
-    b = input_node(9)
+    a = Node(5)
+    b = Node(9)
     c = node(lambda x, y: x + y)(a, b)
     d = node(lambda x, y: x - y)(c, b)
     g = show_graph(a)
@@ -79,10 +79,10 @@ def test_two_grandchildren_have_common_parent():
     #    \   / \   /
     #     \ /   \ /
     #    [ e ] [ f ]
-    a = input_node(0)
+    a = Node(0)
     b = node(lambda x: x + 1)(a)
     c = node(lambda x: x + 2)(a)
-    d = input_node(4)
+    d = Node(4)
     e = node(lambda x, y: x + y)(b, d)
     f = node(lambda x, y: x + y)(c, d)
     g = show_graph(a)
@@ -102,7 +102,7 @@ def test_graph_with_views():
     #   |
     #   |
     # [ View ]
-    a = input_node(5)
+    a = Node(5)
     b = node(lambda x: x - 2)(x=a)
     av = SimpleView(a)
     bv = SimpleView(b)

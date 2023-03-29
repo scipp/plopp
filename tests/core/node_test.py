@@ -140,7 +140,7 @@ def add(x, y):
     return x + y
 
 
-def test_node_converts_raw_data_to_input_node():
+def test_node_converts_raw_data_to_Node():
     a = Node(5)
     b = Node(add, x=a, y=2)
     assert a() == 5

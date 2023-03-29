@@ -4,7 +4,7 @@
 import ipywidgets as ipw
 import scipp as sc
 
-from plopp import figure1d, figure2d, input_node, node, widget_node
+from plopp import figure1d, figure2d, Node, node, widget_node
 from plopp.data.testing import data_array, dataset
 from plopp.widgets import Box, Checkboxes, SliceWidget, slice_dims
 
@@ -20,21 +20,21 @@ def hide_masks(data_array, masks):
 
 def test_single_1d_line():
     da = data_array(ndim=1)
-    n = input_node(da)
+    n = Node(da)
     _ = figure1d(n)
 
 
 def test_two_1d_lines():
     ds = dataset(ndim=1)
-    a = input_node(ds['a'])
-    b = input_node(ds['b'])
+    a = Node(ds['a'])
+    b = Node(ds['b'])
     _ = figure1d(a, b)
 
 
 def test_difference_of_two_1d_lines():
     ds = dataset(ndim=1)
-    a = input_node(ds['a'])
-    b = input_node(ds['b'])
+    a = Node(ds['a'])
+    b = Node(ds['b'])
 
     @node
     def diff(x, y):
@@ -46,13 +46,13 @@ def test_difference_of_two_1d_lines():
 
 def test_2d_image():
     da = data_array(ndim=2)
-    a = input_node(da)
+    a = Node(da)
     _ = figure2d(a)
 
 
 def test_2d_image_smoothing_slider():
     da = data_array(ndim=2)
-    a = input_node(da)
+    a = Node(da)
 
     sl = ipw.IntSlider(min=1, max=10)
     sigma_node = widget_node(sl)
@@ -73,7 +73,7 @@ def test_2d_image_with_masks():
     da.masks['m1'] = da.data < sc.scalar(0.0, unit='m/s')
     da.masks['m2'] = da.coords['xx'] > sc.scalar(30.0, unit='m')
 
-    a = input_node(da)
+    a = Node(da)
 
     widget = Checkboxes(da.masks.keys())
     w = widget_node(widget)
@@ -90,8 +90,8 @@ def test_two_1d_lines_with_masks():
     ds['a'].masks['m2'] = ds['a'].data < ds['b'].data
     ds['b'].masks['m1'] = ds['b'].coords['xx'] < sc.scalar(5.0, unit='m')
 
-    a = input_node(ds['a'])
-    b = input_node(ds['b'])
+    a = Node(ds['a'])
+    b = Node(ds['b'])
 
     widget = Checkboxes(list(ds['a'].masks.keys()) + list(ds['b'].masks.keys()))
     w = widget_node(widget)
@@ -105,7 +105,7 @@ def test_two_1d_lines_with_masks():
 
 def test_node_sum_data_along_y():
     da = data_array(ndim=2, binedges=True)
-    a = input_node(da)
+    a = Node(da)
 
     s = node(sc.sum, dim='yy')(a)
 
@@ -116,7 +116,7 @@ def test_node_sum_data_along_y():
 
 def test_slice_3d_cube():
     da = data_array(ndim=3)
-    a = input_node(da)
+    a = Node(da)
     sl = SliceWidget(da, dims=['zz'])
     w = widget_node(sl)
 
@@ -129,7 +129,7 @@ def test_slice_3d_cube():
 
 def test_3d_image_slicer_with_connected_side_histograms():
     da = data_array(ndim=3)
-    a = input_node(da)
+    a = Node(da)
     sl = SliceWidget(da, dims=['zz'])
     w = widget_node(sl)
 
