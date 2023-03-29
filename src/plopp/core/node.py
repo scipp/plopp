@@ -2,11 +2,14 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+import warnings
 from itertools import chain
-from functools import partial
 from typing import Any, Callable
 
+from .system import VisibleDeprecationWarning
 
+
+# TODO: Remove this in v23.05.0
 def input_node(obj: Any):
     """
     Create a simple node that returns the supplied object when data is requested from
@@ -18,6 +21,12 @@ def input_node(obj: Any):
     obj:
         The object to return when data is requested from the node.
     """
+    warnings.warn(
+        "plopp.input_node has been deprecated "
+        "and will be removed in Plopp v23.05.0. "
+        "Use plopp.Node instead.",
+        VisibleDeprecationWarning,
+    )
     n = Node(lambda: obj)
     n.name = f'Input <{type(obj).__name__}>'
     return n
@@ -48,11 +57,9 @@ class Node:
         self._id = uuid.uuid4().hex
         self.children = []
         self.views = []
-        self.parents = [
-            p if isinstance(p, Node) else input_node(p) for p in parents
-        ]
+        self.parents = [p if isinstance(p, Node) else Node(p) for p in parents]
         self.kwparents = {
-            key: p if isinstance(p, Node) else input_node(p)
+            key: p if isinstance(p, Node) else Node(p)
             for key, p in kwparents.items()
         }
         for parent in chain(self.parents, self.kwparents.values()):
@@ -61,19 +68,14 @@ class Node:
 
         if func_is_callable:
             # Set automatic name from function name and arguments
-            args_string = ''
-            if isinstance(func, partial) and func.args:
-                args_string += ', '.join(func.args) + ', '
-            args_string += ', '.join(f'arg_{i}'
-                                     for i in range(len(self.parents))) + ', '
-            if isinstance(func, partial) and func.keywords:
-                args_string += (', '.join(
-                    [f'{key}={value}'
-                     for key, value in func.keywords.items()]) + ', ')
-            args_string += ', '.join(self.kwparents.keys()) + ', '
-            self.name = f'{self.func.__name__}({args_string.strip(", ")})'
+            args_string = ', '.join(
+                chain((f'arg_{i}' for i in range(len(self.parents))),
+                      self.kwparents.keys()))
+            self.name = f'{self.func.__name__}({args_string})'
         else:
-            self.name = f'Input <{type(func).__name__}>'
+            val_str = f'={repr(func)}' if isinstance(func,
+                                                     (int, float, str)) else ""
+            self.name = f'Input <{type(func).__name__}{val_str}>'
 
     def __call__(self):
         return self.request_data()
@@ -163,3 +165,27 @@ class Node:
 
     def __repr__(self):
         return f"Node(name={self.name})"
+
+    def __add__(self, other):
+        return Node(lambda x, y: x + y, self, other)
+
+    def __radd__(self, other):
+        return Node(lambda x, y: x + y, other, self)
+
+    def __sub__(self, other):
+        return Node(lambda x, y: x - y, self, other)
+
+    def __rsub__(self, other):
+        return Node(lambda x, y: x - y, other, self)
+
+    def __mul__(self, other):
+        return Node(lambda x, y: x * y, self, other)
+
+    def __rmul__(self, other):
+        return Node(lambda x, y: x * y, other, self)
+
+    def __truediv__(self, other):
+        return Node(lambda x, y: x / y, self, other)
+
+    def __rtruediv__(self, other):
+        return Node(lambda x, y: x / y, other, self)

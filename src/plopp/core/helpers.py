@@ -1,13 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from functools import partial, update_wrapper
 from typing import Any, Callable
 
 from .node import Node
 
 
-def node(func: Callable, *args, **kwargs) -> Callable:
+def node(func: Callable) -> Callable:
     """
     Create a :class:`Node` from a callable.
     The additional arguments will be parent nodes to the returned node.
@@ -18,9 +17,6 @@ def node(func: Callable, *args, **kwargs) -> Callable:
     func:
         The callable to create the :class:`Node`.
     """
-
-    if args or kwargs or not callable(func):
-        return Node(func, *args, **kwargs)
 
     def make_node(*args, **kwargs):
         return Node(func, *args, **kwargs)
