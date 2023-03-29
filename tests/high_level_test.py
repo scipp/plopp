@@ -57,11 +57,9 @@ def test_2d_image_smoothing_slider():
     sl = ipw.IntSlider(min=1, max=10)
     sigma_node = widget_node(sl)
 
-    try:
-        from scipp.scipy.ndimage import gaussian_filter
-    except ImportError:
-        from scipp.ndimage import gaussian_filter
-    smooth_node = node(gaussian_filter)(a, sigma=sigma_node)
+    from scipp.scipy.ndimage import gaussian_filter
+
+    smooth_node = Node(gaussian_filter, a, sigma=sigma_node)
 
     fig = figure2d(smooth_node)
     Box([fig.to_widget(), sl])
@@ -106,8 +104,7 @@ def test_two_1d_lines_with_masks():
 def test_node_sum_data_along_y():
     da = data_array(ndim=2, binedges=True)
     a = Node(da)
-
-    s = node(sc.sum, dim='yy')(a)
+    s = Node(sc.sum, a, dim='yy')
 
     fig1 = figure2d(a)
     fig2 = figure1d(s)
@@ -136,8 +133,8 @@ def test_3d_image_slicer_with_connected_side_histograms():
     sliced = slice_dims(a, w)
     fig = figure2d(sliced)
 
-    histx = node(sc.sum, dim='xx')(sliced)
-    histy = node(sc.sum, dim='yy')(sliced)
+    histx = Node(sc.sum, sliced, dim='xx')
+    histy = Node(sc.sum, sliced, dim='yy')
 
     fx = figure1d(histx)
     fy = figure1d(histy)
