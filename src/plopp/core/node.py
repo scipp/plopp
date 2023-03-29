@@ -20,6 +20,9 @@ def input_node(obj: Any):
     ----------
     obj:
         The object to return when data is requested from the node.
+
+    .. deprecated:: v23.04.0
+       Use :class:`Node` instead.
     """
     warnings.warn(
         "plopp.input_node has been deprecated "
@@ -35,12 +38,14 @@ def input_node(obj: Any):
 class Node:
     """
     A node that can have parent and children nodes, to create a graph.
-    A node must be constructed from a callable ``func``.
+    A node can be constructed from a callable ``func``, or a raw object. In the case
+    of a raw object, a node wrapping the object will be created.
 
     Parameters
     ----------
     func:
-        The callable that is called when data is requested from the node.
+        The callable that is called when data is requested from the node. This can also
+        be a raw object, in which case this becomes a callable that returns the object.
     *parents:
         Positional arguments that represent the positional arguments of the function
         ``func``.
@@ -48,7 +53,7 @@ class Node:
         Keyword arguments that represent the keyword arguments of the function ``func``.
     """
 
-    def __init__(self, func: Callable, *parents, **kwparents):
+    def __init__(self, func: Any, *parents, **kwparents):
         func_is_callable = callable(func)
         if func_is_callable:
             self.func = func

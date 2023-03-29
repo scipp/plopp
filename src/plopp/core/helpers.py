@@ -9,7 +9,6 @@ from .node import Node
 def node(func: Callable) -> Callable:
     """
     Create a :class:`Node` from a callable.
-    The additional arguments will be parent nodes to the returned node.
     This can also be used as a decorator.
 
     Parameters
