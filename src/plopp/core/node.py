@@ -19,7 +19,6 @@ def input_node(obj: Any):
         The object to return when data is requested from the node.
     """
     n = Node(lambda: obj)
-
     n.name = f'Input <{type(obj).__name__}>'
     return n
 
@@ -41,13 +40,17 @@ class Node:
     """
 
     def __init__(self, func: Callable, *parents, **kwparents):
-        if not callable(func):
-            raise ValueError("A node can only be created using a callable func.")
-        self.func = func
+        func_is_callable = callable(func)
+        if func_is_callable:
+            self.func = func
+        else:
+            self.func = lambda: func
         self._id = uuid.uuid4().hex
         self.children = []
         self.views = []
-        self.parents = [p if isinstance(p, Node) else input_node(p) for p in parents]
+        self.parents = [
+            p if isinstance(p, Node) else input_node(p) for p in parents
+        ]
         self.kwparents = {
             key: p if isinstance(p, Node) else input_node(p)
             for key, p in kwparents.items()
@@ -56,18 +59,21 @@ class Node:
             parent.add_child(self)
         self._data = None
 
-        # Set automatic name from function name and arguments
-        args_string = ''
-        if isinstance(func, partial) and func.args:
-            args_string += ', '.join(func.args) + ', '
-        args_string += ', '.join(f'arg_{i}' for i in range(len(self.parents))) + ', '
-        if isinstance(func, partial) and func.keywords:
-            args_string += (
-                ', '.join([f'{key}={value}' for key, value in func.keywords.items()])
-                + ', '
-            )
-        args_string += ', '.join(self.kwparents.keys()) + ', '
-        self.name = f'{self.func.__name__}({args_string.strip(", ")})'
+        if func_is_callable:
+            # Set automatic name from function name and arguments
+            args_string = ''
+            if isinstance(func, partial) and func.args:
+                args_string += ', '.join(func.args) + ', '
+            args_string += ', '.join(f'arg_{i}'
+                                     for i in range(len(self.parents))) + ', '
+            if isinstance(func, partial) and func.keywords:
+                args_string += (', '.join(
+                    [f'{key}={value}'
+                     for key, value in func.keywords.items()]) + ', ')
+            args_string += ', '.join(self.kwparents.keys()) + ', '
+            self.name = f'{self.func.__name__}({args_string.strip(", ")})'
+        else:
+            self.name = f'Input <{type(func).__name__}>'
 
     def __call__(self):
         return self.request_data()
@@ -89,8 +95,7 @@ class Node:
         """
         if self.children:
             raise RuntimeError(
-                f"Cannot delete node because it has children {self.children}."
-            )
+                f"Cannot delete node because it has children {self.children}.")
         for view in self.views:
             del view.graph_nodes[self.id]
         for parent in chain(self.parents, self.kwparents.values()):
@@ -109,7 +114,8 @@ class Node:
         if self._data is None:
             args = (parent.request_data() for parent in self.parents)
             kwargs = {
-                key: parent.request_data() for key, parent in self.kwparents.items()
+                key: parent.request_data()
+                for key, parent in self.kwparents.items()
             }
             self._data = self.func(*args, **kwargs)
         return self._data

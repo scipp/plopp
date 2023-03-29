@@ -18,11 +18,12 @@ def node(func: Callable, *args, **kwargs) -> Callable:
     func:
         The callable to create the :class:`Node`.
     """
-    partialized = partial(func, *args, **kwargs)
-    update_wrapper(partialized, func)
+
+    if args or kwargs or not callable(func):
+        return Node(func, *args, **kwargs)
 
     def make_node(*args, **kwargs):
-        return Node(partialized, *args, **kwargs)
+        return Node(func, *args, **kwargs)
 
     return make_node
 
@@ -45,8 +46,7 @@ def widget_node(widget) -> Node:
     # TODO: Our custom widgets have a '_plopp_observe' method instead of 'observe'
     # because inheriting from VBox causes errors when overriding the 'observe' method
     # (see https://bit.ly/3SggPVS).
-    observe_func = (
-        widget._plopp_observe_ if hasattr(widget, '_plopp_observe_') else widget.observe
-    )
+    observe_func = (widget._plopp_observe_
+                    if hasattr(widget, '_plopp_observe_') else widget.observe)
     observe_func(n.notify_children, names="value")
     return n
