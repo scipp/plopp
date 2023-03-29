@@ -59,8 +59,7 @@ class Node:
         self.views = []
         self.parents = [p if isinstance(p, Node) else Node(p) for p in parents]
         self.kwparents = {
-            key: p if isinstance(p, Node) else Node(p)
-            for key, p in kwparents.items()
+            key: p if isinstance(p, Node) else Node(p) for key, p in kwparents.items()
         }
         for parent in chain(self.parents, self.kwparents.values()):
             parent.add_child(self)
@@ -69,13 +68,15 @@ class Node:
         if func_is_callable:
             # Set automatic name from function name and arguments
             args_string = ', '.join(
-                chain((f'arg_{i}' for i in range(len(self.parents))),
-                      self.kwparents.keys()))
+                chain(
+                    (f'arg_{i}' for i in range(len(self.parents))),
+                    self.kwparents.keys(),
+                )
+            )
             fname = getattr(self.func, "__name__", str(self.func))
             self.name = f'{fname}({args_string})'
         else:
-            val_str = f'={repr(func)}' if isinstance(func,
-                                                     (int, float, str)) else ""
+            val_str = f'={repr(func)}' if isinstance(func, (int, float, str)) else ""
             self.name = f'Input <{type(func).__name__}{val_str}>'
 
     def __call__(self):
@@ -98,7 +99,8 @@ class Node:
         """
         if self.children:
             raise RuntimeError(
-                f"Cannot delete node because it has children {self.children}.")
+                f"Cannot delete node because it has children {self.children}."
+            )
         for view in self.views:
             del view.graph_nodes[self.id]
         for parent in chain(self.parents, self.kwparents.values()):
@@ -117,8 +119,7 @@ class Node:
         if self._data is None:
             args = (parent.request_data() for parent in self.parents)
             kwargs = {
-                key: parent.request_data()
-                for key, parent in self.kwparents.items()
+                key: parent.request_data() for key, parent in self.kwparents.items()
             }
             self._data = self.func(*args, **kwargs)
         return self._data

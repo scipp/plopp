@@ -222,3 +222,25 @@ def test_node_operator_rtruediv():
     a = Node(5)
     b = a / 2
     assert b() == 2.5
+
+
+def test_node_decorator_args():
+    @node
+    def sub(x, y):
+        return x - y
+
+    a = Node(5.5)
+    b = Node(3.1)
+    c = sub(a, b)
+    assert c() == 2.4
+
+
+def test_node_decorator_kwargs():
+    @node
+    def mult(x, y):
+        return x * y
+
+    a = Node(6.0)
+    b = Node(4.0)
+    c = mult(x=a, y=b)
+    assert c() == 24.0

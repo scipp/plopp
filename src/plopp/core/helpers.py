@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Any, Callable
+from typing import Callable
 
 from .node import Node
 
@@ -42,7 +42,8 @@ def widget_node(widget) -> Node:
     # TODO: Our custom widgets have a '_plopp_observe' method instead of 'observe'
     # because inheriting from VBox causes errors when overriding the 'observe' method
     # (see https://bit.ly/3SggPVS).
-    observe_func = (widget._plopp_observe_
-                    if hasattr(widget, '_plopp_observe_') else widget.observe)
+    observe_func = (
+        widget._plopp_observe_ if hasattr(widget, '_plopp_observe_') else widget.observe
+    )
     observe_func(n.notify_children, names="value")
     return n

@@ -4,6 +4,6 @@
 # flake8: noqa E402, F401
 
 from .graph import show_graph
-from .node import Node, input_node
 from .helpers import node, widget_node
+from .node import Node, input_node
 from .view import View
