@@ -71,7 +71,8 @@ class Node:
             args_string = ', '.join(
                 chain((f'arg_{i}' for i in range(len(self.parents))),
                       self.kwparents.keys()))
-            self.name = f'{self.func.__name__}({args_string})'
+            fname = getattr(self.func, "__name__", str(self.func))
+            self.name = f'{fname}({args_string})'
         else:
             val_str = f'={repr(func)}' if isinstance(func,
                                                      (int, float, str)) else ""

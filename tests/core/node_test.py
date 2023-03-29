@@ -11,7 +11,7 @@ from plopp import Node, node
 
 def test_two_nodes_parent_child():
     a = Node(lambda: 5)
-    b = node(lambda x: x - 2)(x=a)
+    b = Node(lambda x: x - 2, x=a)
     assert 'x' in b.kwparents
     assert a is b.kwparents['x']
     assert b in a.children
@@ -20,7 +20,7 @@ def test_two_nodes_parent_child():
 
 def test_two_nodes_notify_children():
     a = Node(lambda: 5)
-    b = node(lambda x: x - 2)(x=a)
+    b = Node(lambda x: x - 2, x=a)
     av = SimpleView(a)
     bv = SimpleView(b)
     assert av in a.views
@@ -42,8 +42,8 @@ def test_two_nodes_notify_children():
 
 def test_two_children_notify_children():
     a = Node(lambda: 5)
-    b = node(lambda x: x - 2)(x=a)
-    c = node(lambda x: x + 2)(x=a)
+    b = Node(lambda x: x - 2, x=a)
+    c = Node(lambda x: x + 2, x=a)
     av = SimpleView(a)
     bv = SimpleView(b)
     cv = SimpleView(c)
@@ -67,8 +67,8 @@ def test_two_children_notify_children():
 
 def test_two_children_request_data():
     a = Node(lambda: 5)
-    b = node(lambda x: x - 2)(x=a)
-    c = node(lambda x: x + 2)(x=a)
+    b = Node(lambda x: x - 2, x=a)
+    c = Node(lambda x: x + 2, x=a)
     av = DataView(a)
     bv = DataView(b)
     cv = DataView(c)
@@ -93,9 +93,9 @@ def test_data_request_is_cached():
             return f(x)
 
     a = Node(partial(log_and_call, n='a', f=lambda: 5))
-    b = node(partial(log_and_call, n='b', f=lambda x: x - 2))(x=a)
-    c = node(partial(log_and_call, n='c', f=lambda x: x + 2))(x=a)
-    d = node(partial(log_and_call, n='d', f=lambda x: x**2))(x=c)
+    b = Node(partial(log_and_call, n='b', f=lambda x: x - 2), x=a)
+    c = Node(partial(log_and_call, n='c', f=lambda x: x + 2), x=a)
+    d = Node(partial(log_and_call, n='d', f=lambda x: x**2), x=c)
     av = DataView(a)  # noqa: F841
     bv = DataView(b)  # noqa: F841
     cv = DataView(c)  # noqa: F841
@@ -110,8 +110,8 @@ def test_data_request_is_cached():
 
 def test_remove_node():
     a = Node(lambda: 5)
-    b = node(lambda x: x - 2)(x=a)
-    c = node(lambda x: x + 2)(x=a)
+    b = Node(lambda x: x - 2, x=a)
+    c = Node(lambda x: x + 2, x=a)
     bv = DataView(b)
     cv = DataView(c)
     assert 'x' in b.kwparents
@@ -128,7 +128,7 @@ def test_remove_node():
 
 def test_cannot_remove_node_with_children():
     a = Node(lambda: 5)
-    b = node(lambda x: x - 2)(x=a)
+    b = Node(lambda x: x - 2, x=a)
     av = DataView(a)
     with pytest.raises(RuntimeError, match="Cannot delete node"):
         a.remove()
@@ -141,19 +141,84 @@ def add(x, y):
 
 
 def test_node_converts_raw_data_to_input_node():
-    a = Node(lambda: 5)
-    b = node(add)(x=a, y=2)
+    a = Node(5)
+    b = Node(add, x=a, y=2)
+    assert a() == 5
     assert b.kwparents['x'] is a
-    assert 'y' in b.kwparents['y']
-    assert b.kwparents['y'].data == 2
+    assert 'y' in b.kwparents
+    assert b.kwparents['y']() == 2
     assert b() == 7
 
 
 def test_node_names_from_args():
-    n = node(add)(1, 3)
+    n = Node(add, 1, 3)
     assert n.name == 'add(arg_0, arg_1)'
 
 
 def test_node_names_from_kwargs():
-    n = node(add)(x=1, y=3)
+    n = Node(add, x=1, y=3)
     assert n.name == 'add(x, y)'
+
+
+def test_node_names_from_args_and_kwargs():
+    n = Node(add, 4, y=35)
+    assert n.name == 'add(arg_0, y)'
+
+
+def test_node_name_from_raw_input():
+    assert Node(5).name == 'Input <int=5>'
+    assert Node(1.2).name == 'Input <float=1.2>'
+    assert Node('hello').name == "Input <str='hello'>"
+    assert Node([1, 2, 3]).name == 'Input <list>'
+
+
+def test_node_operator_add():
+    a = Node(5)
+    b = Node(2)
+    c = a + b
+    assert c() == 7
+
+
+def test_node_operator_radd():
+    a = Node(5)
+    b = a + 6
+    assert b() == 11
+
+
+def test_node_operator_sub():
+    a = Node(5)
+    b = Node(2)
+    c = a - b
+    assert c() == 3
+
+
+def test_node_operator_rsub():
+    a = Node(5)
+    b = a - 3
+    assert b() == 2
+
+
+def test_node_operator_mul():
+    a = Node(5)
+    b = Node(2)
+    c = a * b
+    assert c() == 10
+
+
+def test_node_operator_rmul():
+    a = Node(5)
+    b = a * 6
+    assert b() == 30
+
+
+def test_node_operator_truediv():
+    a = Node(5)
+    b = Node(2)
+    c = a / b
+    assert c() == 2.5
+
+
+def test_node_operator_rtruediv():
+    a = Node(5)
+    b = a / 2
+    assert b() == 2.5
