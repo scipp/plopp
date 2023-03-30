@@ -1,16 +1,19 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from __future__ import annotations
+
 import uuid
 import warnings
 from itertools import chain
-from typing import Any, Callable
+from typing import Any, Union
 
 from .system import VisibleDeprecationWarning
+from .view import View
 
 
 # TODO: Remove this in v23.05.0
-def input_node(obj: Any):
+def input_node(obj: Any) -> Node:
     """
     Create a simple node that returns the supplied object when data is requested from
     it. This node has no parents, and typically lives at the top of a graph to provide
@@ -88,7 +91,7 @@ class Node:
         return self.request_data()
 
     @property
-    def id(self):
+    def id(self) -> str:
         """
         The unique uuid of the node. This differs from the ``name`` which can be any
         string.
@@ -129,13 +132,13 @@ class Node:
             self._data = self.func(*args, **kwargs)
         return self._data
 
-    def add_child(self, child):
+    def add_child(self, child: Node):
         """
         Add a child to the node.
         """
         self.children.append(child)
 
-    def add_view(self, view):
+    def add_view(self, view: View):
         """
         Add a view to the node.
         """
@@ -170,29 +173,29 @@ class Node:
         for view in self.views:
             view.notify_view({"node_id": self.id, "message": message})
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Node(name={self.name})"
 
-    def __add__(self, other):
+    def __add__(self, other: Union[Node, Any]) -> Node:
         return Node(lambda x, y: x + y, self, other)
 
-    def __radd__(self, other):
+    def __radd__(self, other: Union[Node, Any]) -> Node:
         return Node(lambda x, y: x + y, other, self)
 
-    def __sub__(self, other):
+    def __sub__(self, other: Union[Node, Any]) -> Node:
         return Node(lambda x, y: x - y, self, other)
 
-    def __rsub__(self, other):
+    def __rsub__(self, other: Union[Node, Any]) -> Node:
         return Node(lambda x, y: x - y, other, self)
 
-    def __mul__(self, other):
+    def __mul__(self, other: Union[Node, Any]) -> Node:
         return Node(lambda x, y: x * y, self, other)
 
-    def __rmul__(self, other):
+    def __rmul__(self, other: Union[Node, Any]) -> Node:
         return Node(lambda x, y: x * y, other, self)
 
-    def __truediv__(self, other):
+    def __truediv__(self, other: Union[Node, Any]) -> Node:
         return Node(lambda x, y: x / y, self, other)
 
-    def __rtruediv__(self, other):
+    def __rtruediv__(self, other: Union[Node, Any]) -> Node:
         return Node(lambda x, y: x / y, other, self)
