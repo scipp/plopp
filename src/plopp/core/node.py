@@ -19,13 +19,13 @@ def input_node(obj: Any) -> Node:
     it. This node has no parents, and typically lives at the top of a graph to provide
     the raw input data.
 
+    .. deprecated:: v23.04.0
+       Use :class:`Node` instead.
+
     Parameters
     ----------
     obj:
         The object to return when data is requested from the node.
-
-    .. deprecated:: v23.04.0
-       Use :class:`Node` instead.
     """
     warnings.warn(
         "plopp.input_node has been deprecated "
