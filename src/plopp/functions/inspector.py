@@ -6,7 +6,7 @@ from typing import Dict, Literal, Union
 import scipp as sc
 from numpy import ndarray
 
-from ..core import input_node, node
+from ..core import Node
 from ..core.utils import coord_as_bin_edges
 from ..graphics import figure1d, figure2d
 from .common import preprocess, require_interactive_backend
@@ -77,7 +77,7 @@ def inspector(
     require_interactive_backend('inspector')
 
     da = preprocess(obj, crop=crop, ignore_size=True)
-    in_node = input_node(da)
+    in_node = Node(da)
     if dim is None:
         dim = da.dims[-1]
 
@@ -85,7 +85,7 @@ def inspector(
     for d in set(da.dims) - {dim}:
         da.coords[d] = coord_as_bin_edges(da, d)
 
-    op_node = node(getattr(sc, operation), dim=dim)(in_node)
+    op_node = Node(getattr(sc, operation), in_node, dim=dim)
     f2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
     f1d = figure1d()
 
