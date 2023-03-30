@@ -58,9 +58,11 @@ class Node:
 
     def __init__(self, func: Any, *parents, **kwparents):
         func_is_callable = callable(func)
+        self._input_value = None
         if func_is_callable:
             self.func = func
         else:
+            self._input_value = func
             self.func = lambda: func
         self._id = uuid.uuid4().hex
         self.children = []
@@ -97,6 +99,20 @@ class Node:
         string.
         """
         return self._id
+
+    @property
+    def input_value(self) -> Any:
+        """
+        The input value of the node, if it is an input node.
+        """
+        return self._input_value
+
+    @property
+    def is_input_node(self) -> bool:
+        """
+        Whether the node is an input node.
+        """
+        return self._input_value is not None
 
     def remove(self):
         """

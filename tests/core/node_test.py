@@ -172,6 +172,21 @@ def test_node_name_from_raw_input():
     assert Node([1, 2, 3]).name == 'Input <list>'
 
 
+def test_input_node_value():
+    v = 57.2
+    a = Node(v)
+    b = Node(lambda: v)
+    assert a.input_value == v
+    assert b.input_value is None
+
+
+def test_is_input_node():
+    a = Node(5)
+    b = Node(lambda x: x - 2, x=a)
+    assert a.is_input_node
+    assert not b.is_input_node
+
+
 def test_node_operator_add():
     a = Node(5)
     b = Node(2)
