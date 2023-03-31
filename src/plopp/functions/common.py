@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from collections.abc import Mapping
 import warnings
+from collections.abc import Mapping
 from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
