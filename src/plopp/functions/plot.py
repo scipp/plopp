@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from collections.abc import Mapping
 from typing import Dict, List, Literal, Optional, Tuple, Union
 
 from numpy import ndarray
-from scipp import Dataset, Variable
+from scipp import Variable
 from scipp.typing import VariableLike
 
 from ..core import Node
@@ -99,18 +98,6 @@ def plot(
         'figsize': figsize,
         **kwargs,
     }
-
-    # if isinstance(obj, (Mapping, Dataset)):
-    #     data_arrays = [
-    #         preprocess(
-    #             item, crop=crop, name=name, ignore_size=ignore_size, coords=coords
-    #         )
-    #         for name, item in obj.items()
-    #     ]
-    # else:
-    #     data_arrays = [
-    #         preprocess(obj, crop=crop, ignore_size=ignore_size, coords=coords)
-    #     ]
 
     data_arrays = preprocess_multi(
         obj, crop=crop, ignore_size=ignore_size, coords=coords
