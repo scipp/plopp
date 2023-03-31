@@ -7,7 +7,7 @@ import scipp as sc
 from numpy import ndarray
 from scipp.typing import VariableLike
 
-from ..core import input_node, widget_node
+from ..core import Node, widget_node
 from ..graphics import figure1d, figure2d
 from .common import preprocess, require_interactive_backend
 
@@ -78,7 +78,7 @@ class Slicer:
 
         from ..widgets import SliceWidget, slice_dims
 
-        self.data_nodes = [input_node(da) for da in ds.values()]
+        self.data_nodes = [Node(da) for da in ds.values()]
 
         self.slider = SliceWidget(ds, dims=[dim for dim in ds.dims if dim not in keep])
         self.slider_node = widget_node(self.slider)

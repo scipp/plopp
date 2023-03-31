@@ -4,7 +4,7 @@
 import pytest
 import scipp as sc
 
-from plopp import input_node
+from plopp import Node
 from plopp.data.testing import data_array
 from plopp.graphics.figimage import FigImage
 
@@ -33,14 +33,14 @@ def test_update_not_2d_raises():
 
 def test_create_with_node():
     da = data_array(ndim=2)
-    fig = FigImage(input_node(da))
+    fig = FigImage(Node(da))
     assert len(fig.artists) == 1
     assert sc.identical(list(fig.artists.values())[0]._data, da)
 
 
 def test_create_with_bin_edges():
     da = data_array(ndim=2, binedges=True)
-    fig = FigImage(input_node(da))
+    fig = FigImage(Node(da))
     assert len(fig.artists) == 1
     assert sc.identical(list(fig.artists.values())[0]._data, da)
 
@@ -48,7 +48,7 @@ def test_create_with_bin_edges():
 def test_create_with_only_one_bin_edge_coord():
     da = data_array(ndim=2, binedges=True)
     da.coords['xx'] = sc.midpoints(da.coords['xx'])
-    fig = FigImage(input_node(da))
+    fig = FigImage(Node(da))
     assert len(fig.artists) == 1
     assert sc.identical(list(fig.artists.values())[0]._data, da)
 
@@ -60,7 +60,7 @@ def test_log_norm():
 
 def test_crop():
     da = data_array(ndim=2, binedges=True)
-    fig = FigImage(input_node(da))
+    fig = FigImage(Node(da))
     assert fig.canvas.xrange == (da.meta['xx'].min().value, da.meta['xx'].max().value)
     assert fig.canvas.yrange == (da.meta['yy'].min().value, da.meta['yy'].max().value)
     xmin = sc.scalar(2.1, unit='m')
@@ -79,7 +79,7 @@ def test_crop_no_variable():
     ymin = 5.5
     ymax = 22.3
     fig = FigImage(
-        input_node(da),
+        Node(da),
         crop={'xx': {'min': xmin, 'max': xmax}, 'yy': {'min': ymin, 'max': ymax}},
     )
     assert fig.canvas.xrange == (xmin, xmax)
@@ -90,14 +90,14 @@ def test_raises_for_new_data_with_incompatible_dimension():
     a = data_array(ndim=2)
     b = a.rename(xx='zz')
     with pytest.raises(sc.DimensionError):
-        FigImage(input_node(a), input_node(b))
+        FigImage(Node(a), Node(b))
 
 
 def test_raises_for_new_data_with_incompatible_unit():
     a = data_array(ndim=2)
     b = a * a
     with pytest.raises(sc.UnitError):
-        FigImage(input_node(a), input_node(b))
+        FigImage(Node(a), Node(b))
 
 
 def test_raises_for_new_data_with_incompatible_coord_unit():
@@ -105,14 +105,14 @@ def test_raises_for_new_data_with_incompatible_coord_unit():
     b = a.copy()
     b.coords['xx'] = a.coords['xx'] * a.coords['xx']
     with pytest.raises(sc.UnitError):
-        FigImage(input_node(a), input_node(b))
+        FigImage(Node(a), Node(b))
 
 
 def test_converts_new_data_units():
     a = data_array(ndim=2, unit='m')
     b = data_array(ndim=2, unit='cm')
-    anode = input_node(a)
-    bnode = input_node(b)
+    anode = Node(a)
+    bnode = Node(b)
     fig = FigImage(anode, bnode)
     assert sc.identical(fig.artists[anode.id]._data, a)
     assert sc.identical(fig.artists[bnode.id]._data, b.to(unit='m'))
@@ -122,8 +122,8 @@ def test_converts_new_data_coordinate_units():
     a = data_array(ndim=2)
     b = data_array(ndim=2)
     b.coords['xx'].unit = 'cm'
-    anode = input_node(a)
-    bnode = input_node(b)
+    anode = Node(a)
+    bnode = Node(b)
     fig = FigImage(anode, bnode)
     assert sc.identical(fig.artists[anode.id]._data, a)
     c = b.copy()
@@ -133,7 +133,7 @@ def test_converts_new_data_coordinate_units():
 
 def test_colorbar_label_has_correct_unit():
     da = data_array(ndim=2, unit='K')
-    fig = FigImage(input_node(da))
+    fig = FigImage(Node(da))
     assert fig.canvas.cblabel == '[K]'
 
 
@@ -141,7 +141,7 @@ def test_colorbar_label_has_correct_name():
     da = data_array(ndim=2, unit='K')
     name = 'My Experimental Data'
     da.name = name
-    fig = FigImage(input_node(da))
+    fig = FigImage(Node(da))
     assert fig.canvas.cblabel == name + ' [K]'
 
 
@@ -150,5 +150,5 @@ def test_colorbar_label_has_no_name_with_multiple_artists():
     b = 3.3 * a
     a.name = 'A data'
     b.name = 'B data'
-    fig = FigImage(input_node(a), input_node(b))
+    fig = FigImage(Node(a), Node(b))
     assert fig.canvas.cblabel == '[K]'
