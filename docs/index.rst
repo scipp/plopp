@@ -62,6 +62,7 @@ Get in touch
    :hidden:
 
    getting-started/overview
+   getting-started/numpy-pandas-xarray
 
 .. toctree::
    :caption: Basic Usage
