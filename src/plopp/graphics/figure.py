@@ -21,18 +21,18 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     --------
     Create an input node and attach a figure1d as a view:
 
-      >>> in_node = pp.input_node(da)
+      >>> in_node = pp.Node(da)
       >>> fig = pp.figure1d(in_node)
 
     Visualize two data arrays on the same figure:
 
-      >>> a_node = pp.input_node(a)
-      >>> b_node = pp.input_node(b)
+      >>> a_node = pp.Node(a)
+      >>> b_node = pp.Node(b)
       >>> fig = pp.figure1d(a_node, b_node)
 
     With a customization argument to make the vertical scale logarithmic:
 
-      >>> in_node = pp.input_node(da)
+      >>> in_node = pp.Node(da)
       >>> fig = pp.figure1d(in_node, norm='log')
     """
 
@@ -59,12 +59,12 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     --------
     Create an input node and attach a figure2d as a view:
 
-      >>> in_node = pp.input_node(da)
+      >>> in_node = pp.Node(da)
       >>> fig = pp.figure2d(in_node)
 
     With a customization argument to make the color scale logarithmic:
 
-      >>> in_node = pp.input_node(da)
+      >>> in_node = pp.Node(da)
       >>> fig = pp.figure2d(in_node, norm='log')
     """
 
@@ -91,12 +91,12 @@ def figure3d(*args, style: Literal['scatter'] = 'scatter', **kwargs):
     --------
     Create an input node and attach a figure3d as a view:
 
-      >>> in_node = pp.input_node(da)
+      >>> in_node = pp.Node(da)
       >>> fig = pp.figure3d(in_node)
 
     With a customization argument to make the color scale logarithmic:
 
-      >>> in_node = pp.input_node(da)
+      >>> in_node = pp.Node(da)
       >>> fig = pp.figure3d(in_node, norm='log')
     """
 

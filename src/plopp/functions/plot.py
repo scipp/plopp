@@ -8,7 +8,7 @@ from numpy import ndarray
 from scipp import Dataset, Variable
 from scipp.typing import VariableLike
 
-from ..core import input_node
+from ..core import Node
 from ..graphics import figure1d, figure2d
 from .common import preprocess_multi
 
@@ -127,7 +127,7 @@ def plot(
     ndim = ndims.pop()
     if ndim == 1:
         return figure1d(
-            *[input_node(da) for da in data_arrays],
+            *[Node(da) for da in data_arrays],
             errorbars=errorbars,
             mask_color=mask_color,
             **common_args,
@@ -142,7 +142,7 @@ def plot(
                 'plopp.figure2d function.'
             )
         return figure2d(
-            *[input_node(da) for da in data_arrays],
+            *[Node(da) for da in data_arrays],
             aspect=aspect,
             cbar=cbar,
             **common_args,

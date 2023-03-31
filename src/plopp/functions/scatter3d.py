@@ -6,7 +6,7 @@ from typing import Literal, Optional, Tuple, Union
 
 import scipp as sc
 
-from ..core import input_node
+from ..core import Node
 from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib
 
@@ -107,7 +107,7 @@ def scatter3d(
     if to_plot.ndim != 1:
         to_plot = to_plot.flatten(to=uuid.uuid4().hex)
     fig = figure3d(
-        input_node(to_plot),
+        Node(to_plot),
         x=x,
         y=y,
         z=z,
