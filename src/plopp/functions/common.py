@@ -43,23 +43,13 @@ def _to_data_array(
     missing.
     """
     out = obj
-    # print('_to_data_array 1', type(out))
     if isinstance(out, list):
         out = np.array(out)
-    # print('_to_data_array 2', type(out))
     if isinstance(out, np.ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
         out = sc.Variable(dims=dims, values=out)
-    # print('_to_data_array 3', type(out))
     if isinstance(out, sc.Variable):
         out = sc.DataArray(data=out)
-    # print('_to_data_array 4', type(out))
-    # if 'pandas' in str(type(out)):
-    #     out = sc.compat.from_pandas(out)
-    # print('_to_data_array 5', type(out))
-    # if 'xarray' in str(type(out)):
-    #     out = sc.compat.from_xarray(out)
-    # print('_to_data_array 6', type(out))
     out = from_compatible_lib(out)
     if not isinstance(out, sc.DataArray):
         raise ValueError(f"Cannot convert input of type {type(obj)} to a DataArray.")
