@@ -8,11 +8,11 @@ import scipp as sc
 
 from ..core import input_node
 from ..graphics import Camera
-from .common import check_not_binned
+from .common import check_not_binned, preprocess
 
 
 def scatter3d(
-    da: sc.DataArray,
+    obj: sc.DataArray,
     *,
     x: str = None,
     y: str = None,
@@ -40,7 +40,7 @@ def scatter3d(
 
     Parameters
     ----------
-    da:
+    obj:
         The data array containing the data and the coordinates.
     x:
         The name of the coordinate that is to be used for the X positions.
@@ -83,14 +83,13 @@ def scatter3d(
             'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'  # noqa: E501
         )
 
+    da = preprocess(obj)
     check_not_binned(da)
 
     if pos is not None:
         if any((x, y, z)):
-            raise ValueError(
-                f'If pos ({pos}) is defined, all of '
-                f'x ({x}), y ({y}), and z ({z}) must be None.'
-            )
+            raise ValueError(f'If pos ({pos}) is defined, all of '
+                             f'x ({x}), y ({y}), and z ({z}) must be None.')
         coords = {
             (x := f'{pos}.x'): da.meta[pos].fields.x,
             (y := f'{pos}.y'): da.meta[pos].fields.y,

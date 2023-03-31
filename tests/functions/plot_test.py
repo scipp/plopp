@@ -169,7 +169,12 @@ def test_kwarg_crop_1d_min_max():
     da = data_array(ndim=1)
     p = pp.plot(
         da,
-        crop={'xx': {'min': sc.scalar(20, unit='m'), 'max': sc.scalar(40, unit='m')}},
+        crop={
+            'xx': {
+                'min': sc.scalar(20, unit='m'),
+                'max': sc.scalar(40, unit='m')
+            }
+        },
     )
     assert np.array_equal(p.canvas.ax.get_xlim(), [20, 40])
 
@@ -199,8 +204,13 @@ def test_kwarg_crop_2d():
     p = pp.plot(
         da,
         crop={
-            'xx': {'min': sc.scalar(20, unit='m')},
-            'yy': {'min': sc.scalar(10, unit='m'), 'max': sc.scalar(4000, unit='cm')},
+            'xx': {
+                'min': sc.scalar(20, unit='m')
+            },
+            'yy': {
+                'min': sc.scalar(10, unit='m'),
+                'max': sc.scalar(4000, unit='cm')
+            },
         },
     )
     assert p.canvas.ax.get_xlim()[0] == 20
@@ -291,6 +301,82 @@ def test_plot_raises_with_multiple_2d_inputs():
     a = data_array(ndim=2)
     b = 3.3 * a
     with pytest.raises(
-        ValueError, match='The plot function can only plot a single 2d data entry'
-    ):
+            ValueError,
+            match='The plot function can only plot a single 2d data entry'):
         pp.plot({'a': a, 'b': b})
+
+
+def test_plot_xarray_data_array_1d():
+    from xarray import DataArray
+    N = 50
+    data = np.random.random(N)
+    time = np.arange(float(N))
+    da = DataArray(data, coords={'time': time}, dims=['time'])
+    p = pp.plot(da)
+    assert p._fig.dims['x'] == 'time'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+
+
+def test_plot_xarray_data_array_2d():
+    from xarray import DataArray
+    N = 50
+    M = 40
+    data = np.random.random([M, N])
+    time = np.arange(float(N))
+    space = np.arange(float(M))
+    da = DataArray(data,
+                   coords={
+                       'space': space,
+                       'time': time
+                   },
+                   dims=['space', 'time'])
+    p = pp.plot(da)
+    assert p._fig.dims['x'] == 'time'
+    assert p._fig.dims['y'] == 'space'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+
+
+def test_plot_xarray_dataset():
+    from xarray import Dataset
+    N = 50
+    temp = 15 + 8 * np.random.random(N)
+    precip = 10 * np.random.random(N)
+    ds = Dataset(
+        {
+            "temperature": (["time"], temp),
+            "precipitation": (["time"], precip),
+        },
+        coords={"time": np.arange(50)},
+    )
+    p = pp.plot(ds)
+    assert p._fig.dims['x'] == 'time'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+    assert len(p._fig._artists) == 2
+
+
+def test_plot_pandas_series():
+    from pandas import Series
+    s = Series(np.arange(100.), name='MyDataSeries')
+    p = pp.plot(s)
+    assert p._fig.dims['x'] == 'row'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+    assert list(p._fig.artists.values())[0].label == 'MyDataSeries'
+
+
+def test_plot_pandas_dataframe():
+    from pandas import DataFrame
+    df = DataFrame({
+        "A": np.arange(50.0),
+        "B": 1.5 * np.arange(50),
+        "C": np.random.random(50),
+        "D": np.random.normal(size=50)
+    })
+    p = pp.plot(df)
+    assert p._fig.dims['x'] == 'row'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+    assert len(p._fig._artists) == 4

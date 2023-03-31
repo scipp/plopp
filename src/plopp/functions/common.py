@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from collections.abc import Mapping
 import warnings
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import scipp as sc
@@ -19,27 +20,49 @@ def require_interactive_backend(func: str):
         raise RuntimeError(
             f"The {func} can only be used with an interactive backend "
             "backend. Use `%matplotlib widget` at the start of your "
-            "notebook."
-        )
+            "notebook.")
+
+
+def _from_compatible_lib(obj: Any) -> Any:
+    """
+    Convert from a compatible library, if possible.
+    """
+    if 'pandas' in str(type(obj)):
+        return sc.compat.from_pandas(obj)
+    if 'xarray' in str(type(obj)):
+        return sc.compat.from_xarray(obj)
+    return obj
 
 
 def _to_data_array(
-    obj: Union[list, np.ndarray, sc.Variable, sc.DataArray]
-) -> sc.DataArray:
+        obj: Union[list, np.ndarray, sc.Variable,
+                   sc.DataArray]) -> sc.DataArray:
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
     missing.
     """
     out = obj
+    # print('_to_data_array 1', type(out))
     if isinstance(out, list):
         out = np.array(out)
+    # print('_to_data_array 2', type(out))
     if isinstance(out, np.ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
         out = sc.Variable(dims=dims, values=out)
+    # print('_to_data_array 3', type(out))
     if isinstance(out, sc.Variable):
         out = sc.DataArray(data=out)
+    # print('_to_data_array 4', type(out))
+    # if 'pandas' in str(type(out)):
+    #     out = sc.compat.from_pandas(out)
+    # print('_to_data_array 5', type(out))
+    # if 'xarray' in str(type(out)):
+    #     out = sc.compat.from_xarray(out)
+    # print('_to_data_array 6', type(out))
+    out = _from_compatible_lib(out)
     if not isinstance(out, sc.DataArray):
-        raise ValueError(f"Cannot convert input of type {type(obj)} to a DataArray.")
+        raise ValueError(
+            f"Cannot convert input of type {type(obj)} to a DataArray.")
     out = out.copy(deep=False)
     for dim, size in out.sizes.items():
         if dim not in out.meta:
@@ -47,7 +70,8 @@ def _to_data_array(
     return out
 
 
-def _to_variable_if_not_none(x: sc.Variable, unit: str) -> Union[None, sc.Variable]:
+def _to_variable_if_not_none(x: sc.Variable,
+                             unit: str) -> Union[None, sc.Variable]:
     """
     Convert input to the required unit if it is not ``None``.
     """
@@ -67,8 +91,7 @@ def _check_size(da: sc.DataArray):
         raise ValueError(
             f"Plotting data of size {da.shape} may take very long or use "
             "an excessive amount of memory. This is therefore disabled by "
-            "default. To bypass this check, use `ignore_size=True`."
-        )
+            "default. To bypass this check, use `ignore_size=True`.")
 
 
 def check_not_binned(obj):
@@ -78,8 +101,7 @@ def check_not_binned(obj):
             "Cannot plot binned data, it must be histogrammed first, "
             f"e.g., using ``obj.hist()`` or obj.hist({params})``."
             "See https://scipp.github.io/generated/functions/scipp.hist.html for "
-            "more details."
-        )
+            "more details.")
 
 
 def _all_dims_sorted(var, order='ascending'):
@@ -92,7 +114,7 @@ def preprocess(
     name: str = '',
     ignore_size: bool = False,
     coords: Optional[List[str]] = None,
-):
+) -> sc.DataArray:
     """
     Pre-process input data for plotting.
     This involves:
@@ -130,7 +152,7 @@ def preprocess(
         smax = _to_variable_if_not_none(sl.get('max'), unit=out.meta[dim].unit)
         start = max(out[dim, :smin].sizes[dim] - 1, 0)
         width = out[dim, smin:smax].sizes[dim]
-        out = out[dim, start : start + width + 2]
+        out = out[dim, start:start + width + 2]
     if not ignore_size:
         _check_size(out)
     if coords is not None:
@@ -144,10 +166,8 @@ def preprocess(
     for name, coord in out.coords.items():
         if coord.ndim > 0:
             try:
-                if not (
-                    _all_dims_sorted(coord, order='ascending')
-                    or _all_dims_sorted(coord, order='descending')
-                ):
+                if not (_all_dims_sorted(coord, order='ascending')
+                        or _all_dims_sorted(coord, order='descending')):
                     warnings.warn(
                         'The input contains a coordinate with unsorted values '
                         f'({name}). The results may be unpredictable. '
@@ -158,3 +178,23 @@ def preprocess(
             except sc.DTypeError:
                 pass
     return out
+
+
+def preprocess_multi(obj, **kwargs) -> List[sc.DataArray]:
+    """
+    Pre-process potentially multiple input data for plotting.
+    See :func:`preprocess` for details.
+
+    Parameters
+    ----------
+    obj:
+        The input objects that will be converted to data arrays.
+    """
+    to_preprocess = _from_compatible_lib(obj)
+    if isinstance(to_preprocess, (Mapping, sc.Dataset)):
+        return [
+            preprocess(item, name=name, **kwargs)
+            for name, item in obj.items()
+        ]
+    else:
+        return [preprocess(obj, **kwargs)]

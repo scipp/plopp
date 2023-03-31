@@ -10,7 +10,7 @@ from scipp.typing import VariableLike
 
 from ..core import input_node
 from ..graphics import figure1d, figure2d
-from .common import preprocess
+from .common import preprocess_multi
 
 
 def plot(
@@ -100,17 +100,22 @@ def plot(
         **kwargs,
     }
 
-    if isinstance(obj, (Mapping, Dataset)):
-        data_arrays = [
-            preprocess(
-                item, crop=crop, name=name, ignore_size=ignore_size, coords=coords
-            )
-            for name, item in obj.items()
-        ]
-    else:
-        data_arrays = [
-            preprocess(obj, crop=crop, ignore_size=ignore_size, coords=coords)
-        ]
+    # if isinstance(obj, (Mapping, Dataset)):
+    #     data_arrays = [
+    #         preprocess(
+    #             item, crop=crop, name=name, ignore_size=ignore_size, coords=coords
+    #         )
+    #         for name, item in obj.items()
+    #     ]
+    # else:
+    #     data_arrays = [
+    #         preprocess(obj, crop=crop, ignore_size=ignore_size, coords=coords)
+    #     ]
+
+    data_arrays = preprocess_multi(obj,
+                                   crop=crop,
+                                   ignore_size=ignore_size,
+                                   coords=coords)
 
     ndims = set()
     for da in data_arrays:
@@ -118,8 +123,7 @@ def plot(
     if len(ndims) > 1:
         raise ValueError(
             'All items given to the plot function must have the same '
-            f'number of dimensions. Found dimensions {ndims}.'
-        )
+            f'number of dimensions. Found dimensions {ndims}.')
     ndim = ndims.pop()
     if ndim == 1:
         return figure1d(
@@ -135,8 +139,7 @@ def plot(
                 'to create multiple figures, see the documentation on subplots at '
                 'https://scipp.github.io/plopp/customization/subplots.html. If you '
                 'want to plot two images onto the same axes, use the lower-level '
-                'plopp.figure2d function.'
-            )
+                'plopp.figure2d function.')
         return figure2d(
             *[input_node(da) for da in data_arrays],
             aspect=aspect,
@@ -146,5 +149,4 @@ def plot(
     else:
         raise ValueError(
             'The plot function can only plot 1d and 2d data, got input '
-            f'with {ndim} dimensions'
-        )
+            f'with {ndim} dimensions')

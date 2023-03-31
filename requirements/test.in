@@ -2,6 +2,8 @@
 graphviz
 ipympl
 kaleido
+pandas
 plotly
 pytest
 scipy
+xarray
