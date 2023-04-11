@@ -222,6 +222,9 @@ class Canvas:
 
     @property
     def title(self) -> str:
+        """
+        Get or set the title of the plot.
+        """
         return self.ax.get_title()
 
     @title.setter
@@ -230,6 +233,9 @@ class Canvas:
 
     @property
     def xlabel(self) -> str:
+        """
+        Get or set the label of the x-axis.
+        """
         return self.ax.get_xlabel()
 
     @xlabel.setter
@@ -238,6 +244,9 @@ class Canvas:
 
     @property
     def ylabel(self) -> str:
+        """
+        Get or set the label of the y-axis.
+        """
         return self.ax.get_ylabel()
 
     @ylabel.setter
@@ -246,6 +255,9 @@ class Canvas:
 
     @property
     def cblabel(self) -> str:
+        """
+        Get or set the label of the colorbar.
+        """
         return self.cax.get_ylabel()
 
     @cblabel.setter
@@ -254,6 +266,9 @@ class Canvas:
 
     @property
     def xscale(self) -> str:
+        """
+        Get or set the scale of the x-axis ('linear' or 'log').
+        """
         return self.ax.get_xscale()
 
     @xscale.setter
@@ -262,6 +277,9 @@ class Canvas:
 
     @property
     def yscale(self) -> str:
+        """
+        Get or set the scale of the y-axis ('linear' or 'log').
+        """
         return self.ax.get_yscale()
 
     @yscale.setter
@@ -270,6 +288,9 @@ class Canvas:
 
     @property
     def xmin(self) -> float:
+        """
+        Get or set the lower (left) bound of the x-axis.
+        """
         return self.ax.get_xlim()[0]
 
     @xmin.setter
@@ -278,6 +299,9 @@ class Canvas:
 
     @property
     def xmax(self) -> float:
+        """
+        Get or set the upper (right) bound of the x-axis.
+        """
         return self.ax.get_xlim()[1]
 
     @xmax.setter
@@ -286,6 +310,9 @@ class Canvas:
 
     @property
     def xrange(self) -> Tuple[float, float]:
+        """
+        Get or set the range/limits of the x-axis.
+        """
         return self.ax.get_xlim()
 
     @xrange.setter
@@ -294,6 +321,9 @@ class Canvas:
 
     @property
     def ymin(self) -> float:
+        """
+        Get or set the lower (bottom) bound of the y-axis.
+        """
         return self.ax.get_ylim()[0]
 
     @ymin.setter
@@ -302,6 +332,9 @@ class Canvas:
 
     @property
     def ymax(self) -> float:
+        """
+        Get or set the upper (top) bound of the y-axis.
+        """
         return self.ax.get_ylim()[1]
 
     @ymax.setter
@@ -310,6 +343,9 @@ class Canvas:
 
     @property
     def yrange(self) -> Tuple[float, float]:
+        """
+        Get or set the range/limits of the y-axis.
+        """
         return self.ax.get_ylim()
 
     @yrange.setter
