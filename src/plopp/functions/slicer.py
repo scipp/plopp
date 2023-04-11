@@ -9,7 +9,7 @@ from scipp.typing import VariableLike
 
 from ..core import Node, widget_node
 from ..graphics import figure1d, figure2d
-from .common import preprocess, require_interactive_backend
+from .common import preprocess_multi, require_interactive_backend
 
 
 class Slicer:
@@ -49,16 +49,8 @@ class Slicer:
         crop: Dict[str, Dict[str, sc.Variable]] = None,
         **kwargs,
     ):
-        if isinstance(obj, (dict, sc.Dataset)):
-            ds = sc.Dataset(
-                {
-                    key: preprocess(da, crop=crop, ignore_size=True)
-                    for key, da in obj.items()
-                }
-            )
-        else:
-            da = preprocess(obj, crop=crop, ignore_size=True)
-            ds = sc.Dataset({da.name: da})
+        data_arrays = preprocess_multi(obj, crop=crop, ignore_size=True)
+        ds = sc.Dataset({da.name: da for da in data_arrays})
 
         if keep is None:
             keep = ds.dims[-(2 if ds.ndim > 2 else 1) :]

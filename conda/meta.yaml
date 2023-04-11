@@ -16,19 +16,21 @@ requirements:
     - python-dateutil
     - matplotlib
   run_constrained:
-    - scipp >=0.12
+    - scipp
 
 test:
   imports:
     - plopp
   requires:
-    - pytest
     - ipympl
     - ipywidgets
+    - pandas
+    - pytest
     - python-graphviz
     - pythreejs
-    - scipp >=0.12
+    - scipp
     - scipy
+    - xarray
   source_files:
     - tests/
   commands:

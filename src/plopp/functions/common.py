@@ -2,7 +2,8 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
-from typing import Dict, List, Optional, Union
+from collections.abc import Mapping
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import scipp as sc
@@ -23,6 +24,17 @@ def require_interactive_backend(func: str):
         )
 
 
+def from_compatible_lib(obj: Any) -> Any:
+    """
+    Convert from a compatible library, if possible.
+    """
+    if 'pandas' in str(type(obj)):
+        return sc.compat.from_pandas(obj)
+    if 'xarray' in str(type(obj)):
+        return sc.compat.from_xarray(obj)
+    return obj
+
+
 def _to_data_array(
     obj: Union[list, np.ndarray, sc.Variable, sc.DataArray]
 ) -> sc.DataArray:
@@ -38,6 +50,7 @@ def _to_data_array(
         out = sc.Variable(dims=dims, values=out)
     if isinstance(out, sc.Variable):
         out = sc.DataArray(data=out)
+    out = from_compatible_lib(out)
     if not isinstance(out, sc.DataArray):
         raise ValueError(f"Cannot convert input of type {type(obj)} to a DataArray.")
     out = out.copy(deep=False)
@@ -92,7 +105,7 @@ def preprocess(
     name: str = '',
     ignore_size: bool = False,
     coords: Optional[List[str]] = None,
-):
+) -> sc.DataArray:
     """
     Pre-process input data for plotting.
     This involves:
@@ -158,3 +171,20 @@ def preprocess(
             except sc.DTypeError:
                 pass
     return out
+
+
+def preprocess_multi(obj, **kwargs) -> List[sc.DataArray]:
+    """
+    Pre-process potentially multiple input data for plotting.
+    See :func:`preprocess` for details.
+
+    Parameters
+    ----------
+    obj:
+        The input objects that will be converted to data arrays.
+    """
+    to_preprocess = from_compatible_lib(obj)
+    if isinstance(to_preprocess, (Mapping, sc.Dataset)):
+        return [preprocess(item, name=name, **kwargs) for name, item in obj.items()]
+    else:
+        return [preprocess(obj, **kwargs)]

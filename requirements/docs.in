@@ -5,11 +5,13 @@ h5py
 ipympl
 mpltoolbox
 nbsphinx
+pandas
 pooch
 requests
 scipy
 sphinx
 sphinx-autodoc-typehints==1.18.3  # later versions require sphinx >=5 which is incompatible with current sphinx-book-theme
-sphinx-book-theme
+sphinx-book-theme<1.0
 sphinx-copybutton
 sphinx-gallery<0.11
+xarray
