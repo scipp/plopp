@@ -12,10 +12,17 @@ from ..graphics import figure1d, figure2d
 from .common import preprocess, require_interactive_backend
 
 
-def slice_xy(da, xy):
+def _slice_xy(da, xy):
     x = xy['x']
     y = xy['y']
     return da[y['dim'], y['value']][x['dim'], x['value']]
+
+
+def _apply_op(da, op, dim):
+    out = getattr(sc, op)(da, dim=dim)
+    if out.name:
+        out.name = f'{op} of {out.name}'
+    return out
 
 
 def inspector(
@@ -85,13 +92,13 @@ def inspector(
     for d in set(da.dims) - {dim}:
         da.coords[d] = coord_as_bin_edges(da, d)
 
-    op_node = Node(getattr(sc, operation), in_node, dim=dim)
+    op_node = Node(_apply_op, da=in_node, op=operation, dim=dim)
     f2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
     f1d = figure1d()
 
     from ..widgets import Box, PointsTool
 
-    pts = PointsTool(figure=f2d, input_node=in_node, func=slice_xy, destination=f1d)
+    pts = PointsTool(figure=f2d, input_node=in_node, func=_slice_xy, destination=f1d)
     f2d.toolbar['inspect'] = pts
     out = [f2d, f1d]
     if orientation == 'horizontal':
