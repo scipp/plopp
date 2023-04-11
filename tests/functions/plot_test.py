@@ -294,3 +294,83 @@ def test_plot_raises_with_multiple_2d_inputs():
         ValueError, match='The plot function can only plot a single 2d data entry'
     ):
         pp.plot({'a': a, 'b': b})
+
+
+def test_plot_xarray_data_array_1d():
+    import xarray as xr
+
+    N = 50
+    data = np.random.random(N)
+    time = np.arange(float(N))
+    da = xr.DataArray(data, coords={'time': time}, dims=['time'])
+    p = pp.plot(da)
+    assert p._fig.dims['x'] == 'time'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+
+
+def test_plot_xarray_data_array_2d():
+    import xarray as xr
+
+    N = 50
+    M = 40
+    data = np.random.random([M, N])
+    time = np.arange(float(N))
+    space = np.arange(float(M))
+    da = xr.DataArray(
+        data, coords={'space': space, 'time': time}, dims=['space', 'time']
+    )
+    p = pp.plot(da)
+    assert p._fig.dims['x'] == 'time'
+    assert p._fig.dims['y'] == 'space'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+
+
+def test_plot_xarray_dataset():
+    import xarray as xr
+
+    N = 50
+    temp = 15 + 8 * np.random.random(N)
+    precip = 10 * np.random.random(N)
+    ds = xr.Dataset(
+        {
+            "temperature": (["time"], temp),
+            "precipitation": (["time"], precip),
+        },
+        coords={"time": np.arange(50)},
+    )
+    p = pp.plot(ds)
+    assert p._fig.dims['x'] == 'time'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+    assert len(p._fig.artists) == 2
+
+
+def test_plot_pandas_series():
+    import pandas as pd
+
+    s = pd.Series(np.arange(100.0), name='MyDataSeries')
+    p = pp.plot(s)
+    assert p._fig.dims['x'] == 'row'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+    assert list(p._fig.artists.values())[0].label == 'MyDataSeries'
+
+
+def test_plot_pandas_dataframe():
+    import pandas as pd
+
+    df = pd.DataFrame(
+        {
+            'A': np.arange(50.0),
+            'B': 1.5 * np.arange(50),
+            'C': np.random.random(50),
+            'D': np.random.normal(size=50),
+        }
+    )
+    p = pp.plot(df)
+    assert p._fig.dims['x'] == 'row'
+    assert p.canvas.xunit == 'dimensionless'
+    assert p.canvas.yunit == 'dimensionless'
+    assert len(p._fig.artists) == 4

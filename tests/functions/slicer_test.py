@@ -57,6 +57,16 @@ def test_with_dataset():
     assert sc.identical(nodes[1].request_data(), ds['b']['yy', 5])
 
 
+def test_with_data_group():
+    da = data_array(ndim=2)
+    dg = sc.DataGroup(a=da, b=da * 2.5)
+    sl = Slicer(dg, keep=['xx'])
+    nodes = list(sl.figure.graph_nodes.values())
+    sl.slider.controls['yy']['slider'].value = 5
+    assert sc.identical(nodes[0].request_data(), dg['a']['yy', 5])
+    assert sc.identical(nodes[1].request_data(), dg['b']['yy', 5])
+
+
 def test_with_dict_of_data_arrays():
     a = data_array(ndim=2)
     b = data_array(ndim=2) * 2.5

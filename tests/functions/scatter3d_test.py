@@ -72,3 +72,19 @@ def test_raises_ValueError_when_given_ax_kwarg():
     da = scatter()
     with pytest.raises(ValueError, match='Keyword "ax" detected'):
         pp.scatter3d(da, x='x', y='y', z='z', ax='dummy')
+
+
+def test_scatter3d_from_xarray():
+    import xarray as xr
+
+    N = 200
+    data = np.random.random(N)
+    x = np.random.normal(size=N)
+    y = np.random.normal(size=N)
+    z = np.random.normal(size=N)
+    da = xr.DataArray(
+        data,
+        coords={'x': ('pixel', x), 'y': ('pixel', y), 'z': ('pixel', z)},
+        dims=['pixel'],
+    )
+    pp.scatter3d(da, x='x', y='y', z='z')

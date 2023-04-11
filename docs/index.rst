@@ -57,6 +57,14 @@ Get in touch
 - Report bugs (including unclear, missing, or wrong documentation!), suggest features or view the source code `on GitHub <https://github.com/scipp/plopp>`_.
 
 .. toctree::
+   :caption: Getting started
+   :maxdepth: 3
+   :hidden:
+
+   getting-started/overview
+   getting-started/numpy-pandas-xarray
+
+.. toctree::
    :caption: Basic Usage
    :maxdepth: 3
    :hidden:
