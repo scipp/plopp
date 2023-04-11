@@ -222,6 +222,9 @@ class Canvas:
 
     @property
     def title(self) -> str:
+        """
+        Get or set the title of the plot.
+        """
         return self._title_text
 
     @title.setter
