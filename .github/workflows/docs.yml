@@ -43,7 +43,7 @@ jobs:
       - run: python -m pip install -r requirements/ci.txt
       - run: |
           tox --skip-pkg-install -e docs -- plopp==${VERSION}
-          echo "target=$(python docs/version.py --repo=plopp --version=${VERSION} --action=get-target)" >> $GITHUB_ENV
+          echo "target=$(python docs/version.py --version=${VERSION} --action=get-target)" >> $GITHUB_ENV
         if: ${{ inputs.publish }}
       - run: tox -e docs
         if: ${{ !inputs.publish }}

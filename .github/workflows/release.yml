@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           submodules: true
           fetch-depth: 0  # history required so cmake can determine version
@@ -27,7 +27,7 @@ jobs:
       - run: conda install -c conda-forge --yes conda-build boa
       - run: conda mambabuild --channel conda-forge --channel scipp --python=3.8 --no-anaconda-upload --override-channels --output-folder conda/package conda
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: conda-package-noarch
           path: conda/package/*/plopp*.tar.bz2
@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # history required so setuptools_scm can determine version
 
@@ -52,7 +52,7 @@ jobs:
         run: python -m build
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: dist
           path: dist
@@ -64,7 +64,7 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
       - uses: conda-incubator/setup-miniconda@v2
       - run: conda install -c conda-forge --yes anaconda-client
       - run: anaconda --token ${{ secrets.ANACONDATOKEN }} upload --user scipp --label main $(ls conda-package-*/*/*.tar.bz2)
@@ -91,8 +91,8 @@ jobs:
       - name: Set outputs
         id: version
         run: |
-          echo "::set-output name=new::$(python docs/version.py --repo=plopp --version=${GITHUB_REF_NAME} --action=is-new)"
-          echo "::set-output name=replaced::$(python docs/version.py --repo=plopp --version=${GITHUB_REF_NAME} --action=get-replaced)"
+          echo "new=$(python docs/version.py --version=${GITHUB_REF_NAME} --action=is-new)" >> $GITHUB_OUTPUT
+          echo "replaced=$(python docs/version.py --version=${GITHUB_REF_NAME} --action=get-replaced)" >> $GITHUB_OUTPUT
 
   replaced-docs:
     needs: [upload_packages, manage-versions]
