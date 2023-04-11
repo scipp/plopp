@@ -284,4 +284,7 @@ nbsphinx_thumbnails = {
     os.path.join(notebook_root, 'scatter3d-with-threshold'): os.path.join(
         thumbnail_root, 'scatter3d-with-threshold-thumbnail.png'
     ),
+    os.path.join(notebook_root, 'scatter3d-with-slider'): os.path.join(
+        thumbnail_root, 'scatter3d-with-slider-thumbnail.png'
+    ),
 }
