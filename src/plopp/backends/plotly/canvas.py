@@ -142,6 +142,9 @@ class Canvas:
 
     @property
     def title(self) -> str:
+        """
+        Get or set the title of the plot.
+        """
         return self.fig.layout.title
 
     @title.setter
@@ -155,6 +158,9 @@ class Canvas:
 
     @property
     def xlabel(self) -> str:
+        """
+        Get or set the label of the x-axis.
+        """
         return self.fig.layout.xaxis.title
 
     @xlabel.setter
@@ -163,6 +169,9 @@ class Canvas:
 
     @property
     def ylabel(self) -> str:
+        """
+        Get or set the label of the y-axis.
+        """
         return self.fig.layout.yaxis.title
 
     @ylabel.setter
@@ -171,6 +180,9 @@ class Canvas:
 
     @property
     def xscale(self) -> str:
+        """
+        Get or set the scale of the x-axis ('linear' or 'log').
+        """
         return self.fig.layout.xaxis.type
 
     @xscale.setter
@@ -179,6 +191,9 @@ class Canvas:
 
     @property
     def yscale(self) -> str:
+        """
+        Get or set the scale of the y-axis ('linear' or 'log').
+        """
         return self.fig.layout.yaxis.type
 
     @yscale.setter
@@ -187,6 +202,9 @@ class Canvas:
 
     @property
     def xmin(self) -> float:
+        """
+        Get or set the lower (left) bound of the x-axis.
+        """
         return self.fig.layout.xaxis.range[0]
 
     @xmin.setter
@@ -195,6 +213,9 @@ class Canvas:
 
     @property
     def xmax(self) -> float:
+        """
+        Get or set the upper (right) bound of the x-axis.
+        """
         return self.fig.layout.xaxis.range[1]
 
     @xmax.setter
@@ -203,6 +224,9 @@ class Canvas:
 
     @property
     def xrange(self) -> Tuple[float, float]:
+        """
+        Get or set the range/limits of the x-axis.
+        """
         return self.fig.layout.xaxis.range
 
     @xrange.setter
@@ -211,6 +235,9 @@ class Canvas:
 
     @property
     def ymin(self) -> float:
+        """
+        Get or set the lower (bottom) bound of the y-axis.
+        """
         return self.fig.layout.yaxis.range[0]
 
     @ymin.setter
@@ -219,6 +246,9 @@ class Canvas:
 
     @property
     def ymax(self) -> float:
+        """
+        Get or set the upper (top) bound of the y-axis.
+        """
         return self.fig.layout.yaxis.range[1]
 
     @ymax.setter
@@ -227,6 +257,9 @@ class Canvas:
 
     @property
     def yrange(self) -> Tuple[float, float]:
+        """
+        Get or set the range/limits of the y-axis.
+        """
         return self.fig.layout.yaxis.range
 
     @yrange.setter
