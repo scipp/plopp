@@ -46,3 +46,7 @@ jobs:
   docs:
     needs: tests
     uses: ./.github/workflows/docs.yml
+    with:
+      publish: false
+      version: ${{ github.ref_name }}
+      branch: ${{ github.ref_name }}
