@@ -179,12 +179,16 @@ class ColorMapper:
         vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm))
         if self.user_vmin is not None:
             self.vmin = maybe_variable_to_number(self.user_vmin, unit=self.unit)
-        elif vmin.value < self.vmin:
+        else:
             self.vmin = vmin.value
+        # elif vmin.value < self.vmin:
+        #     self.vmin = vmin.value
         if self.user_vmax is not None:
             self.vmax = maybe_variable_to_number(self.user_vmax, unit=self.unit)
-        elif vmax.value > self.vmax:
+        else:
             self.vmax = vmax.value
+        # elif vmax.value > self.vmax:
+        #     self.vmax = vmax.value
 
     def _set_artists_colors(self, key: str = None):
         """
@@ -246,13 +250,13 @@ class ColorMapper:
                 text += f'{" " if self.name else ""}[{self.unit}]'
             self.cax.set_ylabel(text)
 
-        old_bounds = np.array([self.vmin, self.vmax])
+        # old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
         self._set_normalizer_limits()
 
-        if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
-            self._set_artists_colors(key=key)
-            self._update_colorbar_widget()
+        # if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
+        self._set_artists_colors(key=key)
+        self._update_colorbar_widget()
 
     def toggle_norm(self):
         """
