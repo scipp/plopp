@@ -83,6 +83,12 @@ def test_plot_ignore_size_disables_size_check():
     pp.plot(np.random.random(1_100_000), ignore_size=True)
 
 
+def test_plot_with_non_dimensional_unsorted_coord_does_not_warn():
+    da = data_array(ndim=1)
+    da.coords['aux'] = sc.sin(sc.arange(da.dim, 50.0, unit='rad'))
+    pp.plot(da)
+
+
 def test_plot_2d_coord():
     da = data_array(ndim=2, ragged=True)
     pp.plot(da)
@@ -103,10 +109,6 @@ def _get_artist(fig, n=0):
 
 def _get_line(fig, n=0):
     return _get_artist(fig=fig, n=n)._line
-
-
-def _get_mesh(fig):
-    return _get_artist(fig=fig)._mesh
 
 
 def test_kwarg_linecolor():
