@@ -155,21 +155,22 @@ def preprocess(
             renamed_dims[underlying] = dim
         out = out.rename_dims(**renamed_dims)
     for name, coord in out.coords.items():
-        if coord.ndim > 0:
-            try:
-                if not (
-                    _all_dims_sorted(coord, order='ascending')
-                    or _all_dims_sorted(coord, order='descending')
-                ):
-                    warnings.warn(
-                        'The input contains a coordinate with unsorted values '
-                        f'({name}). The results may be unpredictable. '
-                        'Coordinates can be sorted using '
-                        '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
-                        UserWarning,
-                    )
-            except sc.DTypeError:
-                pass
+        if (coord.ndim == 0) or (name not in out.dims):
+            continue
+        try:
+            if not (
+                _all_dims_sorted(coord, order='ascending')
+                or _all_dims_sorted(coord, order='descending')
+            ):
+                warnings.warn(
+                    'The input contains a coordinate with unsorted values '
+                    f'({name}). The results may be unpredictable. '
+                    'Coordinates can be sorted using '
+                    '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
+                    RuntimeWarning,
+                )
+        except sc.DTypeError:
+            pass
     return out
 
 
