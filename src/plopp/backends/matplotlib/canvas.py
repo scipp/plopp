@@ -46,6 +46,10 @@ class Canvas:
         The maximum value for the vertical axis. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the current vertical axis
         unit.
+    autoscale:
+        The behavior of the axis limits. If ``auto``, the limits automatically
+        adjusts every time the data changes. If ``grow``, the limits are allowed to
+        grow with time but they do not shrink.
     aspect:
         The aspect ratio for the axes.
     cbar:
@@ -61,6 +65,7 @@ class Canvas:
         grid: bool = False,
         vmin: Union[sc.Variable, int, float] = None,
         vmax: Union[sc.Variable, int, float] = None,
+        autoscale: Literal['auto', 'grow'] = 'auto',
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
         **ignored,
@@ -82,6 +87,7 @@ class Canvas:
         self.xunit = None
         self.yunit = None
         self._own_axes = False
+        self._autoscale = autoscale
 
         if self.ax is None:
             self._own_axes = True
@@ -135,15 +141,24 @@ class Canvas:
         draw:
             Make a draw call to the figure if ``True``.
         """
+        xmin = np.inf
+        xmax = np.NINF
+        ymin = np.inf
+        ymax = np.NINF
         if self.ax.lines:
             self.ax.relim()
             self.ax.autoscale()
             xmin, xmax = self.ax.get_xlim()
             ymin, ymax = self.ax.get_ylim()
-            self._xmin = min(self._xmin, xmin)
-            self._xmax = max(self._xmax, xmax)
-            self._ymin = min(self._ymin, ymin)
-            self._ymax = max(self._ymax, ymax)
+            # self._xmin = min(self._xmin, xmin)
+            # self._xmax = max(self._xmax, xmax)
+            # self._ymin = min(self._ymin, ymin)
+            # self._ymax = max(self._ymax, ymax)
+        else:
+            xmin = np.inf
+            xmax = np.NINF
+            ymin = np.inf
+            ymax = np.NINF
         for c in self.ax.collections:
             if isinstance(c, QuadMesh):
                 coords = c.get_coordinates()
@@ -159,10 +174,20 @@ class Canvas:
                         scale=self.yscale,
                     )
                 )
-                self._xmin = min(self._xmin, left.value)
-                self._xmax = max(self._xmax, right.value)
-                self._ymin = min(self._ymin, bottom.value)
-                self._ymax = max(self._ymax, top.value)
+                xmin = min(xmin, left.value)
+                xmax = max(xmax, right.value)
+                ymin = min(ymin, bottom.value)
+                ymax = max(ymax, top.value)
+        if self._autoscale == 'grow':
+            self._xmin = min(self._xmin, xmin)
+            self._xmax = max(self._xmax, xmax)
+            self._ymin = min(self._ymin, ymin)
+            self._ymax = max(self._ymax, ymax)
+        else:
+            self._xmin = xmin
+            self._xmax = xmax
+            self._ymin = ymin
+            self._ymax = ymax
         if self._user_vmin is not None:
             self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
         if self._user_vmax is not None:

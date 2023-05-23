@@ -55,8 +55,6 @@ class ColorMapper:
     A class that handles conversion between data values and RGBA colors.
     It controls the normalization (linear or log), as well as the min and max limits
     for the color range.
-    If the min and max values are not set manually by the user, they are allowed to grow
-    with time but they do not shrink.
 
     Parameters
     ----------
@@ -75,6 +73,10 @@ class ColorMapper:
         The name of the colormap for masked data.
     norm:
         The colorscale normalization.
+    autoscale:
+        The behavior of the color range limits. If ``auto``, the limits automatically
+        adjusts every time the data changes. If ``grow``, the limits are allowed to
+        grow with time but they do not shrink.
     vmin:
         The minimum value for the colorscale range. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the data unit.
@@ -94,6 +96,7 @@ class ColorMapper:
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
+        autoscale: Literal['auto', 'grow'] = 'auto',
         vmin: Optional[Union[sc.Variable, int, float]] = None,
         vmax: Optional[Union[sc.Variable, int, float]] = None,
         nan_color: Optional[str] = None,
@@ -107,6 +110,7 @@ class ColorMapper:
         self.vmin = np.inf
         self.vmax = np.NINF
         self.norm = norm
+        self._autoscale = autoscale
 
         # Note that we need to set vmin/vmax for the LogNorm, if not an error is
         # raised when making the colorbar before any call to update is made.
@@ -179,16 +183,12 @@ class ColorMapper:
         vmin, vmax = fix_empty_range(find_limits(data, scale=self.norm))
         if self.user_vmin is not None:
             self.vmin = maybe_variable_to_number(self.user_vmin, unit=self.unit)
-        else:
+        elif (vmin.value < self.vmin) or (self._autoscale == 'auto'):
             self.vmin = vmin.value
-        # elif vmin.value < self.vmin:
-        #     self.vmin = vmin.value
         if self.user_vmax is not None:
             self.vmax = maybe_variable_to_number(self.user_vmax, unit=self.unit)
-        else:
+        elif (vmax.value > self.vmax) or (self._autoscale == 'auto'):
             self.vmax = vmax.value
-        # elif vmax.value > self.vmax:
-        #     self.vmax = vmax.value
 
     def _set_artists_colors(self, key: str = None):
         """
@@ -250,13 +250,16 @@ class ColorMapper:
                 text += f'{" " if self.name else ""}[{self.unit}]'
             self.cax.set_ylabel(text)
 
-        # old_bounds = np.array([self.vmin, self.vmax])
+        if self._autoscale == 'grow':
+            old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
         self._set_normalizer_limits()
 
-        # if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
-        self._set_artists_colors(key=key)
-        self._update_colorbar_widget()
+        if (self._autoscale == 'auto') or (
+            not np.allclose(old_bounds, np.array([self.vmin, self.vmax]))
+        ):
+            self._set_artists_colors(key=key)
+            self._update_colorbar_widget()
 
     def toggle_norm(self):
         """
