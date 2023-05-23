@@ -58,9 +58,23 @@ def test_autoscale():
     assert mapper.vmax == (da.max() * const).value
 
 
-def test_rescale_limits_do_not_shrink():
+def test_auto_rescale_limits_can_shrink():
     da = data_array(ndim=2, unit='K')
-    mapper = ColorMapper()
+    mapper = ColorMapper(autoscale='auto')
+
+    mapper.autoscale(data=da)
+    assert mapper.vmin == da.min().value
+    assert mapper.vmax == da.max().value
+
+    const = 0.5
+    mapper.autoscale(data=da * const)
+    assert mapper.vmin == da.min().value * const
+    assert mapper.vmax == da.max().value * const
+
+
+def test_grow_rescale_limits_do_not_shrink():
+    da = data_array(ndim=2, unit='K')
+    mapper = ColorMapper(autoscale='grow')
 
     mapper.autoscale(data=da)
     assert mapper.vmin == da.min().value
@@ -168,6 +182,31 @@ def test_colorbar_updated_on_rescale():
     mapper.update(data=da, key=None)
     assert old_image is mapper.widget.value
 
+    # Update with new values should make a new colorbar image
+    const = 2.3
+    mapper.update(data=da * const, key=None)
+    assert old_image_array != mapper.widget.value
+
+
+def test_colorbar_does_not_update_on_rescale_if_limits_can_only_grow():
+    da = data_array(ndim=2, unit='K')
+    mapper = ColorMapper(autoscale='grow')
+
+    mapper.update(data=da, key=None)
+    _ = mapper.to_widget()
+    old_image = mapper.widget.value
+    old_image_array = old_image
+
+    # Update with the same values should not make a new colorbar image
+    mapper.update(data=da, key=None)
+    assert old_image is mapper.widget.value
+
+    # Update with a smaller range should not make a new colorbar image
+    const = 0.8
+    mapper.update(data=da * const, key=None)
+    assert old_image is mapper.widget.value
+
+    # Update with new values should make a new colorbar image
     const = 2.3
     mapper.update(data=da * const, key=None)
     assert old_image_array != mapper.widget.value

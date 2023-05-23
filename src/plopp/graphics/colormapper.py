@@ -250,14 +250,11 @@ class ColorMapper:
                 text += f'{" " if self.name else ""}[{self.unit}]'
             self.cax.set_ylabel(text)
 
-        if self._autoscale == 'grow':
-            old_bounds = np.array([self.vmin, self.vmax])
+        old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale(data=data)
         self._set_normalizer_limits()
 
-        if (self._autoscale == 'auto') or (
-            not np.allclose(old_bounds, np.array([self.vmin, self.vmax]))
-        ):
+        if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
             self._set_artists_colors(key=key)
             self._update_colorbar_widget()
 
