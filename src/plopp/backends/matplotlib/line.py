@@ -205,8 +205,8 @@ class Line:
         new_values = self._make_data()
 
         self._line.set_data(new_values['values']['x'], new_values['values']['y'])
+        self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
         if new_values['mask']['visible']:
-            self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
             self._mask.set_visible(True)
         else:
             self._mask.set_visible(False)
