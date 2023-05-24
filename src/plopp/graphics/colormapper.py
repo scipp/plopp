@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from copy import copy
 from collections.abc import Iterable
+from copy import copy
 from functools import reduce
 from typing import Any, Literal, Optional, Tuple, Union
 
