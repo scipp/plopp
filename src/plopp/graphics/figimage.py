@@ -151,6 +151,7 @@ class FigImage(BaseFig):
         if key not in self.artists:
             image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = image
+            self.colormapper[key] = image
             self.dims.update({"x": new_values.dims[1], "y": new_values.dims[0]})
 
             self.canvas.xunit = new_values.meta[new_values.dims[1]].unit
@@ -164,11 +165,7 @@ class FigImage(BaseFig):
                 self.canvas.yscale = self._scale[self.dims['y']]
 
         self.artists[key].update(new_values=new_values)
-        self.colormapper[key] = new_values
-        cmapper_range_changed = self.colormapper.update()
-        keys = self.artists.keys() if cmapper_range_changed else [key]
-        for k in keys:
-            self.artists[k].set_colors(self.colormapper.rgba(self.artists[k].data))
+        self.colormapper.update(key=key, data=new_values)
 
     def crop(self, **limits):
         """

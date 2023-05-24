@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
+from collections.abc import Iterable
 from functools import reduce
 from typing import Any, Literal, Optional, Tuple, Union
 
@@ -133,28 +134,10 @@ class ColorMapper:
             self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
             self.cax.yaxis.set_label_coords(-0.9, 0.5)
 
-    def __setitem__(self, key, data):
-        if key not in self.artists:
-            if self.unit is None:
-                self.unit = data.unit
-            elif data.unit != self.unit:
-                raise ValueError(
-                    f'Incompatible unit: colormapper has unit {self.unit}, '
-                    f'new data has unit {data.unit}.'
-                )
+    def __setitem__(self, key: str, artist: Any):
+        self.artists[key] = artist
 
-            if self.name is None:
-                self.name = data.name
-            elif data.name != self.name:
-                self.name = ''
-            if self.cax is not None:
-                text = self.name
-                if self.unit is not None:
-                    text += f'{" " if self.name else ""}[{self.unit}]'
-                self.cax.set_ylabel(text)
-        self.artists[key] = data
-
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
         return self.artists[key]
 
     def to_widget(self):
@@ -191,17 +174,13 @@ class ColorMapper:
 
     def autoscale(self):
         """
-        Re-compute the min and max range of values, given new values.
-        The current range can grow but not shrink.
-
-        Parameters
-        ----------
-        data:
-            The data array containing the values to update the current range.
+        Re-compute the global min and max range of values by iterating over all the
+        artists. If autoscale is set to ``'auto'``, the limits adjust to he current
+        range. If it is set to ``'grow'``, limits can grow but not shrink.
         """
         limits = [
-            fix_empty_range(find_limits(da, scale=self.norm))
-            for da in self.artists.values()
+            fix_empty_range(find_limits(artist._data, scale=self.norm))
+            for artist in self.artists.values()
         ]
         vmin = reduce(lambda a, b: min(a, b), [v[0] for v in limits])
         vmax = reduce(lambda a, b: max(a, b), [v[1] for v in limits])
@@ -213,6 +192,19 @@ class ColorMapper:
             self.vmax = maybe_variable_to_number(self.user_vmax, unit=self.unit)
         elif (vmax.value > self.vmax) or (self._autoscale == 'auto'):
             self.vmax = vmax.value
+
+    def _set_artists_colors(self, keys: Iterable):
+        """
+        Update the colors of all the artists apart from the one that triggered the
+        update, as those get updated by the figure.
+
+        Parameters
+        ----------
+        keys:
+            List of artists to update.
+        """
+        for k in keys:
+            self.artists[k].set_colors(self.rgba(self.artists[k].data))
 
     def _set_normalizer_limits(self):
         """
@@ -227,11 +219,10 @@ class ColorMapper:
             self.normalizer.vmin = self.vmin
             self.normalizer.vmax = self.vmax
 
-    def update(self):
+    def update(self, key: str, data: sc.DataArray):
         """
         Update the colorscale bounds taking into account new values.
-        If the bounds have changed, we update all the colors in the artists that depend
-        on this ColorMapper. We also update the colorbar widget if it exists.
+        We also update the colorbar widget if it exists.
 
         Parameters
         ----------
@@ -240,14 +231,33 @@ class ColorMapper:
         key:
             The id of the node that provided this data.
         """
+        if self.unit is None:
+            self.unit = data.unit
+        elif data.unit != self.unit:
+            raise ValueError(
+                f'Incompatible unit: colormapper has unit {self.unit}, '
+                f'new data has unit {data.unit}.'
+            )
+
+        if self.name is None:
+            self.name = data.name
+        elif data.name != self.name:
+            self.name = ''
+        if self.cax is not None:
+            text = self.name
+            if self.unit is not None:
+                text += f'{" " if self.name else ""}[{self.unit}]'
+            self.cax.set_ylabel(text)
         old_bounds = np.array([self.vmin, self.vmax])
         self.autoscale()
         self._set_normalizer_limits()
 
         if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
             self._update_colorbar_widget()
-            return True
-        return False
+            keys = self.artists.keys()
+        else:
+            keys = [key]
+        self._set_artists_colors(keys)
 
     def toggle_norm(self):
         """
@@ -257,10 +267,9 @@ class ColorMapper:
         self.normalizer = _get_normalizer(self.norm)
         self.vmin = np.inf
         self.vmax = np.NINF
-        for artist in self.artists.values():
-            self.autoscale(data=artist._data)
+        self.autoscale()
         self._set_normalizer_limits()
-        self._set_artists_colors()
+        self._set_artists_colors(self.artists.keys())
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
             self._update_colorbar_widget()

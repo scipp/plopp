@@ -150,10 +150,6 @@ class Canvas:
             self.ax.autoscale()
             xmin, xmax = self.ax.get_xlim()
             ymin, ymax = self.ax.get_ylim()
-            # self._xmin = min(self._xmin, xmin)
-            # self._xmax = max(self._xmax, xmax)
-            # self._ymin = min(self._ymin, ymin)
-            # self._ymax = max(self._ymax, ymax)
         else:
             xmin = np.inf
             xmax = np.NINF
