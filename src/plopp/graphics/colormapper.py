@@ -182,8 +182,8 @@ class ColorMapper:
             fix_empty_range(find_limits(artist._data, scale=self.norm))
             for artist in self.artists.values()
         ]
-        vmin = reduce(lambda a, b: min(a, b), [v[0] for v in limits])
-        vmax = reduce(lambda a, b: max(a, b), [v[1] for v in limits])
+        vmin = reduce(min, [v[0] for v in limits])
+        vmax = reduce(max, [v[1] for v in limits])
         if self.user_vmin is not None:
             self.vmin = maybe_variable_to_number(self.user_vmin, unit=self.unit)
         elif (vmin.value < self.vmin) or (self._autoscale == 'auto'):

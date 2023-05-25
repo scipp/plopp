@@ -141,10 +141,6 @@ class Canvas:
         draw:
             Make a draw call to the figure if ``True``.
         """
-        xmin = np.inf
-        xmax = np.NINF
-        ymin = np.inf
-        ymax = np.NINF
         if self.ax.lines:
             self.ax.relim()
             self.ax.autoscale()
