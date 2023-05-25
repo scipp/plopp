@@ -35,6 +35,16 @@ class Slicer:
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
+    autoscale:
+        The behavior of the y-axis (1d plots) and color range (2d plots) limits.
+        If ``auto``, the limits automatically adjusts every time the data changes.
+        If ``grow``, the limits are allowed to grow with time but they do not shrink.
+        If ``fixed``, the limits are fixed to the full data range and do not change
+        with time.
+    vmin:
+        The minimum value of the y-axis (1d plots) or color range (2d plots).
+    vmax:
+        The maximum value of the y-axis (1d plots) or color range (2d plots).
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped.
@@ -115,6 +125,9 @@ def slicer(
     obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
     keep: List[str] = None,
     *,
+    autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
+    vmin: Union[VariableLike, int, float] = None,
+    vmax: Union[VariableLike, int, float] = None,
     crop: Dict[str, Dict[str, sc.Variable]] = None,
     **kwargs,
 ):
@@ -131,6 +144,16 @@ def slicer(
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
+    autoscale:
+        The behavior of the y-axis (1d plots) and color range (2d plots) limits.
+        If ``auto``, the limits automatically adjusts every time the data changes.
+        If ``grow``, the limits are allowed to grow with time but they do not shrink.
+        If ``fixed``, the limits are fixed to the full data range and do not change
+        with time.
+    vmin:
+        The minimum value of the y-axis (1d plots) or color range (2d plots).
+    vmax:
+        The maximum value of the y-axis (1d plots) or color range (2d plots).
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped. Each entry should be a nested dict containing scalar
@@ -145,7 +168,15 @@ def slicer(
         A :class:`Box` which will contain a :class:`Figure` and slider widgets.
     """
     require_interactive_backend('slicer')
-    sl = Slicer(obj=obj, keep=keep, crop=crop, **kwargs)
+    sl = Slicer(
+        obj=obj,
+        keep=keep,
+        autoscale=autoscale,
+        vmin=vmin,
+        vmax=vmax,
+        crop=crop,
+        **kwargs,
+    )
     from ..widgets import Box
 
     return Box([sl.figure, sl.slider])
