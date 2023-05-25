@@ -78,8 +78,8 @@ class Slicer:
                     'Slicer plot: when autoscale is set to "fixed", vmin and/or vmax '
                     'cannot be specified.'
                 )
-            vmin = reduce(min, [da.min() for da in ds.values()])
-            vmax = reduce(max, [da.max() for da in ds.values()])
+            vmin = reduce(min, [da.data.min() for da in ds.values()])
+            vmax = reduce(max, [da.data.max() for da in ds.values()])
             autoscale = 'auto'  # Change back to something the figure understands
 
         from ..widgets import SliceWidget, slice_dims
