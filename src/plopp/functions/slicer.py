@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Dict, List, Union
+from functools import reduce
+from typing import Dict, List, Literal, Union
 
 import scipp as sc
 from numpy import ndarray
@@ -46,6 +47,9 @@ class Slicer:
         obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
         keep: List[str] = None,
         *,
+        autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
+        vmin: Union[VariableLike, int, float] = None,
+        vmax: Union[VariableLike, int, float] = None,
         crop: Dict[str, Dict[str, sc.Variable]] = None,
         **kwargs,
     ):
@@ -68,6 +72,16 @@ class Slicer:
                 f"were not found in the input's dimensions {ds.dims}."
             )
 
+        if autoscale == 'fixed':
+            if ('vmin' in kwargs) or ('vmax' in kwargs):
+                raise ValueError(
+                    'Slicer plot: when autoscale is set to "fixed", vmin and/or vmax '
+                    'cannot be specified.'
+                )
+            vmin = reduce(min, [da.min() for da in ds.values()])
+            vmax = reduce(max, [da.max() for da in ds.values()])
+            autoscale = 'auto'  # Change back to something the figure understands
+
         from ..widgets import SliceWidget, slice_dims
 
         self.data_nodes = [Node(da) for da in ds.values()]
@@ -78,9 +92,23 @@ class Slicer:
             slice_dims(data_node, self.slider_node) for data_node in self.data_nodes
         ]
         if len(keep) == 1:
-            self.figure = figure1d(*self.slice_nodes, crop=crop, **kwargs)
+            self.figure = figure1d(
+                *self.slice_nodes,
+                crop=crop,
+                autoscale=autoscale,
+                vmin=vmin,
+                vmax=vmax,
+                **kwargs,
+            )
         elif len(keep) == 2:
-            self.figure = figure2d(*self.slice_nodes, crop=crop, **kwargs)
+            self.figure = figure2d(
+                *self.slice_nodes,
+                crop=crop,
+                autoscale=autoscale,
+                vmin=vmin,
+                vmax=vmax,
+                **kwargs,
+            )
 
 
 def slicer(
