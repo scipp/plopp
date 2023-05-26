@@ -260,30 +260,6 @@ def test_colorbar_cbar_false_overrides_cax():
     assert mapper.colorbar is None
 
 
-def test_data_with_different_unit_raises():
-    da1 = data_array(ndim=2, unit='K')
-    da2 = data_array(ndim=2, unit='m')
-    mapper = ColorMapper()
-    artist = DummyChild(da1)
-    key = 'data'
-    mapper[key] = artist
-    mapper.update(data=da1, key=key)
-    with pytest.raises(ValueError):
-        mapper.update(data=da2, key=key)
-
-
-def test_data_with_different_unit_if_initial_data_has_unit_none_raises():
-    da1 = data_array(ndim=2, unit=None)
-    da2 = data_array(ndim=2, unit='m')
-    mapper = ColorMapper()
-    artist = DummyChild(da1)
-    key = 'data'
-    mapper[key] = artist
-    mapper.update(data=da1, key=key)
-    with pytest.raises(ValueError):
-        mapper.update(data=da2, key=key)
-
-
 def test_autoscale_auto_vmin_set():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper(autoscale='auto', vmin=-0.5)

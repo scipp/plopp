@@ -17,8 +17,6 @@ from ..backends.matplotlib.utils import fig_to_bytes, silent_mpl_figure
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
 
-NO_UNIT = object()
-
 
 def _get_cmap(name: str, nan_color: str = None) -> Colormap:
     """
@@ -120,7 +118,8 @@ class ColorMapper:
         # raised when making the colorbar before any call to update is made.
         self.normalizer = _get_normalizer(self.norm)
         self.colorbar = None
-        self.unit = NO_UNIT
+        self.unit = None
+
         self.name = None
         self.changed = False
         self.artists = {}
@@ -241,8 +240,9 @@ class ColorMapper:
         key:
             The id of the node that provided this data.
         """
-        if self.unit is NO_UNIT:
-            self.unit = data.unit
+        if self.name is None:
+            self.name = data.name
+            # If name is None, this is the first time update is called
             if self.user_vmin is not None:
                 self.user_vmin = maybe_variable_to_number(
                     self.user_vmin, unit=self.unit
@@ -251,14 +251,6 @@ class ColorMapper:
                 self.user_vmax = maybe_variable_to_number(
                     self.user_vmax, unit=self.unit
                 )
-        elif data.unit != self.unit:
-            raise ValueError(
-                f'Incompatible unit: colormapper has unit {self.unit}, '
-                f'new data has unit {data.unit}.'
-            )
-
-        if self.name is None:
-            self.name = data.name
         elif data.name != self.name:
             self.name = ''
         if self.cax is not None:
