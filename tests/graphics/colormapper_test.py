@@ -4,9 +4,9 @@
 from dataclasses import dataclass
 
 import numpy as np
+import pytest
 import scipp as sc
 from matplotlib.colors import LogNorm, Normalize
-import pytest
 
 from plopp.data.testing import data_array
 from plopp.graphics.colormapper import ColorMapper
