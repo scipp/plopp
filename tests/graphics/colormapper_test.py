@@ -4,7 +4,6 @@
 from dataclasses import dataclass
 
 import numpy as np
-import pytest
 import scipp as sc
 from matplotlib.colors import LogNorm, Normalize
 
