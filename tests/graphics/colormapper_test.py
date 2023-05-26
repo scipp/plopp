@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import numpy as np
 import scipp as sc
 from matplotlib.colors import LogNorm, Normalize
+import pytest
 
 from plopp.data.testing import data_array
 from plopp.graphics.colormapper import ColorMapper
@@ -122,8 +123,8 @@ def test_vmin_vmax():
     artist = DummyChild(da)
     mapper['data'] = artist
     mapper.update(key='data', data=da)
-    assert sc.identical(mapper.user_vmin, vmin)
-    assert sc.identical(mapper.user_vmax, vmax)
+    assert mapper.user_vmin == vmin.value
+    assert mapper.user_vmax == vmax.value
     assert mapper.vmin == vmin.value
     assert mapper.vmax == vmax.value
 
@@ -257,3 +258,27 @@ def test_colorbar_cbar_false_overrides_cax():
 
     mapper = ColorMapper(cbar=False, canvas=Canvas(cax=0))
     assert mapper.colorbar is None
+
+
+def test_data_with_different_unit_raises():
+    da1 = data_array(ndim=2, unit='K')
+    da2 = data_array(ndim=2, unit='m')
+    mapper = ColorMapper()
+    artist = DummyChild(da1)
+    key = 'data'
+    mapper[key] = artist
+    mapper.update(data=da1, key=key)
+    with pytest.raises(ValueError):
+        mapper.update(data=da2, key=key)
+
+
+def test_data_with_different_unit_if_initial_data_has_unit_none_raises():
+    da1 = data_array(ndim=2, unit=None)
+    da2 = data_array(ndim=2, unit='m')
+    mapper = ColorMapper()
+    artist = DummyChild(da1)
+    key = 'data'
+    mapper[key] = artist
+    mapper.update(data=da1, key=key)
+    with pytest.raises(ValueError):
+        mapper.update(data=da2, key=key)
