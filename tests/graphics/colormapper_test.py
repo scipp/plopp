@@ -282,3 +282,33 @@ def test_data_with_different_unit_if_initial_data_has_unit_none_raises():
     mapper.update(data=da1, key=key)
     with pytest.raises(ValueError):
         mapper.update(data=da2, key=key)
+
+
+def test_autoscale_auto_vmin_set():
+    da = data_array(ndim=2, unit='K')
+    mapper = ColorMapper(autoscale='auto', vmin=-0.5)
+    artist = DummyChild(da)
+    key = 'data'
+    mapper[key] = artist
+    mapper.update(data=da, key=key)
+    assert mapper.vmin == -0.5
+    assert mapper.vmax == da.max().value
+    # Make sure it handles when da.max() is greater than vmin
+    mapper.update(data=da - sc.scalar(5.0, unit='K'), key=key)
+    assert mapper.vmin == -0.5
+    assert mapper.vmin < mapper.vmax
+
+
+def test_autoscale_auto_vmax_set():
+    da = data_array(ndim=2, unit='K')
+    mapper = ColorMapper(autoscale='auto', vmax=0.5)
+    artist = DummyChild(da)
+    key = 'data'
+    mapper[key] = artist
+    mapper.update(data=da, key=key)
+    assert mapper.vmax == 0.5
+    assert mapper.vmin == da.min().value
+    # Make sure it handles when da.min() is greater than vmax
+    mapper.update(data=da + sc.scalar(5.0, unit='K'), key=key)
+    assert mapper.vmax == 0.5
+    assert mapper.vmin < mapper.vmax
