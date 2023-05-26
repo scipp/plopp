@@ -17,6 +17,8 @@ from ..backends.matplotlib.utils import fig_to_bytes, silent_mpl_figure
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
 
+NO_UNIT = object()
+
 
 def _get_cmap(name: str, nan_color: str = None) -> Colormap:
     """
@@ -118,7 +120,7 @@ class ColorMapper:
         # raised when making the colorbar before any call to update is made.
         self.normalizer = _get_normalizer(self.norm)
         self.colorbar = None
-        self.unit = None
+        self.unit = NO_UNIT
         self.name = None
         self.changed = False
         self.artists = {}
@@ -185,13 +187,21 @@ class ColorMapper:
         vmin = reduce(min, [v[0] for v in limits])
         vmax = reduce(max, [v[1] for v in limits])
         if self.user_vmin is not None:
-            self.vmin = maybe_variable_to_number(self.user_vmin, unit=self.unit)
+            self.vmin = self.user_vmin
         elif (vmin.value < self.vmin) or (self._autoscale == 'auto'):
             self.vmin = vmin.value
         if self.user_vmax is not None:
-            self.vmax = maybe_variable_to_number(self.user_vmax, unit=self.unit)
+            self.vmax = self.user_vmax
         elif (vmax.value > self.vmax) or (self._autoscale == 'auto'):
             self.vmax = vmax.value
+
+        if self.vmin >= self.vmax:
+            if self.user_vmax is not None:
+                self.vmax = self.user_vmax
+                self.vmin = self.user_vmax - abs(self.user_vmax) * 0.1
+            else:
+                self.vmin = self.user_vmin
+                self.vmax = self.user_vmin + abs(self.user_vmin) * 0.1
 
     def _set_artists_colors(self, keys: Iterable):
         """
@@ -231,8 +241,16 @@ class ColorMapper:
         key:
             The id of the node that provided this data.
         """
-        if self.unit is None:
+        if self.unit is NO_UNIT:
             self.unit = data.unit
+            if self.user_vmin is not None:
+                self.user_vmin = maybe_variable_to_number(
+                    self.user_vmin, unit=self.unit
+                )
+            if self.user_vmax is not None:
+                self.user_vmax = maybe_variable_to_number(
+                    self.user_vmax, unit=self.unit
+                )
         elif data.unit != self.unit:
             raise ValueError(
                 f'Incompatible unit: colormapper has unit {self.unit}, '

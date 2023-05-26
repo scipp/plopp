@@ -3,6 +3,7 @@
 
 from functools import reduce
 from typing import Dict, List, Literal, Union
+import warnings
 
 import scipp as sc
 from numpy import ndarray
@@ -83,13 +84,16 @@ class Slicer:
             )
 
         if autoscale == 'fixed':
-            if ('vmin' in kwargs) or ('vmax' in kwargs):
-                raise ValueError(
-                    'Slicer plot: when autoscale is set to "fixed", vmin and/or vmax '
-                    'cannot be specified.'
+            if None not in (vmin, vmax):
+                warnings.warn(
+                    'Slicer plot: autoscale is set to "fixed", but vmin and vmax '
+                    'are also specified. They will override the autoscale setting.',
+                    RuntimeWarning,
                 )
-            vmin = reduce(min, [da.data.min() for da in ds.values()])
-            vmax = reduce(max, [da.data.max() for da in ds.values()])
+            if vmin is None:
+                vmin = reduce(min, [da.data.min() for da in ds.values()])
+            if vmax is None:
+                vmax = reduce(max, [da.data.max() for da in ds.values()])
             autoscale = 'auto'  # Change back to something the figure understands
 
         from ..widgets import SliceWidget, slice_dims
