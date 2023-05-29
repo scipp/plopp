@@ -63,7 +63,7 @@ jobs:
           name: html
           path: html/
 
-      - uses: JamesIves/github-pages-deploy-action@v4.4.1
+      - uses: JamesIves/github-pages-deploy-action@v4.4.2
         if: ${{ inputs.publish }}
         with:
           branch: gh-pages
