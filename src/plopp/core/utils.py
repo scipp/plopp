@@ -109,7 +109,7 @@ def maybe_variable_to_number(
     if hasattr(x, 'unit'):
         if unit is not None:
             x = x.to(unit=unit)
-        x = x.values
+        x = x.values if x.dims else x.value
     return x
 
 

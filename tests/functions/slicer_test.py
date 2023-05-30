@@ -97,3 +97,15 @@ def test_raises_when_requested_keep_dims_do_not_exist():
         ValueError, match='Slicer plot: one or more of the requested dims to be kept'
     ):
         Slicer(da, keep=['time'])
+
+
+def test_autoscale_fixed():
+    da = sc.DataArray(
+        data=sc.arange('x', 5 * 10 * 20).fold(dim='x', sizes={'z': 20, 'y': 10, 'x': 5})
+    )
+    sl = Slicer(da, keep=['y', 'x'], autoscale='fixed')
+    assert sl.figure._fig.colormapper.vmin == 0
+    assert sl.figure._fig.colormapper.vmax == 5 * 10 * 20 - 1
+    sl.slider.controls['z']['slider'].value = 5
+    assert sl.figure._fig.colormapper.vmin == 0
+    assert sl.figure._fig.colormapper.vmax == 5 * 10 * 20 - 1

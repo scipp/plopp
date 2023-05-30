@@ -24,7 +24,7 @@ def test_update_on_one_mesh_changes_colors_on_second_mesh():
     b = Node(da2)
     f = FigImage(a, b)
     old_b_colors = f.artists[b.id]._mesh.get_facecolors()
-    a.func = lambda: da1 * 1.1
+    a.func = lambda: da1 * 2.1
     a.notify_children('updated a')
     # No change because the update did not change the colorbar limits
     assert np.allclose(old_b_colors, f.artists[b.id]._mesh.get_facecolors())

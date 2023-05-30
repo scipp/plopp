@@ -29,6 +29,7 @@ def plot(
     title: Optional[str] = None,
     vmin: Optional[Union[Variable, int, float]] = None,
     vmax: Optional[Union[Variable, int, float]] = None,
+    autoscale: Literal['auto', 'grow'] = 'auto',
     **kwargs,
 ):
     """Plot a Scipp object.
@@ -73,6 +74,10 @@ def plot(
     vmax:
         Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
         2d plots).
+    autoscale:
+        The behavior of the axis (1d plots) or the color range limits (2d plots).
+        If ``auto``, the limits automatically adjusts every time the data changes.
+        If ``grow``, the limits are allowed to grow with time but they do not shrink.
     **kwargs:
         All other kwargs are directly forwarded to Matplotlib, the underlying plotting
         library. The underlying functions called are the following:
@@ -95,6 +100,7 @@ def plot(
         'title': title,
         'vmin': vmin,
         'vmax': vmax,
+        'autoscale': autoscale,
         'figsize': figsize,
         **kwargs,
     }

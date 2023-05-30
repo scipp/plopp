@@ -36,6 +36,10 @@ class FigImage(BaseFig):
     vmax:
         Upper bound for the colorbar. If a number (without a unit) is supplied, it is
         assumed that the unit is the same as the data unit.
+    autoscale:
+        The behavior of the color range limits. If ``auto``, the limits automatically
+        adjusts every time the data changes. If ``grow``, the limits are allowed to
+        grow with time but they do not shrink.
     scale:
         Control the scaling of the horizontal axis. For example, specify
         ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
@@ -74,6 +78,7 @@ class FigImage(BaseFig):
         norm: Literal['linear', 'log'] = 'linear',
         vmin: Optional[Union[sc.Variable, int, float]] = None,
         vmax: Optional[Union[sc.Variable, int, float]] = None,
+        autoscale: Literal['auto', 'grow'] = 'auto',
         scale: Optional[Dict[str, str]] = None,
         aspect: Literal['auto', 'equal'] = 'auto',
         grid: bool = False,
@@ -99,6 +104,7 @@ class FigImage(BaseFig):
             norm=norm,
             vmin=vmin,
             vmax=vmax,
+            autoscale=autoscale,
             canvas=self.canvas,
         )
 
@@ -142,8 +148,6 @@ class FigImage(BaseFig):
                 ycoord, dim=self.dims['y'], unit=self.canvas.yunit
             )
 
-        self.colormapper.update(data=new_values, key=key)
-
         if key not in self.artists:
             image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = image
@@ -161,7 +165,7 @@ class FigImage(BaseFig):
                 self.canvas.yscale = self._scale[self.dims['y']]
 
         self.artists[key].update(new_values=new_values)
-        self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
+        self.colormapper.update(key=key, data=new_values)
 
     def crop(self, **limits):
         """

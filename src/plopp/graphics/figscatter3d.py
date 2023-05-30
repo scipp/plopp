@@ -126,8 +126,6 @@ class FigScatter3d(BaseFig):
                 unit=self.canvas.zunit, copy=False
             )
 
-        self.colormapper.update(data=new_values, key=key)
-
         if key not in self.artists:
             pts = backends.point_cloud(
                 data=new_values, x=self._x, y=self._y, z=self._z, **self._kwargs
@@ -139,7 +137,7 @@ class FigScatter3d(BaseFig):
                 self.canvas.make_outline(limits=self.get_limits())
 
         self.artists[key].update(new_values=new_values)
-        self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
+        self.colormapper.update(key=key, data=new_values)
 
     def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
