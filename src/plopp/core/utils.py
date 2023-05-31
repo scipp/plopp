@@ -159,6 +159,22 @@ def value_to_string(val: Union[int, float], precision: int = 3) -> str:
     return text
 
 
+def scalar_to_string(var: sc.Variable, precision: int = 3) -> str:
+    """
+    Convert a scalar to a human readable string.
+
+    Parameters
+    ----------
+    var:
+        The input scalar.
+    precision:
+        The number of decimal places to use for the string output.
+    """
+    return value_to_string(var.value, precision=precision) + (
+        f" [{var.unit}]" if var.unit is not None else ""
+    )
+
+
 def merge_masks(masks: Dict[str, sc.Variable]) -> sc.Variable:
     """
     Combine all masks into a single one using the OR operation.
@@ -181,10 +197,9 @@ def coord_element_to_string(x: sc.Variable) -> str:
     x:
         The input variable (of length 1 or 2).
     """
-    if x.shape:
-        out = ':'.join([value_to_string(v) for v in x.values])
-    else:
-        out = value_to_string(x.value)
+    if not x.shape:
+        return scalar_to_string(x)
+    out = ':'.join([value_to_string(v) for v in x.values])
     if x.unit is not None:
         out += f" [{x.unit}]"
     return out

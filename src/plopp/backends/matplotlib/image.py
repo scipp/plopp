@@ -6,7 +6,7 @@ import uuid
 import numpy as np
 import scipp as sc
 
-from ...core.utils import coord_as_bin_edges, merge_masks, repeat
+from ...core.utils import coord_as_bin_edges, merge_masks, repeat, scalar_to_string
 from .canvas import Canvas
 
 
@@ -215,7 +215,10 @@ class Image:
         y:
             The y coordinate of the mouse pointer.
         """
-        out = f'x={x:1.4f}, y={y:1.4f}'
+        out = (
+            f'x={scalar_to_string(x * self._hover_slicing["unit"][1])}, '
+            f'y={scalar_to_string(y * self._hover_slicing["unit"][0])}'
+        )
         xy = {'x': x, 'y': y}
         try:
             val = self._data_with_bin_edges[
@@ -232,7 +235,7 @@ class Image:
                     unit=self._hover_slicing['unit'][1],
                 ),
             ]
-            out += f', z={val.value:1.4f}'
+            out += f', z={scalar_to_string(val)}'
         except IndexError:
             pass
         return out
