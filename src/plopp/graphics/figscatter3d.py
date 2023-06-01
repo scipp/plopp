@@ -104,9 +104,6 @@ class FigScatter3d(BaseFig):
             This argument is ignored for the 3d figure update.
         """
         mapping = {'x': self._x, 'y': self._y, 'z': self._z}
-        # xcoord = new_values.coords[self._x]
-        # ycoord = new_values.coords[self._y]
-        # zcoord = new_values.coords[self._z]
         if not self.canvas.dims:
             self.canvas.dims.update(mapping)
             self.canvas.units.update(
@@ -121,21 +118,6 @@ class FigScatter3d(BaseFig):
                 new_values.coords[dim] = new_values.coords[dim].to(
                     unit=self.canvas.units[xyz], copy=False
                 )
-            # new_values.coords[self._y] = make_compatible(
-            #     ycoord, dim=self.canvas.dims['y'], unit=self.canvas.units['y']
-            # )
-            # new_values.coords[self._z] = make_compatible(
-            #     zcoord, dim=self.canvas.dims['z'], unit=self.canvas.units['z']
-            # )
-            # new_values.coords[self._x] = new_values.coords[self._x].to(
-            #     unit=self.canvas.xunit, copy=False
-            # )
-            # new_values.coords[self._y] = new_values.coords[self._y].to(
-            #     unit=self.canvas.yunit, copy=False
-            # )
-            # new_values.coords[self._z] = new_values.coords[self._z].to(
-            #     unit=self.canvas.zunit, copy=False
-            # )
 
         if key not in self.artists:
             pts = backends.point_cloud(

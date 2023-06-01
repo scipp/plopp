@@ -152,12 +152,6 @@ class FigImage(BaseFig):
                     dim=self.canvas.dims[xyz],
                     unit=self.canvas.units[xyz],
                 )
-            # new_values.coords[xdim] = make_compatible(
-            #     xcoord, dim=self.canvas.dims['x'], unit=self.canvas.units['x']
-            # )
-            # new_values.coords[ydim] = make_compatible(
-            #     ycoord, dim=self.canvas.dims['y'], unit=self.canvas.units['y']
-            # )
 
         if key not in self.artists:
             image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
