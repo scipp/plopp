@@ -171,7 +171,7 @@ def scalar_to_string(var: sc.Variable, precision: int = 3) -> str:
         The number of decimal places to use for the string output.
     """
     return value_to_string(var.value, precision=precision) + (
-        f" [{var.unit}]" if var.unit is not None else ""
+        f" {var.unit}" if var.unit not in (None, "") else ""
     )
 
 
@@ -198,7 +198,7 @@ def coord_element_to_string(x: sc.Variable) -> str:
         The input variable (of length 1 or 2).
     """
     if not x.shape:
-        return scalar_to_string(x)
+        return value_to_string(x.value) + (f" [{x.unit}]" if x.unit is not None else "")
     out = ':'.join([value_to_string(v) for v in x.values])
     if x.unit is not None:
         out += f" [{x.unit}]"

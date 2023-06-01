@@ -10,7 +10,7 @@ from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.limits import find_limits, fix_empty_range
-from ...core.utils import maybe_variable_to_number, scalar_to_string
+from ...core.utils import maybe_variable_to_number
 from .utils import fig_to_bytes, is_sphinx_build, silent_mpl_figure
 
 
@@ -86,6 +86,8 @@ class Canvas:
         self._user_vmax = vmax
         self.xunit = None
         self.yunit = None
+        self.xdim = None
+        self.ydim = None
         self._own_axes = False
         self._autoscale = autoscale
 
@@ -108,7 +110,6 @@ class Canvas:
         self.ax.set_aspect(aspect)
         self.ax.set_title(title)
         self.ax.grid(grid)
-        self.ax.format_coord = self.format_coord
 
         self._xmin = np.inf
         self._xmax = np.NINF
@@ -237,23 +238,6 @@ class Canvas:
                     if m in lims
                 ]
             )
-
-    def format_coord(self, x: float, y: float) -> str:
-        """
-        Format the coordinates of the mouse pointer to show the value of the
-        data at that point.
-
-        Parameters
-        ----------
-        x:
-            The x coordinate of the mouse pointer.
-        y:
-            The y coordinate of the mouse pointer.
-        """
-        return (
-            f'x={scalar_to_string(x * self.xunit)}, '
-            f'y={scalar_to_string(y * self.yunit)}'
-        )
 
     @property
     def title(self) -> str:

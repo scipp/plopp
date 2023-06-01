@@ -132,37 +132,33 @@ class FigImage(BaseFig):
         xcoord = new_values.coords[xdim]
         ydim = new_values.dims[0]
         ycoord = new_values.coords[ydim]
-        if not self.dims:
-            self.dims.update({"x": xdim, "y": ydim})
+        if self.canvas.xdim is None:
+            self.canvas.xdim = xdim
+            self.canvas.ydim = ydim
             self.canvas.xunit = xcoord.unit
             self.canvas.yunit = ycoord.unit
+            self.canvas.xlabel = name_with_unit(var=xcoord)
+            self.canvas.ylabel = name_with_unit(var=ycoord)
             self.colormapper.unit = new_values.unit
+            if xdim in self._scale:
+                self.canvas.xscale = self._scale[xdim]
+            if ydim in self._scale:
+                self.canvas.yscale = self._scale[ydim]
         else:
             new_values.data = make_compatible(
                 new_values.data, unit=self.colormapper.unit
             )
             new_values.coords[xdim] = make_compatible(
-                xcoord, dim=self.dims['x'], unit=self.canvas.xunit
+                xcoord, dim=self.canvas.xdim, unit=self.canvas.xunit
             )
             new_values.coords[ydim] = make_compatible(
-                ycoord, dim=self.dims['y'], unit=self.canvas.yunit
+                ycoord, dim=self.canvas.ydim, unit=self.canvas.yunit
             )
 
         if key not in self.artists:
             image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = image
             self.colormapper[key] = image
-            self.dims.update({"x": new_values.dims[1], "y": new_values.dims[0]})
-
-            self.canvas.xunit = new_values.meta[new_values.dims[1]].unit
-            self.canvas.yunit = new_values.meta[new_values.dims[0]].unit
-
-            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
-            self.canvas.ylabel = name_with_unit(var=new_values.meta[self.dims['y']])
-            if self.dims['x'] in self._scale:
-                self.canvas.xscale = self._scale[self.dims['x']]
-            if self.dims['y'] in self._scale:
-                self.canvas.yscale = self._scale[self.dims['y']]
 
         self.artists[key].update(new_values=new_values)
         self.colormapper.update(key=key, data=new_values)

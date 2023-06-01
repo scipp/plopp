@@ -215,9 +215,11 @@ class Image:
         y:
             The y coordinate of the mouse pointer.
         """
+        vx = sc.scalar(x, unit=self._canvas.xunit)
+        vy = sc.scalar(y, unit=self._canvas.yunit)
         out = (
-            f'x={scalar_to_string(x * self._hover_slicing["unit"][1])}, '
-            f'y={scalar_to_string(y * self._hover_slicing["unit"][0])}'
+            f'({self._canvas.xdim}={scalar_to_string(vx)}, '
+            f'{self._canvas.ydim}={scalar_to_string(vy)})'
         )
         xy = {'x': x, 'y': y}
         try:
@@ -235,7 +237,7 @@ class Image:
                     unit=self._hover_slicing['unit'][1],
                 ),
             ]
-            out += f', z={scalar_to_string(val)}'
+            out += f' : {scalar_to_string(val)}'
         except IndexError:
             pass
         return out
