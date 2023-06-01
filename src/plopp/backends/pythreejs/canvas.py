@@ -38,9 +38,8 @@ class Canvas:
     ):
         import pythreejs as p3
 
-        self.xunit = None
-        self.yunit = None
-        self.zunit = None
+        self.dims = {}
+        self.units = {}
         self.outline = None
         self.axticks = None
         self.figsize = np.asarray(figsize)
@@ -89,7 +88,9 @@ class Canvas:
         camera via the ``home`` function.
         """
         if not self._user_camera.has_units():
-            self._user_camera.set_units(self.xunit, self.yunit, self.zunit)
+            self._user_camera.set_units(
+                self.units.get('x'), self.units.get('y'), self.units.get('z')
+            )
 
         center = [var.mean().value for var in limits]
         distance_fudge_factor = 1.2

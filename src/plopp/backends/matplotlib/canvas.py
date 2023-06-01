@@ -84,10 +84,8 @@ class Canvas:
         self.cax = cax
         self._user_vmin = vmin
         self._user_vmax = vmax
-        self.xunit = None
-        self.yunit = None
-        self.xdim = None
-        self.ydim = None
+        self.units = {}
+        self.dims = {}
         self._own_axes = False
         self._autoscale = autoscale
 
@@ -183,9 +181,9 @@ class Canvas:
             self._ymin = ymin
             self._ymax = ymax
         if self._user_vmin is not None:
-            self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
+            self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.units['y'])
         if self._user_vmax is not None:
-            self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
+            self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.units['y'])
 
         self.ax.set_xlim(
             _none_if_not_finite(self._xmin), _none_if_not_finite(self._xmax)
@@ -233,7 +231,7 @@ class Canvas:
         for xy, lims in limits.items():
             getattr(self.ax, f'set_{xy}lim')(
                 *[
-                    maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
+                    maybe_variable_to_number(lims[m], unit=self.units[xy])
                     for m in ('min', 'max')
                     if m in lims
                 ]

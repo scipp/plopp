@@ -132,11 +132,9 @@ class FigImage(BaseFig):
         xcoord = new_values.coords[xdim]
         ydim = new_values.dims[0]
         ycoord = new_values.coords[ydim]
-        if self.canvas.xdim is None:
-            self.canvas.xdim = xdim
-            self.canvas.ydim = ydim
-            self.canvas.xunit = xcoord.unit
-            self.canvas.yunit = ycoord.unit
+        if not self.canvas.dims:
+            self.canvas.dims.update(x=xdim, y=ydim)
+            self.canvas.units.update(x=xcoord.unit, y=ycoord.unit)
             self.canvas.xlabel = name_with_unit(var=xcoord)
             self.canvas.ylabel = name_with_unit(var=ycoord)
             self.colormapper.unit = new_values.unit
@@ -148,12 +146,18 @@ class FigImage(BaseFig):
             new_values.data = make_compatible(
                 new_values.data, unit=self.colormapper.unit
             )
-            new_values.coords[xdim] = make_compatible(
-                xcoord, dim=self.canvas.xdim, unit=self.canvas.xunit
-            )
-            new_values.coords[ydim] = make_compatible(
-                ycoord, dim=self.canvas.ydim, unit=self.canvas.yunit
-            )
+            for xyz, dim in {'x': xdim, 'y': ydim}.items():
+                new_values.coords[dim] = make_compatible(
+                    new_values.coords[dim],
+                    dim=self.canvas.dims[xyz],
+                    unit=self.canvas.units[xyz],
+                )
+            # new_values.coords[xdim] = make_compatible(
+            #     xcoord, dim=self.canvas.dims['x'], unit=self.canvas.units['x']
+            # )
+            # new_values.coords[ydim] = make_compatible(
+            #     ycoord, dim=self.canvas.dims['y'], unit=self.canvas.units['y']
+            # )
 
         if key not in self.artists:
             image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
@@ -172,4 +176,4 @@ class FigImage(BaseFig):
         **limits:
             Min and max limits for each dimension to be cropped.
         """
-        self.canvas.crop(**{xy: limits[self.dims[xy]] for xy in 'xy'})
+        self.canvas.crop(**{xy: limits[self.canvas.dims[xy]] for xy in 'xy'})

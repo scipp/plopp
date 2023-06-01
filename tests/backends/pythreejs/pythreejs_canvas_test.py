@@ -115,9 +115,7 @@ def test_camera_user_vector(key):
     pos = (0, 1, 2)
     vec = sc.vector(pos, unit='m')
     canvas = Canvas(camera=Camera(**{key: vec}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'm'
+    canvas.units.update(x='m', y='m', z='m')
     canvas._update_camera(limits=_make_limits())
     _assert_pos(pos, canvas, key)
 
@@ -126,9 +124,7 @@ def test_camera_user_vector(key):
 def test_camera_user_vector_unit_conversion(key):
     vec = sc.vector([0, 1, 2], unit='cm')
     canvas = Canvas(camera=Camera(**{key: vec}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'm'
+    canvas.units.update(x='m', y='m', z='m')
     canvas._update_camera(limits=_make_limits())
     _assert_pos((0, 0.01, 0.02), canvas, key)
 
@@ -137,9 +133,7 @@ def test_camera_user_vector_unit_conversion(key):
 def test_camera_user_vector_bad_unit_raises(key):
     vec = sc.vector([0, 1, 2], unit='s')
     canvas = Canvas(camera=Camera(**{key: vec}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'm'
+    canvas.units.update(x='m', y='m', z='m')
     with pytest.raises(sc.UnitError):
         canvas._update_camera(limits=_make_limits())
 
@@ -148,9 +142,7 @@ def test_camera_user_vector_bad_unit_raises(key):
 def test_camera_user_vector_can_convert_a_single_field(key):
     vec = sc.vector([0, 1, 2], unit='m')
     canvas = Canvas(camera=Camera(**{key: vec}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'cm'
+    canvas.units.update(x='m', y='m', z='cm')
     canvas._update_camera(limits=_make_limits())
     _assert_pos((0, 1, 200), canvas, key)
 
@@ -163,9 +155,7 @@ def test_camera_user_tuple_of_variables(key):
         sc.scalar(44.0, unit='m'),
     ]
     canvas = Canvas(camera=Camera(**{key: pos}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'm'
+    canvas.units.update(x='m', y='m', z='m')
     canvas._update_camera(limits=_make_limits())
     _assert_pos((2.0, -12.0, 44.0), canvas, key)
 
@@ -178,9 +168,7 @@ def test_camera_user_tuple_of_variables_unit_conversion(key):
         sc.scalar(44.0, unit='mm'),
     ]
     canvas = Canvas(camera=Camera(**{key: pos}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'm'
+    canvas.units.update(x='m', y='m', z='m')
     canvas._update_camera(limits=_make_limits())
     _assert_pos((2.0, -0.12, 0.044), canvas, key)
 
@@ -193,9 +181,7 @@ def test_camera_user_tuple_of_variables_bad_unit_raises(key):
         sc.scalar(44.0, unit='m'),
     ]
     canvas = Canvas(camera=Camera(**{key: pos}))
-    canvas.xunit = 's'
-    canvas.yunit = 's'
-    canvas.zunit = 's'
+    canvas.units.update(x='s', y='s', z='s')
     with pytest.raises(sc.UnitError):
         canvas._update_camera(limits=_make_limits())
 
@@ -212,9 +198,7 @@ def test_camera_user_float(key):
 def test_camera_user_variable(key):
     value = sc.scalar(15.1, unit='m')
     canvas = Canvas(camera=Camera(**{key: value}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'm'
+    canvas.units.update(x='m', y='m', z='m')
     canvas._update_camera(limits=_make_limits())
     assert getattr(canvas.camera, key) == value.value
 
@@ -223,9 +207,7 @@ def test_camera_user_variable(key):
 def test_camera_user_variable_unit_conversion(key):
     value = sc.scalar(33.0, unit='cm')
     canvas = Canvas(camera=Camera(**{key: value}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'm'
+    canvas.units.update(x='m', y='m', z='m')
     canvas._update_camera(limits=_make_limits())
     assert getattr(canvas.camera, key) == 0.33
 
@@ -234,9 +216,7 @@ def test_camera_user_variable_unit_conversion(key):
 def test_camera_user_variable_bad_unit_raises(key):
     value = sc.scalar(6.6, unit='s')
     canvas = Canvas(camera=Camera(**{key: value}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 'm'
+    canvas.units.update(x='m', y='m', z='m')
     with pytest.raises(sc.UnitError):
         canvas._update_camera(limits=_make_limits())
 
@@ -245,9 +225,7 @@ def test_camera_user_variable_bad_unit_raises(key):
 def test_camera_user_variable_raises_when_axes_units_are_different(key):
     value = sc.scalar(5.66, unit='m')
     canvas = Canvas(camera=Camera(**{key: value}))
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
-    canvas.zunit = 's'
+    canvas.units.update(x='m', y='m', z='s')
     with pytest.raises(sc.UnitError, match='All axes must have the same unit'):
         canvas._update_camera(limits=_make_limits())
 

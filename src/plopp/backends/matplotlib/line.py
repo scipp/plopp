@@ -234,10 +234,11 @@ class Line:
         y:
             The y coordinate of the mouse pointer.
         """
-        vx = sc.scalar(x, unit=self._canvas.xunit)
-        vy = sc.scalar(y, unit=self._canvas.yunit)
+        vx = sc.scalar(x, unit=self._canvas.units['x'])
+        vy = sc.scalar(y, unit=self._canvas.units['y'])
         return (
-            f'{self._canvas.xdim}={scalar_to_string(vx)} : ' f'{scalar_to_string(vy)}'
+            f'{self._canvas.dims["x"]}={scalar_to_string(vx)} : '
+            f'{scalar_to_string(vy)}'
         )
 
     def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
