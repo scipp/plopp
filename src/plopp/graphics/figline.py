@@ -122,16 +122,22 @@ class FigLine(BaseFig):
         if new_values.ndim != 1:
             raise ValueError("FigLine can only be used to plot 1-D data.")
 
-        dim = new_values.dim
-        coord = new_values.coords[dim]
-        if not self.dims:
-            self.dims['x'] = dim
-            self.canvas.xunit = coord.unit
-            self.canvas.yunit = new_values.unit
+        xdim = new_values.dim
+        xcoord = new_values.coords[xdim]
+        if self.canvas.empty:
+            self.canvas.set_axes(
+                dims={'x': xdim}, units={'x': xcoord.unit, 'y': new_values.unit}
+            )
+            self.canvas.xlabel = name_with_unit(var=xcoord)
+            self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
+            if xdim in self._scale:
+                self.canvas.xscale = self._scale[xdim]
         else:
-            new_values.data = make_compatible(new_values.data, unit=self.canvas.yunit)
-            new_values.coords[dim] = make_compatible(
-                coord, dim=self.dims['x'], unit=self.canvas.xunit
+            new_values.data = make_compatible(
+                new_values.data, unit=self.canvas.units['y']
+            )
+            new_values.coords[xdim] = make_compatible(
+                xcoord, dim=self.canvas.dims['x'], unit=self.canvas.units['x']
             )
 
         if key not in self.artists:
@@ -144,12 +150,6 @@ class FigLine(BaseFig):
                 **self._kwargs
             )
             self.artists[key] = line
-
-            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
-            self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
-
-            if self.dims['x'] in self._scale:
-                self.canvas.xscale = self._scale[self.dims['x']]
 
         else:
             self.artists[key].update(new_values=new_values)
@@ -165,4 +165,4 @@ class FigLine(BaseFig):
         **limits:
             Min and max limits for each dimension to be cropped.
         """
-        self.canvas.crop(x=limits[self.dims['x']])
+        self.canvas.crop(x=limits[self.canvas.dims['x']])

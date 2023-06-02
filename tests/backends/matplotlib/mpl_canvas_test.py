@@ -44,8 +44,7 @@ def test_logy():
 
 def test_crop():
     canvas = Canvas()
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
+    canvas.units.update(x='m', y='m')
     xmin = sc.scalar(2.1, unit='m')
     xmax = sc.scalar(102.0, unit='m')
     ymin = sc.scalar(5.5, unit='m')
@@ -66,8 +65,7 @@ def test_crop():
 
 def test_crop_unit_conversion():
     canvas = Canvas()
-    canvas.xunit = 'cm'
-    canvas.yunit = 'cm'
+    canvas.units.update(x='cm', y='cm')
     xmin = sc.scalar(2.1, unit='m')
     xmax = sc.scalar(3.3, unit='m')
     canvas.crop(x={'min': xmin, 'max': xmax})
@@ -76,8 +74,7 @@ def test_crop_unit_conversion():
 
 def test_crop_no_variable():
     canvas = Canvas()
-    canvas.xunit = 'm'
-    canvas.yunit = 'm'
+    canvas.units.update(x='m', y='m')
     xmin = 2.1
     xmax = 102.0
     ymin = 5.5

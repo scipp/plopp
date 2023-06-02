@@ -248,8 +248,8 @@ def test_use_non_dimension_coords():
     da.coords['xx2'] = 7.5 * da.coords['xx']
     da.coords['yy2'] = 3.3 * da.coords['yy']
     p = pp.plot(da, coords=['xx2', 'yy2'])
-    assert p._fig.dims['x'] == 'xx2'
-    assert p._fig.dims['y'] == 'yy2'
+    assert p.canvas.dims['x'] == 'xx2'
+    assert p.canvas.dims['y'] == 'yy2'
     assert p.canvas._xmax == 7.5 * da.coords['xx'].max().value
     assert p.canvas._ymax == 3.3 * da.coords['yy'].max().value
 
@@ -258,7 +258,7 @@ def test_use_non_dimension_coords_dataset():
     ds = dataset(ndim=1)
     ds.coords['xx2'] = 6.6 * ds.coords['xx']
     p = pp.plot(ds, coords=['xx2'])
-    assert p._fig.dims['x'] == 'xx2'
+    assert p.canvas.dims['x'] == 'xx2'
     assert p.canvas._xmax > 6.6 * ds.coords['xx'].max().value
 
 
@@ -306,9 +306,9 @@ def test_plot_xarray_data_array_1d():
     time = np.arange(float(N))
     da = xr.DataArray(data, coords={'time': time}, dims=['time'])
     p = pp.plot(da)
-    assert p._fig.dims['x'] == 'time'
-    assert p.canvas.xunit == 'dimensionless'
-    assert p.canvas.yunit == 'dimensionless'
+    assert p.canvas.dims['x'] == 'time'
+    assert p.canvas.units['x'] == 'dimensionless'
+    assert p.canvas.units['y'] == 'dimensionless'
 
 
 def test_plot_xarray_data_array_2d():
@@ -323,10 +323,10 @@ def test_plot_xarray_data_array_2d():
         data, coords={'space': space, 'time': time}, dims=['space', 'time']
     )
     p = pp.plot(da)
-    assert p._fig.dims['x'] == 'time'
-    assert p._fig.dims['y'] == 'space'
-    assert p.canvas.xunit == 'dimensionless'
-    assert p.canvas.yunit == 'dimensionless'
+    assert p.canvas.dims['x'] == 'time'
+    assert p.canvas.dims['y'] == 'space'
+    assert p.canvas.units['x'] == 'dimensionless'
+    assert p.canvas.units['y'] == 'dimensionless'
 
 
 def test_plot_xarray_dataset():
@@ -343,9 +343,9 @@ def test_plot_xarray_dataset():
         coords={"time": np.arange(50)},
     )
     p = pp.plot(ds)
-    assert p._fig.dims['x'] == 'time'
-    assert p.canvas.xunit == 'dimensionless'
-    assert p.canvas.yunit == 'dimensionless'
+    assert p.canvas.dims['x'] == 'time'
+    assert p.canvas.units['x'] == 'dimensionless'
+    assert p.canvas.units['y'] == 'dimensionless'
     assert len(p._fig.artists) == 2
 
 
@@ -354,9 +354,9 @@ def test_plot_pandas_series():
 
     s = pd.Series(np.arange(100.0), name='MyDataSeries')
     p = pp.plot(s)
-    assert p._fig.dims['x'] == 'row'
-    assert p.canvas.xunit == 'dimensionless'
-    assert p.canvas.yunit == 'dimensionless'
+    assert p.canvas.dims['x'] == 'row'
+    assert p.canvas.units['x'] == 'dimensionless'
+    assert p.canvas.units['y'] == 'dimensionless'
     assert list(p._fig.artists.values())[0].label == 'MyDataSeries'
 
 
@@ -372,7 +372,7 @@ def test_plot_pandas_dataframe():
         }
     )
     p = pp.plot(df)
-    assert p._fig.dims['x'] == 'row'
-    assert p.canvas.xunit == 'dimensionless'
-    assert p.canvas.yunit == 'dimensionless'
+    assert p.canvas.dims['x'] == 'row'
+    assert p.canvas.units['x'] == 'dimensionless'
+    assert p.canvas.units['y'] == 'dimensionless'
     assert len(p._fig.artists) == 4

@@ -22,7 +22,6 @@ class BaseFig(View):
     def __init__(self, *nodes):
         super().__init__(*nodes)
         self.artists = {}
-        self.dims = {}
 
     def notify_view(self, message: Dict[str, Any]):
         """

@@ -10,7 +10,7 @@ from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.limits import find_limits, fix_empty_range
-from ...core.utils import maybe_variable_to_number
+from ...core.utils import maybe_variable_to_number, scalar_to_string
 from .utils import fig_to_bytes, is_sphinx_build, silent_mpl_figure
 
 
@@ -84,8 +84,8 @@ class Canvas:
         self.cax = cax
         self._user_vmin = vmin
         self._user_vmax = vmax
-        self.xunit = None
-        self.yunit = None
+        self.units = {}
+        self.dims = {}
         self._own_axes = False
         self._autoscale = autoscale
 
@@ -108,6 +108,7 @@ class Canvas:
         self.ax.set_aspect(aspect)
         self.ax.set_title(title)
         self.ax.grid(grid)
+        self._coord_formatters = []
 
         self._xmin = np.inf
         self._xmax = np.NINF
@@ -181,9 +182,9 @@ class Canvas:
             self._ymin = ymin
             self._ymax = ymax
         if self._user_vmin is not None:
-            self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
+            self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.units['y'])
         if self._user_vmax is not None:
-            self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
+            self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.units['y'])
 
         self.ax.set_xlim(
             _none_if_not_finite(self._xmin), _none_if_not_finite(self._xmax)
@@ -231,11 +232,70 @@ class Canvas:
         for xy, lims in limits.items():
             getattr(self.ax, f'set_{xy}lim')(
                 *[
-                    maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
+                    maybe_variable_to_number(lims[m], unit=self.units[xy])
                     for m in ('min', 'max')
                     if m in lims
                 ]
             )
+
+    def set_axes(self, dims, units):
+        """
+        Set the axes dimensions and units.
+
+        Parameters
+        ----------
+        dims:
+            The dimensions of the data.
+        units:
+            The units of the data.
+        """
+        self.units = units
+        self.dims = dims
+        self._cursor_x_placeholder = sc.scalar(0.0, unit=self.units['x'])
+        self._cursor_y_placeholder = sc.scalar(0.0, unit=self.units['y'])
+        self._cursor_x_prefix = ''
+        self._cursor_y_prefix = ''
+        if 'y' in self.dims:
+            self._cursor_x_prefix = self.dims['x'] + '='
+            self._cursor_y_prefix = self.dims['y'] + '='
+        self.ax.format_coord = self.format_coord
+
+    def register_format_coord(self, formatter):
+        """
+        Register a custom axis formatter for the x-axis.
+        """
+        self._coord_formatters.append(formatter)
+
+    def format_coord(self, x: float, y: float) -> str:
+        """
+        Format the coordinates of the mouse pointer to show the value of the
+        data at that point.
+
+        Parameters
+        ----------
+        x:
+            The x coordinate of the mouse pointer.
+        y:
+            The y coordinate of the mouse pointer.
+        """
+        self._cursor_x_placeholder.value = x
+        self._cursor_y_placeholder.value = y
+        out = (
+            f"({self._cursor_x_prefix}{scalar_to_string(self._cursor_x_placeholder)}, "
+            f"{self._cursor_y_prefix}{scalar_to_string(self._cursor_y_placeholder)})"
+        )
+        extra = [formatter(x, y) for formatter in self._coord_formatters]
+        extra = [e for e in extra if e is not None]
+        if extra:
+            out += ": {" + ", ".join(extra) + "}"
+        return out
+
+    @property
+    def empty(self) -> bool:
+        """
+        Check if the canvas is empty.
+        """
+        return not self.dims
 
     @property
     def title(self) -> str:

@@ -119,12 +119,12 @@ def _get_points_info(artist, figure):
     """
     return lambda: {
         'x': {
-            'dim': figure.dims['x'],
-            'value': sc.scalar(artist.x, unit=figure.canvas.xunit),
+            'dim': figure.canvas.dims['x'],
+            'value': sc.scalar(artist.x, unit=figure.canvas.units['x']),
         },
         'y': {
-            'dim': figure.dims['y'],
-            'value': sc.scalar(artist.y, unit=figure.canvas.yunit),
+            'dim': figure.canvas.dims['y'],
+            'value': sc.scalar(artist.y, unit=figure.canvas.units['y']),
         },
     }
 

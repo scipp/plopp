@@ -6,7 +6,7 @@ import uuid
 import numpy as np
 import scipp as sc
 
-from ...core.utils import coord_as_bin_edges, merge_masks, repeat
+from ...core.utils import coord_as_bin_edges, merge_masks, repeat, scalar_to_string
 from .canvas import Canvas
 
 
@@ -95,12 +95,14 @@ class Image:
         to_dim_search = {}
         string_labels = {}
         bin_edge_coords = {}
+        self._data_with_bin_edges = sc.DataArray(data=self._data.data)
         for i, k in enumerate('yx'):
             to_dim_search[k] = {
                 'dim': self._data.dims[i],
                 'var': self._data.meta[self._data.dims[i]],
             }
             bin_edge_coords[k] = coord_as_bin_edges(self._data, self._data.dims[i])
+            self._data_with_bin_edges.coords[self._data.dims[i]] = bin_edge_coords[k]
             if self._data.meta[self._data.dims[i]].dtype == str:
                 string_labels[k] = self._data.meta[self._data.dims[i]]
 
@@ -129,6 +131,31 @@ class Image:
 
         if need_grid:
             self._ax.grid(True)
+
+        # Cache slicing order for hover values
+        if self._dim_1d is not None:
+            # If there is a 2d coord, we first slice the 1d coord, and then the
+            # dimension that is left should also be 1d, making value-based slicing
+            # possible.
+            self._hover_slicing = {
+                'dir': (self._dim_1d[0], self._dim_2d[0]),
+                'dim': (self._dim_1d[1], self._dim_2d[1]),
+                'unit': (
+                    self._data.coords[self._dim_1d[1]].unit,
+                    self._data.coords[self._dim_2d[1]].unit,
+                ),
+            }
+        else:
+            self._hover_slicing = {
+                'dir': ('y', 'x'),
+                'dim': (self._data.dims[0], self._data.dims[1]),
+                'unit': (
+                    self._data.coords[self._data.dims[0]].unit,
+                    self._data.coords[self._data.dims[1]].unit,
+                ),
+            }
+
+        self._canvas.register_format_coord(self.format_coord)
 
     @property
     def data(self):
@@ -175,3 +202,38 @@ class Image:
             New data to update the mesh values from.
         """
         self._data = new_values
+
+    def format_coord(self, x: float, y: float) -> str:
+        """
+        Format the coordinates of the mouse pointer to show the value of the
+        data at that point.
+
+        Parameters
+        ----------
+        x:
+            The x coordinate of the mouse pointer.
+        y:
+            The y coordinate of the mouse pointer.
+        """
+        xy = {'x': x, 'y': y}
+        try:
+            val = self._data_with_bin_edges[
+                self._hover_slicing['dim'][0],
+                sc.scalar(
+                    xy[self._hover_slicing['dir'][0]],
+                    unit=self._hover_slicing['unit'][0],
+                ),
+            ]
+            val = val[
+                self._hover_slicing['dim'][1],
+                sc.scalar(
+                    xy[self._hover_slicing['dir'][1]],
+                    unit=self._hover_slicing['unit'][1],
+                ),
+            ]
+            prefix = self._data.name
+            if prefix:
+                prefix += ': '
+            return prefix + scalar_to_string(val)
+        except IndexError:
+            return None
