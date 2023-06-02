@@ -132,9 +132,10 @@ class FigImage(BaseFig):
         xcoord = new_values.coords[xdim]
         ydim = new_values.dims[0]
         ycoord = new_values.coords[ydim]
-        if not self.canvas.dims:
-            self.canvas.dims.update(x=xdim, y=ydim)
-            self.canvas.units.update(x=xcoord.unit, y=ycoord.unit)
+        if self.canvas.empty:
+            self.canvas.set_axes(
+                dims={'x': xdim, 'y': ydim}, units={'x': xcoord.unit, 'y': ycoord.unit}
+            )
             self.canvas.xlabel = name_with_unit(var=xcoord)
             self.canvas.ylabel = name_with_unit(var=ycoord)
             self.colormapper.unit = new_values.unit

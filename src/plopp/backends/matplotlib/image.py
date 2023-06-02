@@ -155,7 +155,7 @@ class Image:
                 ),
             }
 
-        self._ax.format_coord = self.format_coord
+        self._canvas.register_format_coord(self.format_coord)
 
     @property
     def data(self):
@@ -215,12 +215,6 @@ class Image:
         y:
             The y coordinate of the mouse pointer.
         """
-        vx = sc.scalar(x, unit=self._canvas.units['x'])
-        vy = sc.scalar(y, unit=self._canvas.units['y'])
-        out = (
-            f'({self._canvas.dims["x"]}={scalar_to_string(vx)}, '
-            f'{self._canvas.dims["y"]}={scalar_to_string(vy)})'
-        )
         xy = {'x': x, 'y': y}
         try:
             val = self._data_with_bin_edges[
@@ -237,7 +231,9 @@ class Image:
                     unit=self._hover_slicing['unit'][1],
                 ),
             ]
-            out += f' : {scalar_to_string(val)}'
+            prefix = self._data.name
+            if prefix:
+                prefix += ': '
+            return prefix + scalar_to_string(val)
         except IndexError:
-            pass
-        return out
+            return None

@@ -9,7 +9,7 @@ import scipp as sc
 from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
 
-from ...core.utils import merge_masks, scalar_to_string
+from ...core.utils import merge_masks
 from .canvas import Canvas
 
 
@@ -68,7 +68,6 @@ class Line:
                 args[alias] = args.pop(key)
 
         self._make_line(data=self._make_data(), number=number, **args)
-        self._ax.format_coord = self.format_coord
 
     def _make_line(
         self,
@@ -221,25 +220,6 @@ class Line:
                     new_values['stddevs']['e'],
                 )
             )
-
-    def format_coord(self, x: float, y: float) -> str:
-        """
-        Format the coordinates of the mouse pointer to show the value of the
-        data at that point.
-
-        Parameters
-        ----------
-        x:
-            The x coordinate of the mouse pointer.
-        y:
-            The y coordinate of the mouse pointer.
-        """
-        vx = sc.scalar(x, unit=self._canvas.units['x'])
-        vy = sc.scalar(y, unit=self._canvas.units['y'])
-        return (
-            f'{self._canvas.dims["x"]}={scalar_to_string(vx)} : '
-            f'{scalar_to_string(vy)}'
-        )
 
     def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
         """

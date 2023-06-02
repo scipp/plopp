@@ -104,10 +104,10 @@ class FigScatter3d(BaseFig):
             This argument is ignored for the 3d figure update.
         """
         mapping = {'x': self._x, 'y': self._y, 'z': self._z}
-        if not self.canvas.dims:
-            self.canvas.dims.update(mapping)
-            self.canvas.units.update(
-                {x: new_values.coords[dim].unit for x, dim in mapping.items()}
+        if self.canvas.empty:
+            self.canvas.set_axes(
+                dims=mapping,
+                units={x: new_values.coords[dim].unit for x, dim in mapping.items()},
             )
             self.colormapper.unit = new_values.unit
         else:

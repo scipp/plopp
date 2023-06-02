@@ -124,9 +124,10 @@ class FigLine(BaseFig):
 
         xdim = new_values.dim
         xcoord = new_values.coords[xdim]
-        if not self.canvas.dims:
-            self.canvas.dims.update(x=xdim)
-            self.canvas.units.update(x=xcoord.unit, y=new_values.unit)
+        if self.canvas.empty:
+            self.canvas.set_axes(
+                dims={'x': xdim}, units={'x': xcoord.unit, 'y': new_values.unit}
+            )
             self.canvas.xlabel = name_with_unit(var=xcoord)
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
             if xdim in self._scale:

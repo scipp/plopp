@@ -66,6 +66,20 @@ class Canvas:
     def to_widget(self):
         return self.renderer
 
+    def set_axes(self, dims, units):
+        """
+        Set the axes dimensions and units.
+
+        Parameters
+        ----------
+        dims:
+            The dimensions of the data.
+        units:
+            The units of the data.
+        """
+        self.units = units
+        self.dims = dims
+
     def make_outline(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
@@ -132,6 +146,13 @@ class Canvas:
             center[1],
             center[2] - distance_fudge_factor * box_mean_size,
         ]
+
+    @property
+    def empty(self) -> bool:
+        """
+        Check if the canvas is empty.
+        """
+        return not self.dims
 
     def home(self):
         """
