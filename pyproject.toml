@@ -42,4 +42,5 @@ filterwarnings = [
   'ignore:Auto-removal of grids by pcolor:matplotlib._api.deprecation.MatplotlibDeprecationWarning',
   'ignore:Jupyter is migrating its paths:DeprecationWarning',
   'ignore:Passing unrecognized arguments to super:DeprecationWarning',
-  'ignore:distutils Version classes are deprecated:DeprecationWarning',]
+  'ignore:distutils Version classes are deprecated:DeprecationWarning',
+  'ignore:setDaemon\(\) is deprecated, set the daemon attribute instead:DeprecationWarning',]
