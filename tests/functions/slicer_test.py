@@ -88,7 +88,7 @@ def test_with_mismatching_data_arrays_raises():
 def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
-        Slicer(da, keep=['x'])
+        Slicer(da, keep=['xx'])
 
 
 def test_raises_when_requested_keep_dims_do_not_exist():
@@ -97,6 +97,18 @@ def test_raises_when_requested_keep_dims_do_not_exist():
         ValueError, match='Slicer plot: one or more of the requested dims to be kept'
     ):
         Slicer(da, keep=['time'])
+
+
+def test_raises_when_number_of_keep_dims_requested_is_bad():
+    da = data_array(ndim=4)
+    with pytest.raises(
+        ValueError, match='Slicer plot: the number of dims to be kept must be 1 or 2'
+    ):
+        Slicer(da, keep=['xx', 'yy', 'zz'])
+    with pytest.raises(
+        ValueError, match='Slicer plot: the list of dims to be kept cannot be empty'
+    ):
+        Slicer(da, keep=[])
 
 
 def test_autoscale_fixed():

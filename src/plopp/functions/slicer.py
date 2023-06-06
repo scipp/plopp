@@ -105,24 +105,24 @@ class Slicer:
         self.slice_nodes = [
             slice_dims(data_node, self.slider_node) for data_node in self.data_nodes
         ]
-        if len(keep) == 1:
-            self.figure = figure1d(
-                *self.slice_nodes,
-                crop=crop,
-                autoscale=autoscale,
-                vmin=vmin,
-                vmax=vmax,
-                **kwargs,
+        ndims = len(keep)
+        if ndims == 1:
+            make_figure = figure1d
+        elif ndims == 2:
+            make_figure = figure2d
+        else:
+            raise ValueError(
+                f'Slicer plot: the number of dims to be kept must be 1 or 2, '
+                f'but {ndims} were requested.'
             )
-        elif len(keep) == 2:
-            self.figure = figure2d(
-                *self.slice_nodes,
-                crop=crop,
-                autoscale=autoscale,
-                vmin=vmin,
-                vmax=vmax,
-                **kwargs,
-            )
+        self.figure = make_figure(
+            *self.slice_nodes,
+            crop=crop,
+            autoscale=autoscale,
+            vmin=vmin,
+            vmax=vmax,
+            **kwargs,
+        )
 
 
 def slicer(
