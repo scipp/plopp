@@ -131,7 +131,7 @@ def name_with_unit(var: sc.Variable, name: str = None) -> str:
     else:
         text = str(var.dims[-1])
     if var.unit is not None:
-        text += f" [{var.unit}]"
+        text += (" " if text else "") + f"[{var.unit}]"
     return text
 
 
