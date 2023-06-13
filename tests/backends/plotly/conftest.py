@@ -9,4 +9,4 @@ import pytest
 def use_plotly():
     pp.backends['2d'] = 'plotly'
     yield
-    pp.backends['2d'] = 'matplotlib'
+    pp.backends.reset()
