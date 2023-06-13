@@ -12,7 +12,6 @@ pytest.importorskip("plotly")
 
 
 def test_creation():
-    pp.backends['2d'] = 'plotly'
     da = data_array(ndim=1)
     fig = Figure(pp.Node(da), FigConstructor=FigLine)
     assert fig.canvas.xlabel == f'xx [{da.coords["xx"].unit}]'
@@ -20,14 +19,12 @@ def test_creation():
 
 
 def test_logx_1d_toolbar_button():
-    pp.backends['2d'] = 'plotly'
     da = data_array(ndim=1)
     fig = Figure(pp.Node(da), FigConstructor=FigLine, scale={'xx': 'log'})
     assert fig.toolbar['logx'].value
 
 
 def test_logy_1d_toolbar_button():
-    pp.backends['2d'] = 'plotly'
     da = data_array(ndim=1)
     fig = Figure(pp.Node(da), FigConstructor=FigLine, norm='log')
     assert fig.toolbar['logy'].value
