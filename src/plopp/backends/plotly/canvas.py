@@ -74,8 +74,8 @@ class Canvas:
         self.figsize = figsize
         self._user_vmin = vmin
         self._user_vmax = vmax
-        self.xunit = None
-        self.yunit = None
+        self.units = {}
+        self.dims = {}
         self._own_axes = False
         if title:
             self.title = title
@@ -134,18 +134,39 @@ class Canvas:
         for xy, lims in limits.items():
             getattr(self.fig, f'update_{xy}axes')(
                 range=[
-                    maybe_variable_to_number(lims[m], unit=getattr(self, f'{xy}unit'))
+                    maybe_variable_to_number(lims[m], unit=self.units[xy])
                     for m in ('min', 'max')
                     if m in lims
                 ]
             )
+
+    def set_axes(self, dims, units):
+        """
+        Set the axes dimensions and units.
+
+        Parameters
+        ----------
+        dims:
+            The dimensions of the data.
+        units:
+            The units of the data.
+        """
+        self.units = units
+        self.dims = dims
+
+    @property
+    def empty(self) -> bool:
+        """
+        Check if the canvas is empty.
+        """
+        return not self.dims
 
     @property
     def title(self) -> str:
         """
         Get or set the title of the plot.
         """
-        return self.fig.layout.title
+        return self.fig.layout.title.text
 
     @title.setter
     def title(self, text: str):
@@ -161,7 +182,7 @@ class Canvas:
         """
         Get or set the label of the x-axis.
         """
-        return self.fig.layout.xaxis.title
+        return self.fig.layout.xaxis.title.text
 
     @xlabel.setter
     def xlabel(self, lab: str):
@@ -172,7 +193,7 @@ class Canvas:
         """
         Get or set the label of the y-axis.
         """
-        return self.fig.layout.yaxis.title
+        return self.fig.layout.yaxis.title.text
 
     @ylabel.setter
     def ylabel(self, lab: str):

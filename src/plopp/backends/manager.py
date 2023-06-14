@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+DEFAULTS = {'2d': 'matplotlib', '3d': 'pythreejs'}
+
 
 class BackendManager:
     def __init__(self):
-        self._mapping = {'2d': 'matplotlib', '3d': 'pythreejs'}
+        self._mapping = DEFAULTS.copy()
         self._backends = {}
         self._sync()
 
@@ -23,6 +25,10 @@ class BackendManager:
 
     def items(self):
         return self._mapping.items()
+
+    def reset(self):
+        self._mapping = DEFAULTS.copy()
+        self._sync()
 
     def _sync(self):
         if self._mapping['2d'] == 'matplotlib':
