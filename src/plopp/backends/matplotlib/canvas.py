@@ -290,6 +290,11 @@ class Canvas:
             out += ": {" + ", ".join(extra) + "}"
         return out
 
+    def clear(self):
+        self.dims.clear()
+        self.units.clear()
+        self.fig.clear()
+
     @property
     def empty(self) -> bool:
         """
@@ -428,6 +433,17 @@ class Canvas:
     @yrange.setter
     def yrange(self, value: Tuple[float, float]):
         self.ax.set_ylim(value)
+
+    @property
+    def grid(self) -> str:
+        """
+        Get or set the visibility of the grid.
+        """
+        return self.ax.axes.get_xgridlines()[0].get_visible()
+
+    @grid.setter
+    def grid(self, visible: bool):
+        self.ax.grid(visible)
 
     def reset_mode(self):
         """
