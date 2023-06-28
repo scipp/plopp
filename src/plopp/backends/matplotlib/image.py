@@ -202,6 +202,7 @@ class Image:
             New data to update the mesh values from.
         """
         self._data = new_values
+        self._data_with_bin_edges.data = new_values.data
 
     def format_coord(self, x: float, y: float) -> str:
         """

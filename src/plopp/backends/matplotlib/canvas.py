@@ -101,7 +101,7 @@ class Canvas:
         else:
             self.fig = self.ax.get_figure()
 
-        if cbar and self.cax is None:
+        if cbar and (self.cax is None):
             divider = make_axes_locatable(self.ax)
             self.cax = divider.append_axes("right", "4%", pad="5%")
 
@@ -291,9 +291,13 @@ class Canvas:
         return out
 
     def clear(self):
+        """
+        Clear the canvas.
+        """
         self.dims.clear()
         self.units.clear()
         self.fig.clear()
+        self._coord_formatters.clear()
 
     @property
     def empty(self) -> bool:

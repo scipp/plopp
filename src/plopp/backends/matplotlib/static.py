@@ -15,6 +15,16 @@ def _make_svg_repr(fig):
 REPR_MAP = {'png': _make_png_repr, 'svg': _make_svg_repr}
 
 
+def get_repr_maker(form=None, npoints=0):
+    """
+    Get the function used to create the mimebundle representation of a figure,
+    based on the format requested and the number of points in the figure.
+    """
+    if form is None:
+        form = 'png' if (npoints > 20_000) else 'svg'
+    return REPR_MAP[form.lower()]
+
+
 class StaticFig:
     """
     Create a static figure to represent one-dimensional data.
@@ -29,12 +39,10 @@ class StaticFig:
         """
         out = {'text/plain': 'Figure'}
         if self._fig._repr_format is not None:
-            repr_maker = REPR_MAP[self._fig._repr_format.lower()]
+            repr_maker = get_repr_maker(form=self._fig._repr_format)
         else:
-            npoints = 0
-            for line in self._fig.canvas.ax.lines:
-                npoints += len(line.get_xdata())
-            repr_maker = REPR_MAP['png' if (npoints > 20_000) else 'svg']
+            npoints = sum(len(line.get_xdata()) for line in self._fig.canvas.ax.lines)
+            repr_maker = get_repr_maker(npoints=npoints)
         out.update(repr_maker(self._fig.canvas.fig))
         return out
 
@@ -115,3 +123,19 @@ class StaticFig:
 
     def notify_view(self, *args, **kwargs):
         return self._fig.notify_view(*args, **kwargs)
+
+    def __add__(self, other):
+        from .tiled import Tiled
+
+        out = Tiled(1, 2)
+        out[0, 0] = self
+        out[0, 1] = other
+        return out
+
+    def __truediv__(self, other):
+        from .tiled import Tiled
+
+        out = Tiled(2, 1)
+        out[0, 0] = self
+        out[1, 0] = other
+        return out
