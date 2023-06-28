@@ -102,9 +102,21 @@ def test_update_grows_limits():
     assert new_lims[1] > old_lims[1]
 
 
-def test_update_does_not_shrink_limits():
+def test_update_does_shrink_limits_if_auto_mode():
     da = data_array(ndim=1)
-    fig = FigLine(Node(da))
+    fig = FigLine(Node(da), autoscale='auto')
+    old_lims = fig.canvas.yrange
+    key = list(fig.artists.keys())[0]
+    const = 0.5
+    fig.update(da * const, key=key)
+    new_lims = fig.canvas.yrange
+    assert new_lims[0] == old_lims[0] * const
+    assert new_lims[1] == old_lims[1] * const
+
+
+def test_update_does_not_shrink_limits_if_grow_mode():
+    da = data_array(ndim=1)
+    fig = FigLine(Node(da), autoscale='grow')
     old_lims = fig.canvas.yrange
     key = list(fig.artists.keys())[0]
     fig.update(da * 0.5, key=key)

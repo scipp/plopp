@@ -28,7 +28,7 @@ def find_limits(
     return (scalar(finite_min, unit=x.unit), scalar(finite_max, unit=x.unit))
 
 
-def fix_empty_range(lims: Tuple[Variable, ...]) -> Tuple[Variable, ...]:
+def fix_empty_range(lims: Tuple[Variable, Variable]) -> Tuple[Variable, Variable]:
     """
     Range correction in case xmin == xmax
     """

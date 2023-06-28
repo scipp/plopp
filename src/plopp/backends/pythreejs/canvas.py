@@ -38,9 +38,8 @@ class Canvas:
     ):
         import pythreejs as p3
 
-        self.xunit = None
-        self.yunit = None
-        self.zunit = None
+        self.dims = {}
+        self.units = {}
         self.outline = None
         self.axticks = None
         self.figsize = np.asarray(figsize)
@@ -67,6 +66,20 @@ class Canvas:
     def to_widget(self):
         return self.renderer
 
+    def set_axes(self, dims, units):
+        """
+        Set the axes dimensions and units.
+
+        Parameters
+        ----------
+        dims:
+            The dimensions of the data.
+        units:
+            The units of the data.
+        """
+        self.units = units
+        self.dims = dims
+
     def make_outline(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
@@ -89,7 +102,9 @@ class Canvas:
         camera via the ``home`` function.
         """
         if not self._user_camera.has_units():
-            self._user_camera.set_units(self.xunit, self.yunit, self.zunit)
+            self._user_camera.set_units(
+                self.units.get('x'), self.units.get('y'), self.units.get('z')
+            )
 
         center = [var.mean().value for var in limits]
         distance_fudge_factor = 1.2
@@ -131,6 +146,13 @@ class Canvas:
             center[1],
             center[2] - distance_fudge_factor * box_mean_size,
         ]
+
+    @property
+    def empty(self) -> bool:
+        """
+        Check if the canvas is empty.
+        """
+        return not self.dims
 
     def home(self):
         """

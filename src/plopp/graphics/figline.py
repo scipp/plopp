@@ -28,6 +28,10 @@ class FigLine(BaseFig):
     vmax:
         Upper bound for the vertical axis. If a number (without a unit) is supplied,
         it is assumed that the unit is the same as the current vertical axis unit.
+    autoscale:
+        The behavior of the axis limits. If ``auto``, the limits automatically
+        adjusts every time the data changes. If ``grow``, the limits are allowed to
+        grow with time but they do not shrink.
     scale:
         Control the scaling of the horizontal axis. For example, specify
         ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
@@ -66,6 +70,7 @@ class FigLine(BaseFig):
         norm: Literal['linear', 'log'] = 'linear',
         vmin: Optional[Union[sc.Variable, int, float]] = None,
         vmax: Optional[Union[sc.Variable, int, float]] = None,
+        autoscale: Literal['auto', 'grow'] = 'auto',
         scale: Optional[Dict[str, str]] = None,
         errorbars: bool = True,
         mask_color: str = 'black',
@@ -92,6 +97,7 @@ class FigLine(BaseFig):
             title=title,
             vmin=vmin,
             vmax=vmax,
+            autoscale=autoscale,
             **kwargs
         )
         self.canvas.yscale = norm
@@ -116,16 +122,22 @@ class FigLine(BaseFig):
         if new_values.ndim != 1:
             raise ValueError("FigLine can only be used to plot 1-D data.")
 
-        dim = new_values.dim
-        coord = new_values.coords[dim]
-        if not self.dims:
-            self.dims['x'] = dim
-            self.canvas.xunit = coord.unit
-            self.canvas.yunit = new_values.unit
+        xdim = new_values.dim
+        xcoord = new_values.coords[xdim]
+        if self.canvas.empty:
+            self.canvas.set_axes(
+                dims={'x': xdim}, units={'x': xcoord.unit, 'y': new_values.unit}
+            )
+            self.canvas.xlabel = name_with_unit(var=xcoord)
+            self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
+            if xdim in self._scale:
+                self.canvas.xscale = self._scale[xdim]
         else:
-            new_values.data = make_compatible(new_values.data, unit=self.canvas.yunit)
-            new_values.coords[dim] = make_compatible(
-                coord, dim=self.dims['x'], unit=self.canvas.xunit
+            new_values.data = make_compatible(
+                new_values.data, unit=self.canvas.units['y']
+            )
+            new_values.coords[xdim] = make_compatible(
+                xcoord, dim=self.canvas.dims['x'], unit=self.canvas.units['x']
             )
 
         if key not in self.artists:
@@ -138,12 +150,6 @@ class FigLine(BaseFig):
                 **self._kwargs
             )
             self.artists[key] = line
-
-            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
-            self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
-
-            if self.dims['x'] in self._scale:
-                self.canvas.xscale = self._scale[self.dims['x']]
 
         else:
             self.artists[key].update(new_values=new_values)
@@ -159,4 +165,4 @@ class FigLine(BaseFig):
         **limits:
             Min and max limits for each dimension to be cropped.
         """
-        self.canvas.crop(x=limits[self.dims['x']])
+        self.canvas.crop(x=limits[self.canvas.dims['x']])

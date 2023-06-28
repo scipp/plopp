@@ -109,7 +109,7 @@ def maybe_variable_to_number(
     if hasattr(x, 'unit'):
         if unit is not None:
             x = x.to(unit=unit)
-        x = x.values
+        x = x.values if x.dims else x.value
     return x
 
 
@@ -131,7 +131,7 @@ def name_with_unit(var: sc.Variable, name: str = None) -> str:
     else:
         text = str(var.dims[-1])
     if var.unit is not None:
-        text += f" [{var.unit}]"
+        text += (" " if text else "") + f"[{var.unit}]"
     return text
 
 
@@ -159,6 +159,22 @@ def value_to_string(val: Union[int, float], precision: int = 3) -> str:
     return text
 
 
+def scalar_to_string(var: sc.Variable, precision: int = 3) -> str:
+    """
+    Convert a scalar to a human readable string.
+
+    Parameters
+    ----------
+    var:
+        The input scalar.
+    precision:
+        The number of decimal places to use for the string output.
+    """
+    return value_to_string(var.value, precision=precision) + (
+        f" {var.unit}" if var.unit not in (None, "") else ""
+    )
+
+
 def merge_masks(masks: Dict[str, sc.Variable]) -> sc.Variable:
     """
     Combine all masks into a single one using the OR operation.
@@ -181,11 +197,9 @@ def coord_element_to_string(x: sc.Variable) -> str:
     x:
         The input variable (of length 1 or 2).
     """
-    vals = x.values
-    if vals.shape:
-        out = ':'.join([value_to_string(v) for v in vals])
-    else:
-        out = value_to_string(float(vals))
+    if not x.shape:
+        return value_to_string(x.value) + (f" [{x.unit}]" if x.unit is not None else "")
+    out = ':'.join([value_to_string(v) for v in x.values])
     if x.unit is not None:
         out += f" [{x.unit}]"
     return out

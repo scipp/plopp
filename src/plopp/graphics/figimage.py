@@ -36,6 +36,10 @@ class FigImage(BaseFig):
     vmax:
         Upper bound for the colorbar. If a number (without a unit) is supplied, it is
         assumed that the unit is the same as the data unit.
+    autoscale:
+        The behavior of the color range limits. If ``auto``, the limits automatically
+        adjusts every time the data changes. If ``grow``, the limits are allowed to
+        grow with time but they do not shrink.
     scale:
         Control the scaling of the horizontal axis. For example, specify
         ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
@@ -74,6 +78,7 @@ class FigImage(BaseFig):
         norm: Literal['linear', 'log'] = 'linear',
         vmin: Optional[Union[sc.Variable, int, float]] = None,
         vmax: Optional[Union[sc.Variable, int, float]] = None,
+        autoscale: Literal['auto', 'grow'] = 'auto',
         scale: Optional[Dict[str, str]] = None,
         aspect: Literal['auto', 'equal'] = 'auto',
         grid: bool = False,
@@ -99,6 +104,7 @@ class FigImage(BaseFig):
             norm=norm,
             vmin=vmin,
             vmax=vmax,
+            autoscale=autoscale,
             canvas=self.canvas,
         )
 
@@ -126,42 +132,35 @@ class FigImage(BaseFig):
         xcoord = new_values.coords[xdim]
         ydim = new_values.dims[0]
         ycoord = new_values.coords[ydim]
-        if not self.dims:
-            self.dims.update({"x": xdim, "y": ydim})
-            self.canvas.xunit = xcoord.unit
-            self.canvas.yunit = ycoord.unit
+        if self.canvas.empty:
+            self.canvas.set_axes(
+                dims={'x': xdim, 'y': ydim}, units={'x': xcoord.unit, 'y': ycoord.unit}
+            )
+            self.canvas.xlabel = name_with_unit(var=xcoord)
+            self.canvas.ylabel = name_with_unit(var=ycoord)
             self.colormapper.unit = new_values.unit
+            if xdim in self._scale:
+                self.canvas.xscale = self._scale[xdim]
+            if ydim in self._scale:
+                self.canvas.yscale = self._scale[ydim]
         else:
             new_values.data = make_compatible(
                 new_values.data, unit=self.colormapper.unit
             )
-            new_values.coords[xdim] = make_compatible(
-                xcoord, dim=self.dims['x'], unit=self.canvas.xunit
-            )
-            new_values.coords[ydim] = make_compatible(
-                ycoord, dim=self.dims['y'], unit=self.canvas.yunit
-            )
-
-        self.colormapper.update(data=new_values, key=key)
+            for xyz, dim in {'x': xdim, 'y': ydim}.items():
+                new_values.coords[dim] = make_compatible(
+                    new_values.coords[dim],
+                    dim=self.canvas.dims[xyz],
+                    unit=self.canvas.units[xyz],
+                )
 
         if key not in self.artists:
             image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
             self.artists[key] = image
             self.colormapper[key] = image
-            self.dims.update({"x": new_values.dims[1], "y": new_values.dims[0]})
-
-            self.canvas.xunit = new_values.meta[new_values.dims[1]].unit
-            self.canvas.yunit = new_values.meta[new_values.dims[0]].unit
-
-            self.canvas.xlabel = name_with_unit(var=new_values.meta[self.dims['x']])
-            self.canvas.ylabel = name_with_unit(var=new_values.meta[self.dims['y']])
-            if self.dims['x'] in self._scale:
-                self.canvas.xscale = self._scale[self.dims['x']]
-            if self.dims['y'] in self._scale:
-                self.canvas.yscale = self._scale[self.dims['y']]
 
         self.artists[key].update(new_values=new_values)
-        self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
+        self.colormapper.update(key=key, data=new_values)
 
     def crop(self, **limits):
         """
@@ -172,4 +171,4 @@ class FigImage(BaseFig):
         **limits:
             Min and max limits for each dimension to be cropped.
         """
-        self.canvas.crop(**{xy: limits[self.dims[xy]] for xy in 'xy'})
+        self.canvas.crop(**{xy: limits[self.canvas.dims[xy]] for xy in 'xy'})

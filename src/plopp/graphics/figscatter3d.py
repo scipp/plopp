@@ -103,30 +103,21 @@ class FigScatter3d(BaseFig):
         draw:
             This argument is ignored for the 3d figure update.
         """
-        xcoord = new_values.coords[self._x]
-        ycoord = new_values.coords[self._y]
-        zcoord = new_values.coords[self._z]
-        if not self.dims:
-            self.dims.update({'x': self._x, 'y': self._y, 'z': self._z})
-            self.canvas.xunit = xcoord.unit
-            self.canvas.yunit = ycoord.unit
-            self.canvas.zunit = zcoord.unit
+        mapping = {'x': self._x, 'y': self._y, 'z': self._z}
+        if self.canvas.empty:
+            self.canvas.set_axes(
+                dims=mapping,
+                units={x: new_values.coords[dim].unit for x, dim in mapping.items()},
+            )
             self.colormapper.unit = new_values.unit
         else:
             new_values.data = make_compatible(
                 new_values.data, unit=self.colormapper.unit
             )
-            new_values.coords[self._x] = new_values.coords[self._x].to(
-                unit=self.canvas.xunit, copy=False
-            )
-            new_values.coords[self._y] = new_values.coords[self._y].to(
-                unit=self.canvas.yunit, copy=False
-            )
-            new_values.coords[self._z] = new_values.coords[self._z].to(
-                unit=self.canvas.zunit, copy=False
-            )
-
-        self.colormapper.update(data=new_values, key=key)
+            for xyz, dim in mapping.items():
+                new_values.coords[dim] = new_values.coords[dim].to(
+                    unit=self.canvas.units[xyz], copy=False
+                )
 
         if key not in self.artists:
             pts = backends.point_cloud(
@@ -139,7 +130,7 @@ class FigScatter3d(BaseFig):
                 self.canvas.make_outline(limits=self.get_limits())
 
         self.artists[key].update(new_values=new_values)
-        self.artists[key].set_colors(self.colormapper.rgba(self.artists[key].data))
+        self.colormapper.update(key=key, data=new_values)
 
     def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
         """

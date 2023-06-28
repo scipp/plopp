@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Dict, List, Union
+import warnings
+from functools import reduce
+from typing import Dict, List, Literal, Union
 
 import scipp as sc
 from numpy import ndarray
@@ -34,6 +36,16 @@ class Slicer:
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
+    autoscale:
+        The behavior of the y-axis (1d plots) and color range (2d plots) limits.
+        If ``auto``, the limits automatically adjusts every time the data changes.
+        If ``grow``, the limits are allowed to grow with time but they do not shrink.
+        If ``fixed``, the limits are fixed to the full data range and do not change
+        with time.
+    vmin:
+        The minimum value of the y-axis (1d plots) or color range (2d plots).
+    vmax:
+        The maximum value of the y-axis (1d plots) or color range (2d plots).
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped.
@@ -46,6 +58,9 @@ class Slicer:
         obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
         keep: List[str] = None,
         *,
+        autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
+        vmin: Union[VariableLike, int, float] = None,
+        vmax: Union[VariableLike, int, float] = None,
         crop: Dict[str, Dict[str, sc.Variable]] = None,
         **kwargs,
     ):
@@ -68,6 +83,19 @@ class Slicer:
                 f"were not found in the input's dimensions {ds.dims}."
             )
 
+        if autoscale == 'fixed':
+            if None not in (vmin, vmax):
+                warnings.warn(
+                    'Slicer plot: autoscale is set to "fixed", but vmin and vmax '
+                    'are also specified. They will override the autoscale setting.',
+                    RuntimeWarning,
+                )
+            if vmin is None:
+                vmin = reduce(min, [da.data.min() for da in ds.values()])
+            if vmax is None:
+                vmax = reduce(max, [da.data.max() for da in ds.values()])
+            autoscale = 'auto'  # Change back to something the figure understands
+
         from ..widgets import SliceWidget, slice_dims
 
         self.data_nodes = [Node(da) for da in ds.values()]
@@ -77,16 +105,33 @@ class Slicer:
         self.slice_nodes = [
             slice_dims(data_node, self.slider_node) for data_node in self.data_nodes
         ]
-        if len(keep) == 1:
-            self.figure = figure1d(*self.slice_nodes, crop=crop, **kwargs)
-        elif len(keep) == 2:
-            self.figure = figure2d(*self.slice_nodes, crop=crop, **kwargs)
+        ndims = len(keep)
+        if ndims == 1:
+            make_figure = figure1d
+        elif ndims == 2:
+            make_figure = figure2d
+        else:
+            raise ValueError(
+                f'Slicer plot: the number of dims to be kept must be 1 or 2, '
+                f'but {ndims} were requested.'
+            )
+        self.figure = make_figure(
+            *self.slice_nodes,
+            crop=crop,
+            autoscale=autoscale,
+            vmin=vmin,
+            vmax=vmax,
+            **kwargs,
+        )
 
 
 def slicer(
     obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
     keep: List[str] = None,
     *,
+    autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
+    vmin: Union[VariableLike, int, float] = None,
+    vmax: Union[VariableLike, int, float] = None,
     crop: Dict[str, Dict[str, sc.Variable]] = None,
     **kwargs,
 ):
@@ -103,6 +148,16 @@ def slicer(
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
+    autoscale:
+        The behavior of the y-axis (1d plots) and color range (2d plots) limits.
+        If ``auto``, the limits automatically adjusts every time the data changes.
+        If ``grow``, the limits are allowed to grow with time but they do not shrink.
+        If ``fixed``, the limits are fixed to the full data range and do not change
+        with time.
+    vmin:
+        The minimum value of the y-axis (1d plots) or color range (2d plots).
+    vmax:
+        The maximum value of the y-axis (1d plots) or color range (2d plots).
     crop:
         Set the axis limits. Limits should be given as a dict with one entry per
         dimension to be cropped. Each entry should be a nested dict containing scalar
@@ -117,7 +172,15 @@ def slicer(
         A :class:`Box` which will contain a :class:`Figure` and slider widgets.
     """
     require_interactive_backend('slicer')
-    sl = Slicer(obj=obj, keep=keep, crop=crop, **kwargs)
+    sl = Slicer(
+        obj=obj,
+        keep=keep,
+        autoscale=autoscale,
+        vmin=vmin,
+        vmax=vmax,
+        crop=crop,
+        **kwargs,
+    )
     from ..widgets import Box
 
     return Box([sl.figure, sl.slider])
