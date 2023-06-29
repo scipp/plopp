@@ -36,10 +36,6 @@ class Figure(VBox):
         return self._fig.artists
 
     @property
-    def dims(self):
-        return self._fig.dims
-
-    @property
     def graph_nodes(self):
         return self._fig.graph_nodes
 

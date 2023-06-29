@@ -98,17 +98,11 @@ class InteractiveFig(VBox):
         return self._fig.notify_view(*args, **kwargs)
 
     def __add__(self, other):
-        from .tiled import Tiled
+        from .tiled import hstack
 
-        out = Tiled(1, 2)
-        out[0, 0] = self
-        out[0, 1] = other
-        return out
+        return hstack(self, other)
 
     def __truediv__(self, other):
-        from .tiled import Tiled
+        from .tiled import vstack
 
-        out = Tiled(2, 1)
-        out[0, 0] = self
-        out[1, 0] = other
-        return out
+        return vstack(self, other)
