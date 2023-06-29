@@ -2,18 +2,18 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from __future__ import annotations
+
 from typing import Optional, Tuple, Union
 
-from matplotlib import gridspec
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-from matplotlib.colorbar import ColorbarBase
 import numpy as np
-
+from matplotlib import gridspec
+from matplotlib.colorbar import ColorbarBase
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ..protocols import FigureLike
 from .static import get_repr_maker
-from .utils import silent_mpl_figure, is_interactive_backend
+from .utils import is_interactive_backend, silent_mpl_figure
 
 
 class Tiled:
