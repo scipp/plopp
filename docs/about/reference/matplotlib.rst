@@ -13,3 +13,4 @@ Matplotlib backend
    backends.matplotlib.image.Image
    backends.matplotlib.static.StaticFig
    backends.matplotlib.interactive.InteractiveFig
+   backends.matplotlib.tiled.Tiled
