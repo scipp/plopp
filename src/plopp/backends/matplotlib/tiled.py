@@ -8,8 +8,6 @@ from typing import Optional, Tuple, Union
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
-from matplotlib.colorbar import ColorbarBase
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ..protocols import FigureLike
 from .static import get_repr_maker
@@ -83,30 +81,6 @@ class Tiled:
     ):
         ax = self.fig.add_subplot(self.gs[inds])
         new_view = view.copy(ax=ax)
-
-        # if view.canvas.cax:
-        #     divider = make_axes_locatable(ax)
-        #     cax = divider.append_axes("right", "4%", pad="5%")
-        #     cmapper = view._fig.colormapper
-        #     cmapper.colorbar = ColorbarBase(
-        #         cax, cmap=cmapper.cmap, norm=cmapper.normalizer
-        #     )
-        #     cax.yaxis.set_label_coords(-0.9, 0.5)
-        #     cax.set_ylabel(cmapper.cax.get_ylabel())
-        #     view.canvas.cax = cax
-        #     cmapper.cax = cax
-
-        # if view.canvas.title:
-        #     ax.set_title(view.canvas.title)
-        # ax.grid(view.canvas.grid)
-        # ax.set_aspect(view.canvas.ax.get_aspect())
-        # view.canvas.clear()
-        # view.canvas.ax = ax
-        # self.axes.append(ax)
-        # view.artists.clear()
-        # for key, n in view.graph_nodes.items():
-        #     view.update(n(), key=key)
-        # view._is_tiled = True
         self.views[inds] = new_view
         self.fig.tight_layout()
         self._history.append((inds, new_view))
@@ -123,7 +97,7 @@ class Tiled:
         if is_interactive_backend():
             return self.fig.canvas._repr_mimebundle_(include=include, exclude=exclude)
         else:
-            out = {'text/plain': 'TiledFigure'}
+            out = {'text/plain': f'TiledFigure(nrows={self.nrows}, ncols={self.ncols})'}
             npoints = sum(
                 len(line.get_xdata()) for ax in self.axes for line in ax.lines
             )

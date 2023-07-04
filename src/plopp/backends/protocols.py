@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from __future__ import annotations
+
 from typing import Dict, Protocol
 
 from ..core import Node
@@ -41,4 +43,7 @@ class FigureLike(Protocol):
         ...
 
     def notify_view(self, *args, **kwargs) -> None:
+        ...
+
+    def copy(self, **kwargs) -> FigureLike:
         ...

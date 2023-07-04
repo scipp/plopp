@@ -13,6 +13,9 @@ class InteractiveFig(VBox):
 
     def __init__(self, *args, FigConstructor, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
+        self._args = args
+        self._kwargs = kwargs
+        self._fig_constructor = FigConstructor
         self.toolbar = make_toolbar_canvas2d(
             canvas=self._fig.canvas, colormapper=getattr(self._fig, 'colormapper', None)
         )
@@ -27,6 +30,13 @@ class InteractiveFig(VBox):
                 HBox([self.left_bar, self._fig.canvas.to_widget(), self.right_bar]),
                 self.bottom_bar,
             ]
+        )
+
+    def copy(self, **kwargs):
+        return self.__class__(
+            *self._args,
+            FigConstructor=self._fig_constructor,
+            **{**self._kwargs, **kwargs},
         )
 
     @property
