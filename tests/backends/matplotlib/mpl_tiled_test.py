@@ -156,3 +156,30 @@ def test_figure_operators():
     tiled = (da1.plot() + da2.plot()) / (da3.plot() + da4.plot())
     assert tiled.nrows == 2
     assert tiled.ncols == 2
+
+
+def test_tiled_keeps_figure_kwargs():
+    da1 = data_array(ndim=1)
+    da2 = data_array(ndim=1) * 3.3
+    p1 = da1.plot(grid=True, title="My Title", vmin=-2.3, vmax=10)
+    p2 = da2.plot(norm='log')
+    tiled = p1 + p2
+    assert tiled[0, 0].canvas.grid
+    assert tiled[0, 0].canvas.title == "My Title"
+    assert tiled[0, 0].canvas.ymin == -2.3
+    assert tiled[0, 0].canvas.ymax == 10
+    assert tiled[0, 1].canvas.yscale == 'log'
+
+
+def test_tiled_keeps_figure_props():
+    da1 = data_array(ndim=1)
+    da2 = data_array(ndim=1) * 3.3
+    p1 = da1.plot()
+    p2 = da2.plot()
+    p1.canvas.logy()
+    p2.canvas.logx()
+    tiled = p1 + p2
+    assert tiled[0, 0].canvas.xscale == 'linear'
+    assert tiled[0, 0].canvas.yscale == 'log'
+    assert tiled[0, 1].canvas.xscale == 'log'
+    assert tiled[0, 1].canvas.yscale == 'linear'

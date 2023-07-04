@@ -4,6 +4,7 @@
 from ipywidgets import HBox, VBox
 
 from ...widgets import HBar, VBar, make_toolbar_canvas2d
+from .utils import copy_figure
 
 
 class InteractiveFig(VBox):
@@ -13,7 +14,6 @@ class InteractiveFig(VBox):
 
     def __init__(self, *args, FigConstructor, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
-        self._args = args
         self._kwargs = kwargs
         self._fig_constructor = FigConstructor
         self.toolbar = make_toolbar_canvas2d(
@@ -33,11 +33,7 @@ class InteractiveFig(VBox):
         )
 
     def copy(self, **kwargs):
-        return self.__class__(
-            *self._args,
-            FigConstructor=self._fig_constructor,
-            **{**self._kwargs, **kwargs},
-        )
+        return copy_figure(fig=self, **kwargs)
 
     @property
     def fig(self):

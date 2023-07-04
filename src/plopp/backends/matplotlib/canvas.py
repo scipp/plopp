@@ -182,9 +182,13 @@ class Canvas:
             self._ymin = ymin
             self._ymax = ymax
         if self._user_vmin is not None:
-            self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.units['y'])
+            self._ymin = maybe_variable_to_number(
+                self._user_vmin, unit=self.units.get('y')
+            )
         if self._user_vmax is not None:
-            self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.units['y'])
+            self._ymax = maybe_variable_to_number(
+                self._user_vmax, unit=self.units.get('y')
+            )
 
         self.ax.set_xlim(
             _none_if_not_finite(self._xmin), _none_if_not_finite(self._xmax)

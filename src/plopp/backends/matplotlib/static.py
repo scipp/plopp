@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from .utils import fig_to_bytes
+from .utils import copy_figure, fig_to_bytes
 
 
 def _make_png_repr(fig):
@@ -32,7 +32,6 @@ class StaticFig:
 
     def __init__(self, *args, FigConstructor, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
-        self._args = args
         self._kwargs = kwargs
         self._fig_constructor = FigConstructor
 
@@ -51,11 +50,7 @@ class StaticFig:
         return out
 
     def copy(self, **kwargs):
-        return self.__class__(
-            *self._args,
-            FigConstructor=self._fig_constructor,
-            **{**self._kwargs, **kwargs},
-        )
+        return copy_figure(fig=self, **kwargs)
 
     def to_widget(self):
         """
