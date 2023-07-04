@@ -82,33 +82,34 @@ class Tiled:
         view: FigureLike,
     ):
         ax = self.fig.add_subplot(self.gs[inds])
+        new_view = view.copy(ax=ax)
 
-        if view.canvas.cax:
-            divider = make_axes_locatable(ax)
-            cax = divider.append_axes("right", "4%", pad="5%")
-            cmapper = view._fig.colormapper
-            cmapper.colorbar = ColorbarBase(
-                cax, cmap=cmapper.cmap, norm=cmapper.normalizer
-            )
-            cax.yaxis.set_label_coords(-0.9, 0.5)
-            cax.set_ylabel(cmapper.cax.get_ylabel())
-            view.canvas.cax = cax
-            cmapper.cax = cax
+        # if view.canvas.cax:
+        #     divider = make_axes_locatable(ax)
+        #     cax = divider.append_axes("right", "4%", pad="5%")
+        #     cmapper = view._fig.colormapper
+        #     cmapper.colorbar = ColorbarBase(
+        #         cax, cmap=cmapper.cmap, norm=cmapper.normalizer
+        #     )
+        #     cax.yaxis.set_label_coords(-0.9, 0.5)
+        #     cax.set_ylabel(cmapper.cax.get_ylabel())
+        #     view.canvas.cax = cax
+        #     cmapper.cax = cax
 
-        if view.canvas.title:
-            ax.set_title(view.canvas.title)
-        ax.grid(view.canvas.grid)
-        ax.set_aspect(view.canvas.ax.get_aspect())
-        view.canvas.clear()
-        view.canvas.ax = ax
-        self.axes.append(ax)
-        view.artists.clear()
-        for key, n in view.graph_nodes.items():
-            view.update(n(), key=key)
-        view._is_tiled = True
-        self.views[inds] = view
+        # if view.canvas.title:
+        #     ax.set_title(view.canvas.title)
+        # ax.grid(view.canvas.grid)
+        # ax.set_aspect(view.canvas.ax.get_aspect())
+        # view.canvas.clear()
+        # view.canvas.ax = ax
+        # self.axes.append(ax)
+        # view.artists.clear()
+        # for key, n in view.graph_nodes.items():
+        #     view.update(n(), key=key)
+        # view._is_tiled = True
+        self.views[inds] = new_view
         self.fig.tight_layout()
-        self._history.append((inds, view))
+        self._history.append((inds, new_view))
 
     def __getitem__(
         self, inds: Union[int, slice, Tuple[int, int], Tuple[slice, slice]]

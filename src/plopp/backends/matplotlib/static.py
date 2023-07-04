@@ -32,7 +32,10 @@ class StaticFig:
 
     def __init__(self, *args, FigConstructor, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
-        self._is_tiled = False
+        # self._is_tiled = False
+        self._args = args
+        self._kwargs = kwargs
+        self._fig_constructor = FigConstructor
 
     def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
         """
@@ -40,9 +43,9 @@ class StaticFig:
         """
         str_repr = str(self.fig)
         out = {'text/plain': str_repr[:-1] + f', {len(self.artists)} artists)'}
-        if self._is_tiled:
-            out['text/plain'] = out['text/plain'][:-1] + ", tiled)"
-            return out
+        # if self._is_tiled:
+        #     out['text/plain'] = out['text/plain'][:-1] + ", TILED)"
+        #     return out
         if self._fig._repr_format is not None:
             repr_maker = get_repr_maker(form=self._fig._repr_format)
         else:
@@ -50,6 +53,13 @@ class StaticFig:
             repr_maker = get_repr_maker(npoints=npoints)
         out.update(repr_maker(self._fig.canvas.fig))
         return out
+
+    def copy(self, **kwargs):
+        return self.__class__(
+            *self._args,
+            FigConstructor=self._fig_constructor,
+            **{**self._kwargs, **kwargs},
+        )
 
     def to_widget(self):
         """
