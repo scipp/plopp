@@ -98,12 +98,14 @@ class Tiled:
         if view.canvas.title:
             ax.set_title(view.canvas.title)
         ax.grid(view.canvas.grid)
+        ax.set_aspect(view.canvas.ax.get_aspect())
         view.canvas.clear()
         view.canvas.ax = ax
         self.axes.append(ax)
         view.artists.clear()
         for key, n in view.graph_nodes.items():
             view.update(n(), key=key)
+        view._is_tiled = True
         self.views[inds] = view
         self.fig.tight_layout()
         self._history.append((inds, view))
