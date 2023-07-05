@@ -21,15 +21,13 @@ executing==1.2.0
     # via stack-data
 graphlib-backport==1.0.3
     # via scipp
-importlib-metadata==6.1.0
-    # via jupyter-client
 ipydatawidgets==4.3.3
     # via pythreejs
 ipykernel==6.22.0
     # via ipywidgets
 ipython==8.5.0
     # via
-    #   -r requirements/base.in
+    #   -r base.in
     #   ipykernel
     #   ipywidgets
 ipywidgets==8.0.6
@@ -80,15 +78,15 @@ pygments==2.14.0
 python-dateutil==2.8.2
     # via jupyter-client
 pythreejs==2.4.2
-    # via -r requirements/base.in
+    # via -r base.in
 pyyaml==6.0
     # via confuse
 pyzmq==25.0.2
     # via
     #   ipykernel
     #   jupyter-client
-scipp==23.3.2
-    # via -r requirements/base.in
+scipp==23.7.0
+    # via -r base.in
 six==1.16.0
     # via
     #   asttokens
@@ -116,5 +114,3 @@ wcwidth==0.2.6
     # via prompt-toolkit
 widgetsnbextension==4.0.7
     # via ipywidgets
-zipp==3.15.0
-    # via importlib-metadata
