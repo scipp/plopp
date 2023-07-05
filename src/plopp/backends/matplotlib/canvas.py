@@ -294,15 +294,6 @@ class Canvas:
             out += ": {" + ", ".join(extra) + "}"
         return out
 
-    def clear(self):
-        """
-        Clear the canvas.
-        """
-        self.dims.clear()
-        self.units.clear()
-        self.fig.clear()
-        self._coord_formatters.clear()
-
     @property
     def empty(self) -> bool:
         """
