@@ -14,6 +14,7 @@ class InteractiveFig(VBox):
 
     def __init__(self, *args, FigConstructor, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
+        self._args = args
         self._kwargs = kwargs
         self._fig_constructor = FigConstructor
         self.toolbar = make_toolbar_canvas2d(

@@ -79,10 +79,9 @@ class Tiled:
         inds: Union[int, slice, Tuple[int, int], Tuple[slice, slice]],
         view: FigureLike,
     ):
-        ax = self.fig.add_subplot(self.gs[inds])
-        new_view = view.copy(ax=ax)
-        self.views[inds] = new_view
+        new_view = view.copy(ax=self.fig.add_subplot(self.gs[inds]))
         self.fig.tight_layout()
+        self.views[inds] = new_view
         self._history.append((inds, new_view))
 
     def __getitem__(
@@ -126,7 +125,7 @@ class Tiled:
 
     def __add__(self, other: Tiled) -> Tiled:
         if not isinstance(other, self.__class__):
-            t = self.__class__(1, 1)
+            t = Tiled(1, 1)
             t[0, 0] = other
             other = t
 
@@ -139,7 +138,7 @@ class Tiled:
 
     def __truediv__(self, other: Tiled) -> Tiled:
         if not isinstance(other, self.__class__):
-            t = self.__class__(1, 1)
+            t = Tiled(1, 1)
             t[0, 0] = other
             other = t
 

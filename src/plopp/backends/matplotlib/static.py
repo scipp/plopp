@@ -32,6 +32,7 @@ class StaticFig:
 
     def __init__(self, *args, FigConstructor, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
+        self._args = args
         self._kwargs = kwargs
         self._fig_constructor = FigConstructor
 
