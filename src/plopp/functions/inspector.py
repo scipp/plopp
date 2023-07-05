@@ -98,7 +98,13 @@ def inspector(
 
     from ..widgets import Box, PointsTool
 
-    pts = PointsTool(figure=f2d, input_node=in_node, func=_slice_xy, destination=f1d)
+    pts = PointsTool(
+        figure=f2d,
+        input_node=in_node,
+        func=_slice_xy,
+        destination=f1d,
+        tooltip="Activate inspector tool",
+    )
     f2d.toolbar['inspect'] = pts
     out = [f2d, f1d]
     if orientation == 'horizontal':
