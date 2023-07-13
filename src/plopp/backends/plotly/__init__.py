@@ -25,7 +25,23 @@ class PlotlyBackend:
 
         return LinePlotly(*args, **kwargs)
 
+    def image(self, *args, **kwargs):
+        """
+        See :class:`image.Image` for details.
+        """
+        from .image import Image as ImagePlotly
+
+        return ImagePlotly(*args, **kwargs)
+
     def figure1d(self, *args, **kwargs):
+        """
+        See :class:`figure.Figure` for details.
+        """
+        from .figure import Figure as FigPlotly
+
+        return FigPlotly(*args, **kwargs)
+
+    def figure2d(self, *args, **kwargs):
         """
         See :class:`figure.Figure` for details.
         """

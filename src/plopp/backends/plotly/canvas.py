@@ -79,6 +79,7 @@ class Canvas:
         self._own_axes = False
         if title:
             self.title = title
+        self.cax = None
 
     def to_widget(self):
         return self.fig
