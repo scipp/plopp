@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from dataclasses import dataclass
+# from dataclasses import dataclass
 import uuid
 from typing import Dict
 
@@ -12,6 +12,7 @@ import scipp as sc
 
 from ...core.utils import merge_masks
 from ..matplotlib.image import Image as MplImage
+from ..matplotlib.canvas import Canvas as MplCanvas
 from ..matplotlib.utils import silent_mpl_figure
 
 from .canvas import Canvas
@@ -19,15 +20,15 @@ from .canvas import Canvas
 import plotly.graph_objects as go
 
 
-@dataclass
-class DummyCanvas:
-    ax: plt.Axes
+# @dataclass
+# class DummyCanvas:
+#     ax: plt.Axes
 
-    def draw(self):
-        pass
+#     def draw(self):
+#         pass
 
-    def register_format_coord(self, func):
-        pass
+#     def register_format_coord(self, func):
+#         pass
 
 
 class Image:
@@ -45,8 +46,8 @@ class Image:
             ax = fig.add_axes([0, 0, 1, 1])
         # mpl_canvas = DummyCanvas(ax=ax)
         ax.set_axis_off()
-
-        self._mpl_image = MplImage(canvas=DummyCanvas(ax=ax), data=data, **kwargs)
+        self._mpl_canvas = MplCanvas(ax=ax, cbar=False)
+        self._mpl_image = MplImage(canvas=self._mpl_canvas, data=data, **kwargs)
         # s, (width, height) = fig.canvas.print_to_buffer()
         # X = np.flipud(np.frombuffer(s, np.uint8).reshape((height, width, 4)))
 
@@ -59,9 +60,9 @@ class Image:
         # # Create figure
         # fig = go.FigureWidget()
 
-        # Constants
-        img_width = 900
-        img_height = 600
+        # # Constants
+        # img_width = 900
+        # img_height = 600
 
         xcoord = self._mpl_image._data_with_bin_edges.coords[self._data.dims[1]]
         ycoord = self._mpl_image._data_with_bin_edges.coords[self._data.dims[0]]
@@ -114,8 +115,8 @@ class Image:
         self._fig.update_layout(
             xaxis=dict(showgrid=False, zeroline=False, range=[self.xmin, self.xmax]),
             yaxis=dict(showgrid=False, zeroline=False, range=[self.ymin, self.ymax]),
-            width=img_width,
-            height=img_height,
+            # width=img_width,
+            # height=img_height,
         )
 
         # fig.show()
@@ -130,10 +131,12 @@ class Image:
             The array of rgba colors.
         """
         self._mpl_image.set_colors(rgba)
+        self.redraw()
+
+    def redraw(self, xscale='linear', yscale='linear'):
         s, (width, height) = self._mpl_image._ax.get_figure().canvas.print_to_buffer()
         X = np.frombuffer(s, np.uint8).reshape((height, width, 4))
         img = PilImage.fromarray(X)
-        # img.save('pillimg.png')
         self._fig.update_layout(
             images=[
                 go.layout.Image(
