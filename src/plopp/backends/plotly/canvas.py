@@ -98,14 +98,25 @@ class Canvas:
                     'With the Plotly backend, you have to specify both '
                     'vmin and vmax.'
                 )
-            ymin = maybe_variable_to_number(self._user_vmin, unit=self.yunit)
-            ymax = maybe_variable_to_number(self._user_vmax, unit=self.yunit)
+            ymin = maybe_variable_to_number(self._user_vmin, unit=self.units['y'])
+            ymax = maybe_variable_to_number(self._user_vmax, unit=self.units['y'])
             self.fig.update_layout(
                 yaxis={'autorange': False}, xaxis={'autorange': True}
             )
             self.fig.update_yaxes(range=[ymin, ymax])
         else:
-            self.fig.update_layout(yaxis={'autorange': True}, xaxis={'autorange': True})
+            if self.fig.layout.images:
+                img = self.fig.layout.images[0]
+                xmin = img.x
+                xmax = img.x + img.sizex
+                ymin = img.y - img.sizey
+                ymax = img.y
+                self.fig.update_xaxes(range=[xmin, xmax])
+                self.fig.update_yaxes(range=[ymin, ymax])
+            else:
+                self.fig.update_layout(
+                    yaxis={'autorange': True}, xaxis={'autorange': True}
+                )
 
     def save(self, filename: str):
         """
@@ -213,24 +224,8 @@ class Canvas:
     def xscale(self, scale: Literal['linear', 'log']):
         self.fig.update_xaxes(type=scale)
         if self.fig.layout.images:
-            img = self.fig.layout.images[0]
-            x = np.log10(img.x) if scale == 'log' else img.x
-            sizex = x + np.log10(img.sizex - img.x) if scale == 'log' else img.sizex
-            self.fig.update_layout(
-                images=[
-                    go.layout.Image(
-                        x=x,
-                        sizex=sizex,
-                        y=img.y,
-                        sizey=img.sizey,
-                        xref="x",
-                        yref="y",
-                        opacity=1.0,
-                        layer="below",
-                        sizing="stretch",
-                        source=img.source,
-                    )
-                ]
+            self.fig.layout.images[0]._plopp_parent.redraw(
+                xscale=scale, yscale=self.yscale
             )
 
     @property
@@ -243,6 +238,10 @@ class Canvas:
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):
         self.fig.update_yaxes(type=scale)
+        if self.fig.layout.images:
+            self.fig.layout.images[0]._plopp_parent.redraw(
+                xscale=self.xscale, yscale=scale
+            )
 
     @property
     def xmin(self) -> float:
