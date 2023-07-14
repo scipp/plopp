@@ -3,6 +3,8 @@
 
 from typing import Literal, Tuple, Union
 
+import numpy as np
+import plotly.graph_objects as go
 import scipp as sc
 
 from ...core.utils import maybe_variable_to_number
@@ -50,7 +52,7 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
-        import plotly.graph_objects as go
+        # import plotly.graph_objects as go
 
         self.fig = go.FigureWidget(
             layout={
@@ -210,6 +212,26 @@ class Canvas:
     @xscale.setter
     def xscale(self, scale: Literal['linear', 'log']):
         self.fig.update_xaxes(type=scale)
+        if self.fig.layout.images:
+            img = self.fig.layout.images[0]
+            x = np.log10(img.x) if scale == 'log' else img.x
+            sizex = x + np.log10(img.sizex - img.x) if scale == 'log' else img.sizex
+            self.fig.update_layout(
+                images=[
+                    go.layout.Image(
+                        x=x,
+                        sizex=sizex,
+                        y=img.y,
+                        sizey=img.sizey,
+                        xref="x",
+                        yref="y",
+                        opacity=1.0,
+                        layer="below",
+                        sizing="stretch",
+                        source=img.source,
+                    )
+                ]
+            )
 
     @property
     def yscale(self) -> str:
