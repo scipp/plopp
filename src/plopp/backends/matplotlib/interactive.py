@@ -12,8 +12,8 @@ class InteractiveFig(Figure, VBox):
     Create an interactive Matplotlib figure.
     """
 
-    def __init__(self, *args, FigConstructor, **kwargs):
-        self.__init_figure__(*args, FigConstructor=FigConstructor, **kwargs)
+    def __init__(self, FigConstructor, *args, **kwargs):
+        self.__init_figure__(FigConstructor, *args, **kwargs)
         self.toolbar = make_toolbar_canvas2d(
             canvas=self._fig.canvas, colormapper=getattr(self._fig, 'colormapper', None)
         )

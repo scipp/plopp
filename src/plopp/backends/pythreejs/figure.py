@@ -13,7 +13,7 @@ class Figure(VBox):
     Create a figure to represent three-dimensional data.
     """
 
-    def __init__(self, *args, FigConstructor, **kwargs):
+    def __init__(self, FigConstructor, *args, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
         self.toolbar = make_toolbar_canvas3d(
             canvas=self._fig.canvas, colormapper=self._fig.colormapper

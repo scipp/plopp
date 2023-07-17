@@ -7,7 +7,7 @@ class Figure:
     Mixin class for Matplotlib figures
     """
 
-    def __init_figure__(self, *args, FigConstructor, **kwargs):
+    def __init_figure__(self, FigConstructor, *args, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
         self._args = args
         self._kwargs = kwargs

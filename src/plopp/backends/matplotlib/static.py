@@ -33,8 +33,8 @@ class StaticFig(Figure):
     canvas.
     """
 
-    def __init__(self, *args, FigConstructor, **kwargs):
-        self.__init_figure__(*args, FigConstructor=FigConstructor, **kwargs)
+    def __init__(self, FigConstructor, *args, **kwargs):
+        self.__init_figure__(FigConstructor, *args, **kwargs)
 
     def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
         """

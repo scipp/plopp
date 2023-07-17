@@ -11,7 +11,7 @@ class Figure(VBox):
     Create an interactive figure to represent one-dimensional data.
     """
 
-    def __init__(self, *args, FigConstructor, **kwargs):
+    def __init__(self, FigConstructor, *args, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
         self.toolbar = make_toolbar_canvas2d(canvas=self._fig.canvas)
         self.left_bar = VBar([self.toolbar])
