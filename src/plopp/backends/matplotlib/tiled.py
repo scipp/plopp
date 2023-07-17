@@ -11,7 +11,7 @@ from matplotlib import gridspec
 
 from ..protocols import FigureLike
 from .static import get_repr_maker
-from .utils import is_interactive_backend, silent_mpl_figure
+from .utils import is_interactive_backend, silent_mpl_figure, copy_figure
 
 
 class Tiled:
@@ -79,7 +79,7 @@ class Tiled:
         inds: Union[int, slice, Tuple[int, int], Tuple[slice, slice]],
         view: FigureLike,
     ):
-        new_view = view.copy(ax=self.fig.add_subplot(self.gs[inds]))
+        new_view = copy_figure(view, ax=self.fig.add_subplot(self.gs[inds]))
         self.fig.tight_layout()
         self.views[inds] = new_view
         self._history.append((inds, new_view))
