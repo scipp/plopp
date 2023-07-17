@@ -11,7 +11,7 @@ from matplotlib import gridspec
 
 from ..protocols import FigureLike
 from .static import get_repr_maker
-from .utils import is_interactive_backend, silent_mpl_figure, copy_figure
+from .utils import copy_figure, is_interactive_backend, silent_mpl_figure
 
 
 class Tiled:

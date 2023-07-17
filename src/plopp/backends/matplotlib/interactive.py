@@ -3,8 +3,8 @@
 
 from ipywidgets import HBox, VBox
 
-from .figure import Figure
 from ...widgets import HBar, VBar, make_toolbar_canvas2d
+from .figure import Figure
 
 
 class InteractiveFig(Figure, VBox):
