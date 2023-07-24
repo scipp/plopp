@@ -17,7 +17,7 @@ def tiled(nrows: int, ncols: int, **kwargs):
     ncols:
         Number of columns.
     **kwargs:
-        Additional arguments passed to :class:`backends.matplotlib.tiled.Tiled`.
+        Additional arguments passed to :class:`Tiled`.
 
     Examples
     --------
