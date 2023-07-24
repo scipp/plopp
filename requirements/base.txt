@@ -87,7 +87,7 @@ pyzmq==25.0.2
     # via
     #   ipykernel
     #   jupyter-client
-scipp==23.3.2
+scipp==23.7.0
     # via -r requirements/base.in
 six==1.16.0
     # via
