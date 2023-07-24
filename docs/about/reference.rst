@@ -43,6 +43,7 @@ Graphics
    graphics.figure1d
    graphics.figure2d
    graphics.figure3d
+   graphics.tiled
 
 Widgets and tools
 =================

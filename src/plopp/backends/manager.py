@@ -109,3 +109,10 @@ class BackendManager:
         except AttributeError:
             raise ValueError(f'Unsupported backend \'{self["3d"]}\' for figure3d.')
         return _figure3d(*args, **kwargs)
+
+    def tiled(self, *args, **kwargs):
+        try:
+            _tiled = self._backends['2d'].tiled
+        except AttributeError:
+            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for tiled.')
+        return _tiled(*args, **kwargs)

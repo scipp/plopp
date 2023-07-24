@@ -17,7 +17,7 @@ backends = BackendManager()
 from . import data
 from .core import Node, View, input_node, node, show_graph, widget_node
 from .functions import inspector, plot, scatter3d, slicer, superplot
-from .graphics import Camera, figure1d, figure2d, figure3d
+from .graphics import Camera, figure1d, figure2d, figure3d, tiled
 
 
 def patch_scipp():

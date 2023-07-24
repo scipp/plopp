@@ -9,3 +9,4 @@ from .figimage import FigImage
 from .figline import FigLine
 from .figscatter3d import FigScatter3d
 from .figure import figure1d, figure2d, figure3d
+from .tiled import tiled

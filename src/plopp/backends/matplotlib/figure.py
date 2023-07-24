@@ -1,31 +1,38 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from ipywidgets import HBox, VBox
 
-from ...widgets import HBar, VBar, make_toolbar_canvas2d
-
-
-class Figure(VBox):
+class Figure:
     """
-    Create an interactive figure to represent one-dimensional data.
+    Mixin class for Matplotlib figures
     """
 
-    def __init__(self, FigConstructor, *args, **kwargs):
+    def __init_figure__(self, FigConstructor, *args, **kwargs):
         self._fig = FigConstructor(*args, **kwargs)
-        self.toolbar = make_toolbar_canvas2d(canvas=self._fig.canvas)
-        self.left_bar = VBar([self.toolbar])
-        self.right_bar = VBar()
-        self.bottom_bar = HBar()
-        self.top_bar = HBar()
+        self._args = args
+        self._kwargs = kwargs
+        self._fig_constructor = FigConstructor
 
-        super().__init__(
-            [
-                self.top_bar,
-                HBox([self.left_bar, self._fig.canvas.to_widget(), self.right_bar]),
-                self.bottom_bar,
-            ]
-        )
+    @property
+    def fig(self):
+        """
+        Get the underlying Matplotlib figure.
+        """
+        return self._fig.canvas.fig
+
+    @property
+    def ax(self):
+        """
+        Get the underlying Matplotlib axes.
+        """
+        return self._fig.canvas.ax
+
+    @property
+    def cax(self):
+        """
+        Get the underlying Matplotlib colorbar axes.
+        """
+        return self._fig.canvas.cax
 
     @property
     def canvas(self):
@@ -64,7 +71,7 @@ class Figure(VBox):
         ----------
         filename:
             Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
-            ``.svg``, ``.pdf``, and ``html``.
+            ``.svg``, and ``.pdf``.
         """
         return self._fig.canvas.save(filename, **kwargs)
 
@@ -73,3 +80,13 @@ class Figure(VBox):
 
     def notify_view(self, *args, **kwargs):
         return self._fig.notify_view(*args, **kwargs)
+
+    def __add__(self, other):
+        from .tiled import hstack
+
+        return hstack(self, other)
+
+    def __truediv__(self, other):
+        from .tiled import vstack
+
+        return vstack(self, other)

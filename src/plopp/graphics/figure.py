@@ -39,7 +39,7 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     if style == 'line':
         from .figline import FigLine
 
-        return backends.figure1d(*args, FigConstructor=FigLine, **kwargs)
+        return backends.figure1d(FigLine, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure1d.')
 
@@ -71,7 +71,7 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     if style == 'image':
         from .figimage import FigImage
 
-        return backends.figure2d(*args, FigConstructor=FigImage, **kwargs)
+        return backends.figure2d(FigImage, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure2d.')
 
@@ -103,6 +103,6 @@ def figure3d(*args, style: Literal['scatter'] = 'scatter', **kwargs):
     if style == 'scatter':
         from .figscatter3d import FigScatter3d
 
-        return backends.figure3d(*args, FigConstructor=FigScatter3d, **kwargs)
+        return backends.figure3d(FigScatter3d, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure3d.')

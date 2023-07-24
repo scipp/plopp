@@ -61,3 +61,9 @@ class MatplotlibBackend:
         details.
         """
         return _make_figure(*args, **kwargs)
+
+    def tiled(self, *args, **kwargs):
+        """ """
+        from .tiled import Tiled as TiledMpl
+
+        return TiledMpl(*args, **kwargs)

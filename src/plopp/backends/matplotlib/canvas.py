@@ -101,7 +101,7 @@ class Canvas:
         else:
             self.fig = self.ax.get_figure()
 
-        if cbar and self.cax is None:
+        if cbar and (self.cax is None):
             divider = make_axes_locatable(self.ax)
             self.cax = divider.append_axes("right", "4%", pad="5%")
 
@@ -182,9 +182,13 @@ class Canvas:
             self._ymin = ymin
             self._ymax = ymax
         if self._user_vmin is not None:
-            self._ymin = maybe_variable_to_number(self._user_vmin, unit=self.units['y'])
+            self._ymin = maybe_variable_to_number(
+                self._user_vmin, unit=self.units.get('y')
+            )
         if self._user_vmax is not None:
-            self._ymax = maybe_variable_to_number(self._user_vmax, unit=self.units['y'])
+            self._ymax = maybe_variable_to_number(
+                self._user_vmax, unit=self.units.get('y')
+            )
 
         self.ax.set_xlim(
             _none_if_not_finite(self._xmin), _none_if_not_finite(self._xmax)
@@ -428,6 +432,17 @@ class Canvas:
     @yrange.setter
     def yrange(self, value: Tuple[float, float]):
         self.ax.set_ylim(value)
+
+    @property
+    def grid(self) -> str:
+        """
+        Get or set the visibility of the grid.
+        """
+        return self.ax.axes.get_xgridlines()[0].get_visible()
+
+    @grid.setter
+    def grid(self, visible: bool):
+        self.ax.grid(visible)
 
     def reset_mode(self):
         """
