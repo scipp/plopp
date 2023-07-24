@@ -11,7 +11,7 @@ from plopp.graphics.figline import FigLine
 
 def do_test_copy(Fig):
     da = data_array(ndim=1)
-    original = Fig(Node(da), FigConstructor=FigLine)
+    original = Fig(FigLine, Node(da))
     copy = copy_figure(original)
     assert original.graph_nodes.keys() == copy.graph_nodes.keys()
     assert original.artists.keys() == copy.artists.keys()
@@ -20,8 +20,8 @@ def do_test_copy(Fig):
 def do_test_copy_keeps_kwargs(Fig):
     da = data_array(ndim=1)
     original = Fig(
+        FigLine,
         Node(da),
-        FigConstructor=FigLine,
         scale={'xx': 'log'},
         norm='log',
         grid=True,
