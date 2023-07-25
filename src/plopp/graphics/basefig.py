@@ -58,3 +58,6 @@ class BaseFig:
 
     def notify_view(self, *args, **kwargs):
         return self._view.notify_view(*args, **kwargs)
+
+    def to_dict(self):
+        return self._view.to_dict()

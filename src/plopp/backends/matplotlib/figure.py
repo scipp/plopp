@@ -13,7 +13,6 @@ class Figure(BaseFig):  # Should this be named a Plot?
         self._view = View(*args, **kwargs)
         self._args = args
         self._kwargs = kwargs
-        # self._v_constructor = View
 
     @property
     def fig(self):
