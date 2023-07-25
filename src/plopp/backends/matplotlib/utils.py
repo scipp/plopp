@@ -98,7 +98,7 @@ def is_sphinx_build() -> bool:
 
 def copy_figure(fig: FigureLike, **kwargs) -> FigureLike:
     out = fig.__class__(
-        fig._fig_constructor,
+        fig._view.__class__,
         *fig._args,
         **{**fig._kwargs, **kwargs},
     )
