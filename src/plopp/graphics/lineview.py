@@ -7,12 +7,12 @@ import scipp as sc
 
 from .. import backends
 from ..core.utils import make_compatible, name_with_unit
-from .basefig import BaseFig
+from ..core import View
 
 
-class FigLine(BaseFig):
+class LineView(View):
     """
-    Figure that makes a visual representation of one-dimensional data.
+    View that makes a visual representation of one-dimensional data.
     It has a :class:`Canvas` and a specialized ``update`` function that generates
     :class:`Line` artists.
 

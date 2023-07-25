@@ -12,10 +12,11 @@ class InteractiveFig(Figure, VBox):
     Create an interactive Matplotlib figure.
     """
 
-    def __init__(self, FigConstructor, *args, **kwargs):
-        self.__init_figure__(FigConstructor, *args, **kwargs)
+    def __init__(self, View, *args, **kwargs):
+        self.__init_figure__(View, *args, **kwargs)
         self.toolbar = make_toolbar_canvas2d(
-            canvas=self._fig.canvas, colormapper=getattr(self._fig, 'colormapper', None)
+            canvas=self._view.canvas,
+            colormapper=getattr(self._view, 'colormapper', None),
         )
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar()
@@ -25,7 +26,7 @@ class InteractiveFig(Figure, VBox):
         super().__init__(
             [
                 self.top_bar,
-                HBox([self.left_bar, self._fig.canvas.to_widget(), self.right_bar]),
+                HBox([self.left_bar, self._view.canvas.to_widget(), self.right_bar]),
                 self.bottom_bar,
             ]
         )

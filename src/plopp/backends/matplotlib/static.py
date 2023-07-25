@@ -33,8 +33,8 @@ class StaticFig(Figure):
     canvas.
     """
 
-    def __init__(self, FigConstructor, *args, **kwargs):
-        self.__init_figure__(FigConstructor, *args, **kwargs)
+    def __init__(self, View, *args, **kwargs):
+        self.__init_figure__(View, *args, **kwargs)
 
     def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
         """
@@ -42,16 +42,16 @@ class StaticFig(Figure):
         """
         str_repr = str(self.fig)
         out = {'text/plain': str_repr[:-1] + f', {len(self.artists)} artists)'}
-        if self._fig._repr_format is not None:
-            repr_maker = get_repr_maker(form=self._fig._repr_format)
+        if self._view._repr_format is not None:
+            repr_maker = get_repr_maker(form=self._view._repr_format)
         else:
-            npoints = sum(len(line.get_xdata()) for line in self._fig.canvas.ax.lines)
+            npoints = sum(len(line.get_xdata()) for line in self._view.canvas.ax.lines)
             repr_maker = get_repr_maker(npoints=npoints)
-        out.update(repr_maker(self._fig.canvas.fig))
+        out.update(repr_maker(self._view.canvas.fig))
         return out
 
     def to_widget(self):
         """
         Convert the Matplotlib figure to an image widget.
         """
-        return self._fig.canvas.to_image()
+        return self._view.canvas.to_image()

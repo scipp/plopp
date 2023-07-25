@@ -7,11 +7,11 @@ import scipp as sc
 
 from .. import backends
 from ..core.utils import make_compatible, name_with_unit
-from .basefig import BaseFig
+from ..core import View
 from .colormapper import ColorMapper
 
 
-class FigImage(BaseFig):
+class ImageView(View):
     """
     Figure that makes a visual representation of two-dimensional data.
     It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``

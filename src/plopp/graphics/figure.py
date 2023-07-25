@@ -37,9 +37,9 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     """
 
     if style == 'line':
-        from .figline import FigLine
+        from .lineview import LineView
 
-        return backends.figure1d(FigLine, *args, **kwargs)
+        return backends.figure1d(LineView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure1d.')
 
@@ -69,9 +69,9 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     """
 
     if style == 'image':
-        from .figimage import FigImage
+        from .imageview import ImageView
 
-        return backends.figure2d(FigImage, *args, **kwargs)
+        return backends.figure2d(ImageView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure2d.')
 
