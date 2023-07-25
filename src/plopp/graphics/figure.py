@@ -101,8 +101,8 @@ def figure3d(*args, style: Literal['scatter'] = 'scatter', **kwargs):
     """
 
     if style == 'scatter':
-        from .figscatter3d import FigScatter3d
+        from .scatter3dview import Scatter3dView
 
-        return backends.figure3d(FigScatter3d, *args, **kwargs)
+        return backends.figure3d(Scatter3dView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure3d.')

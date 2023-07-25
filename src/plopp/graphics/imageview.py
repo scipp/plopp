@@ -13,7 +13,7 @@ from .colormapper import ColorMapper
 
 class ImageView(View):
     """
-    Figure that makes a visual representation of two-dimensional data.
+    FigViewre that makes a visual representation of two-dimensional data.
     It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
     function that generates :class:`Image` artists.
 
