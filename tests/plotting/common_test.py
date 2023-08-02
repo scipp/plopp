@@ -6,7 +6,7 @@ import pytest
 import scipp as sc
 
 from plopp.data.testing import data_array
-from plopp.functions.common import preprocess
+from plopp.plotting.common import preprocess
 
 
 def test_preprocess_raises_ValueError_when_given_binned_data():

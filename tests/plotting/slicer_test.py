@@ -5,7 +5,7 @@ import pytest
 import scipp as sc
 
 from plopp.data.testing import data_array, dataset
-from plopp.functions.slicer import Slicer
+from plopp.plotting.slicer import Slicer
 
 
 def test_creation_keep_two_dims():
