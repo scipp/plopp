@@ -166,11 +166,3 @@ class LineView(View):
             Min and max limits for each dimension to be cropped.
         """
         self.canvas.crop(x=limits[self.canvas.dims['x']])
-
-    def to_dict(self):
-        """
-        Serialize the view to a dictionary.
-        """
-        from .serialize import to_dict as _to_dict
-
-        return _to_dict(canvas=self.canvas, artists=self.artists)
