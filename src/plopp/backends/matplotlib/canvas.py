@@ -224,24 +224,6 @@ class Canvas:
         """
         self.fig.show()
 
-    def crop(self, **limits):
-        """
-        Set the axes limits according to the crop parameters.
-
-        Parameters
-        ----------
-        **limits:
-            Min and max limits for each dimension to be cropped.
-        """
-        for xy, lims in limits.items():
-            getattr(self.ax, f'set_{xy}lim')(
-                *[
-                    maybe_variable_to_number(lims[m], unit=self.units[xy])
-                    for m in ('min', 'max')
-                    if m in lims
-                ]
-            )
-
     def set_axes(self, dims, units):
         """
         Set the axes dimensions and units.

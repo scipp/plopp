@@ -18,7 +18,6 @@ def plot(
     aspect: Literal['auto', 'equal'] = 'auto',
     cbar: bool = True,
     coords: Optional[List[str]] = None,
-    crop: Optional[Dict[str, Dict[str, Variable]]] = None,
     errorbars: bool = True,
     figsize: Tuple[float, float] = None,
     grid: bool = False,
@@ -44,11 +43,6 @@ def plot(
         Show colorbar in 2d plots if ``True``.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
-    crop:
-        Set the axis limits. Limits should be given as a dict with one entry per
-        dimension to be cropped. Each entry should be a nested dict containing scalar
-        values for ``'min'`` and/or ``'max'``. Example:
-        ``da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})``
     errorbars:
         Show errorbars in 1d plots if ``True``.
     figsize:
@@ -93,7 +87,6 @@ def plot(
     """
 
     common_args = {
-        'crop': crop,
         'grid': grid,
         'norm': norm,
         'scale': scale,
@@ -105,9 +98,7 @@ def plot(
         **kwargs,
     }
 
-    data_arrays = preprocess_multi(
-        obj, crop=crop, ignore_size=ignore_size, coords=coords
-    )
+    data_arrays = preprocess_multi(obj, ignore_size=ignore_size, coords=coords)
 
     ndims = set()
     for da in data_arrays:

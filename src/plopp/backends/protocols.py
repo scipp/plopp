@@ -20,9 +20,6 @@ class CanvasLike(Protocol):
     def save(self) -> None:
         ...
 
-    def crop(self, **limits) -> None:
-        ...
-
     @property
     def empty(self) -> bool:
         ...
@@ -142,9 +139,6 @@ class FigureLike(Protocol):
 
     @property
     def id(self) -> str:
-        ...
-
-    def crop(self, **limits) -> None:
         ...
 
     def save(self, filename: str, **kwargs) -> None:
