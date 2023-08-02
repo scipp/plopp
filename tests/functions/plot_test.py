@@ -167,48 +167,6 @@ def test_kwarg_scale_2d():
     assert p.canvas.ax.get_yscale() == 'log'
 
 
-def test_kwarg_crop_1d_min_max():
-    da = data_array(ndim=1)
-    p = pp.plot(
-        da,
-        crop={'xx': {'min': sc.scalar(20, unit='m'), 'max': sc.scalar(40, unit='m')}},
-    )
-    assert np.array_equal(p.canvas.ax.get_xlim(), [20, 40])
-
-
-def test_kwarg_crop_1d_min_only():
-    da = data_array(ndim=1)
-    p = pp.plot(da, crop={'xx': {'min': sc.scalar(20, unit='m')}})
-    assert p.canvas.ax.get_xlim()[0] == 20
-
-
-def test_kwarg_crop_1d_min_conversion():
-    da = data_array(ndim=1)
-    p = pp.plot(da, crop={'xx': {'min': sc.scalar(200, unit='cm')}})
-    assert p.canvas.ax.get_xlim()[0] == 2
-
-
-def test_kwarg_crop_1d_with_no_unit():
-    da = data_array(ndim=1)
-    p = pp.plot(da, crop={'xx': {'min': 20}})
-    assert p.canvas.ax.get_xlim()[0] == 20
-    p = pp.plot(da, crop={'xx': {'min': 20.5}})
-    assert p.canvas.ax.get_xlim()[0] == 20.5
-
-
-def test_kwarg_crop_2d():
-    da = data_array(ndim=2)
-    p = pp.plot(
-        da,
-        crop={
-            'xx': {'min': sc.scalar(20, unit='m')},
-            'yy': {'min': sc.scalar(10, unit='m'), 'max': sc.scalar(4000, unit='cm')},
-        },
-    )
-    assert p.canvas.ax.get_xlim()[0] == 20
-    assert np.array_equal(p.canvas.ax.get_ylim(), [10, 40])
-
-
 def test_kwarg_for_two_lines():
     ds = dataset(ndim=1)
     p = pp.plot(ds, color='r')

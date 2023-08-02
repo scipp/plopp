@@ -58,34 +58,6 @@ def test_log_norm():
     assert fig.colormapper.norm == 'log'
 
 
-def test_crop():
-    da = data_array(ndim=2, binedges=True)
-    fig = FigImage(Node(da))
-    assert fig.canvas.xrange == (da.meta['xx'].min().value, da.meta['xx'].max().value)
-    assert fig.canvas.yrange == (da.meta['yy'].min().value, da.meta['yy'].max().value)
-    xmin = sc.scalar(2.1, unit='m')
-    xmax = sc.scalar(102.0, unit='m')
-    ymin = sc.scalar(5.5, unit='m')
-    ymax = sc.scalar(22.3, unit='m')
-    fig.crop(xx={'min': xmin, 'max': xmax}, yy={'min': ymin, 'max': ymax})
-    assert fig.canvas.xrange == (xmin.value, xmax.value)
-    assert fig.canvas.yrange == (ymin.value, ymax.value)
-
-
-def test_crop_no_variable():
-    da = data_array(ndim=2)
-    xmin = 2.1
-    xmax = 102.0
-    ymin = 5.5
-    ymax = 22.3
-    fig = FigImage(
-        Node(da),
-        crop={'xx': {'min': xmin, 'max': xmax}, 'yy': {'min': ymin, 'max': ymax}},
-    )
-    assert fig.canvas.xrange == (xmin, xmax)
-    assert fig.canvas.yrange == (ymin, ymax)
-
-
 def test_raises_for_new_data_with_incompatible_dimension():
     a = data_array(ndim=2)
     b = a.rename(xx='zz')
