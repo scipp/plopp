@@ -4,7 +4,7 @@
 from ...graphics import BaseFig
 
 
-class Figure(BaseFig):  # Should this be named a Plot?
+class Figure(BaseFig):
     """
     Mixin class for Matplotlib figures
     """
