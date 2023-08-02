@@ -159,8 +159,11 @@ class Line:
                 fmt="none",
             )
 
-        if self.label:
-            self._ax.legend()
+        if self.label and self._canvas._legend:
+            leg_args = {}
+            if isinstance(self._canvas._legend, (list, tuple)):
+                leg_args = {'loc': self._canvas._legend}
+            self._ax.legend(**leg_args)
 
     def _make_data(self) -> dict:
         x = self._data.meta[self._dim]

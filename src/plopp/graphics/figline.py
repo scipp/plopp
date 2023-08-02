@@ -57,6 +57,9 @@ class FigLine(BaseFig):
         Format of the figure displayed in the Jupyter notebook. If ``None``, a SVG is
         created as long as the number of markers in the figure is not too large. If too
         many markers are drawn, a PNG image is created instead.
+    legend:
+        Show legend if ``True``. If ``legend`` is a tuple, it should contain the
+        ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
     **kwargs:
         All other kwargs are forwarded to Matplotlib:
 
@@ -80,6 +83,7 @@ class FigLine(BaseFig):
         title: Optional[str] = None,
         figsize: Tuple[float, float] = None,
         format: Optional[Literal['svg', 'png']] = None,
+        legend: Union[bool, Tuple[float, float]] = True,
         **kwargs
     ):
         super().__init__(*nodes)
@@ -98,6 +102,7 @@ class FigLine(BaseFig):
             vmin=vmin,
             vmax=vmax,
             autoscale=autoscale,
+            legend=legend,
             **kwargs
         )
         self.canvas.yscale = norm
