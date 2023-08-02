@@ -6,8 +6,8 @@ from typing import Literal, Optional, Tuple, Union
 import scipp as sc
 
 from .. import backends
-from ..core.utils import make_compatible
 from ..core import View
+from ..core.utils import make_compatible
 from ..graphics import Camera
 from .colormapper import ColorMapper
 
