@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Dict, Literal, Union
+from typing import Literal, Union
 
 import scipp as sc
 from numpy import ndarray

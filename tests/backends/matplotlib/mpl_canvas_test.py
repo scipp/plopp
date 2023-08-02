@@ -5,7 +5,6 @@ import os
 import tempfile
 
 import pytest
-import scipp as sc
 
 from plopp.backends.matplotlib.canvas import Canvas
 

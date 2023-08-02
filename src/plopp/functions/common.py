@@ -3,13 +3,12 @@
 
 import warnings
 from collections.abc import Mapping
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional, Union
 
 import numpy as np
 import scipp as sc
 
 from .. import backends
-from ..core.utils import maybe_number_to_variable
 
 
 def require_interactive_backend(func: str):
