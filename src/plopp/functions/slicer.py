@@ -64,6 +64,10 @@ class Slicer:
         crop: Dict[str, Dict[str, sc.Variable]] = None,
         **kwargs,
     ):
+        self.data_nodes = None
+        if isinstance(obj, Node):
+            self.data_nodes = [obj]
+            obj = obj()
         data_arrays = preprocess_multi(obj, crop=crop, ignore_size=True)
         ds = sc.Dataset({da.name: da for da in data_arrays})
 
@@ -98,7 +102,8 @@ class Slicer:
 
         from ..widgets import SliceWidget, slice_dims
 
-        self.data_nodes = [Node(da) for da in ds.values()]
+        if self.data_nodes is None:
+            self.data_nodes = [Node(da) for da in ds.values()]
 
         self.slider = SliceWidget(ds, dims=[dim for dim in ds.dims if dim not in keep])
         self.slider_node = widget_node(self.slider)
