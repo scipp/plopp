@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
+import itertools
 from collections.abc import Mapping
 from typing import Any, Dict, List, Optional, Union
 
@@ -174,7 +175,7 @@ def preprocess(
     return out
 
 
-def preprocess_multi(obj, **kwargs) -> List[sc.DataArray]:
+def preprocess_maybe_mapping(obj, **kwargs) -> List[sc.DataArray]:
     """
     Pre-process potentially multiple input data for plotting.
     See :func:`preprocess` for details.
@@ -189,3 +190,11 @@ def preprocess_multi(obj, **kwargs) -> List[sc.DataArray]:
         return [preprocess(item, name=name, **kwargs) for name, item in obj.items()]
     else:
         return [preprocess(obj, **kwargs)]
+
+
+def preprocess_multi(*inputs, **kwargs) -> List[sc.DataArray]:
+    return list(
+        itertools.chain.from_iterable(
+            [preprocess_maybe_mapping(inp, **kwargs) for inp in inputs]
+        )
+    )

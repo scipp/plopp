@@ -55,9 +55,8 @@ class Slicer:
 
     def __init__(
         self,
-        obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
+        *inputs: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
         keep: List[str] = None,
-        *,
         autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
         vmin: Union[VariableLike, int, float] = None,
         vmax: Union[VariableLike, int, float] = None,

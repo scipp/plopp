@@ -13,8 +13,7 @@ from .common import preprocess_multi
 
 
 def plot(
-    obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
-    *,
+    *inputs: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
     aspect: Literal['auto', 'equal'] = 'auto',
     cbar: bool = True,
     coords: Optional[List[str]] = None,
@@ -106,7 +105,7 @@ def plot(
     }
 
     data_arrays = preprocess_multi(
-        obj, crop=crop, ignore_size=ignore_size, coords=coords
+        *inputs, crop=crop, ignore_size=ignore_size, coords=coords
     )
 
     ndims = set()
