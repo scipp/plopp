@@ -9,7 +9,7 @@ from scipp.typing import VariableLike
 
 from ..core import Node
 from ..graphics import figure1d, figure2d
-from .common import preprocess_multi
+from .common import preprocess_multi, preprocess
 
 
 def plot(
@@ -104,28 +104,38 @@ def plot(
         **kwargs,
     }
 
-    data_arrays = preprocess_multi(
-        *inputs, crop=crop, ignore_size=ignore_size, coords=coords
-    )
+    nodes = [
+        Node(preprocess, inp, crop=crop, ignore_size=ignore_size, coords=coords)
+        for inp in inputs
+    ]
+
+    # data_arrays = preprocess_multi(
+    #     *inputs, crop=crop, ignore_size=ignore_size, coords=coords
+    # )
 
     ndims = set()
-    for da in data_arrays:
-        ndims.add(da.ndim)
+    for n in nodes:
+        ndims.add(n().ndim)
     if len(ndims) > 1:
         raise ValueError(
             'All items given to the plot function must have the same '
             f'number of dimensions. Found dimensions {ndims}.'
         )
     ndim = ndims.pop()
+
+    # if nodes is None:
+    #     nodes = [Node(da) for da in data_arrays]
+
     if ndim == 1:
         return figure1d(
-            *[Node(da) for da in data_arrays],
+            # *[Node(da) for da in data_arrays],
+            *nodes,
             errorbars=errorbars,
             mask_color=mask_color,
             **common_args,
         )
     elif ndim == 2:
-        if len(data_arrays) > 1:
+        if len(nodes) > 1:
             raise ValueError(
                 'The plot function can only plot a single 2d data entry. If you want '
                 'to create multiple figures, see the documentation on subplots at '
@@ -134,7 +144,8 @@ def plot(
                 'plopp.figure2d function.'
             )
         return figure2d(
-            *[Node(da) for da in data_arrays],
+            # *[Node(da) for da in data_arrays],
+            *nodes,
             aspect=aspect,
             cbar=cbar,
             **common_args,
