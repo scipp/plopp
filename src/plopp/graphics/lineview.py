@@ -120,7 +120,7 @@ class LineView(View):
             The id of the node that sent the new data.
         """
         if new_values.ndim != 1:
-            raise ValueError("FigLine can only be used to plot 1-D data.")
+            raise ValueError("LineView can only be used to plot 1-D data.")
 
         xdim = new_values.dim
         xcoord = new_values.coords[xdim]

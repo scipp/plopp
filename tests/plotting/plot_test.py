@@ -157,7 +157,7 @@ def test_kwarg_scale():
 def test_kwarg_cmap():
     da = data_array(ndim=2)
     p = pp.plot(da, cmap='magma')
-    assert p._fig.colormapper.cmap.name == 'magma'
+    assert p._view.colormapper.cmap.name == 'magma'
 
 
 def test_kwarg_scale_2d():
@@ -346,7 +346,7 @@ def test_plot_xarray_dataset():
     assert p.canvas.dims['x'] == 'time'
     assert p.canvas.units['x'] == 'dimensionless'
     assert p.canvas.units['y'] == 'dimensionless'
-    assert len(p._fig.artists) == 2
+    assert len(p._view.artists) == 2
 
 
 def test_plot_pandas_series():
@@ -357,7 +357,7 @@ def test_plot_pandas_series():
     assert p.canvas.dims['x'] == 'row'
     assert p.canvas.units['x'] == 'dimensionless'
     assert p.canvas.units['y'] == 'dimensionless'
-    assert list(p._fig.artists.values())[0].label == 'MyDataSeries'
+    assert list(p._view.artists.values())[0].label == 'MyDataSeries'
 
 
 def test_plot_pandas_dataframe():
@@ -375,4 +375,4 @@ def test_plot_pandas_dataframe():
     assert p.canvas.dims['x'] == 'row'
     assert p.canvas.units['x'] == 'dimensionless'
     assert p.canvas.units['y'] == 'dimensionless'
-    assert len(p._fig.artists) == 4
+    assert len(p._view.artists) == 4

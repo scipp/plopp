@@ -13,7 +13,7 @@ from .colormapper import ColorMapper
 
 class ImageView(View):
     """
-    FigViewre that makes a visual representation of two-dimensional data.
+    ImageView that makes a visual representation of two-dimensional data.
     It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
     function that generates :class:`Image` artists.
 
@@ -126,7 +126,7 @@ class ImageView(View):
             The id of the node that sent the new data.
         """
         if new_values.ndim != 2:
-            raise ValueError("FigImage can only be used to plot 2-D data.")
+            raise ValueError("ImageView can only be used to plot 2-D data.")
 
         xdim = new_values.dims[1]
         xcoord = new_values.coords[xdim]

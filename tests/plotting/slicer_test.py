@@ -116,8 +116,8 @@ def test_autoscale_fixed():
         data=sc.arange('x', 5 * 10 * 20).fold(dim='x', sizes={'z': 20, 'y': 10, 'x': 5})
     )
     sl = Slicer(da, keep=['y', 'x'], autoscale='fixed')
-    assert sl.figure._fig.colormapper.vmin == 0
-    assert sl.figure._fig.colormapper.vmax == 5 * 10 * 20 - 1
+    assert sl.figure._view.colormapper.vmin == 0
+    assert sl.figure._view.colormapper.vmax == 5 * 10 * 20 - 1
     sl.slider.controls['z']['slider'].value = 5
-    assert sl.figure._fig.colormapper.vmin == 0
-    assert sl.figure._fig.colormapper.vmax == 5 * 10 * 20 - 1
+    assert sl.figure._view.colormapper.vmin == 0
+    assert sl.figure._view.colormapper.vmax == 5 * 10 * 20 - 1
