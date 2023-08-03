@@ -6,6 +6,7 @@ from typing import Any, Callable, Union
 
 import scipp as sc
 
+from ..backends.protocols import FigureLike
 from ..core import Node, View, node
 from .tools import ToggleTool
 
@@ -46,11 +47,11 @@ class DrawingTool(ToggleTool):
 
     def __init__(
         self,
-        figure: View,
+        figure: FigureLike,
         input_node: Node,
         tool: Any,
         func: Callable,
-        destination: Union[View, Node],
+        destination: Union[FigureLike, Node],
         get_artist_info: Callable,
         value: bool = False,
         **kwargs,
@@ -80,7 +81,7 @@ class DrawingTool(ToggleTool):
         output_node.name = f'Output node {len(self._output_nodes)}'
         self._output_nodes[nodeid] = output_node
         if self._destination_is_fig:
-            output_node.add_view(self._destination._fig)
+            output_node.add_view(self._destination._view)
             self._destination.update(new_values=output_node(), key=output_node.id)
             self._destination.artists[output_node.id].color = (
                 artist.color if hasattr(artist, 'color') else artist.edgecolor
