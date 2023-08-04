@@ -9,7 +9,7 @@ from .. import backends
 def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     """
     Create a figure to represent one-dimensional data from one or more graph node(s).
-    By default, this will return a figure built from :class:`FigLine` (see the
+    By default, this will return a figure built from :class:`LineView` (see the
     documentation of this class for a list of available customization arguments).
 
     Parameters
@@ -37,9 +37,9 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     """
 
     if style == 'line':
-        from .figline import FigLine
+        from .lineview import LineView
 
-        return backends.figure1d(FigLine, *args, **kwargs)
+        return backends.figure1d(LineView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure1d.')
 
@@ -47,7 +47,7 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
 def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     """
     Create a figure to represent two-dimensional data from a graph node.
-    By default, this will return a figure built from :class:`FigImage` (see the
+    By default, this will return a figure built from :class:`ImageView` (see the
     documentation of this class for a list of available customization arguments).
 
     Parameters
@@ -69,9 +69,9 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     """
 
     if style == 'image':
-        from .figimage import FigImage
+        from .imageview import ImageView
 
-        return backends.figure2d(FigImage, *args, **kwargs)
+        return backends.figure2d(ImageView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure2d.')
 
@@ -101,8 +101,8 @@ def figure3d(*args, style: Literal['scatter'] = 'scatter', **kwargs):
     """
 
     if style == 'scatter':
-        from .figscatter3d import FigScatter3d
+        from .scatter3dview import Scatter3dView
 
-        return backends.figure3d(FigScatter3d, *args, **kwargs)
+        return backends.figure3d(Scatter3dView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure3d.')

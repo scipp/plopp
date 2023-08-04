@@ -1,55 +1,60 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from abc import abstractmethod
-from typing import Any, Dict
-
-import scipp as sc
 
 from ..core import View
 
 
-class BaseFig(View):
+class BaseFig:
     """
-    A :class:`View` for figures.
-
-    Parameters
-    ----------
-    *nodes:
-        The nodes that are attached to the view.
+    A Mixin class which is the base for all figures.
     """
 
-    def __init__(self, *nodes):
-        super().__init__(*nodes)
-        self.artists = {}
+    _view: View
 
-    def notify_view(self, message: Dict[str, Any]):
+    @property
+    def canvas(self):
+        return self._view.canvas
+
+    @property
+    def artists(self):
+        return self._view.artists
+
+    @property
+    def graph_nodes(self):
+        return self._view.graph_nodes
+
+    @property
+    def id(self):
+        return self._view.id
+
+    def crop(self, **limits):
         """
-        When a notification is received, request data from the corresponding parent node
-        and update the relevant artist.
+        Set the axes limits according to the crop parameters.
 
         Parameters
         ----------
-        *message:
-            The notification message containing the node id it originated from.
+        **limits:
+            Min and max limits for each dimension to be cropped.
         """
-        node_id = message["node_id"]
-        new_values = self.graph_nodes[node_id].request_data()
-        self.update(new_values=new_values, key=node_id)
+        return self._view.crop(**limits)
 
-    @abstractmethod
-    def update(self, new_values: sc.DataArray, key: str, draw: bool):
+    def save(self, filename, **kwargs):
         """
-        Update function which is called when a notification is received.
-        This has to be overridden by any child class.
-        """
-        return
+        Save the figure to file.
+        The default directory for writing the file is the same as the
+        directory where the script or notebook is running.
 
-    def render(self):
+        Parameters
+        ----------
+        filename:
+            Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
+            ``.svg``, and ``.pdf``.
         """
-        At the end of figure creation, this function is called to request data from
-        all parent nodes and draw the figure.
-        """
-        for node in self.graph_nodes.values():
-            new_values = node.request_data()
-            self.update(new_values=new_values, key=node.id)
+        return self._view.canvas.save(filename, **kwargs)
+
+    def update(self, *args, **kwargs):
+        return self._view.update(*args, **kwargs)
+
+    def notify_view(self, *args, **kwargs):
+        return self._view.notify_view(*args, **kwargs)

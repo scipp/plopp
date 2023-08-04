@@ -6,13 +6,13 @@ from typing import Dict, Literal, Optional, Tuple, Union
 import scipp as sc
 
 from .. import backends
+from ..core import View
 from ..core.utils import make_compatible, name_with_unit
-from .basefig import BaseFig
 
 
-class FigLine(BaseFig):
+class LineView(View):
     """
-    Figure that makes a visual representation of one-dimensional data.
+    View that makes a visual representation of one-dimensional data.
     It has a :class:`Canvas` and a specialized ``update`` function that generates
     :class:`Line` artists.
 
@@ -120,7 +120,7 @@ class FigLine(BaseFig):
             The id of the node that sent the new data.
         """
         if new_values.ndim != 1:
-            raise ValueError("FigLine can only be used to plot 1-D data.")
+            raise ValueError("LineView can only be used to plot 1-D data.")
 
         xdim = new_values.dim
         xcoord = new_values.coords[xdim]

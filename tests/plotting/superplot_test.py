@@ -4,7 +4,7 @@ import pytest
 import scipp as sc
 
 from plopp.data.testing import data_array
-from plopp.functions.superplot import Superplot
+from plopp.plotting.superplot import Superplot
 
 
 def test_creation():

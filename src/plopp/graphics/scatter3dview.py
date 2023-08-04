@@ -6,15 +6,15 @@ from typing import Literal, Optional, Tuple, Union
 import scipp as sc
 
 from .. import backends
+from ..core import View
 from ..core.utils import make_compatible
 from ..graphics import Camera
-from .basefig import BaseFig
 from .colormapper import ColorMapper
 
 
-class FigScatter3d(BaseFig):
+class Scatter3dView(View):
     """
-    Figure that makes a visual representation of three-dimensional scatter data.
+    View that makes a visual representation of three-dimensional scatter data.
     It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
     function that generates :class:`PointCloud` artists.
 

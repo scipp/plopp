@@ -37,12 +37,12 @@ Graphics
 
    graphics.Camera
    graphics.ColorMapper
-   graphics.FigImage
-   graphics.FigLine
-   graphics.FigScatter3d
    graphics.figure1d
    graphics.figure2d
    graphics.figure3d
+   graphics.ImageView
+   graphics.LineView
+   graphics.Scatter3dView
    graphics.tiled
 
 Widgets and tools

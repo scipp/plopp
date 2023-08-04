@@ -6,12 +6,12 @@ from plopp.backends.matplotlib.interactive import InteractiveFig
 from plopp.backends.matplotlib.static import StaticFig
 from plopp.backends.matplotlib.utils import copy_figure
 from plopp.data.testing import data_array
-from plopp.graphics.figline import FigLine
+from plopp.graphics.lineview import LineView
 
 
 def do_test_copy(Fig):
     da = data_array(ndim=1)
-    original = Fig(FigLine, Node(da))
+    original = Fig(LineView, Node(da))
     copy = copy_figure(original)
     assert original.graph_nodes.keys() == copy.graph_nodes.keys()
     assert original.artists.keys() == copy.artists.keys()
@@ -20,7 +20,7 @@ def do_test_copy(Fig):
 def do_test_copy_keeps_kwargs(Fig):
     da = data_array(ndim=1)
     original = Fig(
-        FigLine,
+        LineView,
         Node(da),
         scale={'xx': 'log'},
         norm='log',

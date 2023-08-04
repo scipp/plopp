@@ -6,14 +6,14 @@ from typing import Dict, Literal, Optional, Tuple, Union
 import scipp as sc
 
 from .. import backends
+from ..core import View
 from ..core.utils import make_compatible, name_with_unit
-from .basefig import BaseFig
 from .colormapper import ColorMapper
 
 
-class FigImage(BaseFig):
+class ImageView(View):
     """
-    Figure that makes a visual representation of two-dimensional data.
+    ImageView that makes a visual representation of two-dimensional data.
     It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
     function that generates :class:`Image` artists.
 
@@ -126,7 +126,7 @@ class FigImage(BaseFig):
             The id of the node that sent the new data.
         """
         if new_values.ndim != 2:
-            raise ValueError("FigImage can only be used to plot 2-D data.")
+            raise ValueError("ImageView can only be used to plot 2-D data.")
 
         xdim = new_values.dims[1]
         xcoord = new_values.coords[xdim]
