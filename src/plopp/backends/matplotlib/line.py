@@ -163,6 +163,11 @@ class Line:
             leg_args = {}
             if isinstance(self._canvas._legend, (list, tuple)):
                 leg_args = {'loc': self._canvas._legend}
+            elif not isinstance(self._canvas._legend, bool):
+                raise TypeError(
+                    "Legend must be a bool, tuple, or a list, "
+                    f"not {type(self._canvas._legend)}"
+                )
             self._ax.legend(**leg_args)
 
     def _make_data(self) -> dict:
