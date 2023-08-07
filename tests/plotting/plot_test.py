@@ -376,3 +376,24 @@ def test_plot_pandas_dataframe():
     assert p.canvas.units['x'] == 'dimensionless'
     assert p.canvas.units['y'] == 'dimensionless'
     assert len(p._view.artists) == 4
+
+
+def test_hide_legend():
+    da1 = data_array(ndim=1)
+    da2 = da1 * 3.3
+    p = pp.plot({'a': da1, 'b': da2}, legend=False)
+    leg = p.ax.get_legend()
+    assert leg is None
+
+
+def test_legend_location():
+    da1 = data_array(ndim=1)
+    da2 = da1 * 3.3
+    data = {'a': da1, 'b': da2}
+    leg1 = pp.plot(data, legend=(0.5, 0.5)).ax.get_legend().get_window_extent().bounds
+    leg2 = pp.plot(data, legend=(0.9, 0.5)).ax.get_legend().get_window_extent().bounds
+    leg3 = pp.plot(data, legend=(0.5, 0.9)).ax.get_legend().get_window_extent().bounds
+    assert leg2[0] > leg1[0]
+    assert leg2[1] == leg1[1]
+    assert leg3[1] > leg1[1]
+    assert leg3[0] == leg1[0]

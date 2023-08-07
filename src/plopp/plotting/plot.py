@@ -106,7 +106,6 @@ def plot(
         'vmax': vmax,
         'autoscale': autoscale,
         'figsize': figsize,
-        'legend': legend,
         **kwargs,
     }
 
@@ -128,6 +127,7 @@ def plot(
             *[Node(da) for da in data_arrays],
             errorbars=errorbars,
             mask_color=mask_color,
+            legend=legend,
             **common_args,
         )
     elif ndim == 2:
