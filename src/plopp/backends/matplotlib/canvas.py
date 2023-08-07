@@ -54,6 +54,9 @@ class Canvas:
         The aspect ratio for the axes.
     cbar:
         Add axes to host a colorbar if ``True``.
+    legend:
+        Show legend if ``True``. If ``legend`` is a tuple, it should contain the
+        ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
     """
 
     def __init__(
@@ -68,6 +71,7 @@ class Canvas:
         autoscale: Literal['auto', 'grow'] = 'auto',
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
+        legend: Union[bool, Tuple[float, float]] = True,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -88,6 +92,7 @@ class Canvas:
         self.dims = {}
         self._own_axes = False
         self._autoscale = autoscale
+        self._legend = legend
 
         if self.ax is None:
             self._own_axes = True
