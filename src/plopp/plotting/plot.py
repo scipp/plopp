@@ -30,6 +30,7 @@ def plot(
     vmin: Optional[Union[Variable, int, float]] = None,
     vmax: Optional[Union[Variable, int, float]] = None,
     autoscale: Literal['auto', 'grow'] = 'auto',
+    legend: Union[bool, Tuple[float, float]] = True,
     **kwargs,
 ):
     """Plot a Scipp object.
@@ -78,6 +79,9 @@ def plot(
         The behavior of the axis (1d plots) or the color range limits (2d plots).
         If ``auto``, the limits automatically adjusts every time the data changes.
         If ``grow``, the limits are allowed to grow with time but they do not shrink.
+    legend:
+        Show legend if ``True``. If ``legend`` is a tuple, it should contain the
+        ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
     **kwargs:
         All other kwargs are directly forwarded to Matplotlib, the underlying plotting
         library. The underlying functions called are the following:
@@ -123,6 +127,7 @@ def plot(
             *[Node(da) for da in data_arrays],
             errorbars=errorbars,
             mask_color=mask_color,
+            legend=legend,
             **common_args,
         )
     elif ndim == 2:
