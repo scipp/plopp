@@ -104,8 +104,15 @@ def plot(
     }
 
     # data_arrays = preprocess_multi(obj, ignore_size=ignore_size, coords=coords)
+    flat_inputs = []
+    for inp in inputs:
+        if isinstance(inp, dict):
+            flat_inputs.extend(inp.items())
+        else:
+            flat_inputs.append(('', inp))
     nodes = [
-        Node(preprocess, inp, ignore_size=ignore_size, coords=coords) for inp in inputs
+        Node(preprocess, inp, name=name, ignore_size=ignore_size, coords=coords)
+        for name, inp in flat_inputs
     ]
 
     ndims = set()
