@@ -46,9 +46,6 @@ class Slicer:
         The minimum value of the y-axis (1d plots) or color range (2d plots).
     vmax:
         The maximum value of the y-axis (1d plots) or color range (2d plots).
-    crop:
-        Set the axis limits. Limits should be given as a dict with one entry per
-        dimension to be cropped.
     **kwargs:
         The additional arguments are forwarded to the underlying 1D or 2D figures.
     """
@@ -61,10 +58,9 @@ class Slicer:
         autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
         vmin: Union[VariableLike, int, float] = None,
         vmax: Union[VariableLike, int, float] = None,
-        crop: Dict[str, Dict[str, sc.Variable]] = None,
         **kwargs,
     ):
-        data_arrays = preprocess_multi(obj, crop=crop, ignore_size=True)
+        data_arrays = preprocess_multi(obj, ignore_size=True)
         ds = sc.Dataset({da.name: da for da in data_arrays})
 
         if keep is None:
@@ -117,7 +113,6 @@ class Slicer:
             )
         self.figure = make_figure(
             *self.slice_nodes,
-            crop=crop,
             autoscale=autoscale,
             vmin=vmin,
             vmax=vmax,
@@ -132,7 +127,6 @@ def slicer(
     autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
     vmin: Union[VariableLike, int, float] = None,
     vmax: Union[VariableLike, int, float] = None,
-    crop: Dict[str, Dict[str, sc.Variable]] = None,
     **kwargs,
 ):
     """
@@ -158,11 +152,6 @@ def slicer(
         The minimum value of the y-axis (1d plots) or color range (2d plots).
     vmax:
         The maximum value of the y-axis (1d plots) or color range (2d plots).
-    crop:
-        Set the axis limits. Limits should be given as a dict with one entry per
-        dimension to be cropped. Each entry should be a nested dict containing scalar
-        values for ``'min'`` and/or ``'max'``. Example:
-        ``da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})``
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
 
@@ -178,7 +167,6 @@ def slicer(
         autoscale=autoscale,
         vmin=vmin,
         vmax=vmax,
-        crop=crop,
         **kwargs,
     )
     from ..widgets import Box

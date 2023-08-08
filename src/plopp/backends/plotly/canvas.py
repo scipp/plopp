@@ -122,24 +122,6 @@ class Canvas:
         else:
             self.fig.write_image(filename)
 
-    def crop(self, **limits):
-        """
-        Set the axes limits according to the crop parameters.
-
-        Parameters
-        ----------
-        **limits:
-            Min and max limits for each dimension to be cropped.
-        """
-        for xy, lims in limits.items():
-            getattr(self.fig, f'update_{xy}axes')(
-                range=[
-                    maybe_variable_to_number(lims[m], unit=self.units[xy])
-                    for m in ('min', 'max')
-                    if m in lims
-                ]
-            )
-
     def set_axes(self, dims, units):
         """
         Set the axes dimensions and units.

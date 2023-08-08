@@ -31,7 +31,6 @@ def inspector(
     *,
     operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
     orientation: Literal['horizontal', 'vertical'] = 'horizontal',
-    crop: Dict[str, Dict[str, sc.Variable]] = None,
     **kwargs,
 ):
     """
@@ -63,11 +62,6 @@ def inspector(
     orientation:
         Display the two panels side-by-side ('horizontal') or one below the other
         ('vertical').
-    crop:
-        Set the axis limits. Limits should be given as a dict with one entry per
-        dimension to be cropped. Each entry should be a nested dict containing scalar
-        values for ``'min'`` and/or ``'max'``. Example:
-        ``da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})``
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
 
@@ -83,7 +77,7 @@ def inspector(
         )
     require_interactive_backend('inspector')
 
-    da = preprocess(obj, crop=crop, ignore_size=True)
+    da = preprocess(obj, ignore_size=True)
     in_node = Node(da)
     if dim is None:
         dim = da.dims[-1]
@@ -93,7 +87,7 @@ def inspector(
         da.coords[d] = coord_as_bin_edges(da, d)
 
     op_node = Node(_apply_op, da=in_node, op=operation, dim=dim)
-    f2d = figure2d(op_node, **{**{'crop': crop}, **kwargs})
+    f2d = figure2d(op_node, **kwargs)
     f1d = figure1d()
 
     from ..widgets import Box, PointsTool

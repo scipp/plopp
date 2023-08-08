@@ -43,9 +43,6 @@ class LineView(View):
         Aspect ratio for the axes.
     grid:
         Show grid if ``True``.
-    crop:
-        Set the axis limits. Limits should be given as a dict with one entry per
-        dimension to be cropped.
     title:
         The figure title.
     figsize:
@@ -79,7 +76,6 @@ class LineView(View):
         mask_color: str = 'black',
         aspect: Literal['auto', 'equal'] = 'auto',
         grid: bool = False,
-        crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
         title: Optional[str] = None,
         figsize: Tuple[float, float] = None,
         format: Optional[Literal['svg', 'png']] = None,
@@ -109,8 +105,6 @@ class LineView(View):
 
         self.render()
         self.canvas.autoscale()
-        if crop is not None:
-            self.crop(**crop)
         self.canvas.finalize()
 
     def update(self, new_values: sc.DataArray, key: str):
@@ -160,14 +154,3 @@ class LineView(View):
             self.artists[key].update(new_values=new_values)
 
         self.canvas.autoscale()
-
-    def crop(self, **limits):
-        """
-        Set the axes limits according to the crop parameters.
-
-        Parameters
-        ----------
-        **limits:
-            Min and max limits for each dimension to be cropped.
-        """
-        self.canvas.crop(x=limits[self.canvas.dims['x']])
