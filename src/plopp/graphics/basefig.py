@@ -28,17 +28,6 @@ class BaseFig:
     def id(self):
         return self._view.id
 
-    def crop(self, **limits):
-        """
-        Set the axes limits according to the crop parameters.
-
-        Parameters
-        ----------
-        **limits:
-            Min and max limits for each dimension to be cropped.
-        """
-        return self._view.crop(**limits)
-
     def save(self, filename, **kwargs):
         """
         Save the figure to file.

@@ -36,7 +36,7 @@ def variable(
         List of dimension labels to use if no ``dims`` are provided.
     """
 
-    shapes = np.arange(50, 0, -10)[:ndim]
+    shapes = np.arange(50, 0, -10)[:ndim][::-1]
     if dims is None:
         dims = dim_list[:ndim][::-1]
 

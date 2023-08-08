@@ -70,27 +70,6 @@ def test_log_norm():
     assert fig.canvas.yscale == 'log'
 
 
-def test_crop():
-    da = data_array(ndim=1)
-    fig = LineView(Node(da))
-    assert fig.canvas.xmin < da.meta['xx'].min().value
-    assert fig.canvas.xmax > da.meta['xx'].max().value
-    xmin = sc.scalar(2.1, unit='m')
-    xmax = sc.scalar(102.0, unit='m')
-    fig.crop(xx={'min': xmin, 'max': xmax})
-    assert fig.canvas.xrange == (xmin.value, xmax.value)
-    with pytest.raises(KeyError):
-        fig.crop(yy={'min': xmin, 'max': xmax})
-
-
-def test_crop_no_variable():
-    da = data_array(ndim=1)
-    xmin = 2.1
-    xmax = 33.4
-    fig = LineView(Node(da), crop={'xx': {'min': xmin, 'max': xmax}})
-    assert fig.canvas.xrange == (xmin, xmax)
-
-
 def test_update_grows_limits():
     da = data_array(ndim=1)
     fig = LineView(Node(da))

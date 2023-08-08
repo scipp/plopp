@@ -3,13 +3,12 @@
 
 import warnings
 from collections.abc import Mapping
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional, Union
 
 import numpy as np
 import scipp as sc
 
 from .. import backends
-from ..core.utils import maybe_number_to_variable
 
 
 def require_interactive_backend(func: str):
@@ -60,14 +59,6 @@ def _to_data_array(
     return out
 
 
-def _to_variable_if_not_none(x: sc.Variable, unit: str) -> Union[None, sc.Variable]:
-    """
-    Convert input to the required unit if it is not ``None``.
-    """
-    if x is not None:
-        return maybe_number_to_variable(x, unit=unit)
-
-
 def _check_size(da: sc.DataArray):
     """
     Prevent slow figure rendering by raising an error if the data array exceeds a
@@ -101,7 +92,6 @@ def _all_dims_sorted(var, order='ascending'):
 
 def preprocess(
     obj: Union[np.ndarray, sc.Variable, sc.DataArray],
-    crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
     name: str = '',
     ignore_size: bool = False,
     coords: Optional[List[str]] = None,
@@ -112,15 +102,12 @@ def preprocess(
 
       - converting the input to a data array
       - filling in missing dimension coords if needed
-      - slicing out the parts that are not needed if cropping is requested
       - renaming dimensions if non-dimension coordinates are to be used
 
     Parameters
     ----------
     obj:
         The input object that will be plotted.
-    crop:
-        Used to define cropping. See :func:`plot` for syntax.
     name:
         Override the input's name if it has none.
     ignore_size:
@@ -132,18 +119,6 @@ def preprocess(
     check_not_binned(out)
     if not out.name:
         out.name = name
-    crop = {} if crop is None else crop
-    for dim, sl in crop.items():
-        # If we plainly slice using label values, we can miss the first and last points
-        # that lie just outside the selected range, but whose pixels are still visible
-        # on the figure (this mostly arises in the case of a 2d image with no bin-edge
-        # coord). Therefore, we convert the value-based range to slicing indices, and
-        # then extend the lower and upper bounds by 1.
-        smin = _to_variable_if_not_none(sl.get('min'), unit=out.meta[dim].unit)
-        smax = _to_variable_if_not_none(sl.get('max'), unit=out.meta[dim].unit)
-        start = max(out[dim, :smin].sizes[dim] - 1, 0)
-        width = out[dim, smin:smax].sizes[dim]
-        out = out[dim, start : start + width + 2]
     if not ignore_size:
         _check_size(out)
     if coords is not None:

@@ -94,11 +94,6 @@ class Superplot:
         The single dimension to be kept, all remaining dimensions will be sliced.
         This should be a single string. If no dim is provided, the last/inner dim will
         be kept.
-    crop:
-        Set the axis limits. Limits should be given as a dict with one entry per
-        dimension to be cropped. Each entry should be a nested dict containing scalar
-        values for `'min'` and/or `'max'`. Example:
-        `da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})`
     **kwargs:
         See :py:func:`plopp.plot` for the full list of line customization arguments.
     """
@@ -107,18 +102,16 @@ class Superplot:
         self,
         obj: Union[sc.typing.VariableLike, ndarray],
         keep: Optional[str] = None,
-        *,
-        crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
         **kwargs,
     ):
-        da = preprocess(obj, crop=crop, ignore_size=True)
+        da = preprocess(obj, ignore_size=True)
         if keep is None:
             keep = da.dims[-1]
         if isinstance(keep, (list, tuple)):
             raise TypeError(
                 "The keep argument must be a single string, not a list or tuple."
             )
-        self.slicer = Slicer(da, keep=[keep], crop=crop, **kwargs)
+        self.slicer = Slicer(da, keep=[keep], **kwargs)
         self.linesavetool = LineSaveTool(
             data_node=self.slicer.slice_nodes[0],
             slider_node=self.slicer.slider_node,
@@ -131,8 +124,6 @@ class Superplot:
 def superplot(
     obj: Union[sc.typing.VariableLike, ndarray],
     keep: Optional[str] = None,
-    *,
-    crop: Optional[Dict[str, Dict[str, sc.Variable]]] = None,
     **kwargs,
 ):
     """
@@ -149,11 +140,6 @@ def superplot(
         The single dimension to be kept, all remaining dimensions will be sliced.
         This should be a single string. If no dim is provided, the last/inner dim will
         be kept.
-    crop:
-        Set the axis limits. Limits should be given as a dict with one entry per
-        dimension to be cropped. Each entry should be a nested dict containing scalar
-        values for `'min'` and/or `'max'`. Example:
-        `da.plot(crop={'time': {'min': 2 * sc.Unit('s'), 'max': 40 * sc.Unit('s')}})`
     **kwargs:
         See :py:func:`plopp.plot` for the full list of line customization arguments.
 
@@ -164,7 +150,7 @@ def superplot(
         widgets and a tool to save/delete lines.
     """
     require_interactive_backend('superplot')
-    sp = Superplot(obj=obj, keep=keep, crop=crop, **kwargs)
+    sp = Superplot(obj=obj, keep=keep, **kwargs)
     from ..widgets import Box
 
     return Box([[sp.figure, sp.linesavetool.widget], sp.slider])
