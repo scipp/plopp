@@ -3,8 +3,10 @@
 
 from html import escape
 from itertools import chain
+from typing import Union
 
 from .node import Node
+from .view import View
 
 
 def _make_graphviz_digraph(*args, **kwargs):
@@ -19,7 +21,7 @@ def _make_graphviz_digraph(*args, **kwargs):
     return Digraph(*args, **kwargs)
 
 
-def _walk_graph(start, nodes, edges, views, labels, hide_views):
+def _walk_graph(start, nodes, edges, views, labels):
     label = (
         escape(str(start.func)) + '\nid = ' + start.id
         if start.name is None
@@ -37,7 +39,6 @@ def _walk_graph(start, nodes, edges, views, labels, hide_views):
             edges=edges,
             views=views,
             labels=labels,
-            hide_views=hide_views,
         )
     for arg_name, parent in chain(
         ((f'arg_{i}', p) for i, p in enumerate(start.parents)), start.kwparents.items()
@@ -56,16 +57,26 @@ def _walk_graph(start, nodes, edges, views, labels, hide_views):
                 edges=edges,
                 views=views,
                 labels=labels,
-                hide_views=hide_views,
             )
 
-    if not hide_views:
-        for view in start.views:
-            views[view.id] = view.__class__.__name__
-            if start.id not in edges:
-                edges[start.id] = {view.id}
-            else:
-                edges[start.id].add(view.id)
+    for view in start.views:
+        need_walk = False
+        if view.id not in views:
+            need_walk = True
+        views[view.id] = view.__class__.__name__
+        if start.id not in edges:
+            edges[start.id] = {view.id}
+        else:
+            edges[start.id].add(view.id)
+        if need_walk:
+            for node in view.graph_nodes.values():
+                _walk_graph(
+                    start=node,
+                    nodes=nodes,
+                    edges=edges,
+                    views=views,
+                    labels=labels,
+                )
 
 
 def _make_graph(dot, nodes, edges, labels, views):
@@ -83,17 +94,15 @@ def _make_graph(dot, nodes, edges, labels, views):
     return dot
 
 
-def show_graph(node: Node, hide_views: bool = False):
+def show_graph(entry: Union[Node, View]):
     """
     Display the connected nodes and views as a graph.
 
     Parameters
     ----------
-    node:
-        A node which is part of the graph. This can be any node in the graph.
-        The graph will be searched from end to end to construct the figure.
-    hide_views:
-        Do not show the views associated with the nodes if `True`.
+    entry:
+        An entry point in the graph (node or view). This can be any node/view in the
+        graph. The graph will be searched from end to end to construct the diagram.
 
     Returns
     -------
@@ -107,14 +116,13 @@ def show_graph(node: Node, hide_views: bool = False):
     views = {}
     labels = {}
     # If input is a View, get the underlying node
-    if hasattr(node, 'graph_nodes'):
-        node = list(node.graph_nodes.values())[0]
+    if hasattr(entry, 'graph_nodes'):
+        entry = list(entry.graph_nodes.values())[0]
     _walk_graph(
-        start=node,
+        start=entry,
         nodes=nodes,
         edges=edges,
         views=views,
         labels=labels,
-        hide_views=hide_views,
     )
     return _make_graph(dot=dot, nodes=nodes, edges=edges, labels=labels, views=views)
