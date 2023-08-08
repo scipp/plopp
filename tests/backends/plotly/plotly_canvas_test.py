@@ -5,7 +5,6 @@ import os
 import tempfile
 
 import pytest
-import scipp as sc
 
 from plopp.backends.plotly.canvas import Canvas
 
@@ -32,57 +31,6 @@ def test_logy():
     assert canvas.yscale == 'log'
     canvas.logy()
     assert canvas.yscale == 'linear'
-
-
-def test_crop():
-    canvas = Canvas()
-    canvas.units.update(x='m', y='m')
-    xmin = sc.scalar(2.1, unit='m')
-    xmax = sc.scalar(102.0, unit='m')
-    ymin = sc.scalar(5.5, unit='m')
-    ymax = sc.scalar(22.3, unit='m')
-    canvas.crop(
-        x={
-            'min': xmin,
-            'max': xmax,
-        },
-        y={
-            'min': ymin,
-            'max': ymax,
-        },
-    )
-    assert canvas.xrange == (xmin.value, xmax.value)
-    assert canvas.yrange == (ymin.value, ymax.value)
-
-
-def test_crop_unit_conversion():
-    canvas = Canvas()
-    canvas.units.update(x='cm', y='cm')
-    xmin = sc.scalar(2.1, unit='m')
-    xmax = sc.scalar(3.3, unit='m')
-    canvas.crop(x={'min': xmin, 'max': xmax})
-    assert canvas.xrange == (210.0, 330.0)
-
-
-def test_crop_no_variable():
-    canvas = Canvas()
-    canvas.units.update(x='m', y='m')
-    xmin = 2.1
-    xmax = 102.0
-    ymin = 5.5
-    ymax = 22.3
-    canvas.crop(
-        x={
-            'min': xmin,
-            'max': xmax,
-        },
-        y={
-            'min': ymin,
-            'max': ymax,
-        },
-    )
-    assert canvas.xrange == (xmin, xmax)
-    assert canvas.yrange == (ymin, ymax)
 
 
 @pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg', 'html'])
