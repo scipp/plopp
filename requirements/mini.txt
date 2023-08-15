@@ -5,25 +5,23 @@
 #
 #    pip-compile-multi
 #
-attrs==22.2.0
-    # via pytest
-confuse==2.0.0
+confuse==2.0.1
     # via scipp
-exceptiongroup==1.1.1
+exceptiongroup==1.1.3
     # via pytest
 graphlib-backport==1.0.3
     # via scipp
 iniconfig==2.0.0
     # via pytest
-numpy==1.24.2
+numpy==1.25.2
     # via scipp
-packaging==23.0
+packaging==23.1
     # via pytest
-pluggy==1.0.0
+pluggy==1.2.0
     # via pytest
-pytest==7.2.2
+pytest==7.4.0
     # via -r requirements/mini.in
-pyyaml==6.0
+pyyaml==6.0.1
     # via confuse
 scipp==23.7.0
     # via -r requirements/mini.in
