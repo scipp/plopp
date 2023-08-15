@@ -139,7 +139,7 @@ html_theme_options = {
         {"name": "Plopp", "url": "https://scipp.github.io/plopp"},
         {"name": "Scippnexus", "url": "https://scipp.github.io/scippnexus"},
         {"name": "Scippneutron", "url": "https://scipp.github.io/scippneutron"},
-        {"name": "ESS", "url": "https://scipp.github.io/ess"}
+        {"name": "ESS", "url": "https://scipp.github.io/ess"},
     ],
     "icon_links": [
         {
@@ -158,7 +158,7 @@ html_theme_options = {
             "name": "Conda",
             "url": "https://anaconda.org/scipp/plopp",
             "icon": "https://scicatproject.github.io/scitacean/_static/"
-                    "anaconda-logo.svg",
+            "anaconda-logo.svg",
             "type": "url",
         },
     ],
