@@ -157,7 +157,8 @@ html_theme_options = {
         {
             "name": "Conda",
             "url": "https://anaconda.org/scipp/plopp",
-            "icon": "https://scicatproject.github.io/scitacean/_static/anaconda-logo.svg",
+            "icon": "https://scicatproject.github.io/scitacean/_static/"
+                    "anaconda-logo.svg",
             "type": "url",
         },
     ],
