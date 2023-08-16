@@ -4,6 +4,7 @@ graphviz
 h5py
 ipympl
 mpltoolbox
+myst-parser
 nbsphinx
 pandas
 pooch
