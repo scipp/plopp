@@ -2,6 +2,7 @@
 gitpython
 graphviz
 h5py
+ipykernel
 ipympl
 mpltoolbox
 myst-parser
