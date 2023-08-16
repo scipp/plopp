@@ -56,7 +56,9 @@ jobs:
       #     echo "target=$(python docs/version.py --version=${VERSION} --action=get-target)" >> $GITHUB_ENV
       #   if: ${{ inputs.publish }}
       - run: tox -e docs
-        # if: ${{ !inputs.publish }}
+      - run: run zip -r html.zip html
+        if: ${{ inputs.publish }}
+
       - uses: actions/upload-artifact@v3
         with:
           name: Documentation
@@ -76,7 +78,7 @@ jobs:
         if: ${{ inputs.publish }}
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: html
+          file: html.zip
           asset_name: Documentation
           tag: ${{ github.ref }}
           overwrite: true
