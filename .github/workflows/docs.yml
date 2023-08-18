@@ -19,8 +19,6 @@ jobs:
   docs:
     name: Build documentation
     runs-on: ubuntu-22.04
-    permissions:
-      contents: write  # This is required for uploading the assets to the release
 
     steps:
       - run: sudo apt install --yes graphviz pandoc
