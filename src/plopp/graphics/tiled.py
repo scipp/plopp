@@ -10,6 +10,8 @@ def tiled(nrows: int, ncols: int, **kwargs):
     """
     A tiled figure.
 
+    .. versionadded:: 23.08.0
+
     Parameters
     ----------
     nrows:

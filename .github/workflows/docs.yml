@@ -31,28 +31,37 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -r requirements/ci.txt
       - run: tox -e docs
-      - run: zip -r docs_html.zip docs_html
-        if: ${{ inputs.publish }}
+      - run: mv docs_html documentation-${{ github.ref_name }}
 
       - uses: actions/upload-artifact@v3
         with:
-          name: Documentation
-          path: docs_html/
+          name: documentation-${{ github.ref_name }}
+          path: documentation-${{ github.ref_name }}
 
       - uses: JamesIves/github-pages-deploy-action@v4.4.3
         if: ${{ inputs.publish }}
         with:
           branch: gh-pages
-          folder: docs_html
+          folder: documentation-${{ github.ref_name }}
           target-folder: ${{ env.target }}
           single-commit: true
 
-      - name: Upload release assets
-        uses: svenstaro/upload-release-action@v2
-        if: ${{ inputs.publish }}
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: docs_html.zip
-          asset_name: docs_html.zip
-          tag: ${{ github.ref }}
-          overwrite: true
+  assets:
+    if: ${{ inputs.publish }}
+    name: Upload docs
+    needs: docs
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write  # This is needed so that the action can upload the asset
+    steps:
+    - uses: actions/download-artifact@v3
+    - name: Zip documentation
+      run: |
+        zip -r documentation-${{ github.ref_name }}.zip documentation-${{ github.ref_name }}
+    - name: Upload release assets
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./documentation-${{ github.ref_name }}.zip
+        tag: ${{ github.ref }}
+        overwrite: false
