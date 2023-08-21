@@ -16,7 +16,7 @@ concurrency:
 jobs:
   formatting:
     name: Formatting and static analysis
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
@@ -32,7 +32,7 @@ jobs:
   tests:
     name: Tests
     needs: formatting
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
@@ -48,5 +48,3 @@ jobs:
     uses: ./.github/workflows/docs.yml
     with:
       publish: false
-      version: ${{ github.ref_name }}
-      branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}

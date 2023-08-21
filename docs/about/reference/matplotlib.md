@@ -1,8 +1,7 @@
-.. currentmodule:: plopp
+# Matplotlib backend
 
-******************
-Matplotlib backend
-******************
+```{eval-rst}
+.. currentmodule:: plopp
 
 .. autosummary::
    :toctree: generated
@@ -14,3 +13,4 @@ Matplotlib backend
    backends.matplotlib.static.StaticFig
    backends.matplotlib.interactive.InteractiveFig
    backends.matplotlib.tiled.Tiled
+```

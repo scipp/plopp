@@ -1,8 +1,7 @@
-.. currentmodule:: plopp
+# Plotly backend
 
-**************
-Plotly backend
-**************
+```{eval-rst}
+.. currentmodule:: plopp
 
 .. autosummary::
    :toctree: generated
@@ -11,3 +10,4 @@ Plotly backend
    backends.plotly.canvas.Canvas
    backends.plotly.line.Line
    backends.plotly.figure.Figure
+```

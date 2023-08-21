@@ -57,48 +57,10 @@ Get in touch
 - Report bugs (including unclear, missing, or wrong documentation!), suggest features or view the source code `on GitHub <https://github.com/scipp/plopp>`_.
 
 .. toctree::
-   :caption: Getting started
-   :maxdepth: 3
    :hidden:
 
-   getting-started/overview
-   getting-started/numpy-pandas-xarray
-
-.. toctree::
-   :caption: Basic Usage
-   :maxdepth: 3
-   :hidden:
-
-   basics/line-plot
-   basics/image-plot
-   basics/slicer-plot
-   basics/inspector-plot
-   basics/super-plot
-   basics/scatter3d-plot
-   basics/saving-figures
-
-.. toctree::
-   :caption: Custom figures
-   :maxdepth: 3
-   :hidden:
-
-   customization/subplots
-   customization/tweaking-figures
-
-.. toctree::
-   :caption: Examples
-   :maxdepth: 3
-   :hidden:
-
-   examples/custom-interfaces
-   examples/gallery
-
-.. toctree::
-   :caption: About
-   :maxdepth: 3
-   :hidden:
-
-   about/reference
-   about/faq
-   about/about
-   Release notes <https://github.com/scipp/plopp/releases>
+   getting-started/index
+   basics/index
+   customization/index
+   examples/index
+   about/index
