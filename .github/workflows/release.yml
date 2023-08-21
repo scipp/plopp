@@ -82,7 +82,7 @@ jobs:
       - run: anaconda --token ${{ secrets.ANACONDATOKEN }} upload --user scipp --label main $(ls conda-package-*/*/*.tar.bz2)
 
   docs:
-    needs: upload_packages
+    needs: [upload_pypi, upload_conda]
     uses: ./.github/workflows/docs.yml
     with:
       publish: ${{ github.event_name == 'release' && github.event.action == 'published' }}
