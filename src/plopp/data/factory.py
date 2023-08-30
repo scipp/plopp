@@ -114,7 +114,6 @@ def data_array(
         )
         for i in range(ndim)
     }
-    attr_dict = {}
     mask_dict = {}
 
     if labels:
