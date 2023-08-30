@@ -58,7 +58,6 @@ def data_array(
     binedges: bool = False,
     labels: bool = False,
     masks: bool = False,
-    attrs: bool = False,
     ragged: bool = False,
     dtype: str = 'float64',
     unit: str = 'm/s',
@@ -83,8 +82,6 @@ def data_array(
         Add non-dimension coordinates if ``True``.
     masks:
         Add masks if ``True``.
-    attrs:
-        Add attributes if ``True``.
     ragged:
         Make one of the coordinates two-dimensional.
     dtype:
@@ -124,10 +121,6 @@ def data_array(
         coord_dict["lab"] = sc.linspace(
             data.dims[0], 101.0, 105.0, data.shape[0], unit='s'
         )
-    if attrs:
-        attr_dict["attr"] = sc.linspace(
-            data.dims[0], 10.0, 77.0, data.shape[0], unit='s'
-        )
     if masks:
         mask_dict["mask"] = sc.array(
             dims=data.dims, values=np.where(data.values > 0, True, False)
@@ -144,7 +137,7 @@ def data_array(
         coord_dict[data.dims[-1]] = sc.array(
             dims=data.dims, values=mesh[-1] + np.indices(mesh[-1].shape)[0]
         )
-    return sc.DataArray(data=data, coords=coord_dict, attrs=attr_dict, masks=mask_dict)
+    return sc.DataArray(data=data, coords=coord_dict, masks=mask_dict)
 
 
 def dataset(entries: List[str] = None, **kwargs) -> sc.Dataset:
