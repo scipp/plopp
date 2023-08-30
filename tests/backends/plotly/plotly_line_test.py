@@ -18,7 +18,7 @@ def test_line_creation():
     assert line._unit == 'K'
     assert line._dim == 'xx'
     assert len(line._line.x) == da.sizes['xx']
-    assert np.allclose(line._line.x, da.meta['xx'].values)
+    assert np.allclose(line._line.x, da.coords['xx'].values)
     assert np.allclose(line._line.y, da.values)
     assert line._error is None
     assert not line._mask.visible
@@ -39,7 +39,7 @@ def test_line_with_errorbars():
 def test_line_with_bin_edges_and_errorbars():
     da = data_array(ndim=1, binedges=True, variances=True)
     line = Line(canvas=Canvas(), data=da)
-    assert np.allclose(line._error.x, sc.midpoints(da.meta['xx']).values)
+    assert np.allclose(line._error.x, sc.midpoints(da.coords['xx']).values)
 
 
 def test_line_hide_errorbars():
@@ -72,10 +72,10 @@ def test_line_with_two_masks():
 def test_line_update():
     da = data_array(ndim=1)
     line = Line(canvas=Canvas(), data=da)
-    assert np.allclose(line._line.x, da.meta['xx'].values)
+    assert np.allclose(line._line.x, da.coords['xx'].values)
     assert np.allclose(line._line.y, da.values)
     line.update(da * 2.5)
-    assert np.allclose(line._line.x, da.meta['xx'].values)
+    assert np.allclose(line._line.x, da.coords['xx'].values)
     assert np.allclose(line._line.y, da.values * 2.5)
 
 

@@ -53,7 +53,7 @@ class Line:
         self.label = data.name
         self._dim = self._data.dim
         self._unit = self._data.unit
-        self._coord = self._data.meta[self._dim]
+        self._coord = self._data.coords[self._dim]
         self._id = uuid.uuid4().hex
 
         self._make_line(data=self._make_data(), number=number, **args)
@@ -177,7 +177,7 @@ class Line:
             self._error._plopp_id = self._id
 
     def _make_data(self) -> dict:
-        x = self._data.meta[self._dim]
+        x = self._data.coords[self._dim]
         y = self._data.data
         hist = len(x) != len(y)
         error = None
