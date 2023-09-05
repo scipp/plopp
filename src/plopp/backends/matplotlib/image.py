@@ -99,12 +99,12 @@ class Image:
         for i, k in enumerate('yx'):
             to_dim_search[k] = {
                 'dim': self._data.dims[i],
-                'var': self._data.meta[self._data.dims[i]],
+                'var': self._data.coords[self._data.dims[i]],
             }
             bin_edge_coords[k] = coord_as_bin_edges(self._data, self._data.dims[i])
             self._data_with_bin_edges.coords[self._data.dims[i]] = bin_edge_coords[k]
-            if self._data.meta[self._data.dims[i]].dtype == str:
-                string_labels[k] = self._data.meta[self._data.dims[i]]
+            if self._data.coords[self._data.dims[i]].dtype == str:
+                string_labels[k] = self._data.coords[self._data.dims[i]]
 
         self._dim_1d, self._dim_2d = _get_dims_of_1d_and_2d_coords(to_dim_search)
         self._mesh = None

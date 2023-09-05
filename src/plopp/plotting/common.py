@@ -54,7 +54,7 @@ def _to_data_array(
         raise ValueError(f"Cannot convert input of type {type(obj)} to a DataArray.")
     out = out.copy(deep=False)
     for dim, size in out.sizes.items():
-        if dim not in out.meta:
+        if dim not in out.coords:
             out.coords[dim] = sc.arange(dim, size, unit=None)
     return out
 
@@ -126,7 +126,7 @@ def preprocess(
         if isinstance(coords, str):
             coords = [coords]
         for dim in coords:
-            underlying = out.meta[dim].dims[-1]
+            underlying = out.coords[dim].dims[-1]
             renamed_dims[underlying] = dim
         out = out.rename_dims(**renamed_dims)
     for name, coord in out.coords.items():
