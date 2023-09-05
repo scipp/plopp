@@ -23,7 +23,7 @@ pytest==7.4.0
     # via -r requirements/mini.in
 pyyaml==6.0.1
     # via confuse
-scipp==23.7.0
+scipp==23.8.0
     # via -r requirements/mini.in
 tomli==2.0.1
     # via pytest

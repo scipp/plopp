@@ -58,7 +58,7 @@ pythreejs==2.4.2
     # via -r requirements/base.in
 pyyaml==6.0.1
     # via confuse
-scipp==23.7.0
+scipp==23.8.0
     # via -r requirements/base.in
 six==1.16.0
     # via asttokens

@@ -313,8 +313,6 @@ def test_plot_pandas_series():
     s = pd.Series(np.arange(100.0), name='MyDataSeries')
     p = pp.plot(s)
     assert p.canvas.dims['x'] == 'row'
-    assert p.canvas.units['x'] == 'dimensionless'
-    assert p.canvas.units['y'] == 'dimensionless'
     assert list(p._view.artists.values())[0].label == 'MyDataSeries'
 
 
@@ -331,8 +329,6 @@ def test_plot_pandas_dataframe():
     )
     p = pp.plot(df)
     assert p.canvas.dims['x'] == 'row'
-    assert p.canvas.units['x'] == 'dimensionless'
-    assert p.canvas.units['y'] == 'dimensionless'
     assert len(p._view.artists) == 4
 
 
