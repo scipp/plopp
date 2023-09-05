@@ -59,6 +59,19 @@ def test_find_limits_no_finite_values_raises():
         _ = find_limits(x)
 
 
+def test_find_limits_all_zeros():
+    x = sc.zeros(sizes={'x': 5}, unit='s')
+    lims = find_limits(x)
+    assert sc.identical(lims[0], sc.scalar(0.0, unit='s'))
+    assert sc.identical(lims[1], sc.scalar(0.0, unit='s'))
+
+
+def test_find_limits_all_zeros_log_raises():
+    x = sc.zeros(sizes={'x': 5}, unit='s')
+    with pytest.raises(ValueError, match="No positive values were found in array"):
+        _ = find_limits(x, scale='log')
+
+
 def test_fix_empty_range():
     a = sc.scalar(5.0, unit='m')
     b = sc.scalar(10.0, unit='m')
