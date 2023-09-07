@@ -32,12 +32,12 @@ def test_get_limits():
     pix = 0.5
     cloud = PointCloud(data=da, x='x', y='y', z='z', pixel_size=pix)
     xlims, ylims, zlims = cloud.get_limits()
-    assert sc.identical(xlims[0], da.meta['x'].min() - sc.scalar(0.5 * pix, unit='m'))
-    assert sc.identical(xlims[1], da.meta['x'].max() + sc.scalar(0.5 * pix, unit='m'))
-    assert sc.identical(ylims[0], da.meta['y'].min() - sc.scalar(0.5 * pix, unit='m'))
-    assert sc.identical(ylims[1], da.meta['y'].max() + sc.scalar(0.5 * pix, unit='m'))
-    assert sc.identical(zlims[0], da.meta['z'].min() - sc.scalar(0.5 * pix, unit='m'))
-    assert sc.identical(zlims[1], da.meta['z'].max() + sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(xlims[0], da.coords['x'].min() - sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(xlims[1], da.coords['x'].max() + sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(ylims[0], da.coords['y'].min() - sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(ylims[1], da.coords['y'].max() + sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(zlims[0], da.coords['z'].min() - sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(zlims[1], da.coords['z'].max() + sc.scalar(0.5 * pix, unit='m'))
 
 
 def test_get_limits_flat_panel():
@@ -46,10 +46,10 @@ def test_get_limits_flat_panel():
     pix = 0.5
     cloud = PointCloud(data=da, x='x', y='y', z='z', pixel_size=pix)
     xlims, ylims, zlims = cloud.get_limits()
-    assert sc.identical(xlims[0], da.meta['x'].min() - sc.scalar(0.5 * pix, unit='m'))
-    assert sc.identical(xlims[1], da.meta['x'].max() + sc.scalar(0.5 * pix, unit='m'))
-    assert sc.identical(ylims[0], da.meta['y'].min() - sc.scalar(0.5 * pix, unit='m'))
-    assert sc.identical(ylims[1], da.meta['y'].max() + sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(xlims[0], da.coords['x'].min() - sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(xlims[1], da.coords['x'].max() + sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(ylims[0], da.coords['y'].min() - sc.scalar(0.5 * pix, unit='m'))
+    assert sc.identical(ylims[1], da.coords['y'].max() + sc.scalar(0.5 * pix, unit='m'))
     assert sc.identical(zlims[0], sc.scalar(-0.5 * pix, unit='m'))
     assert sc.identical(zlims[1], sc.scalar(0.5 * pix, unit='m'))
 
