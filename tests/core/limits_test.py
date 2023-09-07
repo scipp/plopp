@@ -66,10 +66,13 @@ def test_find_limits_all_zeros():
     assert sc.identical(lims[1], sc.scalar(0.0, unit='s'))
 
 
-def test_find_limits_all_zeros_log_raises():
+def test_find_limits_all_zeros_log_uses_default_positive_values():
     x = sc.zeros(sizes={'x': 5}, unit='s')
-    with pytest.raises(ValueError, match="No positive values were found in array"):
-        _ = find_limits(x, scale='log')
+    lims = find_limits(x, scale='log')
+    zero = sc.scalar(0.0, unit='s')
+    assert lims[0] > zero
+    assert lims[1] > zero
+    assert lims[0] < lims[1]
 
 
 def test_fix_empty_range():
