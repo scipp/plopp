@@ -121,11 +121,16 @@ class Scatter3dView(View):
 
         if key not in self.artists:
             pts = backends.point_cloud(
-                data=new_values, x=self._x, y=self._y, z=self._z, **self._kwargs
+                canvas=self.canvas,
+                data=new_values,
+                x=self._x,
+                y=self._y,
+                z=self._z,
+                **self._kwargs
             )
             self.artists[key] = pts
             self.colormapper[key] = pts
-            self.canvas.add(pts.points)
+            # self.canvas.add(pts.points)
             if key in self._original_artists:
                 self.canvas.make_outline(limits=self.get_limits())
 

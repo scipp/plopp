@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 import ipywidgets as ipw
 import scipp as sc
@@ -26,13 +26,21 @@ class SliceWidget(VBar):
         The dimensions to make sliders for.
     """
 
-    def __init__(self, da: sc.DataArray, dims: List[str]):
+    def __init__(
+        self,
+        da: sc.DataArray,
+        dims: List[str],
+        continuous_update: bool = True,
+        layout: Optional[dict] = None,
+    ):
         if isinstance(dims, str):
             dims = [dims]
         self._slider_dims = dims
         self.controls = {}
         self.view = None
         children = []
+        if layout is None:
+            layout = {"width": "200px"}
 
         for dim in self._slider_dims:
             coord = (
@@ -45,13 +53,13 @@ class SliceWidget(VBar):
                 description=dim,
                 min=0,
                 max=da.sizes[dim] - 1,
-                continuous_update=True,
+                continuous_update=continuous_update,
                 readout=False,
-                layout={"width": "200px"},
+                layout=layout,
                 style={'description_width': 'initial'},
             )
             continuous_update = ipw.Checkbox(
-                value=True,
+                value=continuous_update,
                 tooltip="Continuous update",
                 indent=False,
                 layout={"width": "20px"},

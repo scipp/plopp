@@ -7,6 +7,8 @@ from typing import Tuple, Union
 import numpy as np
 import scipp as sc
 
+from .canvas import Canvas
+
 
 def _check_ndim(data):
     if data.ndim != 1:
@@ -43,6 +45,7 @@ class PointCloud:
         x: str,
         y: str,
         z: str,
+        canvas: Canvas,
         data: sc.DataArray,
         pixel_size: Union[sc.Variable, float, int] = 1,
         opacity: float = 1,
@@ -50,13 +53,15 @@ class PointCloud:
         """
         Make a point cloud using pythreejs
         """
-        import pythreejs as p3
-
         _check_ndim(data)
         self._data = data
+        self._canvas = canvas
         self._x = x
         self._y = y
         self._z = z
+        self._opacity = opacity
+        self._positions = None
+        self.points = None
         self._id = uuid.uuid4().hex
 
         self._pixel_size = pixel_size
@@ -71,18 +76,39 @@ class PointCloud:
                 self._pixel_size = self._pixel_size.to(
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
+        self.set_geometry()
 
+    def set_geometry(self):
+        """
+        Set the point cloud's geometry.
+        """
+        import pythreejs as p3
+
+        new_positions = np.array(
+            [
+                self._data.coords[self._x].values.astype('float32'),
+                self._data.coords[self._y].values.astype('float32'),
+                self._data.coords[self._z].values.astype('float32'),
+            ]
+        ).T
+        # if self._positions is not None:
+        #     diff = self._positions - new_positions
+        #     print(
+        #         'array equal',
+        #         np.array_equal(self._positions, new_positions),
+        #         np.shape(self._positions),
+        #         np.shape(new_positions),
+        #         diff.max(),
+        #         np.argmax(diff),
+        #     )
+        if (self._positions is not None) and (
+            np.array_equal(self._positions, new_positions, equal_nan=True)
+        ):
+            return
+        self._positions = new_positions
         self.geometry = p3.BufferGeometry(
             attributes={
-                'position': p3.BufferAttribute(
-                    array=np.array(
-                        [
-                            self._data.coords[self._x].values.astype('float32'),
-                            self._data.coords[self._y].values.astype('float32'),
-                            self._data.coords[self._z].values.astype('float32'),
-                        ]
-                    ).T
-                ),
+                'position': p3.BufferAttribute(array=self._positions),
                 'color': p3.BufferAttribute(
                     array=np.zeros(
                         [self._data.coords[self._x].shape[0], 3], dtype='float32'
@@ -99,9 +125,13 @@ class PointCloud:
             vertexColors='VertexColors',
             size=2.5 * self._pixel_size * pixel_ratio,
             transparent=True,
-            opacity=opacity,
+            opacity=self._opacity,
         )
+
+        if self.points is not None:
+            self._canvas.remove(self.points)
         self.points = p3.Points(geometry=self.geometry, material=self.material)
+        self._canvas.add(self.points)
 
     def set_colors(self, rgba):
         """
@@ -125,6 +155,7 @@ class PointCloud:
         """
         _check_ndim(new_values)
         self._data = new_values
+        # self.set_geometry()
 
     def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
