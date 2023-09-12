@@ -103,7 +103,5 @@ jobs:
     - name: Upload release assets
       uses: svenstaro/upload-release-action@v2
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ./documentation-${{ github.ref_name }}.zip
-        tag: ${{ github.ref }}
         overwrite: false
