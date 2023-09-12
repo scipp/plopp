@@ -257,5 +257,6 @@ class Line:
     def color(self, val):
         self._line.set_color(val)
         if self._error is not None:
-            self._error.set_color(val)
+            for artist in self._error.get_children():
+                artist.set_color(val)
         self._canvas.draw()
