@@ -86,6 +86,20 @@ def check_not_binned(obj):
         )
 
 
+def check_allowed_dtypes(obj):
+    forbidden = (
+        sc.DType.affine_transform3,
+        sc.DType.linear_transform3,
+        sc.DType.rotation3,
+        sc.DType.translation3,
+        sc.DType.vector3,
+    )
+    if obj.dtype in forbidden:
+        raise TypeError(
+            f'The input has dtype {obj.dtype} which is not supported by Plopp.'
+        )
+
+
 def _all_dims_sorted(var, order='ascending'):
     return all([sc.allsorted(var, dim, order=order) for dim in var.dims])
 
@@ -117,6 +131,7 @@ def preprocess(
     """
     out = _to_data_array(obj)
     check_not_binned(out)
+    check_allowed_dtypes(out)
     if not out.name:
         out.name = name
     if not ignore_size:
