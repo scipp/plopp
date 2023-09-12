@@ -136,3 +136,6 @@ def test_axis_label_with_transposed_2d_coord():
     da = sc.DataArray(a * b, coords={'a': a, 'b': b * a})
     fig = ImageView(Node(da))
     assert fig.canvas.xlabel == 'b [m*s]'
+    da = sc.DataArray(a * b, coords={'a': a, 'b': a * b})
+    fig2 = ImageView(Node(da))
+    assert fig2.canvas.xlabel == fig.canvas.xlabel
