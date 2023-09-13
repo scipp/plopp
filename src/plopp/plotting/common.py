@@ -75,28 +75,39 @@ def _check_size(da: sc.DataArray):
         )
 
 
-def check_not_binned(obj):
-    if obj.bins is not None:
-        params = ', '.join([f'{dim}=100' for dim in obj.dims])
+def check_not_binned(da: sc.DataArray):
+    """
+    Plopp cannot plot binned data.
+    This function will raise an error if the input data is binned.
+
+    Parameters
+    ----------
+    da:
+        The data array to be plotted.
+    """
+    if da.bins is not None:
+        params = ', '.join([f'{dim}=100' for dim in da.dims])
         raise ValueError(
             "Cannot plot binned data, it must be histogrammed first, "
-            f"e.g., using ``obj.hist()`` or obj.hist({params})``."
+            f"e.g., using ``da.hist()`` or da.hist({params})``."
             "See https://scipp.github.io/generated/functions/scipp.hist.html for "
             "more details."
         )
 
 
-def check_allowed_dtypes(obj):
-    forbidden = (
-        sc.DType.affine_transform3,
-        sc.DType.linear_transform3,
-        sc.DType.rotation3,
-        sc.DType.translation3,
-        sc.DType.vector3,
-    )
-    if obj.dtype in forbidden:
+def check_allowed_dtypes(da: sc.DataArray):
+    """
+    Currently, Plopp cannot plot data that contains vector and matrix dtypes.
+    This function will raise an error if the input data type is not supported.
+
+    Parameters
+    ----------
+    da:
+        The data array to be plotted.
+    """
+    if da.shape != da.values.shape:
         raise TypeError(
-            f'The input has dtype {obj.dtype} which is not supported by Plopp.'
+            f'The input has dtype {da.dtype} which is not supported by Plopp.'
         )
 
 
