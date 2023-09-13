@@ -46,3 +46,27 @@ def test_preprocess_no_warning_if_dtype_cannot_be_sorted():
     )
     out = preprocess(da)  # no warning should be emitted
     assert 'strings' in out.coords
+
+
+@pytest.mark.parametrize(
+    'dtype_and_shape',
+    [
+        (sc.DType.affine_transform3, (4, 4)),
+        (sc.DType.linear_transform3, (3, 3)),
+        (sc.DType.rotation3, (4,)),
+        (sc.DType.translation3, (3,)),
+        (sc.DType.vector3, (3,)),
+    ],
+)
+def test_preprocess_raises_for_unsupported_dtype(dtype_and_shape):
+    dtype, shape = dtype_and_shape
+    x = np.random.random(shape + (5,))
+    values = x / np.broadcast_to(
+        np.linalg.norm(x, axis=tuple(range(len(shape)))), x.shape
+    )
+    v = sc.Variable(dims=['x'], values=values.T, dtype=dtype)
+    with pytest.raises(
+        TypeError,
+        match=f'The input has dtype {dtype} which is not supported by Plopp',
+    ):
+        preprocess(v)
