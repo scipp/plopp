@@ -120,3 +120,27 @@ def test_line_datetime_binedges_with_errorbars():
     # do not seem immediately convertible to datetimes.
     # Hence, we simply check if the Line can be created without raising an exception.
     Line(canvas=Canvas(), data=da)
+
+
+def test_line_color():
+    da = data_array(ndim=1)
+    line = Line(canvas=Canvas(), data=da)
+    assert line.color == 'C0'
+    assert line._line.get_color() == 'C0'
+    line.color = 'C1'
+    assert line.color == 'C1'
+    assert line._line.get_color() == 'C1'
+
+
+def test_line_color_with_errorbars():
+    from matplotlib.colors import to_hex
+
+    da = data_array(ndim=1, variances=True)
+    line = Line(canvas=Canvas(), data=da)
+    assert line.color == 'C0'
+    assert line._line.get_color() == 'C0'
+    assert to_hex(line._error.get_children()[0].get_color()) == to_hex('C0')
+    line.color = 'C1'
+    assert line.color == 'C1'
+    assert line._line.get_color() == 'C1'
+    assert to_hex(line._error.get_children()[0].get_color()) == to_hex('C1')
