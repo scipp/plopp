@@ -63,4 +63,5 @@ Get in touch
    basics/index
    customization/index
    examples/index
+   reference/index
    about/index

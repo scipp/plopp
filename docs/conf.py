@@ -127,7 +127,7 @@ html_theme_options = {
     "primary_sidebar_end": ["edit-this-page", "sourcelink"],
     "secondary_sidebar_items": [],
     "show_nav_level": 1,
-    "header_links_before_dropdown": 5,
+    "header_links_before_dropdown": 6,
     "pygment_light_style": "github-light-high-contrast",
     "pygment_dark_style": "github-dark-high-contrast",
     "logo": {
@@ -162,6 +162,8 @@ html_theme_options = {
             "type": "url",
         },
     ],
+    "footer_start": ["copyright", "sphinx-version"],
+    "footer_end": ["doc_version", "theme-version"],
 }
 
 html_context = {
