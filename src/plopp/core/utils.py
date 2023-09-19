@@ -25,10 +25,10 @@ def coord_as_bin_edges(da: sc.DataArray, key: str, dim: str = None) -> sc.Variab
     """
     if dim is None:
         dim = key
-    x = da.meta[key]
+    x = da.coords[key]
     if x.dtype == str:
         x = sc.arange(dim, float(x.shape[0]), unit=x.unit)
-    if da.meta.is_edges(key, dim=dim):
+    if da.coords.is_edges(key, dim=dim):
         return x
     if x.dtype in ('int32', 'int64'):
         x = x.to(dtype='float64')

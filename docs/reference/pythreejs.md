@@ -1,8 +1,7 @@
-.. currentmodule:: plopp
+# Pythreejs backend
 
-*****************
-Pythreejs backend
-*****************
+```{eval-rst}
+.. currentmodule:: plopp
 
 .. autosummary::
    :toctree: generated
@@ -12,3 +11,4 @@ Pythreejs backend
    backends.pythreejs.outline.Outline
    backends.pythreejs.point_cloud.PointCloud
    backends.pythreejs.figure.Figure
+```

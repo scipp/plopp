@@ -15,7 +15,7 @@ def test_line_creation():
     assert line._unit == 'K'
     assert line._dim == 'xx'
     assert len(line._line.get_xdata()) == da.sizes['xx']
-    assert np.allclose(line._line.get_xdata(), da.meta['xx'].values)
+    assert np.allclose(line._line.get_xdata(), da.coords['xx'].values)
     assert np.allclose(line._line.get_ydata(), da.values)
     assert line._error is None
     assert not line._mask.get_visible()
@@ -35,7 +35,7 @@ def test_line_with_errorbars():
     x = np.array(coll.get_segments())[:, 0, 0]
     y1 = np.array(coll.get_segments())[:, 0, 1]
     y2 = np.array(coll.get_segments())[:, 1, 1]
-    assert np.allclose(x, da.meta['xx'].values)
+    assert np.allclose(x, da.coords['xx'].values)
     assert np.allclose(y1, (da.data - sc.stddevs(da.data)).values)
     assert np.allclose(y2, (da.data + sc.stddevs(da.data)).values)
 
@@ -45,7 +45,7 @@ def test_line_with_bin_edges_and_errorbars():
     line = Line(canvas=Canvas(), data=da)
     coll = line._error.get_children()[0]
     x = np.array(coll.get_segments())[:, 0, 0]
-    assert np.allclose(x, sc.midpoints(da.meta['xx']).values)
+    assert np.allclose(x, sc.midpoints(da.coords['xx']).values)
 
 
 def test_line_hide_errorbars():
@@ -78,10 +78,10 @@ def test_line_with_two_masks():
 def test_line_update():
     da = data_array(ndim=1)
     line = Line(canvas=Canvas(), data=da)
-    assert np.allclose(line._line.get_xdata(), da.meta['xx'].values)
+    assert np.allclose(line._line.get_xdata(), da.coords['xx'].values)
     assert np.allclose(line._line.get_ydata(), da.values)
     line.update(da * 2.5)
-    assert np.allclose(line._line.get_xdata(), da.meta['xx'].values)
+    assert np.allclose(line._line.get_xdata(), da.coords['xx'].values)
     assert np.allclose(line._line.get_ydata(), da.values * 2.5)
 
 
@@ -92,7 +92,7 @@ def test_line_update_with_errorbars():
     x = np.array(coll.get_segments())[:, 0, 0]
     y1 = np.array(coll.get_segments())[:, 0, 1]
     y2 = np.array(coll.get_segments())[:, 1, 1]
-    assert np.allclose(x, da.meta['xx'].values)
+    assert np.allclose(x, da.coords['xx'].values)
     assert np.allclose(y1, (da.data - sc.stddevs(da.data)).values)
     assert np.allclose(y2, (da.data + sc.stddevs(da.data)).values)
     new_values = da * 2.5
@@ -120,3 +120,27 @@ def test_line_datetime_binedges_with_errorbars():
     # do not seem immediately convertible to datetimes.
     # Hence, we simply check if the Line can be created without raising an exception.
     Line(canvas=Canvas(), data=da)
+
+
+def test_line_color():
+    da = data_array(ndim=1)
+    line = Line(canvas=Canvas(), data=da)
+    assert line.color == 'C0'
+    assert line._line.get_color() == 'C0'
+    line.color = 'C1'
+    assert line.color == 'C1'
+    assert line._line.get_color() == 'C1'
+
+
+def test_line_color_with_errorbars():
+    from matplotlib.colors import to_hex
+
+    da = data_array(ndim=1, variances=True)
+    line = Line(canvas=Canvas(), data=da)
+    assert line.color == 'C0'
+    assert line._line.get_color() == 'C0'
+    assert to_hex(line._error.get_children()[0].get_color()) == to_hex('C0')
+    line.color = 'C1'
+    assert line.color == 'C1'
+    assert line._line.get_color() == 'C1'
+    assert to_hex(line._error.get_children()[0].get_color()) == to_hex('C1')

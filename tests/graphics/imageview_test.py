@@ -128,3 +128,14 @@ def test_colorbar_label_has_no_name_with_multiple_artists():
     b.name = 'B data'
     fig = ImageView(Node(a), Node(b))
     assert fig.canvas.cblabel == '[K]'
+
+
+def test_axis_label_with_transposed_2d_coord():
+    a = sc.linspace('a', 0, 1, 10, unit='m')
+    b = sc.linspace('b', 0, 2, 5, unit='s')
+    da = sc.DataArray(a * b, coords={'a': a, 'b': b * a})
+    fig = ImageView(Node(da))
+    assert fig.canvas.xlabel == 'b [m*s]'
+    da = sc.DataArray(a * b, coords={'a': a, 'b': a * b})
+    fig2 = ImageView(Node(da))
+    assert fig2.canvas.xlabel == fig.canvas.xlabel

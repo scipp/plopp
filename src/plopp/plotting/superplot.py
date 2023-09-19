@@ -51,7 +51,7 @@ class LineSaveTool:
         self._fig.update(data, key=line_id)
         slice_values = self._slider_node.request_data()
         text = ', '.join(
-            f'{k}: {coord_element_to_string(data.meta[k])}'
+            f'{k}: {coord_element_to_string(data.coords[k])}'
             for k, it in slice_values.items()
         )
         line = self._fig.artists[line_id]

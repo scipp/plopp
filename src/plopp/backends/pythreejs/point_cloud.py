@@ -61,7 +61,7 @@ class PointCloud:
 
         self._pixel_size = pixel_size
         if hasattr(self._pixel_size, 'unit'):
-            if len(set([self._data.meta[dim].unit for dim in [x, y, z]])) > 1:
+            if len(set([self._data.coords[dim].unit for dim in [x, y, z]])) > 1:
                 raise ValueError(
                     f'The supplied pixel_size has unit {self._pixel_size.unit}, but '
                     'the spatial coordinates do not all have the same units. In this '
@@ -69,7 +69,7 @@ class PointCloud:
                 )
             else:
                 self._pixel_size = self._pixel_size.to(
-                    dtype=float, unit=self._data.meta[x].unit
+                    dtype=float, unit=self._data.coords[x].unit
                 ).value
 
         self.geometry = p3.BufferGeometry(
@@ -77,15 +77,15 @@ class PointCloud:
                 'position': p3.BufferAttribute(
                     array=np.array(
                         [
-                            self._data.meta[self._x].values.astype('float32'),
-                            self._data.meta[self._y].values.astype('float32'),
-                            self._data.meta[self._z].values.astype('float32'),
+                            self._data.coords[self._x].values.astype('float32'),
+                            self._data.coords[self._y].values.astype('float32'),
+                            self._data.coords[self._z].values.astype('float32'),
                         ]
                     ).T
                 ),
                 'color': p3.BufferAttribute(
                     array=np.zeros(
-                        [self._data.meta[self._x].shape[0], 3], dtype='float32'
+                        [self._data.coords[self._x].shape[0], 3], dtype='float32'
                     )
                 ),
             }
@@ -130,9 +130,9 @@ class PointCloud:
         """
         Get the spatial extent of all the points in the cloud.
         """
-        xcoord = self._data.meta[self._x]
-        ycoord = self._data.meta[self._y]
-        zcoord = self._data.meta[self._z]
+        xcoord = self._data.coords[self._x]
+        ycoord = self._data.coords[self._y]
+        zcoord = self._data.coords[self._z]
         half_pixel = 0.5 * self._pixel_size
         dx = sc.scalar(half_pixel, unit=xcoord.unit)
         dy = sc.scalar(half_pixel, unit=ycoord.unit)

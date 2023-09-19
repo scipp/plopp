@@ -36,8 +36,8 @@ class SliceWidget(VBar):
 
         for dim in self._slider_dims:
             coord = (
-                da.meta[dim]
-                if dim in da.meta
+                da.coords[dim]
+                if dim in da.coords
                 else sc.arange(dim, da.sizes[dim], unit=None)
             )
             slider = ipw.IntSlider(

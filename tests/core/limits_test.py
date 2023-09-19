@@ -59,6 +59,22 @@ def test_find_limits_no_finite_values_raises():
         _ = find_limits(x)
 
 
+def test_find_limits_all_zeros():
+    x = sc.zeros(sizes={'x': 5}, unit='s')
+    lims = find_limits(x)
+    assert sc.identical(lims[0], sc.scalar(0.0, unit='s'))
+    assert sc.identical(lims[1], sc.scalar(0.0, unit='s'))
+
+
+def test_find_limits_all_zeros_log_uses_default_positive_values():
+    x = sc.zeros(sizes={'x': 5}, unit='s')
+    lims = find_limits(x, scale='log')
+    zero = sc.scalar(0.0, unit='s')
+    assert lims[0] > zero
+    assert lims[1] > zero
+    assert lims[0] < lims[1]
+
+
 def test_fix_empty_range():
     a = sc.scalar(5.0, unit='m')
     b = sc.scalar(10.0, unit='m')

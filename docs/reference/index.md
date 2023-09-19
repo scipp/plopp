@@ -1,11 +1,9 @@
+# API Reference
+
+## Plotting
+
+```{eval-rst}
 .. currentmodule:: plopp
-
-*************
-API Reference
-*************
-
-Plotting
-========
 
 .. autosummary::
    :toctree: generated
@@ -15,10 +13,11 @@ Plotting
    superplot
    inspector
    scatter3d
+```
 
-Core
-====
+## Core
 
+```{eval-rst}
 .. autosummary::
    :toctree: generated
 
@@ -28,10 +27,11 @@ Core
    core.input_node
    core.widget_node
    core.show_graph
+```
 
-Graphics
-========
+## Graphics
 
+```{eval-rst}
 .. autosummary::
    :toctree: generated
 
@@ -44,10 +44,11 @@ Graphics
    graphics.LineView
    graphics.Scatter3dView
    graphics.tiled
+```
 
-Widgets and tools
-=================
+## Widgets and tools
 
+```{eval-rst}
 .. autosummary::
    :toctree: generated
 
@@ -76,23 +77,24 @@ Widgets and tools
 
    widgets.cut3d.Cut3dTool
    widgets.cut3d.TriCutTool
+```
 
-Backends
-========
+## Backends
 
+```{eval-rst}
 .. toctree::
    :maxdepth: 1
 
    reference/matplotlib
    reference/plotly
    reference/pythreejs
+```
 
-Other
-=====
+## Other
 
+```{eval-rst}
 .. autosummary::
    :toctree: generated
 
-   patch_scipp
-   unpatch_scipp
    show
+```

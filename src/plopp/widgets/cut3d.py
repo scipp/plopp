@@ -216,7 +216,7 @@ class Cut3dTool(ipw.HBox):
                 (self.slider.max - self.slider.min) * self.thickness, unit=self._unit
             )
             pos = sc.scalar(self.slider.value, unit=self._unit)
-            selection = sc.abs(da.meta[self._dim] - pos) < delta
+            selection = sc.abs(da.coords[self._dim] - pos) < delta
             if selection.sum().value > 0:
                 self.select_nodes[n.id] = node(partial(select, s=selection))(da=n)
                 self.select_nodes[n.id].add_view(self._view)

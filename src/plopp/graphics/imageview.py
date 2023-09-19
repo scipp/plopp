@@ -130,8 +130,8 @@ class ImageView(View):
             self.canvas.set_axes(
                 dims={'x': xdim, 'y': ydim}, units={'x': xcoord.unit, 'y': ycoord.unit}
             )
-            self.canvas.xlabel = name_with_unit(var=xcoord)
-            self.canvas.ylabel = name_with_unit(var=ycoord)
+            self.canvas.xlabel = name_with_unit(var=xcoord, name=xdim)
+            self.canvas.ylabel = name_with_unit(var=ycoord, name=ydim)
             self.colormapper.unit = new_values.unit
             if xdim in self._scale:
                 self.canvas.xscale = self._scale[xdim]
