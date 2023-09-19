@@ -9,6 +9,8 @@ import numpy as np
 import scipp as sc
 
 from .. import backends
+from ..core import Node
+from ..core.typing import Plottable, PlottableMulti
 
 
 def require_interactive_backend(func: str):
@@ -35,7 +37,7 @@ def from_compatible_lib(obj: Any) -> Any:
 
 
 def _to_data_array(
-    obj: Union[list, np.ndarray, sc.Variable, sc.DataArray]
+    obj: Union[Plottable, list],
 ) -> sc.DataArray:
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
@@ -116,7 +118,7 @@ def _all_dims_sorted(var, order='ascending'):
 
 
 def preprocess(
-    obj: Union[np.ndarray, sc.Variable, sc.DataArray],
+    obj: Union[Plottable, list],
     name: str = '',
     ignore_size: bool = False,
     coords: Optional[List[str]] = None,
@@ -175,18 +177,31 @@ def preprocess(
     return out
 
 
-def preprocess_multi(obj, **kwargs) -> List[sc.DataArray]:
-    """
-    Pre-process potentially multiple input data for plotting.
-    See :func:`preprocess` for details.
+# def preprocess_multi(obj, **kwargs) -> List[sc.DataArray]:
+#     """
+#     Pre-process potentially multiple input data for plotting.
+#     See :func:`preprocess` for details.
 
-    Parameters
-    ----------
-    obj:
-        The input objects that will be converted to data arrays.
-    """
-    to_preprocess = from_compatible_lib(obj)
-    if isinstance(to_preprocess, (Mapping, sc.Dataset)):
-        return [preprocess(item, name=name, **kwargs) for name, item in obj.items()]
-    else:
-        return [preprocess(obj, **kwargs)]
+#     Parameters
+#     ----------
+#     obj:
+#         The input objects that will be converted to data arrays.
+#     """
+#     to_preprocess = from_compatible_lib(obj)
+#     if isinstance(to_preprocess, (Mapping, sc.Dataset)):
+#         return [preprocess(item, name=name, **kwargs) for name, item in obj.items()]
+#     else:
+#         return [preprocess(obj, **kwargs)]
+
+
+def inputs_to_nodes(*inputs: PlottableMulti, ignore_size: bool = False, coords=None):
+    flat_inputs = []
+    for inp in inputs:
+        if isinstance(inp, dict):
+            flat_inputs.extend(inp.items())
+        else:
+            flat_inputs.append(('', inp))
+    return [
+        Node(preprocess, inp, name=name, ignore_size=ignore_size, coords=coords)
+        for name, inp in flat_inputs
+    ]

@@ -13,7 +13,7 @@ from scipp.typing import VariableLike
 from ..core import Node, widget_node
 from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
-from .common import preprocess, require_interactive_backend
+from .common import inputs_to_nodes, require_interactive_backend
 
 
 class Slicer:
@@ -67,16 +67,17 @@ class Slicer:
         # data_arrays = preprocess_multi(obj, ignore_size=True)
         # ds = sc.Dataset({da.name: da for da in data_arrays})
 
-        flat_inputs = []
-        for inp in inputs:
-            if isinstance(inp, dict):
-                flat_inputs.extend(inp.items())
-            else:
-                flat_inputs.append(('', inp))
-        nodes = [
-            Node(preprocess, inp, name=name, ignore_size=True, coords=coords)
-            for name, inp in flat_inputs
-        ]
+        # flat_inputs = []
+        # for inp in inputs:
+        #     if isinstance(inp, dict):
+        #         flat_inputs.extend(inp.items())
+        #     else:
+        #         flat_inputs.append(('', inp))
+        # nodes = [
+        #     Node(preprocess, inp, name=name, ignore_size=True, coords=coords)
+        #     for name, inp in flat_inputs
+        # ]
+        nodes = inputs_to_nodes(*inputs, ignore_size=True, coords=coords)
 
         # Ensure all inputs have the same sizes
         sizes = [node().sizes for node in nodes]
