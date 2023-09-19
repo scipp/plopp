@@ -3,19 +3,16 @@
 
 from typing import Dict, List, Literal, Optional, Tuple, Union
 
-from numpy import ndarray
 from scipp import Variable
-from scipp.typing import VariableLike
 
 from ..core import Node
+from ..core.typing import Plottable
 from ..graphics import figure1d, figure2d
 from .common import preprocess
 
 
 def plot(
-    *inputs: Union[
-        VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]], Node
-    ],
+    *inputs: Plottable,
     aspect: Literal['auto', 'equal'] = 'auto',
     cbar: bool = True,
     coords: Optional[List[str]] = None,

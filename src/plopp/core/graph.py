@@ -94,7 +94,7 @@ def _make_graph(dot, nodes, edges, labels, views):
     return dot
 
 
-def show_graph(entry: Union[Node, View]):
+def show_graph(entry: Union[Node, View], **kwargs):
     """
     Display the connected nodes and views as a graph.
 
@@ -103,13 +103,15 @@ def show_graph(entry: Union[Node, View]):
     entry:
         An entry point in the graph (node or view). This can be any node/view in the
         graph. The graph will be searched from end to end to construct the diagram.
+    **kwargs:
+        Additional keyword arguments are forwarded to ``graphviz.Digraph``.
 
     Returns
     -------
     :
         A visual representation of the graph generated with Graphviz.
     """
-    dot = _make_graphviz_digraph(strict=True)
+    dot = _make_graphviz_digraph(strict=True, graph_attr=kwargs)
     dot.attr('node', shape='box', height='0.1')
     nodes = {}
     edges = {}
