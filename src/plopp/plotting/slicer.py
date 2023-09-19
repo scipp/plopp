@@ -125,8 +125,9 @@ class Slicer:
         self.slider = SliceWidget(
             nodes[0](), dims=[dim for dim in dims if dim not in keep]
         )
-        slider_node = widget_node(self.slider)
-        slice_nodes = [slice_dims(node, slider_node) for node in nodes]
+        self.slider_node = widget_node(self.slider)
+        self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
+
         ndims = len(keep)
         if ndims == 1:
             make_figure = figure1d
@@ -138,7 +139,7 @@ class Slicer:
                 f'but {ndims} were requested.'
             )
         self.figure = make_figure(
-            *slice_nodes,
+            *self.slice_nodes,
             autoscale=autoscale,
             vmin=vmin,
             vmax=vmax,
