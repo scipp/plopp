@@ -20,4 +20,8 @@ class VisibleDeprecationWarning(UserWarning):
 
 VisibleDeprecationWarning.__module__ = 'plopp'
 
-Plottable = Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]], Node]
+Plottable = Union[VariableLike, ndarray, Node]
+
+PlottableMulti = Union[
+    VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]], Node
+]

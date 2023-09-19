@@ -2,11 +2,9 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
-import scipp as sc
 from matplotlib.colors import to_hex
-from numpy import ndarray
 
 from ..core import Node, View
 from ..core.typing import Plottable
@@ -48,6 +46,7 @@ class LineSaveTool:
 
         data = self._data_node.request_data()
         node = Node(data)
+        node.name = f'Save node {len(self._lines)}'
         line_id = node._id
         node.add_view(self._fig._view)
         self._fig._view.render()
@@ -102,7 +101,7 @@ class Superplot:
 
     def __init__(
         self,
-        obj: Union[sc.typing.VariableLike, ndarray],
+        obj: Plottable,
         keep: Optional[str] = None,
         **kwargs,
     ):

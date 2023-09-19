@@ -6,13 +6,13 @@ from typing import Dict, List, Literal, Optional, Tuple, Union
 from scipp import Variable
 
 from ..core import Node
-from ..core.typing import Plottable
+from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
 from .common import preprocess
 
 
 def plot(
-    *inputs: Plottable,
+    *inputs: PlottableMulti,
     aspect: Literal['auto', 'equal'] = 'auto',
     cbar: bool = True,
     coords: Optional[List[str]] = None,
@@ -100,7 +100,6 @@ def plot(
         **kwargs,
     }
 
-    # data_arrays = preprocess_multi(obj, ignore_size=ignore_size, coords=coords)
     flat_inputs = []
     for inp in inputs:
         if isinstance(inp, dict):
@@ -115,8 +114,6 @@ def plot(
     ndims = set()
     for n in nodes:
         ndims.add(n().ndim)
-    # for da in data_arrays:
-    #     ndims.add(da.ndim)
     if len(ndims) > 1:
         raise ValueError(
             'All items given to the plot function must have the same '

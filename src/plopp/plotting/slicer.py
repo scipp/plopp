@@ -11,7 +11,7 @@ from numpy import ndarray
 from scipp.typing import VariableLike
 
 from ..core import Node, widget_node
-from ..core.typing import Plottable
+from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
 from .common import preprocess, require_interactive_backend
 
@@ -56,7 +56,7 @@ class Slicer:
 
     def __init__(
         self,
-        *inputs: Plottable,
+        *inputs: PlottableMulti,
         keep: List[str] = None,
         autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
         coords: Optional[List[str]] = None,
@@ -74,7 +74,7 @@ class Slicer:
             else:
                 flat_inputs.append(('', inp))
         nodes = [
-            Node(preprocess, inp, name=name, ignore_size=False, coords=coords)
+            Node(preprocess, inp, name=name, ignore_size=True, coords=coords)
             for name, inp in flat_inputs
         ]
 
@@ -148,7 +148,7 @@ class Slicer:
 
 
 def slicer(
-    *inputs: Plottable,
+    *inputs: PlottableMulti,
     keep: List[str] = None,
     autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
     coords: Optional[List[str]] = None,
