@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
-from collections.abc import Mapping
 from typing import Any, Callable, List, Optional, Union
 
 import numpy as np
@@ -175,23 +174,6 @@ def preprocess(
         except sc.DTypeError:
             pass
     return out
-
-
-# def preprocess_multi(obj, **kwargs) -> List[sc.DataArray]:
-#     """
-#     Pre-process potentially multiple input data for plotting.
-#     See :func:`preprocess` for details.
-
-#     Parameters
-#     ----------
-#     obj:
-#         The input objects that will be converted to data arrays.
-#     """
-#     to_preprocess = from_compatible_lib(obj)
-#     if isinstance(to_preprocess, (Mapping, sc.Dataset)):
-#         return [preprocess(item, name=name, **kwargs) for name, item in obj.items()]
-#     else:
-#         return [preprocess(obj, **kwargs)]
 
 
 def inputs_to_nodes(*inputs: PlottableMulti, processor: Callable) -> List[Node]:

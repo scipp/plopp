@@ -112,14 +112,6 @@ def test_scatter3d_from_multiple_nodes():
     pp.scatter3d({'a': pp.Node(a), 'b': pp.Node(b)})
 
 
-def test_scatter3d_from_multiple_nodes():
-    a = scatter()
-    b = scatter()
-    b.coords['x'] += sc.scalar(100, unit='m')
-    pp.scatter3d(pp.Node(a), pp.Node(b))
-    pp.scatter3d({'a': pp.Node(a), 'b': pp.Node(b)})
-
-
 def test_plot_multiple_inputs_mixing_raw_data_and_nodes():
     a = scatter()
     b = scatter()

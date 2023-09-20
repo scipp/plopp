@@ -8,7 +8,7 @@ from typing import List, Literal, Optional, Union
 
 from scipp.typing import VariableLike
 
-from ..core import Node, widget_node
+from ..core import widget_node
 from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
 from .common import inputs_to_nodes, preprocess, require_interactive_backend
