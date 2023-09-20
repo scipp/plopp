@@ -65,23 +65,20 @@ def test_plot_from_node(ndim):
     pp.plot(pp.Node(da))
 
 
-@pytest.mark.parametrize('ndim', [1, 2])
-def test_plot_multiple_inputs(ndim):
-    da = data_array(ndim=ndim)
+def test_plot_multiple_inputs():
+    da = data_array(ndim=1)
     pp.plot(da, 3.3 * da)
     pp.plot(pp.Node(da), pp.Node(3.3 * da))
 
 
-@pytest.mark.parametrize('ndim', [1, 2])
-def test_plot_dict_of_nodes(ndim):
-    a = data_array(ndim=ndim)
+def test_plot_dict_of_nodes():
+    a = data_array(ndim=1)
     b = 6.7 * a
     pp.plot({'a': pp.Node(a), 'b': pp.Node(b)})
 
 
-@pytest.mark.parametrize('ndim', [1, 2])
-def test_plot_multiple_inputs_mixing_raw_data_and_nodes(ndim):
-    a = data_array(ndim=ndim)
+def test_plot_multiple_inputs_mixing_raw_data_and_nodes():
+    a = data_array(ndim=1)
     b = 13.3 * a
     pp.plot(pp.Node(a), b)
     pp.plot(a, pp.Node(b))

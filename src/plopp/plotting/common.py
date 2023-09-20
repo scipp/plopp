@@ -207,7 +207,7 @@ def inputs_to_nodes(*inputs: PlottableMulti, processor: Callable) -> List[Node]:
     """
     flat_inputs = []
     for inp in inputs:
-        if hasattr(inp, 'items'):
+        if hasattr(inp, 'items') and (not hasattr(inp, 'between')):
             flat_inputs.extend(inp.items())
         else:
             flat_inputs.append(('', inp))
