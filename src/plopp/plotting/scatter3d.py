@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from functools import partial
 from typing import Literal, Optional, Tuple, Union
 
 import scipp as sc
@@ -9,14 +10,14 @@ import scipp as sc
 from ..core import Node
 from ..core.typing import PlottableMulti
 from ..graphics import Camera
-from .common import check_not_binned, from_compatible_lib
+from .common import check_not_binned, from_compatible_lib, inputs_to_nodes
 
 
 def _to_variable(var, coords):
     return coords[var] if isinstance(var, str) else var
 
 
-def _preprocess_scatter(obj, x, y, z, pos):
+def _preprocess_scatter(obj, x, y, z, pos, name=None):
     da = from_compatible_lib(obj)
     check_not_binned(da)
 
@@ -33,6 +34,7 @@ def _preprocess_scatter(obj, x, y, z, pos):
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
     if out.ndim != 1:
         out = out.flatten(to=uuid.uuid4().hex)
+    out.name = name
     return out
 
 
@@ -104,7 +106,9 @@ def scatter3d(
             'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'  # noqa: E501
         )
 
-    nodes = [Node(_preprocess_scatter, inp, x=x, y=y, z=z, pos=pos) for inp in inputs]
+    nodes = inputs_to_nodes(
+        *inputs, processor=partial(_preprocess_scatter, x=x, y=y, z=z, pos=pos)
+    )
 
     fig = figure3d(
         *nodes,

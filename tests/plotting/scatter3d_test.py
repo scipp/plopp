@@ -88,3 +88,49 @@ def test_scatter3d_from_xarray():
         dims=['pixel'],
     )
     pp.scatter3d(da, x='x', y='y', z='z')
+
+
+def test_scatter3d_multiple_inputs():
+    da1 = scatter()
+    da2 = scatter()
+    da2.coords['x'] += sc.scalar(100, unit='m')
+    fig = pp.scatter3d(da1, da2)
+    assert len(fig[0].artists) == 2
+
+
+def test_scatter3d_dict_of_inputs():
+    da1 = scatter()
+    da2 = scatter()
+    da2.coords['x'] += sc.scalar(100, unit='m')
+    fig = pp.scatter3d({'a': da1, 'b': da2})
+    assert len(fig[0].artists) == 2
+
+
+def test_scatter3d_from_node():
+    pp.scatter3d(pp.Node(scatter()))
+
+
+def test_scatter3d_from_multiple_nodes():
+    a = scatter()
+    b = scatter()
+    b.coords['x'] += sc.scalar(100, unit='m')
+    pp.scatter3d(pp.Node(a), pp.Node(b))
+    pp.scatter3d({'a': pp.Node(a), 'b': pp.Node(b)})
+
+
+def test_scatter3d_from_multiple_nodes():
+    a = scatter()
+    b = scatter()
+    b.coords['x'] += sc.scalar(100, unit='m')
+    pp.scatter3d(pp.Node(a), pp.Node(b))
+    pp.scatter3d({'a': pp.Node(a), 'b': pp.Node(b)})
+
+
+def test_plot_multiple_inputs_mixing_raw_data_and_nodes():
+    a = scatter()
+    b = scatter()
+    b.coords['x'] += sc.scalar(100, unit='m')
+    pp.scatter3d(a, pp.Node(b))
+    pp.scatter3d(pp.Node(a), b)
+    pp.scatter3d({'a': a, 'b': pp.Node(b)})
+    pp.scatter3d({'a': pp.Node(a), 'b': b})

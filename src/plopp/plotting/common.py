@@ -3,7 +3,7 @@
 
 import warnings
 from collections.abc import Mapping
-from typing import Any, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 import numpy as np
 import scipp as sc
@@ -194,14 +194,21 @@ def preprocess(
 #         return [preprocess(obj, **kwargs)]
 
 
-def inputs_to_nodes(*inputs: PlottableMulti, ignore_size: bool = False, coords=None):
+def inputs_to_nodes(*inputs: PlottableMulti, processor: Callable) -> List[Node]:
+    """
+    Convert a list of inputs or dicts of inputs to a flat list of nodes.
+
+    Parameters
+    ----------
+    inputs:
+        The inputs to be converted to nodes.
+    processor:
+        The function that will be applied to each input to convert it to a node.
+    """
     flat_inputs = []
     for inp in inputs:
         if hasattr(inp, 'items'):
             flat_inputs.extend(inp.items())
         else:
             flat_inputs.append(('', inp))
-    return [
-        Node(preprocess, inp, name=name, ignore_size=ignore_size, coords=coords)
-        for name, inp in flat_inputs
-    ]
+    return [Node(processor, inp, name=name) for name, inp in flat_inputs]

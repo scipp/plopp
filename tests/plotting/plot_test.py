@@ -77,6 +77,14 @@ def test_plot_dict_of_nodes(ndim):
     a = data_array(ndim=ndim)
     b = 6.7 * a
     pp.plot({'a': pp.Node(a), 'b': pp.Node(b)})
+
+
+@pytest.mark.parametrize('ndim', [1, 2])
+def test_plot_multiple_inputs_mixing_raw_data_and_nodes(ndim):
+    a = data_array(ndim=ndim)
+    b = 13.3 * a
+    pp.plot(pp.Node(a), b)
+    pp.plot(a, pp.Node(b))
     pp.plot({'a': a, 'b': pp.Node(b)})
     pp.plot({'a': pp.Node(a), 'b': b})
 

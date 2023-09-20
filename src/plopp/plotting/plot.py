@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from functools import partial
 from typing import Dict, List, Literal, Optional, Tuple, Union
 
 from scipp import Variable
 
-from ..core import Node
 from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
-from .common import inputs_to_nodes
+from .common import inputs_to_nodes, preprocess
 
 
 def plot(
@@ -100,18 +100,9 @@ def plot(
         **kwargs,
     }
 
-    # flat_inputs = []
-    # for inp in inputs:
-    #     if isinstance(inp, dict):
-    #         flat_inputs.extend(inp.items())
-    #     else:
-    #         flat_inputs.append(('', inp))
-    # nodes = [
-    #     Node(preprocess, inp, name=name, ignore_size=ignore_size, coords=coords)
-    #     for name, inp in flat_inputs
-    # ]
-
-    nodes = inputs_to_nodes(*inputs, ignore_size=ignore_size, coords=coords)
+    nodes = inputs_to_nodes(
+        *inputs, processor=partial(preprocess, ignore_size=ignore_size, coords=coords)
+    )
 
     ndims = set()
     for n in nodes:
