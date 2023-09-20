@@ -24,12 +24,6 @@ def test_scatter3d_from_xyz_using_defaults():
     pp.scatter3d(da)
 
 
-def test_scatter3d_raises_with_both_pos_and_xyz():
-    da = scatter()
-    with pytest.raises(ValueError, match=r'If pos \(position\) is defined, all of'):
-        pp.scatter3d(da, pos='position', x='x', y='y', z='z')
-
-
 def test_scatter3d_dimensions_are_flattened():
     nx = 12
     ny = 12

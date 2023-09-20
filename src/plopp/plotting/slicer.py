@@ -66,21 +66,24 @@ class Slicer:
             *inputs, processor=partial(preprocess, ignore_size=True, coords=coords)
         )
 
-        # Ensure all inputs have the same sizes
-        sizes = [node().sizes for node in nodes]
+        dims = nodes[0]().dims
+        if keep is None:
+            keep = dims[-(2 if len(dims) > 2 else 1) :]
+
+        if isinstance(keep, str):
+            keep = [keep]
+
+        # Ensure all dims in keep have the same size
+        sizes = [
+            {dim: shape for dim, shape in node().sizes.items() if dim not in keep}
+            for node in nodes
+        ]
         g = groupby(sizes)
         if not (next(g, True) and not next(g, False)):
             raise ValueError(
                 'Slicer plot: all inputs must have the same sizes, but '
                 f'the following sizes were found: {sizes}'
             )
-
-        dims = tuple(sizes[0])
-        if keep is None:
-            keep = dims[-(2 if len(dims) > 2 else 1) :]
-
-        if isinstance(keep, str):
-            keep = [keep]
 
         if len(keep) == 0:
             raise ValueError(

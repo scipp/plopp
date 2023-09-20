@@ -78,12 +78,26 @@ def test_with_dict_of_data_arrays():
     assert sc.identical(nodes[1].request_data(), b['yy', 5])
 
 
-def test_with_mismatching_data_arrays_raises():
+def test_with_data_arrays_same_shape_different_coord():
     a = data_array(ndim=2)
     b = data_array(ndim=2) * 2.5
-    b.coords['xx'] *= 1.1
-    with pytest.raises(sc.DatasetError):
-        Slicer({'a': a, 'b': b}, keep=['xx'])
+    b.coords['xx'] *= 1.5
+    Slicer({'a': a, 'b': b}, keep=['xx'])
+
+
+def test_with_data_arrays_different_shape_along_keep_dim():
+    a = data_array(ndim=2)
+    b = data_array(ndim=2) * 2.5
+    Slicer({'a': a, 'b': b['xx', :10]}, keep=['xx'])
+
+
+def test_with_data_arrays_different_shape_along_non_keep_dim_raises():
+    a = data_array(ndim=2)
+    b = data_array(ndim=2) * 2.5
+    with pytest.raises(
+        ValueError, match='Slicer plot: all inputs must have the same sizes'
+    ):
+        Slicer({'a': a, 'b': b['yy', :10]}, keep=['xx'])
 
 
 def test_raises_ValueError_when_given_binned_data():
