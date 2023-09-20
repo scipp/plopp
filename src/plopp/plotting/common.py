@@ -197,7 +197,7 @@ def preprocess(
 def inputs_to_nodes(*inputs: PlottableMulti, ignore_size: bool = False, coords=None):
     flat_inputs = []
     for inp in inputs:
-        if isinstance(inp, dict):
+        if hasattr(inp, 'items'):
             flat_inputs.extend(inp.items())
         else:
             flat_inputs.append(('', inp))

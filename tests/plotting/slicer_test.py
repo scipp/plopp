@@ -4,6 +4,7 @@
 import pytest
 import scipp as sc
 
+from plopp import Node
 from plopp.data.testing import data_array, dataset
 from plopp.plotting.slicer import Slicer
 
@@ -89,6 +90,26 @@ def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         Slicer(da, keep=['xx'])
+
+
+@pytest.mark.parametrize('ndim', [2, 3])
+def test_from_node(ndim):
+    da = data_array(ndim=ndim)
+    Slicer(Node(da))
+
+
+def test_multiple_inputs():
+    da = data_array(ndim=1)
+    Slicer(da, 3.3 * da)
+    Slicer(Node(da), Node(3.3 * da))
+
+
+def test_plot_dict_of_nodes():
+    a = data_array(ndim=1)
+    b = 6.7 * a
+    Slicer({'a': Node(a), 'b': Node(b)})
+    Slicer({'a': a, 'b': Node(b)})
+    Slicer({'a': Node(a), 'b': b})
 
 
 def test_raises_when_requested_keep_dims_do_not_exist():

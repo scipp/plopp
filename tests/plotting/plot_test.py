@@ -59,6 +59,28 @@ def test_plot_dict_of_data_arrays():
     pp.plot({'a': ds['a'], 'b': ds['b']})
 
 
+@pytest.mark.parametrize('ndim', [1, 2])
+def test_plot_from_node(ndim):
+    da = data_array(ndim=ndim)
+    pp.plot(pp.Node(da))
+
+
+@pytest.mark.parametrize('ndim', [1, 2])
+def test_plot_multiple_inputs(ndim):
+    da = data_array(ndim=ndim)
+    pp.plot(da, 3.3 * da)
+    pp.plot(pp.Node(da), pp.Node(3.3 * da))
+
+
+@pytest.mark.parametrize('ndim', [1, 2])
+def test_plot_dict_of_nodes(ndim):
+    a = data_array(ndim=ndim)
+    b = 6.7 * a
+    pp.plot({'a': pp.Node(a), 'b': pp.Node(b)})
+    pp.plot({'a': a, 'b': pp.Node(b)})
+    pp.plot({'a': pp.Node(a), 'b': b})
+
+
 def test_plot_data_array_2d_with_one_missing_coord_and_binedges():
     da = sc.data.table_xyz(100).bin(x=10, y=12).bins.mean()
     del da.coords['x']

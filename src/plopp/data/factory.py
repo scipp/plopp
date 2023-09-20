@@ -186,6 +186,37 @@ def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
     )
 
 
+def random(shape, dtype='float64', unit='', dims=None, seed=None) -> sc.DataArray:
+    """
+    Generate a data array containing random data values.
+
+    Parameters
+    ----------
+    shape:
+        The shape of the output.
+    dtype:
+        The output data array's data type.
+    unit:
+        The output data array's unit.
+    dims:
+        List of dimension labels. If ``None``, they will be auto-generated.
+    seed:
+        The seed for the random number generator.
+    """
+    rng = np.random.default_rng(seed)
+    if dims is None:
+        dims = default_dim_list[: len(shape)][::-1]
+    return sc.DataArray(
+        data=sc.array(
+            dims=dims,
+            values=rng.random(shape),
+            unit=unit,
+            dtype=dtype,
+        ),
+        coords={dim: sc.arange(dim, shape[i], unit='m') for i, dim in enumerate(dims)},
+    )
+
+
 def data1d(**kwargs):
     return data_array(ndim=1, **kwargs)
 
