@@ -2,8 +2,8 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
-from itertools import groupby
 from functools import partial, reduce
+from itertools import groupby
 from typing import List, Literal, Optional, Union
 
 from scipp.typing import VariableLike

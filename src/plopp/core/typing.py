@@ -4,7 +4,6 @@
 from typing import Dict, Union
 
 from numpy import ndarray
-
 from scipp.typing import VariableLike
 
 from .node import Node
