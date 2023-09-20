@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal
+from typing import Dict, Literal
 
 import scipp as sc
 
@@ -12,21 +12,23 @@ from ..graphics import figure1d, figure2d
 from .common import preprocess, require_interactive_backend
 
 
-def _to_bin_edges(da, dim):
-    # Convert dimension coords to bin edges
+def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
+    """
+    Convert dimension coords to bin edges.
+    """
     for d in set(da.dims) - {dim}:
         da.coords[d] = coord_as_bin_edges(da, d)
     return da
 
 
-def _apply_op(da, op, dim):
+def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
     out = getattr(sc, op)(da, dim=dim)
     if out.name:
         out.name = f'{op} of {out.name}'
     return out
 
 
-def _slice_xy(da, xy):
+def _slice_xy(da: sc.DataArray, xy: Dict[str, Dict[str, int]]) -> sc.DataArray:
     x = xy['x']
     y = xy['y']
     return da[y['dim'], y['value']][x['dim'], x['value']]
@@ -85,16 +87,8 @@ def inspector(
     require_interactive_backend('inspector')
 
     in_node = Node(preprocess, obj, ignore_size=True)
-
-    # da = preprocess(obj, ignore_size=True)
-    # in_node = Node(da)
     if dim is None:
         dim = in_node().dims[-1]
-
-    # # Convert dimension coords to bin edges
-    # for d in set(da.dims) - {dim}:
-    #     da.coords[d] = coord_as_bin_edges(da, d)
-
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
     f2d = figure2d(op_node, **kwargs)
