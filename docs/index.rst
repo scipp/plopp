@@ -62,6 +62,6 @@ Get in touch
    getting-started/index
    basics/index
    customization/index
-   examples/index
+   gallery/index
    reference/index
    about/index

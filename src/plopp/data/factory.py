@@ -213,7 +213,10 @@ def random(shape, dtype='float64', unit='', dims=None, seed=None) -> sc.DataArra
             unit=unit,
             dtype=dtype,
         ),
-        coords={dim: sc.arange(dim, shape[i], unit='m') for i, dim in enumerate(dims)},
+        coords={
+            dim: sc.arange(dim, shape[i], unit='m', dtype='float64')
+            for i, dim in enumerate(dims)
+        },
     )
 
 
