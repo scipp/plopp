@@ -24,6 +24,18 @@ def _parse_dicts_in_kwargs(kwargs, name):
     return out
 
 
+def _nan_if_not_finite(x: np.array):
+    if not hasattr(x, 'dtype'):
+        return x
+    if np.issubdtype(x.dtype, np.integer):
+        info = np.iinfo(x.dtype)
+    elif np.issubdtype(x.dtype, np.floating):
+        info = np.finfo(x.dtype)
+    else:
+        return x
+    return np.where(np.isfinite(x) & (x != info.max) & (x != info.min), x, np.nan)
+
+
 class Line:
     """
     Artist to represent one-dimensional data.
@@ -193,12 +205,23 @@ class Line:
             y = sc.concat([y[0:1], y], dim=self._dim)
             if mask is not None:
                 mask['y'] = np.concatenate([mask['y'][0:1], mask['y']])
-        return {
-            'values': {'x': x.values, 'y': y.values},
-            'stddevs': error,
-            'mask': mask,
-            'hist': hist,
-        }
+        return self._set_to_nan_if_not_finite(
+            {
+                'values': {'x': x.values, 'y': y.values},
+                'stddevs': error,
+                'mask': mask,
+                'hist': hist,
+            }
+        )
+
+    @staticmethod
+    def _set_to_nan_if_not_finite(data):
+        for v in data.values():
+            if isinstance(v, dict):
+                for k in ('x', 'y'):
+                    if k in v:
+                        v[k] = _nan_if_not_finite(v[k])
+        return data
 
     def update(self, new_values: sc.DataArray):
         """
