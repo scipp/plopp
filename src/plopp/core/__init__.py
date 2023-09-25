@@ -5,5 +5,5 @@
 
 from .graph import show_graph
 from .helpers import node, widget_node
-from .node import Node
+from .node import Node, input_node
 from .view import View
