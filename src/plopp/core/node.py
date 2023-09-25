@@ -8,7 +8,6 @@ import warnings
 from itertools import chain
 from typing import Any, Union
 
-from .system import VisibleDeprecationWarning
 from .view import View
 
 
@@ -27,6 +26,8 @@ def input_node(obj: Any) -> Node:
     obj:
         The object to return when data is requested from the node.
     """
+    from .typing import VisibleDeprecationWarning
+
     warnings.warn(
         "plopp.input_node has been deprecated "
         "and will be removed in Plopp v23.05.0. "

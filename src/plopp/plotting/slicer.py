@@ -2,16 +2,21 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
-from functools import reduce
-from typing import Dict, List, Literal, Union
+from functools import partial, reduce
+from itertools import groupby
+from typing import List, Literal, Optional, Union
 
-import scipp as sc
-from numpy import ndarray
 from scipp.typing import VariableLike
 
-from ..core import Node, widget_node
+from ..core import widget_node
+from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
-from .common import preprocess_multi, require_interactive_backend
+from .common import (
+    input_to_nodes,
+    preprocess,
+    raise_multiple_inputs_for_2d_plot_error,
+    require_interactive_backend,
+)
 
 
 class Slicer:
@@ -42,6 +47,8 @@ class Slicer:
         If ``grow``, the limits are allowed to grow with time but they do not shrink.
         If ``fixed``, the limits are fixed to the full data range and do not change
         with time.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
     vmin:
         The minimum value of the y-axis (1d plots) or color range (2d plots).
     vmax:
@@ -52,31 +59,46 @@ class Slicer:
 
     def __init__(
         self,
-        obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
-        keep: List[str] = None,
+        obj: PlottableMulti,
         *,
+        keep: List[str] = None,
         autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
+        coords: Optional[List[str]] = None,
         vmin: Union[VariableLike, int, float] = None,
         vmax: Union[VariableLike, int, float] = None,
         **kwargs,
     ):
-        data_arrays = preprocess_multi(obj, ignore_size=True)
-        ds = sc.Dataset({da.name: da for da in data_arrays})
+        nodes = input_to_nodes(
+            obj, processor=partial(preprocess, ignore_size=True, coords=coords)
+        )
 
+        dims = nodes[0]().dims
         if keep is None:
-            keep = ds.dims[-(2 if ds.ndim > 2 else 1) :]
+            keep = dims[-(2 if len(dims) > 2 else 1) :]
 
         if isinstance(keep, str):
             keep = [keep]
+
+        # Ensure all dims in keep have the same size
+        sizes = [
+            {dim: shape for dim, shape in node().sizes.items() if dim not in keep}
+            for node in nodes
+        ]
+        g = groupby(sizes)
+        if not (next(g, True) and not next(g, False)):
+            raise ValueError(
+                'Slicer plot: all inputs must have the same sizes, but '
+                f'the following sizes were found: {sizes}'
+            )
 
         if len(keep) == 0:
             raise ValueError(
                 'Slicer plot: the list of dims to be kept cannot be empty.'
             )
-        if not all(dim in ds.dims for dim in keep):
+        if not all(dim in dims for dim in keep):
             raise ValueError(
                 f"Slicer plot: one or more of the requested dims to be kept {keep} "
-                f"were not found in the input's dimensions {ds.dims}."
+                f"were not found in the input's dimensions {dims}."
             )
 
         if autoscale == 'fixed':
@@ -87,24 +109,25 @@ class Slicer:
                     RuntimeWarning,
                 )
             if vmin is None:
-                vmin = reduce(min, [da.data.min() for da in ds.values()])
+                vmin = reduce(min, [node().data.min() for node in nodes])
             if vmax is None:
-                vmax = reduce(max, [da.data.max() for da in ds.values()])
+                vmax = reduce(max, [node().data.max() for node in nodes])
             autoscale = 'auto'  # Change back to something the figure understands
 
         from ..widgets import SliceWidget, slice_dims
 
-        self.data_nodes = [Node(da) for da in ds.values()]
-
-        self.slider = SliceWidget(ds, dims=[dim for dim in ds.dims if dim not in keep])
+        self.slider = SliceWidget(
+            nodes[0](), dims=[dim for dim in dims if dim not in keep]
+        )
         self.slider_node = widget_node(self.slider)
-        self.slice_nodes = [
-            slice_dims(data_node, self.slider_node) for data_node in self.data_nodes
-        ]
+        self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
+
         ndims = len(keep)
         if ndims == 1:
             make_figure = figure1d
         elif ndims == 2:
+            if len(self.slice_nodes) > 1:
+                raise_multiple_inputs_for_2d_plot_error(origin='slicer')
             make_figure = figure2d
         else:
             raise ValueError(
@@ -121,10 +144,11 @@ class Slicer:
 
 
 def slicer(
-    obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
-    keep: List[str] = None,
+    obj: PlottableMulti,
     *,
+    keep: List[str] = None,
     autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
+    coords: Optional[List[str]] = None,
     vmin: Union[VariableLike, int, float] = None,
     vmax: Union[VariableLike, int, float] = None,
     **kwargs,
@@ -148,6 +172,8 @@ def slicer(
         If ``grow``, the limits are allowed to grow with time but they do not shrink.
         If ``fixed``, the limits are fixed to the full data range and do not change
         with time.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
     vmin:
         The minimum value of the y-axis (1d plots) or color range (2d plots).
     vmax:
@@ -162,11 +188,12 @@ def slicer(
     """
     require_interactive_backend('slicer')
     sl = Slicer(
-        obj=obj,
+        obj,
         keep=keep,
         autoscale=autoscale,
         vmin=vmin,
         vmax=vmax,
+        coords=coords,
         **kwargs,
     )
     from ..widgets import Box

@@ -218,7 +218,7 @@ linkcheck_ignore = [
 ]
 
 # -- Options for nbsphinx gallery------------------------------------------
-notebook_root = os.path.join('examples', 'gallery')
+notebook_root = 'gallery'
 thumbnail_root = os.path.join('_static', 'gallery')
 nbsphinx_thumbnails = {
     os.path.join(notebook_root, 'nyc-taxi'): os.path.join(

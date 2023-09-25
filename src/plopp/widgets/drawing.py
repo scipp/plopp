@@ -100,6 +100,7 @@ class DrawingTool(ToggleTool):
         output_node = self._output_nodes[nodeid]
         if self._destination_is_fig:
             self._destination.artists[output_node.id].remove()
+            del self._destination.artists[output_node.id]
         output_node.remove()
         draw_node.remove()
 

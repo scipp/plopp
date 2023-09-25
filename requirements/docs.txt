@@ -107,7 +107,7 @@ mdurl==0.1.2
     # via markdown-it-py
 mistune==3.0.1
     # via nbconvert
-mpltoolbox==23.7.0
+mpltoolbox==23.9.0
     # via -r requirements/docs.in
 myst-parser==2.0.0
     # via -r requirements/docs.in

@@ -1,19 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from functools import partial
 from typing import Dict, List, Literal, Optional, Tuple, Union
 
-from numpy import ndarray
 from scipp import Variable
-from scipp.typing import VariableLike
 
-from ..core import Node
+from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
-from .common import preprocess_multi
+from .common import input_to_nodes, preprocess, raise_multiple_inputs_for_2d_plot_error
 
 
 def plot(
-    obj: Union[VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]]],
+    obj: PlottableMulti,
     *,
     aspect: Literal['auto', 'equal'] = 'auto',
     cbar: bool = True,
@@ -102,11 +101,13 @@ def plot(
         **kwargs,
     }
 
-    data_arrays = preprocess_multi(obj, ignore_size=ignore_size, coords=coords)
+    nodes = input_to_nodes(
+        obj, processor=partial(preprocess, ignore_size=ignore_size, coords=coords)
+    )
 
     ndims = set()
-    for da in data_arrays:
-        ndims.add(da.ndim)
+    for n in nodes:
+        ndims.add(n().ndim)
     if len(ndims) > 1:
         raise ValueError(
             'All items given to the plot function must have the same '
@@ -115,23 +116,17 @@ def plot(
     ndim = ndims.pop()
     if ndim == 1:
         return figure1d(
-            *[Node(da) for da in data_arrays],
+            *nodes,
             errorbars=errorbars,
             mask_color=mask_color,
             legend=legend,
             **common_args,
         )
     elif ndim == 2:
-        if len(data_arrays) > 1:
-            raise ValueError(
-                'The plot function can only plot a single 2d data entry. If you want '
-                'to create multiple figures, see the documentation on subplots at '
-                'https://scipp.github.io/plopp/customization/subplots.html. If you '
-                'want to plot two images onto the same axes, use the lower-level '
-                'plopp.figure2d function.'
-            )
+        if len(nodes) > 1:
+            raise_multiple_inputs_for_2d_plot_error(origin='plot')
         return figure2d(
-            *[Node(da) for da in data_arrays],
+            *nodes,
             aspect=aspect,
             cbar=cbar,
             **common_args,

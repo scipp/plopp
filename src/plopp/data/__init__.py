@@ -15,6 +15,7 @@ from .factory import (
     histogram1d,
     histogram2d,
     histogram3d,
+    random,
     scatter,
     variable,
 )
