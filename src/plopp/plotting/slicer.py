@@ -14,8 +14,8 @@ from ..graphics import figure1d, figure2d
 from .common import (
     input_to_nodes,
     preprocess,
-    require_interactive_backend,
     raise_multiple_inputs_for_2d_plot_error,
+    require_interactive_backend,
 )
 
 
