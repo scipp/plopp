@@ -21,6 +21,10 @@ VisibleDeprecationWarning.__module__ = 'plopp'
 
 Plottable = Union[VariableLike, ndarray, Node]
 
-PlottableMulti = Union[
-    VariableLike, ndarray, Dict[str, Union[VariableLike, ndarray]], Node
+PlottableMulti = Union[Plottable, Dict[str, Plottable]]
+
+__all__ = [
+    'Plottable',
+    'PlottableMulti',
+    'VisibleDeprecationWarning',
 ]
