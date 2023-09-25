@@ -17,8 +17,10 @@ def input_node(obj: Any) -> Node:
     Create a simple node that returns the supplied object when data is requested from
     it. This node has no parents, and typically lives at the top of a graph to provide
     the raw input data.
+
     .. deprecated:: v23.04.0
        Use :class:`Node` instead.
+
     Parameters
     ----------
     obj:
