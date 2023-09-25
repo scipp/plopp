@@ -2,6 +2,7 @@
 graphviz
 ipympl
 kaleido
+mpltoolbox
 pandas
 plotly
 pytest

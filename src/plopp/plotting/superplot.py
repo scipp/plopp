@@ -1,17 +1,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import uuid
 from functools import partial
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
-import scipp as sc
 from matplotlib.colors import to_hex
-from numpy import ndarray
 
 from ..core import Node, View
+from ..core.typing import Plottable
 from ..core.utils import coord_element_to_string
-from .common import preprocess, require_interactive_backend
+from .common import require_interactive_backend
 from .slicer import Slicer
 
 
@@ -46,17 +44,19 @@ class LineSaveTool:
     def save_line(self, change: Dict[str, Any] = None):
         from ..widgets import ColorTool
 
-        line_id = uuid.uuid4().hex
         data = self._data_node.request_data()
-        self._fig.update(data, key=line_id)
-        slice_values = self._slider_node.request_data()
+        node = Node(data)
+        node.name = f'Save node {len(self._lines)}'
+        line_id = node._id
+        node.add_view(self._fig._view)
+        self._fig._view.render()
         text = ', '.join(
             f'{k}: {coord_element_to_string(data.coords[k])}'
-            for k, it in slice_values.items()
+            for k in self._slider_node.request_data()
         )
         line = self._fig.artists[line_id]
         tool = ColorTool(text=text, color=to_hex(line.color))
-        self._lines[line_id] = {'line': line, 'tool': tool}
+        self._lines[line_id] = {'line': line, 'tool': tool, 'node': node}
         self._update_container()
         tool.color.observe(
             partial(self.change_line_color, line_id=line_id), names='value'
@@ -68,6 +68,7 @@ class LineSaveTool:
 
     def remove_line(self, change: Dict[str, Any], line_id: str):
         self._lines[line_id]['line'].remove()
+        self._lines[line_id]['node'].remove()
         del self._lines[line_id]
         self._update_container()
 
@@ -100,18 +101,11 @@ class Superplot:
 
     def __init__(
         self,
-        obj: Union[sc.typing.VariableLike, ndarray],
+        obj: Plottable,
         keep: Optional[str] = None,
         **kwargs,
     ):
-        da = preprocess(obj, ignore_size=True)
-        if keep is None:
-            keep = da.dims[-1]
-        if isinstance(keep, (list, tuple)):
-            raise TypeError(
-                "The keep argument must be a single string, not a list or tuple."
-            )
-        self.slicer = Slicer(da, keep=[keep], **kwargs)
+        self.slicer = Slicer(obj, keep=keep, **kwargs)
         self.linesavetool = LineSaveTool(
             data_node=self.slicer.slice_nodes[0],
             slider_node=self.slicer.slider_node,
@@ -122,7 +116,7 @@ class Superplot:
 
 
 def superplot(
-    obj: Union[sc.typing.VariableLike, ndarray],
+    obj: Plottable,
     keep: Optional[str] = None,
     **kwargs,
 ):

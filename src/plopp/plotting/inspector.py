@@ -1,32 +1,41 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal, Union
+from typing import Dict, Literal
 
 import scipp as sc
-from numpy import ndarray
 
 from ..core import Node
+from ..core.typing import Plottable
 from ..core.utils import coord_as_bin_edges
 from ..graphics import figure1d, figure2d
 from .common import preprocess, require_interactive_backend
 
 
-def _slice_xy(da, xy):
-    x = xy['x']
-    y = xy['y']
-    return da[y['dim'], y['value']][x['dim'], x['value']]
+def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
+    """
+    Convert dimension coords to bin edges.
+    """
+    for d in set(da.dims) - {dim}:
+        da.coords[d] = coord_as_bin_edges(da, d)
+    return da
 
 
-def _apply_op(da, op, dim):
+def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
     out = getattr(sc, op)(da, dim=dim)
     if out.name:
         out.name = f'{op} of {out.name}'
     return out
 
 
+def _slice_xy(da: sc.DataArray, xy: Dict[str, Dict[str, int]]) -> sc.DataArray:
+    x = xy['x']
+    y = xy['y']
+    return da[y['dim'], y['value']][x['dim'], x['value']]
+
+
 def inspector(
-    obj: Union[ndarray, sc.Variable, sc.DataArray],
+    obj: Plottable,
     dim: str = None,
     *,
     operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
@@ -70,23 +79,19 @@ def inspector(
     :
         A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
-    if obj.ndim != 3:
-        raise ValueError(
-            'The inspector plot currently only work with '
-            f'three-dimensional data, found {obj.ndim} dims.'
-        )
     require_interactive_backend('inspector')
 
-    da = preprocess(obj, ignore_size=True)
-    in_node = Node(da)
+    in_node = Node(preprocess, obj, ignore_size=True)
+    data = in_node()
+    if data.ndim != 3:
+        raise ValueError(
+            'The inspector plot currently only works with '
+            f'three-dimensional data, found {data.ndim} dims.'
+        )
     if dim is None:
-        dim = da.dims[-1]
-
-    # Convert dimension coords to bin edges
-    for d in set(da.dims) - {dim}:
-        da.coords[d] = coord_as_bin_edges(da, d)
-
-    op_node = Node(_apply_op, da=in_node, op=operation, dim=dim)
+        dim = data.dims[-1]
+    bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
+    op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
     f2d = figure2d(op_node, **kwargs)
     f1d = figure1d()
 
@@ -94,7 +99,7 @@ def inspector(
 
     pts = PointsTool(
         figure=f2d,
-        input_node=in_node,
+        input_node=bin_edges_node,
         func=_slice_xy,
         destination=f1d,
         tooltip="Activate inspector tool",

@@ -2,21 +2,47 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from functools import partial
 from typing import Literal, Optional, Tuple, Union
 
 import scipp as sc
 
-from ..core import Node
+from ..core.typing import PlottableMulti
 from ..graphics import Camera
-from .common import check_not_binned, from_compatible_lib
+from .common import check_not_binned, from_compatible_lib, input_to_nodes
+
+
+def _to_variable(var, coords):
+    return coords[var] if isinstance(var, str) else var
+
+
+def _preprocess_scatter(obj, x, y, z, pos, name=None):
+    da = from_compatible_lib(obj)
+    check_not_binned(da)
+
+    if pos is not None:
+        pos = _to_variable(pos, coords=da.coords)
+        coords = {
+            x: pos.fields.x,
+            y: pos.fields.y,
+            z: pos.fields.z,
+        }
+    else:
+        coords = {k: _to_variable(k, coords=da.coords) for k in (x, y, z)}
+
+    out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
+    if out.ndim != 1:
+        out = out.flatten(to=uuid.uuid4().hex)
+    out.name = name
+    return out
 
 
 def scatter3d(
-    obj: sc.DataArray,
+    obj: PlottableMulti,
     *,
-    x: str = None,
-    y: str = None,
-    z: str = None,
+    x: str = 'x',
+    y: str = 'y',
+    z: str = 'z',
     pos: str = None,
     figsize: Tuple[int, int] = (600, 400),
     norm: Literal['linear', 'log'] = 'linear',
@@ -44,13 +70,10 @@ def scatter3d(
         The data array containing the data and the coordinates.
     x:
         The name of the coordinate that is to be used for the X positions.
-        Default is 'x'.
     y:
         The name of the coordinate that is to be used for the Y positions.
-        Default is 'y'.
     z:
         The name of the coordinate that is to be used for the Z positions.
-        Default is 'z'.
     pos:
         The name of the vector coordinate that is to be used for the positions.
     norm:
@@ -83,31 +106,12 @@ def scatter3d(
             'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'  # noqa: E501
         )
 
-    da = from_compatible_lib(obj)
-    check_not_binned(da)
+    nodes = input_to_nodes(
+        obj, processor=partial(_preprocess_scatter, x=x, y=y, z=z, pos=pos)
+    )
 
-    if pos is not None:
-        if any((x, y, z)):
-            raise ValueError(
-                f'If pos ({pos}) is defined, all of '
-                f'x ({x}), y ({y}), and z ({z}) must be None.'
-            )
-        coords = {
-            (x := f'{pos}.x'): da.coords[pos].fields.x,
-            (y := f'{pos}.y'): da.coords[pos].fields.y,
-            (z := f'{pos}.z'): da.coords[pos].fields.z,
-        }
-    else:
-        x = x if x is not None else 'x'
-        y = y if y is not None else 'y'
-        z = z if z is not None else 'z'
-        coords = {k: da.coords[k] for k in (x, y, z)}
-
-    to_plot = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
-    if to_plot.ndim != 1:
-        to_plot = to_plot.flatten(to=uuid.uuid4().hex)
     fig = figure3d(
-        Node(to_plot),
+        *nodes,
         x=x,
         y=y,
         z=z,
