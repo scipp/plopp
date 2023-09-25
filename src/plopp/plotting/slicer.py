@@ -11,7 +11,7 @@ from scipp.typing import VariableLike
 from ..core import widget_node
 from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
-from .common import inputs_to_nodes, preprocess, require_interactive_backend
+from .common import input_to_nodes, preprocess, require_interactive_backend
 
 
 class Slicer:
@@ -54,7 +54,8 @@ class Slicer:
 
     def __init__(
         self,
-        *inputs: PlottableMulti,
+        obj: PlottableMulti,
+        *,
         keep: List[str] = None,
         autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
         coords: Optional[List[str]] = None,
@@ -62,8 +63,8 @@ class Slicer:
         vmax: Union[VariableLike, int, float] = None,
         **kwargs,
     ):
-        nodes = inputs_to_nodes(
-            *inputs, processor=partial(preprocess, ignore_size=True, coords=coords)
+        nodes = input_to_nodes(
+            obj, processor=partial(preprocess, ignore_size=True, coords=coords)
         )
 
         dims = nodes[0]().dims
@@ -136,7 +137,8 @@ class Slicer:
 
 
 def slicer(
-    *inputs: PlottableMulti,
+    obj: PlottableMulti,
+    *,
     keep: List[str] = None,
     autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
     coords: Optional[List[str]] = None,
@@ -150,8 +152,8 @@ def slicer(
 
     Parameters
     ----------
-    inputs:
-        The data objects to be plotted.
+    obj:
+        The object to be plotted.
     keep:
         The dimensions to be kept, all remaining dimensions will be sliced. This should
         be a list of dims. If no dims are provided, the last dim will be kept in the
@@ -179,7 +181,7 @@ def slicer(
     """
     require_interactive_backend('slicer')
     sl = Slicer(
-        *inputs,
+        obj,
         keep=keep,
         autoscale=autoscale,
         vmin=vmin,

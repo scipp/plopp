@@ -9,7 +9,7 @@ import scipp as sc
 
 from ..core.typing import PlottableMulti
 from ..graphics import Camera
-from .common import check_not_binned, from_compatible_lib, inputs_to_nodes
+from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
 
 def _to_variable(var, coords):
@@ -38,7 +38,8 @@ def _preprocess_scatter(obj, x, y, z, pos, name=None):
 
 
 def scatter3d(
-    *inputs: PlottableMulti,
+    obj: PlottableMulti,
+    *,
     x: str = 'x',
     y: str = 'y',
     z: str = 'z',
@@ -105,8 +106,8 @@ def scatter3d(
             'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'  # noqa: E501
         )
 
-    nodes = inputs_to_nodes(
-        *inputs, processor=partial(_preprocess_scatter, x=x, y=y, z=z, pos=pos)
+    nodes = input_to_nodes(
+        obj, processor=partial(_preprocess_scatter, x=x, y=y, z=z, pos=pos)
     )
 
     fig = figure3d(

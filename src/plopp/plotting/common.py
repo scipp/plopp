@@ -24,6 +24,17 @@ def require_interactive_backend(func: str):
         )
 
 
+def is_pandas_series(obj: Any) -> bool:
+    """
+    Check if an object is a pandas series.
+    """
+    try:
+        import pandas as pd
+    except ImportError:
+        return False
+    return isinstance(obj, pd.Series)
+
+
 def from_compatible_lib(obj: Any) -> Any:
     """
     Convert from a compatible library, if possible.
@@ -176,21 +187,25 @@ def preprocess(
     return out
 
 
-def inputs_to_nodes(*inputs: PlottableMulti, processor: Callable) -> List[Node]:
+def input_to_nodes(obj: PlottableMulti, processor: Callable) -> List[Node]:
     """
     Convert a list of inputs or dicts of inputs to a flat list of nodes.
 
     Parameters
     ----------
-    inputs:
-        The inputs to be converted to nodes.
+    obj:
+        The input(s) to be converted to nodes.
     processor:
         The function that will be applied to each input to convert it to a node.
     """
-    flat_inputs = []
-    for inp in inputs:
-        if hasattr(inp, 'items') and (not hasattr(inp, 'between')):
-            flat_inputs.extend(inp.items())
+    if hasattr(obj, 'items') and not is_pandas_series(obj):
+        to_nodes = obj.items()
+    else:
+        to_nodes = [('', obj)]
+    nodes = [Node(processor, inp, name=name) for name, inp in to_nodes]
+    for node in nodes:
+        if hasattr(processor, 'func'):
+            node.name = processor.func.__name__
         else:
-            flat_inputs.append(('', inp))
-    return [Node(processor, inp, name=name) for name, inp in flat_inputs]
+            node.name = 'Preprocess data'
+    return nodes

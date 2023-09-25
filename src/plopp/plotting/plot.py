@@ -8,11 +8,12 @@ from scipp import Variable
 
 from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
-from .common import inputs_to_nodes, preprocess
+from .common import input_to_nodes, preprocess
 
 
 def plot(
-    *inputs: PlottableMulti,
+    obj: PlottableMulti,
+    *,
     aspect: Literal['auto', 'equal'] = 'auto',
     cbar: bool = True,
     coords: Optional[List[str]] = None,
@@ -34,8 +35,8 @@ def plot(
 
     Parameters
     ----------
-    inputs:
-        The data objects to be plotted.
+    obj:
+        The object to be plotted.
     aspect:
         Aspect ratio for the axes.
     cbar:
@@ -100,8 +101,8 @@ def plot(
         **kwargs,
     }
 
-    nodes = inputs_to_nodes(
-        *inputs, processor=partial(preprocess, ignore_size=ignore_size, coords=coords)
+    nodes = input_to_nodes(
+        obj, processor=partial(preprocess, ignore_size=ignore_size, coords=coords)
     )
 
     ndims = set()
