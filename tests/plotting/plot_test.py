@@ -65,10 +65,10 @@ def test_plot_from_node(ndim):
     pp.plot(pp.Node(da))
 
 
-def test_plot_multiple_inputs():
+def test_plot_multiple_inputs_raises():
     da = data_array(ndim=1)
-    pp.plot(da, 3.3 * da)
-    pp.plot(pp.Node(da), pp.Node(3.3 * da))
+    with pytest.raises(TypeError, match='takes 1 positional argument'):
+        pp.plot(da, 3.3 * da)
 
 
 def test_plot_dict_of_nodes():
@@ -77,11 +77,9 @@ def test_plot_dict_of_nodes():
     pp.plot({'a': pp.Node(a), 'b': pp.Node(b)})
 
 
-def test_plot_multiple_inputs_mixing_raw_data_and_nodes():
+def test_plot_mixing_raw_data_and_nodes():
     a = data_array(ndim=1)
     b = 13.3 * a
-    pp.plot(pp.Node(a), b)
-    pp.plot(a, pp.Node(b))
     pp.plot({'a': a, 'b': pp.Node(b)})
     pp.plot({'a': pp.Node(a), 'b': b})
 

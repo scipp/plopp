@@ -189,7 +189,8 @@ def preprocess(
 
 def input_to_nodes(obj: PlottableMulti, processor: Callable) -> List[Node]:
     """
-    Convert a list of inputs or dicts of inputs to a flat list of nodes.
+    Convert an input or dict of inputs to a list of nodes that provide pre-processed
+    data.
 
     Parameters
     ----------

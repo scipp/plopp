@@ -112,25 +112,12 @@ def test_from_node(ndim):
     Slicer(Node(da))
 
 
-def test_multiple_inputs():
-    da = data_array(ndim=2)
-    Slicer(da, 3.3 * da)
-    Slicer(Node(da), Node(3.3 * da))
-
-
-def test_plot_dict_of_nodes():
+def test_mixing_raw_data_and_nodes():
     a = data_array(ndim=2)
     b = 6.7 * a
     Slicer({'a': Node(a), 'b': Node(b)})
     Slicer({'a': a, 'b': Node(b)})
     Slicer({'a': Node(a), 'b': b})
-
-
-def test_plot_multiple_inputs_mixing_raw_data_and_nodes():
-    a = data_array(ndim=2)
-    b = 13.3 * a
-    Slicer(Node(a), b)
-    Slicer(a, Node(b))
 
 
 def test_raises_when_requested_keep_dims_do_not_exist():
