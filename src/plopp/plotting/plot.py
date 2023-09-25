@@ -8,7 +8,7 @@ from scipp import Variable
 
 from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
-from .common import input_to_nodes, preprocess
+from .common import input_to_nodes, preprocess, raise_multiple_inputs_for_2d_plot_error
 
 
 def plot(
@@ -124,13 +124,7 @@ def plot(
         )
     elif ndim == 2:
         if len(nodes) > 1:
-            raise ValueError(
-                'The plot function can only plot a single 2d data entry. If you want '
-                'to create multiple figures, see the documentation on subplots at '
-                'https://scipp.github.io/plopp/customization/subplots.html. If you '
-                'want to plot two images onto the same axes, use the lower-level '
-                'plopp.figure2d function.'
-            )
+            raise_multiple_inputs_for_2d_plot_error(origin='plot')
         return figure2d(
             *nodes,
             aspect=aspect,

@@ -79,16 +79,17 @@ def inspector(
     :
         A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
-    if obj.ndim != 3:
-        raise ValueError(
-            'The inspector plot currently only work with '
-            f'three-dimensional data, found {obj.ndim} dims.'
-        )
     require_interactive_backend('inspector')
 
     in_node = Node(preprocess, obj, ignore_size=True)
+    data = in_node()
+    if data.ndim != 3:
+        raise ValueError(
+            'The inspector plot currently only works with '
+            f'three-dimensional data, found {data.ndim} dims.'
+        )
     if dim is None:
-        dim = in_node().dims[-1]
+        dim = data.dims[-1]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
     f2d = figure2d(op_node, **kwargs)

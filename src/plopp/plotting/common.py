@@ -210,3 +210,21 @@ def input_to_nodes(obj: PlottableMulti, processor: Callable) -> List[Node]:
         else:
             node.name = 'Preprocess data'
     return nodes
+
+
+def raise_multiple_inputs_for_2d_plot_error(origin):
+    """
+    Raise an error if the user tries to plot multiple 2d data entries.
+
+    Parameters
+    ----------
+    origin:
+        The name of the function that called this function.
+    """
+    raise ValueError(
+        f'The {origin} function can only plot a single 2d data entry. If you want '
+        'to create multiple figures, see the documentation on subplots at '
+        'https://scipp.github.io/plopp/customization/subplots.html. If you '
+        'want to plot two images onto the same axes, use the lower-level '
+        'plopp.figure2d function.'
+    )

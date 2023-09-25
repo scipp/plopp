@@ -11,7 +11,12 @@ from scipp.typing import VariableLike
 from ..core import widget_node
 from ..core.typing import PlottableMulti
 from ..graphics import figure1d, figure2d
-from .common import input_to_nodes, preprocess, require_interactive_backend
+from .common import (
+    input_to_nodes,
+    preprocess,
+    require_interactive_backend,
+    raise_multiple_inputs_for_2d_plot_error,
+)
 
 
 class Slicer:
@@ -121,6 +126,8 @@ class Slicer:
         if ndims == 1:
             make_figure = figure1d
         elif ndims == 2:
+            if len(self.slice_nodes) > 1:
+                raise_multiple_inputs_for_2d_plot_error(origin='slicer')
             make_figure = figure2d
         else:
             raise ValueError(
