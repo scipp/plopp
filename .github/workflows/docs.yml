@@ -10,7 +10,7 @@ on:
         default: false
         type: boolean
       version:
-        default: ${{ github.ref_name }}
+        default: ''
         required: false
         type: string
       branch:
@@ -24,7 +24,7 @@ on:
         default: false
         type: boolean
       version:
-        default: ${{ github.ref_name }}
+        default: ''
         required: false
         type: string
       branch:
