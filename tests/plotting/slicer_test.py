@@ -4,6 +4,7 @@
 import pytest
 import scipp as sc
 
+from plopp import Node
 from plopp.data.testing import data_array, dataset
 from plopp.plotting.slicer import Slicer
 
@@ -77,18 +78,46 @@ def test_with_dict_of_data_arrays():
     assert sc.identical(nodes[1].request_data(), b['yy', 5])
 
 
-def test_with_mismatching_data_arrays_raises():
+def test_with_data_arrays_same_shape_different_coord():
     a = data_array(ndim=2)
     b = data_array(ndim=2) * 2.5
-    b.coords['xx'] *= 1.1
-    with pytest.raises(sc.DatasetError):
-        Slicer({'a': a, 'b': b}, keep=['xx'])
+    b.coords['xx'] *= 1.5
+    Slicer({'a': a, 'b': b}, keep=['xx'])
+
+
+def test_with_data_arrays_different_shape_along_keep_dim():
+    a = data_array(ndim=2)
+    b = data_array(ndim=2) * 2.5
+    Slicer({'a': a, 'b': b['xx', :10]}, keep=['xx'])
+
+
+def test_with_data_arrays_different_shape_along_non_keep_dim_raises():
+    a = data_array(ndim=2)
+    b = data_array(ndim=2) * 2.5
+    with pytest.raises(
+        ValueError, match='Slicer plot: all inputs must have the same sizes'
+    ):
+        Slicer({'a': a, 'b': b['yy', :10]}, keep=['xx'])
 
 
 def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         Slicer(da, keep=['xx'])
+
+
+@pytest.mark.parametrize('ndim', [2, 3])
+def test_from_node(ndim):
+    da = data_array(ndim=ndim)
+    Slicer(Node(da))
+
+
+def test_mixing_raw_data_and_nodes():
+    a = data_array(ndim=2)
+    b = 6.7 * a
+    Slicer({'a': Node(a), 'b': Node(b)})
+    Slicer({'a': a, 'b': Node(b)})
+    Slicer({'a': Node(a), 'b': b})
 
 
 def test_raises_when_requested_keep_dims_do_not_exist():

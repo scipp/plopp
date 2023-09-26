@@ -24,7 +24,6 @@
    core.Node
    core.View
    core.node
-   core.input_node
    core.widget_node
    core.show_graph
 ```

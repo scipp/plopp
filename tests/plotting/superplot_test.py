@@ -3,6 +3,7 @@
 import pytest
 import scipp as sc
 
+from plopp import Node
 from plopp.data.testing import data_array
 from plopp.plotting.superplot import Superplot
 
@@ -11,6 +12,11 @@ def test_creation():
     da = data_array(ndim=2)
     sp = Superplot(da, keep='xx')
     assert len(sp.linesavetool._lines) == 0
+
+
+def test_from_node():
+    da = data_array(ndim=2)
+    Superplot(Node(da))
 
 
 def test_save_line():

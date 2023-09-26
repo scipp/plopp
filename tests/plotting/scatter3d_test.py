@@ -24,12 +24,6 @@ def test_scatter3d_from_xyz_using_defaults():
     pp.scatter3d(da)
 
 
-def test_scatter3d_raises_with_both_pos_and_xyz():
-    da = scatter()
-    with pytest.raises(ValueError, match=r'If pos \(position\) is defined, all of'):
-        pp.scatter3d(da, pos='position', x='x', y='y', z='z')
-
-
 def test_scatter3d_dimensions_are_flattened():
     nx = 12
     ny = 12
@@ -88,3 +82,30 @@ def test_scatter3d_from_xarray():
         dims=['pixel'],
     )
     pp.scatter3d(da, x='x', y='y', z='z')
+
+
+def test_scatter3d_dict_of_inputs():
+    da1 = scatter()
+    da2 = scatter()
+    da2.coords['x'] += sc.scalar(100, unit='m')
+    fig = pp.scatter3d({'a': da1, 'b': da2})
+    assert len(fig[0].artists) == 2
+
+
+def test_scatter3d_from_node():
+    pp.scatter3d(pp.Node(scatter()))
+
+
+def test_scatter3d_from_multiple_nodes():
+    a = scatter()
+    b = scatter()
+    b.coords['x'] += sc.scalar(100, unit='m')
+    pp.scatter3d({'a': pp.Node(a), 'b': pp.Node(b)})
+
+
+def test_scatter3d_mixing_raw_data_and_nodes():
+    a = scatter()
+    b = scatter()
+    b.coords['x'] += sc.scalar(100, unit='m')
+    pp.scatter3d({'a': a, 'b': pp.Node(b)})
+    pp.scatter3d({'a': pp.Node(a), 'b': b})

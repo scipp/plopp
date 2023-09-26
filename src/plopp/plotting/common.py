@@ -2,13 +2,14 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
-from collections.abc import Mapping
-from typing import Any, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 import numpy as np
 import scipp as sc
 
 from .. import backends
+from ..core import Node
+from ..core.typing import Plottable, PlottableMulti
 
 
 def require_interactive_backend(func: str):
@@ -23,6 +24,17 @@ def require_interactive_backend(func: str):
         )
 
 
+def is_pandas_series(obj: Any) -> bool:
+    """
+    Check if an object is a pandas series.
+    """
+    try:
+        import pandas as pd
+    except ImportError:
+        return False
+    return isinstance(obj, pd.Series)
+
+
 def from_compatible_lib(obj: Any) -> Any:
     """
     Convert from a compatible library, if possible.
@@ -35,7 +47,7 @@ def from_compatible_lib(obj: Any) -> Any:
 
 
 def _to_data_array(
-    obj: Union[list, np.ndarray, sc.Variable, sc.DataArray]
+    obj: Union[Plottable, list],
 ) -> sc.DataArray:
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
@@ -116,7 +128,7 @@ def _all_dims_sorted(var, order='ascending'):
 
 
 def preprocess(
-    obj: Union[np.ndarray, sc.Variable, sc.DataArray],
+    obj: Union[Plottable, list],
     name: str = '',
     ignore_size: bool = False,
     coords: Optional[List[str]] = None,
@@ -175,18 +187,44 @@ def preprocess(
     return out
 
 
-def preprocess_multi(obj, **kwargs) -> List[sc.DataArray]:
+def input_to_nodes(obj: PlottableMulti, processor: Callable) -> List[Node]:
     """
-    Pre-process potentially multiple input data for plotting.
-    See :func:`preprocess` for details.
+    Convert an input or dict of inputs to a list of nodes that provide pre-processed
+    data.
 
     Parameters
     ----------
     obj:
-        The input objects that will be converted to data arrays.
+        The input(s) to be converted to nodes.
+    processor:
+        The function that will be applied to each input to convert it to a node.
     """
-    to_preprocess = from_compatible_lib(obj)
-    if isinstance(to_preprocess, (Mapping, sc.Dataset)):
-        return [preprocess(item, name=name, **kwargs) for name, item in obj.items()]
+    if hasattr(obj, 'items') and not is_pandas_series(obj):
+        to_nodes = obj.items()
     else:
-        return [preprocess(obj, **kwargs)]
+        to_nodes = [('', obj)]
+    nodes = [Node(processor, inp, name=name) for name, inp in to_nodes]
+    for node in nodes:
+        if hasattr(processor, 'func'):
+            node.name = processor.func.__name__
+        else:
+            node.name = 'Preprocess data'
+    return nodes
+
+
+def raise_multiple_inputs_for_2d_plot_error(origin):
+    """
+    Raise an error if the user tries to plot multiple 2d data entries.
+
+    Parameters
+    ----------
+    origin:
+        The name of the function that called this function.
+    """
+    raise ValueError(
+        f'The {origin} function can only plot a single 2d data entry. If you want '
+        'to create multiple figures, see the documentation on subplots at '
+        'https://scipp.github.io/plopp/customization/subplots.html. If you '
+        'want to plot two images onto the same axes, use the lower-level '
+        'plopp.figure2d function.'
+    )

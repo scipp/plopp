@@ -4,38 +4,10 @@
 from __future__ import annotations
 
 import uuid
-import warnings
 from itertools import chain
 from typing import Any, Union
 
-from .system import VisibleDeprecationWarning
 from .view import View
-
-
-# TODO: Remove this in v23.05.0
-def input_node(obj: Any) -> Node:
-    """
-    Create a simple node that returns the supplied object when data is requested from
-    it. This node has no parents, and typically lives at the top of a graph to provide
-    the raw input data.
-
-    .. deprecated:: v23.04.0
-       Use :class:`Node` instead.
-
-    Parameters
-    ----------
-    obj:
-        The object to return when data is requested from the node.
-    """
-    warnings.warn(
-        "plopp.input_node has been deprecated "
-        "and will be removed in Plopp v23.05.0. "
-        "Use plopp.Node instead.",
-        VisibleDeprecationWarning,
-    )
-    n = Node(lambda: obj)
-    n.name = f'Input <{type(obj).__name__}>'
-    return n
 
 
 class Node:
