@@ -39,7 +39,8 @@ def xyplot(
     Parameters
     ----------
     x:
-        The variable to use as the coordinates for the horizontal axis. Must be one-dimensional.
+        The variable to use as the coordinates for the horizontal axis.
+        Must be one-dimensional.
     y:
         The variable to use as the data for the vertical axis. Must be one-dimensional.
     **kwargs:
@@ -49,5 +50,5 @@ def xyplot(
     y = Node(to_variable, y)
     dim = x().dim
     if dim != y().dim:
-        raise sc.DimensionError(f"Dimensions of x and y must match")
+        raise sc.DimensionError("Dimensions of x and y must match")
     return figure1d(Node(_make_data_array, x=x, y=y), **kwargs)
