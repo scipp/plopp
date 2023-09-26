@@ -13,6 +13,7 @@
    superplot
    inspector
    scatter3d
+   xyplot
 ```
 
 ## Core

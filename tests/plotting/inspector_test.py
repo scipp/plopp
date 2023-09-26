@@ -18,7 +18,7 @@ def test_from_node(use_ipympl):
 
 def test_multiple_inputs_raises(use_ipympl):
     da = pp.data.data3d()
-    with pytest.raises(ValueError, match='Cannot convert input of type'):
+    with pytest.raises(TypeError, match='Cannot convert input of type'):
         pp.inspector({'a': da, 'b': 2.3 * da})
 
 
