@@ -4,7 +4,8 @@
 import scipp as sc
 
 from .common import to_variable
-from .plot import plot
+from ..core import Node
+from ..graphics import figure1d
 
 
 def xyplot(x: sc.Variable, y: sc.Variable, **kwargs):
@@ -22,9 +23,11 @@ def xyplot(x: sc.Variable, y: sc.Variable, **kwargs):
     **kwargs
         See :py:func:`plopp.plot`.
     """
-    x = to_variable(x)
-    y = to_variable(y)
-    if x.dim != y.dim:
-        raise sc.DimensionError(f"Dimensions of x ({x.dim}) and y ({y.dim}) must match")
-    da = sc.DataArray(data=y, coords={x.dim: x})
-    return plot(da, **kwargs)
+    x = Node(to_variable, x)
+    y = Node(to_variable, y)
+    dim = x().dim
+    if dim != y().dim:
+        raise sc.DimensionError(f"Dimensions of x and y must match")
+    da = Node(lambda x, y: sc.DataArray(data=y, coords={dim: x}), x=x, y=y)
+    da.name = 'Make DataArray'
+    return figure1d(da, **kwargs)

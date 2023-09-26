@@ -32,7 +32,7 @@ def test_xyplot_list():
 def test_xyplot_different_dims_raises():
     x = sc.arange('x', 20.0, unit='s')
     y = sc.arange('y', 100.0, 120.0, unit='K')
-    with pytest.raises(sc.DimensionError, match='Dimensions .* must match'):
+    with pytest.raises(sc.DimensionError, match='Dimensions of x and y must match'):
         pp.xyplot(x, y)
 
 
@@ -69,3 +69,11 @@ def test_xyplot_bin_edges():
     fig = pp.xyplot(x, y)
     line = list(fig.artists.values())[0]
     assert len(line._line.get_xdata()) == 21
+
+
+def test_xyplot_from_nodes():
+    x = sc.arange('time', 20.0, unit='s')
+    y = sc.arange('time', 100.0, 120.0, unit='K')
+    pp.xyplot(pp.Node(x), y)
+    pp.xyplot(x, pp.Node(y))
+    pp.xyplot(pp.Node(x), pp.Node(y))
