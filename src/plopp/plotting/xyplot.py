@@ -11,6 +11,8 @@ def xyplot(x: sc.Variable, y: sc.Variable, **kwargs):
     """
     Make a one-dimensional plot of one variable ``y`` as a function of another ``x``.
 
+    .. versionadded:: <TODO:VERSION>
+
     Parameters
     ----------
     x:
