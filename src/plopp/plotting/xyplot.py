@@ -24,6 +24,7 @@ def xyplot(x: sc.Variable, y: sc.Variable, **kwargs):
     """
     x = to_variable(x)
     y = to_variable(y)
-    dim = x.dim
-    da = sc.DataArray(data=y.rename_dims({y.dim: dim}), coords={x.dim: x})
+    if x.dim != y.dim:
+        raise sc.DimensionError(f"Dimensions of x ({x.dim}) and y ({y.dim}) must match")
+    da = sc.DataArray(data=y, coords={x.dim: x})
     return plot(da, **kwargs)

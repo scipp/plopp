@@ -10,7 +10,7 @@ import plopp as pp
 
 def test_xyplot_variable():
     x = sc.arange('time', 20.0, unit='s')
-    y = sc.arange('x', 100.0, 120.0, unit='K')
+    y = sc.arange('time', 100.0, 120.0, unit='K')
     fig = pp.xyplot(x, y)
     assert fig.canvas.xlabel == 'time [s]'
     assert fig.canvas.ylabel == '[K]'
@@ -18,21 +18,26 @@ def test_xyplot_variable():
 
 def test_xyplot_ndarray():
     N = 50
-    x = sc.arange('distance', float(N), unit='m')
-    y = sc.linspace('speed', -44.0, 44.0, N, unit='m/s')
-    pp.xyplot(x.values, y)
-    pp.xyplot(x, y.values)
+    x = np.arange(float(N))
+    y = np.linspace(-44.0, 44.0, N)
+    pp.xyplot(x, y)
 
 
 def test_xyplot_list():
-    x = sc.arange('time', 20.0, unit='s')
-    y = sc.arange('x', 100.0, 120.0, unit='K')
-    pp.xyplot(x.values.tolist(), y)
-    pp.xyplot(x, y.values.tolist())
+    x = [1, 2, 3, 4, 5]
+    y = [6, 7, 2, 0, 1]
+    pp.xyplot(x, y)
+
+
+def test_xyplot_different_dims_raises():
+    x = sc.arange('x', 20.0, unit='s')
+    y = sc.arange('y', 100.0, 120.0, unit='K')
+    with pytest.raises(sc.DimensionError, match='Dimensions .* must match'):
+        pp.xyplot(x, y)
 
 
 def test_xyplot_data_array_raises():
-    x = sc.arange('time', 20.0, unit='s')
+    x = sc.arange('x', 20.0, unit='s')
     y = pp.data.data1d()
     with pytest.raises(TypeError, match='Cannot convert input of type'):
         pp.xyplot(x, y)
@@ -41,8 +46,8 @@ def test_xyplot_data_array_raises():
 
 
 def test_xyplot_2d_variable_raises():
-    x = pp.data.data2d().data
-    y = sc.arange('time', 20.0, unit='s')
+    x = sc.arange('x', 50.0, unit='s')
+    y = pp.data.data2d().data
     with pytest.raises(sc.DimensionError, match='Expected 1 dimensions, got 2'):
         pp.xyplot(x, y)
     with pytest.raises(sc.DimensionError, match='Expected 1 dimensions, got 2'):
@@ -51,7 +56,7 @@ def test_xyplot_2d_variable_raises():
 
 def test_xyplot_variable_kwargs():
     x = sc.arange('time', 20.0, unit='s')
-    y = sc.arange('x', 100.0, 120.0, unit='K')
+    y = sc.arange('time', 100.0, 120.0, unit='K')
     fig = pp.xyplot(x, y, color='red', vmin=102.0, vmax=115.0)
     assert np.allclose(fig.canvas.yrange, [102.0, 115.0])
     line = list(fig.artists.values())[0]
@@ -60,7 +65,7 @@ def test_xyplot_variable_kwargs():
 
 def test_xyplot_bin_edges():
     x = sc.arange('time', 21.0, unit='s')
-    y = sc.arange('x', 100.0, 120.0, unit='K')
+    y = sc.arange('time', 100.0, 120.0, unit='K')
     fig = pp.xyplot(x, y)
     line = list(fig.artists.values())[0]
     assert len(line._line.get_xdata()) == 21
