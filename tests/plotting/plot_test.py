@@ -222,7 +222,7 @@ def test_raises_ValueError_when_given_unsupported_data_type():
     c = a * 3.0
     d = a * 4.0
     nested_dict = {'group1': {'a': a, 'b': b}, 'group2': {'c': c, 'd': d}}
-    with pytest.raises(ValueError, match='Cannot convert input of type'):
+    with pytest.raises(TypeError, match='Cannot convert input of type'):
         pp.plot(nested_dict)
 
 

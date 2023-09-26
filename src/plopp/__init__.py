@@ -17,7 +17,7 @@ backends = BackendManager()
 from . import data
 from .core import Node, View, node, show_graph, widget_node
 from .graphics import Camera, figure1d, figure2d, figure3d, tiled
-from .plotting import inspector, plot, scatter3d, slicer, superplot
+from .plotting import inspector, plot, scatter3d, slicer, superplot, xyplot
 
 
 def show():
@@ -51,4 +51,5 @@ __all__ = [
     'superplot',
     'tiled',
     'widget_node',
+    'xyplot',
 ]
