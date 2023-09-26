@@ -3,6 +3,7 @@
 
 # flake8: noqa E402, F401
 
+from .contour import contour
 from .inspector import inspector
 from .plot import plot
 from .scatter3d import scatter3d

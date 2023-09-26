@@ -72,6 +72,10 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
         from .imageview import ImageView
 
         return backends.figure2d(ImageView, *args, **kwargs)
+    elif style == 'contour':
+        from .contourview import ContourView
+
+        return backends.figure2d(ContourView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure2d.')
 

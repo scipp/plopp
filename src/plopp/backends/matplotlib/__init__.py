@@ -48,6 +48,14 @@ class MatplotlibBackend:
 
         return ImageMpl(*args, **kwargs)
 
+    def contour(self, *args, **kwargs):
+        """
+        See :class:`contour.Contour` for details.
+        """
+        from .contour import Contour as ContourMpl
+
+        return ContourMpl(*args, **kwargs)
+
     def figure1d(self, *args, **kwargs):
         """
         See :class:`static.StaticFig` and :class:`interactive.InteractiveFig` for

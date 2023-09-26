@@ -80,6 +80,13 @@ class BackendManager:
             raise ValueError(f'Unsupported backend \'{self["2d"]}\' for image (2D).')
         return _image(*args, **kwargs)
 
+    def contour(self, *args, **kwargs):
+        try:
+            _contour = self._backends['2d'].contour
+        except AttributeError:
+            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for contour (2D).')
+        return _contour(*args, **kwargs)
+
     def point_cloud(self, *args, **kwargs):
         try:
             _point_cloud = self._backends['3d'].point_cloud
