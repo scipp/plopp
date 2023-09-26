@@ -46,12 +46,11 @@ def from_compatible_lib(obj: Any) -> Any:
     return obj
 
 
-def _to_data_array(
-    obj: Union[Plottable, list],
-) -> sc.DataArray:
+def _maybe_to_variable(obj: Union[Plottable, list]) -> Plottable:
     """
-    Convert an input to a DataArray, potentially adding fake coordinates if they are
-    missing.
+    Attempt to convert the input to a Variable.
+    If the input is either a list or a numpy array, it will be converted.
+    Otherwise, the input will be returned unchanged.
     """
     out = obj
     if isinstance(out, list):
@@ -59,11 +58,43 @@ def _to_data_array(
     if isinstance(out, np.ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
         out = sc.Variable(dims=dims, values=out)
+    return out
+
+
+def to_variable(obj) -> sc.Variable:
+    """
+    Convert an input to a Variable. If the object returned by the conversion is not a
+    Variable, raise an error.
+
+    Parameters
+    ----------
+    obj:
+        The input object to be converted.
+    """
+    out = _maybe_to_variable(obj)
+    if not isinstance(out, sc.Variable):
+        raise TypeError(f"Cannot convert input of type {type(obj)} to a Variable.")
+    return out
+
+
+def to_data_array(
+    obj: Union[Plottable, list],
+) -> sc.DataArray:
+    """
+    Convert an input to a DataArray, potentially adding fake coordinates if they are
+    missing.
+
+    Parameters
+    ----------
+    obj:
+        The input object to be converted.
+    """
+    out = _maybe_to_variable(obj)
     if isinstance(out, sc.Variable):
         out = sc.DataArray(data=out)
     out = from_compatible_lib(out)
     if not isinstance(out, sc.DataArray):
-        raise ValueError(f"Cannot convert input of type {type(obj)} to a DataArray.")
+        raise TypeError(f"Cannot convert input of type {type(obj)} to a DataArray.")
     out = out.copy(deep=False)
     for dim, size in out.sizes.items():
         if dim not in out.coords:
@@ -152,7 +183,7 @@ def preprocess(
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     """
-    out = _to_data_array(obj)
+    out = to_data_array(obj)
     check_not_binned(out)
     check_allowed_dtypes(out)
     if not out.name:
