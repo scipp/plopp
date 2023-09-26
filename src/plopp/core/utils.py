@@ -131,7 +131,8 @@ def name_with_unit(var: sc.Variable, name: str = None) -> str:
     else:
         text = str(var.dims[-1])
     if var.unit is not None:
-        text += (" " if text else "") + f"[{var.unit}]"
+        unit_str = 'datetime' if var.dtype == sc.DType.datetime64 else var.unit
+        text += (" " if text else "") + f"[{unit_str}]"
     return text
 
 
