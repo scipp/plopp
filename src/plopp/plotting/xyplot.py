@@ -11,6 +11,21 @@ from ..graphics import figure1d
 from .common import to_variable
 
 
+def _make_data_array(x: sc.Variable, y: sc.Variable) -> sc.DataArray:
+    """
+    Make a data array from the supplied variables, using ``x`` as the coordinate and
+    ``y`` as the data.
+
+    Parameters
+    ----------
+    x:
+        The variable to use as the coordinate.
+    y:
+        The variable to use as the data.
+    """
+    return sc.DataArray(data=y, coords={x.dim: x})
+
+
 def xyplot(
     x: Union[sc.Variable, ndarray, list, Node],
     y: Union[sc.Variable, ndarray, list, Node],
@@ -35,6 +50,4 @@ def xyplot(
     dim = x().dim
     if dim != y().dim:
         raise sc.DimensionError(f"Dimensions of x and y must match")
-    da = Node(lambda x, y: sc.DataArray(data=y, coords={dim: x}), x=x, y=y)
-    da.name = 'Make DataArray'
-    return figure1d(da, **kwargs)
+    return figure1d(Node(_make_data_array, x=x, y=y), **kwargs)
