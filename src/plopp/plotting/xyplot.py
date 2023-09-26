@@ -1,14 +1,21 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import scipp as sc
+from typing import Union
 
-from .common import to_variable
+import scipp as sc
+from numpy import ndarray
+
 from ..core import Node
 from ..graphics import figure1d
+from .common import to_variable
 
 
-def xyplot(x: sc.Variable, y: sc.Variable, **kwargs):
+def xyplot(
+    x: Union[sc.Variable, ndarray, list, Node],
+    y: Union[sc.Variable, ndarray, list, Node],
+    **kwargs,
+):
     """
     Make a one-dimensional plot of one variable ``y`` as a function of another ``x``.
 
@@ -17,10 +24,10 @@ def xyplot(x: sc.Variable, y: sc.Variable, **kwargs):
     Parameters
     ----------
     x:
-        The variable to use as the coordinates for the horizontal axis.
+        The variable to use as the coordinates for the horizontal axis. Must be one-dimensional.
     y:
-        The variable to use as the data for the vertical axis.
-    **kwargs
+        The variable to use as the data for the vertical axis. Must be one-dimensional.
+    **kwargs:
         See :py:func:`plopp.plot`.
     """
     x = Node(to_variable, x)
