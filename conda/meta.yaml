@@ -24,6 +24,7 @@ test:
   requires:
     - ipympl
     - ipywidgets
+    - mpltoolbox
     - pandas
     - pytest
     - python-graphviz
