@@ -34,7 +34,7 @@ def xyplot(
     """
     Make a one-dimensional plot of one variable ``y`` as a function of another ``x``.
 
-    .. versionadded:: <TODO:VERSION>
+    .. versionadded:: 23.10.0
 
     Parameters
     ----------
