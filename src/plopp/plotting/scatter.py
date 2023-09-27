@@ -12,20 +12,23 @@ from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
 
+def _to_variable(var, coords):
+    return coords[var] if isinstance(var, str) else var
+
+
 def _preprocess_scatter(obj, x, y, z, pos, name=None):
     da = from_compatible_lib(obj)
     check_not_binned(da)
 
     if pos is not None:
-        if isinstance(pos, str):
-            pos = da.coords[pos]
+        pos = _to_variable(pos, coords=da.coords)
         coords = {
             x: pos.fields.x,
             y: pos.fields.y,
             z: pos.fields.z,
         }
     else:
-        coords = {k: da.coords[k] for k in (x, y, z)}
+        coords = {k: _to_variable(k, coords=da.coords) for k in (x, y, z)}
 
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
     if out.ndim != 1:
@@ -34,7 +37,7 @@ def _preprocess_scatter(obj, x, y, z, pos, name=None):
     return out
 
 
-def scatter3d(
+def scatter(
     obj: PlottableMulti,
     *,
     x: str = 'x',

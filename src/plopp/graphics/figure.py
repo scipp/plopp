@@ -39,9 +39,15 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     if style == 'line':
         from .lineview import LineView
 
-        return backends.figure1d(LineView, *args, **kwargs)
+        view = LineView
+    elif style == 'scatter':
+        from .scatterview import ScatterView
 
-    raise ValueError(f'Unsupported style={style} for figure1d.')
+        view = ScatterView
+    else:
+        raise ValueError(f'Unsupported style={style} for figure1d.')
+
+    return backends.figure1d(view, *args, **kwargs)
 
 
 def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
