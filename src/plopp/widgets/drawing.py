@@ -87,7 +87,7 @@ class DrawingTool(ToggleTool):
                 artist.color if hasattr(artist, 'color') else artist.edgecolor
             )
         elif isinstance(self._destination, Node):
-            self._destination.add_parent(output_node)
+            self._destination.add_parents(output_node)
             self._destination.notify_children(artist)
 
     def update_node(self, artist):

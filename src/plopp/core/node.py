@@ -120,19 +120,21 @@ class Node:
             self._data = self.func(*args, **kwargs)
         return self._data
 
-    def add_parent(self, parent: Node):
+    def add_parents(self, *parents: Node):
         """
-        Add a parent to the node.
+        Add one or more parents to the node.
         """
-        self.parents.append(parent)
-        parent.children.append(self)
+        for parent in parents:
+            self.parents.append(parent)
+            parent.children.append(self)
 
-    def add_kwparent(self, key: str, parent: Node):
+    def add_kwparents(self, **parents: Node):
         """
-        Add a keyword parent to the node.
+        Add one or more keyword parents to the node.
         """
-        self.kwparents[key] = parent
-        parent.children.append(self)
+        for key, parent in parents.items():
+            self.kwparents[key] = parent
+            parent.children.append(self)
 
     def add_view(self, view: View):
         """
