@@ -59,13 +59,13 @@ class DrawingTool(ToggleTool):
         super().__init__(callback=self.start_stop, value=value, **kwargs)
 
         self._figure = figure
-        self._destination_is_fig = is_figure(self._figure)
         self._input_node = input_node
         self._draw_nodes = {}
         self._output_nodes = {}
         self._func = func
         self._tool = tool(ax=self._figure.ax, autostart=False)
         self._destination = destination
+        self._destination_is_fig = is_figure(self._destination)
         self._get_artist_info = get_artist_info
         self._tool.on_create(self.make_node)
         self._tool.on_change(self.update_node)
@@ -88,6 +88,8 @@ class DrawingTool(ToggleTool):
             )
         elif isinstance(self._destination, Node):
             self._destination.parents.append(output_node)
+            output_node.add_child(self._destination)
+            self._destination.notify_children(artist)
 
     def update_node(self, artist):
         n = self._draw_nodes[artist.nodeid]
