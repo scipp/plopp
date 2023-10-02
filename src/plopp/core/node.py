@@ -44,7 +44,7 @@ class Node:
             key: p if isinstance(p, Node) else Node(p) for key, p in kwparents.items()
         }
         for parent in chain(self.parents, self.kwparents.values()):
-            parent.add_child(self)
+            parent.children.append(self)
         self._data = None
 
         if func_is_callable:
@@ -120,11 +120,19 @@ class Node:
             self._data = self.func(*args, **kwargs)
         return self._data
 
-    def add_child(self, child: Node):
+    def add_parent(self, parent: Node):
         """
-        Add a child to the node.
+        Add a parent to the node.
         """
-        self.children.append(child)
+        self.parents.append(parent)
+        parent.children.append(self)
+
+    def add_kwparent(self, key: str, parent: Node):
+        """
+        Add a keyword parent to the node.
+        """
+        self.kwparents[key] = parent
+        parent.children.append(self)
 
     def add_view(self, view: View):
         """
