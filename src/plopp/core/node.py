@@ -5,9 +5,19 @@ from __future__ import annotations
 
 import uuid
 from itertools import chain
-from typing import Any, Union
+from typing import Any, List, Union
 
 from .view import View
+
+
+def _no_replace_append(container: List[Node], item: Node, kind: str):
+    """
+    Append ``item`` to ``container`` if it is not already in it.
+    """
+    if item in container:
+        tpe = 'View' if kind == 'view' else 'Node'
+        raise ValueError(f"{tpe} {item} is already a {kind} in {container}.")
+    container.append(item)
 
 
 class Node:
@@ -43,8 +53,6 @@ class Node:
         self.kwparents = {
             key: p if isinstance(p, Node) else Node(p) for key, p in kwparents.items()
         }
-        for parent in chain(self.parents, self.kwparents.values()):
-            parent.children.append(self)
         self._data = None
 
         if func_is_callable:
@@ -60,6 +68,10 @@ class Node:
         else:
             val_str = f'={repr(func)}' if isinstance(func, (int, float, str)) else ""
             self.name = f'Input <{type(func).__name__}{val_str}>'
+
+        # Attempt to set children after setting name in case error message is needed
+        for parent in chain(self.parents, self.kwparents.values()):
+            _no_replace_append(parent.children, self, 'child')
 
     def __call__(self):
         return self.request_data()
@@ -125,8 +137,8 @@ class Node:
         Add one or more parents to the node.
         """
         for parent in parents:
-            self.parents.append(parent)
-            parent.children.append(self)
+            _no_replace_append(self.parents, parent, 'parent')
+            _no_replace_append(parent.children, self, 'child')
 
     def add_kwparents(self, **parents: Node):
         """
@@ -134,13 +146,13 @@ class Node:
         """
         for key, parent in parents.items():
             self.kwparents[key] = parent
-            parent.children.append(self)
+            _no_replace_append(parent.children, self, 'child')
 
     def add_view(self, view: View):
         """
         Add a view to the node.
         """
-        self.views.append(view)
+        _no_replace_append(self.views, view, 'view')
         view.graph_nodes[self.id] = self
 
     def notify_children(self, message: Any):
