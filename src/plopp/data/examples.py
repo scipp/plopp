@@ -49,13 +49,19 @@ def nyc_taxi() -> str:
     return get_path('nyc_taxi_data.h5')
 
 
-def three_bands():
+def three_bands(npeaks=200, per_peak=500, spread=30.0):
     """
     Generate a 2D dataset with three bands of peaks.
+
+    Parameters
+    ----------
+    npeaks:
+        Number of peaks.
+    per_peak:
+        Number of points per peak.
+    spread:
+        Standard deviation (spread or 'width') of the peaks.
     """
-    npeaks = 200
-    per_peak = 500
-    spread = 30.0
     ny = 300
     nx = 300
     rng = np.random.default_rng()
@@ -77,3 +83,35 @@ def three_bands():
         coords={'x': xcoord, 'y': ycoord},
     )
     return table.hist(y=300, x=300) + sc.scalar(1.0, unit='counts')
+
+
+def clusters3d(nclusters=100, npercluster=2000):
+    """
+    Generate a 3D dataset with clusters of points.
+
+    Parameters
+    ----------
+    nclusters:
+        Number of clusters.
+    npercluster:
+        Number of points per cluster.
+    """
+    position = np.zeros((nclusters, npercluster, 3))
+    values = np.zeros((nclusters, npercluster))
+
+    for n in range(nclusters):
+        center = 200.0 * (np.random.random(3) - 0.5)
+        r = 10.0 * np.random.normal(size=[npercluster, 3])
+        position[n, :] = r + center
+        values[n, :] = 1 / np.linalg.norm(r, axis=1) ** 2
+
+    return sc.DataArray(
+        data=sc.array(dims=['row'], values=values.flatten()),
+        coords={
+            'position': sc.vectors(
+                dims=['row'],
+                unit='m',
+                values=position.reshape(nclusters * npercluster, 3),
+            )
+        },
+    )
