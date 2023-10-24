@@ -3,6 +3,9 @@
 
 from functools import lru_cache
 
+import numpy as np
+import scipp as sc
+
 _version = '1'
 
 
@@ -44,3 +47,33 @@ def nyc_taxi() -> str:
     This data has been manipulated!
     """
     return get_path('nyc_taxi_data.h5')
+
+
+def three_bands():
+    """
+    Generate a 2D dataset with three bands of peaks.
+    """
+    npeaks = 200
+    per_peak = 500
+    spread = 30.0
+    ny = 300
+    nx = 300
+    rng = np.random.default_rng()
+    shape = (npeaks, per_peak)
+    x = np.empty(shape)
+    y = np.empty(shape)
+    xcenters = rng.uniform(0, nx, size=npeaks)
+    ycenters = rng.choice([ny / 4, ny / 2, 3 * ny / 4], size=npeaks)
+    spreads = rng.uniform(0, spread, size=npeaks)
+    for i, (xc, yc, sp) in enumerate(zip(xcenters, ycenters, spreads)):
+        xy = np.random.normal(loc=(xc, yc), scale=sp, size=[per_peak, 2])
+        x[i, :] = xy[:, 0]
+        y[i, :] = xy[:, 1]
+
+    xcoord = sc.array(dims=['row'], values=x.ravel(), unit='cm')
+    ycoord = sc.array(dims=['row'], values=y.ravel(), unit='cm')
+    table = sc.DataArray(
+        data=sc.ones(sizes=xcoord.sizes, unit='counts'),
+        coords={'x': xcoord, 'y': ycoord},
+    )
+    return table.hist(y=300, x=300) + sc.scalar(1.0, unit='counts')

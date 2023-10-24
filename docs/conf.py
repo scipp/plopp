@@ -236,4 +236,7 @@ nbsphinx_thumbnails = {
     os.path.join(notebook_root, 'scatter3d-with-slider'): os.path.join(
         thumbnail_root, 'scatter3d-with-slider-thumbnail.png'
     ),
+    os.path.join(notebook_root, 'interactive-masking'): os.path.join(
+        thumbnail_root, 'interactive-masking-thumbnail.png'
+    ),
 }
