@@ -220,20 +220,18 @@ linkcheck_ignore = [
 # -- Options for nbsphinx gallery------------------------------------------
 notebook_root = 'gallery'
 thumbnail_root = os.path.join('_static', 'gallery')
+gallery_notebooks = [
+    'nyc-taxi',
+    'masking-a-range',
+    'rectangle-selection',
+    'scatter3d-with-threshold',
+    'scatter3d-with-slider',
+    'interactive-masking',
+    'peeling-layers',
+]
 nbsphinx_thumbnails = {
-    os.path.join(notebook_root, 'nyc-taxi'): os.path.join(
-        thumbnail_root, 'nyc-taxi-thumbnail.png'
-    ),
-    os.path.join(notebook_root, 'masking-a-range'): os.path.join(
-        thumbnail_root, 'masking-a-range-thumbnail.png'
-    ),
-    os.path.join(notebook_root, 'rectangle-selection'): os.path.join(
-        thumbnail_root, 'rectangle-selection-thumbnail.png'
-    ),
-    os.path.join(notebook_root, 'scatter3d-with-threshold'): os.path.join(
-        thumbnail_root, 'scatter3d-with-threshold-thumbnail.png'
-    ),
-    os.path.join(notebook_root, 'scatter3d-with-slider'): os.path.join(
-        thumbnail_root, 'scatter3d-with-slider-thumbnail.png'
-    ),
+    os.path.join(notebook_root, notebook): os.path.join(
+        thumbnail_root, f'{notebook}-thumbnail.png'
+    )
+    for notebook in gallery_notebooks
 }
