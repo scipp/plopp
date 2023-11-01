@@ -44,3 +44,8 @@ class Figure(BaseFig):
         from .tiled import vstack
 
         return vstack(self, other)
+
+    def __sub__(self, other):
+        from .residual import residual
+
+        return residual(self, other)
