@@ -20,12 +20,19 @@ def residual(main_fig, reference):
     with silent_mpl_figure():
         fig = plt.figure(figsize=(6.0, 4.0))
     main_ax = fig.add_axes([0.1, 0.3, 1.0, 0.7])
-    res_ax = fig.add_axes([0.1, 0.0, 1.0, 0.3])
+    res_ax = fig.add_axes([0.1, 0.0, 1.0, 0.3], sharex=main_ax)
     main_view = copy_figure(main_fig, ax=main_ax)
+    main_canvas = main_view._view.canvas
+    if main_canvas.is_widget():
+        fig.canvas.toolbar_visible = False
+        fig.canvas.header_visible = False
     ref_node = next(iter(reference._view.graph_nodes.values()))
     ref_node.add_view(main_view)
     main_view._view.render()
+    if main_canvas._legend:
+        main_ax.legend()
     diff_nodes = [n - ref_node for n in main_fig._view.graph_nodes.values()]
     res_view = reference.__class__(reference._view.__class__, *diff_nodes, ax=res_ax)
+    fig.tight_layout()
 
     return main_view
