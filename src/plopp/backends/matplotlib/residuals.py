@@ -7,7 +7,26 @@ from ..protocols import FigureLike
 from .utils import copy_figure, silent_mpl_figure
 
 
-def residual(main_fig: FigureLike, reference: FigureLike) -> FigureLike:
+def residuals(main_fig: FigureLike, reference: FigureLike) -> FigureLike:
+    """
+    Create a residual plot from two figures, using the data from the second figure as
+    the reference the residuals are computed from.
+
+    Parameters
+    ----------
+    main_fig:
+        The main figure.
+    reference:
+        The reference figure.
+
+    Returns
+    -------
+    :
+        A figure with a main panel showing the data from both the main and reference
+        figures, and a smaller 'residuals' panel at the bottom displaying the difference
+        between the data from the main figure with the data from the reference figure.
+    """
+    # If there is a colormapper, we are dealing with a 2d figure
     if hasattr(main_fig._view, 'colormapper') or hasattr(
         reference._view, 'colormapper'
     ):

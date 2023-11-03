@@ -46,6 +46,6 @@ class Figure(BaseFig):
         return vstack(self, other)
 
     def __sub__(self, other):
-        from .residual import residual
+        from .residuals import residuals
 
-        return residual(self, other)
+        return residuals(self, other)
