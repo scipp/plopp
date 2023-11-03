@@ -8,6 +8,10 @@ from .utils import copy_figure, silent_mpl_figure
 
 
 def residual(main_fig: FigureLike, reference: FigureLike) -> FigureLike:
+    if hasattr(main_fig._view, 'colormapper') or hasattr(
+        reference._view, 'colormapper'
+    ):
+        raise TypeError("The residual plot only supports 1d figures.")
     with silent_mpl_figure():
         fig = plt.figure(figsize=(6.0, 4.0))
     gs = fig.add_gridspec(
