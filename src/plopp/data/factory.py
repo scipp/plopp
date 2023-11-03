@@ -185,7 +185,9 @@ def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
     )
 
 
-def random(shape, dtype='float64', unit='', dims=None, seed=None) -> sc.DataArray:
+def random(
+    shape, dtype='float64', unit='', dims=None, seed=None, binedges=False
+) -> sc.DataArray:
     """
     Generate a data array containing random data values.
 
@@ -213,7 +215,7 @@ def random(shape, dtype='float64', unit='', dims=None, seed=None) -> sc.DataArra
             dtype=dtype,
         ),
         coords={
-            dim: sc.arange(dim, shape[i], unit='m', dtype='float64')
+            dim: sc.arange(dim, shape[i] + int(binedges), unit='m', dtype='float64')
             for i, dim in enumerate(dims)
         },
     )
