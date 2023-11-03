@@ -7,7 +7,23 @@ from ..protocols import FigureLike
 from .utils import copy_figure, silent_mpl_figure
 
 
-def residuals(main_fig: FigureLike, reference: FigureLike) -> FigureLike:
+class ResidualPlot:
+    def __init__(self, main_panel: FigureLike, res_panel: FigureLike):
+        self.main_panel = main_panel
+        self.res_panel = res_panel
+        self.panels = [self.main_panel, self.res_panel]
+
+    def __getitem__(self, key):
+        return self.panels[key]
+
+    def __repr__(self):
+        return f"ResidualPlot(main_panel={self.main_panel}, res_panel={self.res_panel})"
+
+    def _repr_mimebundle_(self, *args, **kwargs) -> dict:
+        return self.main_panel._repr_mimebundle_(*args, **kwargs)
+
+
+def residuals(main_fig: FigureLike, reference: FigureLike) -> ResidualPlot:
     """
     Create a residual plot from two figures, using the data from the second figure as
     the reference the residuals are computed from.
@@ -31,6 +47,12 @@ def residuals(main_fig: FigureLike, reference: FigureLike) -> FigureLike:
         reference._view, 'colormapper'
     ):
         raise TypeError("The residual plot only supports 1d figures.")
+    if len(reference.artists) != 1:
+        raise TypeError(
+            "The reference figure must contain exactly one line to "
+            "compute residuals."
+        )
+
     with silent_mpl_figure():
         fig = plt.figure(figsize=(6.0, 4.0))
     gs = fig.add_gridspec(
@@ -42,22 +64,22 @@ def residuals(main_fig: FigureLike, reference: FigureLike) -> FigureLike:
 
     main_ax = fig.add_subplot(gs[0])
     res_ax = fig.add_subplot(gs[1], sharex=main_ax)
-    main_view = copy_figure(main_fig, ax=main_ax)
-    main_canvas = main_view._view.canvas
+    main_panel = copy_figure(main_fig, ax=main_ax)
+    main_canvas = main_panel.canvas
     if main_canvas.is_widget():
         fig.canvas.toolbar_visible = False
         fig.canvas.header_visible = False
-    ref_node = next(iter(reference._view.graph_nodes.values()))
+    ref_node = next(iter(reference.graph_nodes.values()))
     data = ref_node()
     if not data.name:
         data.name = "reference"
-    ref_node.add_view(main_view)
-    main_view._view.render()
+    ref_node.add_view(main_panel)
+    main_panel._view.render()
     # main_view._view.artists[ref_node.id]._line.set_zorder(-10)
     if main_canvas._legend:
         main_ax.legend()
-    diff_nodes = [n - ref_node for n in main_fig._view.graph_nodes.values()]
-    _ = reference.__class__(reference._view.__class__, *diff_nodes, ax=res_ax)
+    diff_nodes = [n - ref_node for n in main_fig.graph_nodes.values()]
+    res_panel = reference.__class__(reference._view.__class__, *diff_nodes, ax=res_ax)
 
     main_ax.tick_params(
         top=True, labeltop=True, bottom=False, labelbottom=False, direction='out'
@@ -82,4 +104,4 @@ def residuals(main_fig: FigureLike, reference: FigureLike) -> FigureLike:
         labelbottom=False,
     )
 
-    return main_view
+    return ResidualPlot(main_panel=main_panel, res_panel=res_panel)
