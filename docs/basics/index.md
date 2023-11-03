@@ -11,5 +11,6 @@ slicer-plot
 inspector-plot
 super-plot
 scatter3d-plot
+operators
 saving-figures
 ```
