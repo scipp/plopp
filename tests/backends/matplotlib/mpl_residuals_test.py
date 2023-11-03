@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import pytest
 import numpy as np
+import pytest
 
 import plopp as pp
 from plopp.backends.matplotlib.residuals import residuals
