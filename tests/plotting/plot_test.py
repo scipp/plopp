@@ -397,3 +397,5 @@ def test_names_are_overridden_when_plotting_dicts(Constructor):
     artists = list(p._view.artists.values())
     assert artists[0].label == 'a'
     assert artists[1].label == 'b'
+    assert da1.name == 'DA1'
+    assert da2.name == 'DA2'
