@@ -160,7 +160,7 @@ def _all_dims_sorted(var, order='ascending'):
 
 def preprocess(
     obj: Union[Plottable, list],
-    name: str = '',
+    name: Optional[str] = None,
     ignore_size: bool = False,
     coords: Optional[List[str]] = None,
 ) -> sc.DataArray:
@@ -186,7 +186,8 @@ def preprocess(
     out = to_data_array(obj)
     check_not_binned(out)
     check_allowed_dtypes(out)
-    out.name = name
+    if name is not None:
+        out.name = name
     if not ignore_size:
         _check_size(out)
     if coords is not None:
@@ -232,7 +233,7 @@ def input_to_nodes(obj: PlottableMulti, processor: Callable) -> List[Node]:
     if hasattr(obj, 'items') and not is_pandas_series(obj):
         to_nodes = obj.items()
     else:
-        to_nodes = [('', obj)]
+        to_nodes = [(None, obj)]
     nodes = [Node(processor, inp, name=name) for name, inp in to_nodes]
     for node in nodes:
         if hasattr(processor, 'func'):
