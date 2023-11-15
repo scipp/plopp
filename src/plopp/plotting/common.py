@@ -177,7 +177,7 @@ def preprocess(
     obj:
         The input object that will be plotted.
     name:
-        Override the input's name if it has none.
+        Override the input's name (when a dict-like structure is to be plotted).
     ignore_size:
         Do not perform a size check on the object before plotting it.
     coords:
@@ -186,8 +186,7 @@ def preprocess(
     out = to_data_array(obj)
     check_not_binned(out)
     check_allowed_dtypes(out)
-    if not out.name:
-        out.name = name
+    out.name = name
     if not ignore_size:
         _check_size(out)
     if coords is not None:
@@ -198,8 +197,8 @@ def preprocess(
             underlying = out.coords[dim].dims[-1]
             renamed_dims[underlying] = dim
         out = out.rename_dims(**renamed_dims)
-    for name, coord in out.coords.items():
-        if (coord.ndim == 0) or (name not in out.dims):
+    for n, coord in out.coords.items():
+        if (coord.ndim == 0) or (n not in out.dims):
             continue
         try:
             if not (
@@ -208,7 +207,7 @@ def preprocess(
             ):
                 warnings.warn(
                     'The input contains a coordinate with unsorted values '
-                    f'({name}). The results may be unpredictable. '
+                    f'({n}). The results may be unpredictable. '
                     'Coordinates can be sorted using '
                     '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
                     RuntimeWarning,
