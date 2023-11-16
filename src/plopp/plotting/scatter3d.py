@@ -3,7 +3,7 @@
 
 import uuid
 from functools import partial
-from typing import Literal, Optional, Tuple, Union
+from typing import Dict, Literal, Optional, Tuple, Union
 
 import scipp as sc
 
@@ -12,11 +12,20 @@ from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
 
-def _to_variable(var, coords):
+def _to_variable(
+    var: Union[str, sc.Variable], coords: Dict[str, sc.Variable]
+) -> sc.Variable:
     return coords[var] if isinstance(var, str) else var
 
 
-def _preprocess_scatter(obj, x, y, z, pos, name=None):
+def _preprocess_scatter(
+    obj: PlottableMulti,
+    x: Union[str, sc.Variable],
+    y: Union[str, sc.Variable],
+    z: Union[str, sc.Variable],
+    pos: Union[str, sc.Variable],
+    name: Optional[str] = None,
+):
     da = from_compatible_lib(obj)
     check_not_binned(da)
 
