@@ -25,7 +25,7 @@ def _preprocess_scatter(
     z: Union[str, sc.Variable],
     pos: Union[str, sc.Variable],
     name: Optional[str] = None,
-):
+) -> sc.DataArray:
     da = from_compatible_lib(obj)
     check_not_binned(da)
 
