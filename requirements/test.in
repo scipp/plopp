@@ -6,5 +6,6 @@ mpltoolbox
 pandas
 plotly
 pytest
+pythreejs
 scipy
 xarray
