@@ -10,6 +10,7 @@ nbsphinx
 pandas
 pooch
 pydata-sphinx-theme
+pythreejs
 requests
 scipy
 sphinx
