@@ -193,8 +193,8 @@ nbsphinx_execute_arguments = [
 # -- Options for doctest --------------------------------------------------
 
 doctest_global_setup = '''
-import numpy as np
 import scipp as sc
+import plopp as pp
 '''
 
 # Using normalize whitespace because many __str__ functions in scipp produce
