@@ -55,6 +55,8 @@ testpaths = "tests"
 filterwarnings = [
   "error",
   'ignore:\n            Sentinel is not a public part of the traitlets API:DeprecationWarning',
+  'ignore:Passing unrecognized arguments to super:DeprecationWarning',
+  'ignore:Jupyter is migrating its paths:DeprecationWarning',
 ]
 
 [tool.bandit]
