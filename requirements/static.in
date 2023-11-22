@@ -1,1 +1,2 @@
+-r all.in
 pre-commit

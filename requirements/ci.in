@@ -1,3 +1,4 @@
+-r all.in
 gitpython
 packaging
 requests

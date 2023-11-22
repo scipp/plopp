@@ -1,3 +1,4 @@
+-r all.in
 -r base.in
 graphviz
 ipympl
