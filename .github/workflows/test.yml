@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+
+name: Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      os-variant:
+        default: 'ubuntu-22.04'
+        type: string
+      python-version:
+        type: string
+      tox-env:
+        default: 'test'
+        type: string
+      pip-recipe:
+        default: 'requirements/ci.txt'
+        type: string
+      coverage-report:
+        default: false
+        type: boolean
+      checkout_ref:
+        default: ''
+        type: string
+  workflow_call:
+    inputs:
+      os-variant:
+        default: 'ubuntu-22.04'
+        type: string
+      python-version:
+        type: string
+      tox-env:
+        default: 'test'
+        type: string
+      pip-recipe:
+        default: 'requirements/ci.txt'
+        type: string
+      coverage-report:
+        default: false
+        type: boolean
+      checkout_ref:
+        default: ''
+        type: string
+
+jobs:
+  test:
+    runs-on: ${{ inputs.os-variant }}
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.checkout_ref }}
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ inputs.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -r ${{ inputs.pip-recipe }}
+      - run: tox -e ${{ inputs.tox-env }}
+      - uses: actions/upload-artifact@v3
+        if: ${{ inputs.coverage-report }}
+        with:
+          name: CoverageReport
+          path: coverage_html/
