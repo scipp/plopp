@@ -1,13 +1,9 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    ignore:
-      # Optional: Official actions have moving tags like v1;
-      # if you use those, you don't need updates.
-      - dependency-name: "actions/*"
+  # Note: We are not listing package-ecosystem: "github-actions". This causes
+  # noise in all template instances. Instead dependabot.yml in scipp/copier_template
+  # triggers updates of github-actions in the *template*. We then use `copier update`
+  # in template instances.
   - package-ecosystem: "pip"
     directory: "/requirements"
     schedule:

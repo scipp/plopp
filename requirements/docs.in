@@ -4,12 +4,13 @@ graphviz
 h5py
 ipykernel
 ipympl
+ipython!=8.7.0  # Breaks syntax highlighting in Jupyter code cells.
 mpltoolbox
 myst-parser
 nbsphinx
 pandas
 pooch
-pydata-sphinx-theme
+pydata-sphinx-theme>=0.14
 pythreejs
 requests
 scipy
@@ -19,3 +20,7 @@ sphinx-copybutton
 sphinx-design
 sphinx-gallery
 xarray
+platformdirs<4  # temporary until virtualenv has release with support for this
+# Temporary until questionary (dep of copier) updates
+# See https://github.com/tmbo/questionary/blob/2df265534f3eb77aafcf70902e53e80beb1793e0/pyproject.toml#L36C43-L36C110
+prompt-toolkit==3.0.36

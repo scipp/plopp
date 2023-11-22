@@ -15,39 +15,46 @@ defaults:
 jobs:
   build_conda:
     name: Conda build
-    runs-on: ubuntu-22.04
+    runs-on: 'ubuntu-22.04'
+
     steps:
       - uses: actions/checkout@v3
         with:
           submodules: true
-          fetch-depth: 0  # history required so conda can determine version
+          fetch-depth: 0  # history required so setuptools_scm can determine version
+
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-name: build-env
           create-args: >-
-            python=3.10
             conda-build
             boa
-      - run: conda mambabuild --channel conda-forge --channel scipp --python=3.10 --no-anaconda-upload --override-channels --output-folder conda/package conda
+      - run: conda mambabuild --channel conda-forge --channel scipp --no-anaconda-upload --override-channels --output-folder conda/package conda
+
       - uses: actions/upload-artifact@v3
         with:
           name: conda-package-noarch
-          path: conda/package/*/plopp*.tar.bz2
+          path: conda/package/noarch/*.tar.bz2
 
   build_wheels:
     name: Wheels
-    runs-on: ubuntu-22.04
+    runs-on: 'ubuntu-22.04'
+
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # history required so setuptools_scm can determine version
-      - uses: actions/setup-python@v3
+
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version-file: '.github/workflows/python-version-ci'
+
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -r requirements/wheels.txt
+
       - name: Build wheels
         run: python -m build
+
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
@@ -55,9 +62,9 @@ jobs:
           path: dist
 
   upload_pypi:
-    name: Deploy to PyPI
-    needs: [build_conda, build_wheels]
-    runs-on: ubuntu-22.04
+    name: Deploy PyPI
+    needs: [build_wheels, build_conda]
+    runs-on: 'ubuntu-22.04'
     environment: release
     permissions:
       id-token: write
@@ -67,32 +74,33 @@ jobs:
       - uses: pypa/gh-action-pypi-publish@v1.8.10
 
   upload_conda:
-    name: Deploy to Conda
-    needs: [build_conda, build_wheels]
-    runs-on: ubuntu-22.04
+    name: Deploy Conda
+    needs: [build_wheels, build_conda]
+    runs-on: 'ubuntu-22.04'
     if: github.event_name == 'release' && github.event.action == 'published'
+
     steps:
       - uses: actions/download-artifact@v3
       - uses: mamba-org/setup-micromamba@v1
         with:
           environment-name: upload-env
+          # frozen python due to breaking removal of 'imp' in 3.12
           create-args: >-
-            python=3.10
             anaconda-client
-      - run: anaconda --token ${{ secrets.ANACONDATOKEN }} upload --user scipp --label main $(ls conda-package-*/*/*.tar.bz2)
+            python=3.11
+      - run: anaconda --token ${{ secrets.ANACONDATOKEN }} upload --user scipp --label main $(ls conda-package-noarch/*.tar.bz2)
 
   docs:
-    needs: [upload_pypi, upload_conda]
+    needs: [upload_conda, upload_pypi]
     uses: ./.github/workflows/docs.yml
     with:
       publish: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-      version: ${{ github.ref_name }}
     secrets: inherit
 
   assets:
     name: Upload docs
     needs: docs
-    runs-on: ubuntu-22.04
+    runs-on: 'ubuntu-22.04'
     permissions:
       contents: write  # This is needed so that the action can upload the asset
     steps:
