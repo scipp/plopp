@@ -15,39 +15,33 @@
 Installation
 ============
 
-Using pip
----------
+.. tab-set::
 
-You can install from ``pip`` using
+   .. tab-item:: pip
 
-.. code-block:: sh
+      .. code-block:: sh
 
-   pip install plopp[scipp]
+         pip install plopp[scipp]
 
-This will install both ``plopp`` and ``scipp`` which is required to use ``plopp``.
-If you already have ``scipp`` installed, you can leave the ``[scipp]`` part out:
+      This will install both ``plopp`` and ``scipp`` which is required to use ``plopp``.
+      If you already have ``scipp`` installed, you can leave the ``[scipp]`` part out:
 
-.. code-block:: sh
+      .. code-block:: sh
 
-   pip install plopp
+         pip install plopp
 
-By default, this will only install minimal requirements which will allow you to create
-static 1d and 2d plots.
-If you wish to use additional features (interactive figures and 3d rendering),
-you can install all the optional dependencies by doing
+      By default, this will only install minimal requirements which will allow you to create static 1d and 2d plots.
+      If you wish to use additional features (interactive figures and 3d rendering), you can install all the optional dependencies by doing
 
-.. code-block:: sh
+      .. code-block:: sh
 
-   pip install plopp[all]
+         pip install plopp[all]
 
-Using conda
------------
+   .. tab-item:: conda
 
-You can install from ``conda`` using
+      .. code-block:: sh
 
-.. code-block:: sh
-
-   conda install -c conda-forge -c scipp plopp
+         conda install -c conda-forge -c scipp plopp
 
 Get in touch
 ============
