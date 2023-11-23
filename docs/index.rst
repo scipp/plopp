@@ -10,7 +10,11 @@
 :transparent:`Plopp`
 ********************
 
-**Plopp** is the new data visualization framework for the `Scipp <https://scipp.github.io>`_ project.
+.. raw:: html
+
+   <span style="font-size:1.2em;font-style:italic;color:#5a5a5a">
+   Visualization library for the <a href="https://scipp.github.io">Scipp</a> project.
+   </span>
 
 Installation
 ============
