@@ -78,6 +78,7 @@ class Tiled:
                 figsize=(min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
                 if figsize is None
                 else figsize,
+                layout='constrained',
             )
         self.gs = gridspec.GridSpec(nrows, ncols, figure=self.fig, **kwargs)
         self.axes = []
@@ -90,7 +91,6 @@ class Tiled:
         view: FigureLike,
     ):
         new_view = copy_figure(view, ax=self.fig.add_subplot(self.gs[inds]))
-        self.fig.tight_layout()
         self.views[inds] = new_view
         self._history.append((inds, new_view))
 
