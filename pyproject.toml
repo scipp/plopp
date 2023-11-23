@@ -33,10 +33,9 @@ dependencies = [
   "matplotlib>=3.5",
 ]
 
-#TODO: extras_require
-# [options.extras_require]
-# scipp = scipp>=0.12
-# all = scipp>=0.12; ipympl; pythreejs; mpltoolbox
+[project.optional-dependencies]
+scipp = ["scipp"]
+all = ["scipp", "ipympl", "pythreejs", "mpltoolbox"]
 
 dynamic = ["version"]
 
