@@ -33,11 +33,11 @@ dependencies = [
   "matplotlib>=3.5",
 ]
 
+dynamic = ["version"]
+
 [project.optional-dependencies]
 scipp = ["scipp"]
 all = ["scipp", "ipympl", "pythreejs", "mpltoolbox"]
-
-dynamic = ["version"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/scipp/plopp/issues"
