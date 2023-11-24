@@ -1,0 +1,11 @@
+-r base.in
+-r ci.in
+-r docs.in
+-r mypy.in
+-r static.in
+-r test.in
+-r wheels.in
+copier
+jupyterlab
+pip-compile-multi
+pre-commit

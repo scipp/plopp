@@ -212,6 +212,7 @@ def preprocess(
                     'Coordinates can be sorted using '
                     '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
                     RuntimeWarning,
+                    stacklevel=2,
                 )
         except sc.DTypeError:
             pass

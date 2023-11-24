@@ -3,7 +3,9 @@
 
 package:
   name: plopp
+
   version: {{ GIT_DESCRIBE_TAG }}
+
 source:
   path: ..
 
@@ -12,10 +14,8 @@ requirements:
     - setuptools
     - setuptools_scm
   run:
-    - python >=3.8
-    - python-dateutil
     - matplotlib
-  run_constrained:
+    - python>=3.9
     - scipp
 
 test:
@@ -33,6 +33,7 @@ test:
     - scipy
     - xarray
   source_files:
+    - pyproject.toml
     - tests/
   commands:
     - python -m pytest tests
@@ -45,7 +46,7 @@ build:
 about:
   home: https://github.com/scipp/plopp
   license: BSD-3-Clause
-  summary: A plotting library for Scipp
-  description: A plotting library for Scipp
+  summary: Visualization library for Scipp
+  description: Visualization library for Scipp
   dev_url: https://github.com/scipp/plopp
   doc_url: https://scipp.github.io/plopp

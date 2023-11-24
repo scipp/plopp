@@ -66,7 +66,7 @@ class Line:
         mask_color: str = 'black',
         mode='markers',
         marker=None,
-        **kwargs
+        **kwargs,
     ):
         """
         Create either plot markers or a step function, depending on whether the data

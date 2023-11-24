@@ -1,19 +1,66 @@
 [build-system]
 requires = [
-  "setuptools>=42",
-  "setuptools_scm[toml]>=6.2",
+  "setuptools>=68",
+  "setuptools_scm[toml]>=8.0",
 ]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "plopp"
+description = "Visualization library for Scipp"
+authors = [{ name = "Scipp contributors" }]
+license = { file = "LICENSE" }
+readme = "README.md"
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Typing :: Typed",
+]
+requires-python = ">=3.9"
+
+# IMPORTANT:
+# Run 'tox -e deps' after making changes here. This will update requirement files.
+# Make sure to list one dependency per line.
+dependencies = [
+  "matplotlib>=3.5",
+]
+
+dynamic = ["version"]
+
+[project.optional-dependencies]
+scipp = ["scipp"]
+all = ["scipp", "ipympl", "pythreejs", "mpltoolbox"]
+
+[project.urls]
+"Bug Tracker" = "https://github.com/scipp/plopp/issues"
+"Documentation" = "https://scipp.github.io/plopp"
+"Source" = "https://github.com/scipp/plopp"
+
 [tool.setuptools_scm]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -v"
+testpaths = "tests"
+filterwarnings = [
+  "error",
+  'ignore:\n            Sentinel is not a public part of the traitlets API:DeprecationWarning',
+  'ignore:Passing unrecognized arguments to super:DeprecationWarning',
+  'ignore:Jupyter is migrating its paths:DeprecationWarning',
+  'ignore:setDaemon\(\) is deprecated, set the daemon attribute instead:DeprecationWarning',
+]
 
 [tool.bandit]
 # Excluding tests because bandit doesn't like `assert`.
-exclude_dirs = ["docs/conf.py", "tests", "install"]
-
-[tool.codespell]
-ignore-words-list = "elemt"
-skip = "./.git,./install,./build,./.tox,*/*_cache,*/.virtual_documents,*/.ipynb_checkpoints,*.pdf,*.svg"
+exclude_dirs = ["docs/conf.py", "tests"]
 
 [tool.black]
 skip-string-normalization = true
@@ -21,26 +68,15 @@ skip-string-normalization = true
 [tool.isort]
 skip_gitignore = true
 profile = "black"
+known_first_party = ["plopp"]
 
 [tool.mypy]
-mypy_path = "src"
+strict = true
 ignore_missing_imports = true
-
-[tool.pytest.ini_options]
-minversion = "7.0"
-testpaths = "tests"
-addopts = """
---strict-config
---strict-markers
--ra
--v
-"""
-filterwarnings = [
-  "error",
-  "ignore::UserWarning",
-  'ignore:\n            Sentinel is not a public part of the traitlets API:DeprecationWarning',
-  'ignore:Auto-removal of grids by pcolor:matplotlib._api.deprecation.MatplotlibDeprecationWarning',
-  'ignore:Jupyter is migrating its paths:DeprecationWarning',
-  'ignore:Passing unrecognized arguments to super:DeprecationWarning',
-  'ignore:distutils Version classes are deprecated:DeprecationWarning',
-  'ignore:setDaemon\(\) is deprecated, set the daemon attribute instead:DeprecationWarning',]
+enable_error_code = [
+    "ignore-without-code",
+    "redundant-expr",
+    "truthy-bool",
+]
+show_error_codes = true
+warn_unreachable = true

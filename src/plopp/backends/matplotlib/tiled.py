@@ -36,12 +36,18 @@ class Tiled:
     --------
     Create a tiled figure with two plots stacked vertically:
 
+      >>> da1 = pp.data.data1d()
+      >>> da2 = pp.data.data2d()
       >>> tiled = pp.tiled(2, 1)
       >>> tiled[0] = da1.plot()
       >>> tiled[1] = da2.plot()
 
     Create a tiled 2x2 figure:
 
+      >>> da1 = pp.data.data1d()
+      >>> da2 = pp.data.data2d()
+      >>> da3 = pp.data.data2d()
+      >>> da4 = pp.data.data1d()
       >>> tiled = pp.tiled(2, 2)
       >>> tiled[0, 0] = da1.plot()
       >>> tiled[0, 1] = da2.plot()
@@ -50,6 +56,8 @@ class Tiled:
 
     Create a tiled figure with two figures side by side and the first is twice as wide:
 
+      >>> da1 = pp.data.data1d()
+      >>> da2 = pp.data.data2d()
       >>> tiled = pp.tiled(1, 3)
       >>> tiled[0, :2] = da1.plot()
       >>> tiled[0, 2] = da2.plot()

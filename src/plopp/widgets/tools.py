@@ -112,7 +112,7 @@ class MultiToggleTool(ipw.VBox):
         tooltips: List[str] = None,
         descriptions: List[str] = None,
         value: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         self.callback = callback
         self._options = options
@@ -123,7 +123,7 @@ class MultiToggleTool(ipw.VBox):
                 tooltip=tooltips[i] if tooltips is not None else None,
                 description=descriptions[i] if descriptions is not None else '',
                 value=key == value,
-                **{**BUTTON_LAYOUT, **kwargs}
+                **{**BUTTON_LAYOUT, **kwargs},
             )
             tb._option = key
             tb.observe(self, names='value')
@@ -204,7 +204,7 @@ class PanZoomTool(MultiToggleTool):
             icons=['arrows', 'search-plus'],
             tooltips=['Pan', 'Zoom'],
             value=value,
-            **kwargs
+            **kwargs,
         )
 
     def _panzoom(self):

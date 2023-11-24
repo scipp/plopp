@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-# TODO: Change Sequence to collections.abc.Sequence when we drop support for Python 3.8
-
-from typing import Any, Optional, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Any, Optional, Tuple, Union
 
 import scipp as sc
 
