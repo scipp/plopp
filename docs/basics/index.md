@@ -1,6 +1,6 @@
 # Basic Usage
 
-::::{grid}
+::::{grid} 3
 
 :::{grid-item-card} Line plot
 :link: line-plot.ipynb
@@ -22,7 +22,7 @@
 
 ::::
 
-::::{grid}
+::::{grid} 3
 
 :::{grid-item-card} Inspector plot
 :link: inspector-plot.ipynb
@@ -39,6 +39,15 @@
 :::{grid-item-card} Scatter 3D plot
 :link: scatter3d-plot.ipynb
 :img-bottom: ../_static/basics/scatter3d-plot.png
+
+:::
+
+::::
+
+::::{grid} 3
+
+:::{grid-item-card} {octicon}`download;1em` Saving figures to disk
+:link: saving-figures.ipynb
 
 :::
 
