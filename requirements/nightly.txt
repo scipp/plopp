@@ -9,7 +9,7 @@ contourpy==1.2.0
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-fonttools==4.45.0
+fonttools==4.45.1
     # via matplotlib
 graphlib-backport==1.0.3
     # via scipp
