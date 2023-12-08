@@ -4,7 +4,7 @@
 .. currentmodule:: plopp
 
 .. autosummary::
-   :toctree: generated
+   :toctree: ../generated
 
    backends.matplotlib.MatplotlibBackend
    backends.matplotlib.canvas.Canvas

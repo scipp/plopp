@@ -51,6 +51,7 @@ getting-started/index
 basics/index
 customization/index
 gallery/index
-reference/index
+api-reference/index
+developer/index
 about/index
 ```
