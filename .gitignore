@@ -4,6 +4,7 @@ dist
 html
 .tox
 *.egg-info
+*.html
 
 *.sw?
 
@@ -34,3 +35,7 @@ docs/generated/
 *.raw
 *.cif
 *.rcif
+
+# Images
+*.png
+*.pdf
