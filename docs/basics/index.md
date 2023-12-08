@@ -1,5 +1,18 @@
 # Basic Usage
 
+## Getting Started
+
+```{toctree}
+---
+maxdepth: 1
+---
+
+getting-started/overview
+getting-started/numpy-pandas-xarray
+```
+
+## By Example
+
 ::::{grid} 3
 
 :::{grid-item-card} Line plot
