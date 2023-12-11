@@ -30,13 +30,3 @@ Plopp is hosted and developed [on GitHub](https://github.com/scipp/plopp).
 Contributions, bug reports, and ideas are always welcome.
 If in doubt whether a feature falls within the scope of Plopp please [ask on GitHub](https://github.com/scipp/plopp/issues) before implementing functionality, to reduce the risk of rejected pull requests.
 Asking and discussing first is generally always a good idea, since our road map is not very mature at this point.
-
-## FAQ
-
-```{toctree}
----
-hidden:
----
-
-faq
-```
