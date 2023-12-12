@@ -1,7 +1,15 @@
-# User Guide
+# User guide
 
-## Getting Started
+## Getting started
 
+
+::::{grid} 2
+
+:::{grid-item-card} Installation
+:link: getting-started/installation.md
+
+:::
+::::
 
 ::::{grid} 2
 
@@ -26,6 +34,7 @@
 hidden:
 ---
 
+getting-started/installation
 getting-started/overview
 getting-started/numpy-pandas-xarray
 ```
