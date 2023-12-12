@@ -47,8 +47,7 @@ conda install -c conda-forge -c scipp plopp
 hidden:
 ---
 
-basics/index
-customization/index
+user-guide/index
 gallery/index
 api-reference/index
 developer/index
