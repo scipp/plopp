@@ -2,9 +2,28 @@
 
 ## Getting Started
 
+
+::::{grid} 2
+
+:::{grid-item-card} Overview
+:link: getting-started/overview.ipynb
+
+:::
+::::
+
+::::{grid} 2
+
+:::{grid-item-card} Numpy, Pandas, and Xarray
+:link: getting-started/numpy-pandas-xarray.ipynb
+
+:::
+
+::::
+
+
 ```{toctree}
 ---
-maxdepth: 1
+hidden:
 ---
 
 getting-started/overview
@@ -82,9 +101,41 @@ plot-types/saving-figures
 
 # Custom figures
 
+::::{grid} 3
+
+:::{grid-item-card} Subplots / Tiled plots
+:link: customization/subplots.ipynb
+:img-bottom: ../_static/customization/subplots.png
+
+:::
+
+:::{grid-item-card} Tweaking figures
+:link: customization/tweaking-figures.ipynb
+:img-bottom: ../_static/customization/tweaking-figures.png
+
+:::
+
+::::{grid-item-card} Building custom interfaces
+:link: customization/custom-interfaces.ipynb
+:img-bottom: ../_static/customization/custom-interfaces.png
+
+:::
+
+::::
+
+::::{grid} 3
+
+:::{grid-item-card} Graph and node tips
+:link: customization/graph-node-tips.ipynb
+:img-bottom: ../_static/customization/graph-node-tips.png
+
+:::
+
+::::
+
 ```{toctree}
 ---
-maxdepth: 1
+hidden:
 ---
 
 customization/subplots
