@@ -15,14 +15,15 @@
 #
 
 <span style="font-size:1.2em;font-style:italic;color:#5a5a5a">
-    <br><br>
     Visualization library for the <a href="https://scipp.github.io">Scipp</a> project.
+    <br><br><br>
 </span>
 
-## Getting started
+Head over to the [Getting started](./user-guide/index.md#getting-started) section of the user guide for an introduction to Plopp.
 
-See the [Getting started](./user-guide/index.md#getting-started) section of the user guide to learn the basic usage of Plopp.
-In particular, installation instructions can be found in [Getting started/Installation](./user-guide/getting-started/installation.md).
+:::{include} user-guide/getting-started/installation.md
+:heading-offset: 1
+:::
 
 ## Get in touch
 
