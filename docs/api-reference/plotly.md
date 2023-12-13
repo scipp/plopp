@@ -4,7 +4,7 @@
 .. currentmodule:: plopp
 
 .. autosummary::
-   :toctree: generated
+   :toctree: ../generated
 
    backends.plotly.PlotlyBackend
    backends.plotly.canvas.Canvas
