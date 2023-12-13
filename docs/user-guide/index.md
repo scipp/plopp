@@ -3,23 +3,17 @@
 ## Getting started
 
 
-::::{grid} 2
+::::{grid} 3
 
 :::{grid-item-card} Installation
 :link: getting-started/installation.md
 
 :::
-::::
-
-::::{grid} 2
 
 :::{grid-item-card} Overview
 :link: getting-started/overview.ipynb
 
 :::
-::::
-
-::::{grid} 2
 
 :::{grid-item-card} Numpy, Pandas, and Xarray
 :link: getting-started/numpy-pandas-xarray.ipynb
