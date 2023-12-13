@@ -108,7 +108,7 @@ plot-types/scatter3d-plot
 plot-types/saving-figures
 ```
 
-# Custom figures
+## Custom figures
 
 ::::{grid} 3
 
