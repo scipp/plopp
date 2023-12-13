@@ -4,7 +4,7 @@
 .. currentmodule:: plopp
 
 .. autosummary::
-   :toctree: generated
+   :toctree: ../generated
 
    backends.pythreejs.PythreejsBackend
    backends.pythreejs.canvas.Canvas
