@@ -1,13 +1,15 @@
 :::{image} _static/logo.svg
 :class: only-light
 :alt: Plopp
-:width: 50%
+:width: 60%
+:align: center
 :::
 
 :::{image} _static/logo-dark.svg
 :class: only-dark
 :alt: Plopp
-:width: 50%
+:width: 60%
+:align: center
 :::
 
 #
