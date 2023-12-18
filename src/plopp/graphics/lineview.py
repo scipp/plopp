@@ -80,6 +80,8 @@ class LineView(View):
         figsize: Tuple[float, float] = None,
         format: Optional[Literal['svg', 'png']] = None,
         legend: Union[bool, Tuple[float, float]] = True,
+        artist_maker=backends.line,
+        canvas_maker=backends.canvas2d,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -89,7 +91,8 @@ class LineView(View):
         self._mask_color = mask_color
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = backends.canvas2d(
+        self._artist_maker = artist_maker
+        self.canvas = canvas_maker(
             cbar=False,
             aspect=aspect,
             grid=grid,
@@ -104,7 +107,7 @@ class LineView(View):
         self.canvas.yscale = norm
 
         self.render()
-        self.canvas.autoscale()
+        # self.canvas.autoscale()
         self.canvas.finalize()
 
     def update(self, new_values: sc.DataArray, key: str):
@@ -140,7 +143,7 @@ class LineView(View):
             )
 
         if key not in self.artists:
-            line = backends.line(
+            line = self._artist_maker(
                 canvas=self.canvas,
                 data=new_values,
                 number=len(self.artists),

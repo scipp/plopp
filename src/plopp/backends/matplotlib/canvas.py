@@ -72,6 +72,7 @@ class Canvas:
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
         legend: Union[bool, Tuple[float, float]] = True,
+        projection: Optional[str] = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -98,7 +99,8 @@ class Canvas:
             self._own_axes = True
             with silent_mpl_figure():
                 self.fig, self.ax = plt.subplots(
-                    figsize=(6.0, 4.0) if figsize is None else figsize
+                    figsize=(6.0, 4.0) if figsize is None else figsize,
+                    subplot_kw={'projection': projection},
                 )
             if self.is_widget():
                 self.fig.canvas.toolbar_visible = False

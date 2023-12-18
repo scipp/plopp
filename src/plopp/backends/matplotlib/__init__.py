@@ -32,7 +32,23 @@ class MatplotlibBackend:
 
         return CanvasMpl(*args, **kwargs)
 
+    def polar_canvas(self, *args, **kwargs):
+        """
+        See :class:`canvas.Canvas` for details.
+        """
+        from .canvas import Canvas as CanvasMpl
+
+        return CanvasMpl(*args, **{**kwargs, **{'projection': 'polar'}})
+
     def line(self, *args, **kwargs):
+        """
+        See :class:`line.Line` for details.
+        """
+        from .line import Line as LineMpl
+
+        return LineMpl(*args, **kwargs)
+
+    def polar_line(self, *args, **kwargs):
         """
         See :class:`line.Line` for details.
         """

@@ -66,12 +66,28 @@ class BackendManager:
             raise ValueError(f'Unsupported backend \'{self["3d"]}\' for canvas3d.')
         return _canvas3d(*args, **kwargs)
 
+    def polar_canvas(self, *args, **kwargs):
+        try:
+            _polar_canvas = self._backends['2d'].polar_canvas
+        except AttributeError:
+            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for polar_canvas.')
+        return _polar_canvas(*args, **kwargs)
+
     def line(self, *args, **kwargs):
         try:
             _line = self._backends['2d'].line
         except AttributeError:
             raise ValueError(f'Unsupported backend \'{self["2d"]}\' for line (1D).')
         return _line(*args, **kwargs)
+
+    def polar_line(self, *args, **kwargs):
+        try:
+            _polar_line = self._backends['2d'].polar_line
+        except AttributeError:
+            raise ValueError(
+                f'Unsupported backend \'{self["2d"]}\' for polar line (1D).'
+            )
+        return _polar_line(*args, **kwargs)
 
     def image(self, *args, **kwargs):
         try:

@@ -45,6 +45,11 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
 
         return backends.figure1d(LineView, *args, **kwargs)
 
+    if style == 'polar':
+        from .polarview import PolarView
+
+        return backends.figure1d(PolarView, *args, **kwargs)
+
     raise ValueError(f'Unsupported style={style} for figure1d.')
 
 

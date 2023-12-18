@@ -5,7 +5,18 @@
 
 from .inspector import inspector
 from .plot import plot
+from .polar import polar
 from .scatter3d import scatter3d
 from .slicer import slicer
 from .superplot import superplot
 from .xyplot import xyplot
+
+__all__ = [
+    'inspector',
+    'plot',
+    'polar',
+    'scatter3d',
+    'slicer',
+    'superplot',
+    'xyplot',
+]
