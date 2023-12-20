@@ -5,7 +5,7 @@ from io import BytesIO
 from typing import Literal
 
 import matplotlib as mpl
-from matplotlib.pyplot import Figure
+from matplotlib.pyplot import Figure, _get_backend_mod
 
 from ..protocols import FigureLike
 
@@ -27,19 +27,33 @@ def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
     return buf.getvalue()
 
 
-def make_figure(*args, **kwargs):
-    backend = mpl.get_backend()
-    manager = backend.new_figure_manager(*args, FigureClass=Figure, **kwargs)
-    fig = manager.canvas.figure
-    ax = fig.add_subplot()
-    return fig, ax
-
-
-def is_interactive_backend():
+def is_interactive_backend() -> bool:
     """
     Return `True` if the current backend used by Matplotlib is the widget backend.
     """
     return 'ipympl' in mpl.get_backend()
+
+
+def make_figure(*args, **kwargs) -> Figure:
+    """
+    Create a new figure.
+
+    If we use ``plt.figure()`` directly, the figures auto-show in the notebooks.
+    We want to display the figures when the figure repr is requested.
+
+    When using the static backend, we can return the ``plt.Figure`` (note the uppercase
+    F) directly.
+    When using the interactive backend, we need to do more work. The ``plt.Figure``
+    will not have a toolbar nor will it be interactive, as opposed to what
+    ``plt.figure`` returns. We therefore copy the minimal required code inside the
+    ``plt.figure`` function which creates a figure manager (which is apparently what
+    creates the toolbar and makes the figure interactive).
+    """
+    if not is_interactive_backend():
+        return Figure(*args, **kwargs)
+    backend = _get_backend_mod()
+    manager = backend.new_figure_manager(1, *args, FigureClass=Figure, **kwargs)
+    return manager.canvas.figure
 
 
 def require_interactive_backend(func: str):
