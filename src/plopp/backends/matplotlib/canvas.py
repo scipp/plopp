@@ -11,7 +11,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.limits import find_limits, fix_empty_range
 from ...core.utils import maybe_variable_to_number, scalar_to_string
-from .utils import fig_to_bytes, is_sphinx_build, silent_mpl_figure
+from .utils import fig_to_bytes, is_sphinx_build, make_figure
 
 
 def _none_if_not_finite(x):
@@ -96,10 +96,11 @@ class Canvas:
 
         if self.ax is None:
             self._own_axes = True
-            with silent_mpl_figure():
-                self.fig, self.ax = plt.subplots(
-                    figsize=(6.0, 4.0) if figsize is None else figsize
-                )
+            # self.fig = plt.Figure(figsize=(6.0, 4.0) if figsize is None else figsize)
+            # self.ax = self.fig.add_subplot()
+            self.fig, self.ax = make_figure(
+                figsize=(6.0, 4.0) if figsize is None else figsize
+            )
             if self.is_widget():
                 self.fig.canvas.toolbar_visible = False
                 self.fig.canvas.header_visible = False

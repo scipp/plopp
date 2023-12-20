@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from contextlib import contextmanager
 from io import BytesIO
 from typing import Literal
 
@@ -28,20 +27,12 @@ def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
     return buf.getvalue()
 
 
-@contextmanager
-def silent_mpl_figure():
-    """
-    Context manager to prevent automatic generation of figures in Jupyter.
-    """
-    backend_ = mpl.get_backend()
-    revert = False
-    if 'inline' in backend_:
-        mpl.use("Agg")
-        revert = True
-    with mpl.pyplot.ioff():
-        yield
-    if revert:
-        mpl.use(backend_)
+def make_figure(*args, **kwargs):
+    backend = mpl.get_backend()
+    manager = backend.new_figure_manager(*args, FigureClass=Figure, **kwargs)
+    fig = manager.canvas.figure
+    ax = fig.add_subplot()
+    return fig, ax
 
 
 def is_interactive_backend():
