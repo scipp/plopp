@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
 
