@@ -225,6 +225,7 @@ gallery_notebooks = [
     'scatter3d-with-slider',
     'interactive-masking',
     'peeling-layers',
+    'tiled-random-samples',
 ]
 nbsphinx_thumbnails = {
     os.path.join(notebook_root, notebook): os.path.join(
