@@ -14,8 +14,12 @@ from ...core.utils import maybe_variable_to_number, scalar_to_string
 from .utils import fig_to_bytes, is_sphinx_build, silent_mpl_figure
 
 
-def _none_if_not_finite(x):
+def _none_if_not_finite(x: float) -> Union[float, None]:
     return x if np.isfinite(x) else None
+
+
+def _not_polar(ax: plt.Axes) -> bool:
+    return ax.name != 'polar'
 
 
 class Canvas:
@@ -112,9 +116,9 @@ class Canvas:
             divider = make_axes_locatable(self.ax)
             self.cax = divider.append_axes("right", "4%", pad="5%")
 
-        self.ax.set_aspect(aspect)
+        self.ax.set_aspect(aspect if _not_polar(self.ax) else 'equal')
         self.ax.set_title(title)
-        self.ax.grid(grid)
+        self.ax.grid(grid if _not_polar(self.ax) else True)
         self._coord_formatters = []
 
         self._xmin = np.inf
@@ -150,8 +154,9 @@ class Canvas:
             Make a draw call to the figure if ``True``.
         """
         if self.ax.lines:
-            self.ax.relim()
-            self.ax.autoscale()
+            if _not_polar(self.ax):
+                self.ax.relim()
+                self.ax.autoscale()
             xmin, xmax = self.ax.get_xlim()
             ymin, ymax = self.ax.get_ylim()
         else:
@@ -197,9 +202,10 @@ class Canvas:
                 self._user_vmax, unit=self.units.get('y')
             )
 
-        self.ax.set_xlim(
-            _none_if_not_finite(self._xmin), _none_if_not_finite(self._xmax)
-        )
+        if _not_polar(self.ax):
+            self.ax.set_xlim(
+                _none_if_not_finite(self._xmin), _none_if_not_finite(self._xmax)
+            )
         self.ax.set_ylim(
             _none_if_not_finite(self._ymin), _none_if_not_finite(self._ymax)
         )

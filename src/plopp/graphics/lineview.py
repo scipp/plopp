@@ -107,7 +107,7 @@ class LineView(View):
         self.canvas.yscale = norm
 
         self.render()
-        # self.canvas.autoscale()
+        self.canvas.autoscale()
         self.canvas.finalize()
 
     def update(self, new_values: sc.DataArray, key: str):

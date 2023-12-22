@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Dict
+from typing import Any, Dict, Literal
 
 import numpy as np
 import scipp as sc
@@ -22,6 +22,17 @@ def _parse_dicts_in_kwargs(kwargs, name):
     return out
 
 
+def _make_graph_object(
+    x: np.ndarray, y: np.ndarray, projection: Literal['default', 'polar'], **kwargs
+):
+    from plotly.graph_objects import Scatter, Scatterpolar
+
+    if projection == 'default':
+        return Scatter(x=x, y=y, **kwargs)
+    elif projection == 'polar':
+        return Scatterpolar(r=y, theta=x, **kwargs)
+
+
 class Line:
     """
     Artist to represent one-dimensional data.
@@ -37,9 +48,19 @@ class Line:
     number:
         The canvas keeps track of how many lines have been added to it. This number is
         used to set the color and marker parameters of the line.
+    projection:
+        The axes projection. If ``None``, the normal go.Scatter is used to draw the
+        line. If ``polar``, the go.Scatterpolar is used to draw the line.
     """
 
-    def __init__(self, canvas: Canvas, data: sc.DataArray, number: int = 0, **kwargs):
+    def __init__(
+        self,
+        canvas: Canvas,
+        data: sc.DataArray,
+        number: int = 0,
+        projection: Literal['default', 'polar'] = 'default',
+        **kwargs,
+    ):
         self._fig = canvas.fig
         self._data = data
 
@@ -56,12 +77,15 @@ class Line:
         self._coord = self._data.coords[self._dim]
         self._id = uuid.uuid4().hex
 
-        self._make_line(data=self._make_data(), number=number, **args)
+        self._make_line(
+            data=self._make_data(), number=number, projection=projection, **args
+        )
 
     def _make_line(
         self,
         data: Dict,
         number: int,
+        projection: Literal['default', 'polar'],
         errorbars: bool = True,
         mask_color: str = 'black',
         mode='markers',
@@ -89,7 +113,6 @@ class Line:
             - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
             - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
         """
-        import plotly.graph_objects as go
         from plotly.colors import qualitative as plotly_colors
 
         default_colors = plotly_colors.Plotly
@@ -105,9 +128,10 @@ class Line:
         marker_style = default_marker_style if marker is None else marker
         line_style = {**default_line_style, **kwargs}
 
-        self._line = go.Scatter(
+        self._line = _make_graph_object(
             x=np.asarray(data['values']['x']),
             y=np.asarray(data['values']['y']),
+            projection=projection,
             name=self.label,
             mode=mode,
             marker=marker_style,
@@ -116,9 +140,10 @@ class Line:
         )
 
         if errorbars and (data['stddevs'] is not None):
-            self._error = go.Scatter(
+            self._error = _make_graph_object(
                 x=np.asarray(data['stddevs']['x']),
                 y=np.asarray(data['stddevs']['y']),
+                projection=projection,
                 line=line_style,
                 name=self.label,
                 mode='markers',
@@ -139,9 +164,10 @@ class Line:
         if data["hist"]:
             line_style['color'] = mask_color
 
-        self._mask = go.Scatter(
+        self._mask = _make_graph_object(
             x=np.asarray(data['mask']['x']),
             y=np.asarray(data['mask']['y']),
+            projection=projection,
             name=self.label,
             mode=mode,
             marker=marker_style,

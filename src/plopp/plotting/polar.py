@@ -12,9 +12,10 @@ from .plot import plot
 
 
 def polar(*args, **kwargs):
-    """Plot a Scipp object.
+    """
+    Make a polar plot.
 
-    Parameters
+    See :func:`plot` for arguments.
     """
 
     return plot(*args, style='polar', **kwargs)

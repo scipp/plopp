@@ -17,6 +17,14 @@ class PlotlyBackend:
 
         return CanvasPlotly(*args, **kwargs)
 
+    def polar_canvas(self, *args, **kwargs):
+        """
+        See :class:`canvas.Canvas` for details.
+        """
+        from .canvas import Canvas as CanvasPlotly
+
+        return CanvasPlotly(*args, **kwargs)
+
     def line(self, *args, **kwargs):
         """
         See :class:`line.Line` for details.
@@ -24,6 +32,14 @@ class PlotlyBackend:
         from .line import Line as LinePlotly
 
         return LinePlotly(*args, **kwargs)
+
+    def polar_line(self, *args, **kwargs):
+        """
+        See :class:`line.Line` for details.
+        """
+        from .line import Line as LinePlotly
+
+        return LinePlotly(*args, projection='polar', **kwargs)
 
     def figure1d(self, *args, **kwargs):
         """
