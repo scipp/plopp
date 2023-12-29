@@ -8,7 +8,7 @@ from typing import Literal
 import matplotlib as mpl
 from matplotlib.pyplot import Figure
 
-from ..protocols import FigureLike
+from ...core.typing import FigureLike
 
 
 def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:

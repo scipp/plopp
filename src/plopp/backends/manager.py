@@ -96,6 +96,15 @@ class BackendManager:
             raise ValueError(f'Unsupported backend \'{self["2d"]}\' for image (2D).')
         return _image(*args, **kwargs)
 
+    def polar_image(self, *args, **kwargs):
+        try:
+            _polar_image = self._backends['2d'].polar_image
+        except AttributeError:
+            raise ValueError(
+                f'Unsupported backend \'{self["2d"]}\' for polar image (2D).'
+            )
+        return _polar_image(*args, **kwargs)
+
     def point_cloud(self, *args, **kwargs):
         try:
             _point_cloud = self._backends['3d'].point_cloud

@@ -6,10 +6,25 @@
 # import scipp as sc
 
 from .. import backends
+from .imageview import ImageView
 from .lineview import LineView
 
 
-class PolarView(LineView):
+class PolarLineView(LineView):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            **{
+                **kwargs,
+                **{
+                    'artist_maker': backends.polar_line,
+                    'canvas_maker': backends.polar_canvas,
+                },
+            },
+        )
+
+
+class PolarImageView(ImageView):
     def __init__(self, *args, **kwargs):
         super().__init__(
             *args,

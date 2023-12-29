@@ -7,6 +7,7 @@ import scipp as sc
 
 from .. import backends
 from ..core import View
+from ..core.typing import CanvasLike
 from ..core.utils import make_compatible, name_with_unit
 from .colormapper import ColorMapper
 
@@ -83,6 +84,8 @@ class ImageView(View):
         title: Optional[str] = None,
         figsize: Optional[Tuple[float, float]] = None,
         format: Optional[Literal['svg', 'png']] = None,
+        artist_maker: Optional[View] = None,
+        canvas_maker: Optional[CanvasLike] = None,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -90,7 +93,10 @@ class ImageView(View):
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
         self._repr_format = format
-        self.canvas = backends.canvas2d(
+        self._artist_maker = backends.image if artist_maker is None else artist_maker
+        if canvas_maker is None:
+            canvas_maker = backends.canvas2d
+        self.canvas = canvas_maker(
             cbar=cbar, aspect=aspect, grid=grid, title=title, figsize=figsize, **kwargs
         )
         self.colormapper = ColorMapper(
@@ -149,7 +155,9 @@ class ImageView(View):
                 )
 
         if key not in self.artists:
-            image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
+            image = self._artist_maker(
+                canvas=self.canvas, data=new_values, **self._kwargs
+            )
             self.artists[key] = image
             self.colormapper[key] = image
 

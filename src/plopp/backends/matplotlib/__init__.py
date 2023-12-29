@@ -52,9 +52,7 @@ class MatplotlibBackend:
         """
         See :class:`line.Line` for details.
         """
-        from .line import Line as LineMpl
-
-        return LineMpl(*args, **kwargs)
+        return self.line(*args, **kwargs)
 
     def image(self, *args, **kwargs):
         """
@@ -63,6 +61,12 @@ class MatplotlibBackend:
         from .image import Image as ImageMpl
 
         return ImageMpl(*args, **kwargs)
+
+    def polar_image(self, *args, **kwargs):
+        """
+        See :class:`image.Image` for details.
+        """
+        return self.image(*args, **kwargs)
 
     def figure1d(self, *args, **kwargs):
         """

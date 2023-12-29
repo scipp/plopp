@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
 
-from ..protocols import FigureLike
+from ...core.typing import FigureLike
 from .static import get_repr_maker
 from .utils import copy_figure, is_interactive_backend, silent_mpl_figure
 
