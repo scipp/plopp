@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from typing import Literal, Optional, Tuple, Union
+import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -113,8 +114,11 @@ class Canvas:
             self.fig = self.ax.get_figure()
 
         if cbar and (self.cax is None):
-            divider = make_axes_locatable(self.ax)
-            self.cax = divider.append_axes("right", "4%", pad="5%")
+            if _not_polar(self.ax):
+                divider = make_axes_locatable(self.ax)
+                self.cax = divider.append_axes("right", "4%", pad="5%")
+            else:
+                self.cax = self.fig.add_axes([0.87, 0.1, 0.03, 0.8])
 
         self.ax.set_aspect(aspect if _not_polar(self.ax) else 'equal')
         self.ax.set_title(title)
@@ -501,4 +505,6 @@ class Canvas:
         here: trim the margins around the figure.
         """
         if self._own_axes:
-            self.fig.tight_layout()
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=UserWarning)
+                self.fig.tight_layout()
