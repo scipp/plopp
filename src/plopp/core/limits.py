@@ -25,12 +25,14 @@ def find_limits(
         m = np.ones_like(x.values, dtype='bool')
 
     v = x.values[m]
-    s = (
-        stddevs(x).values
-        if x.variances is not None
-        else np.zeros_like(x.values, dtype='bool')
-    )[m]
-    v = np.concatenate((v, v - s, v + s))
+    if x.ndim == 1:
+        # in case the plot is 1d, take the error bars into consideration
+        s = (
+            stddevs(x).values
+            if x.variances is not None
+            else np.zeros_like(x.values, dtype='bool')
+        )[m]
+        v = np.concatenate((v, v - s, v + s))
 
     v = v[np.isfinite(v)]
     if len(v) == 0:
