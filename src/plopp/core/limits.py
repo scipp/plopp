@@ -47,7 +47,16 @@ def find_limits(
         finite_min = np.amin(v)
     if finite_max is None:
         finite_max = np.amax(v)
-    print(finite_min, finite_max)
+    # Padding only for 1d plots
+    if x.ndim == 1:
+        if scale == 'log':
+            p = (finite_max / finite_min) ** 0.05
+            finite_min /= p
+            finite_max *= p
+        else:
+            p = (finite_max - finite_min) * 0.05
+            finite_min -= p
+            finite_max += p
     return (scalar(finite_min, unit=x.unit), scalar(finite_max, unit=x.unit))
 
 
