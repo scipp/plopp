@@ -145,19 +145,23 @@ class Canvas:
         draw:
             Make a draw call to the figure if ``True``.
         """
+        xmin = np.inf
+        xmax = np.NINF
+        ymin = np.inf
+        ymax = np.NINF
         if self.ax.lines:
             self.ax.relim()
             self.ax.autoscale()
             xmin, xmax = self.ax.get_xlim()
-            ymin, ymax = self.ax.get_ylim()
+            some_line_had_preferred_ylim = False
             for line in self.ax.lines:
-                if hasattr(line, '_plopp_force_ylim'):
-                    ymin, ymax = line._plopp_force_ylim
-        else:
-            xmin = np.inf
-            xmax = np.NINF
-            ymin = np.inf
-            ymax = np.NINF
+                if hasattr(line, '_plopp_preferred_ylim'):
+                    _ymin, _ymax = line._plopp_preferred_ylim
+                    ymin = min(ymin, _ymin)
+                    ymax = max(ymax, _ymax)
+                    some_line_had_preferred_ylim = True
+            if not some_line_had_preferred_ylim:
+                ymin, ymax = self.ax.get_ylim()
         for c in self.ax.collections:
             if isinstance(c, QuadMesh):
                 coords = c.get_coordinates()
@@ -177,6 +181,14 @@ class Canvas:
                 xmax = max(xmax, right.value)
                 ymin = min(ymin, bottom.value)
                 ymax = max(ymax, top.value)
+        if self.yscale == 'log' and ymin < 0:
+            # Something has gone wrong
+            # probably the y-limit was set before the scale changed
+            # set the y-limit to something reasonable
+            ymin = 1e-2 * ymax
+        if self.xscale == 'log' and xmin < 0:
+            xmin = 1e-2 * xmax
+
         if self._autoscale == 'grow':
             self._xmin = min(self._xmin, xmin)
             self._xmax = max(self._xmax, xmax)

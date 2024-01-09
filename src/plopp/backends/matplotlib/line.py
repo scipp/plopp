@@ -9,6 +9,7 @@ import scipp as sc
 from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
 
+from ...core.limits import find_limits
 from ...core.utils import merge_masks
 from .canvas import Canvas
 
@@ -112,36 +113,6 @@ class Line:
             'color': f'C{number}',
         }
 
-        # Plot non-masked data to get limits
-        if data["hist"]:
-            self._line = self._ax.step(
-                data['values']['x'][np.isnan(data['mask']['y'])],
-                data['values']['y'][np.isnan(data['mask']['y'])],
-                **{**default_step_style, **kwargs},
-            )[0]
-        else:
-            self._line = self._ax.plot(
-                data['values']['x'][np.isnan(data['mask']['y'])],
-                data['values']['y'][np.isnan(data['mask']['y'])],
-                **{**default_plot_style, **kwargs},
-            )[0]
-
-        if errorbars and (data['stddevs'] is not None):
-            m = np.isnan(data['mask']['y'][1:] if data['hist'] else data['mask']['y'])
-            self._error = self._ax.errorbar(
-                data['stddevs']['x'][m],
-                data['stddevs']['y'][m],
-                yerr=data['stddevs']['e'][m],
-                fmt="none",
-            )
-
-        # Store limits and remove aux plots
-        ylim = self._ax.get_ylim()
-        self._line.remove()
-        if self._error:
-            self._error.remove()
-
-        # Plot real data
         if data["hist"]:
             self._line = self._ax.step(
                 data['values']['x'],
@@ -178,9 +149,6 @@ class Line:
                 visible=data['mask']['visible'],
             )[0]
 
-        # Force the autoscaling to use ylim
-        self._line._plopp_force_ylim = ylim
-
         # Add error bars
         if errorbars and (data['stddevs'] is not None):
             self._error = self._ax.errorbar(
@@ -202,6 +170,8 @@ class Line:
                     f"not {type(self._canvas._legend)}"
                 )
             self._ax.legend(**leg_args)
+
+        self._update_limits()
 
     def _make_data(self) -> dict:
         x = self._data.coords[self._dim]
@@ -244,6 +214,7 @@ class Line:
         """
         self._data = new_values
         new_values = self._make_data()
+        self._update_limits()
 
         self._line.set_data(new_values['values']['x'], new_values['values']['y'])
         self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
@@ -261,6 +232,10 @@ class Line:
                     new_values['stddevs']['e'],
                 )
             )
+
+    def _update_limits(self):
+        ymin, ymax = find_limits(self._data, self._canvas.yscale)
+        self._line._plopp_preferred_ylim = (ymin.value, ymax.value)
 
     def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
         """
