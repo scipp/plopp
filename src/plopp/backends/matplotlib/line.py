@@ -112,6 +112,42 @@ class Line:
             'color': f'C{number}',
         }
 
+        # Plot non-masked data to get limits
+        if data["hist"]:
+            self._line = self._ax.step(
+                data['values']['x'][np.isnan(data['mask']['y'])],
+                data['values']['y'][np.isnan(data['mask']['y'])],
+                label=self.label,
+                zorder=10,
+                **{**default_step_style, **kwargs},
+            )[0]
+        else:
+            self._line = self._ax.plot(
+                data['values']['x'][np.isnan(data['mask']['y'])],
+                data['values']['y'][np.isnan(data['mask']['y'])],
+                label=self.label,
+                zorder=10,
+                **{**default_plot_style, **kwargs},
+            )[0]
+
+        if errorbars and (data['stddevs'] is not None):
+            m = np.isnan(data['mask']['y'][1:] if data['hist'] else data['mask']['y'])
+            self._error = self._ax.errorbar(
+                data['stddevs']['x'][m],
+                data['stddevs']['y'][m],
+                yerr=data['stddevs']['e'][m],
+                color=self._line.get_color(),
+                zorder=10,
+                fmt="none",
+            )
+
+        # Store limits and remove aux plots
+        ylim = self._ax.get_ylim()
+        self._line.remove()
+        if self._error:
+            self._error.remove()
+
+        # Plot real data
         if data["hist"]:
             self._line = self._ax.step(
                 data['values']['x'],
@@ -147,6 +183,9 @@ class Line:
                 marker=self._line.get_marker(),
                 visible=data['mask']['visible'],
             )[0]
+
+        # Force the autoscaling to use ylim
+        self._line._plopp_force_ylim = ylim
 
         # Add error bars
         if errorbars and (data['stddevs'] is not None):

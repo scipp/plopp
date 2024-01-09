@@ -150,6 +150,9 @@ class Canvas:
             self.ax.autoscale()
             xmin, xmax = self.ax.get_xlim()
             ymin, ymax = self.ax.get_ylim()
+            for line in self.ax.lines:
+                if hasattr(line, '_plopp_force_ylim'):
+                    ymin, ymax = line._plopp_force_ylim
         else:
             xmin = np.inf
             xmax = np.NINF
