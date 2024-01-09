@@ -18,15 +18,15 @@ def test_find_limits():
 def test_find_limits_log():
     x = sc.arange('x', 11.0, unit='m')
     lims = find_limits(x, scale='log')
-    assert sc.identical(lims[0], sc.scalar(10**-0.05, unit='m'))
-    assert sc.identical(lims[1], sc.scalar(10**0.05, unit='m'))
+    assert sc.identical(lims[0], sc.scalar(1 / 10**0.05, unit='m'))
+    assert sc.identical(lims[1], sc.scalar(10 * 10**0.05, unit='m'))
 
 
 def test_find_limits_log_int():
     x = sc.arange('x', 11, unit='m')
     lims = find_limits(x, scale='log')
-    assert sc.identical(lims[0], sc.scalar(10**-0.05, unit='m'))
-    assert sc.identical(lims[1], sc.scalar(10**0.05, unit='m'))
+    assert sc.identical(lims[0], sc.scalar(1 / 10**0.05, unit='m'))
+    assert sc.identical(lims[1], sc.scalar(10 * 10**0.05, unit='m'))
 
 
 def test_find_limits_with_nan():
