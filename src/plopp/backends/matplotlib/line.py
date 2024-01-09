@@ -117,16 +117,12 @@ class Line:
             self._line = self._ax.step(
                 data['values']['x'][np.isnan(data['mask']['y'])],
                 data['values']['y'][np.isnan(data['mask']['y'])],
-                label=self.label,
-                zorder=10,
                 **{**default_step_style, **kwargs},
             )[0]
         else:
             self._line = self._ax.plot(
                 data['values']['x'][np.isnan(data['mask']['y'])],
                 data['values']['y'][np.isnan(data['mask']['y'])],
-                label=self.label,
-                zorder=10,
                 **{**default_plot_style, **kwargs},
             )[0]
 
@@ -136,8 +132,6 @@ class Line:
                 data['stddevs']['x'][m],
                 data['stddevs']['y'][m],
                 yerr=data['stddevs']['e'][m],
-                color=self._line.get_color(),
-                zorder=10,
                 fmt="none",
             )
 
