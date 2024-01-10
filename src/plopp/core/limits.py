@@ -2,11 +2,11 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Literal, Optional, Tuple
 
 import numpy as np
-
 import scipp as sc
 
 from .utils import merge_masks

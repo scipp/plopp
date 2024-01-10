@@ -9,7 +9,7 @@ import scipp as sc
 from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from ...core.limits import find_limits, fix_empty_range, BoundingBox
+from ...core.limits import BoundingBox, find_limits, fix_empty_range
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
 
