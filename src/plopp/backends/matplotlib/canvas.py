@@ -9,13 +9,42 @@ import scipp as sc
 from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from ...core.limits import find_limits, fix_empty_range
+from ...core.limits import find_limits, fix_empty_range, BoundingBox
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
 
 
 def _none_if_not_finite(x):
     return x if np.isfinite(x) else None
+
+
+def _get_bbox(
+    x: Optional[sc.DataArray],
+    y: Optional[sc.DataArray],
+    xscale: Literal['linear', 'log'],
+    yscale: Literal['linear', 'log'],
+    pad=False,
+) -> BoundingBox:
+    bounds = {}
+    if x is not None:
+        left, right = fix_empty_range(
+            find_limits(
+                x,
+                scale=xscale,
+                pad=pad,
+            )
+        )
+        bounds.update(xmin=left.value, xmax=right.value)
+    if y is not None:
+        bottom, top = fix_empty_range(
+            find_limits(
+                y,
+                scale=yscale,
+                pad=pad,
+            )
+        )
+        bounds.update(ymin=bottom.value, ymax=top.value)
+    return BoundingBox(**bounds)
 
 
 class Canvas:
@@ -112,11 +141,7 @@ class Canvas:
         self.ax.set_title(title)
         self.ax.grid(grid)
         self._coord_formatters = []
-
-        self._xmin = np.inf
-        self._xmax = np.NINF
-        self._ymin = np.inf
-        self._ymax = np.NINF
+        self._bbox = BoundingBox()
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
@@ -145,59 +170,77 @@ class Canvas:
         draw:
             Make a draw call to the figure if ``True``.
         """
-        if self.ax.lines:
-            self.ax.relim()
-            self.ax.autoscale()
-            xmin, xmax = self.ax.get_xlim()
-            ymin, ymax = self.ax.get_ylim()
-        else:
-            xmin = np.inf
-            xmax = np.NINF
-            ymin = np.inf
-            ymax = np.NINF
+        bbox = BoundingBox()
+        for line in self.ax.lines:
+            if hasattr(line, '_plopp_mask'):
+                line_mask = sc.array(dims=['x'], values=line._plopp_mask)
+                line_x = sc.DataArray(
+                    data=sc.array(dims=['x'], values=line.get_xdata()),
+                    masks={'mask': line_mask},
+                )
+                line_y = sc.DataArray(
+                    data=sc.array(dims=['x'], values=line.get_ydata()),
+                    masks={'mask': line_mask},
+                )
+                bbox = bbox.union(
+                    _get_bbox(
+                        x=line_x,
+                        y=line_y,
+                        xscale=self.xscale,
+                        yscale=self.yscale,
+                        pad=True,
+                    )
+                )
+
         for c in self.ax.collections:
             if isinstance(c, QuadMesh):
                 coords = c.get_coordinates()
-                left, right = fix_empty_range(
-                    find_limits(
-                        sc.array(dims=['x', 'y'], values=coords[..., 0]),
-                        scale=self.xscale,
+                bbox = bbox.union(
+                    _get_bbox(
+                        x=sc.DataArray(
+                            data=sc.array(dims=['x', 'y'], values=coords[..., 0])
+                        ),
+                        y=sc.DataArray(
+                            data=sc.array(dims=['x', 'y'], values=coords[..., 1])
+                        ),
+                        xscale=self.xscale,
+                        yscale=self.yscale,
                     )
                 )
-                bottom, top = fix_empty_range(
-                    find_limits(
-                        sc.array(dims=['x', 'y'], values=coords[..., 1]),
-                        scale=self.yscale,
+            elif hasattr(c, '_plopp_mask'):
+                line_mask = sc.array(dims=['x'], values=c._plopp_mask)
+                line_y = sc.DataArray(
+                    data=sc.array(
+                        dims=['x', 'y'],
+                        values=np.array(c.get_segments())[..., 1],
+                    ),
+                    masks={'mask': line_mask},
+                )
+                bbox = bbox.union(
+                    _get_bbox(
+                        x=None,
+                        y=line_y,
+                        xscale=self.xscale,
+                        yscale=self.yscale,
+                        pad=True,
                     )
                 )
-                xmin = min(xmin, left.value)
-                xmax = max(xmax, right.value)
-                ymin = min(ymin, bottom.value)
-                ymax = max(ymax, top.value)
-        if self._autoscale == 'grow':
-            self._xmin = min(self._xmin, xmin)
-            self._xmax = max(self._xmax, xmax)
-            self._ymin = min(self._ymin, ymin)
-            self._ymax = max(self._ymax, ymax)
-        else:
-            self._xmin = xmin
-            self._xmax = xmax
-            self._ymin = ymin
-            self._ymax = ymax
+
+        self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
         if self._user_vmin is not None:
-            self._ymin = maybe_variable_to_number(
+            self._bbox.ymin = maybe_variable_to_number(
                 self._user_vmin, unit=self.units.get('y')
             )
         if self._user_vmax is not None:
-            self._ymax = maybe_variable_to_number(
+            self._bbox.ymax = maybe_variable_to_number(
                 self._user_vmax, unit=self.units.get('y')
             )
 
         self.ax.set_xlim(
-            _none_if_not_finite(self._xmin), _none_if_not_finite(self._xmax)
+            _none_if_not_finite(self._bbox.xmin), _none_if_not_finite(self._bbox.xmax)
         )
         self.ax.set_ylim(
-            _none_if_not_finite(self._ymin), _none_if_not_finite(self._ymax)
+            _none_if_not_finite(self._bbox.ymin), _none_if_not_finite(self._bbox.ymax)
         )
         self.draw()
 
@@ -472,8 +515,8 @@ class Canvas:
         Toggle the scale between ``linear`` and ``log`` along the horizontal axis.
         """
         self.xscale = 'log' if self.xscale == 'linear' else 'linear'
-        self._xmin = np.inf
-        self._xmax = np.NINF
+        self._bbox.xmin = np.inf
+        self._bbox.xmax = np.NINF
         self.autoscale()
 
     def logy(self):
@@ -481,8 +524,8 @@ class Canvas:
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
-        self._ymin = np.inf
-        self._ymax = np.NINF
+        self._bbox.ymin = np.inf
+        self._bbox.ymax = np.NINF
         self.autoscale()
 
     def finalize(self):

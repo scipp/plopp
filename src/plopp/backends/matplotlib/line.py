@@ -148,6 +148,9 @@ class Line:
                 visible=data['mask']['visible'],
             )[0]
 
+        line_mask = ~np.isnan(data['mask']['y'])
+        self._line._plopp_mask = line_mask
+
         # Add error bars
         if errorbars and (data['stddevs'] is not None):
             self._error = self._ax.errorbar(
@@ -158,6 +161,8 @@ class Line:
                 zorder=10,
                 fmt="none",
             )
+            # Set the selection mask on the line collection that makes the segments
+            self._error[2][0]._plopp_mask = line_mask[1:] if data["hist"] else line_mask
 
         if self.label and self._canvas._legend:
             leg_args = {}
