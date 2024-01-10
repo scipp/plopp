@@ -180,7 +180,7 @@ class Line:
         y = self._data.data
         hist = len(x) != len(y)
         error = None
-        mask = {'x': x.values, 'y': y.values, 'visible': False}
+        mask = {'x': x.values, 'y': np.full_like(y.values, np.nan), 'visible': False}
         if self._data.variances is not None:
             error = {
                 'x': sc.midpoints(x).values if hist else x.values,
@@ -219,10 +219,7 @@ class Line:
 
         self._line.set_data(new_values['values']['x'], new_values['values']['y'])
         self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
-        if new_values['mask']['visible']:
-            self._mask.set_visible(True)
-        else:
-            self._mask.set_visible(False)
+        self._mask.set_visible(new_values['mask']['visible'])
 
         if (self._error is not None) and (new_values['stddevs'] is not None):
             coll = self._error.get_children()[0]

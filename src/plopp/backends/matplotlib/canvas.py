@@ -14,7 +14,9 @@ from ...core.utils import maybe_variable_to_number, scalar_to_string
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
 
 
-def _none_if_not_finite(x):
+def _none_if_not_finite(x: Union[float, int, None]) -> Union[float, int, None]:
+    if x is None:
+        return None
     return x if np.isfinite(x) else None
 
 
