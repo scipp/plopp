@@ -44,6 +44,11 @@ def find_limits(
     If there are no positive values in the array, and the scale is log, fall back to
     some sensible default values.
     """
+    # Computing limits for string arrays is not supported, so we convert them to
+    # dummy numerical arrays.
+    if x.dtype == str:
+        x = x.copy(deep=False)
+        x.data = sc.arange(x.dim, float(len(x)), unit=x.unit)
     if x.masks:
         x = sc.where(merge_masks(x.masks), sc.scalar(np.NaN, unit=x.unit), x.data)
     v = x.values

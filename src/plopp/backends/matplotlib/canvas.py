@@ -177,8 +177,7 @@ class Canvas:
             if hasattr(line, '_plopp_mask'):
                 line_mask = sc.array(dims=['x'], values=line._plopp_mask)
                 line_x = sc.DataArray(
-                    data=sc.array(dims=['x'], values=line.get_xdata()),
-                    masks={'mask': line_mask},
+                    data=sc.array(dims=['x'], values=line.get_xdata())
                 )
                 line_y = sc.DataArray(
                     data=sc.array(dims=['x'], values=line.get_ydata()),

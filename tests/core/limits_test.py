@@ -9,72 +9,104 @@ from plopp.core.limits import find_limits, fix_empty_range
 
 
 def test_find_limits():
-    x = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
-    lims = find_limits(x)
+    da = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
+    lims = find_limits(da)
     assert sc.identical(lims[0], sc.scalar(0.0, unit='m'))
     assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
 
 
 def test_find_limits_log():
-    x = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
-    lims = find_limits(x, scale='log')
+    da = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
+    lims = find_limits(da, scale='log')
     assert sc.identical(lims[0], sc.scalar(1.0, unit='m'))
     assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
 
 
 def test_find_limits_log_int():
-    x = sc.DataArray(data=sc.arange('x', 11, unit='m'))
-    lims = find_limits(x, scale='log')
+    da = sc.DataArray(data=sc.arange('x', 11, unit='m'))
+    lims = find_limits(da, scale='log')
     assert sc.identical(lims[0], sc.scalar(1, unit='m'))
     assert sc.identical(lims[1], sc.scalar(10, unit='m'))
 
 
 def test_find_limits_with_nan():
-    x = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
-    x.values[5] = np.nan
-    lims = find_limits(x)
+    da = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
+    da.values[5] = np.nan
+    lims = find_limits(da)
     assert sc.identical(lims[0], sc.scalar(0.0, unit='m'))
     assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
 
 
 def test_find_limits_with_inf():
-    x = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
-    x.values[5] = np.inf
-    lims = find_limits(x)
+    da = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
+    da.values[5] = np.inf
+    lims = find_limits(da)
     assert sc.identical(lims[0], sc.scalar(0.0, unit='m'))
     assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
 
 
 def test_find_limits_with_ninf():
-    x = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
-    x.values[5] = np.NINF
-    lims = find_limits(x)
+    da = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
+    da.values[5] = np.NINF
+    lims = find_limits(da)
     assert sc.identical(lims[0], sc.scalar(0.0, unit='m'))
     assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
 
 
 def test_find_limits_no_finite_values_raises():
-    x = sc.DataArray(
+    da = sc.DataArray(
         data=sc.array(dims=['x'], values=[np.nan, np.inf, np.NINF, np.nan], unit='m')
     )
     with pytest.raises(ValueError, match="No finite values were found in array"):
-        _ = find_limits(x)
+        _ = find_limits(da)
 
 
 def test_find_limits_all_zeros():
-    x = sc.DataArray(data=sc.zeros(sizes={'x': 5}, unit='s'))
-    lims = find_limits(x)
+    da = sc.DataArray(data=sc.zeros(sizes={'x': 5}, unit='s'))
+    lims = find_limits(da)
     assert sc.identical(lims[0], sc.scalar(0.0, unit='s'))
     assert sc.identical(lims[1], sc.scalar(0.0, unit='s'))
 
 
 def test_find_limits_all_zeros_log_uses_default_positive_values():
-    x = sc.DataArray(data=sc.zeros(sizes={'x': 5}, unit='s'))
-    lims = find_limits(x, scale='log')
+    da = sc.DataArray(data=sc.zeros(sizes={'x': 5}, unit='s'))
+    lims = find_limits(da, scale='log')
     zero = sc.scalar(0.0, unit='s')
     assert lims[0] > zero
     assert lims[1] > zero
     assert lims[0] < lims[1]
+
+
+def test_find_limits_ignores_masks():
+    x = sc.arange('x', 11.0, unit='m')
+    da = sc.DataArray(data=x, masks={'mask': x > sc.scalar(5.0, unit='m')})
+    lims = find_limits(da)
+    assert sc.identical(lims[0], sc.scalar(0.0, unit='m'))
+    assert sc.identical(lims[1], sc.scalar(5.0, unit='m'))
+
+
+def test_find_limits_with_padding():
+    da = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
+    lims = find_limits(da, pad=True)
+    assert lims[0] < sc.scalar(0.0, unit='m')
+    assert lims[1] > sc.scalar(10.0, unit='m')
+
+
+def test_find_limits_with_padding_log():
+    da = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
+    lims = find_limits(da, scale='log', pad=True)
+    assert lims[0] < sc.scalar(1.0, unit='m')
+    assert lims[0] > sc.scalar(0.0, unit='m')
+    assert lims[1] > sc.scalar(10.0, unit='m')
+
+
+def test_find_limits_with_strings():
+    da = sc.DataArray(
+        data=sc.array(dims=['x'], values=['a', 'b', 'c', 'd', 'e'], unit='K')
+    )
+    lims = find_limits(da)
+    assert sc.identical(lims[0], sc.scalar(0.0, unit='K'))
+    assert sc.identical(lims[1], sc.scalar(4.0, unit='K'))
 
 
 def test_fix_empty_range():
