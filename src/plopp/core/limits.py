@@ -50,7 +50,11 @@ def find_limits(
         x = x.copy(deep=False)
         x.data = sc.arange(x.dim, float(len(x)), unit=x.unit)
     if x.masks:
-        x = sc.where(merge_masks(x.masks), sc.scalar(np.NaN, unit=x.unit), x.data)
+        x = sc.where(
+            merge_masks(x.masks),
+            sc.scalar(np.NaN, unit=x.unit),
+            x.data.to(dtype='float64'),
+        )
     v = x.values
     finite_inds = np.isfinite(v)
     if np.sum(finite_inds) == 0:

@@ -16,7 +16,15 @@ def test_plot_ndarray():
     pp.plot(np.arange(50.0))
 
 
+def test_plot_ndarray_int():
+    pp.plot(np.arange(50))
+
+
 def test_plot_list():
+    pp.plot([1.0, 2.0, 3.0, 4.0, 5.0])
+
+
+def test_plot_list_int():
     pp.plot([1, 2, 3, 4, 5])
 
 
@@ -233,8 +241,8 @@ def test_use_non_dimension_coords():
     p = pp.plot(da, coords=['xx2', 'yy2'])
     assert p.canvas.dims['x'] == 'xx2'
     assert p.canvas.dims['y'] == 'yy2'
-    assert p.canvas._xmax == 7.5 * da.coords['xx'].max().value
-    assert p.canvas._ymax == 3.3 * da.coords['yy'].max().value
+    assert p.canvas.xmax == 7.5 * da.coords['xx'].max().value
+    assert p.canvas.ymax == 3.3 * da.coords['yy'].max().value
 
 
 def test_use_non_dimension_coords_dataset():
@@ -242,7 +250,7 @@ def test_use_non_dimension_coords_dataset():
     ds.coords['xx2'] = 6.6 * ds.coords['xx']
     p = pp.plot(ds, coords=['xx2'])
     assert p.canvas.dims['x'] == 'xx2'
-    assert p.canvas._xmax > 6.6 * ds.coords['xx'].max().value
+    assert p.canvas.xmax > 6.6 * ds.coords['xx'].max().value
 
 
 @pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
@@ -399,3 +407,45 @@ def test_names_are_overridden_when_plotting_dicts(Constructor):
     assert artists[1].label == 'b'
     assert da1.name == 'DA1'
     assert da2.name == 'DA2'
+
+
+def test_plot_1d_ignores_masked_data_for_vertical_range():
+    da = data_array(ndim=1)
+    da.values[10] = 100
+    da.masks['m'] = da.data > sc.scalar(5.0, unit='m/s')
+    p = pp.plot(da)
+    assert p.canvas.ymax < 100
+
+
+def test_plot_1d_includes_masked_data_in_horizontal_range():
+    da = data_array(ndim=1)
+    da.masks['m'] = da.coords['xx'] > sc.scalar(5.0, unit='m')
+    p = pp.plot(da)
+    # If we check only for > 5, padding may invalidate the test
+    assert p.canvas.xmax > 10.0
+
+
+def test_plot_2d_ignores_masked_data_for_colorbar_range():
+    da = data_array(ndim=2)
+    da['xx', 10]['yy', 10].values = 100
+    da.masks['m'] = da.data > sc.scalar(5.0, unit='m/s')
+    p = pp.plot(da)
+    assert p._view.colormapper.vmax < 100
+
+
+def test_plot_2d_includes_masked_data_in_horizontal_range():
+    da = data_array(ndim=2)
+    da.masks['left'] = da.coords['xx'] < sc.scalar(5.0, unit='m')
+    da.masks['right'] = da.coords['xx'] > sc.scalar(30.0, unit='m')
+    p = pp.plot(da)
+    assert p.canvas.xmin < 1.0
+    assert p.canvas.xmax > 40.0
+
+
+def test_plot_2d_includes_masked_data_in_vertical_range():
+    da = data_array(ndim=2)
+    da.masks['bottom'] = da.coords['yy'] < sc.scalar(5.0, unit='m')
+    da.masks['top'] = da.coords['yy'] > sc.scalar(20.0, unit='m')
+    p = pp.plot(da)
+    assert p.canvas.ymin < 1.0
+    assert p.canvas.ymax > 30.0
