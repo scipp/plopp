@@ -9,7 +9,7 @@ import pytest
 import scipp as sc
 
 import plopp as pp
-from plopp.data.testing import variable, data_array
+from plopp.data.testing import data_array, variable
 
 
 def test_plot_ndarray():
