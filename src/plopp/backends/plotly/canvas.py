@@ -98,10 +98,17 @@ class Canvas:
         for line in lines:
             line_mask = sc.array(dims=['x'], values=line._plopp_mask)
             line_x = sc.DataArray(data=sc.array(dims=['x'], values=line.x))
-            line_y = sc.DataArray(
-                data=sc.array(dims=['x'], values=line.y),
-                masks={'mask': line_mask},
-            )
+            line_y = sc.array(dims=['x'], values=line.y)
+            if line.error_y.array is not None:
+                line_y = sc.concat(
+                    [
+                        line_y,
+                        sc.array(dims=['x'], values=line.y + line.error_y.array),
+                        sc.array(dims=['x'], values=line.y - line.error_y.array),
+                    ],
+                    dim='y',
+                )
+            line_y = sc.DataArray(data=line_y, masks={'mask': line_mask})
             bbox = bbox.union(
                 get_canvas_bounding_box(
                     x=line_x,
@@ -111,23 +118,6 @@ class Canvas:
                     pad=True,
                 )
             )
-            if line.error_y.array is not None:
-                for mult in [1, -1]:
-                    line_y = sc.DataArray(
-                        data=sc.array(
-                            dims=['x'], values=line.y + mult * line.error_y.array
-                        ),
-                        masks={'mask': line_mask},
-                    )
-                    bbox = bbox.union(
-                        get_canvas_bounding_box(
-                            x=None,
-                            y=line_y,
-                            xscale=self.xscale,
-                            yscale=self.yscale,
-                            pad=True,
-                        )
-                    )
 
         self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
         if self._user_vmin is not None:

@@ -175,13 +175,12 @@ class Line:
             self._fig.add_trace(self._mask)
             self._mask = self._fig.data[-1]
         self._line._plopp_id = self._id
+        line_mask = ~np.isnan(data['mask']['y'])
+        self._line._plopp_mask = line_mask
         self._mask._plopp_id = self._id
         if self._error is not None:
             self._error._plopp_id = self._id
-
-        line_mask = ~np.isnan(data['mask']['y'])
-        self._line._plopp_mask = line_mask
-        self._error._plopp_mask = line_mask[1:] if data["hist"] else line_mask
+            self._error._plopp_mask = line_mask[1:] if data["hist"] else line_mask
 
     def update(self, new_values: sc.DataArray):
         """
