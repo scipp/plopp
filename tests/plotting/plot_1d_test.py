@@ -34,9 +34,6 @@ def test_plot_variable():
 
 def test_plot_data_array():
     pp.plot(data_array(ndim=1))
-    da = data_array(ndim=2)
-    pp.plot(da)
-    pp.plot(da)
 
 
 def test_plot_data_array_missing_coords():
@@ -67,9 +64,8 @@ def test_plot_dict_of_data_arrays():
     pp.plot({'a': ds['a'], 'b': ds['b']})
 
 
-@pytest.mark.parametrize('ndim', [1, 2])
-def test_plot_from_node(ndim):
-    da = data_array(ndim=ndim)
+def test_plot_from_node():
+    da = data_array(ndim=1)
     pp.plot(pp.Node(da))
 
 
@@ -90,12 +86,6 @@ def test_plot_mixing_raw_data_and_nodes():
     b = 13.3 * a
     pp.plot({'a': a, 'b': pp.Node(b)})
     pp.plot({'a': pp.Node(a), 'b': b})
-
-
-def test_plot_data_array_2d_with_one_missing_coord_and_binedges():
-    da = sc.data.table_xyz(100).bin(x=10, y=12).bins.mean()
-    del da.coords['x']
-    pp.plot(da)
 
 
 def test_plot_coord_with_no_unit():
@@ -119,18 +109,6 @@ def test_plot_ignore_size_disables_size_check():
 def test_plot_with_non_dimensional_unsorted_coord_does_not_warn():
     da = data_array(ndim=1)
     da.coords['aux'] = sc.sin(sc.arange(da.dim, 50.0, unit='rad'))
-    pp.plot(da)
-
-
-def test_plot_2d_coord():
-    da = data_array(ndim=2, ragged=True)
-    pp.plot(da)
-    pp.plot(da.transpose())
-
-
-def test_plot_2d_coord_with_mask():
-    da = data_array(ndim=2, ragged=True)
-    da.masks['negative'] = da.data < sc.scalar(0, unit='m/s')
     pp.plot(da)
 
 
@@ -187,19 +165,6 @@ def test_kwarg_scale():
     assert p.canvas.ax.get_yscale() == 'linear'
 
 
-def test_kwarg_cmap():
-    da = data_array(ndim=2)
-    p = pp.plot(da, cmap='magma')
-    assert p._view.colormapper.cmap.name == 'magma'
-
-
-def test_kwarg_scale_2d():
-    da = data_array(ndim=2)
-    p = pp.plot(da, scale={'xx': 'log', 'yy': 'log'})
-    assert p.canvas.ax.get_xscale() == 'log'
-    assert p.canvas.ax.get_yscale() == 'log'
-
-
 def test_kwarg_for_two_lines():
     ds = dataset(ndim=1)
     p = pp.plot(ds, color='r')
@@ -219,7 +184,7 @@ def test_kwarg_as_dict():
 
 
 def test_raises_ValueError_when_given_binned_data():
-    da = sc.data.table_xyz(100).bin(x=10, y=20)
+    da = sc.data.table_xyz(100).bin(x=10)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         pp.plot(da)
 
@@ -232,17 +197,6 @@ def test_raises_ValueError_when_given_unsupported_data_type():
     nested_dict = {'group1': {'a': a, 'b': b}, 'group2': {'c': c, 'd': d}}
     with pytest.raises(TypeError, match='Cannot convert input of type'):
         pp.plot(nested_dict)
-
-
-def test_use_non_dimension_coords():
-    da = data_array(ndim=2, binedges=True)
-    da.coords['xx2'] = 7.5 * da.coords['xx']
-    da.coords['yy2'] = 3.3 * da.coords['yy']
-    p = pp.plot(da, coords=['xx2', 'yy2'])
-    assert p.canvas.dims['x'] == 'xx2'
-    assert p.canvas.dims['y'] == 'yy2'
-    assert p.canvas.xmax == 7.5 * da.coords['xx'].max().value
-    assert p.canvas.ymax == 3.3 * da.coords['yy'].max().value
 
 
 def test_use_non_dimension_coords_dataset():
@@ -263,30 +217,11 @@ def test_save_to_disk_1d(ext):
         assert os.path.isfile(fname)
 
 
-@pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
-def test_save_to_disk_2d(ext):
-    da = data_array(ndim=2)
-    fig = pp.plot(da)
-    with tempfile.TemporaryDirectory() as path:
-        fname = os.path.join(path, f'plopp_fig2d.{ext}')
-        fig.save(filename=fname)
-        assert os.path.isfile(fname)
-
-
 def test_save_to_disk_with_bad_extension_raises():
-    da = data_array(ndim=2)
+    da = data_array(ndim=1)
     fig = pp.plot(da)
     with pytest.raises(ValueError):
-        fig.save(filename='plopp_fig2d.txt')
-
-
-def test_plot_raises_with_multiple_2d_inputs():
-    a = data_array(ndim=2)
-    b = 3.3 * a
-    with pytest.raises(
-        ValueError, match='The plot function can only plot a single 2d data entry'
-    ):
-        pp.plot({'a': a, 'b': b})
+        fig.save(filename='plopp_fig1d.txt')
 
 
 def test_plot_xarray_data_array_1d():
@@ -298,24 +233,6 @@ def test_plot_xarray_data_array_1d():
     da = xr.DataArray(data, coords={'time': time}, dims=['time'])
     p = pp.plot(da)
     assert p.canvas.dims['x'] == 'time'
-    assert p.canvas.units['x'] == 'dimensionless'
-    assert p.canvas.units['y'] == 'dimensionless'
-
-
-def test_plot_xarray_data_array_2d():
-    import xarray as xr
-
-    N = 50
-    M = 40
-    data = np.random.random([M, N])
-    time = np.arange(float(N))
-    space = np.arange(float(M))
-    da = xr.DataArray(
-        data, coords={'space': space, 'time': time}, dims=['space', 'time']
-    )
-    p = pp.plot(da)
-    assert p.canvas.dims['x'] == 'time'
-    assert p.canvas.dims['y'] == 'space'
     assert p.canvas.units['x'] == 'dimensionless'
     assert p.canvas.units['y'] == 'dimensionless'
 
@@ -423,32 +340,6 @@ def test_plot_1d_includes_masked_data_in_horizontal_range():
     p = pp.plot(da)
     # If we check only for > 5, padding may invalidate the test
     assert p.canvas.xmax > 10.0
-
-
-def test_plot_2d_ignores_masked_data_for_colorbar_range():
-    da = data_array(ndim=2)
-    da['xx', 10]['yy', 10].values = 100
-    da.masks['m'] = da.data > sc.scalar(5.0, unit='m/s')
-    p = pp.plot(da)
-    assert p._view.colormapper.vmax < 100
-
-
-def test_plot_2d_includes_masked_data_in_horizontal_range():
-    da = data_array(ndim=2)
-    da.masks['left'] = da.coords['xx'] < sc.scalar(5.0, unit='m')
-    da.masks['right'] = da.coords['xx'] > sc.scalar(30.0, unit='m')
-    p = pp.plot(da)
-    assert p.canvas.xmin < 1.0
-    assert p.canvas.xmax > 40.0
-
-
-def test_plot_2d_includes_masked_data_in_vertical_range():
-    da = data_array(ndim=2)
-    da.masks['bottom'] = da.coords['yy'] < sc.scalar(5.0, unit='m')
-    da.masks['top'] = da.coords['yy'] > sc.scalar(20.0, unit='m')
-    p = pp.plot(da)
-    assert p.canvas.ymin < 1.0
-    assert p.canvas.ymax > 30.0
 
 
 def test_plot_1d_datetime_coord():
