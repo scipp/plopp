@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from __future__ import annotations
-
-from dataclasses import dataclass
 from typing import Literal, Optional, Tuple
 
 import numpy as np
@@ -12,47 +9,10 @@ import scipp as sc
 from .utils import merge_masks
 
 
-def _none_min(a: Optional[float], b: Optional[float]) -> Optional[float]:
-    if a is None:
-        return b
-    if b is None:
-        return a
-    return min(a, b)
-
-
-def _none_max(a: Optional[float], b: Optional[float]) -> Optional[float]:
-    if a is None:
-        return b
-    if b is None:
-        return a
-    return max(a, b)
-
-
-@dataclass
-class BoundingBox:
-    """
-    A bounding box in 2D space.
-    """
-
-    xmin: Optional[float] = None
-    xmax: Optional[float] = None
-    ymin: Optional[float] = None
-    ymax: Optional[float] = None
-
-    def union(self, other: BoundingBox) -> BoundingBox:
-        """
-        Return the union of this bounding box with another one.
-        """
-        return BoundingBox(
-            xmin=_none_min(self.xmin, other.xmin),
-            xmax=_none_max(self.xmax, other.xmax),
-            ymin=_none_min(self.ymin, other.ymin),
-            ymax=_none_max(self.ymax, other.ymax),
-        )
-
-
 def find_limits(
-    x: sc.DataArray, scale: Literal['linear', 'log'] = 'linear', pad: bool = False
+    x: sc.DataArray,
+    scale: Optional[Literal['linear', 'log']] = 'linear',
+    pad: bool = False,
 ) -> Tuple[sc.Variable, sc.Variable]:
     """
     Find sensible limits, depending on linear or log scale.
@@ -60,6 +20,8 @@ def find_limits(
     If there are no positive values in the array, and the scale is log, fall back to
     some sensible default values.
     """
+    if scale is None:
+        scale = 'linear'
     is_datetime = x.dtype == sc.DType.datetime64
     # Computing limits for string arrays is not supported, so we convert them to
     # dummy numerical arrays.

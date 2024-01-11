@@ -9,8 +9,8 @@ import scipp as sc
 from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from ...core.limits import BoundingBox, find_limits, fix_empty_range
 from ...core.utils import maybe_variable_to_number, scalar_to_string
+from ..common import BoundingBox, get_canvas_bounding_box
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
 
 
@@ -18,35 +18,6 @@ def _none_if_not_finite(x: Union[float, int, None]) -> Union[float, int, None]:
     if x is None:
         return None
     return x if np.isfinite(x) else None
-
-
-def _get_bbox(
-    x: Optional[sc.DataArray],
-    y: Optional[sc.DataArray],
-    xscale: Literal['linear', 'log'],
-    yscale: Literal['linear', 'log'],
-    pad=False,
-) -> BoundingBox:
-    bounds = {}
-    if x is not None:
-        left, right = fix_empty_range(
-            find_limits(
-                x,
-                scale=xscale,
-                pad=pad,
-            )
-        )
-        bounds.update(xmin=left.value, xmax=right.value)
-    if y is not None:
-        bottom, top = fix_empty_range(
-            find_limits(
-                y,
-                scale=yscale,
-                pad=pad,
-            )
-        )
-        bounds.update(ymin=bottom.value, ymax=top.value)
-    return BoundingBox(**bounds)
 
 
 class Canvas:
@@ -164,40 +135,33 @@ class Canvas:
 
     def autoscale(self):
         """
-        Matplotlib's autoscale only takes lines into account. We require a special
-        handling for meshes, which is part of the axes collections.
-
-        Parameters
-        ----------
-        draw:
-            Make a draw call to the figure if ``True``.
+        Find the limits of the artists on the canvas and adjust the axes ranges.
+        Add some padding in the case of 1d lines.
         """
         bbox = BoundingBox()
-        for line in self.ax.lines:
-            if hasattr(line, '_plopp_mask'):
-                line_mask = sc.array(dims=['x'], values=line._plopp_mask)
-                line_x = sc.DataArray(
-                    data=sc.array(dims=['x'], values=line.get_xdata())
+        lines = [line for line in self.ax.lines if hasattr(line, '_plopp_mask')]
+        for line in lines:
+            line_mask = sc.array(dims=['x'], values=line._plopp_mask)
+            line_x = sc.DataArray(data=sc.array(dims=['x'], values=line.get_xdata()))
+            line_y = sc.DataArray(
+                data=sc.array(dims=['x'], values=line.get_ydata()),
+                masks={'mask': line_mask},
+            )
+            bbox = bbox.union(
+                get_canvas_bounding_box(
+                    x=line_x,
+                    y=line_y,
+                    xscale=self.xscale,
+                    yscale=self.yscale,
+                    pad=True,
                 )
-                line_y = sc.DataArray(
-                    data=sc.array(dims=['x'], values=line.get_ydata()),
-                    masks={'mask': line_mask},
-                )
-                bbox = bbox.union(
-                    _get_bbox(
-                        x=line_x,
-                        y=line_y,
-                        xscale=self.xscale,
-                        yscale=self.yscale,
-                        pad=True,
-                    )
-                )
+            )
 
         for c in self.ax.collections:
             if isinstance(c, QuadMesh):
                 coords = c.get_coordinates()
                 bbox = bbox.union(
-                    _get_bbox(
+                    get_canvas_bounding_box(
                         x=sc.DataArray(
                             data=sc.array(dims=['x', 'y'], values=coords[..., 0])
                         ),
@@ -218,7 +182,7 @@ class Canvas:
                     masks={'mask': line_mask},
                 )
                 bbox = bbox.union(
-                    _get_bbox(
+                    get_canvas_bounding_box(
                         x=None,
                         y=line_y,
                         xscale=self.xscale,
