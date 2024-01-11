@@ -85,6 +85,14 @@ def test_find_limits_ignores_masks():
     assert sc.identical(lims[1], sc.scalar(5.0, unit='m'))
 
 
+def test_find_limits_ignores_masks_log():
+    x = sc.arange('x', 11.0, unit='m')
+    da = sc.DataArray(data=x, masks={'mask': x < sc.scalar(3.0, unit='m')})
+    lims = find_limits(da)
+    assert sc.identical(lims[0], sc.scalar(3.0, unit='m'))
+    assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
+
+
 def test_find_limits_with_padding():
     da = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
     lims = find_limits(da, pad=True)
@@ -107,6 +115,16 @@ def test_find_limits_with_strings():
     lims = find_limits(da)
     assert sc.identical(lims[0], sc.scalar(0.0, unit='K'))
     assert sc.identical(lims[1], sc.scalar(4.0, unit='K'))
+
+
+def test_find_limits_datetime():
+    time = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    da = sc.DataArray(data=sc.array(dims=['time'], values=time))
+    lims = find_limits(da)
+    assert sc.identical(lims[0], sc.scalar(time[0], unit='s'))
+    assert sc.identical(lims[1], sc.scalar(time[-1], unit='s'))
 
 
 def test_fix_empty_range():

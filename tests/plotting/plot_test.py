@@ -449,3 +449,97 @@ def test_plot_2d_includes_masked_data_in_vertical_range():
     p = pp.plot(da)
     assert p.canvas.ymin < 1.0
     assert p.canvas.ymax > 30.0
+
+
+def test_plot_1d_datetime_coord():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    v = np.random.rand(time.sizes['time'])
+    da = sc.DataArray(
+        data=sc.array(dims=['time'], values=10 * v, variances=v),
+        coords={'time': time},
+    )
+    pp.plot(da)
+
+
+def test_plot_1d_datetime_coord_binedges():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    v = np.random.rand(time.sizes['time'] - 1)
+    da = sc.DataArray(
+        data=sc.array(dims=['time'], values=10 * v, variances=v),
+        coords={'time': time},
+    )
+    pp.plot(da)
+
+
+def test_plot_1d_datetime_coord_with_mask():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    v = np.random.rand(time.sizes['time'])
+    da = sc.DataArray(
+        data=sc.array(dims=['time'], values=10 * v, variances=v),
+        coords={'time': time},
+        masks={'m': time > sc.datetime('2017-03-16T21:10:00')},
+    )
+    pp.plot(da)
+
+
+def test_plot_1d_datetime_coord_with_mask_and_binedges():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    v = np.random.rand(time.sizes['time'] - 1)
+    da = sc.DataArray(
+        data=sc.array(dims=['time'], values=10 * v, variances=v),
+        coords={'time': time},
+        masks={'m': sc.midpoints(time) > sc.datetime('2017-03-16T21:10:00')},
+    )
+    pp.plot(da)
+
+
+def test_plot_1d_datetime_coord_log():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    v = np.random.rand(time.sizes['time'])
+    da = sc.DataArray(
+        data=sc.array(dims=['time'], values=10 * v, variances=v),
+        coords={'time': time},
+    )
+    pp.plot(da, scale={'time': 'log'})
+
+
+def test_plot_1d_datetime_coord_log_binedges():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    v = np.random.rand(time.sizes['time'] - 1)
+    da = sc.DataArray(
+        data=sc.array(dims=['time'], values=10 * v, variances=v),
+        coords={'time': time},
+    )
+    pp.plot(da, scale={'time': 'log'})
+
+
+def test_plot_1d_datetime_coord_log_with_mask():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    v = np.random.rand(time.sizes['time'])
+    da = sc.DataArray(
+        data=sc.array(dims=['time'], values=10 * v, variances=v),
+        coords={'time': time},
+        masks={'m': time > sc.datetime('2017-03-16T21:10:00')},
+    )
+    pp.plot(da, scale={'time': 'log'})

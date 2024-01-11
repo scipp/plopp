@@ -12,6 +12,22 @@ import scipp as sc
 from .utils import merge_masks
 
 
+def _none_min(a: Optional[float], b: Optional[float]) -> Optional[float]:
+    if a is None:
+        return b
+    if b is None:
+        return a
+    return min(a, b)
+
+
+def _none_max(a: Optional[float], b: Optional[float]) -> Optional[float]:
+    if a is None:
+        return b
+    if b is None:
+        return a
+    return max(a, b)
+
+
 @dataclass
 class BoundingBox:
     """
@@ -28,10 +44,10 @@ class BoundingBox:
         Return the union of this bounding box with another one.
         """
         return BoundingBox(
-            xmin=min(self.xmin or np.inf, other.xmin or np.inf),
-            xmax=max(self.xmax or np.NINF, other.xmax or np.NINF),
-            ymin=min(self.ymin or np.inf, other.ymin or np.inf),
-            ymax=max(self.ymax or np.NINF, other.ymax or np.NINF),
+            xmin=_none_min(self.xmin, other.xmin),
+            xmax=_none_max(self.xmax, other.xmax),
+            ymin=_none_min(self.ymin, other.ymin),
+            ymax=_none_max(self.ymax, other.ymax),
         )
 
 
@@ -44,9 +60,10 @@ def find_limits(
     If there are no positive values in the array, and the scale is log, fall back to
     some sensible default values.
     """
+    is_datetime = x.dtype == sc.DType.datetime64
     # Computing limits for string arrays is not supported, so we convert them to
     # dummy numerical arrays.
-    if x.dtype == str:
+    if x.dtype == sc.DType.string:
         x = x.copy(deep=False)
         x.data = sc.arange(x.dim, float(len(x)), unit=x.unit)
     if x.masks:
@@ -62,24 +79,29 @@ def find_limits(
     finite_vals = v[finite_inds]
     finite_max = None
     if scale == "log":
-        positives = finite_vals > 0
-        if np.sum(positives) == 0:
-            finite_min = 0.1
-            finite_max = 1.0
+        if is_datetime:
+            finite_min = np.amin(finite_vals)
         else:
-            initial = (np.finfo if v.dtype.kind == 'f' else np.iinfo)(v.dtype).max
-            finite_min = np.amin(finite_vals, initial=initial, where=finite_vals > 0)
+            positives = finite_vals > 0
+            if np.sum(positives) == 0:
+                finite_min = 0.1
+                finite_max = 1.0
+            else:
+                initial = (np.finfo if v.dtype.kind == 'f' else np.iinfo)(v.dtype).max
+                finite_min = np.amin(
+                    finite_vals, initial=initial, where=finite_vals > 0
+                )
     else:
         finite_min = np.amin(finite_vals)
     if finite_max is None:
         finite_max = np.amax(finite_vals)
     if pad:
         delta = 0.05
-        if scale == 'log':
+        if (scale == 'log') and (not is_datetime):
             p = (finite_max / finite_min) ** delta
             finite_min /= p
             finite_max *= p
-        else:
+        if scale == 'linear':
             p = (finite_max - finite_min) * delta
             finite_min -= p
             finite_max += p
