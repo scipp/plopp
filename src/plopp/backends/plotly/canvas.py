@@ -7,7 +7,7 @@ import numpy as np
 import scipp as sc
 
 from ...core.utils import maybe_variable_to_number
-from ..common import BoundingBox, get_canvas_bounding_box
+from ..common import BoundingBox, axis_bounds
 
 
 class Canvas:
@@ -109,15 +109,11 @@ class Canvas:
                     dim='y',
                 )
             line_y = sc.DataArray(data=line_y, masks={'mask': line_mask})
-            bbox = bbox.union(
-                get_canvas_bounding_box(
-                    x=line_x,
-                    y=line_y,
-                    xscale=self.xscale,
-                    yscale=self.yscale,
-                    pad=True,
-                )
+            line_bbox = BoundingBox(
+                **{**axis_bounds(('xmin', 'xmax'), line_x, self.xscale, pad=True)},
+                **{**axis_bounds(('ymin', 'ymax'), line_y, self.yscale, pad=True)},
             )
+            bbox = bbox.union(line_bbox)
 
         self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
         if self._user_vmin is not None:

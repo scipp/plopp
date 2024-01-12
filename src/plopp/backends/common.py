@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Dict, Literal, Optional
 
 import numpy as np
 import scipp as sc
@@ -44,33 +44,15 @@ class BoundingBox:
         )
 
 
-def get_canvas_bounding_box(
-    x: Optional[sc.DataArray],
-    y: Optional[sc.DataArray],
-    xscale: Literal['linear', 'log'],
-    yscale: Literal['linear', 'log'],
+def axis_bounds(
+    keys: tuple[str, str],
+    x: sc.DataArray,
+    scale: Literal['linear', 'log'],
     pad=False,
-) -> BoundingBox:
-    bounds = {}
-    if x is not None:
-        left, right = fix_empty_range(
-            find_limits(
-                x,
-                scale=xscale,
-                pad=pad,
-            )
-        )
-        bounds.update(xmin=left.value, xmax=right.value)
-    if y is not None:
-        bottom, top = fix_empty_range(
-            find_limits(
-                y,
-                scale=yscale,
-                pad=pad,
-            )
-        )
-        bounds.update(ymin=bottom.value, ymax=top.value)
-    return BoundingBox(**bounds)
+) -> Dict[str, float]:
+    values = fix_empty_range(find_limits(x, scale=scale, pad=pad))
+    bounds = {k: v for k, v in zip(keys, (val.value for val in values))}
+    return bounds
 
 
 def make_line_data(data: sc.DataArray, dim: str) -> dict:

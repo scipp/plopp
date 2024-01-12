@@ -10,7 +10,7 @@ from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
-from ..common import BoundingBox, get_canvas_bounding_box
+from ..common import BoundingBox, axis_bounds
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
 
 
@@ -147,31 +147,27 @@ class Canvas:
                 data=sc.array(dims=['x'], values=line.get_ydata()),
                 masks={'mask': line_mask},
             )
-            bbox = bbox.union(
-                get_canvas_bounding_box(
-                    x=line_x,
-                    y=line_y,
-                    xscale=self.xscale,
-                    yscale=self.yscale,
-                    pad=True,
-                )
+            line_bbox = BoundingBox(
+                **{**axis_bounds(('xmin', 'xmax'), line_x, self.xscale, pad=True)},
+                **{**axis_bounds(('ymin', 'ymax'), line_y, self.yscale, pad=True)},
             )
+            bbox = bbox.union(line_bbox)
 
         for c in self.ax.collections:
             if isinstance(c, QuadMesh):
                 coords = c.get_coordinates()
-                bbox = bbox.union(
-                    get_canvas_bounding_box(
-                        x=sc.DataArray(
-                            data=sc.array(dims=['x', 'y'], values=coords[..., 0])
-                        ),
-                        y=sc.DataArray(
-                            data=sc.array(dims=['x', 'y'], values=coords[..., 1])
-                        ),
-                        xscale=self.xscale,
-                        yscale=self.yscale,
-                    )
+                mesh_x = sc.DataArray(
+                    data=sc.array(dims=['x', 'y'], values=coords[..., 0])
                 )
+                mesh_y = sc.DataArray(
+                    data=sc.array(dims=['x', 'y'], values=coords[..., 1])
+                )
+                mesh_bbox = BoundingBox(
+                    **{**axis_bounds(('xmin', 'xmax'), mesh_x, self.xscale)},
+                    **{**axis_bounds(('ymin', 'ymax'), mesh_y, self.yscale)},
+                )
+                bbox = bbox.union(mesh_bbox)
+
             elif hasattr(c, '_plopp_mask'):
                 line_mask = sc.array(dims=['x'], values=c._plopp_mask)
                 line_y = sc.DataArray(
@@ -181,15 +177,10 @@ class Canvas:
                     ),
                     masks={'mask': line_mask},
                 )
-                bbox = bbox.union(
-                    get_canvas_bounding_box(
-                        x=None,
-                        y=line_y,
-                        xscale=self.xscale,
-                        yscale=self.yscale,
-                        pad=True,
-                    )
+                line_bbox = BoundingBox(
+                    **axis_bounds(('ymin', 'ymax'), line_y, self.yscale, pad=True)
                 )
+                bbox = bbox.union(line_bbox)
 
         self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
         if self._user_vmin is not None:
