@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Literal, Optional
+from typing import Dict, Literal, Optional, Tuple
 
 import numpy as np
 import scipp as sc
@@ -45,17 +45,47 @@ class BoundingBox:
 
 
 def axis_bounds(
-    keys: tuple[str, str],
+    keys: Tuple[str, str],
     x: sc.DataArray,
     scale: Literal['linear', 'log'],
     pad=False,
 ) -> Dict[str, float]:
+    """
+    Find sensible limits for an axis, depending on linear or log scale.
+
+    Parameters
+    ----------
+    keys:
+        The keys to use for constructing a bounding box. The keys should be
+        ``('xmin', 'xmax')`` for the horizontal axis, and ``('ymin', 'ymax')`` for the
+        vertical axis.
+    x:
+        The data array to find limits for.
+    scale:
+        The scale of the axis (linear or log).
+    pad:
+        Whether to pad the limits.
+    """
     values = fix_empty_range(find_limits(x, scale=scale, pad=pad))
     bounds = {k: v for k, v in zip(keys, (val.value for val in values))}
     return bounds
 
 
 def make_line_data(data: sc.DataArray, dim: str) -> dict:
+    """
+    Prepare data for plotting a line.
+    This includes extracting the x and y values, and optionally the error bars and masks
+    from the data array.
+    This also handles the case where the data array is a histogram, in which case the
+    first bin edge is repeated.
+
+    Parameters
+    ----------
+    data:
+        The data array to extract values from.
+    dim:
+        The dimension along which to extract values.
+    """
     x = data.coords[dim]
     y = data.data
     hist = len(x) != len(y)
