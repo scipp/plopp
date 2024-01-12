@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal, Optional, Tuple
+from typing import Literal, Tuple
 
 import numpy as np
 import scipp as sc
