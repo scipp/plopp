@@ -215,22 +215,22 @@ class Canvas:
         self.fig.layout.yaxis.title = lab
 
     @property
-    def xscale(self) -> str:
+    def xscale(self) -> Literal['linear', 'log']:
         """
         Get or set the scale of the x-axis ('linear' or 'log').
         """
-        return self.fig.layout.xaxis.type
+        return self.fig.layout.xaxis.type or 'linear'
 
     @xscale.setter
     def xscale(self, scale: Literal['linear', 'log']):
         self.fig.update_xaxes(type=scale)
 
     @property
-    def yscale(self) -> str:
+    def yscale(self) -> Literal['linear', 'log']:
         """
         Get or set the scale of the y-axis ('linear' or 'log').
         """
-        return self.fig.layout.yaxis.type
+        return self.fig.layout.yaxis.type or 'linear'
 
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):

@@ -11,7 +11,7 @@ from .utils import merge_masks
 
 def find_limits(
     x: sc.DataArray,
-    scale: Optional[Literal['linear', 'log']] = 'linear',
+    scale: Literal['linear', 'log'] = 'linear',
     pad: bool = False,
 ) -> Tuple[sc.Variable, sc.Variable]:
     """
@@ -20,8 +20,6 @@ def find_limits(
     If there are no positive values in the array, and the scale is log, fall back to
     some sensible default values.
     """
-    if scale is None:
-        scale = 'linear'
     is_datetime = x.dtype == sc.DType.datetime64
     # Computing limits for string arrays is not supported, so we convert them to
     # dummy numerical arrays.

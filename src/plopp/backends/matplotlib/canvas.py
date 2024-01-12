@@ -339,7 +339,7 @@ class Canvas:
         self.cax.set_ylabel(lab)
 
     @property
-    def xscale(self) -> str:
+    def xscale(self) -> Literal['linear', 'log']:
         """
         Get or set the scale of the x-axis ('linear' or 'log').
         """
@@ -350,7 +350,7 @@ class Canvas:
         self.ax.set_xscale(scale)
 
     @property
-    def yscale(self) -> str:
+    def yscale(self) -> Literal['linear', 'log']:
         """
         Get or set the scale of the y-axis ('linear' or 'log').
         """
@@ -427,7 +427,7 @@ class Canvas:
         self.ax.set_ylim(value)
 
     @property
-    def grid(self) -> str:
+    def grid(self) -> bool:
         """
         Get or set the visibility of the grid.
         """
