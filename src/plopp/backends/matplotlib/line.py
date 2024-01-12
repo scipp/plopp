@@ -9,7 +9,7 @@ import scipp as sc
 from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
 
-from ...core.utils import merge_masks
+from ..common import make_line_data
 from .canvas import Canvas
 
 
@@ -54,7 +54,6 @@ class Line:
         self._line = None
         self._mask = None
         self._error = None
-        self._dim = None
         self._unit = None
         self.label = data.name
         self._dim = self._data.dim
@@ -67,7 +66,11 @@ class Line:
             if key in args:
                 args[alias] = args.pop(key)
 
-        self._make_line(data=self._make_data(), number=number, **args)
+        self._make_line(
+            data=make_line_data(data=self._data, dim=self._dim),
+            number=number,
+            **args,
+        )
 
     def _make_line(
         self,
@@ -148,6 +151,9 @@ class Line:
                 visible=data['mask']['visible'],
             )[0]
 
+        line_mask = ~np.isnan(data['mask']['y'])
+        self._line._plopp_mask = line_mask
+
         # Add error bars
         if errorbars and (data['stddevs'] is not None):
             self._error = self._ax.errorbar(
@@ -158,6 +164,8 @@ class Line:
                 zorder=10,
                 fmt="none",
             )
+            # Set the selection mask on the line collection that makes the segments
+            self._error[2][0]._plopp_mask = line_mask[1:] if data["hist"] else line_mask
 
         if self.label and self._canvas._legend:
             leg_args = {}
@@ -170,36 +178,6 @@ class Line:
                 )
             self._ax.legend(**leg_args)
 
-    def _make_data(self) -> dict:
-        x = self._data.coords[self._dim]
-        y = self._data.data
-        hist = len(x) != len(y)
-        error = None
-        mask = {'x': x.values, 'y': y.values, 'visible': False}
-        if self._data.variances is not None:
-            error = {
-                'x': sc.midpoints(x).values if hist else x.values,
-                'y': y.values,
-                'e': sc.stddevs(y).values,
-            }
-        if len(self._data.masks):
-            one_mask = merge_masks(self._data.masks).values
-            mask = {
-                'x': x.values,
-                'y': np.where(one_mask, y.values, np.nan),
-                'visible': True,
-            }
-        if hist:
-            y = sc.concat([y[0:1], y], dim=self._dim)
-            if mask is not None:
-                mask['y'] = np.concatenate([mask['y'][0:1], mask['y']])
-        return {
-            'values': {'x': x.values, 'y': y.values},
-            'stddevs': error,
-            'mask': mask,
-            'hist': hist,
-        }
-
     def update(self, new_values: sc.DataArray):
         """
         Update the x and y positions of the data points from new data.
@@ -210,14 +188,11 @@ class Line:
             New data to update the line values, masks, errorbars from.
         """
         self._data = new_values
-        new_values = self._make_data()
+        new_values = make_line_data(data=self._data, dim=self._dim)
 
         self._line.set_data(new_values['values']['x'], new_values['values']['y'])
         self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
-        if new_values['mask']['visible']:
-            self._mask.set_visible(True)
-        else:
-            self._mask.set_visible(False)
+        self._mask.set_visible(new_values['mask']['visible'])
 
         if (self._error is not None) and (new_values['stddevs'] is not None):
             coll = self._error.get_children()[0]
