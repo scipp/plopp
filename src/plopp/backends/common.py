@@ -13,20 +13,12 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
 
 
-def _none_min(a: Optional[float], b: Optional[float]) -> Optional[float]:
-    if a is None:
-        return b
-    if b is None:
-        return a
-    return min(a, b)
+def _none_min(*args: float) -> float:
+    return min(x for x in args if x is not None)
 
 
-def _none_max(a: Optional[float], b: Optional[float]) -> Optional[float]:
-    if a is None:
-        return b
-    if b is None:
-        return a
-    return max(a, b)
+def _none_max(*args: float) -> float:
+    return max(x for x in args if x is not None)
 
 
 @dataclass
