@@ -434,3 +434,18 @@ def test_plot_1d_datetime_coord_log_with_mask():
         masks={'m': time > sc.datetime('2017-03-16T21:10:00')},
     )
     pp.plot(da, scale={'time': 'log'})
+
+
+def test_plot_1d_data_with_errorbars():
+    da = data_array(ndim=1, variances=True)
+    p = da.plot()
+    assert p.canvas.ymin < -1.0
+    assert p.canvas.ymax > 1.0
+
+
+def test_plot_1d_data_with_variances_and_nan_values():
+    da = data_array(ndim=1, variances=True)
+    da.values[-10:] = np.nan
+    p = da.plot()
+    assert p.canvas.ymin < -1.0
+    assert p.canvas.ymax > 1.0
