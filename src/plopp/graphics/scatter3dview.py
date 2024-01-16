@@ -67,7 +67,7 @@ class Scatter3dView(View):
         figsize: Tuple[int, int] = (600, 400),
         title: Optional[str] = None,
         camera: Optional[Camera] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*nodes)
 

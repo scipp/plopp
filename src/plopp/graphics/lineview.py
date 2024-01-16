@@ -80,7 +80,7 @@ class LineView(View):
         figsize: Tuple[float, float] = None,
         format: Optional[Literal['svg', 'png']] = None,
         legend: Union[bool, Tuple[float, float]] = True,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*nodes)
 
@@ -99,12 +99,11 @@ class LineView(View):
             vmax=vmax,
             autoscale=autoscale,
             legend=legend,
-            **kwargs
+            **kwargs,
         )
         self.canvas.yscale = norm
 
         self.render()
-        self.canvas.autoscale()
         self.canvas.finalize()
 
     def update(self, new_values: sc.DataArray, key: str):
@@ -146,7 +145,7 @@ class LineView(View):
                 number=len(self.artists),
                 errorbars=self._errorbars,
                 mask_color=self._mask_color,
-                **self._kwargs
+                **self._kwargs,
             )
             self.artists[key] = line
 

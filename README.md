@@ -1,6 +1,7 @@
 <img src="docs/_static/logo.svg" width="50%" />
 
-[![PyPI version](https://badge.fury.io/py/plopp.svg)](https://pypi.org/project/plopp)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![PyPI badge](http://img.shields.io/pypi/v/plopp.svg)](https://pypi.python.org/pypi/plopp)
 [![Anaconda-Server Badge](https://anaconda.org/scipp/plopp/badges/version.svg)](https://anaconda.org/scipp/plopp)
 [![Documentation](https://img.shields.io/badge/docs-online-success)](https://scipp.github.io/plopp/)
 [![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
@@ -8,27 +9,12 @@
 
 # Plopp
 
-Plotting library based on scipp.
+## About
 
-## Documentation
-
-The documentation for `plopp` can be found at https://scipp.github.io/plopp.
+Visualization library for Scipp
 
 ## Installation
 
-### Using pip
-
 ```sh
-pip install plopp
+python -m pip install plopp
 ```
-
-### Using conda
-
-```sh
-conda install -c conda-forge -c scipp plopp
-```
-
-## Have a problem or need a new feature?
-
-- Bug reports or feature requests should be submitted by opening an [issue](https://github.com/scipp/plopp/issues)
-- For general discussions or questions about how to do something with `plopp`, start a new [discussion](https://github.com/scipp/plopp/discussions)

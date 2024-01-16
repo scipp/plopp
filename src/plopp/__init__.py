@@ -19,6 +19,8 @@ from .core import Node, View, node, show_graph, widget_node
 from .graphics import Camera, figure1d, figure2d, figure3d, tiled
 from .plotting import inspector, plot, scatter3d, slicer, superplot, xyplot
 
+del importlib
+
 
 def show():
     """

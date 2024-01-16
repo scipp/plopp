@@ -5,13 +5,12 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
 
 from ..protocols import FigureLike
 from .static import get_repr_maker
-from .utils import copy_figure, is_interactive_backend, silent_mpl_figure
+from .utils import copy_figure, is_interactive_backend, make_figure
 
 
 class Tiled:
@@ -36,12 +35,18 @@ class Tiled:
     --------
     Create a tiled figure with two plots stacked vertically:
 
+      >>> da1 = pp.data.data1d()
+      >>> da2 = pp.data.data2d()
       >>> tiled = pp.tiled(2, 1)
       >>> tiled[0] = da1.plot()
       >>> tiled[1] = da2.plot()
 
     Create a tiled 2x2 figure:
 
+      >>> da1 = pp.data.data1d()
+      >>> da2 = pp.data.data2d()
+      >>> da3 = pp.data.data2d()
+      >>> da4 = pp.data.data1d()
       >>> tiled = pp.tiled(2, 2)
       >>> tiled[0, 0] = da1.plot()
       >>> tiled[0, 1] = da2.plot()
@@ -50,6 +55,8 @@ class Tiled:
 
     Create a tiled figure with two figures side by side and the first is twice as wide:
 
+      >>> da1 = pp.data.data1d()
+      >>> da2 = pp.data.data2d()
       >>> tiled = pp.tiled(1, 3)
       >>> tiled[0, :2] = da1.plot()
       >>> tiled[0, 2] = da2.plot()
@@ -65,12 +72,13 @@ class Tiled:
     ):
         self.nrows = nrows
         self.ncols = ncols
-        with silent_mpl_figure():
-            self.fig = plt.figure(
-                figsize=(min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
-                if figsize is None
-                else figsize,
-            )
+        self.fig = make_figure(
+            figsize=(min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
+            if figsize is None
+            else figsize,
+            layout='constrained',
+        )
+
         self.gs = gridspec.GridSpec(nrows, ncols, figure=self.fig, **kwargs)
         self.axes = []
         self.views = np.full((nrows, ncols), None)
@@ -82,7 +90,6 @@ class Tiled:
         view: FigureLike,
     ):
         new_view = copy_figure(view, ax=self.fig.add_subplot(self.gs[inds]))
-        self.fig.tight_layout()
         self.views[inds] = new_view
         self._history.append((inds, new_view))
 

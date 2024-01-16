@@ -4,12 +4,14 @@ graphviz
 h5py
 ipykernel
 ipympl
+ipython!=8.7.0  # Breaks syntax highlighting in Jupyter code cells.
 mpltoolbox
 myst-parser
 nbsphinx
 pandas
 pooch
-pydata-sphinx-theme
+pydata-sphinx-theme>=0.14
+pythreejs
 requests
 scipy
 sphinx

@@ -160,7 +160,7 @@ def _all_dims_sorted(var, order='ascending'):
 
 def preprocess(
     obj: Union[Plottable, list],
-    name: str = '',
+    name: Optional[str] = None,
     ignore_size: bool = False,
     coords: Optional[List[str]] = None,
 ) -> sc.DataArray:
@@ -177,7 +177,7 @@ def preprocess(
     obj:
         The input object that will be plotted.
     name:
-        Override the input's name if it has none.
+        Override the input's name (when a dict-like structure is to be plotted).
     ignore_size:
         Do not perform a size check on the object before plotting it.
     coords:
@@ -186,7 +186,7 @@ def preprocess(
     out = to_data_array(obj)
     check_not_binned(out)
     check_allowed_dtypes(out)
-    if not out.name:
+    if name is not None:
         out.name = name
     if not ignore_size:
         _check_size(out)
@@ -198,8 +198,8 @@ def preprocess(
             underlying = out.coords[dim].dims[-1]
             renamed_dims[underlying] = dim
         out = out.rename_dims(**renamed_dims)
-    for name, coord in out.coords.items():
-        if (coord.ndim == 0) or (name not in out.dims):
+    for n, coord in out.coords.items():
+        if (coord.ndim == 0) or (n not in out.dims):
             continue
         try:
             if not (
@@ -208,10 +208,11 @@ def preprocess(
             ):
                 warnings.warn(
                     'The input contains a coordinate with unsorted values '
-                    f'({name}). The results may be unpredictable. '
+                    f'({n}). The results may be unpredictable. '
                     'Coordinates can be sorted using '
                     '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
                     RuntimeWarning,
+                    stacklevel=2,
                 )
         except sc.DTypeError:
             pass
@@ -233,7 +234,7 @@ def input_to_nodes(obj: PlottableMulti, processor: Callable) -> List[Node]:
     if hasattr(obj, 'items') and not is_pandas_series(obj):
         to_nodes = obj.items()
     else:
-        to_nodes = [('', obj)]
+        to_nodes = [(None, obj)]
     nodes = [Node(processor, inp, name=name) for name, inp in to_nodes]
     for node in nodes:
         if hasattr(processor, 'func'):
