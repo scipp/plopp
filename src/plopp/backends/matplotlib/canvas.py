@@ -169,11 +169,17 @@ class Canvas:
                 bbox = bbox.union(mesh_bbox)
 
             elif hasattr(c, '_plopp_mask'):
-                line_mask = sc.array(dims=['x'], values=c._plopp_mask)
+                segments = c.get_segments()
+                # Here get_segments() can return empty segments in the case where the
+                # data values are NaN, which we filter out.
+                lengths = np.array([len(segs) for segs in segments])
+                line_mask = sc.array(dims=['x'], values=c._plopp_mask[lengths > 0])
                 line_y = sc.DataArray(
                     data=sc.array(
                         dims=['x', 'y'],
-                        values=np.array(c.get_segments())[..., 1],
+                        values=np.array([s for (s, l) in zip(segments, lengths) if l])[
+                            ..., 1
+                        ],
                     ),
                     masks={'mask': line_mask},
                 )
