@@ -4,7 +4,7 @@
 import matplotlib.pyplot as plt
 
 from ..protocols import FigureLike
-from .utils import copy_figure, silent_mpl_figure
+from .utils import copy_figure, make_figure
 
 
 class ResidualPlot:
@@ -53,8 +53,7 @@ def residuals(main_fig: FigureLike, reference: FigureLike) -> ResidualPlot:
             "compute residuals."
         )
 
-    with silent_mpl_figure():
-        fig = plt.figure(figsize=(6.0, 4.0))
+    fig = make_figure(figsize=(6.0, 4.0))
     gs = fig.add_gridspec(
         2,
         1,
