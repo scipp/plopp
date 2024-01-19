@@ -14,6 +14,7 @@
    inspector
    scatter3d
    xyplot
+   polar
 ```
 
 ## Core

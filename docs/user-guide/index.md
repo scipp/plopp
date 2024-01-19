@@ -5,23 +5,31 @@
 
 ::::{grid} 3
 
-:::{grid-item-card} Installation
+:::{grid-item-card} {octicon}`desktop-download;1em`&nbsp; Installation
 :link: getting-started/installation.md
 
 :::
 
-:::{grid-item-card} Overview
+:::{grid-item-card} {octicon}`eye;1em`&nbsp; Overview
 :link: getting-started/overview.ipynb
 
 :::
 
-:::{grid-item-card} Numpy, Pandas, and Xarray
+:::{grid-item-card} {octicon}`graph;1em`&nbsp; Numpy, Pandas, and Xarray
 :link: getting-started/numpy-pandas-xarray.ipynb
 
 :::
 
 ::::
 
+::::{grid} 3
+
+:::{grid-item-card} {octicon}`download;1em`&nbsp; Saving figures to disk
+:link: plot-types/saving-figures.ipynb
+
+:::
+
+::::
 
 ```{toctree}
 ---
@@ -81,8 +89,9 @@ getting-started/numpy-pandas-xarray
 
 ::::{grid} 3
 
-:::{grid-item-card} {octicon}`download;1em` Saving figures to disk
-:link: plot-types/saving-figures.ipynb
+:::{grid-item-card} Polar plot
+:link: plot-types/polar-plot.ipynb
+:img-bottom: ../_static/plot-types/polar-plot.svg
 
 :::
 
@@ -99,6 +108,7 @@ plot-types/slicer-plot
 plot-types/inspector-plot
 plot-types/super-plot
 plot-types/scatter3d-plot
+plot-types/polar-plot
 plot-types/saving-figures
 ```
 
