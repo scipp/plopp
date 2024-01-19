@@ -5,13 +5,12 @@ from __future__ import annotations
 
 from typing import Optional, Tuple, Union
 
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
 
 from ...core.typing import FigureLike
 from .static import get_repr_maker
-from .utils import copy_figure, is_interactive_backend, silent_mpl_figure
+from .utils import copy_figure, is_interactive_backend, make_figure
 
 
 class Tiled:
@@ -73,13 +72,13 @@ class Tiled:
     ):
         self.nrows = nrows
         self.ncols = ncols
-        with silent_mpl_figure():
-            self.fig = plt.figure(
-                figsize=(min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
-                if figsize is None
-                else figsize,
-                layout='constrained',
-            )
+        self.fig = make_figure(
+            figsize=(min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
+            if figsize is None
+            else figsize,
+            layout='constrained',
+        )
+
         self.gs = gridspec.GridSpec(nrows, ncols, figure=self.fig, **kwargs)
         self.axes = []
         self.views = np.full((nrows, ncols), None)

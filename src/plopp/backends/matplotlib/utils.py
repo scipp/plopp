@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from contextlib import contextmanager
 from io import BytesIO
 from typing import Literal
 
 import matplotlib as mpl
-from matplotlib.pyplot import Figure
+from matplotlib.pyplot import Figure, _get_backend_mod
 
 from ...core.typing import FigureLike
 
@@ -28,27 +27,33 @@ def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
     return buf.getvalue()
 
 
-@contextmanager
-def silent_mpl_figure():
-    """
-    Context manager to prevent automatic generation of figures in Jupyter.
-    """
-    backend_ = mpl.get_backend()
-    revert = False
-    if 'inline' in backend_:
-        mpl.use("Agg")
-        revert = True
-    with mpl.pyplot.ioff():
-        yield
-    if revert:
-        mpl.use(backend_)
-
-
-def is_interactive_backend():
+def is_interactive_backend() -> bool:
     """
     Return `True` if the current backend used by Matplotlib is the widget backend.
     """
     return 'ipympl' in mpl.get_backend()
+
+
+def make_figure(*args, **kwargs) -> Figure:
+    """
+    Create a new figure.
+
+    If we use ``plt.figure()`` directly, the figures auto-show in the notebooks.
+    We want to display the figures when the figure repr is requested.
+
+    When using the static backend, we can return the ``plt.Figure`` (note the uppercase
+    F) directly.
+    When using the interactive backend, we need to do more work. The ``plt.Figure``
+    will not have a toolbar nor will it be interactive, as opposed to what
+    ``plt.figure`` returns. We therefore copy the minimal required code inside the
+    ``plt.figure`` function which creates a figure manager (which is apparently what
+    creates the toolbar and makes the figure interactive).
+    """
+    if not is_interactive_backend():
+        return Figure(*args, **kwargs)
+    backend = _get_backend_mod()
+    manager = backend.new_figure_manager(1, *args, FigureClass=Figure, **kwargs)
+    return manager.canvas.figure
 
 
 def require_interactive_backend(func: str):
