@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Any, Dict, Literal
+from typing import Dict, Literal
 
 import numpy as np
 import scipp as sc
