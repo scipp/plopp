@@ -3,12 +3,11 @@
 
 from __future__ import annotations
 
-
 from typing import Dict, Protocol, Tuple, Union
 
+import scipp as sc
 from numpy import ndarray
 from scipp.typing import VariableLike
-import scipp as sc
 
 from .node import Node
 

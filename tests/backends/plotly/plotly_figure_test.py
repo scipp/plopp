@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import pytest
-
 import numpy as np
+import pytest
 import scipp as sc
 
 import plopp as pp

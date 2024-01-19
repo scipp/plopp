@@ -6,8 +6,8 @@ from typing import Any, Callable, Union
 
 import scipp as sc
 
-from ..core.typing import FigureLike
 from ..core import Node, node
+from ..core.typing import FigureLike
 from .tools import ToggleTool
 
 
