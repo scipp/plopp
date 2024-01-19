@@ -28,9 +28,12 @@ class PolarLineView(LineView):
         Overload of regular update method to ensure that the coordinate is in radians.
         """
         dim = new_values.dim
+        new_values = new_values.copy(deep=False)
         if new_values.coords[dim].unit != 'rad':
             new_values.coords[dim] = new_values.coords[dim].to(unit='rad')
-        new_values.coords[dim].unit = None
+        new_values.coords[dim] = sc.array(
+            dims=[dim], values=new_values.coords[dim].values, unit=None
+        )
         super().update(new_values, key)
 
 
