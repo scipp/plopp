@@ -123,8 +123,6 @@ class Canvas:
         self.ax.set_aspect('equal' if polar else aspect)
         self.ax.set_title(title)
         self.ax.grid(True if polar else grid)
-        if polar:
-            self.ax.set_rorigin(0)
         self._coord_formatters = []
         self._bbox = BoundingBox()
 
@@ -210,12 +208,16 @@ class Canvas:
                 self._user_vmax, unit=self.units.get('y')
             )
 
-        self.ax.set_xlim(
-            _none_if_not_finite(self._bbox.xmin), _none_if_not_finite(self._bbox.xmax)
+        self.xrange = (
+            _none_if_not_finite(self._bbox.xmin),
+            _none_if_not_finite(self._bbox.xmax),
         )
-        self.ax.set_ylim(
-            _none_if_not_finite(self._bbox.ymin), _none_if_not_finite(self._bbox.ymax)
+        self.yrange = (
+            _none_if_not_finite(self._bbox.ymin),
+            _none_if_not_finite(self._bbox.ymax),
         )
+        if (self.ax.name == 'polar') and np.diff(self.xrange) > 2 * np.pi:
+            self.xrange = (0, 2 * np.pi)
         self.draw()
 
     def draw(self):
