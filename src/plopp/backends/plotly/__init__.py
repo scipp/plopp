@@ -23,7 +23,7 @@ class PlotlyBackend:
         """
         from .canvas import Canvas as CanvasPlotly
 
-        return CanvasPlotly(*args, **kwargs)
+        return CanvasPlotly(*args, **{**kwargs, **{'projection': 'polar'}})
 
     def line(self, *args, **kwargs):
         """

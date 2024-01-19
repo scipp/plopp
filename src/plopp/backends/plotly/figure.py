@@ -27,3 +27,10 @@ class Figure(BaseFig, VBox):
                 self.bottom_bar,
             ]
         )
+
+    @property
+    def fig(self):
+        """
+        Get the underlying Plotly figure.
+        """
+        return self._view.canvas.fig

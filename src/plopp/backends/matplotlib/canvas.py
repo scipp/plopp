@@ -208,16 +208,17 @@ class Canvas:
                 self._user_vmax, unit=self.units.get('y')
             )
 
-        self.xrange = (
+        xrange = (
             _none_if_not_finite(self._bbox.xmin),
             _none_if_not_finite(self._bbox.xmax),
         )
+        if (self.ax.name == 'polar') and np.diff(xrange) > 2 * np.pi:
+            xrange = (0, 2 * np.pi)
+        self.xrange = xrange
         self.yrange = (
             _none_if_not_finite(self._bbox.ymin),
             _none_if_not_finite(self._bbox.ymax),
         )
-        if (self.ax.name == 'polar') and np.diff(self.xrange) > 2 * np.pi:
-            self.xrange = (0, 2 * np.pi)
         self.draw()
 
     def draw(self):

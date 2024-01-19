@@ -43,6 +43,7 @@ class Canvas:
         vmin: Union[sc.Variable, int, float] = None,
         vmax: Union[sc.Variable, int, float] = None,
         autoscale: Literal['auto', 'grow'] = 'auto',
+        projection: Literal['default', 'polar'] = 'default',
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -82,6 +83,7 @@ class Canvas:
         self.dims = {}
         self._own_axes = False
         self._autoscale = autoscale
+        self._projection = projection
         if title:
             self.title = title
         self._bbox = BoundingBox()
@@ -97,14 +99,16 @@ class Canvas:
         lines = [trace for trace in self.fig.data if hasattr(trace, '_plopp_mask')]
         for line in lines:
             line_mask = sc.array(dims=['x'], values=line._plopp_mask)
-            line_x = sc.DataArray(data=sc.array(dims=['x'], values=line.x))
-            line_y = sc.array(dims=['x'], values=line.y)
-            if line.error_y.array is not None:
+            x = line.theta if hasattr(line, 'theta') else line.x
+            y = line.r if hasattr(line, 'r') else line.y
+            line_x = sc.DataArray(data=sc.array(dims=['x'], values=x))
+            line_y = sc.array(dims=['x'], values=y)
+            if hasattr(line, 'error_y') and (line.error_y.array is not None):
                 line_y = sc.concat(
                     [
                         line_y,
-                        sc.array(dims=['x'], values=line.y + line.error_y.array),
-                        sc.array(dims=['x'], values=line.y - line.error_y.array),
+                        sc.array(dims=['x'], values=y + line.error_y.array),
+                        sc.array(dims=['x'], values=y - line.error_y.array),
                     ],
                     dim='y',
                 )
@@ -131,7 +135,13 @@ class Canvas:
             xrange = np.log10(xrange)
         if self.yscale == 'log':
             yrange = np.log10(yrange)
-        self.fig.update_layout(xaxis_range=xrange, yaxis_range=yrange)
+        if self._projection == 'polar':
+            self.fig.update_polars(radialaxis={'range': yrange})
+            if np.diff(xrange) > 2 * np.pi:
+                xrange = (0, 2 * np.pi)
+            self.fig.update_polars(sector=np.degrees(xrange))
+        else:
+            self.fig.update_layout(xaxis_range=xrange, yaxis_range=yrange)
 
     def save(self, filename: str):
         """
