@@ -3,7 +3,7 @@
 
 # from typing import Dict, Literal, Optional, Tuple, Union
 
-# import scipp as sc
+import scipp as sc
 
 from .. import backends
 from .imageview import ImageView
@@ -22,6 +22,16 @@ class PolarLineView(LineView):
                 },
             },
         )
+
+    def update(self, new_values: sc.DataArray, key: str):
+        """
+        Overload of regular update method to ensure that the coordinate is in radians.
+        """
+        dim = new_values.dim
+        if new_values.coords[dim].unit != 'rad':
+            new_values.coords[dim] = new_values.coords[dim].to(unit='rad')
+        new_values.coords[dim].unit = None
+        super().update(new_values, key)
 
 
 class PolarImageView(ImageView):

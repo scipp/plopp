@@ -46,19 +46,9 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
         return backends.figure1d(LineView, *args, **kwargs)
 
     if style == 'polar':
-        from .lineview import LineView
+        from .polarview import PolarLineView
 
-        return backends.figure1d(
-            LineView,
-            *args,
-            **{
-                **kwargs,
-                **{
-                    'artist_maker': backends.polar_line,
-                    'canvas_maker': backends.polar_canvas,
-                },
-            },
-        )
+        return backends.figure1d(PolarLineView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure1d.')
 
@@ -95,19 +85,9 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
         return backends.figure2d(ImageView, *args, **kwargs)
 
     if style == 'polar':
-        from .imageview import ImageView
+        from .polarview import PolarImageView
 
-        return backends.figure2d(
-            ImageView,
-            *args,
-            **{
-                **kwargs,
-                **{
-                    'artist_maker': backends.polar_image,
-                    'canvas_maker': backends.polar_canvas,
-                },
-            },
-        )
+        return backends.figure2d(PolarImageView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure2d.')
 
