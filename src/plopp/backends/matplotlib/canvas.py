@@ -21,10 +21,6 @@ def _none_if_not_finite(x: Union[float, int, None]) -> Union[float, int, None]:
     return x if np.isfinite(x) else None
 
 
-def _not_polar(ax: plt.Axes) -> bool:
-    return ax.name != 'polar'
-
-
 class Canvas:
     """
     Matplotlib-based canvas used to render 2D graphics.
@@ -120,9 +116,10 @@ class Canvas:
                 divider = make_axes_locatable(self.ax)
                 self.cax = divider.append_axes("right", "4%", pad="5%")
 
-        self.ax.set_aspect('equal' if polar else aspect)
-        self.ax.set_title(title)
-        self.ax.grid(True if polar else grid)
+        if self._own_axes:
+            self.ax.set_aspect('equal' if polar else aspect)
+            self.ax.set_title(title)
+            self.ax.grid(True if polar else grid)
         self._coord_formatters = []
         self._bbox = BoundingBox()
 

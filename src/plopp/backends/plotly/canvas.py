@@ -247,66 +247,96 @@ class Canvas:
         """
         Get or set the lower (left) bound of the x-axis.
         """
+        if self._projection == 'polar':
+            return np.radians(self.fig.layout.polar.sector[0])
         return self.fig.layout.xaxis.range[0]
 
     @xmin.setter
     def xmin(self, value: float):
-        self.fig.layout.xaxis.range = [value, self.xmax]
+        if self._projection == 'polar':
+            self.fig.update_polars(sector=[np.degrees(value), self.xmax])
+        else:
+            self.fig.layout.xaxis.range = [value, self.xmax]
 
     @property
     def xmax(self) -> float:
         """
         Get or set the upper (right) bound of the x-axis.
         """
+        if self._projection == 'polar':
+            return np.radians(self.fig.layout.polar.sector[1])
         return self.fig.layout.xaxis.range[1]
 
     @xmax.setter
     def xmax(self, value: float):
-        self.fig.layout.xaxis.range = [self.xmin, value]
+        if self._projection == 'polar':
+            self.fig.update_polars(sector=[self.xmin, np.degrees(value)])
+        else:
+            self.fig.layout.xaxis.range = [self.xmin, value]
 
     @property
     def xrange(self) -> Tuple[float, float]:
         """
         Get or set the range/limits of the x-axis.
         """
+        if self._projection == 'polar':
+            return np.radians(self.fig.layout.polar.sector)
         return self.fig.layout.xaxis.range
 
     @xrange.setter
     def xrange(self, value: Tuple[float, float]):
-        self.fig.layout.xaxis.range = value
+        if self._projection == 'polar':
+            self.fig.update_polars(sector=np.degrees(value))
+        else:
+            self.fig.layout.xaxis.range = value
 
     @property
     def ymin(self) -> float:
         """
         Get or set the lower (bottom) bound of the y-axis.
         """
+        if self._projection == 'polar':
+            return self.fig.layout.polar.radialaxis.range[0]
         return self.fig.layout.yaxis.range[0]
 
     @ymin.setter
     def ymin(self, value: float):
-        self.fig.layout.yaxis.range = [value, self.ymax]
+        if self._projection == 'polar':
+            self.fig.update_polars(radialaxis={'range': [value, self.ymax]})
+        else:
+            self.fig.layout.yaxis.range = [value, self.ymax]
 
     @property
     def ymax(self) -> float:
         """
         Get or set the upper (top) bound of the y-axis.
         """
+        if self._projection == 'polar':
+            return self.fig.layout.polar.radialaxis.range[1]
         return self.fig.layout.yaxis.range[1]
 
     @ymax.setter
     def ymax(self, value: float):
-        self.fig.layout.yaxis.range = [self.ymin, value]
+        if self._projection == 'polar':
+            self.fig.update_polars(radialaxis={'range': [self.ymin, value]})
+        else:
+            self.fig.layout.yaxis.range = [self.ymin, value]
 
     @property
     def yrange(self) -> Tuple[float, float]:
         """
         Get or set the range/limits of the y-axis.
         """
+        if self._projection == 'polar':
+            return self.fig.layout.polar.radialaxis.range
         return self.fig.layout.yaxis.range
 
     @yrange.setter
     def yrange(self, value: Tuple[float, float]):
-        self.fig.layout.yaxis.range = value
+        if self._projection == 'polar':
+            self.fig.update_polars(radialaxis={'range': value})
+        else:
+            self.fig.layout.yaxis.range = value
 
     def reset_mode(self):
         """
