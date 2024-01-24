@@ -100,6 +100,8 @@ class Canvas:
             self._own_axes = True
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
+            self.ax.set_aspect(aspect)
+            self.ax.grid(grid)
             if self.is_widget():
                 self.fig.canvas.toolbar_visible = False
                 self.fig.canvas.header_visible = False
@@ -107,12 +109,17 @@ class Canvas:
             self.fig = self.ax.get_figure()
 
         if cbar and (self.cax is None):
-            divider = make_axes_locatable(self.ax)
-            self.cax = divider.append_axes("right", "4%", pad="5%")
+            if self.ax.name == 'polar':
+                bounds = self.ax.get_position().bounds
+                self.cax = self.fig.add_axes(
+                    [bounds[0] + bounds[2] + 0.1, 0.1, 0.03, 0.8]
+                )
+            else:
+                divider = make_axes_locatable(self.ax)
+                self.cax = divider.append_axes("right", "4%", pad="5%")
 
-        self.ax.set_aspect(aspect)
-        self.ax.set_title(title)
-        self.ax.grid(grid)
+        if title:
+            self.ax.set_title(title)
         self._coord_formatters = []
         self._bbox = BoundingBox()
 
