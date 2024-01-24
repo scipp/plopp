@@ -1,4 +1,4 @@
-# Developer documentation
+# Developement
 
 ```{include} ../../CONTRIBUTING.md
 ```
