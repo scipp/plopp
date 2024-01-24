@@ -102,11 +102,11 @@ class Canvas:
             self.ax = self.fig.add_subplot()
             self.ax.set_aspect(aspect)
             self.ax.grid(grid)
-            if self.is_widget():
-                self.fig.canvas.toolbar_visible = False
-                self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
+        if self.is_widget():
+            self.fig.canvas.toolbar_visible = False
+            self.fig.canvas.header_visible = False
 
         if cbar and (self.cax is None):
             if self.ax.name == 'polar':
