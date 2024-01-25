@@ -1,3 +1,4 @@
+-r custom.in
 graphviz
 ipympl
 kaleido
