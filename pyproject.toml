@@ -48,7 +48,12 @@ all = ["scipp", "ipympl", "pythreejs", "mpltoolbox"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "-ra -v"
+addopts = """
+--strict-config
+--strict-markers
+-ra
+-v
+"""
 testpaths = "tests"
 filterwarnings = [
   "error",

@@ -54,4 +54,5 @@ jobs:
     uses: ./.github/workflows/docs.yml
     with:
       publish: false
+      linkcheck: ${{ contains(matrix.variant.os, 'ubuntu') && github.ref == 'refs/heads/main' }}
       branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}

@@ -1,2 +1,2 @@
 -r base.in
-pytest
+-r basetest.in
