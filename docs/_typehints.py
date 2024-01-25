@@ -1,5 +1,6 @@
+from typing import Any, NewType, Optional
+
 import sphinx
-from typing import Optional, Any, NewType
 
 _typehint_aliases = {
     'scipp._scipp.core.DataArray': 'scipp.DataArray',
