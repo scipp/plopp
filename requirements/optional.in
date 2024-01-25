@@ -1,0 +1,10 @@
+graphviz
+ipympl
+kaleido
+mpltoolbox
+pandas
+plotly
+pyarrow  # Pandas raises a warning without this
+pythreejs
+scipy
+xarray
