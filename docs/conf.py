@@ -196,30 +196,10 @@ nbsphinx_execute_arguments = [
 
 # -- Options for doctest --------------------------------------------------
 
-# sc.plot returns a Figure object and doctest compares that against the
-# output written in the docstring. But we only want to show an image of the
-# figure, not its `repr`.
-# In addition, there is no need to make plots in doctest as the documentation
-# build already tests if those plots can be made.
-# So we simply disable plots in doctests.
 doctest_global_setup = '''
 import numpy as np
-
-try:
-    import scipp as sc
-    import plopp as pp
-
-    def do_not_plot(*args, **kwargs):
-        pass
-
-    sc.plot = do_not_plot
-    sc.Variable.plot = do_not_plot
-    sc.DataArray.plot = do_not_plot
-    sc.DataGroup.plot = do_not_plot
-    sc.Dataset.plot = do_not_plot
-except ImportError:
-    # Scipp is not needed by docs if it is not installed.
-    pass
+import scipp as sc
+import plopp as pp
 '''
 
 # Using normalize whitespace because many __str__ functions in scipp produce
