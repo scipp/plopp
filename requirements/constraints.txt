@@ -14,7 +14,7 @@ decorator==5.1.1
 executing==2.0.1
     # via stack-data
 ipython==8.9.0
-    # via -r custom.in
+    # via -r constraints.in
 jedi==0.19.1
     # via ipython
 matplotlib-inline==0.1.6
@@ -27,7 +27,7 @@ pickleshare==0.7.5
     # via ipython
 prompt-toolkit==3.0.36
     # via
-    #   -r custom.in
+    #   -r constraints.in
     #   ipython
 ptyprocess==0.7.0
     # via pexpect
