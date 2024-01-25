@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: 6ec575a
+_commit: 0b94d03
 _src_path: https://github.com/scipp/copier_template.git
 description: Visualization library for Scipp
 max_python: '3.11'
@@ -10,4 +10,4 @@ orgname: scipp
 prettyname: Plopp
 projectname: plopp
 related_projects: Scipp,Scippneutron,Ess
-year: 2023
+year: 2024

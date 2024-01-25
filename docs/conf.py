@@ -9,9 +9,11 @@ import plopp
 
 sys.path.insert(0, os.path.abspath('.'))
 
+from _typehints import typehints_formatter_for  # noqa: E402
+
 # General information about the project.
 project = u'Plopp'
-copyright = u'2023 Scipp contributors'
+copyright = u'2024 Scipp contributors'
 author = u'Scipp contributors'
 
 html_show_sourcelink = True
@@ -26,7 +28,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
-    "sphinx_design",
+    'sphinx_design',
     'nbsphinx',
     'sphinx_gallery.load_style',
     'myst_parser',
@@ -56,6 +58,7 @@ autodoc_type_aliases = {
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
     'numpy': ('https://numpy.org/doc/stable/', None),
+    'scipp': ('https://scipp.github.io/', None),
 }
 
 # autodocs includes everything, even irrelevant API internals. autosummary
@@ -74,6 +77,7 @@ napoleon_type_aliases = {
 }
 typehints_defaults = 'comma'
 typehints_use_rtype = False
+typehints_formatter = typehints_formatter_for('plopp')
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -153,7 +157,7 @@ html_theme_options = {
         },
         {
             "name": "Conda",
-            "url": "https://anaconda.org/conda-forge/plopp",
+            "url": "https://anaconda.org/scipp/plopp",
             "icon": "fa-custom fa-anaconda",
             "type": "fontawesome",
         },
@@ -192,9 +196,30 @@ nbsphinx_execute_arguments = [
 
 # -- Options for doctest --------------------------------------------------
 
+# sc.plot returns a Figure object and doctest compares that against the
+# output written in the docstring. But we only want to show an image of the
+# figure, not its `repr`.
+# In addition, there is no need to make plots in doctest as the documentation
+# build already tests if those plots can be made.
+# So we simply disable plots in doctests.
 doctest_global_setup = '''
-import scipp as sc
-import plopp as pp
+import numpy as np
+
+try:
+    import scipp as sc
+    import plopp as pp
+
+    def do_not_plot(*args, **kwargs):
+        pass
+
+    sc.plot = do_not_plot
+    sc.Variable.plot = do_not_plot
+    sc.DataArray.plot = do_not_plot
+    sc.DataGroup.plot = do_not_plot
+    sc.Dataset.plot = do_not_plot
+except ImportError:
+    # Scipp is not needed by docs if it is not installed.
+    pass
 '''
 
 # Using normalize whitespace because many __str__ functions in scipp produce
