@@ -13,10 +13,6 @@ def has_edge(graph, node1, node2):
     tail_name = graph._quote_edge(node1)
     head_name = graph._quote_edge(node2)
     for key in graph.body:
-        print(
-            graph._edge(tail=tail_name, head=head_name, attr=''),
-            key.split(' [label')[0],
-        )
         if (
             graph._edge(tail=tail_name, head=head_name, attr='').strip()
             == key.split(' [label')[0].strip()
