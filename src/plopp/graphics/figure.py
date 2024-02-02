@@ -6,7 +6,7 @@ from typing import Literal
 from .. import backends
 
 
-def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
+def figure1d(*args, style: Literal['line', 'scatter'] = 'line', **kwargs):
     """
     Create a figure to represent one-dimensional data from one or more graph node(s).
     By default, this will return a figure built from :class:`LineView` (see the
