@@ -7,7 +7,7 @@
 #
 cachetools==5.3.2
     # via tox
-certifi==2023.11.17
+certifi==2024.2.2
     # via requests
 chardet==5.2.0
     # via tox
@@ -32,7 +32,7 @@ packaging==23.2
     #   -r ci.in
     #   pyproject-api
     #   tox
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via
     #   tox
     #   virtualenv
@@ -50,7 +50,7 @@ tomli==2.0.1
     #   tox
 tox==4.12.1
     # via -r ci.in
-urllib3==2.1.0
+urllib3==2.2.0
     # via requests
 virtualenv==20.25.0
     # via tox
