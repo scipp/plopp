@@ -25,7 +25,7 @@ beautifulsoup4==4.12.3
     #   pydata-sphinx-theme
 bleach==6.1.0
     # via nbconvert
-certifi==2023.11.17
+certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
@@ -80,7 +80,7 @@ markdown-it-py==3.0.0
     # via
     #   mdit-py-plugins
     #   myst-parser
-markupsafe==2.1.4
+markupsafe==2.1.5
     # via
     #   jinja2
     #   nbconvert
@@ -107,7 +107,7 @@ nest-asyncio==1.6.0
     # via ipykernel
 pandocfilters==1.5.1
     # via nbconvert
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via
     #   jupyter-core
     #   pooch
@@ -123,7 +123,7 @@ pyzmq==25.1.2
     # via
     #   ipykernel
     #   jupyter-client
-referencing==0.32.1
+referencing==0.33.0
     # via
     #   jsonschema
     #   jsonschema-specifications
@@ -152,7 +152,7 @@ sphinx==7.2.6
     #   sphinx-copybutton
     #   sphinx-design
     #   sphinx-gallery
-sphinx-autodoc-typehints==1.25.2
+sphinx-autodoc-typehints==1.25.3
     # via -r docs.in
 sphinx-copybutton==0.5.2
     # via -r docs.in
@@ -180,7 +180,7 @@ tornado==6.4
     #   jupyter-client
 typing-extensions==4.9.0
     # via pydata-sphinx-theme
-urllib3==2.1.0
+urllib3==2.2.0
     # via requests
 webencodings==0.5.1
     # via
