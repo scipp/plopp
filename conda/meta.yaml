@@ -16,7 +16,6 @@ requirements:
   run:
     - matplotlib
     - python>=3.9
-    - scipp
 
 test:
   imports:
