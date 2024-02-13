@@ -56,9 +56,6 @@ class Cylinders3dView(View):
     def __init__(
         self,
         *nodes,
-        x: str = 'x',
-        y: str = 'y',
-        z: str = 'z',
         base: str = 'base',
         edge: str = 'edge',
         far: str = 'far',
@@ -74,9 +71,6 @@ class Cylinders3dView(View):
     ):
         super().__init__(*nodes)
 
-        self._x = x
-        self._y = y
-        self._z = z
         self._base = base
         self._edge = edge
         self._far = far
@@ -109,7 +103,7 @@ class Cylinders3dView(View):
         draw:
             This argument is ignored for the 3d figure update.
         """
-        mapping = {'x': self._x, 'y': self._y, 'z': self._z}
+        mapping = {'x': self._base, 'y': self._base, 'z': self._base}
         if self.canvas.empty:
             self.canvas.set_axes(
                 dims=mapping,
@@ -127,8 +121,10 @@ class Cylinders3dView(View):
 
         if key not in self.artists:
             pts = backends.cylinders(
-                data=new_values, x=self._x, y=self._y, z=self._z,
-                base=self._base, edge=self._edge, far=self._far,
+                data=new_values,
+                base=self._base,
+                edge=self._edge,
+                far=self._far,
                 **self._kwargs
             )
             self.artists[key] = pts
@@ -165,9 +161,9 @@ class Cylinders3dView(View):
             if zmax is None or zlims[1] > zmax:
                 zmax = zlims[1]
         return (
-            sc.concat([xmin, xmax], dim=self._x),
-            sc.concat([ymin, ymax], dim=self._y),
-            sc.concat([zmin, zmax], dim=self._z),
+            sc.concat([xmin, xmax], dim=self._base),
+            sc.concat([ymin, ymax], dim=self._base),
+            sc.concat([zmin, zmax], dim=self._base),
         )
 
     def set_opacity(self, alpha: float):

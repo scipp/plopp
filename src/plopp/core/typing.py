@@ -28,3 +28,7 @@ __all__ = [
     'PlottableMulti',
     'VisibleDeprecationWarning',
 ]
+
+
+class DataGroup:
+    pass

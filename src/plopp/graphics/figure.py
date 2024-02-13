@@ -113,7 +113,7 @@ def figure3d(*args, style: Literal['scatter', 'cylinder'] = 'scatter', **kwargs)
 
         return backends.figure3d(Scatter3dView, *args, **kwargs)
 
-    elif style == 'cylinders':
+    elif style == 'cylinder':
         from .cylinders3dview import Cylinders3dView
 
         return backends.figure3d(Cylinders3dView, *args, **kwargs)

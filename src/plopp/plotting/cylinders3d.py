@@ -8,6 +8,7 @@ from typing import Dict, Literal, Optional, Tuple, Union
 import scipp as sc
 
 from ..core.typing import PlottableMulti
+from scipp import Variable, DataGroup
 from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
@@ -19,40 +20,37 @@ def _to_variable(
 
 
 def _preprocess_cylinders(
-    obj: PlottableMulti,
-    x: Union[str, sc.Variable],
-    y: Union[str, sc.Variable],
-    z: Union[str, sc.Variable],
-    pos: Union[str, sc.Variable],
-    base: Union[str, sc.Variable],
-    edge: Union[str, sc.Variable],
-    far: Union[str, sc.Variable],
-    cylinders: Union[str, sc.Variable],
-    vertex_index_dim: str,
+    obj,
     name: Optional[str] = None,
 ) -> sc.DataArray:
-    da = from_compatible_lib(obj)
-    check_not_binned(da)
+    from scipp import DType
+    da = from_compatible_lib(obj['data'])
+    cylinders = obj['cylinders']
+    vertices = obj['vertices']
 
-    if pos is not None:
-        pos = _to_variable(pos, coords=da.coords)
-        coords = {
-            x: pos.fields.x,
-            y: pos.fields.y,
-            z: pos.fields.z,
-        }
-    else:
-        coords = {k: _to_variable(k, coords=da.coords) for k in (x, y, z)}
+    if isinstance(da, Variable):
+        da = sc.DataArray(data=da)
 
-    if cylinders is not None:
-        cylinders = _to_variable(cylinders, coords=da.coords)
-        coords.update({
-            base: cylinders[vertex_index_dim, 0],
-            edge: cylinders[vertex_index_dim, 1],
-            far: cylinders[vertex_index_dim, 2]
-        })
-    else:
-        coords.update({k: _to_variable(k, coords=da.coords) for k in (base, edge, far)})
+    # check dimensional consistency
+    assert da.data.ndim == 1
+    data_dim = da.data.dims[0]
+    data_shape = da.data.shape[0]
+    assert cylinders.ndim == 2
+    assert cylinders.shape[1] == 3
+    cylinder_dim = cylinders.dims[1]
+    assert cylinders.shape[0] == data_shape
+    assert vertices.dtype == DType.vector3
+    assert cylinders.max().value < vertices.shape[0]
+
+    base_vertices = vertices[cylinders[cylinder_dim, 0].values].flatten(to=data_dim)
+    edge_vertices = vertices[cylinders[cylinder_dim, 1].values].flatten(to=data_dim)
+    far_vertices = vertices[cylinders[cylinder_dim, 2].values].flatten(to=data_dim)
+
+    coords = {
+        'base': base_vertices,
+        'edge': edge_vertices,
+        'far': far_vertices
+    }
 
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
     if out.ndim != 1:
@@ -62,18 +60,9 @@ def _preprocess_cylinders(
     return out
 
 
-def scatter3d(
-    obj: PlottableMulti,
+def cylinders3d(
+    obj: DataGroup,
     *,
-    x: str = 'x',
-    y: str = 'y',
-    z: str = 'z',
-    pos: str = None,
-    base: str = 'base',
-    edge: str = 'edge',
-    far: str = 'far',
-    cylinders: str = 'cylinders',
-    vertex_index_dim: str = 'vertex_index',
     figsize: Tuple[int, int] = (600, 400),
     norm: Literal['linear', 'log'] = 'linear',
     title: str = None,
@@ -97,25 +86,7 @@ def scatter3d(
     Parameters
     ----------
     obj:
-        The data array containing the data and the coordinates.
-    x:
-        The name of the coordinate that is to be used for the X positions.
-    y:
-        The name of the coordinate that is to be used for the Y positions.
-    z:
-        The name of the coordinate that is to be used for the Z positions.
-    pos:
-        The name of the vector coordinate that is to be used for the positions.
-    base:
-        The name of the coordinate that is used to index the basal plane vertex
-    edge:
-        The name of the coordinate that is used to index the edge vertex
-    far:
-        The name of the coordinate that is used to index the far plane vertex
-    cylinders:
-        The name of the (N cylinders, 3) index coordinate used to specify the cylinder vertices
-    vertex_index_dim:
-        The name of the (base, edge, far) dimension in cylinders
+        The data group containing the data, vertex coordinates, and cylinder vertex mapping.
     norm:
         Set to ``'log'`` for a logarithmic colorscale.
     figsize:
@@ -138,6 +109,7 @@ def scatter3d(
     """
     from ..graphics import figure3d
     from ..widgets import Box, ToggleTool, TriCutTool
+    from ..core import Node
 
     if 'ax' in kwargs:
         raise ValueError(
@@ -146,19 +118,21 @@ def scatter3d(
             'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'  # noqa: E501
         )
 
-    nodes = input_to_nodes(
-        obj, processor=partial(_preprocess_cylinders, x=x, y=y, z=z, pos=pos,
-                               base=base, edge=edge, far=far, cylinders=cylinders, vertex_index_dim=vertex_index_dim)
-    )
+    # nodes = input_to_nodes(
+    #     obj, processor=_preprocess_cylinders,
+    # )
+
+    node = Node(_preprocess_cylinders, obj, name='input')
+    if hasattr(_preprocess_cylinders, 'func'):
+        node.name = _preprocess_cylinders.func.__name__
+    else:
+        node.name = 'Preprocess data'
 
     fig = figure3d(
-        *nodes,
-        x=x,
-        y=y,
-        z=z,
-        base=base,
-        edge=edge,
-        far=far,
+        node,
+        base='base',
+        edge='edge',
+        far='far',
         figsize=figsize,
         norm=norm,
         title=title,
