@@ -103,7 +103,9 @@ class LineView(View):
         )
         self.canvas.yscale = norm
 
+        self._no_autoscale = True
         self.render()
+        self._no_autoscale = False
         self.canvas.finalize()
 
     def update(self, new_values: sc.DataArray, key: str):
@@ -152,4 +154,5 @@ class LineView(View):
         else:
             self.artists[key].update(new_values=new_values)
 
-        self.canvas.autoscale()
+        if not self._no_autoscale:
+            self.canvas.autoscale()

@@ -50,7 +50,7 @@ class View:
         self.update(new_values=new_values, key=node_id)
 
     @abstractmethod
-    def update(self, new_values: sc.DataArray, key: str, draw: bool):
+    def update(self, new_values: sc.DataArray, key: str):
         """
         Update function which is called when a notification is received.
         This has to be overridden by any child class.
