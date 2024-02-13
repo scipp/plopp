@@ -40,6 +40,7 @@ class Scatter:
             Union[Dict[str, Union[str, sc.Variable]], Union[str, sc.Variable]]
         ] = None,
         number: int = 0,
+        mask_color: str = 'black',
         **kwargs,
     ):
         self._canvas = canvas
@@ -51,7 +52,7 @@ class Scatter:
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
 
-        args = _parse_dicts_in_kwargs(kwargs, name=data.name)
+        scatter_kwargs = _parse_dicts_in_kwargs(kwargs, name=data.name)
 
         self._scatter = None
         self._mask = None
@@ -79,7 +80,7 @@ class Scatter:
             self._data.coords[self._x].values,
             self._data.coords[self._y].values,
             label=self.label,
-            **{**default_plot_style, **kwargs},
+            **{**default_plot_style, **scatter_kwargs},
         )
 
         # def _make_line(
