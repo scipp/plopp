@@ -89,6 +89,15 @@ class BackendManager:
             )
         return _point_cloud(*args, **kwargs)
 
+    def cylinders(self, *args, **kwargs):
+        try:
+            _cylinders = self._backends['3d'].cylinders
+        except AttributeError:
+            raise ValueError(
+                f"Unsupported backend '{self['3d']}' for cylinders (3D)."
+            )
+        return _cylinders(*args, **kwargs)
+
     def figure1d(self, *args, **kwargs):
         try:
             _figure1d = self._backends['2d'].figure1d
