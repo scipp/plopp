@@ -62,8 +62,7 @@ class Cylinders:
         self._far = far
         self._id = uuid.uuid4().hex
 
-        self.last_vertex, self.geometry = self.make_triangle_geometry()
-        # self.last_vertex, self.geometry = self.make_geometry()
+        self.last_vertex, self.geometry = self.make_geometry()
         self.material = p3.PointsMaterial(
             vertexColors='FaceColors',
             transparent=True,
@@ -90,75 +89,15 @@ class Cylinders:
         return concat(vertices, dim='vertices'), vstack(faces), concat(normals, dim='vertices'), last[1:]
 
     def make_geometry(self):
-        """Construct the geometry from combined scipp Variables --- doesn't work for some reason"""
+        """Construct the geometry from combined scipp Variables using the buffered index property"""
         from pythreejs import BufferGeometry, BufferAttribute
-        from numpy import zeros
+        from numpy import zeros, array
         v, faces, n, lasts = self.triangulate_all()
-        indexes = [index for face in faces for index in face]
-        position = BufferAttribute(array=v.values.astype('float32')[indexes, :])
-        normal = BufferAttribute(array=n.values.astype('float32')[indexes, :])
+        position = BufferAttribute(array=v.values.astype('float32'))
+        normal = BufferAttribute(array=n.values.astype('float32'))
         color = BufferAttribute(array=zeros([lasts[-1], 3], dtype='float32'))
-        return lasts, BufferGeometry(attributes={'position': position, 'normal': normal, 'color': color})
-
-    def make_triangle_geometry(self):
-        """Construct the geometry by combining numpy arrays --- *does* work"""
-        from pythreejs import BufferGeometry, BufferAttribute
-        from numpy import zeros, ndarray, vstack
-        bases, edges, fars = (self._data.coords[name] for name in (self._base, self._edge, self._far))
-
-        # this should really all be assembled into a single geometry, with face indexes offset...
-        cylinders = []
-        all_vertices = ndarray([0, 3], dtype='float32')
-        all_normals = ndarray([0, 3], dtype='float32')
-        last_vertex = []
-        for base, edge, far in zip(bases, edges, fars):
-            vertices, faces, normals = triangulate(at=base, to=far, edge=edge)
-            # pull out the numpy array as 32-bit floats
-            vertices = vertices.values.astype('float32')
-            # expand all triangles as pure vertices
-            indexes = [index for face in faces for index in face]
-            vertices = vertices[indexes, :]
-            normals = normals.values.astype('float32')[indexes, :]
-            # append these to the full list
-            all_vertices = vstack((all_vertices, vertices))
-            all_normals = vstack((all_normals, normals))
-            last_vertex.append(all_vertices.shape[0])
-
-        return last_vertex, BufferGeometry(attributes={
-            'position': BufferAttribute(array=all_vertices),
-            'normal': BufferAttribute(array=all_normals),
-            'color': BufferAttribute(array=zeros([last_vertex[-1], 3], dtype='float32')),
-        })
-
-    # # This does not work for unknown reasons, but would produce fewer vertices
-    # def make_index_geometry(self):
-    #     from pythreejs import BufferGeometry, BufferAttribute
-    #     from numpy import zeros, ndarray, vstack, array
-    #     bases, edges, fars = (self._data.coords[name] for name in (self._base, self._edge, self._far))
-    #
-    #     # this should really all be assembled into a single geometry, with face indexes offset...
-    #     cylinders = []
-    #     all_vertices = ndarray([0, 3], dtype='float32')
-    #     all_normals = ndarray([0, 3], dtype='float32')
-    #     all_indexes = ndarray([0, 3], dtype='int32')
-    #     last_vertex = []
-    #     for base, edge, far in zip(bases, edges, fars):
-    #         vertices, faces, normals = triangulate(at=base, to=far, edge=edge)
-    #         # append the vertices and face indexes to the full list
-    #         offset = all_vertices.shape[0]
-    #         all_vertices = vstack((all_vertices, vertices.values.astype('float32')))
-    #         all_normals = vstack((all_normals, normals.values.astype('float32')))
-    #         all_indexes = vstack((all_indexes, faces.astype('int32') + offset))
-    #         last_vertex.append(all_vertices.shape[0])
-    #
-    #     return last_vertex, BufferGeometry(
-    #         index=BufferAttribute(array=all_indexes+1),
-    #         attributes={
-    #             'position': BufferAttribute(array=all_vertices),
-    #             'normal': BufferAttribute(array=all_normals),
-    #             'color': BufferAttribute(zeros([all_vertices.shape[0], 3], dtype='float32')),
-    #             }
-    #     )
+        index = BufferAttribute(array=array(faces).flatten().astype('uint32'))  # *MUST* be unsigned!
+        return lasts, BufferGeometry(index=index, attributes={'position': position, 'normal': normal, 'color': color})
 
     def set_colors(self, rgba):
         """
