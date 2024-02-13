@@ -11,3 +11,5 @@ variable = partial(fa.variable, dim_list=testing_dim_list)
 data_array = partial(fa.data_array, dim_list=testing_dim_list)
 dataset = partial(fa.dataset, dim_list=testing_dim_list)
 scatter = fa.scatter
+cylinder = fa.cylinder
+cylinders = fa.cylinders

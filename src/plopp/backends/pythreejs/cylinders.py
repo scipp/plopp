@@ -62,36 +62,103 @@ class Cylinders:
         self._far = far
         self._id = uuid.uuid4().hex
 
-        self.last_vertex, self.geometry = self.make_geometry()
+        self.last_vertex, self.geometry = self.make_triangle_geometry()
+        # self.last_vertex, self.geometry = self.make_geometry()
         self.material = p3.PointsMaterial(
-            vertexColors='VertexColors',
+            vertexColors='FaceColors',
             transparent=True,
             opacity=opacity,
         )
-        self.points = p3.MeshBasicMaterial(geometry=self.geometry, material=self.material)
+        self.points = p3.Mesh(geometry=self.geometry, material=self.material)
+
+    def triangulate_all(self):
+        """Combine all triangulations as scipp Variables, where possible"""
+        from scipp import concat
+        from numpy import vstack
+        bases, edges, fars = (self._data.coords[name] for name in (self._base, self._edge, self._far))
+        vertices = []
+        faces = []
+        normals = []
+        last = [0,]
+        for base, edge, far in zip(bases, edges, fars):
+            v, f, n = triangulate(at=base, to=far, edge=edge)
+            vertices.append(v)
+            faces.append(f + last[-1])
+            normals.append(n)
+            last.append(last[-1] + v.shape[0])
+
+        return concat(vertices, dim='vertices'), vstack(faces), concat(normals, dim='vertices'), last[1:]
 
     def make_geometry(self):
+        """Construct the geometry from combined scipp Variables --- doesn't work for some reason"""
         from pythreejs import BufferGeometry, BufferAttribute
-        from numpy import zeros, ndarray, vstack, array
+        from numpy import zeros
+        v, faces, n, lasts = self.triangulate_all()
+        indexes = [index for face in faces for index in face]
+        position = BufferAttribute(array=v.values.astype('float32')[indexes, :])
+        normal = BufferAttribute(array=n.values.astype('float32')[indexes, :])
+        color = BufferAttribute(array=zeros([lasts[-1], 3], dtype='float32'))
+        return lasts, BufferGeometry(attributes={'position': position, 'normal': normal, 'color': color})
+
+    def make_triangle_geometry(self):
+        """Construct the geometry by combining numpy arrays --- *does* work"""
+        from pythreejs import BufferGeometry, BufferAttribute
+        from numpy import zeros, ndarray, vstack
         bases, edges, fars = (self._data.coords[name] for name in (self._base, self._edge, self._far))
 
         # this should really all be assembled into a single geometry, with face indexes offset...
         cylinders = []
         all_vertices = ndarray([0, 3], dtype='float32')
-        all_faces = ndarray([0, 3], dtype='int32')
+        all_normals = ndarray([0, 3], dtype='float32')
         last_vertex = []
         for base, edge, far in zip(bases, edges, fars):
-            vertices, faces = triangulate(at=base, to=far, edge=edge)
-            offset = all_vertices.shape[0]
-            all_vertices = vstack((all_vertices, vertices.values.astype('float32')))
-            all_faces = vstack((all_faces, offset + array(faces, dtype='int32')))
+            vertices, faces, normals = triangulate(at=base, to=far, edge=edge)
+            # pull out the numpy array as 32-bit floats
+            vertices = vertices.values.astype('float32')
+            # expand all triangles as pure vertices
+            indexes = [index for face in faces for index in face]
+            vertices = vertices[indexes, :]
+            normals = normals.values.astype('float32')[indexes, :]
+            # append these to the full list
+            all_vertices = vstack((all_vertices, vertices))
+            all_normals = vstack((all_normals, normals))
             last_vertex.append(all_vertices.shape[0])
 
         return last_vertex, BufferGeometry(attributes={
             'position': BufferAttribute(array=all_vertices),
-            'faces': BufferAttribute(array=all_faces),
-            'color': BufferAttribute(zeros([all_vertices.shape[0], 3], dtype='float32')),
+            'normal': BufferAttribute(array=all_normals),
+            'color': BufferAttribute(array=zeros([last_vertex[-1], 3], dtype='float32')),
         })
+
+    # # This does not work for unknown reasons, but would produce fewer vertices
+    # def make_index_geometry(self):
+    #     from pythreejs import BufferGeometry, BufferAttribute
+    #     from numpy import zeros, ndarray, vstack, array
+    #     bases, edges, fars = (self._data.coords[name] for name in (self._base, self._edge, self._far))
+    #
+    #     # this should really all be assembled into a single geometry, with face indexes offset...
+    #     cylinders = []
+    #     all_vertices = ndarray([0, 3], dtype='float32')
+    #     all_normals = ndarray([0, 3], dtype='float32')
+    #     all_indexes = ndarray([0, 3], dtype='int32')
+    #     last_vertex = []
+    #     for base, edge, far in zip(bases, edges, fars):
+    #         vertices, faces, normals = triangulate(at=base, to=far, edge=edge)
+    #         # append the vertices and face indexes to the full list
+    #         offset = all_vertices.shape[0]
+    #         all_vertices = vstack((all_vertices, vertices.values.astype('float32')))
+    #         all_normals = vstack((all_normals, normals.values.astype('float32')))
+    #         all_indexes = vstack((all_indexes, faces.astype('int32') + offset))
+    #         last_vertex.append(all_vertices.shape[0])
+    #
+    #     return last_vertex, BufferGeometry(
+    #         index=BufferAttribute(array=all_indexes+1),
+    #         attributes={
+    #             'position': BufferAttribute(array=all_vertices),
+    #             'normal': BufferAttribute(array=all_normals),
+    #             'color': BufferAttribute(zeros([all_vertices.shape[0], 3], dtype='float32')),
+    #             }
+    #     )
 
     def set_colors(self, rgba):
         """
@@ -102,13 +169,12 @@ class Cylinders:
         rgba:
             The array of rgba colors.
         """
+        from numpy import tile, diff, vstack
         if rgba.shape[0] != len(self.last_vertex):
             raise ValueError(f"Wrong number of colors ({rgba.shape[0]}) to set for cylinders {len(self.last_vertex)}")
-
-        first = 0
-        for i, last in enumerate(self.last_vertex):
-            self.geometry.attributes['color'].array[first:last, :] = rgba[i, :3].astype('float32')
-            first = last
+        counts = diff([0,] + self.last_vertex)
+        color = vstack([tile(rgba[i, :3], (n, 1)) for i, n in enumerate(counts)])
+        self.geometry.attributes['color'].array = color.astype('float32')
 
     def update(self, new_values):
         """
@@ -126,17 +192,12 @@ class Cylinders:
         """
         Get the spatial extent of all the cylinders.
         """
-        from scipp import concat
-        coords = self._data.coords
         # A more correct form of this would project the cylinders onto each axis
-        vertices = concat([coords[self._base], coords[self._edge], coords[self._far]], dim=self._base)
-        xcoord = vertices.fields.x
-        ycoord = vertices.fields.y
-        zcoord = vertices.fields.z
+        vertices, faces, normals, lasts = self.triangulate_all()
         return (
-            sc.concat([xcoord.min(), xcoord.max()], dim=self._base),
-            sc.concat([ycoord.min(), ycoord.max()], dim=self._base),
-            sc.concat([zcoord.min(), zcoord.max()], dim=self._base),
+            sc.concat([vertices.fields.x.min(), vertices.fields.x.max()], dim='x'),
+            sc.concat([vertices.fields.y.min(), vertices.fields.y.max()], dim='y'),
+            sc.concat([vertices.fields.z.min(), vertices.fields.z.max()], dim='z'),
         )
 
     @property
@@ -162,29 +223,11 @@ class Cylinders:
         return self._data
 
 
-def yhat_to_vector_quaternion(x, y, z, length):
-    from numpy import sqrt, dot, cross
-    # following http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
-    # now access restricted, but accessible via the web archive
-    # https://web.archive.org/web/20220120192932/http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
-    u = 0, 1, 0
-    v = x / length, y / length, z / length
-    scalar_part = 0.5 * sqrt(2 + 2 * dot(u, v))
-    vector_part = 0.5 * cross(u, v) / scalar_part
-    return scalar_part, vector_part
-
-
-def yhat_to_vector_rotation(x, y, z, length):
-    r, (i, j, k) = yhat_to_vector_quaternion(x, y, z, length)
-    s = 1 / (r * r + i * i + j * j + k * k)
-    return [[1 - 2 * s * (j * j + k * k), 2 * s * (i * j - k * r), 2 * s * (i * k + j * r)],
-            [2 * s * (i * j + k * r), 1 - 2 * s * (i * i + k * k), 2 * s * (j * k - i * r)],
-            [2 * s * (i * k - j * r), 2 * s * (j * k + i * r), 1 - 2 * s * (i * i + j * j)]]
-
-
-def triangulate(*, at: sc.Variable, to: sc.Variable, edge: sc.Variable, elements: int = 1, unit: str|None = None):
-    from scipp import vector, vectors, sqrt, dot, isclose, cross, scalar, arange, concat, flatten
+def triangulate(*, at: sc.Variable, to: sc.Variable, edge: sc.Variable,
+                elements: int = 5, rings: int = 1, unit: str | None = None, caps: bool = True):
+    from scipp import sqrt, dot, arange, concat, flatten, vectors, cross
     from scipp.spatial import rotations_from_rotvecs
+    from numpy import array
     if unit is None:
         unit = at.unit or 'm'
     l_vec = to.to(unit=unit) - at.to(unit=unit)
@@ -192,25 +235,36 @@ def triangulate(*, at: sc.Variable, to: sc.Variable, edge: sc.Variable, elements
     # *a* vector perpendicular to l (should we check that this _is_ perpendicular to l_vec?)
     p = edge.to(unit=unit) - at.to(unit=unit)
 
-    a = arange(start=0, stop=360, step=30, dim='ring', unit='degree')
+    # arange does _not_ include the stop value, by design
+    a = arange(start=0., stop=360., step=360/elements, dim='ring', unit='degree')
     r = rotations_from_rotvecs(a * l_vec / ll)
 
-    nvr = len(a)  # the number of vertices per ring
+    # nvr = len(a)  # the number of vertices per ring
+    nvr = elements
     ring = r * p
-    li = at.to(unit=unit) + arange(start=0, stop=elements + 1, dim='length') * l_vec / elements
+    li = at.to(unit=unit) + arange(start=0, stop=rings + 1, dim='length') * l_vec / rings
     vertices = flatten(li + ring, to='vertices')  # the order in the addition is important for flatten
-    # 0, elements*[0,nvr), elements*nvr + 1
-    vertices = concat((at.to(unit=unit), vertices, to.to(unit=unit)), 'vertices')
-    # bottom cap
-    faces = [[0, i + 1, (i + 1) % nvr + 1] for i in range(nvr)]
+    if caps:
+        # 0, elements*[0,nvr), elements*nvr + 1
+        vertices = concat((at.to(unit=unit), vertices, to.to(unit=unit)), 'vertices')
+    faces = []
+    if caps:
+        # bottom cap
+        faces = [[0, (i + 1) % nvr + 1, i + 1] for i in range(nvr)]
     # between rings
-    for j in range(elements):
+    for j in range(rings):
         z = 1 + j * nvr
         rf = [[[z + i, z + (i + 1) % nvr, z + (i + 1) % nvr + nvr],
                [z + i, z + (i + 1) % nvr + nvr, z + i + nvr]] for i in range(nvr)]
         faces.extend([triangle for triangles in rf for triangle in triangles])
-    # top cap
-    last = len(vertices) - 1
-    top = [[last, last - i - 1, last - (i + 1) % nvr - 1] for i in range(nvr)]
-    faces.extend(top)
-    return vertices, faces
+    if caps:
+        # top cap
+        last = len(vertices) - 1
+        top = [[last, last - (i + 1) % nvr - 1, last - i - 1] for i in range(nvr)]
+        faces.extend(top)
+    faces = array(faces, dtype=int)
+    va = vectors(values=vertices.values[faces[:, 1]] - vertices.values[faces[:, 0]], dims=['vertices'])
+    vb = vectors(values=vertices.values[faces[:, 2]] - vertices.values[faces[:, 1]], dims=['vertices'])
+    normals = cross(va, vb)
+    normals /= sqrt(dot(normals, normals))
+    return vertices, faces, normals
