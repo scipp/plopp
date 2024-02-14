@@ -39,6 +39,14 @@ class Cylinders:
         The initial data to create the line from.
     opacity:
         The opacity of the points.
+    open_ended:
+        Matches three.js CylinderGeometry openEnded -- cylinders are capped if False
+    radial_segments:
+        Matches three.sj CylinderGeometry radialSegments -- number of line segments used to approximate a circle
+    twisted:
+        Controls if 'height' faces are rectangular (False) or triangular (True)
+    double_sided:
+        Are the inner faces of the cylinder rendered?
     """
 
     def __init__(
@@ -49,6 +57,10 @@ class Cylinders:
             far: str,
             data: sc.DataArray,
             opacity: float = 1,
+            open_ended: bool = False,
+            radial_segments: int = 6,
+            twisted: bool = False,
+            double_sided: bool = False,
     ):
         """
         Make a point cloud using pythreejs
@@ -60,6 +72,10 @@ class Cylinders:
         self._base = base
         self._edge = edge
         self._far = far
+        self._caps = not open_ended
+        self._segments = radial_segments
+        self._twist = twisted
+        self._sides = double_sided
         self._id = uuid.uuid4().hex
 
         self.last_vertex, self.geometry = self.make_geometry()
@@ -67,6 +83,7 @@ class Cylinders:
             vertexColors='FaceColors',
             transparent=True,
             opacity=opacity,
+            side='DoubleSide' if self._sides else 'FrontSide',
         )
         self.points = p3.Mesh(geometry=self.geometry, material=self.material)
 
@@ -80,7 +97,7 @@ class Cylinders:
         normals = []
         last = [0,]
         for base, edge, far in zip(bases, edges, fars):
-            v, f, n = triangulate(at=base, to=far, edge=edge)
+            v, f, n = triangulate(at=base, to=far, edge=edge, elements=self._segments, caps=self._caps, twist=self._twist)
             vertices.append(v)
             faces.append(f + last[-1])
             normals.append(n)
@@ -163,10 +180,11 @@ class Cylinders:
 
 
 def triangulate(*, at: sc.Variable, to: sc.Variable, edge: sc.Variable,
-                elements: int = 5, rings: int = 1, unit: str | None = None, caps: bool = True):
-    from scipp import sqrt, dot, arange, concat, flatten, vectors, cross
+                elements: int = 6, rings: int = 1, unit: str | None = None, caps: bool = True,
+                twist: bool = True):
+    from scipp import sqrt, dot, arange, concat, flatten, vectors, cross, Variable
     from scipp.spatial import rotations_from_rotvecs
-    from numpy import array
+    from numpy import array, tile
     if unit is None:
         unit = at.unit or 'm'
     l_vec = to.to(unit=unit) - at.to(unit=unit)
@@ -182,6 +200,12 @@ def triangulate(*, at: sc.Variable, to: sc.Variable, edge: sc.Variable,
     nvr = elements
     ring = r * p
     li = at.to(unit=unit) + arange(start=0, stop=rings + 1, dim='length') * l_vec / rings
+    if twist:
+        # twists = Variable(values=tile(array([0, 180/elements]), (rings + 1) // 2), dims=['length'], unit='degree')
+        twists = arange(start=0., stop=rings+1, step=1, dim='length', unit='degree') * (-180 / elements)
+        r_twist = rotations_from_rotvecs(twists * l_vec / ll)
+        ring = r_twist * ring
+
     vertices = flatten(li + ring, to='vertices')  # the order in the addition is important for flatten
     if caps:
         # 0, elements*[0,nvr), elements*nvr + 1
@@ -192,7 +216,7 @@ def triangulate(*, at: sc.Variable, to: sc.Variable, edge: sc.Variable,
         faces = [[0, (i + 1) % nvr + 1, i + 1] for i in range(nvr)]
     # between rings
     for j in range(rings):
-        z = 1 + j * nvr
+        z = 1 + j * nvr if caps else j * nvr
         rf = [[[z + i, z + (i + 1) % nvr, z + (i + 1) % nvr + nvr],
                [z + i, z + (i + 1) % nvr + nvr, z + i + nvr]] for i in range(nvr)]
         faces.extend([triangle for triangles in rf for triangle in triangles])
