@@ -59,6 +59,7 @@ class Scatter3dView(View):
         x: str = 'x',
         y: str = 'y',
         z: str = 'z',
+        # geometry: str,
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
@@ -75,6 +76,7 @@ class Scatter3dView(View):
         self._y = y
         self._z = z
         self._kwargs = kwargs
+        # self._geometry = geometry
 
         self.canvas = backends.canvas3d(figsize=figsize, title=title, camera=camera)
         self.colormapper = ColorMapper(
@@ -118,12 +120,16 @@ class Scatter3dView(View):
                 )
 
         if key not in self.artists:
-            pts = backends.point_cloud(
+            # pts = backends.point_cloud(
+            #     data=new_values, x=self._x, y=self._y, z=self._z, **self._kwargs
+            # )
+            pts = backends.shape_cloud(
                 data=new_values, x=self._x, y=self._y, z=self._z, **self._kwargs
             )
             self.artists[key] = pts
             self.colormapper[key] = pts
-            self.canvas.add(pts.points)
+            # self.canvas.add(pts.points)
+            self.canvas.add(pts.meshes)
             if key in self._original_artists:
                 self.canvas.make_outline(limits=self.get_limits())
 

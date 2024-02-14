@@ -25,6 +25,14 @@ class PythreejsBackend:
 
         return PointCloudP3js(*args, **kwargs)
 
+    def shape_cloud(self, *args, **kwargs):
+        """
+        See :class:`shape_cloud.ShapeCloud` for details.
+        """
+        from .shape_cloud import ShapeCloud as ShapeCloudP3js
+
+        return ShapeCloudP3js(*args, **kwargs)
+
     def figure3d(self, *args, **kwargs):
         """
         See :class:`figure.Figure` for details.
