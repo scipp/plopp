@@ -103,6 +103,10 @@ class LineView(View):
         )
         self.canvas.yscale = norm
 
+        # The line view is potentially plotting many lines. When ``render`` is called,
+        # it calls ``update`` for each line. At the end of ``update``, a range autoscale
+        # is applied. We want to avoid autoscaling at the end of each ``update`` call,
+        # because searching for limits could be expensive.
         self._no_autoscale = True
         self.render()
         self._no_autoscale = False
