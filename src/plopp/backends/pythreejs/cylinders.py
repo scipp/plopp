@@ -2,9 +2,8 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Tuple, Union
+from typing import Tuple
 
-import numpy as np
 import scipp as sc
 
 
@@ -78,7 +77,7 @@ class Cylinders:
         self._sides = double_sided
         self._id = uuid.uuid4().hex
 
-        self.last_vertex, self.geometry = self.make_geometry()
+        self.vertex_count, self.last_vertex, self.geometry = self.make_geometry()
         self.material = p3.PointsMaterial(
             vertexColors='FaceColors',
             transparent=True,
@@ -89,32 +88,28 @@ class Cylinders:
 
     def triangulate_all(self):
         """Combine all triangulations as scipp Variables, where possible"""
-        from scipp import concat
-        from numpy import vstack
+        from scipp import array, arange, flatten, transpose
         bases, edges, fars = (self._data.coords[name] for name in (self._base, self._edge, self._far))
-        vertices = []
-        faces = []
-        normals = []
-        last = [0,]
-        for base, edge, far in zip(bases, edges, fars):
-            v, f, n = triangulate(at=base, to=far, edge=edge, elements=self._segments, caps=self._caps, twist=self._twist)
-            vertices.append(v)
-            faces.append(f + last[-1])
-            normals.append(n)
-            last.append(last[-1] + v.shape[0])
-
-        return concat(vertices, dim='vertices'), vstack(faces), concat(normals, dim='vertices'), last[1:]
+        x = bases.dims[0]
+        vertices, faces = triangulate(at=bases, to=fars, edge=edges, elements=self._segments, caps=self._caps, twist=self._twist)
+        # vertices now has shape (cylinders, vertices), which we will flatten to only vertices
+        # first we need to expand faces:
+        count = vertices.sizes['vertices']
+        first = arange(start=0, stop=bases.sizes[x], dim=x) * count
+        faces = first + array(values=faces, dims=['faces', 'vertices'])
+        return (flatten(transpose(vertices, dims=[x, 'vertices']), to='vertices'),
+                flatten(transpose(faces, dims=[x,  'faces', 'vertices']), dims=[x, 'faces'], to='faces'),
+                first + count, count)
 
     def make_geometry(self):
         """Construct the geometry from combined scipp Variables using the buffered index property"""
         from pythreejs import BufferGeometry, BufferAttribute
-        from numpy import zeros, array
-        v, faces, n, lasts = self.triangulate_all()
+        from numpy import zeros
+        v, faces, lasts, count = self.triangulate_all()
         position = BufferAttribute(array=v.values.astype('float32'))
-        normal = BufferAttribute(array=n.values.astype('float32'))
-        color = BufferAttribute(array=zeros([lasts[-1], 3], dtype='float32'))
-        index = BufferAttribute(array=array(faces).flatten().astype('uint32'))  # *MUST* be unsigned!
-        return lasts, BufferGeometry(index=index, attributes={'position': position, 'normal': normal, 'color': color})
+        color = BufferAttribute(array=zeros([v.sizes['vertices'], 3], dtype='float32'))
+        index = BufferAttribute(array=faces.values.flatten().astype('uint32'))  # *MUST* be unsigned!
+        return count, lasts, BufferGeometry(index=index, attributes={'position': position, 'color': color})
 
     def set_colors(self, rgba):
         """
@@ -125,12 +120,12 @@ class Cylinders:
         rgba:
             The array of rgba colors.
         """
-        from numpy import tile, diff, vstack
+        from scipp import array, transpose, flatten, ones
         if rgba.shape[0] != len(self.last_vertex):
             raise ValueError(f"Wrong number of colors ({rgba.shape[0]}) to set for cylinders {len(self.last_vertex)}")
-        counts = diff([0,] + self.last_vertex)
-        color = vstack([tile(rgba[i, :3], (n, 1)) for i, n in enumerate(counts)])
-        self.geometry.attributes['color'].array = color.astype('float32')
+        colors = array(values=rgba[:, :3], dims=['cylinder', 'rgb']) * ones(shape=[self.vertex_count], dims=['vertex'])
+        colors = flatten(transpose(colors, dims=['cylinder', 'vertex', 'rgb']), dims=['cylinder', 'vertex'], to='v')
+        self.geometry.attributes['color'].array = colors.values.astype('float32')
 
     def update(self, new_values):
         """
@@ -149,7 +144,8 @@ class Cylinders:
         Get the spatial extent of all the cylinders.
         """
         # A more correct form of this would project the cylinders onto each axis
-        vertices, faces, normals, lasts = self.triangulate_all()
+        # vertices, faces, normals, lasts = self.triangulate_all()
+        vertices, faces, lasts, count = self.triangulate_all()
         return (
             sc.concat([vertices.fields.x.min(), vertices.fields.x.max()], dim='x'),
             sc.concat([vertices.fields.y.min(), vertices.fields.y.max()], dim='y'),
@@ -182,11 +178,12 @@ class Cylinders:
 def triangulate(*, at: sc.Variable, to: sc.Variable, edge: sc.Variable,
                 elements: int = 6, rings: int = 1, unit: str | None = None, caps: bool = True,
                 twist: bool = True):
-    from scipp import sqrt, dot, arange, concat, flatten, vectors, cross, Variable
+    from scipp import sqrt, dot, arange, concat, flatten, fold, vectors, cross, Variable
     from scipp.spatial import rotations_from_rotvecs
     from numpy import array, tile
     if unit is None:
         unit = at.unit or 'm'
+
     l_vec = to.to(unit=unit) - at.to(unit=unit)
     ll = sqrt(dot(l_vec, l_vec))
     # *a* vector perpendicular to l (should we check that this _is_ perpendicular to l_vec?)
@@ -194,40 +191,36 @@ def triangulate(*, at: sc.Variable, to: sc.Variable, edge: sc.Variable,
 
     # arange does _not_ include the stop value, by design
     a = arange(start=0., stop=360., step=360/elements, dim='ring', unit='degree')
-    r = rotations_from_rotvecs(a * l_vec / ll)
-
-    # nvr = len(a)  # the number of vertices per ring
-    nvr = elements
-    ring = r * p
+    temp_dim = uuid.uuid4().hex
+    full_a = a * l_vec / ll
+    ring = fold(rotations_from_rotvecs(flatten(full_a, dims=full_a.dims, to=temp_dim)), dim=temp_dim, sizes=full_a.sizes) * p
     li = at.to(unit=unit) + arange(start=0, stop=rings + 1, dim='length') * l_vec / rings
     if twist:
         # twists = Variable(values=tile(array([0, 180/elements]), (rings + 1) // 2), dims=['length'], unit='degree')
         twists = arange(start=0., stop=rings+1, step=1, dim='length', unit='degree') * (-180 / elements)
-        r_twist = rotations_from_rotvecs(twists * l_vec / ll)
+        full_t = twists * l_vec / ll
+        r_twist = fold(rotations_from_rotvecs(flatten(full_t, dims=full_t.dims, to=temp_dim)), dim=temp_dim, sizes=full_t.sizes)
         ring = r_twist * ring
 
-    vertices = flatten(li + ring, to='vertices')  # the order in the addition is important for flatten
+    vertices = flatten(li + ring, dims=['length', 'ring'], to='vertices')  # the order in the addition is important
     if caps:
-        # 0, elements*[0,nvr), elements*nvr + 1
+        # 0, elements*[0,elements), elements*elements + 1
         vertices = concat((at.to(unit=unit), vertices, to.to(unit=unit)), 'vertices')
     faces = []
     if caps:
         # bottom cap
-        faces = [[0, (i + 1) % nvr + 1, i + 1] for i in range(nvr)]
+        faces = [[0, (i + 1) % elements + 1, i + 1] for i in range(elements)]
     # between rings
     for j in range(rings):
-        z = 1 + j * nvr if caps else j * nvr
-        rf = [[[z + i, z + (i + 1) % nvr, z + (i + 1) % nvr + nvr],
-               [z + i, z + (i + 1) % nvr + nvr, z + i + nvr]] for i in range(nvr)]
+        z = 1 + j * elements if caps else j * elements
+        rf = [[[z + i, z + (i + 1) % elements, z + (i + 1) % elements + elements],
+               [z + i, z + (i + 1) % elements + elements, z + i + elements]] for i in range(elements)]
         faces.extend([triangle for triangles in rf for triangle in triangles])
     if caps:
         # top cap
         last = len(vertices) - 1
-        top = [[last, last - (i + 1) % nvr - 1, last - i - 1] for i in range(nvr)]
+        top = [[last, last - (i + 1) % elements - 1, last - i - 1] for i in range(elements)]
         faces.extend(top)
     faces = array(faces, dtype=int)
-    va = vectors(values=vertices.values[faces[:, 1]] - vertices.values[faces[:, 0]], dims=['vertices'])
-    vb = vectors(values=vertices.values[faces[:, 2]] - vertices.values[faces[:, 1]], dims=['vertices'])
-    normals = cross(va, vb)
-    normals /= sqrt(dot(normals, normals))
-    return vertices, faces, normals
+    return vertices, faces
+
