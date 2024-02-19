@@ -1,0 +1,906 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; Plopp</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="_static/documentation_options.js?v=e19757b3"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/design-tabs.js?v=36754332"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <script src="_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt="Plopp - Home"/>
+    <script>document.write(`<img src="_static/logo-dark.svg" class="logo__image only-dark" alt="Plopp - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="user-guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="gallery/index.html">
+                        Gallery
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api-reference/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="developer/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="about/index.html">
+                        About
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io">
+                    Scipp
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io/scippneutron">
+                    Scippneutron
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io/ess">
+                    Ess
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/scipp/plopp" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/plopp/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/scipp/plopp" title="Conda" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="user-guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="gallery/index.html">
+                        Gallery
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="api-reference/index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="developer/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="about/index.html">
+                        About
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links-2">
+                    More
+                </button>
+                <ul id="pst-nav-more-links-2" class="dropdown-menu">
+                    
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io">
+                    Scipp
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io/scippneutron">
+                    Scippneutron
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io/ess">
+                    Ess
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/scipp/plopp" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/plopp/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/scipp/plopp" title="Conda" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#X"><strong>X</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.backends.matplotlib.canvas.Canvas.html#plopp.backends.matplotlib.canvas.Canvas.__init__">__init__() (plopp.backends.matplotlib.canvas.Canvas method)</a>
+
+      <ul>
+        <li><a href="generated/plopp.backends.matplotlib.image.Image.html#plopp.backends.matplotlib.image.Image.__init__">(plopp.backends.matplotlib.image.Image method)</a>
+</li>
+        <li><a href="generated/plopp.backends.matplotlib.interactive.InteractiveFig.html#plopp.backends.matplotlib.interactive.InteractiveFig.__init__">(plopp.backends.matplotlib.interactive.InteractiveFig method)</a>
+</li>
+        <li><a href="generated/plopp.backends.matplotlib.line.Line.html#plopp.backends.matplotlib.line.Line.__init__">(plopp.backends.matplotlib.line.Line method)</a>
+</li>
+        <li><a href="generated/plopp.backends.matplotlib.MatplotlibBackend.html#plopp.backends.matplotlib.MatplotlibBackend.__init__">(plopp.backends.matplotlib.MatplotlibBackend method)</a>
+</li>
+        <li><a href="generated/plopp.backends.matplotlib.static.StaticFig.html#plopp.backends.matplotlib.static.StaticFig.__init__">(plopp.backends.matplotlib.static.StaticFig method)</a>
+</li>
+        <li><a href="generated/plopp.backends.matplotlib.tiled.Tiled.html#plopp.backends.matplotlib.tiled.Tiled.__init__">(plopp.backends.matplotlib.tiled.Tiled method)</a>
+</li>
+        <li><a href="generated/plopp.backends.plotly.canvas.Canvas.html#plopp.backends.plotly.canvas.Canvas.__init__">(plopp.backends.plotly.canvas.Canvas method)</a>
+</li>
+        <li><a href="generated/plopp.backends.plotly.figure.Figure.html#plopp.backends.plotly.figure.Figure.__init__">(plopp.backends.plotly.figure.Figure method)</a>
+</li>
+        <li><a href="generated/plopp.backends.plotly.line.Line.html#plopp.backends.plotly.line.Line.__init__">(plopp.backends.plotly.line.Line method)</a>
+</li>
+        <li><a href="generated/plopp.backends.plotly.PlotlyBackend.html#plopp.backends.plotly.PlotlyBackend.__init__">(plopp.backends.plotly.PlotlyBackend method)</a>
+</li>
+        <li><a href="generated/plopp.backends.pythreejs.canvas.Canvas.html#plopp.backends.pythreejs.canvas.Canvas.__init__">(plopp.backends.pythreejs.canvas.Canvas method)</a>
+</li>
+        <li><a href="generated/plopp.backends.pythreejs.figure.Figure.html#plopp.backends.pythreejs.figure.Figure.__init__">(plopp.backends.pythreejs.figure.Figure method)</a>
+</li>
+        <li><a href="generated/plopp.backends.pythreejs.outline.Outline.html#plopp.backends.pythreejs.outline.Outline.__init__">(plopp.backends.pythreejs.outline.Outline method)</a>
+</li>
+        <li><a href="generated/plopp.backends.pythreejs.point_cloud.PointCloud.html#plopp.backends.pythreejs.point_cloud.PointCloud.__init__">(plopp.backends.pythreejs.point_cloud.PointCloud method)</a>
+</li>
+        <li><a href="generated/plopp.backends.pythreejs.PythreejsBackend.html#plopp.backends.pythreejs.PythreejsBackend.__init__">(plopp.backends.pythreejs.PythreejsBackend method)</a>
+</li>
+        <li><a href="generated/plopp.core.Node.html#plopp.core.Node.__init__">(plopp.core.Node method)</a>
+</li>
+        <li><a href="generated/plopp.core.View.html#plopp.core.View.__init__">(plopp.core.View method)</a>
+</li>
+        <li><a href="generated/plopp.graphics.Camera.html#plopp.graphics.Camera.__init__">(plopp.graphics.Camera method)</a>
+</li>
+        <li><a href="generated/plopp.graphics.ColorMapper.html#plopp.graphics.ColorMapper.__init__">(plopp.graphics.ColorMapper method)</a>
+</li>
+        <li><a href="generated/plopp.graphics.ImageView.html#plopp.graphics.ImageView.__init__">(plopp.graphics.ImageView method)</a>
+</li>
+        <li><a href="generated/plopp.graphics.LineView.html#plopp.graphics.LineView.__init__">(plopp.graphics.LineView method)</a>
+</li>
+        <li><a href="generated/plopp.graphics.Scatter3dView.html#plopp.graphics.Scatter3dView.__init__">(plopp.graphics.Scatter3dView method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.Box.html#plopp.widgets.Box.__init__">(plopp.widgets.Box method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.Checkboxes.html#plopp.widgets.Checkboxes.__init__">(plopp.widgets.Checkboxes method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.cut3d.Cut3dTool.html#plopp.widgets.cut3d.Cut3dTool.__init__">(plopp.widgets.cut3d.Cut3dTool method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.cut3d.TriCutTool.html#plopp.widgets.cut3d.TriCutTool.__init__">(plopp.widgets.cut3d.TriCutTool method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.drawing.DrawingTool.html#plopp.widgets.drawing.DrawingTool.__init__">(plopp.widgets.drawing.DrawingTool method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.HBar.html#plopp.widgets.HBar.__init__">(plopp.widgets.HBar method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.SliceWidget.html#plopp.widgets.SliceWidget.__init__">(plopp.widgets.SliceWidget method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.tools.ButtonTool.html#plopp.widgets.tools.ButtonTool.__init__">(plopp.widgets.tools.ButtonTool method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.tools.ColorTool.html#plopp.widgets.tools.ColorTool.__init__">(plopp.widgets.tools.ColorTool method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.tools.MultiToggleTool.html#plopp.widgets.tools.MultiToggleTool.__init__">(plopp.widgets.tools.MultiToggleTool method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.tools.PanZoomTool.html#plopp.widgets.tools.PanZoomTool.__init__">(plopp.widgets.tools.PanZoomTool method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.tools.ToggleTool.html#plopp.widgets.tools.ToggleTool.__init__">(plopp.widgets.tools.ToggleTool method)</a>
+</li>
+        <li><a href="generated/plopp.widgets.VBar.html#plopp.widgets.VBar.__init__">(plopp.widgets.VBar method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.tools.AxesTool.html#plopp.widgets.tools.AxesTool">AxesTool (in module plopp.widgets.tools)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.Box.html#plopp.widgets.Box">Box (class in plopp.widgets)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.tools.ButtonTool.html#plopp.widgets.tools.ButtonTool">ButtonTool (class in plopp.widgets.tools)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.graphics.Camera.html#plopp.graphics.Camera">Camera (class in plopp.graphics)</a>
+</li>
+      <li><a href="generated/plopp.widgets.tools.CameraTool.html#plopp.widgets.tools.CameraTool">CameraTool (in module plopp.widgets.tools)</a>
+</li>
+      <li><a href="generated/plopp.backends.matplotlib.canvas.Canvas.html#plopp.backends.matplotlib.canvas.Canvas">Canvas (class in plopp.backends.matplotlib.canvas)</a>
+
+      <ul>
+        <li><a href="generated/plopp.backends.plotly.canvas.Canvas.html#plopp.backends.plotly.canvas.Canvas">(class in plopp.backends.plotly.canvas)</a>
+</li>
+        <li><a href="generated/plopp.backends.pythreejs.canvas.Canvas.html#plopp.backends.pythreejs.canvas.Canvas">(class in plopp.backends.pythreejs.canvas)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.Checkboxes.html#plopp.widgets.Checkboxes">Checkboxes (class in plopp.widgets)</a>
+</li>
+      <li><a href="generated/plopp.graphics.ColorMapper.html#plopp.graphics.ColorMapper">ColorMapper (class in plopp.graphics)</a>
+</li>
+      <li><a href="generated/plopp.widgets.tools.ColorTool.html#plopp.widgets.tools.ColorTool">ColorTool (class in plopp.widgets.tools)</a>
+</li>
+      <li><a href="generated/plopp.widgets.cut3d.Cut3dTool.html#plopp.widgets.cut3d.Cut3dTool">Cut3dTool (class in plopp.widgets.cut3d)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.drawing.DrawingTool.html#plopp.widgets.drawing.DrawingTool">DrawingTool (class in plopp.widgets.drawing)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.backends.plotly.figure.Figure.html#plopp.backends.plotly.figure.Figure">Figure (class in plopp.backends.plotly.figure)</a>
+
+      <ul>
+        <li><a href="generated/plopp.backends.pythreejs.figure.Figure.html#plopp.backends.pythreejs.figure.Figure">(class in plopp.backends.pythreejs.figure)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.graphics.figure1d.html#plopp.graphics.figure1d">figure1d() (in module plopp.graphics)</a>
+</li>
+      <li><a href="generated/plopp.graphics.figure2d.html#plopp.graphics.figure2d">figure2d() (in module plopp.graphics)</a>
+</li>
+      <li><a href="generated/plopp.graphics.figure3d.html#plopp.graphics.figure3d">figure3d() (in module plopp.graphics)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.HBar.html#plopp.widgets.HBar">HBar (class in plopp.widgets)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.tools.HomeTool.html#plopp.widgets.tools.HomeTool">HomeTool (in module plopp.widgets.tools)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.backends.matplotlib.image.Image.html#plopp.backends.matplotlib.image.Image">Image (class in plopp.backends.matplotlib.image)</a>
+</li>
+      <li><a href="generated/plopp.graphics.ImageView.html#plopp.graphics.ImageView">ImageView (class in plopp.graphics)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.inspector.html#plopp.inspector">inspector() (in module plopp)</a>
+</li>
+      <li><a href="generated/plopp.backends.matplotlib.interactive.InteractiveFig.html#plopp.backends.matplotlib.interactive.InteractiveFig">InteractiveFig (class in plopp.backends.matplotlib.interactive)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.backends.matplotlib.line.Line.html#plopp.backends.matplotlib.line.Line">Line (class in plopp.backends.matplotlib.line)</a>
+
+      <ul>
+        <li><a href="generated/plopp.backends.plotly.line.Line.html#plopp.backends.plotly.line.Line">(class in plopp.backends.plotly.line)</a>
+</li>
+      </ul></li>
+      <li><a href="generated/plopp.graphics.LineView.html#plopp.graphics.LineView">LineView (class in plopp.graphics)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.tools.LogNormTool.html#plopp.widgets.tools.LogNormTool">LogNormTool (in module plopp.widgets.tools)</a>
+</li>
+      <li><a href="generated/plopp.widgets.tools.LogxTool.html#plopp.widgets.tools.LogxTool">LogxTool (in module plopp.widgets.tools)</a>
+</li>
+      <li><a href="generated/plopp.widgets.tools.LogyTool.html#plopp.widgets.tools.LogyTool">LogyTool (in module plopp.widgets.tools)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.backends.matplotlib.MatplotlibBackend.html#plopp.backends.matplotlib.MatplotlibBackend">MatplotlibBackend (class in plopp.backends.matplotlib)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.tools.MultiToggleTool.html#plopp.widgets.tools.MultiToggleTool">MultiToggleTool (class in plopp.widgets.tools)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.core.Node.html#plopp.core.Node">Node (class in plopp.core)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.core.node.html#plopp.core.node">node() (in module plopp.core)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.backends.pythreejs.outline.Outline.html#plopp.backends.pythreejs.outline.Outline">Outline (class in plopp.backends.pythreejs.outline)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.tools.OutlineTool.html#plopp.widgets.tools.OutlineTool">OutlineTool (in module plopp.widgets.tools)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.tools.PanZoomTool.html#plopp.widgets.tools.PanZoomTool">PanZoomTool (class in plopp.widgets.tools)</a>
+</li>
+      <li><a href="generated/plopp.plot.html#plopp.plot">plot() (in module plopp)</a>
+</li>
+      <li><a href="generated/plopp.backends.plotly.PlotlyBackend.html#plopp.backends.plotly.PlotlyBackend">PlotlyBackend (class in plopp.backends.plotly)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.backends.pythreejs.point_cloud.PointCloud.html#plopp.backends.pythreejs.point_cloud.PointCloud">PointCloud (class in plopp.backends.pythreejs.point_cloud)</a>
+</li>
+      <li><a href="generated/plopp.widgets.drawing.PointsTool.html#plopp.widgets.drawing.PointsTool">PointsTool (in module plopp.widgets.drawing)</a>
+</li>
+      <li><a href="generated/plopp.backends.pythreejs.PythreejsBackend.html#plopp.backends.pythreejs.PythreejsBackend">PythreejsBackend (class in plopp.backends.pythreejs)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.tools.SaveTool.html#plopp.widgets.tools.SaveTool">SaveTool (in module plopp.widgets.tools)</a>
+</li>
+      <li><a href="generated/plopp.scatter3d.html#plopp.scatter3d">scatter3d() (in module plopp)</a>
+</li>
+      <li><a href="generated/plopp.graphics.Scatter3dView.html#plopp.graphics.Scatter3dView">Scatter3dView (class in plopp.graphics)</a>
+</li>
+      <li><a href="generated/plopp.show.html#plopp.show">show() (in module plopp)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.core.show_graph.html#plopp.core.show_graph">show_graph() (in module plopp.core)</a>
+</li>
+      <li><a href="generated/plopp.slicer.html#plopp.slicer">slicer() (in module plopp)</a>
+</li>
+      <li><a href="generated/plopp.widgets.SliceWidget.html#plopp.widgets.SliceWidget">SliceWidget (class in plopp.widgets)</a>
+</li>
+      <li><a href="generated/plopp.backends.matplotlib.static.StaticFig.html#plopp.backends.matplotlib.static.StaticFig">StaticFig (class in plopp.backends.matplotlib.static)</a>
+</li>
+      <li><a href="generated/plopp.superplot.html#plopp.superplot">superplot() (in module plopp)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.backends.matplotlib.tiled.Tiled.html#plopp.backends.matplotlib.tiled.Tiled">Tiled (class in plopp.backends.matplotlib.tiled)</a>
+</li>
+      <li><a href="generated/plopp.graphics.tiled.html#plopp.graphics.tiled">tiled() (in module plopp.graphics)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.tools.ToggleTool.html#plopp.widgets.tools.ToggleTool">ToggleTool (class in plopp.widgets.tools)</a>
+</li>
+      <li><a href="generated/plopp.widgets.cut3d.TriCutTool.html#plopp.widgets.cut3d.TriCutTool">TriCutTool (class in plopp.widgets.cut3d)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.widgets.VBar.html#plopp.widgets.VBar">VBar (class in plopp.widgets)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.core.View.html#plopp.core.View">View (class in plopp.core)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.core.widget_node.html#plopp.core.widget_node">widget_node() (in module plopp.core)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="X">X</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="generated/plopp.xyplot.html#plopp.xyplot">xyplot() (in module plopp)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024 Scipp contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current Plopp version: 24.2.0 (<a href="https://github.com/scipp/plopp/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

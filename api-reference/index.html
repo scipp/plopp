@@ -1,0 +1,885 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API reference &#8212; Plopp</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="../_static/documentation_options.js?v=e19757b3"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api-reference/index';</script>
+    <script src="../_static/anaconda-icon.js?v=461bdc62"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="plopp.plot" href="../generated/plopp.plot.html" />
+    <link rel="prev" title="Polar plots" href="../gallery/polar-plots.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="Plopp - Home"/>
+    <script>document.write(`<img src="../_static/logo-dark.svg" class="logo__image only-dark" alt="Plopp - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../user-guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../gallery/index.html">
+                        Gallery
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../developer/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../about/index.html">
+                        About
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io">
+                    Scipp
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io/scippneutron">
+                    Scippneutron
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io/ess">
+                    Ess
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/scipp/plopp" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/plopp/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/scipp/plopp" title="Conda" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item">
+<nav class="navbar-nav">
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../user-guide/index.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../gallery/index.html">
+                        Gallery
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../developer/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../about/index.html">
+                        About
+                      </a>
+                    </li>
+                
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links-2">
+                    More
+                </button>
+                <ul id="pst-nav-more-links-2" class="dropdown-menu">
+                    
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io">
+                    Scipp
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io/scippneutron">
+                    Scippneutron
+                  </a>
+                </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link dropdown-item nav-external" href="https://scipp.github.io/ess">
+                    Ess
+                  </a>
+                </li>
+                
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/scipp/plopp" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/plopp/" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-python fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">PyPI</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://anaconda.org/scipp/plopp" title="Conda" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-custom fa-anaconda fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">Conda</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.plot.html">plopp.plot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.slicer.html">plopp.slicer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.superplot.html">plopp.superplot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.inspector.html">plopp.inspector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.scatter3d.html">plopp.scatter3d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.xyplot.html">plopp.xyplot</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.core.Node.html">plopp.core.Node</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.core.View.html">plopp.core.View</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.core.node.html">plopp.core.node</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.core.widget_node.html">plopp.core.widget_node</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.core.show_graph.html">plopp.core.show_graph</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.graphics.Camera.html">plopp.graphics.Camera</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.graphics.ColorMapper.html">plopp.graphics.ColorMapper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.graphics.figure1d.html">plopp.graphics.figure1d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.graphics.figure2d.html">plopp.graphics.figure2d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.graphics.figure3d.html">plopp.graphics.figure3d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.graphics.ImageView.html">plopp.graphics.ImageView</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.graphics.LineView.html">plopp.graphics.LineView</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.graphics.Scatter3dView.html">plopp.graphics.Scatter3dView</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.graphics.tiled.html">plopp.graphics.tiled</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.Box.html">plopp.widgets.Box</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.Checkboxes.html">plopp.widgets.Checkboxes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.HBar.html">plopp.widgets.HBar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.SliceWidget.html">plopp.widgets.SliceWidget</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.VBar.html">plopp.widgets.VBar</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.AxesTool.html">plopp.widgets.tools.AxesTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.ButtonTool.html">plopp.widgets.tools.ButtonTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.CameraTool.html">plopp.widgets.tools.CameraTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.ColorTool.html">plopp.widgets.tools.ColorTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.HomeTool.html">plopp.widgets.tools.HomeTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.LogNormTool.html">plopp.widgets.tools.LogNormTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.LogxTool.html">plopp.widgets.tools.LogxTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.LogyTool.html">plopp.widgets.tools.LogyTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.MultiToggleTool.html">plopp.widgets.tools.MultiToggleTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.OutlineTool.html">plopp.widgets.tools.OutlineTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.PanZoomTool.html">plopp.widgets.tools.PanZoomTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.SaveTool.html">plopp.widgets.tools.SaveTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.tools.ToggleTool.html">plopp.widgets.tools.ToggleTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.drawing.DrawingTool.html">plopp.widgets.drawing.DrawingTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.drawing.PointsTool.html">plopp.widgets.drawing.PointsTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.cut3d.Cut3dTool.html">plopp.widgets.cut3d.Cut3dTool</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.widgets.cut3d.TriCutTool.html">plopp.widgets.cut3d.TriCutTool</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="matplotlib.html">Matplotlib backend</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.matplotlib.MatplotlibBackend.html">plopp.backends.matplotlib.MatplotlibBackend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.matplotlib.canvas.Canvas.html">plopp.backends.matplotlib.canvas.Canvas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.matplotlib.line.Line.html">plopp.backends.matplotlib.line.Line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.matplotlib.image.Image.html">plopp.backends.matplotlib.image.Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.matplotlib.static.StaticFig.html">plopp.backends.matplotlib.static.StaticFig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.matplotlib.interactive.InteractiveFig.html">plopp.backends.matplotlib.interactive.InteractiveFig</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.matplotlib.tiled.Tiled.html">plopp.backends.matplotlib.tiled.Tiled</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="plotly.html">Plotly backend</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.plotly.PlotlyBackend.html">plopp.backends.plotly.PlotlyBackend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.plotly.canvas.Canvas.html">plopp.backends.plotly.canvas.Canvas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.plotly.line.Line.html">plopp.backends.plotly.line.Line</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.plotly.figure.Figure.html">plopp.backends.plotly.figure.Figure</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="pythreejs.html">Pythreejs backend</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.pythreejs.PythreejsBackend.html">plopp.backends.pythreejs.PythreejsBackend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.pythreejs.canvas.Canvas.html">plopp.backends.pythreejs.canvas.Canvas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.pythreejs.outline.Outline.html">plopp.backends.pythreejs.outline.Outline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.pythreejs.point_cloud.PointCloud.html">plopp.backends.pythreejs.point_cloud.PointCloud</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../generated/plopp.backends.pythreejs.figure.Figure.html">plopp.backends.pythreejs.figure.Figure</a></li>
+</ul>
+</li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../generated/plopp.show.html">plopp.show</a></li>
+</ul>
+</div>
+</nav></div>
+        <div class="sidebar-primary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting">Plotting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#core">Core</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#graphics">Graphics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#widgets-and-tools">Widgets and tools</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#backends">Backends</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#other">Other</a></li>
+</ul>
+  </nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/api-reference/index.md">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">API reference</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="api-reference">
+<h1>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h1>
+<section id="plotting">
+<h2>Plotting<a class="headerlink" href="#plotting" title="Link to this heading">#</a></h2>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.plot.html#plopp.plot" title="plopp.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>(obj, *[, aspect, cbar, coords, ...])</p></td>
+<td><p>Plot a Scipp object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.slicer.html#plopp.slicer" title="plopp.slicer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">slicer</span></code></a>(obj, *[, keep, autoscale, coords, ...])</p></td>
+<td><p>Plot a multi-dimensional object by slicing one or more of the dimensions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.superplot.html#plopp.superplot" title="plopp.superplot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">superplot</span></code></a>(obj[, keep])</p></td>
+<td><p>Plot a multi-dimensional object as a one-dimensional line, slicing all but one dimension.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.inspector.html#plopp.inspector" title="plopp.inspector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inspector</span></code></a>(obj[, dim, operation, orientation])</p></td>
+<td><p>Inspector takes in a three-dimensional input and applies a reduction operation (<code class="docutils literal notranslate"><span class="pre">'sum'</span></code> by default) along one of the dimensions specified by <code class="docutils literal notranslate"><span class="pre">dim</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.scatter3d.html#plopp.scatter3d" title="plopp.scatter3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scatter3d</span></code></a>(obj, *[, x, y, z, pos, figsize, ...])</p></td>
+<td><p>Make a three-dimensional scatter plot.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.xyplot.html#plopp.xyplot" title="plopp.xyplot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">xyplot</span></code></a>(x, y, **kwargs)</p></td>
+<td><p>Make a one-dimensional plot of one variable <code class="docutils literal notranslate"><span class="pre">y</span></code> as a function of another <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="core">
+<h2>Core<a class="headerlink" href="#core" title="Link to this heading">#</a></h2>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.core.Node.html#plopp.core.Node" title="plopp.core.Node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core.Node</span></code></a>(func, *parents, **kwparents)</p></td>
+<td><p>A node that can have parent and children nodes, to create a graph.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.core.View.html#plopp.core.View" title="plopp.core.View"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core.View</span></code></a>(*nodes)</p></td>
+<td><p>A (typically graphical) representation of the data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.core.node.html#plopp.core.node" title="plopp.core.node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core.node</span></code></a>(func)</p></td>
+<td><p>Create a <code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code> from a callable.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.core.widget_node.html#plopp.core.widget_node" title="plopp.core.widget_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core.widget_node</span></code></a>(widget)</p></td>
+<td><p>Create a node from a widget.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.core.show_graph.html#plopp.core.show_graph" title="plopp.core.show_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">core.show_graph</span></code></a>(entry, **kwargs)</p></td>
+<td><p>Display the connected nodes and views as a graph.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="graphics">
+<h2>Graphics<a class="headerlink" href="#graphics" title="Link to this heading">#</a></h2>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.graphics.Camera.html#plopp.graphics.Camera" title="plopp.graphics.Camera"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphics.Camera</span></code></a>([position, look_at, near, far])</p></td>
+<td><p>Camera configuration for three-dimensional plots.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.graphics.ColorMapper.html#plopp.graphics.ColorMapper" title="plopp.graphics.ColorMapper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphics.ColorMapper</span></code></a>([canvas, cbar, cmap, ...])</p></td>
+<td><p>A class that handles conversion between data values and RGBA colors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.graphics.figure1d.html#plopp.graphics.figure1d" title="plopp.graphics.figure1d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphics.figure1d</span></code></a>(*args[, style])</p></td>
+<td><p>Create a figure to represent one-dimensional data from one or more graph node(s).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.graphics.figure2d.html#plopp.graphics.figure2d" title="plopp.graphics.figure2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphics.figure2d</span></code></a>(*args[, style])</p></td>
+<td><p>Create a figure to represent two-dimensional data from a graph node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.graphics.figure3d.html#plopp.graphics.figure3d" title="plopp.graphics.figure3d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphics.figure3d</span></code></a>(*args[, style])</p></td>
+<td><p>Create a figure to represent three-dimensional data from a graph node.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.graphics.ImageView.html#plopp.graphics.ImageView" title="plopp.graphics.ImageView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphics.ImageView</span></code></a>(*nodes[, cmap, ...])</p></td>
+<td><p>ImageView that makes a visual representation of two-dimensional data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.graphics.LineView.html#plopp.graphics.LineView" title="plopp.graphics.LineView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphics.LineView</span></code></a>(*nodes[, norm, vmin, ...])</p></td>
+<td><p>View that makes a visual representation of one-dimensional data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.graphics.Scatter3dView.html#plopp.graphics.Scatter3dView" title="plopp.graphics.Scatter3dView"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphics.Scatter3dView</span></code></a>(*nodes[, x, y, z, ...])</p></td>
+<td><p>View that makes a visual representation of three-dimensional scatter data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.graphics.tiled.html#plopp.graphics.tiled" title="plopp.graphics.tiled"><code class="xref py py-obj docutils literal notranslate"><span class="pre">graphics.tiled</span></code></a>(nrows, ncols, **kwargs)</p></td>
+<td><p>A tiled figure.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="widgets-and-tools">
+<h2>Widgets and tools<a class="headerlink" href="#widgets-and-tools" title="Link to this heading">#</a></h2>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.Box.html#plopp.widgets.Box" title="plopp.widgets.Box"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.Box</span></code></a>(**kwargs)</p></td>
+<td><p>Container widget that accepts a list of items.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.Checkboxes.html#plopp.widgets.Checkboxes" title="plopp.widgets.Checkboxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.Checkboxes</span></code></a>(entries[, description, value])</p></td>
+<td><p>Widget providing a list of checkboxes, along with a button to toggle them all.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.HBar.html#plopp.widgets.HBar" title="plopp.widgets.HBar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.HBar</span></code></a>(**kwargs)</p></td>
+<td><p>Horizontal bar container.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.SliceWidget.html#plopp.widgets.SliceWidget" title="plopp.widgets.SliceWidget"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.SliceWidget</span></code></a>(da, dims)</p></td>
+<td><p>Widgets containing a slider for each of the requested dimensions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.VBar.html#plopp.widgets.VBar" title="plopp.widgets.VBar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.VBar</span></code></a>(**kwargs)</p></td>
+<td><p>Vertical bar container.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.AxesTool.html#plopp.widgets.tools.AxesTool" title="plopp.widgets.tools.AxesTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.AxesTool</span></code></a></p></td>
+<td><p>Toggle RGB axes helper visibility tool</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.ButtonTool.html#plopp.widgets.tools.ButtonTool" title="plopp.widgets.tools.ButtonTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.ButtonTool</span></code></a>([callback])</p></td>
+<td><p>Create a button with a callback that is called when the button is clicked.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.CameraTool.html#plopp.widgets.tools.CameraTool" title="plopp.widgets.tools.CameraTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.CameraTool</span></code></a></p></td>
+<td><p>Tool for changing the position of the camera in a 3d scene.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.ColorTool.html#plopp.widgets.tools.ColorTool" title="plopp.widgets.tools.ColorTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.ColorTool</span></code></a>(text, color)</p></td>
+<td><p>Tool for saving lines and controlling their color.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.HomeTool.html#plopp.widgets.tools.HomeTool" title="plopp.widgets.tools.HomeTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.HomeTool</span></code></a></p></td>
+<td><p>Return home tool.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.LogNormTool.html#plopp.widgets.tools.LogNormTool" title="plopp.widgets.tools.LogNormTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.LogNormTool</span></code></a></p></td>
+<td><p>Toggle normalization scale tool.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.LogxTool.html#plopp.widgets.tools.LogxTool" title="plopp.widgets.tools.LogxTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.LogxTool</span></code></a></p></td>
+<td><p>Toggle horizontal axis scale tool.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.LogyTool.html#plopp.widgets.tools.LogyTool" title="plopp.widgets.tools.LogyTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.LogyTool</span></code></a></p></td>
+<td><p>Toggle vertical axis scale tool.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.MultiToggleTool.html#plopp.widgets.tools.MultiToggleTool" title="plopp.widgets.tools.MultiToggleTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.MultiToggleTool</span></code></a>(callback, options)</p></td>
+<td><p>Create toggle buttons with a callback that is called when one of the buttons is toggled.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.OutlineTool.html#plopp.widgets.tools.OutlineTool" title="plopp.widgets.tools.OutlineTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.OutlineTool</span></code></a></p></td>
+<td><p>Toggle outline visibility tool</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.PanZoomTool.html#plopp.widgets.tools.PanZoomTool" title="plopp.widgets.tools.PanZoomTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.PanZoomTool</span></code></a>(callback[, value])</p></td>
+<td><p>Tool to control the panning and zooming actions on a Matplotlib figure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.SaveTool.html#plopp.widgets.tools.SaveTool" title="plopp.widgets.tools.SaveTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.SaveTool</span></code></a></p></td>
+<td><p>Save figure to png tool.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.tools.ToggleTool.html#plopp.widgets.tools.ToggleTool" title="plopp.widgets.tools.ToggleTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.tools.ToggleTool</span></code></a>(callback, **kwargs)</p></td>
+<td><p>Create a toggle button with a callback that is called when the button is toggled.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.drawing.DrawingTool.html#plopp.widgets.drawing.DrawingTool" title="plopp.widgets.drawing.DrawingTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.drawing.DrawingTool</span></code></a>(figure, ...[, value])</p></td>
+<td><p>Interface between Plopp and Mpltoolbox.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.drawing.PointsTool.html#plopp.widgets.drawing.PointsTool" title="plopp.widgets.drawing.PointsTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.drawing.PointsTool</span></code></a></p></td>
+<td><p>Tool to add point markers onto a figure.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.widgets.cut3d.Cut3dTool.html#plopp.widgets.cut3d.Cut3dTool" title="plopp.widgets.cut3d.Cut3dTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.cut3d.Cut3dTool</span></code></a>(view, limits, direction)</p></td>
+<td><p>A tool that provides a slider to extract a plane of points in a three-dimensional scatter plot, and add it to the scene as an opaque cut.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../generated/plopp.widgets.cut3d.TriCutTool.html#plopp.widgets.cut3d.TriCutTool" title="plopp.widgets.cut3d.TriCutTool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widgets.cut3d.TriCutTool</span></code></a>(fig)</p></td>
+<td><p>A collection of <code class="xref py py-class docutils literal notranslate"><span class="pre">Cut3dTool</span></code> to make spatial cuts in the X, Y, and Z directions on a three-dimensional scatter plot.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="backends">
+<h2>Backends<a class="headerlink" href="#backends" title="Link to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="matplotlib.html">Matplotlib backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotly.html">Plotly backend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pythreejs.html">Pythreejs backend</a></li>
+</ul>
+</div>
+</section>
+<section id="other">
+<h2>Other<a class="headerlink" href="#other" title="Link to this heading">#</a></h2>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../generated/plopp.show.html#plopp.show" title="plopp.show"><code class="xref py py-obj docutils literal notranslate"><span class="pre">show</span></code></a>()</p></td>
+<td><p>A function to display all the currently opened figures (note that this only applies to the figures created via the Matplotlib backend).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../gallery/polar-plots.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Polar plots</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../generated/plopp.plot.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">plopp.plot</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2024 Scipp contributors.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><!-- This will display the version of the docs -->
+Current Plopp version: 24.2.0 (<a href="https://github.com/scipp/plopp/releases">older versions</a>).</div>
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
