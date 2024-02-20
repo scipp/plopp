@@ -185,57 +185,6 @@ def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
     )
 
 
-def cylinders(npoints=100, scale=10.0, seed=1) -> sc.DataGroup:
-    """
-    Generate cylindrical scatter data, based on a normal distribution
-    Parameters
-    ----------
-    npoints:
-        The number of points to generate
-    scale:
-        Standard deviation of the distribution
-    seed
-        The seed for the random number
-
-    Returns
-    -------
-        A DataGroup with intensity 'data', cylinder indexing, and vertices
-    """
-    rng = np.random.default_rng(seed)
-    base = sc.vectors(dims=['cylinder'], unit='m', values=scale * rng.standard_normal(size=[npoints, 3]))
-    length = sc.vectors(dims=['cylinder'], unit='m', values=scale * rng.standard_normal(size=[npoints, 3]))
-    radius = sc.array(dims=['cylinder'], unit='m', values=rng.standard_normal(size=[npoints]))
-    v = sc.cross(sc.vector(value=[0, 1, 0]), length / sc.sqrt(sc.dot(length, length)))
-    vertices = sc.concat((base, base + v * radius, base + length), dim='vertices').transpose().flatten(to='vertices')
-    cyl = sc.arange(start=0, stop=3 * npoints, dim='flat').fold(dim='flat', sizes={'cylinder': npoints, 'index': 3})
-    intensity = sc.array(dims=['cylinder'], unit='counts', values=rng.standard_normal(size=[npoints]))
-    return sc.DataGroup(data=intensity, cylinders=cyl, vertices=vertices)
-
-
-def cylinder(radius, length) -> sc.DataGroup:
-    """
-    Generate a single cylinder
-    Parameters
-    ----------
-    radius:
-        The radius of the generated cylinder
-    length:
-        The length of the generated cylinder
-
-    Returns
-    -------
-        A DataGroup with intensity 'data', cylinder indexing, and vertices of a single cylinder
-    """
-    base = sc.vectors(dims=['cylinder'], unit='m', values=[[0, 0, 0]])
-    radius = sc.array(dims=['cylinder'], unit='m', values=[radius])
-    length = sc.array(dims=['cylinder'], unit='m', values=[length])
-    vertices = sc.concat((base, base + radius * sc.vector(value=[0, 1, 0]), base + length * sc.vector(value=[0, 0, 1])),
-                         dim='vertices').transpose().flatten(to='vertices')
-    cyl = sc.arange(start=0, stop=3, dim='flat').fold(dim='flat', sizes={'cylinder': 1, 'index': 3})
-    intensity = sc.array(dims=['cylinder'], unit='counts', values=[1])
-    return sc.DataGroup(data=intensity, cylinders=cyl, vertices=vertices)
-
-
 def random(shape, dtype='float64', unit='', dims=None, seed=None) -> sc.DataArray:
     """
     Generate a data array containing random data values.

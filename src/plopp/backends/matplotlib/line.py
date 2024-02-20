@@ -235,3 +235,10 @@ class Line:
             for artist in self._error.get_children():
                 artist.set_color(val)
         self._canvas.draw()
+
+    @property
+    def raw_data(self):
+        """
+        Used by plopp.ColorMapper.autoscale to set the color-axis limits
+        """
+        return self._data

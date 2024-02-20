@@ -12,22 +12,28 @@ from ..graphics import Camera
 from .colormapper import ColorMapper
 
 
-class Cylinders3dView(View):
+class Mesh3dView(View):
     """
-    View that makes a visual representation of three-dimensional cylinder detector data.
+    View that makes a visual representation of three-dimensional mesh data.
     It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
-    function that generates :class:`PointCloud` artists.
+    function that generates :class:`Mesh` artists.
 
     Parameters
     ----------
     *nodes:
         The nodes that are attached to the view.
-    x:
-        The name of the coordinate to use for the X positions of the scatter points.
-    y:
-        The name of the coordinate to use for the Y positions of the scatter points.
-    z:
-        The name of the coordinate to use for the Z positions of the scatter points.
+    faces:
+        The triangulated faced indexes that connect the vertices
+    point:
+        The name of the point dimension in the data (will be determined if None)
+    vertex:
+        The name of the vertex dimension in data (default = 'vertex')
+    intensity:
+        The name of the intensity coordinate to plot (default = 'counts')
+    face:
+        The name of the face dimension in faces (default = 'face')
+    triangle:
+        The name of the triangle dimension in faces (default = 'triangle')
     cmap:
         The name of the colormap for the data
         (see https://matplotlib.org/stable/tutorials/colors/colormaps.html).
@@ -56,9 +62,12 @@ class Cylinders3dView(View):
     def __init__(
         self,
         *nodes,
-        base: str = 'base',
-        edge: str = 'edge',
-        far: str = 'far',
+        faces: sc.DataArray | None = None,
+        point: str | None = None,
+        vertex: str = 'vertex',
+        intensity: str = 'counts',
+        face: str = 'face',
+        triangle: str = 'triangle',
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
@@ -71,9 +80,11 @@ class Cylinders3dView(View):
     ):
         super().__init__(*nodes)
 
-        self._base = base
-        self._edge = edge
-        self._far = far
+        if faces is None:
+            raise ValueError('The triangulated faces must be provided')
+
+        self._bkargs = {'faces': faces, 'point': point, 'vertex': vertex, 'intensity': intensity,
+                        'face': face, 'triangle': triangle}
         self._kwargs = kwargs
 
         self.canvas = backends.canvas3d(figsize=figsize, title=title, camera=camera)
@@ -103,32 +114,25 @@ class Cylinders3dView(View):
         draw:
             This argument is ignored for the 3d figure update.
         """
-        mapping = {'x': self._base, 'y': self._base, 'z': self._base}
+        axes = ('x', 'y', 'z')
+        intensity = self._bkargs['intensity']
         if self.canvas.empty:
             self.canvas.set_axes(
-                dims=mapping,
-                units={x: new_values.coords[dim].unit for x, dim in mapping.items()},
+                dims={a: a for a in axes},
+                units={a: new_values.data.unit for a in axes},
             )
-            self.colormapper.unit = new_values.unit
+            self.colormapper.unit = new_values.coords[intensity].unit
         else:
-            new_values.data = make_compatible(
-                new_values.data, unit=self.colormapper.unit
+            new_values.coords[intensity] = make_compatible(
+                new_values.coords[intensity], unit=self.colormapper.unit
             )
-            for xyz, dim in mapping.items():
-                new_values.coords[dim] = new_values.coords[dim].to(
-                    unit=self.canvas.units[xyz], copy=False
-                )
+            # the data field is vector valued, so we only need to worry about x, y, or z
+            new_values.data = new_values.data.to(unit=self.canvas.units['x'], copy=False)
 
         if key not in self.artists:
-            pts = backends.cylinders(
-                data=new_values,
-                base=self._base,
-                edge=self._edge,
-                far=self._far,
-                **self._kwargs
-            )
+            pts = backends.mesh(data=new_values, **self._bkargs, **self._kwargs)
             self.artists[key] = pts
-            self.colormapper[key] = pts
+            self.colormapper[key] = pts  # inserts into self.colormapper.artists
             self.canvas.add(pts.points)
             if key in self._original_artists:
                 self.canvas.make_outline(limits=self.get_limits())
@@ -138,33 +142,18 @@ class Cylinders3dView(View):
 
     def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
-        Get global limits for all the point clouds in the scene.
+        Get global limits for all the mesh clouds in the scene.
         """
-        xmin = None
-        xmax = None
-        ymin = None
-        ymax = None
-        zmin = None
-        zmax = None
-        for child in self.artists.values():
-            xlims, ylims, zlims = child.get_limits()
-            if xmin is None or xlims[0] < xmin:
-                xmin = xlims[0]
-            if xmax is None or xlims[1] > xmax:
-                xmax = xlims[1]
-            if ymin is None or ylims[0] < ymin:
-                ymin = ylims[0]
-            if ymax is None or ylims[1] > ymax:
-                ymax = ylims[1]
-            if zmin is None or zlims[0] < zmin:
-                zmin = zlims[0]
-            if zmax is None or zlims[1] > zmax:
-                zmax = zlims[1]
-        return (
-            sc.concat([xmin, xmax], dim=self._base),
-            sc.concat([ymin, ymax], dim=self._base),
-            sc.concat([zmin, zmax], dim=self._base),
-        )
+        # use zip to go from a list of tuples to a tuple of lists, then make a dict
+        axes = 'x', 'y', 'z'
+        limits = {k: sc.concat(v, dim='children') for k, v in zip(
+            axes, zip(*[child.get_limits() for child in self.artists.values()])
+        )}
+
+        def limit_pair(ax: str) -> sc.Variable:
+            return sc.concat((sc.min(limits[ax]), sc.max(limits[ax])), dim=ax)
+
+        return limit_pair(axes[0]), limit_pair(axes[1]), limit_pair(axes[2])
 
     def set_opacity(self, alpha: float):
         """

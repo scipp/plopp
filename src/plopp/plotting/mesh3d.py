@@ -8,7 +8,6 @@ from typing import Dict, Literal, Optional, Tuple, Union
 import scipp as sc
 
 from ..core.typing import PlottableMulti
-from scipp import Variable, DataGroup
 from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
@@ -19,50 +18,49 @@ def _to_variable(
     return coords[var] if isinstance(var, str) else var
 
 
-def _preprocess_cylinders(
-    obj,
-    name: Optional[str] = None,
+def _preprocess_mesh(
+    obj: PlottableMulti,
+    point: str,
+    vertex: str,
+    intensity: str | sc.Variable,
+    mesh: sc.Variable,
+    face: str,
+    triangle: str,
+    name: str | None = None,
 ) -> sc.DataArray:
-    from scipp import DType
-    da = from_compatible_lib(obj['data'])
-    cylinders = obj['cylinders']
-    vertices = obj['vertices']
+    da = from_compatible_lib(obj)
+    check_not_binned(da)
 
-    if isinstance(da, Variable):
-        da = sc.DataArray(data=da)
+    if any(x not in da.data.dims for x in (point, vertex)):
+        raise ValueError(f"Expected {point} and {vertex} but got {da.data.dims}")
+    if isinstance(intensity, str):
+        intensity_name = intensity
+        intensity = da.coords[intensity_name]
+    else:
+        intensity_name = 'counts'
+    if any(x not in (point, vertex) for x in intensity.dims):
+        raise ValueError(f"Expected only {point} or {vertex} dims but got {intensity.dims}")
 
-    # check dimensional consistency
-    assert da.data.ndim == 1
-    data_dim = da.data.dims[0]
-    data_shape = da.data.shape[0]
-    assert cylinders.ndim == 2
-    assert cylinders.shape[1] == 3
-    cylinder_dim = cylinders.dims[1]
-    assert cylinders.shape[0] == data_shape
-    assert vertices.dtype == DType.vector3
-    assert cylinders.max().value < vertices.shape[0]
-
-    base_vertices = vertices[cylinders[cylinder_dim, 0].values].flatten(to=data_dim)
-    edge_vertices = vertices[cylinders[cylinder_dim, 1].values].flatten(to=data_dim)
-    far_vertices = vertices[cylinders[cylinder_dim, 2].values].flatten(to=data_dim)
-
-    coords = {
-        'base': base_vertices,
-        'edge': edge_vertices,
-        'far': far_vertices
-    }
-
+    coords = {intensity_name: intensity}
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
-    if out.ndim != 1:
-        out = out.flatten(to=uuid.uuid4().hex)
     if name is not None:
         out.name = name
+
+    if any(x not in mesh.dims for x in (face, triangle)):
+        raise ValueError(f"Expected {face} and {triangle} but got {mesh.dims}")
+
     return out
 
 
-def cylinders3d(
-    obj: DataGroup,
+def mesh3d(
+    obj: PlottableMulti,
+    faces: sc.Variable,
     *,
+    point: str = 'polyhedron',
+    vertex: str = 'vertex',
+    intensity: str = 'counts',
+    face: str = 'face',
+    triangle: str = 'triangle',
     figsize: Tuple[int, int] = (600, 400),
     norm: Literal['linear', 'log'] = 'linear',
     title: str = None,
@@ -72,21 +70,33 @@ def cylinders3d(
     camera: Optional[Camera] = None,
     **kwargs,
 ):
-    """Make a three-dimensional scatter plot.
+    """Make a three-dimensional triangluated mesh plot.
 
     To specify the positions of the scatter points, you can use:
 
     - a single coordinate inside the supplied data array that has dtype ``vector3``
-      (use the ``pos`` parameter to specify the name of the coordinate).
+      (use the ``mesh`` parameter to specify the name of the coordinate).
     - three coordinates from the data array, whose names are specified using the
       ``x``, ``y``, and ``z`` arguments.
 
-    Note that if ``pos`` is used, ``x``, ``y``, and ``z`` must all be ``None``.
+    Note that if ``mesh`` is used, ``x``, ``y``, and ``z`` must all be ``None``.
 
     Parameters
     ----------
     obj:
-        The data group containing the data, vertex coordinates, and cylinder vertex mapping.
+        The data array containing the data and the coordinates.
+    faces:
+        The triangulated face indexes for the data and coordinates
+    point:
+        The name of the polyhedron 'point' dimension in the data array data field
+    vertex:
+        The name of the vertex positions dimension for the data array data field
+    intensity:
+        The name of the intensity coordinate for the data array
+    face:
+        The name of the face dimension for the faces variable
+    triangle:
+        The name of the triangle dimension for the faces variable
     norm:
         Set to ``'log'`` for a logarithmic colorscale.
     figsize:
@@ -109,7 +119,6 @@ def cylinders3d(
     """
     from ..graphics import figure3d
     from ..widgets import Box, ToggleTool, TriCutTool
-    from ..core import Node
 
     if 'ax' in kwargs:
         raise ValueError(
@@ -118,21 +127,14 @@ def cylinders3d(
             'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'  # noqa: E501
         )
 
-    # nodes = input_to_nodes(
-    #     obj, processor=_preprocess_cylinders,
-    # )
-
-    node = Node(_preprocess_cylinders, obj, name='input')
-    if hasattr(_preprocess_cylinders, 'func'):
-        node.name = _preprocess_cylinders.func.__name__
-    else:
-        node.name = 'Preprocess data'
+    nodes = input_to_nodes(
+        obj, processor=partial(_preprocess_mesh,
+                               point=point, vertex=vertex, intensity=intensity,
+                               mesh=faces, face=face, triangle=triangle)
+    )
 
     fig = figure3d(
-        node,
-        base='base',
-        edge='edge',
-        far='far',
+        *nodes,
         figsize=figsize,
         norm=norm,
         title=title,
@@ -140,7 +142,13 @@ def cylinders3d(
         vmax=vmax,
         cmap=cmap,
         camera=camera,
-        style='cylinder',
+        style='mesh',
+        faces=faces,
+        point=point,
+        vertex=vertex,
+        intensity=intensity,
+        face=face,
+        triangle=triangle,
         **kwargs,
     )
     tri_cutter = TriCutTool(fig)

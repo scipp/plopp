@@ -82,7 +82,7 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     raise ValueError(f'Unsupported style={style} for figure2d.')
 
 
-def figure3d(*args, style: Literal['scatter', 'cylinder'] = 'scatter', **kwargs):
+def figure3d(*args, style: Literal['scatter', 'cylinder', 'mesh'] = 'scatter', **kwargs):
     """
     Create a figure to represent three-dimensional data from a graph node.
     By default, this will return a figure built from :class:`FigScatter3d` (see the
@@ -117,5 +117,10 @@ def figure3d(*args, style: Literal['scatter', 'cylinder'] = 'scatter', **kwargs)
         from .cylinders3dview import Cylinders3dView
 
         return backends.figure3d(Cylinders3dView, *args, **kwargs)
+
+    elif style == 'mesh':
+        from .mesh3dview import Mesh3dView
+
+        return backends.figure3d(Mesh3dView, *args, **kwargs)
 
     raise ValueError(f'Unsupported style={style} for figure3d.')

@@ -162,5 +162,17 @@ class PointCloud:
     def data(self):
         """
         Get the point cloud data.
+
+        Used by plopp.ColorMapper._set_artists_colors to map plot-data into
+        color range, then passed back to this class' set_colors method.
         """
         return self._data
+
+    @property
+    def raw_data(self):
+        """
+        Get the point cloud data.
+
+        Used by plopp.ColorMapper.autoscale to set the color-axis limits
+        """
+        return self.data
