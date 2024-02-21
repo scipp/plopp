@@ -97,7 +97,7 @@ class Cut3dTool(ipw.HBox):
         view: View,
         limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
         direction: Literal['x', 'y', 'z'],
-        value: bool = False,
+        value: bool = True,
         color: str = 'red',
         linewidth: float = 1.5,
         **kwargs,
@@ -147,7 +147,9 @@ class Cut3dTool(ipw.HBox):
             min=limits[axis][0].value,
             max=limits[axis][1].value,
             # value=center[axis],
-            layout={'width': '150px', 'padding': '0px'},
+            description=direction.upper(),
+            style={'description_width': 'initial'},
+            layout={'width': '450px', 'padding': '0px'},
             disabled=not value,
             # readout=False,
         )
@@ -201,17 +203,19 @@ class Cut3dTool(ipw.HBox):
         self._nodes = list(self._view.graph_nodes.values())
         self.select_nodes = {}
 
-        super().__init__(
-            [
-                # ipw.VBox([self.button, self.plus_minus]),
-                ipw.VBox([self.button]),
-                ipw.VBox(
-                    # [self.slider, ipw.HBox([self.readout, self.unit_label])],
-                    [self.slider, ipw.HBox([self.unit_label])],
-                    layout={'align_items': 'center'},
-                ),
-            ]
-        )
+        # super().__init__(
+        #     [
+        #         # ipw.VBox([self.button, self.plus_minus]),
+        #         ipw.VBox([self.button]),
+        #         ipw.VBox(
+        #             # [self.slider, ipw.HBox([self.readout, self.unit_label])],
+        #             [self.slider, ipw.HBox([self.unit_label])],
+        #             layout={'align_items': 'center'},
+        #         ),
+        #     ]
+        # )
+        # self._add_cut()
+        super().__init__([self.slider, ipw.Label(f'[{self._unit}]')])
 
     def toggle(self, change: Dict[str, Any]):
         """
@@ -313,7 +317,7 @@ class Cut3dTool(ipw.HBox):
     #     self._add_cut()
 
 
-class TriCutTool(ipw.HBox):
+class TriCutTool(ipw.VBox):
     """
     A collection of :class:`Cut3dTool` to make spatial cuts in the X, Y, and Z
     directions on a three-dimensional scatter plot.
@@ -326,35 +330,58 @@ class TriCutTool(ipw.HBox):
 
     def __init__(self, fig: View):
         self._fig = fig
-        limits = self._fig.get_limits()
-        self.cut_x = Cut3dTool(
-            view=self._fig,
-            direction='x',
-            limits=limits,
+        self._limits = self._fig.get_limits()
+        self.cuts = []
+        self.cuts_container = ipw.VBox([])
+
+        self.add_cut_label = ipw.Label('Add cut:')
+        self.add_x_cut = ipw.Button(
             description='X',
             icon='cube',
             **BUTTON_LAYOUT,
         )
-        self.cut_y = Cut3dTool(
-            view=self._fig,
-            direction='y',
-            limits=limits,
+        self.add_y_cut = ipw.Button(
             description='Y',
             icon='cube',
             **BUTTON_LAYOUT,
         )
-        self.cut_z = Cut3dTool(
-            view=self._fig,
-            direction='z',
-            limits=limits,
+        self.add_z_cut = ipw.Button(
             description='Z',
             icon='cube',
             **BUTTON_LAYOUT,
         )
+        self.add_x_cut.on_click(lambda _: self._add_cut('x'))
+        self.add_y_cut.on_click(lambda _: self._add_cut('y'))
+        self.add_z_cut.on_click(lambda _: self._add_cut('z'))
 
-        self._fig.canvas.add(
-            self.cut_x.outlines + self.cut_y.outlines + self.cut_z.outlines
-        )
+        # self.cut_x = Cut3dTool(
+        #     view=self._fig,
+        #     direction='x',
+        #     limits=limits,
+        #     description='X',
+        #     icon='cube',
+        #     **BUTTON_LAYOUT,
+        # )
+        # self.cut_y = Cut3dTool(
+        #     view=self._fig,
+        #     direction='y',
+        #     limits=limits,
+        #     description='Y',
+        #     icon='cube',
+        #     **BUTTON_LAYOUT,
+        # )
+        # self.cut_z = Cut3dTool(
+        #     view=self._fig,
+        #     direction='z',
+        #     limits=limits,
+        #     description='Z',
+        #     icon='cube',
+        #     **BUTTON_LAYOUT,
+        # )
+
+        # self._fig.canvas.add(
+        #     self.cut_x.outlines + self.cut_y.outlines + self.cut_z.outlines
+        # )
 
         self.opacity = ipw.BoundedFloatText(
             min=0,
@@ -362,35 +389,68 @@ class TriCutTool(ipw.HBox):
             step=0.01,
             disabled=True,
             value=0.03,
+            description='Opacity:',
             style={'description_width': 'initial'},
-            layout={'width': '50px', 'padding': '0px 0px 0px 0px'},
+            layout={'width': '130px', 'padding': '0px 0px 0px 0px'},
         )
         self.opacity.observe(self._set_opacity, names='value')
 
-        self.cut_x.button.observe(self._toggle_opacity, names='value')
-        self.cut_y.button.observe(self._toggle_opacity, names='value')
-        self.cut_z.button.observe(self._toggle_opacity, names='value')
+        # self.cut_x.button.observe(self._toggle_opacity, names='value')
+        # self.cut_y.button.observe(self._toggle_opacity, names='value')
+        # self.cut_z.button.observe(self._toggle_opacity, names='value')
 
-        space = ipw.HBox([], layout={'width': '10px'})
         super().__init__(
             [
-                self.cut_x,
-                space,
-                self.cut_y,
-                space,
-                self.cut_z,
-                space,
-                ipw.VBox([ipw.Label('Opacity:'), self.opacity]),
+                ipw.HBox(
+                    [
+                        self.add_cut_label,
+                        self.add_x_cut,
+                        self.add_y_cut,
+                        self.add_z_cut,
+                        self.opacity,
+                    ]
+                ),
+                self.cuts_container,
             ]
         )
+
+        # space = ipw.HBox([], layout={'width': '10px'})
+        # super().__init__(
+        #     [
+        #         self.cut_x,
+        #         space,
+        #         self.cut_y,
+        #         space,
+        #         self.cut_z,
+        #         space,
+        #         ipw.VBox([ipw.Label('Opacity:'), self.opacity]),
+        #     ]
+        # )
         self.layout.display = 'none'
 
-    def _toggle_opacity(self, _):
+    def _add_cut(self, direction: Literal['x', 'y', 'z']):
+        """
+        Add a cut in the specified direction.
+        """
+        cut = Cut3dTool(
+            view=self._fig,
+            direction=direction,
+            limits=self._limits,
+            description=direction.upper(),
+            value=True,
+        )
+        self.cuts.append(cut)
+        self._fig.canvas.add(cut.outlines)
+        self.cuts_container.children = self.cuts
+        self._toggle_opacity()
+
+    def _toggle_opacity(self):
         """
         If any cut is active, set the opacity of the original children (not the cuts) to
         a low value. If all cuts are inactive, set the opacity back to 1.
         """
-        active_cut = any([self.cut_x.value, self.cut_y.value, self.cut_z.value])
+        # active_cut = any([self.cut_x.value, self.cut_y.value, self.cut_z.value])
+        active_cut = any(cut.value for cut in self.cuts)
         self.opacity.disabled = not active_cut
         opacity = self.opacity.value if active_cut else 1.0
         self._set_opacity({'new': opacity})
