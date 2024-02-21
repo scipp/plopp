@@ -3,13 +3,13 @@
 
 import asyncio
 from functools import partial
-from typing import Any, Callable, Dict, Literal, Tuple
+from typing import Any, Callable, Dict, List, Literal, Tuple
 
 import ipywidgets as ipw
 import numpy as np
 import scipp as sc
 
-from ..core import View, node
+from ..core import View, Node, node
 from .style import BUTTON_LAYOUT
 from .tools import PlusMinusTool
 
@@ -78,6 +78,8 @@ class Cut3dTool(ipw.HBox):
     ----------
     view:
         The 3d figure that contains the point clouds to be cut.
+    nodes:
+        The nodes that contain the original data to be cut.
     limits:
         The spatial extent of the points in the 3d figure in the XYZ directions.
     direction:
@@ -95,6 +97,7 @@ class Cut3dTool(ipw.HBox):
     def __init__(
         self,
         view: View,
+        nodes: List[Node],
         limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
         direction: Literal['x', 'y', 'z'],
         value: bool = True,
@@ -200,7 +203,7 @@ class Cut3dTool(ipw.HBox):
         self.slider.observe(self.move, names='value')
         self.slider.observe(self.update_cut, names='value')
 
-        self._nodes = list(self._view.graph_nodes.values())
+        self._nodes = nodes
         self.select_nodes = {}
 
         # super().__init__(
@@ -333,6 +336,7 @@ class TriCutTool(ipw.VBox):
         self._limits = self._fig.get_limits()
         self.cuts = []
         self.cuts_container = ipw.VBox([])
+        self._original_nodes = list(self._fig.graph_nodes.values())
 
         self.add_cut_label = ipw.Label('Add cut:')
         self.add_x_cut = ipw.Button(
@@ -434,6 +438,7 @@ class TriCutTool(ipw.VBox):
         """
         cut = Cut3dTool(
             view=self._fig,
+            nodes=self._original_nodes,
             direction=direction,
             limits=self._limits,
             description=direction.upper(),
