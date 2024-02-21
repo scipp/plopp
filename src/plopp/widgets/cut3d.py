@@ -514,6 +514,7 @@ class TriCutTool(ipw.HBox):
         Add a cut in the specified direction.
         """
         disabled = len(self.cuts) == 0
+        print('add cut', direction, disabled)
         cut = Cut3dTool(
             view=self._fig,
             nodes=self._original_nodes,
@@ -531,11 +532,11 @@ class TriCutTool(ipw.HBox):
         #     if self.c
         #     self.tabs.children = [cut]
         # else:
-        self.tabs.children = self.tabs.children + (cut,)
+        self.tabs.children = list(self.tabs.children) + [cut]
         if (not disabled) and self.cuts[0].disabled:
             self._remove_cut(None)
-        # self.cuts_container.children = self.cuts
-        self.update_tabs_titles()
+        else:
+            self.update_tabs_titles()
         self._toggle_opacity()
 
     def _remove_cut(self, _):
@@ -545,6 +546,7 @@ class TriCutTool(ipw.HBox):
         self._fig.canvas.remove(cut.outlines)
         self.tabs.children = self.cuts
         self.update_tabs_titles()
+        print('len(self.cuts)', len(self.cuts))
         if len(self.cuts) == 0:
             self._add_cut('x')
 
@@ -557,8 +559,8 @@ class TriCutTool(ipw.HBox):
         a low value. If all cuts are inactive, set the opacity back to 1.
         """
         # active_cut = any([self.cut_x.value, self.cut_y.value, self.cut_z.value])
-        # active_cut = any(cut.value for cut in self.cuts)
-        active_cut = len(self.cuts) > 0
+        active_cut = any(1 for cut in self.cuts if not cut.disabled)
+        # active_cut = len(self.cuts) > 0
         self.opacity.disabled = not active_cut
         opacity = self.opacity.value if active_cut else 1.0
         self._set_opacity({'new': opacity})
