@@ -137,7 +137,9 @@ def scatter3d(
     tri_cutter = TriCutTool(fig)
     fig.toolbar['cut3d'] = ToggleTool(
         callback=tri_cutter.toggle_visibility,
-        icon='cube',
+        icon='layer-group',
         tooltip='Hide/show spatial cutting tool',
     )
-    return Box([fig, tri_cutter])
+    fig.bottom_bar.add(tri_cutter)
+    return fig
+    # return Box([fig, tri_cutter])
