@@ -116,52 +116,83 @@ class Cut3dTool(ipw.HBox):
         width = (self._limits[w_axis][1] - self._limits[w_axis][0]).value
         height = (self._limits[h_axis][1] - self._limits[h_axis][0]).value
 
-        self.outline = p3.LineSegments(
-            geometry=p3.EdgesGeometry(
-                p3.PlaneBufferGeometry(width=width, height=height)
+        self.outlines = [
+            p3.LineSegments(
+                geometry=p3.EdgesGeometry(
+                    p3.PlaneBufferGeometry(width=width, height=height)
+                ),
+                material=p3.LineBasicMaterial(color=color, linewidth=linewidth),
             ),
-            material=p3.LineBasicMaterial(color=color, linewidth=linewidth),
-        )
+            p3.LineSegments(
+                geometry=p3.EdgesGeometry(
+                    p3.PlaneBufferGeometry(width=width, height=height)
+                ),
+                material=p3.LineBasicMaterial(color=color, linewidth=linewidth),
+            ),
+        ]
         if self._direction == 'x':
-            self.outline.rotateY(0.5 * np.pi)
+            for outline in self.outlines:
+                outline.rotateY(0.5 * np.pi)
+            # self.outline.rotateY(0.5 * np.pi)
         if self._direction == 'y':
-            self.outline.rotateX(0.5 * np.pi)
+            for outline in self.outlines:
+                outline.rotateX(0.5 * np.pi)
+            # self.outline.rotateX(0.5 * np.pi)
 
+        # dx =
         center = [var.mean().value for var in self._limits]
-        self.outline.position = center
-        self.outline.visible = value
-
-        self.thickness = 0.01
-        self._thickness_step = self.thickness * 0.25
 
         self.button = ipw.ToggleButton(value=value, **kwargs)
-        self.slider = ipw.FloatSlider(
+        self.slider = ipw.FloatRangeSlider(
             min=limits[axis][0].value,
             max=limits[axis][1].value,
-            value=center[axis],
+            # value=center[axis],
             layout={'width': '150px', 'padding': '0px'},
             disabled=not value,
-            readout=False,
+            # readout=False,
         )
-        self.slider.step = (self.slider.max - self.slider.min) * self.thickness * 0.5
-        self.readout = ipw.FloatText(
-            layout={'width': '70px'}, step=self.slider.step, disabled=not value
-        )
-        self.unit_label = ipw.Label(f'[{self._unit}]')
-        ipw.jslink((self.slider, "value"), (self.readout, "value"))
+        dx = self.slider.max - self.slider.min
+        self.slider.step = dx * 0.01
+        delta = 0.05 * dx
+        self.slider.value = [center[axis] - delta, center[axis] + delta]
 
-        self.plus_minus = PlusMinusTool(
-            plus={
-                'callback': self.increase_thickness,
-                'tooltip': 'Increase cut thickness',
-                'disabled': not value,
-            },
-            minus={
-                'callback': self.decrease_thickness,
-                'tooltip': 'Decrease cut thickness',
-                'disabled': not value,
-            },
-        )
+        for outline, val in zip(self.outlines, self.slider.value):
+            pos = list(center)
+            pos[axis] = val
+            outline.position = pos
+            outline.visible = value
+
+        # self.thickness = 0.01
+        # self._thickness_step = self.thickness * 0.25
+
+        # self.button = ipw.ToggleButton(value=value, **kwargs)
+        # self.slider = ipw.FloatRangeSlider(
+        #     min=limits[axis][0].value,
+        #     max=limits[axis][1].value,
+        #     value=center[axis],
+        #     layout={'width': '150px', 'padding': '0px'},
+        #     disabled=not value,
+        #     readout=False,
+        # )
+        # self.slider.step = (self.slider.max - self.slider.min) * self.thickness * 0.5
+        # self.readout = ipw.FloatText(
+        #     layout={'width': '70px'}, step=self.slider.step, disabled=not value
+        # )
+        self.unit_label = ipw.Label(f'[{self._unit}]')
+        # ipw.jslink((self.slider, "value"), (self.readout, "value"))
+
+        # self.plus_minus = PlusMinusTool(
+        #     plus={
+        #         'callback': self.increase_thickness,
+        #         'tooltip': 'Increase cut thickness',
+        #         'disabled': not value,
+        #     },
+        #     minus={
+        #         'callback': self.decrease_thickness,
+        #         'tooltip': 'Decrease cut thickness',
+        #         'disabled': not value,
+        #     },
+        # )
 
         self.button.observe(self.toggle, names='value')
         self.slider.observe(self.move, names='value')
@@ -172,9 +203,11 @@ class Cut3dTool(ipw.HBox):
 
         super().__init__(
             [
-                ipw.VBox([self.button, self.plus_minus]),
+                # ipw.VBox([self.button, self.plus_minus]),
+                ipw.VBox([self.button]),
                 ipw.VBox(
-                    [self.slider, ipw.HBox([self.readout, self.unit_label])],
+                    # [self.slider, ipw.HBox([self.readout, self.unit_label])],
+                    [self.slider, ipw.HBox([self.unit_label])],
                     layout={'align_items': 'center'},
                 ),
             ]
@@ -184,9 +217,11 @@ class Cut3dTool(ipw.HBox):
         """
         Toggle the tool on and off.
         """
-        self.outline.visible = change['new']
-        for widget in (self.slider, self.plus_minus, self.readout):
-            widget.disabled = not change['new']
+        for outline in self.outlines:
+            outline.visible = change['new']
+        # self.outline.visible = change['new']
+        # for widget in (self.slider, self.plus_minus, self.readout):
+        self.slider.disabled = not change['new']
         if change['new']:
             self._add_cut()
         else:
@@ -196,10 +231,15 @@ class Cut3dTool(ipw.HBox):
         """
         Move the outline of the cut according to new position given by the slider.
         """
-        pos = list(self.outline.position)
-        axis = 'xyz'.index(self._direction)
-        pos[axis] = value['new']
-        self.outline.position = pos
+        for outline, val in zip(self.outlines, value['new']):
+            pos = list(outline.position)
+            axis = 'xyz'.index(self._direction)
+            pos[axis] = val
+            outline.position = pos
+        # pos = list(self.outline.position)
+        # axis = 'xyz'.index(self._direction)
+        # pos[axis] = value['new']
+        # self.outline.position = pos
         self._remove_cut()
 
     def _add_cut(self):
@@ -212,11 +252,16 @@ class Cut3dTool(ipw.HBox):
 
         for n in self._nodes:
             da = n.request_data()
-            delta = sc.scalar(
-                (self.slider.max - self.slider.min) * self.thickness, unit=self._unit
+            # delta = sc.scalar(
+            #     (self.slider.max - self.slider.min) * self.thickness, unit=self._unit
+            # )
+            # pos = sc.scalar(self.slider.value, unit=self._unit)
+            # selection = sc.abs(da.coords[self._dim] - pos) < delta
+            selection = (
+                da.coords[self._dim] > sc.scalar(self.slider.value[0], unit=self._unit)
+            ) & (
+                da.coords[self._dim] < sc.scalar(self.slider.value[1], unit=self._unit)
             )
-            pos = sc.scalar(self.slider.value, unit=self._unit)
-            selection = sc.abs(da.coords[self._dim] - pos) < delta
             if selection.sum().value > 0:
                 self.select_nodes[n.id] = node(partial(select, s=selection))(da=n)
                 self.select_nodes[n.id].add_view(self._view)
@@ -251,21 +296,21 @@ class Cut3dTool(ipw.HBox):
         """
         return self.button.value
 
-    def increase_thickness(self):
-        """
-        Increase the thickness of the cut.
-        """
-        self.thickness = self.thickness + self._thickness_step
-        self._remove_cut()
-        self._add_cut()
+    # def increase_thickness(self):
+    #     """
+    #     Increase the thickness of the cut.
+    #     """
+    #     self.thickness = self.thickness + self._thickness_step
+    #     self._remove_cut()
+    #     self._add_cut()
 
-    def decrease_thickness(self):
-        """
-        Decrease the thickness of the cut.
-        """
-        self.thickness = max(self.thickness - self._thickness_step, 0)
-        self._remove_cut()
-        self._add_cut()
+    # def decrease_thickness(self):
+    #     """
+    #     Decrease the thickness of the cut.
+    #     """
+    #     self.thickness = max(self.thickness - self._thickness_step, 0)
+    #     self._remove_cut()
+    #     self._add_cut()
 
 
 class TriCutTool(ipw.HBox):
@@ -308,7 +353,7 @@ class TriCutTool(ipw.HBox):
         )
 
         self._fig.canvas.add(
-            [self.cut_x.outline, self.cut_y.outline, self.cut_z.outline]
+            self.cut_x.outlines + self.cut_y.outlines + self.cut_z.outlines
         )
 
         self.opacity = ipw.BoundedFloatText(
