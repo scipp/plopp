@@ -131,7 +131,9 @@ class LineView(View):
         xcoord = new_values.coords[xdim]
         if self.canvas.empty:
             self.canvas.set_axes(
-                dims={'x': xdim}, units={'x': xcoord.unit, 'y': new_values.unit}
+                dims={'x': xdim},
+                units={'x': xcoord.unit, 'y': new_values.unit},
+                dtypes={'x': xcoord.dtype, 'y': new_values.dtype},
             )
             self.canvas.xlabel = name_with_unit(var=xcoord)
             self.canvas.ylabel = name_with_unit(var=new_values.data, name="")

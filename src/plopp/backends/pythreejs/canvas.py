@@ -66,7 +66,7 @@ class Canvas:
     def to_widget(self):
         return self.renderer
 
-    def set_axes(self, dims, units):
+    def set_axes(self, dims, units, dtypes):
         """
         Set the axes dimensions and units.
 
@@ -76,9 +76,12 @@ class Canvas:
             The dimensions of the data.
         units:
             The units of the data.
+        dtypes:
+            The data types of the data.
         """
         self.units = units
         self.dims = dims
+        self.dtypes = dtypes
 
     def make_outline(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
         """

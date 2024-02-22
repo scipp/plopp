@@ -239,7 +239,7 @@ class Canvas:
         """
         self.fig.show()
 
-    def set_axes(self, dims, units):
+    def set_axes(self, dims, units, dtypes):
         """
         Set the axes dimensions and units.
 
@@ -249,6 +249,8 @@ class Canvas:
             The dimensions of the data.
         units:
             The units of the data.
+        dtypes:
+            The data types of the data.
         """
         self.units = units
         self.dims = dims
@@ -259,7 +261,8 @@ class Canvas:
         if 'y' in self.dims:
             self._cursor_x_prefix = self.dims['x'] + '='
             self._cursor_y_prefix = self.dims['y'] + '='
-        self.ax.format_coord = self.format_coord
+        if not any(dtype == sc.DType.datetime64 for dtype in dtypes.values()):
+            self.ax.format_coord = self.format_coord
 
     def register_format_coord(self, formatter):
         """
