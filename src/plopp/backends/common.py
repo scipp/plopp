@@ -41,10 +41,6 @@ class BoundingBox:
         """
         Return the union of this bounding box with another one.
         """
-        # print('xmin', self.xmin, other.xmin)
-        # print('xmax', self.xmax, other.xmax)
-        # print('ymin', self.ymin, other.ymin)
-        # print('ymax', self.ymax, other.ymax)
 
         return BoundingBox(
             xmin=_none_min(self.xmin, other.xmin),
