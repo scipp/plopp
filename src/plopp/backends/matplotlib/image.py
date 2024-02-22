@@ -79,6 +79,7 @@ class Image:
         rasterized: bool = True,
         **kwargs,
     ):
+        print('image data:', data, data.coords['time'])
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data

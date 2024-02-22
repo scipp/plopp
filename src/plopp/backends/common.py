@@ -6,6 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Literal, Optional, Tuple
 
+from matplotlib import dates as mdates
 import numpy as np
 import scipp as sc
 
@@ -13,12 +14,16 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
 
 
+def _maybe_datetime_to_float(x):
+    return mdates.date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
+
+
 def _none_min(*args: float) -> float:
-    return min(x for x in args if x is not None)
+    return min(_maybe_datetime_to_float(x) for x in args if x is not None)
 
 
 def _none_max(*args: float) -> float:
-    return max(x for x in args if x is not None)
+    return max(_maybe_datetime_to_float(x) for x in args if x is not None)
 
 
 @dataclass
@@ -36,6 +41,11 @@ class BoundingBox:
         """
         Return the union of this bounding box with another one.
         """
+        # print('xmin', self.xmin, other.xmin)
+        # print('xmax', self.xmax, other.xmax)
+        # print('ymin', self.ymin, other.ymin)
+        # print('ymax', self.ymax, other.ymax)
+
         return BoundingBox(
             xmin=_none_min(self.xmin, other.xmin),
             xmax=_none_max(self.xmax, other.xmax),
