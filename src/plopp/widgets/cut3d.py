@@ -373,7 +373,7 @@ class TriCutTool(ipw.HBox):
         self.cuts = []
         # self.cuts_container = ipw.VBox([])
 
-        self.tabs = ipw.Tab()
+        self.tabs = ipw.Tab(layout={'width': '550px'})
         # tab.children = children
         # tab.titles = [str(i) for i in range(len(children))]
 
@@ -465,7 +465,7 @@ class TriCutTool(ipw.HBox):
         #         ]
         #     )
         # ]
-        self._add_cut('x')
+        # self._add_cut('x')
 
         super().__init__(
             [
@@ -513,8 +513,8 @@ class TriCutTool(ipw.HBox):
         """
         Add a cut in the specified direction.
         """
-        disabled = len(self.cuts) == 0
-        print('add cut', direction, disabled)
+        # disabled = len(self.cuts) == 0
+        # print('add cut', direction, disabled)
         cut = Cut3dTool(
             view=self._fig,
             nodes=self._original_nodes,
@@ -522,7 +522,7 @@ class TriCutTool(ipw.HBox):
             limits=self._limits,
             description=direction.upper(),
             # value=True,
-            disabled=disabled,
+            # disabled=disabled,
         )
         # if not no_current_cuts:
         # self.cuts.append(cut)
@@ -533,10 +533,10 @@ class TriCutTool(ipw.HBox):
         #     self.tabs.children = [cut]
         # else:
         self.tabs.children = list(self.tabs.children) + [cut]
-        if (not disabled) and self.cuts[0].disabled:
-            self._remove_cut(None)
-        else:
-            self.update_tabs_titles()
+        # if (not disabled) and self.cuts[0].disabled:
+        #     self._remove_cut(None)
+        # else:
+        self.update_tabs_titles()
         self._toggle_opacity()
 
     def _remove_cut(self, _):
@@ -546,9 +546,9 @@ class TriCutTool(ipw.HBox):
         self._fig.canvas.remove(cut.outlines)
         self.tabs.children = self.cuts
         self.update_tabs_titles()
-        print('len(self.cuts)', len(self.cuts))
-        if len(self.cuts) == 0:
-            self._add_cut('x')
+        # print('len(self.cuts)', len(self.cuts))
+        # if len(self.cuts) == 0:
+        #     self._add_cut('x')
 
     def update_tabs_titles(self):
         self.tabs.titles = [cut._direction.upper() for cut in self.cuts]
