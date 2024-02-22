@@ -6,9 +6,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Literal, Optional, Tuple
 
-from matplotlib import dates as mdates
 import numpy as np
 import scipp as sc
+from matplotlib import dates as mdates
 
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
