@@ -58,14 +58,14 @@ class Figure(BaseFig, VBox):
     # def notify_view(self, *args, **kwargs):
     #     return self._view.notify_view(*args, **kwargs)
 
-    def get_limits(self, *args, **kwargs):
-        return self._view.get_limits(*args, **kwargs)
+    # def get_limits(self, *args, **kwargs):
+    #     return self._view.get_limits(*args, **kwargs)
 
-    def set_opacity(self, *args, **kwargs):
-        return self._view.set_opacity(*args, **kwargs)
+    # def set_opacity(self, *args, **kwargs):
+    #     return self._view.set_opacity(*args, **kwargs)
 
-    def remove(self, *args, **kwargs):
-        return self._view.remove(*args, **kwargs)
+    # def remove(self, *args, **kwargs):
+    #     return self._view.remove(*args, **kwargs)
 
     def save(self, filename):
         """

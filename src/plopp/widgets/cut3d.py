@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import asyncio
-from functools import partial
+from functools import partial, reduce
 from typing import Any, Callable, Dict, List, Literal, Tuple
 
 import ipywidgets as ipw
@@ -10,8 +10,12 @@ import numpy as np
 import scipp as sc
 
 from ..core import View, Node, node
+from ..graphics import BaseFig
 from .style import BUTTON_LAYOUT
 from .tools import PlusMinusTool
+
+
+OPERATIONS = {'or': sc.logical_or, 'and': sc.logical_and}
 
 
 class Timer:
@@ -64,6 +68,10 @@ def debounce(wait: float):
     return decorator
 
 
+def select(da, s):
+    return da[s]
+
+
 class Cut3dTool(ipw.HBox):
     """
     A tool that provides a slider to extract a plane of points in a three-dimensional
@@ -96,11 +104,12 @@ class Cut3dTool(ipw.HBox):
 
     def __init__(
         self,
-        view: View,
-        nodes: List[Node],
+        # view: View,
+        # nodes: List[Node],
         limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
         direction: Literal['x', 'y', 'z'],
-        value: bool = True,
+        plain_update: Callable,
+        throttled_update: Callable,
         color: str = 'red',
         linewidth: float = 1.5,
         disabled: bool = False,
@@ -111,10 +120,13 @@ class Cut3dTool(ipw.HBox):
         self._limits = limits
         self._direction = direction
         axis = 'xyz'.index(self._direction)
-        self._dim = self._limits[axis].dim
+        self.dim = self._limits[axis].dim
         self._unit = self._limits[axis].unit
-        self._view = view
+        # self.view = view
         self.disabled = disabled
+        self.visible = True
+        self._plain_update = plain_update
+        self._throttled_update = throttled_update
 
         w_axis = 2 if self._direction == 'x' else 0
         h_axis = 2 if self._direction == 'y' else 1
@@ -219,10 +231,10 @@ class Cut3dTool(ipw.HBox):
         self.cut_visible.on_click(self.toggle)
         # self.border_visible.on_click(self.toggle_border)
         self.slider.observe(self.move, names='value')
-        self.slider.observe(self.update_cut, names='value')
+        # self.slider.observe(self.update_cut, names='value')
 
-        self._nodes = nodes
-        self.select_nodes = {}
+        # self._nodes = nodes
+        # self.select_nodes = {}
 
         # super().__init__(
         #     [
@@ -249,18 +261,20 @@ class Cut3dTool(ipw.HBox):
         """
         Toggle the tool on and off.
         """
-        value = bool(self.select_nodes)
+        # value = bool(self.select_nodes)
+        self.visible = not self.visible
         for outline in self.outlines:
-            outline.visible = not value
+            outline.visible = self.visible
         # self.outline.visible = change['new']
         # for widget in (self.slider, self.plus_minus, self.readout):
-        self.slider.disabled = value
-        if not value:
-            self._add_cut()
-        else:
-            self._remove_cut()
-        owner.icon = 'eye' if value else 'eye'
-        owner.tooltip = 'Show cut' if value else 'Hide cut'
+        self.slider.disabled = not self.visible
+        # if not value:
+        #     self._add_cut()
+        # else:
+        #     self._remove_cut()
+        owner.icon = 'eye-slash' if self.visible else 'eye'
+        owner.tooltip = 'Hide cut' if self.visible else 'Show cut'
+        self._plain_update()
 
     def toggle_border(self, value: bool):
         """
@@ -283,54 +297,62 @@ class Cut3dTool(ipw.HBox):
         # axis = 'xyz'.index(self._direction)
         # pos[axis] = value['new']
         # self.outline.position = pos
-        self._remove_cut()
 
-    def _add_cut(self):
-        """
-        Add a point cloud representing the points that intersect the cut plane.
-        """
+        # self._remove_cut()
+        self._throttled_update()
 
-        def select(da, s):
-            return da[s]
+    @property
+    def range(self):
+        return sc.scalar(self.slider.value[0], unit=self._unit), sc.scalar(
+            self.slider.value[1], unit=self._unit
+        )
 
-        for n in self._nodes:
-            da = n.request_data()
-            # delta = sc.scalar(
-            #     (self.slider.max - self.slider.min) * self.thickness, unit=self._unit
-            # )
-            # pos = sc.scalar(self.slider.value, unit=self._unit)
-            # selection = sc.abs(da.coords[self._dim] - pos) < delta
-            selection = (
-                da.coords[self._dim] > sc.scalar(self.slider.value[0], unit=self._unit)
-            ) & (
-                da.coords[self._dim] < sc.scalar(self.slider.value[1], unit=self._unit)
-            )
-            if selection.sum().value > 0:
-                self.select_nodes[n.id] = node(partial(select, s=selection))(da=n)
-                self.select_nodes[n.id].add_view(self._view)
-                self._view.update(
-                    self.select_nodes[n.id].request_data(),
-                    key=self.select_nodes[n.id].id,
-                )
+    # def _add_cut(self):
+    #     """
+    #     Add a point cloud representing the points that intersect the cut plane.
+    #     """
 
-    def _remove_cut(self):
-        """
-        Remove a cut point the scene.
-        """
-        for n in self.select_nodes.values():
-            self._view.remove(n.id)
-            n.remove()
-        self.select_nodes.clear()
+    #     def select(da, s):
+    #         return da[s]
 
-    @debounce(0.3)
-    def update_cut(self, _):
-        """
-        Update the position of the point cloud. This uses the debounce mechanism to
-        avoid updating the cloud too often, and instead rely on simply moving the
-        outline, which is cheap.
-        """
-        # if self.value:
-        self._add_cut()
+    #     for n in self._nodes:
+    #         da = n.request_data()
+    #         # delta = sc.scalar(
+    #         #     (self.slider.max - self.slider.min) * self.thickness, unit=self._unit
+    #         # )
+    #         # pos = sc.scalar(self.slider.value, unit=self._unit)
+    #         # selection = sc.abs(da.coords[self._dim] - pos) < delta
+    #         selection = (
+    #             da.coords[self._dim] > sc.scalar(self.slider.value[0], unit=self._unit)
+    #         ) & (
+    #             da.coords[self._dim] < sc.scalar(self.slider.value[1], unit=self._unit)
+    #         )
+    #         if selection.sum().value > 0:
+    #             self.select_nodes[n.id] = node(partial(select, s=selection))(da=n)
+    #             self.select_nodes[n.id].add_view(self._view)
+    #             self._view.update(
+    #                 self.select_nodes[n.id].request_data(),
+    #                 key=self.select_nodes[n.id].id,
+    #             )
+
+    # def _remove_cut(self):
+    #     """
+    #     Remove a cut point the scene.
+    #     """
+    #     for n in self.select_nodes.values():
+    #         self._view.remove(n.id)
+    #         n.remove()
+    #     self.select_nodes.clear()
+
+    # @debounce(0.3)
+    # def update_cut(self, _):
+    #     """
+    #     Update the position of the point cloud. This uses the debounce mechanism to
+    #     avoid updating the cloud too often, and instead rely on simply moving the
+    #     outline, which is cheap.
+    #     """
+    #     # if self.value:
+    #     self._add_cut()
 
     # @property
     # def value(self):
@@ -367,9 +389,9 @@ class TriCutTool(ipw.HBox):
         The 3d figure that contains the point clouds to be cut.
     """
 
-    def __init__(self, fig: View):
-        self._fig = fig
-        self._limits = self._fig.get_limits()
+    def __init__(self, fig: BaseFig):
+        self._view = fig._view
+        self._limits = self._view.get_limits()
         self.cuts = []
         self._operation = 'or'
         # self.cuts_container = ipw.VBox([])
@@ -378,7 +400,9 @@ class TriCutTool(ipw.HBox):
         # tab.children = children
         # tab.titles = [str(i) for i in range(len(children))]
 
-        self._original_nodes = list(self._fig.graph_nodes.values())
+        self._original_nodes = list(self._view.graph_nodes.values())
+        print('original nodes:', self._original_nodes)
+        self._nodes = {}
 
         self.add_cut_label = ipw.Label('Add cut:')
         self.add_x_cut = ipw.Button(
@@ -494,7 +518,13 @@ class TriCutTool(ipw.HBox):
                     [
                         ipw.HBox([self.add_x_cut, self.add_y_cut, self.add_z_cut]),
                         self.opacity,
-                        ipw.HBox([self.cut_borders_visibility, self.delete_cut]),
+                        ipw.HBox(
+                            [
+                                self.cut_borders_visibility,
+                                self.cut_operation,
+                                self.delete_cut,
+                            ]
+                        ),
                     ]
                 ),
             ]
@@ -536,17 +566,19 @@ class TriCutTool(ipw.HBox):
         # disabled = len(self.cuts) == 0
         # print('add cut', direction, disabled)
         cut = Cut3dTool(
-            view=self._fig,
-            nodes=self._original_nodes,
+            # view=self._fig,
+            # nodes=self._original_nodes,
             direction=direction,
             limits=self._limits,
             description=direction.upper(),
+            plain_update=self.update_state,
+            throttled_update=self.throttled_update,
             # value=True,
             # disabled=disabled,
         )
         # if not no_current_cuts:
         # self.cuts.append(cut)
-        self._fig.canvas.add(cut.outlines)
+        self._view.canvas.add(cut.outlines)
         self.cuts.append(cut)
         # if len(self.cuts) == 1:
         #     if self.c
@@ -557,39 +589,47 @@ class TriCutTool(ipw.HBox):
         #     self._remove_cut(None)
         # else:
         self.update_tabs_titles()
-        self._toggle_opacity()
+        self.toggle_opacity()
+        print('calling update_state', len(self.cuts))
+        self.update_state()
 
     def _remove_cut(self, _):
         # print(self.tabs.selected_index)
         cut = self.cuts.pop(self.tabs.selected_index)
-        cut._remove_cut()
-        self._fig.canvas.remove(cut.outlines)
+        # cut._remove_cut()
+        self._view.canvas.remove(cut.outlines)
         self.tabs.children = self.cuts
         self.update_tabs_titles()
-        # print('len(self.cuts)', len(self.cuts))
+        self.update_state()
+        self.toggle_opacity()
+        # # print('len(self.cuts)', len(self.cuts))
         # if len(self.cuts) == 0:
-        #     self._add_cut('x')
+        #     for n in self.select_nodes.values():
+        #         self._view.remove(n.id)
+        #         n.remove()
+        #     self.select_nodes.clear()
+        # #     self._add_cut('x')
 
     def update_tabs_titles(self):
         self.tabs.titles = [cut._direction.upper() for cut in self.cuts]
 
-    def _toggle_opacity(self):
+    def toggle_opacity(self):
         """
         If any cut is active, set the opacity of the original children (not the cuts) to
         a low value. If all cuts are inactive, set the opacity back to 1.
         """
         # active_cut = any([self.cut_x.value, self.cut_y.value, self.cut_z.value])
-        active_cut = any(1 for cut in self.cuts if not cut.disabled)
+        at_least_one_cut = any(1 for cut in self.cuts if cut.visible)
         # active_cut = len(self.cuts) > 0
-        self.opacity.disabled = not active_cut
-        opacity = self.opacity.value if active_cut else 1.0
+        self.opacity.disabled = not at_least_one_cut
+        opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
 
     def _set_opacity(self, change: Dict[str, Any]):
         """
         Set the opacity of the original point clouds in the figure, not the cuts.
         """
-        self._fig.set_opacity(change['new'])
+        self._view.set_opacity(change['new'])
 
     def toggle_visibility(self):
         """
@@ -603,3 +643,78 @@ class TriCutTool(ipw.HBox):
         """
         for cut in self.cuts:
             cut.toggle_border(change['new'])
+
+    def toggle_operation(self, _):
+        """
+        Toggle the operation to combine multiple cuts.
+        """
+        self._operation = 'and' if self._operation == 'or' else 'or'
+        # for cut in self.cuts:
+        #     cut._operation = self._operation
+        # self.cut_operation.icon = 'cogs' if self._operation == 'or' else 'cog'
+        self.cut_operation.tooltip = (
+            'Operation to combine multiple cuts: OR'
+            if self._operation == 'or'
+            else 'Operation to combine multiple cuts: AND'
+        )
+        self.update_state()
+
+    def update_state(self):
+        """
+        Update the position of the point cloud. This uses the debounce mechanism to
+        avoid updating the cloud too often, and instead rely on simply moving the
+        outline, which is cheap.
+        """
+        # if self.value:
+        # def select(da, s):
+        #     return da[s]
+        # print('In update_state', self._original_nodes)
+
+        for nodes in self._nodes.values():
+            self._view.remove(nodes['slice'].id)
+            nodes['slice'].remove()
+        self._nodes.clear()
+
+        visible_cuts = [cut for cut in self.cuts if cut.visible]
+        if not visible_cuts:
+            return
+
+        for n in self._original_nodes:
+            da = n.request_data()
+            selections = []
+            for cut in visible_cuts:
+                xmin, xmax = cut.range
+                print('xmin, xmax, dim', xmin, xmax, cut.dim)
+                selections.append(
+                    (da.coords[cut.dim] > xmin) & (da.coords[cut.dim] < xmax)
+                )
+            selection = reduce(
+                lambda x, y: OPERATIONS[self._operation](x, y), selections
+            )
+            print('selection size:', selection.sum().value)
+            if selection.sum().value > 0:
+
+                if n.id not in self._nodes:
+                    select_node = Node(selection)
+                    self._nodes[n.id] = {
+                        'select': select_node,
+                        'slice': Node(lambda da, s: da[s], da=n, s=select_node),
+                    }
+                    self._nodes[n.id]['slice'].add_view(self._view)
+                else:
+                    self._nodes[n.id]['select'].func = lambda: selection
+                # print('func', self.select_nodes[n.id].func)
+                # self.select_nodes[n.id]._data = None
+                # print('select node', self.select_nodes[n.id].request_data().sum().value)
+                # self.select_nodes[n.id] = Node(lambda da: da[selection], da=n)
+                # self.select_nodes[n.id].add_view(self._fig)
+                self._nodes[n.id]['select'].notify_children("")
+
+                # self._fig.update(
+                #     self.select_nodes[n.id].request_data(),
+                #     key=self.select_nodes[n.id].id,
+                # )
+
+    @debounce(0.3)
+    def throttled_update(self):
+        self.update_state()
