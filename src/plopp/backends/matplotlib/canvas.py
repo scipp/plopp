@@ -15,7 +15,7 @@ from ..common import BoundingBox, axis_bounds
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
 
 
-def _to_floats(x):
+def _to_floats(x: np.ndarray) -> np.ndarray:
     return mdates.date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
 
 
@@ -23,6 +23,12 @@ def _none_if_not_finite(x: Union[float, int, None]) -> Union[float, int, None]:
     if x is None:
         return None
     return x if np.isfinite(x) else None
+
+
+def _cursor_formatter(x: Union[float, int], dtype: sc.DType, unit: str) -> str:
+    if dtype == sc.DType.datetime64:
+        return mdates.num2date(x).replace(tzinfo=None).isoformat()
+    return scalar_to_string(sc.scalar(x, unit=unit))
 
 
 class Canvas:
@@ -261,15 +267,13 @@ class Canvas:
         """
         self.units = units
         self.dims = dims
-        self._cursor_x_placeholder = sc.scalar(0.0, unit=self.units['x'])
-        self._cursor_y_placeholder = sc.scalar(0.0, unit=self.units['y'])
+        self.dtypes = dtypes
         self._cursor_x_prefix = ''
         self._cursor_y_prefix = ''
         if 'y' in self.dims:
             self._cursor_x_prefix = self.dims['x'] + '='
             self._cursor_y_prefix = self.dims['y'] + '='
-        if not any(dtype == sc.DType.datetime64 for dtype in dtypes.values()):
-            self.ax.format_coord = self.format_coord
+        self.ax.format_coord = self.format_coord
 
     def register_format_coord(self, formatter):
         """
@@ -289,12 +293,9 @@ class Canvas:
         y:
             The y coordinate of the mouse pointer.
         """
-        self._cursor_x_placeholder.value = x
-        self._cursor_y_placeholder.value = y
-        out = (
-            f"({self._cursor_x_prefix}{scalar_to_string(self._cursor_x_placeholder)}, "
-            f"{self._cursor_y_prefix}{scalar_to_string(self._cursor_y_placeholder)})"
-        )
+        xstr = _cursor_formatter(x, self.dtypes['x'], self.units['x'])
+        ystr = _cursor_formatter(y, self.dtypes['y'], self.units['y'])
+        out = f"({self._cursor_x_prefix}{xstr}, {self._cursor_y_prefix}{ystr})"
         extra = [formatter(x, y) for formatter in self._coord_formatters]
         extra = [e for e in extra if e is not None]
         if extra:
