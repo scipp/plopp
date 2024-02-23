@@ -25,6 +25,16 @@ def _none_if_not_finite(x: Union[float, int, None]) -> Union[float, int, None]:
     return x if np.isfinite(x) else None
 
 
+def _cursor_value_to_variable(
+    x: Union[float, int], dtype: sc.DType, unit: str
+) -> sc.Variable:
+    if dtype == sc.DType.datetime64:
+        return sc.scalar(np.datetime64(mdates.num2date(x).replace(tzinfo=None))).to(
+            unit=unit
+        )
+    return sc.scalar(x, unit=unit)
+
+
 def _cursor_formatter(x: Union[float, int], dtype: sc.DType, unit: str) -> str:
     if dtype == sc.DType.datetime64:
         return mdates.num2date(x).replace(tzinfo=None).isoformat()
@@ -296,7 +306,15 @@ class Canvas:
         xstr = _cursor_formatter(x, self.dtypes['x'], self.units['x'])
         ystr = _cursor_formatter(y, self.dtypes['y'], self.units['y'])
         out = f"({self._cursor_x_prefix}{xstr}, {self._cursor_y_prefix}{ystr})"
-        extra = [formatter(x, y) for formatter in self._coord_formatters]
+        xpos = (
+            self.dims['x'],
+            _cursor_value_to_variable(x, self.dtypes['x'], self.units['x']),
+        )
+        ypos = (
+            self.dims['y'],
+            _cursor_value_to_variable(y, self.dtypes['y'], self.units['y']),
+        )
+        extra = [formatter(xpos, ypos) for formatter in self._coord_formatters]
         extra = [e for e in extra if e is not None]
         if extra:
             out += ": {" + ", ".join(extra) + "}"
