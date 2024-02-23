@@ -157,19 +157,19 @@ class Cut3dTool(ipw.HBox):
             layout={'width': '15px', 'padding': '0px'},
             disabled=self.disabled,
         )
-        self.border_visible = ipw.Button(
-            icon='border-style',
-            tooltip='Toggle border',
-            layout={'width': '15px', 'padding': '0px'},
-            disabled=self.disabled,
-        )
+        # self.border_visible = ipw.Button(
+        #     icon='border-style',
+        #     tooltip='Toggle border',
+        #     layout={'width': '15px', 'padding': '0px'},
+        #     disabled=self.disabled,
+        # )
         self.slider = ipw.FloatRangeSlider(
             min=limits[axis][0].value,
             max=limits[axis][1].value,
             # value=center[axis],
             description=direction.upper(),
             style={'description_width': 'initial'},
-            layout={'width': '450px', 'padding': '0px'},
+            layout={'width': '470px', 'padding': '0px'},
             disabled=self.disabled,
             # readout=False,
         )
@@ -217,7 +217,7 @@ class Cut3dTool(ipw.HBox):
         # )
 
         self.cut_visible.on_click(self.toggle)
-        self.border_visible.on_click(self.toggle_border)
+        # self.border_visible.on_click(self.toggle_border)
         self.slider.observe(self.move, names='value')
         self.slider.observe(self.update_cut, names='value')
 
@@ -241,7 +241,7 @@ class Cut3dTool(ipw.HBox):
                 self.slider,
                 ipw.Label(f'[{self._unit}]'),
                 self.cut_visible,
-                self.border_visible,
+                # self.border_visible,
             ]
         )
 
@@ -262,13 +262,13 @@ class Cut3dTool(ipw.HBox):
         owner.icon = 'eye' if value else 'eye'
         owner.tooltip = 'Show cut' if value else 'Hide cut'
 
-    def toggle_border(self, owner):
+    def toggle_border(self, value: bool):
         """
         Toggle the border visbility.
         """
-        value = self.outlines[0].visible
+        # value = self.outlines[0].visible
         for outline in self.outlines:
-            outline.visible = not value
+            outline.visible = value
 
     def move(self, value: Dict[str, Any]):
         """
@@ -371,6 +371,7 @@ class TriCutTool(ipw.HBox):
         self._fig = fig
         self._limits = self._fig.get_limits()
         self.cuts = []
+        self._operation = 'or'
         # self.cuts_container = ipw.VBox([])
 
         self.tabs = ipw.Tab(layout={'width': '550px'})
@@ -443,10 +444,29 @@ class TriCutTool(ipw.HBox):
         )
         self.opacity.observe(self._set_opacity, names='value')
 
+        self.cut_borders_visibility = ipw.ToggleButton(
+            value=True,
+            # description='Hide cut borders',
+            icon='border-style',
+            tooltip='Toggle visbility of the borders of the cuts',
+            **BUTTON_LAYOUT,
+        )
+        self.cut_borders_visibility.observe(
+            self.toggle_border_visibility, names='value'
+        )
+
+        self.cut_operation = ipw.Button(
+            tooltip='Operation to combine multiple cuts',
+            icon='cogs',
+            **BUTTON_LAYOUT,
+        )
+        self.cut_operation.on_click(self.toggle_operation)
+
         self.delete_cut = ipw.Button(
-            description='Delete cut',
+            tooltip='Delete cut',
             icon='trash',
-            layout={'width': '120px', 'padding': '0px 0px 0px 0px'},
+            **BUTTON_LAYOUT,
+            # layout={'width': '120px', 'padding': '0px 0px 0px 0px'},
         )
         self.delete_cut.on_click(self._remove_cut)
 
@@ -474,7 +494,7 @@ class TriCutTool(ipw.HBox):
                     [
                         ipw.HBox([self.add_x_cut, self.add_y_cut, self.add_z_cut]),
                         self.opacity,
-                        self.delete_cut,
+                        ipw.HBox([self.cut_borders_visibility, self.delete_cut]),
                     ]
                 ),
             ]
@@ -576,3 +596,10 @@ class TriCutTool(ipw.HBox):
         Toggle the visibility of the control buttons for making the cuts.
         """
         self.layout.display = None if self.layout.display == 'none' else 'none'
+
+    def toggle_border_visibility(self, change):
+        """
+        Toggle the visibility of the borders of the cuts.
+        """
+        for cut in self.cuts:
+            cut.toggle_border(change['new'])
