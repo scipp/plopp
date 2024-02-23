@@ -6,12 +6,17 @@ from typing import Literal, Optional, Tuple, Union
 import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
+from matplotlib import dates as mdates
 from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ..common import BoundingBox, axis_bounds
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
+
+
+def _to_floats(x):
+    return mdates.date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
 
 
 def _none_if_not_finite(x: Union[float, int, None]) -> Union[float, int, None]:
@@ -149,9 +154,11 @@ class Canvas:
         lines = [line for line in self.ax.lines if hasattr(line, '_plopp_mask')]
         for line in lines:
             line_mask = sc.array(dims=['x'], values=line._plopp_mask)
-            line_x = sc.DataArray(data=sc.array(dims=['x'], values=line.get_xdata()))
+            line_x = sc.DataArray(
+                data=sc.array(dims=['x'], values=_to_floats(line.get_xdata()))
+            )
             line_y = sc.DataArray(
-                data=sc.array(dims=['x'], values=line.get_ydata()),
+                data=sc.array(dims=['x'], values=_to_floats(line.get_ydata())),
                 masks={'mask': line_mask},
             )
             line_bbox = BoundingBox(

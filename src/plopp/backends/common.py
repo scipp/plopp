@@ -8,22 +8,17 @@ from typing import Dict, Literal, Optional, Tuple
 
 import numpy as np
 import scipp as sc
-from matplotlib import dates as mdates
 
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
 
 
-def _maybe_datetime_to_float(x):
-    return mdates.date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
-
-
 def _none_min(*args: float) -> float:
-    return min(_maybe_datetime_to_float(x) for x in args if x is not None)
+    return min(x for x in args if x is not None)
 
 
 def _none_max(*args: float) -> float:
-    return max(_maybe_datetime_to_float(x) for x in args if x is not None)
+    return max(x for x in args if x is not None)
 
 
 @dataclass
