@@ -29,6 +29,9 @@ def _cursor_value_to_variable(
     x: Union[float, int], dtype: sc.DType, unit: str
 ) -> sc.Variable:
     if dtype == sc.DType.datetime64:
+        # Annoying chain of conversion but matplotlib has its own way of converting
+        # dates to numbers (number of days since epoch), and num2date returns a python
+        # datetime object, which scipp expects a numpy datetime64.
         return sc.scalar(np.datetime64(mdates.num2date(x).replace(tzinfo=None))).to(
             unit=unit
         )
