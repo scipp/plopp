@@ -175,20 +175,28 @@ class Cut3dTool(ipw.HBox):
         #     layout={'width': '15px', 'padding': '0px'},
         #     disabled=self.disabled,
         # )
+        vmin = self._limits[axis][0].value
+        vmax = self._limits[axis][1].value
+        dx = vmax - vmin
+        delta = 0.05 * dx
+        # self.slider.step = dx * 0.01
+        # self.slider.value = [center[axis] - delta, center[axis] + delta]
+
         self.slider = ipw.FloatRangeSlider(
-            min=limits[axis][0].value,
-            max=limits[axis][1].value,
-            # value=center[axis],
+            min=vmin,
+            max=vmax,
+            value=[center[axis] - delta, center[axis] + delta],
+            step=dx * 0.01,
             description=direction.upper(),
             style={'description_width': 'initial'},
             layout={'width': '470px', 'padding': '0px'},
             disabled=self.disabled,
             # readout=False,
         )
-        dx = self.slider.max - self.slider.min
+        # dx = self.slider.max - self.slider.min
         # self.slider.step = dx * 0.01
-        delta = 0.05 * dx
-        self.slider.value = [center[axis] - delta, center[axis] + delta]
+        # delta = 0.05 * dx
+        # self.slider.value = [center[axis] - delta, center[axis] + delta]
 
         for outline, val in zip(self.outlines, self.slider.value):
             pos = list(center)
@@ -231,7 +239,7 @@ class Cut3dTool(ipw.HBox):
         self.cut_visible.on_click(self.toggle)
         # self.border_visible.on_click(self.toggle_border)
         self.slider.observe(self.move, names='value')
-        # self.slider.observe(self.update_cut, names='value')
+        # self.slider.observe(self._throttled_update, names='value')
 
         # self._nodes = nodes
         # self.select_nodes = {}
@@ -288,6 +296,12 @@ class Cut3dTool(ipw.HBox):
         """
         Move the outline of the cut according to new position given by the slider.
         """
+        # print('move value', value)
+        # If difference between new and old value is less than 1e-6, do not update
+        old = np.array(value['old'])
+        if np.abs((np.array(value['new']) - old) / old).max() < 1e-6:
+            return
+        # self.visible = False
         for outline, val in zip(self.outlines, value['new']):
             pos = list(outline.position)
             axis = 'xyz'.index(self._direction)
@@ -299,6 +313,7 @@ class Cut3dTool(ipw.HBox):
         # self.outline.position = pos
 
         # self._remove_cut()
+
         self._throttled_update()
 
     @property
@@ -401,7 +416,7 @@ class TriCutTool(ipw.HBox):
         # tab.titles = [str(i) for i in range(len(children))]
 
         self._original_nodes = list(self._view.graph_nodes.values())
-        print('original nodes:', self._original_nodes)
+        # print('original nodes:', self._original_nodes)
         self._nodes = {}
 
         self.add_cut_label = ipw.Label('Add cut:')
@@ -479,12 +494,13 @@ class TriCutTool(ipw.HBox):
             self.toggle_border_visibility, names='value'
         )
 
-        self.cut_operation = ipw.Button(
+        self.cut_operation = ipw.Dropdown(
+            options=['OR', 'AND', 'DIFF'],
+            value='OR',
             tooltip='Operation to combine multiple cuts',
-            icon='cogs',
             **BUTTON_LAYOUT,
         )
-        self.cut_operation.on_click(self.toggle_operation)
+        self.cut_operation.observe(self.change_operation, names='value')
 
         self.delete_cut = ipw.Button(
             tooltip='Delete cut',
@@ -590,7 +606,7 @@ class TriCutTool(ipw.HBox):
         # else:
         self.update_tabs_titles()
         self.toggle_opacity()
-        print('calling update_state', len(self.cuts))
+        # print('calling update_state', len(self.cuts))
         self.update_state()
 
     def _remove_cut(self, _):
@@ -644,19 +660,19 @@ class TriCutTool(ipw.HBox):
         for cut in self.cuts:
             cut.toggle_border(change['new'])
 
-    def toggle_operation(self, _):
+    def change_operation(self, change):
         """
         Toggle the operation to combine multiple cuts.
         """
-        self._operation = 'and' if self._operation == 'or' else 'or'
+        self._operation = change['new'].lower()
         # for cut in self.cuts:
         #     cut._operation = self._operation
         # self.cut_operation.icon = 'cogs' if self._operation == 'or' else 'cog'
-        self.cut_operation.tooltip = (
-            'Operation to combine multiple cuts: OR'
-            if self._operation == 'or'
-            else 'Operation to combine multiple cuts: AND'
-        )
+        # self.cut_operation.tooltip = (
+        #     'Operation to combine multiple cuts: OR'
+        #     if self._operation == 'or'
+        #     else 'Operation to combine multiple cuts: AND'
+        # )
         self.update_state()
 
     def update_state(self):
@@ -665,11 +681,13 @@ class TriCutTool(ipw.HBox):
         avoid updating the cloud too often, and instead rely on simply moving the
         outline, which is cheap.
         """
+        # print("inside update_state")
         # if self.value:
         # def select(da, s):
         #     return da[s]
         # print('In update_state', self._original_nodes)
 
+        # print("nodes", self._nodes)
         for nodes in self._nodes.values():
             self._view.remove(nodes['slice'].id)
             nodes['slice'].remove()
@@ -684,14 +702,14 @@ class TriCutTool(ipw.HBox):
             selections = []
             for cut in visible_cuts:
                 xmin, xmax = cut.range
-                print('xmin, xmax, dim', xmin, xmax, cut.dim)
+                # print('xmin, xmax, dim', xmin, xmax, cut.dim)
                 selections.append(
                     (da.coords[cut.dim] > xmin) & (da.coords[cut.dim] < xmax)
                 )
             selection = reduce(
                 lambda x, y: OPERATIONS[self._operation](x, y), selections
             )
-            print('selection size:', selection.sum().value)
+            # print('selection size:', selection.sum().value)
             if selection.sum().value > 0:
 
                 if n.id not in self._nodes:
@@ -717,4 +735,6 @@ class TriCutTool(ipw.HBox):
 
     @debounce(0.3)
     def throttled_update(self):
+        # self._remove_cut(None)
+        # self.cuts[self.tabs.selected_index].visible = True
         self.update_state()
