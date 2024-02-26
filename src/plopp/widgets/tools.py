@@ -177,7 +177,7 @@ OutlineTool = partial(
 AxesTool = partial(
     ToggleTool,
     value=True,
-    description='\u27C0',
+    icon='ruler-combined',
     style={'font_weight': 'bold'},
     tooltip='Toggle visibility of XYZ axes',
 )

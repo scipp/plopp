@@ -15,7 +15,7 @@ from .style import BUTTON_LAYOUT
 from .tools import PlusMinusTool
 
 
-OPERATIONS = {'or': sc.logical_or, 'and': sc.logical_and}
+OPERATIONS = {'or': sc.logical_or, 'and': sc.logical_and, 'xor': sc.logical_xor}
 
 
 class Timer:
@@ -166,7 +166,7 @@ class Cut3dTool(ipw.HBox):
         self.cut_visible = ipw.Button(
             icon='eye-slash',
             tooltip='Hide cut',
-            layout={'width': '15px', 'padding': '0px'},
+            layout={'width': '16px', 'padding': '0px'},
             disabled=self.disabled,
         )
         # self.border_visible = ipw.Button(
@@ -420,23 +420,24 @@ class TriCutTool(ipw.HBox):
         self._nodes = {}
 
         self.add_cut_label = ipw.Label('Add cut:')
+        layout = {'width': '45px', 'padding': '0px 0px 0px 0px'}
         self.add_x_cut = ipw.Button(
             description='X',
             icon='plus',
             tooltip='Add X cut',
-            **BUTTON_LAYOUT,
+            layout=layout,
         )
         self.add_y_cut = ipw.Button(
             description='Y',
             icon='plus',
             tooltip='Add Y cut',
-            **BUTTON_LAYOUT,
+            layout=layout,
         )
         self.add_z_cut = ipw.Button(
             description='Z',
             icon='plus',
             tooltip='Add Z cut',
-            **BUTTON_LAYOUT,
+            layout=layout,
         )
         self.add_x_cut.on_click(lambda _: self._add_cut('x'))
         self.add_y_cut.on_click(lambda _: self._add_cut('y'))
@@ -478,14 +479,16 @@ class TriCutTool(ipw.HBox):
             disabled=True,
             value=0.03,
             description='Opacity:',
+            tooltip='Set the opacity of the background',
             style={'description_width': 'initial'},
-            layout={'width': '120px', 'padding': '0px 0px 0px 0px'},
+            layout={'width': '142px', 'padding': '0px 0px 0px 0px'},
         )
         self.opacity.observe(self._set_opacity, names='value')
 
         self.cut_borders_visibility = ipw.ToggleButton(
             value=True,
             # description='Hide cut borders',
+            disabled=True,
             icon='border-style',
             tooltip='Toggle visbility of the borders of the cuts',
             **BUTTON_LAYOUT,
@@ -495,16 +498,18 @@ class TriCutTool(ipw.HBox):
         )
 
         self.cut_operation = ipw.Dropdown(
-            options=['OR', 'AND', 'DIFF'],
+            options=['OR', 'AND', 'XOR'],
             value='OR',
+            disabled=True,
             tooltip='Operation to combine multiple cuts',
-            **BUTTON_LAYOUT,
+            layout={'width': '60px', 'padding': '0px 0px 0px 0px'},
         )
         self.cut_operation.observe(self.change_operation, names='value')
 
         self.delete_cut = ipw.Button(
             tooltip='Delete cut',
             icon='trash',
+            disabled=True,
             **BUTTON_LAYOUT,
             # layout={'width': '120px', 'padding': '0px 0px 0px 0px'},
         )
@@ -527,12 +532,22 @@ class TriCutTool(ipw.HBox):
         # ]
         # self._add_cut('x')
 
+        # space = ipw.HBox([], layout={'width': '10px'})
+
         super().__init__(
             [
                 self.tabs,
                 ipw.VBox(
                     [
-                        ipw.HBox([self.add_x_cut, self.add_y_cut, self.add_z_cut]),
+                        ipw.HBox(
+                            [
+                                self.add_x_cut,
+                                # space,
+                                self.add_y_cut,
+                                # space,
+                                self.add_z_cut,
+                            ]
+                        ),
                         self.opacity,
                         ipw.HBox(
                             [
@@ -605,8 +620,8 @@ class TriCutTool(ipw.HBox):
         #     self._remove_cut(None)
         # else:
         self.update_tabs_titles()
-        self.toggle_opacity()
-        # print('calling update_state', len(self.cuts))
+        self.tabs.selected_index = len(self.cuts) - 1
+        self.update_controls()
         self.update_state()
 
     def _remove_cut(self, _):
@@ -617,7 +632,7 @@ class TriCutTool(ipw.HBox):
         self.tabs.children = self.cuts
         self.update_tabs_titles()
         self.update_state()
-        self.toggle_opacity()
+        self.update_controls()
         # # print('len(self.cuts)', len(self.cuts))
         # if len(self.cuts) == 0:
         #     for n in self.select_nodes.values():
@@ -629,7 +644,7 @@ class TriCutTool(ipw.HBox):
     def update_tabs_titles(self):
         self.tabs.titles = [cut._direction.upper() for cut in self.cuts]
 
-    def toggle_opacity(self):
+    def update_controls(self):
         """
         If any cut is active, set the opacity of the original children (not the cuts) to
         a low value. If all cuts are inactive, set the opacity back to 1.
@@ -637,6 +652,9 @@ class TriCutTool(ipw.HBox):
         # active_cut = any([self.cut_x.value, self.cut_y.value, self.cut_z.value])
         at_least_one_cut = any(1 for cut in self.cuts if cut.visible)
         # active_cut = len(self.cuts) > 0
+        self.delete_cut.disabled = not at_least_one_cut
+        self.cut_borders_visibility.disabled = not at_least_one_cut
+        self.cut_operation.disabled = not at_least_one_cut
         self.opacity.disabled = not at_least_one_cut
         opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
