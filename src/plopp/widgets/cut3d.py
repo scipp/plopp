@@ -13,7 +13,6 @@ from ..core import Node
 from ..graphics import BaseFig
 from .style import BUTTON_LAYOUT
 
-
 OPERATIONS = {'or': sc.logical_or, 'and': sc.logical_and, 'xor': sc.logical_xor}
 
 
