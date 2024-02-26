@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
-from functools import reduce
-from typing import Any, Callable, Dict, Literal, Tuple
+import uuid
+from functools import partial, reduce
+from typing import Any, Callable, Dict, List, Literal, Tuple
 
 import ipywidgets as ipw
 import numpy as np
@@ -13,7 +14,17 @@ from ..graphics import BaseFig
 from .debounce import debounce
 from .style import BUTTON_LAYOUT
 
-OPERATIONS = {'or': sc.logical_or, 'and': sc.logical_and, 'xor': sc.logical_xor}
+
+def _xor(x: List[sc.Variable]) -> sc.Variable:
+    dim = uuid.uuid4().hex
+    return sc.concat(x, dim).sum(dim) == sc.scalar(1, unit=None)
+
+
+OPERATIONS = {
+    'or': partial(reduce, lambda x, y: sc.logical_or(x, y)),
+    'and': partial(reduce, lambda x, y: sc.logical_and(x, y)),
+    'xor': _xor,
+}
 
 
 def select(da: sc.DataArray, s: Tuple[str, sc.Variable]) -> sc.DataArray:
@@ -362,9 +373,7 @@ class ClippingPlanes(ipw.HBox):
                 selections.append(
                     (da.coords[cut.dim] > xmin) & (da.coords[cut.dim] < xmax)
                 )
-            selection = reduce(
-                lambda x, y: OPERATIONS[self._operation](x, y), selections
-            )
+            selection = OPERATIONS[self._operation](selections)
             if selection.sum().value > 0:
                 if n.id not in self._nodes:
                     select_node = Node(selection)
