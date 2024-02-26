@@ -5,6 +5,7 @@
 
 from .box import Box, HBar, VBar
 from .checkboxes import Checkboxes
+from .clip3d import Clip3dTool, ClippingPlanes
 from .cut3d import Cut3dTool, TriCutTool
 from .drawing import DrawingTool, PointsTool
 from .slice import SliceWidget, slice_dims

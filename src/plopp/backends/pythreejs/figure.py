@@ -32,41 +32,6 @@ class Figure(BaseFig, VBox):
             ]
         )
 
-    # @property
-    # def canvas(self):
-    #     return self._view.canvas
-
-    # @property
-    # def artists(self):
-    #     return self._view.artists
-
-    # @property
-    # def dims(self):
-    #     return self._view.dims
-
-    # @property
-    # def graph_nodes(self):
-    #     return self._view.graph_nodes
-
-    # @property
-    # def id(self):
-    #     return self._view.id
-
-    # def update(self, *args, **kwargs):
-    #     return self._view.update(*args, **kwargs)
-
-    # def notify_view(self, *args, **kwargs):
-    #     return self._view.notify_view(*args, **kwargs)
-
-    # def get_limits(self, *args, **kwargs):
-    #     return self._view.get_limits(*args, **kwargs)
-
-    # def set_opacity(self, *args, **kwargs):
-    #     return self._view.set_opacity(*args, **kwargs)
-
-    # def remove(self, *args, **kwargs):
-    #     return self._view.remove(*args, **kwargs)
-
     def save(self, filename):
         """
         Save the figure to a standalone HTML file.
