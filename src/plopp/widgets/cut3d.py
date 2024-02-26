@@ -236,6 +236,7 @@ class TriCutTool(ipw.HBox):
             "This 3D cut tool is deprecated, is no longer maintained, and may be "
             "removed in the future. Use the new `ClippingPlanes` tool instead.",
             VisibleDeprecationWarning,
+            stacklevel=2,
         )
 
         self._fig = fig

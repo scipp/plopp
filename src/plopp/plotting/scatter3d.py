@@ -107,7 +107,7 @@ def scatter3d(
         A three-dimensional interactive scatter plot.
     """
     from ..graphics import figure3d
-    from ..widgets import ToggleTool, ClippingPlanes
+    from ..widgets import ClippingPlanes, ToggleTool
 
     if 'ax' in kwargs:
         raise ValueError(

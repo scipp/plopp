@@ -136,7 +136,7 @@ class Clip3dTool(ipw.HBox):
 
     def toggle_border(self, value: bool):
         """
-        Toggle the border visbility.
+        Toggle the border visibility.
         """
         for outline in self.outlines:
             outline.visible = value
@@ -225,7 +225,7 @@ class ClippingPlanes(ipw.HBox):
             value=True,
             disabled=True,
             icon='border-style',
-            tooltip='Toggle visbility of the borders of the cuts',
+            tooltip='Toggle visibility of the borders of the cuts',
             **BUTTON_LAYOUT,
         )
         self.cut_borders_visibility.observe(
@@ -374,7 +374,7 @@ class ClippingPlanes(ipw.HBox):
                     }
                     self._nodes[n.id]['slice'].add_view(self._view)
                 else:
-                    self._nodes[n.id]['select'].func = lambda: selection
+                    self._nodes[n.id]['select'].func = lambda: selection  # noqa: B023
                 self._nodes[n.id]['select'].notify_children("")
 
     @debounce(0.3)
