@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
+
 from functools import reduce
 from typing import Any, Callable, Dict, Literal, Tuple
 

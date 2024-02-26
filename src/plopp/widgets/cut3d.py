@@ -233,8 +233,8 @@ class TriCutTool(ipw.HBox):
 
     def __init__(self, fig: View):
         warnings.warn(
-            "This 3D cut tool is deprecated and will be removed in the future. "
-            "Use the new `ClippingPlanes` tool instead.",
+            "This 3D cut tool is deprecated, is no longer maintained, and may be "
+            "removed in the future. Use the new `ClippingPlanes` tool instead.",
             VisibleDeprecationWarning,
         )
 
