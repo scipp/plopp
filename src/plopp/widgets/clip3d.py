@@ -371,7 +371,7 @@ class ClippingPlanes(ipw.HBox):
             for cut in visible_cuts:
                 xmin, xmax = cut.range
                 selections.append(
-                    (da.coords[cut.dim] > xmin) & (da.coords[cut.dim] < xmax)
+                    (da.coords[cut.dim] >= xmin) & (da.coords[cut.dim] < xmax)
                 )
             selection = OPERATIONS[self._operation](selections)
             if selection.sum().value > 0:
