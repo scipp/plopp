@@ -32,20 +32,6 @@ class BaseFig:
     def id(self):
         return self._view.id
 
-    # def save(self, filename, **kwargs):
-    #     """
-    #     Save the figure to file.
-    #     The default directory for writing the file is the same as the
-    #     directory where the script or notebook is running.
-
-    #     Parameters
-    #     ----------
-    #     filename:
-    #         Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
-    #         ``.svg``, and ``.pdf``.
-    #     """
-    #     return self._view.canvas.save(filename, **kwargs)
-
     def update(self, *args, **kwargs):
         return self._view.update(*args, **kwargs)
 
