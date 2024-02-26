@@ -75,6 +75,8 @@
    widgets.drawing.DrawingTool
    widgets.drawing.PointsTool
 
+   widgets.clip3d.Clip3dTool
+   widgets.clip3d.ClippingPlanes
    widgets.cut3d.Cut3dTool
    widgets.cut3d.TriCutTool
 ```
