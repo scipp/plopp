@@ -107,7 +107,7 @@ def scatter3d(
         A three-dimensional interactive scatter plot.
     """
     from ..graphics import figure3d
-    from ..widgets import Box, ToggleTool, TriCutTool
+    from ..widgets import ToggleTool, TriCutTool
 
     if 'ax' in kwargs:
         raise ValueError(
@@ -142,4 +142,3 @@ def scatter3d(
     )
     fig.bottom_bar.add(tri_cutter)
     return fig
-    # return Box([fig, tri_cutter])
