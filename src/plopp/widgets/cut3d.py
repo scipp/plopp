@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import warnings
+
 from functools import partial
 from typing import Any, Dict, Literal, Tuple
 
@@ -10,7 +10,6 @@ import numpy as np
 import scipp as sc
 
 from ..core import View, node
-from ..core.typing import VisibleDeprecationWarning
 from .debounce import debounce
 from .style import BUTTON_LAYOUT
 from .tools import PlusMinusTool
@@ -232,13 +231,6 @@ class TriCutTool(ipw.HBox):
     """
 
     def __init__(self, fig: View):
-        warnings.warn(
-            "This 3D cut tool is deprecated, is no longer maintained, and may be "
-            "removed in the future. Use the new `ClippingPlanes` tool instead.",
-            VisibleDeprecationWarning,
-            stacklevel=2,
-        )
-
         self._fig = fig
         limits = self._fig.get_limits()
         self.cut_x = Cut3dTool(
