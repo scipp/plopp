@@ -25,6 +25,13 @@ class PythreejsBackend:
 
         return PointCloudP3js(*args, **kwargs)
 
+    def mesh(self, *args, **kwargs):
+        """
+        See :class:`mesh.Mesh` for details.
+        """
+        from .mesh import Mesh as MeshP3js
+        return MeshP3js(*args, **kwargs)
+
     def figure3d(self, *args, **kwargs):
         """
         See :class:`figure.Figure` for details.

@@ -180,6 +180,13 @@ class Image:
             )
         return out
 
+    @property
+    def raw_data(self):
+        """
+        Used by plopp.ColorMapper.autoscale to set the color-axis limits
+        """
+        return self._data
+
     def set_colors(self, rgba: np.ndarray):
         """
         Set the mesh's rgba colors:

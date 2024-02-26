@@ -9,3 +9,4 @@ from .scatter3d import scatter3d
 from .slicer import slicer
 from .superplot import superplot
 from .xyplot import xyplot
+from .mesh3d import mesh3d

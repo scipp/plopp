@@ -26,6 +26,10 @@ class DummyChild:
     def data(self):
         return self._data
 
+    @property
+    def raw_data(self):
+        return self._data
+
 
 def test_creation():
     mapper = ColorMapper(

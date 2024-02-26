@@ -233,3 +233,10 @@ class Line:
     @color.setter
     def color(self, val):
         self._line.line.color = val
+
+    @property
+    def raw_data(self):
+        """
+        Used by plopp.ColorMapper.autoscale to set the color-axis limits
+        """
+        return self._data

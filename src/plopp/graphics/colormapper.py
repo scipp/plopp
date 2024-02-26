@@ -179,7 +179,7 @@ class ColorMapper:
         range. If it is set to ``'grow'``, limits can grow but not shrink.
         """
         limits = [
-            fix_empty_range(find_limits(artist._data, scale=self.norm))
+            fix_empty_range(find_limits(artist.raw_data, scale=self.norm))
             for artist in self.artists.values()
         ]
         vmin = reduce(min, [v[0] for v in limits])
