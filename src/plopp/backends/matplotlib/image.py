@@ -197,7 +197,7 @@ class Image:
             Dimension and y coordinate of the mouse pointer, as slice parameters.
         """
         try:
-            val = self._data_with_bin_edges[xslice][yslice]
+            val = self._data_with_bin_edges[yslice][xslice]
             prefix = self._data.name
             if prefix:
                 prefix += ': '
