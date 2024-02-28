@@ -1,2 +1,2 @@
-pytest
-scipp
+-r base.in
+-r basetest.in

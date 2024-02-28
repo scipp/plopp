@@ -1,10 +1,5 @@
+# Add test dependencies in basetest.in
+
 -r base.in
-graphviz
-ipympl
-kaleido
-mpltoolbox
-pandas
-plotly
-pytest
-scipy
-xarray
+-r basetest.in
+-r optional.in

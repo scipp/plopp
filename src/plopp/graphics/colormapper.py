@@ -13,7 +13,7 @@ import scipp as sc
 from matplotlib.colorbar import ColorbarBase
 from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normalize
 
-from ..backends.matplotlib.utils import fig_to_bytes, silent_mpl_figure
+from ..backends.matplotlib.utils import fig_to_bytes
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
 
@@ -129,8 +129,7 @@ class ColorMapper:
             if self.cax is None:
                 dpi = 100
                 height_inches = (figsize[1] / dpi) if figsize is not None else 6
-                with silent_mpl_figure():
-                    fig = plt.figure(figsize=(height_inches * 0.2, height_inches))
+                fig = plt.Figure(figsize=(height_inches * 0.2, height_inches))
                 self.cax = fig.add_axes([0.05, 0.02, 0.2, 0.98])
             self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
             self.cax.yaxis.set_label_coords(-0.9, 0.5)

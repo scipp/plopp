@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 # flake8: noqa E402
 
@@ -18,6 +18,8 @@ from . import data
 from .core import Node, View, node, show_graph, widget_node
 from .graphics import Camera, figure1d, figure2d, figure3d, tiled
 from .plotting import inspector, plot, scatter, scatter3d, slicer, superplot, xyplot
+
+del importlib
 
 
 def show():

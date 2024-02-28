@@ -3,7 +3,7 @@
 
 import uuid
 from functools import partial
-from typing import Literal, Optional, Tuple, Union
+from typing import Dict, Literal, Optional, Tuple, Union
 
 import scipp as sc
 
@@ -12,7 +12,14 @@ from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
 
-def _preprocess_scatter(obj, x, y, z, pos, name=None):
+def _preprocess_scatter(
+    obj: PlottableMulti,
+    x: Union[str, sc.Variable],
+    y: Union[str, sc.Variable],
+    z: Union[str, sc.Variable],
+    pos: Union[str, sc.Variable],
+    name: Optional[str] = None,
+) -> sc.DataArray:
     da = from_compatible_lib(obj)
     check_not_binned(da)
 
@@ -30,7 +37,8 @@ def _preprocess_scatter(obj, x, y, z, pos, name=None):
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
     if out.ndim != 1:
         out = out.flatten(to=uuid.uuid4().hex)
-    out.name = name
+    if name is not None:
+        out.name = name
     return out
 
 

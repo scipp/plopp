@@ -67,7 +67,7 @@ class Scatter3dView(View):
         figsize: Tuple[int, int] = (600, 400),
         title: Optional[str] = None,
         camera: Optional[Camera] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*nodes)
 
@@ -90,7 +90,7 @@ class Scatter3dView(View):
         self._original_artists = [n.id for n in nodes]
         self.render()
 
-    def update(self, new_values: sc.DataArray, key: str, draw=True):
+    def update(self, new_values: sc.DataArray, key: str):
         """
         Add new point cloud or update point cloud array with new values.
 
@@ -100,8 +100,6 @@ class Scatter3dView(View):
             New data to create or update a :class:`PointCloud` object from.
         key:
             The id of the node that sent the new data.
-        draw:
-            This argument is ignored for the 3d figure update.
         """
         mapping = {'x': self._x, 'y': self._y, 'z': self._z}
         if self.canvas.empty:

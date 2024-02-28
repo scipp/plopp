@@ -1,26 +1,44 @@
-# Build artefacts
+# Build artifacts
 build
 dist
-src/plopp.egg-info
-
-# Documentation
 html
-docs/generated
+.tox
+*.egg-info
+*.html
+
+*.sw?
+
+# Environments
+venv
 
 # Caches
-.tox
+.clangd/
 *.ipynb_checkpoints
 __pycache__/
+.vs/
 .virtual_documents
 .hypothesis
 .pytest_cache
 .mypy_cache
+docs/generated/
 
-# Editor config / caches
+# Editor settings
 .idea/
 .vscode/
-.vs/
 
-# Environments
-Pipfile
-venv
+# Data files
+*.data
+*.dat
+*.csv
+*.xye
+*.h5
+*.hdf5
+*.hdf
+*.nxs
+*.raw
+*.cif
+*.rcif
+
+# Images
+*.png
+*.pdf

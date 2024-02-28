@@ -107,6 +107,7 @@ class Slicer:
                     'Slicer plot: autoscale is set to "fixed", but vmin and vmax '
                     'are also specified. They will override the autoscale setting.',
                     RuntimeWarning,
+                    stacklevel=2,
                 )
             if vmin is None:
                 vmin = reduce(min, [node().data.min() for node in nodes])

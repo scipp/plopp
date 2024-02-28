@@ -104,7 +104,7 @@ class ImageView(View):
         title: Optional[str] = None,
         figsize: Optional[Tuple[float, float]] = None,
         format: Optional[Literal['svg', 'png']] = None,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*nodes)
 

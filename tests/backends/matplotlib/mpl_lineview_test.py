@@ -44,7 +44,7 @@ def test_grid():
 
 
 def test_ax():
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     assert len(ax.lines) == 0
     da = data_array(ndim=1)
     _ = LineView(Node(da), ax=ax)

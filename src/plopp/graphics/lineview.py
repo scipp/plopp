@@ -80,7 +80,7 @@ class LineView(View):
         figsize: Tuple[float, float] = None,
         format: Optional[Literal['svg', 'png']] = None,
         legend: Union[bool, Tuple[float, float]] = True,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(*nodes)
 
@@ -99,11 +99,17 @@ class LineView(View):
             vmax=vmax,
             autoscale=autoscale,
             legend=legend,
-            **kwargs
+            **kwargs,
         )
         self.canvas.yscale = norm
 
+        # The line view is potentially plotting many lines. When ``render`` is called,
+        # it calls ``update`` for each line. At the end of ``update``, a range autoscale
+        # is applied. We want to avoid autoscaling at the end of each ``update`` call,
+        # because searching for limits could be expensive.
+        self._no_autoscale = True
         self.render()
+        self._no_autoscale = False
         self.canvas.autoscale()
         self.canvas.finalize()
 
@@ -146,11 +152,12 @@ class LineView(View):
                 number=len(self.artists),
                 errorbars=self._errorbars,
                 mask_color=self._mask_color,
-                **self._kwargs
+                **self._kwargs,
             )
             self.artists[key] = line
 
         else:
             self.artists[key].update(new_values=new_values)
 
-        self.canvas.autoscale()
+        if not self._no_autoscale:
+            self.canvas.autoscale()

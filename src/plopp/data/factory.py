@@ -152,10 +152,9 @@ def dataset(entries: List[str] = None, **kwargs) -> sc.Dataset:
     """
     if entries is None:
         entries = ['a', 'b']
-    ds = sc.Dataset()
-    for entry in entries:
-        ds[entry] = (10.0 * np.random.random()) * data_array(**kwargs)
-    return ds
+    return sc.Dataset(
+        {entry: (10.0 * np.random.random()) * data_array(**kwargs) for entry in entries}
+    )
 
 
 def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:

@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+
+name: Nightly test at main branch
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 1 * * 1-5'
+
+jobs:
+  setup:
+    name: Setup variables
+    runs-on: 'ubuntu-22.04'
+    outputs:
+      min_python: ${{ steps.vars.outputs.min_python }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Python version for other CI jobs
+        id: vars
+        run: echo "min_python=$(cat .github/workflows/python-version-ci)" >> $GITHUB_OUTPUT
+
+  tests:
+    name: Tests
+    needs: setup
+    strategy:
+      matrix:
+        os: ['ubuntu-22.04']
+        python:
+          - version: '${{needs.setup.outputs.min_python}}'
+            tox-env: 'nightly'
+    uses: ./.github/workflows/test.yml
+    with:
+      os-variant: ${{ matrix.os }}
+      python-version: ${{ matrix.python.version }}
+      tox-env: ${{ matrix.python.tox-env }}
