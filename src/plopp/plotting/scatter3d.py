@@ -107,7 +107,7 @@ def scatter3d(
         A three-dimensional interactive scatter plot.
     """
     from ..graphics import figure3d
-    from ..widgets import Box, ToggleTool, TriCutTool
+    from ..widgets import ClippingPlanes, ToggleTool
 
     if 'ax' in kwargs:
         raise ValueError(
@@ -134,10 +134,11 @@ def scatter3d(
         camera=camera,
         **kwargs,
     )
-    tri_cutter = TriCutTool(fig)
+    clip_planes = ClippingPlanes(fig)
     fig.toolbar['cut3d'] = ToggleTool(
-        callback=tri_cutter.toggle_visibility,
-        icon='cube',
+        callback=clip_planes.toggle_visibility,
+        icon='layer-group',
         tooltip='Hide/show spatial cutting tool',
     )
-    return Box([fig, tri_cutter])
+    fig.bottom_bar.add(clip_planes)
+    return fig
