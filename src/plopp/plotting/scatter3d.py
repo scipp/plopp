@@ -14,23 +14,22 @@ from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
 def _preprocess_scatter(
     obj: PlottableMulti,
-    x: Union[str, sc.Variable],
-    y: Union[str, sc.Variable],
-    z: Union[str, sc.Variable],
-    pos: Union[str, sc.Variable],
+    x: str,
+    y: str,
+    z: str,
+    pos: Optional[str],
     name: Optional[str] = None,
 ) -> sc.DataArray:
     da = from_compatible_lib(obj)
     check_not_binned(da)
 
     if pos is not None:
-        if isinstance(pos, str):
-            pos = da.coords[pos]
-        coords = {
-            x: pos.fields.x,
-            y: pos.fields.y,
-            z: pos.fields.z,
-        }
+        # pos_coord = da.coords[pos]
+        coords = {k: getattr(da.coords[pos].fields, k) for k in (x, y, z)}
+        #     x: pos.fields.x,
+        #     y: pos.fields.y,
+        #     z: pos.fields.z,
+        # }
     else:
         coords = {k: da.coords[k] for k in (x, y, z)}
 

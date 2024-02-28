@@ -227,7 +227,7 @@ class ColorMapper:
             self.normalizer.vmin = self.vmin
             self.normalizer.vmax = self.vmax
 
-    def update(self, key: str, data: sc.DataArray):
+    def update(self, args=None, **kwargs):
         """
         Update the colorscale bounds taking into account new values.
         We also update the colorbar widget if it exists.
@@ -239,34 +239,38 @@ class ColorMapper:
         key:
             The id of the node that provided this data.
         """
-        if self.name is None:
-            self.name = data.name
-            # If name is None, this is the first time update is called
-            if self.user_vmin is not None:
-                self.user_vmin = maybe_variable_to_number(
-                    self.user_vmin, unit=self.unit
-                )
-            if self.user_vmax is not None:
-                self.user_vmax = maybe_variable_to_number(
-                    self.user_vmax, unit=self.unit
-                )
-        elif data.name != self.name:
-            self.name = ''
-        if self.cax is not None:
-            text = self.name
-            if self.unit is not None:
-                text += f'{" " if self.name else ""}[{self.unit}]'
-            self.cax.set_ylabel(text)
-        old_bounds = np.array([self.vmin, self.vmax])
-        self.autoscale()
-        self._set_normalizer_limits()
+        new = kwargs
+        if args is not None:
+            new.update(args)
+        for key, data in new.items():
+            if self.name is None:
+                self.name = data.name
+                # If name is None, this is the first time update is called
+                if self.user_vmin is not None:
+                    self.user_vmin = maybe_variable_to_number(
+                        self.user_vmin, unit=self.unit
+                    )
+                if self.user_vmax is not None:
+                    self.user_vmax = maybe_variable_to_number(
+                        self.user_vmax, unit=self.unit
+                    )
+            elif data.name != self.name:
+                self.name = ''
+            if self.cax is not None:
+                text = self.name
+                if self.unit is not None:
+                    text += f'{" " if self.name else ""}[{self.unit}]'
+                self.cax.set_ylabel(text)
+            old_bounds = np.array([self.vmin, self.vmax])
+            self.autoscale()
+            self._set_normalizer_limits()
 
-        if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
-            self._update_colorbar_widget()
-            keys = self.artists.keys()
-        else:
-            keys = [key]
-        self._set_artists_colors(keys)
+            if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
+                self._update_colorbar_widget()
+                keys = self.artists.keys()
+            else:
+                keys = [key]
+            self._set_artists_colors(keys)
 
     def toggle_norm(self):
         """

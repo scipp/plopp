@@ -33,14 +33,13 @@ class Scatter:
         data: sc.DataArray,
         x: str = 'x',
         y: str = 'y',
-        color: Optional[
-            Union[Dict[str, Union[str, sc.Variable]], Union[str, sc.Variable]]
-        ] = None,
-        size: Optional[
-            Union[Dict[str, Union[str, sc.Variable]], Union[str, sc.Variable]]
-        ] = None,
+        # color: Optional[
+        #     Union[Dict[str, Union[str, sc.Variable]], Union[str, sc.Variable]]
+        # ] = None,
+        size: Optional[str] = None,
         number: int = 0,
         mask_color: str = 'black',
+        cbar: bool = False,
         **kwargs,
     ):
         self._canvas = canvas
@@ -48,6 +47,7 @@ class Scatter:
         self._data = data
         self._x = x
         self._y = y
+        self._size = size
         # Because all keyword arguments from the figure are forwarded to both the canvas
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
@@ -59,7 +59,7 @@ class Scatter:
         # self._error = None
         self._dim = None
         self._unit = None
-        self.label = data.name
+        self.label = data.name if not cbar else None
         self._dim = self._data.dim
         self._unit = self._data.unit
         # self._coord = self._data.coords[self._dim]
@@ -74,11 +74,16 @@ class Scatter:
         markers = list(Line2D.markers.keys())
         default_plot_style = {
             'marker': markers[(number + 2) % len(markers)],
-            'color': f'C{number}',
+            # 'color': f'C{number}',
         }
+        if not cbar:
+            default_plot_style['color'] = f'C{number}'
         self._scatter = self._ax.scatter(
             self._data.coords[self._x].values,
             self._data.coords[self._y].values,
+            s=(
+                self._data.coords[self._size].values if self._size is not None else None
+            ),
             label=self.label,
             **{**default_plot_style, **scatter_kwargs},
         )
@@ -232,6 +237,8 @@ class Scatter:
             .transpose()
             .values
         )
+        if self._size is not None:
+            self._scatter.set_sizes(self._data.coords[self._size].values)
         # self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
         # if new_values['mask']['visible']:
         #     self._mask.set_visible(True)
@@ -280,7 +287,9 @@ class Scatter:
     #             artist.set_color(val)
     #     self._canvas.draw()
     def set_colors(self, rgba: np.ndarray):
-        return
+        if self._scatter.get_array() is not None:
+            self._scatter.set_array(None)
+        self._scatter.set_facecolors(rgba)
 
     @property
     def data(self):

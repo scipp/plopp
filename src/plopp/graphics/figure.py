@@ -6,6 +6,30 @@ from typing import Literal
 from .. import backends
 
 
+def linefigure(*args, **kwargs):
+    from .lineview import LineView
+
+    return backends.figure2d(LineView, *args, **kwargs)
+
+
+def imagefigure(*args, **kwargs):
+    from .imageview import ImageView
+
+    return backends.figure2d(ImageView, *args, **kwargs)
+
+
+def scatterfigure(*args, **kwargs):
+    from .scatterview import ScatterView
+
+    return backends.figure2d(ScatterView, *args, **kwargs)
+
+
+def scatter3dfigure(*args, **kwargs):
+    from .scatter3dview import Scatter3dView
+
+    return backends.figure3d(Scatter3dView, *args, **kwargs)
+
+
 def figure1d(*args, style: Literal['line', 'scatter'] = 'line', **kwargs):
     """
     Create a figure to represent one-dimensional data from one or more graph node(s).
