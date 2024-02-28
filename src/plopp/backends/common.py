@@ -36,6 +36,7 @@ class BoundingBox:
         """
         Return the union of this bounding box with another one.
         """
+
         return BoundingBox(
             xmin=_none_min(self.xmin, other.xmin),
             xmax=_none_max(self.xmax, other.xmax),
