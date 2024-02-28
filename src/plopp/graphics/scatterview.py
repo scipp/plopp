@@ -1,46 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
-
-
-# from functools import partial
-
-# from typing import Dict, Literal, Optional, Tuple, Union
-
-# import scipp as sc
-
-# from .. import backends
-# from ..core import View
-# from ..core.utils import make_compatible, name_with_unit
-# from .colormapper import ColorMapper
-# # from .view2d import View2d
-
-
-# class ScatterView(View2d):
-#     def __init__(
-#         self,
-#         *args,
-#         x: str = 'x',
-#         y: str = 'y',
-#         color: Optional[
-#             Union[Dict[str, Union[str, sc.Variable]], Union[str, sc.Variable]]
-#         ] = None,
-#         size: Optional[
-#             Union[Dict[str, Union[str, sc.Variable]], Union[str, sc.Variable]]
-#         ] = None,
-#         **kwargs,
-#     ):
-#         self._illustrator = 'scatter'
-#         self._x = x
-#         self._y = y
-#         super().__init__(*args, **kwargs)
-
-#     def update(self, new_values: sc.DataArray, key: str):
-#         if new_values.ndim != 1:
-#             raise ValueError(f"ScatterView can only be used to plot 1-D data.")
-#         xdim = self._x
-#         ydim = self._y
-#         super().update(new_values, key, xdim, ydim)
-
+# Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 from typing import Dict, Literal, Optional, Tuple, Union
 
@@ -100,9 +59,6 @@ class ScatterView(View):
             legend=legend,
             **kwargs,
         )
-        # if color is not None:
-        #     if
-        #     and not(isinstance(color,
         if self._cbar:
             self.colormapper = ColorMapper(
                 cmap=cmap,
@@ -132,13 +88,10 @@ class ScatterView(View):
         key:
             The id of the node that sent the new data.
         """
-        # if new_values.ndim != 1:
-        #     raise ValueError("LineView can only be used to plot 1-D data.")
         new = kwargs
         if args is not None:
             new.update(args)
         for key, new_values in new.items():
-            mapping = {'x': self._x, 'y': self._y}
             xcoord = new_values.coords[self._x]
             ycoord = new_values.coords[self._y]
             if self.canvas.empty:
@@ -159,19 +112,11 @@ class ScatterView(View):
                     new_values.data = make_compatible(
                         new_values.data, unit=self.colormapper.unit
                     )
-                for xy, dim in mapping.items():
-                    new_values.coords[dim] = new_values.coords[dim].to(
-                        unit=self.canvas.units[xy], copy=False
+                for xy, dim in {'x': self._x, 'y': self._y}.items():
+                    new_values.coords[dim] = make_compatible(
+                        new_values.coords[dim],
+                        unit=self.canvas.units[xy],
                     )
-                # new_values.data = make_compatible(
-                #     new_values.data, unit=self.colormapper.unit
-                # )
-                # for xyz, dim in {'x': self._x, 'y': self._y}.items():
-                #     new_values.coords[dim] = make_compatible(
-                #         new_values.coords[dim],
-                #         dim=self.canvas.dims[xyz],
-                #         unit=self.canvas.units[xyz],
-                #     )
 
             if key not in self.artists:
                 scatter = backends.scatter(

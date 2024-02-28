@@ -47,7 +47,6 @@ class View:
         """
         node_id = message["node_id"]
         new_values = self.graph_nodes[node_id].request_data()
-        # self.update(new_values=new_values, key=node_id)
         self.update(**{node_id: new_values})
 
     @abstractmethod
@@ -63,11 +62,6 @@ class View:
         At the end of figure creation, this function is called to request data from
         all parent nodes and draw the figure.
         """
-        # update =
-        # for node in self.graph_nodes.values():
-        #     new_values = node.request_data()
-        #     # update(new_values=new_values, key=node.id)
-        #     update[node.id] = new_values
         self.update(
             **{node.id: node.request_data() for node in self.graph_nodes.values()}
         )

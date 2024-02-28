@@ -3,17 +3,13 @@
 
 import uuid
 from functools import partial
-from typing import Dict, Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Tuple, Union
 
 import scipp as sc
 
 from ..core.typing import PlottableMulti
 from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
-
-
-def _to_variable(var, coords):
-    return coords[var] if isinstance(var, str) else var
 
 
 def _preprocess_scatter(
@@ -26,13 +22,6 @@ def _preprocess_scatter(
     da = from_compatible_lib(obj)
     check_not_binned(da)
 
-    # if pos is not None:
-    #     pos = _to_variable(pos, coords=da.coords)
-    #     coords = {
-    #         x: pos.fields.x,
-    #         y: pos.fields.y,
-    #     }
-    # else:
     cnames = [x, y]
     if size is not None:
         cnames.append(size)
@@ -50,7 +39,6 @@ def scatter(
     *,
     x: str = 'x',
     y: str = 'y',
-    # color: Optional[Union[str, Dict[str, str]]] = None,
     size: Optional[str] = None,
     figsize: Tuple[float, float] = None,
     norm: Literal['linear', 'log'] = 'linear',
@@ -72,7 +60,6 @@ def scatter(
         *nodes,
         x=x,
         y=y,
-        # color=color,
         size=size,
         figsize=figsize,
         norm=norm,

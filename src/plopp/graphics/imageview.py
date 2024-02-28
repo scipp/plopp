@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-# from functools import partial
-
 from typing import Dict, Literal, Optional, Tuple, Union
 
 import scipp as sc
@@ -11,25 +9,6 @@ from .. import backends
 from ..core import View
 from ..core.utils import make_compatible, name_with_unit
 from .colormapper import ColorMapper
-
-# from .view2d import View2d
-
-
-# class ImageView(View2d):
-#     def __init__(
-#         self,
-#         *args,
-#         **kwargs,
-#     ):
-#         self._illustrator = 'image'
-#         super().__init__(*args, **kwargs)
-
-#     def update(self, new_values: sc.DataArray, key: str):
-#         if new_values.ndim != 2:
-#             raise ValueError(f"ImageView can only be used to plot 2-D data.")
-#         xdim = new_values.dims[1]
-#         ydim = new_values.dims[0]
-#         super().update(new_values, key, xdim, ydim)
 
 
 class ImageView(View):

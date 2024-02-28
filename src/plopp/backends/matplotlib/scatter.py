@@ -2,12 +2,11 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Dict, Optional, Union
+from typing import Optional
 
 import numpy as np
 import scipp as sc
 from matplotlib.lines import Line2D
-from numpy.typing import ArrayLike
 
 from ...core.utils import merge_masks
 from .canvas import Canvas
@@ -33,9 +32,6 @@ class Scatter:
         data: sc.DataArray,
         x: str = 'x',
         y: str = 'y',
-        # color: Optional[
-        #     Union[Dict[str, Union[str, sc.Variable]], Union[str, sc.Variable]]
-        # ] = None,
         size: Optional[str] = None,
         number: int = 0,
         mask_color: str = 'black',
@@ -62,19 +58,11 @@ class Scatter:
         self.label = data.name if not cbar else None
         self._dim = self._data.dim
         self._unit = self._data.unit
-        # self._coord = self._data.coords[self._dim]
         self._id = uuid.uuid4().hex
 
-        # aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
-        # for key, alias in aliases.items():
-        #     if key in args:
-        #         args[alias] = args.pop(key)
-
-        # self._make_scatter(data=self._make_data(), number=number, **args)
         markers = list(Line2D.markers.keys())
         default_plot_style = {
             'marker': markers[(number + 2) % len(markers)],
-            # 'color': f'C{number}',
         }
         if not cbar:
             default_plot_style['color'] = f'C{number}'
@@ -88,96 +76,6 @@ class Scatter:
             **{**default_plot_style, **scatter_kwargs},
         )
 
-        # def _make_line(
-        #     self,
-        #     data: Dict,
-        #     number: int,
-        #     errorbars: bool = True,
-        #     mask_color: str = 'black',
-        #     **kwargs,
-        # ):
-        #     """
-        #     Create either plot markers or a step function, depending on whether the data
-        #     contains bin edges or not.
-
-        #     Parameters
-        #     ----------
-        #     data:
-        #         A dictionary containing data entries that have been pre-processed to be in
-        #         a format that Matplotlib can directly use.
-        #     number:
-        #         The line number to set colors and marker style.
-        #     errorbars:
-        #         Show errorbars if ``True``.
-        #     mask_color:
-        #         The color to be used to represent the masks.
-        #     **kwargs:
-        #         The kwargs are forwarded to:
-
-        #         - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
-        #         - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
-        #     """
-
-        #     default_step_style = {
-        #         'linestyle': 'solid',
-        #         'linewidth': 1.5,
-        #         'color': f'C{number}',
-        #     }
-        #     markers = list(Line2D.markers.keys())
-        #     default_plot_style = {
-        #         'linestyle': 'none',
-        #         'linewidth': 1.5,
-        #         'marker': markers[(number + 2) % len(markers)],
-        #         'color': f'C{number}',
-        #     }
-
-        #     if data["hist"]:
-        #         self._line = self._ax.step(
-        #             data['values']['x'],
-        #             data['values']['y'],
-        #             label=self.label,
-        #             zorder=10,
-        #             **{**default_step_style, **kwargs},
-        #         )[0]
-
-        #         self._mask = self._ax.step(data['mask']['x'], data['mask']['y'])[0]
-        #         self._mask.update_from(self._line)
-        #         self._mask.set_color(mask_color)
-        #         self._mask.set_label(None)
-        #         self._mask.set_linewidth(self._mask.get_linewidth() * 3)
-        #         self._mask.set_zorder(self._mask.get_zorder() - 1)
-        #         self._mask.set_visible(data['mask']['visible'])
-        #     else:
-        #         self._line = self._ax.plot(
-        #             data['values']['x'],
-        #             data['values']['y'],
-        #             label=self.label,
-        #             zorder=10,
-        #             **{**default_plot_style, **kwargs},
-        #         )[0]
-        #         self._mask = self._ax.plot(
-        #             data['mask']['x'],
-        #             data['mask']['y'],
-        #             zorder=11,
-        #             mec=mask_color,
-        #             mfc="None",
-        #             mew=3.0,
-        #             linestyle="none",
-        #             marker=self._line.get_marker(),
-        #             visible=data['mask']['visible'],
-        #         )[0]
-
-        #     # Add error bars
-        #     if errorbars and (data['stddevs'] is not None):
-        #         self._error = self._ax.errorbar(
-        #             data['stddevs']['x'],
-        #             data['stddevs']['y'],
-        #             yerr=data['stddevs']['e'],
-        #             color=self._line.get_color(),
-        #             zorder=10,
-        #             fmt="none",
-        #         )
-
         if self.label and self._canvas._legend:
             leg_args = {}
             if isinstance(self._canvas._legend, (list, tuple)):
@@ -188,36 +86,6 @@ class Scatter:
                     f"not {type(self._canvas._legend)}"
                 )
             self._ax.legend(**leg_args)
-
-    # def _make_data(self) -> dict:
-    #     x = self._data.coords[self._dim]
-    #     y = self._data.data
-    #     hist = len(x) != len(y)
-    #     error = None
-    #     mask = {'x': x.values, 'y': y.values, 'visible': False}
-    #     if self._data.variances is not None:
-    #         error = {
-    #             'x': sc.midpoints(x).values if hist else x.values,
-    #             'y': y.values,
-    #             'e': sc.stddevs(y).values,
-    #         }
-    #     if len(self._data.masks):
-    #         one_mask = merge_masks(self._data.masks).values
-    #         mask = {
-    #             'x': x.values,
-    #             'y': np.where(one_mask, y.values, np.nan),
-    #             'visible': True,
-    #         }
-    #     if hist:
-    #         y = sc.concat([y[0:1], y], dim=self._dim)
-    #         if mask is not None:
-    #             mask['y'] = np.concatenate([mask['y'][0:1], mask['y']])
-    #     return {
-    #         'values': {'x': x.values, 'y': y.values},
-    #         'stddevs': error,
-    #         'mask': mask,
-    #         'hist': hist,
-    #     }
 
     def update(self, new_values: sc.DataArray):
         """
@@ -239,29 +107,6 @@ class Scatter:
         )
         if self._size is not None:
             self._scatter.set_sizes(self._data.coords[self._size].values)
-        # self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
-        # if new_values['mask']['visible']:
-        #     self._mask.set_visible(True)
-        # else:
-        #     self._mask.set_visible(False)
-
-        # if (self._error is not None) and (new_values['stddevs'] is not None):
-        #     coll = self._error.get_children()[0]
-        #     coll.set_segments(
-        #         self._change_segments_y(
-        #             new_values['stddevs']['x'],
-        #             new_values['stddevs']['y'],
-        #             new_values['stddevs']['e'],
-        #         )
-        #     )
-
-    # def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
-    #     """
-    #     Update the positions of the errorbars when `update_data` is called.
-    #     """
-    #     arr1 = np.repeat(x, 2)
-    #     arr2 = np.array([y - e, y + e]).T.flatten()
-    #     return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
 
     def remove(self):
         """
