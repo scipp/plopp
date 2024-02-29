@@ -9,9 +9,10 @@ from .. import backends
 from ..core import View
 from ..core.utils import make_compatible, name_with_unit
 from .colormapper import ColorMapper
+from .graphicalview import GraphicalView
 
 
-class ScatterView(View):
+class ScatterView(GraphicalView):
     """ """
 
     def __init__(
@@ -39,8 +40,7 @@ class ScatterView(View):
     ):
         super().__init__(*nodes)
 
-        self._x = x
-        self._y = y
+        self._dims = {'x': x, 'y': y}
         self._size = size
         self._cbar = cbar
         self._scale = {} if scale is None else scale
@@ -74,7 +74,6 @@ class ScatterView(View):
             self.colormapper = None
 
         self.render()
-        self.canvas.autoscale()
         self.canvas.finalize()
 
     def update(self, args=None, **kwargs):
@@ -88,54 +87,60 @@ class ScatterView(View):
         key:
             The id of the node that sent the new data.
         """
+        update_info = {}
         new = kwargs
         if args is not None:
             new.update(args)
         for key, new_values in new.items():
-            xcoord = new_values.coords[self._x]
-            ycoord = new_values.coords[self._y]
-            if self.canvas.empty:
-                self.canvas.set_axes(
-                    dims={'x': self._x, 'y': self._y},
-                    units={'x': xcoord.unit, 'y': ycoord.unit},
-                )
-                self.canvas.xlabel = name_with_unit(var=xcoord, name=self._x)
-                self.canvas.ylabel = name_with_unit(var=ycoord, name=self._y)
-                if self.colormapper is not None:
-                    self.colormapper.unit = new_values.unit
-                if self._x in self._scale:
-                    self.canvas.xscale = self._scale[self._x]
-                if self._y in self._scale:
-                    self.canvas.yscale = self._scale[self._y]
-            else:
-                if self.colormapper is not None:
-                    new_values.data = make_compatible(
-                        new_values.data, unit=self.colormapper.unit
-                    )
-                for xy, dim in {'x': self._x, 'y': self._y}.items():
-                    new_values.coords[dim] = make_compatible(
-                        new_values.coords[dim],
-                        unit=self.canvas.units[xy],
-                    )
+
+            update_info[key] = {'data': new_values}
+
+            # xcoord = new_values.coords[self._x]
+            # ycoord = new_values.coords[self._y]
+            # if self.canvas.empty:
+            #     self.canvas.set_axes(
+            #         dims={'x': self._x, 'y': self._y},
+            #         units={'x': xcoord.unit, 'y': ycoord.unit},
+            #     )
+            #     self.canvas.xlabel = name_with_unit(var=xcoord, name=self._x)
+            #     self.canvas.ylabel = name_with_unit(var=ycoord, name=self._y)
+            #     if self.colormapper is not None:
+            #         self.colormapper.unit = new_values.unit
+            #     if self._x in self._scale:
+            #         self.canvas.xscale = self._scale[self._x]
+            #     if self._y in self._scale:
+            #         self.canvas.yscale = self._scale[self._y]
+            # else:
+            #     if self.colormapper is not None:
+            #         new_values.data = make_compatible(
+            #             new_values.data, unit=self.colormapper.unit
+            #         )
+            #     for xy, dim in {'x': self._x, 'y': self._y}.items():
+            #         new_values.coords[dim] = make_compatible(
+            #             new_values.coords[dim],
+            #             unit=self.canvas.units[xy],
+            #         )
 
             if key not in self.artists:
-                scatter = backends.scatter(
+                update_info[key]['artist'] = backends.scatter(
                     canvas=self.canvas,
                     data=new_values,
-                    x=self._x,
-                    y=self._y,
+                    x=self._dims['x'],
+                    y=self._dims['y'],
                     size=self._size,
                     number=len(self.artists),
                     mask_color=self._mask_color,
                     cbar=self._cbar,
                     **self._kwargs,
                 )
-                self.artists[key] = scatter
-                if self.colormapper is not None:
-                    self.colormapper[key] = scatter
+        #         self.artists[key] = scatter
+        #         if self.colormapper is not None:
+        #             self.colormapper[key] = scatter
 
-            self.artists[key].update(new_values=new_values)
+        #     self.artists[key].update(new_values=new_values)
 
-        if self.colormapper is not None:
-            self.colormapper.update(args, **kwargs)
-        self.canvas.autoscale()
+        # if self.colormapper is not None:
+        #     self.colormapper.update(args, **kwargs)
+        # self.canvas.autoscale()
+
+        super().update(update_info)
