@@ -6,8 +6,6 @@ from typing import Dict, Literal, Optional, Tuple, Union
 import scipp as sc
 
 from .. import backends
-from ..core import View
-from ..core.utils import make_compatible, name_with_unit
 from .colormapper import ColorMapper
 from .graphicalview import GraphicalView
 

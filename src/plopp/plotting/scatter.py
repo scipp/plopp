@@ -8,7 +8,6 @@ from typing import Literal, Optional, Tuple, Union
 import scipp as sc
 
 from ..core.typing import PlottableMulti
-from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
 

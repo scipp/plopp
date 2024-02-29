@@ -3,7 +3,7 @@
 
 import uuid
 from functools import partial
-from typing import Dict, Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Tuple, Union
 
 import scipp as sc
 
@@ -24,12 +24,7 @@ def _preprocess_scatter(
     check_not_binned(da)
 
     if pos is not None:
-        # pos_coord = da.coords[pos]
         coords = {k: getattr(da.coords[pos].fields, k) for k in (x, y, z)}
-        #     x: pos.fields.x,
-        #     y: pos.fields.y,
-        #     z: pos.fields.z,
-        # }
     else:
         coords = {k: da.coords[k] for k in (x, y, z)}
 
