@@ -66,14 +66,39 @@ class Scatter:
         }
         if not cbar:
             default_plot_style['color'] = f'C{number}'
+
+        merged_kwargs = {**default_plot_style, **scatter_kwargs}
+        if self._size is None:
+            s = merged_kwargs.pop('s', None)
+        else:
+            s = self._data.coords[self._size].values
+
         self._scatter = self._ax.scatter(
             self._data.coords[self._x].values,
             self._data.coords[self._y].values,
-            s=(
-                self._data.coords[self._size].values if self._size is not None else None
-            ),
+            s=s,
             label=self.label,
-            **{**default_plot_style, **scatter_kwargs},
+            **merged_kwargs,
+        )
+
+        xmask = self._data.coords[self._x].values.copy()
+        ymask = self._data.coords[self._y].values.copy()
+        visible_mask = False
+        if self._data.masks:
+            not_one_mask = ~merge_masks(self._data.masks).values
+            xmask[not_one_mask] = np.nan
+            ymask[not_one_mask] = np.nan
+            visible_mask = True
+        self._mask = self._ax.scatter(
+            xmask,
+            ymask,
+            s=s,
+            marker=merged_kwargs['marker'],
+            edgecolors=mask_color,
+            # facecolors="None",
+            # mew=3.0,
+            zorder=self._scatter.get_zorder() + 1,
+            visible=visible_mask,
         )
 
         if self.label and self._canvas._legend:
