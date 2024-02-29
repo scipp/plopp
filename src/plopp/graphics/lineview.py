@@ -105,71 +105,12 @@ class LineView(GraphicalView):
         self.render()
         self.canvas.finalize()
 
-    def update(self, args=None, **kwargs):
-        """
-        Add new line or update line values.
-
-        Parameters
-        ----------
-        new_values:
-            New data to create or update a :class:`Line` object from.
-        key:
-            The id of the node that sent the new data.
-        """
-        update_info = {}
-        new = kwargs
-        if args is not None:
-            new.update(args)
-
-        for key, new_values in new.items():
-
-            update_info[key] = {'data': new_values}
-
-            if key not in self.artists:
-                update_info[key]['artist'] = backends.line(
-                    canvas=self.canvas,
-                    data=new_values,
-                    number=len(self.artists),
-                    errorbars=self._errorbars,
-                    mask_color=self._mask_color,
-                    **self._kwargs,
-                )
-
-        super().update(update_info)
-
-        #     if new_values.ndim != 1:
-        #         raise ValueError("LineView can only be used to plot 1-D data.")
-
-        #     xdim = new_values.dim
-        #     xcoord = new_values.coords[xdim]
-        #     if self.canvas.empty:
-        #         self.canvas.set_axes(
-        #             dims={'x': xdim}, units={'x': xcoord.unit, 'y': new_values.unit}
-        #         )
-        #         self.canvas.xlabel = name_with_unit(var=xcoord)
-        #         self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
-        #         if xdim in self._scale:
-        #             self.canvas.xscale = self._scale[xdim]
-        #     else:
-        #         new_values.data = make_compatible(
-        #             new_values.data, unit=self.canvas.units['y']
-        #         )
-        #         new_values.coords[xdim] = make_compatible(
-        #             xcoord, dim=self.canvas.dims['x'], unit=self.canvas.units['x']
-        #         )
-
-        #     if key not in self.artists:
-        #         line = backends.line(
-        #             canvas=self.canvas,
-        #             data=new_values,
-        #             number=len(self.artists),
-        #             errorbars=self._errorbars,
-        #             mask_color=self._mask_color,
-        #             **self._kwargs,
-        #         )
-        #         self.artists[key] = line
-
-        #     else:
-        #         self.artists[key].update(new_values=new_values)
-
-        # self.canvas.autoscale()
+    def make_artist(self, new_values):
+        return backends.line(
+            canvas=self.canvas,
+            data=new_values,
+            number=len(self.artists),
+            errorbars=self._errorbars,
+            mask_color=self._mask_color,
+            **self._kwargs,
+        )

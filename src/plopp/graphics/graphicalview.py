@@ -12,12 +12,15 @@ class GraphicalView(View):
         super().__init__(*nodes)
         self.colormapper = None
 
-    def update(self, info: dict):
+    def update(self, args=None, **kwargs):
         """ """
 
-        for key, inf in info.items():
+        new = kwargs
+        if args is not None:
+            new.update(args)
+
+        for key, new_values in new.items():
             coords = {}
-            new_values = inf['data']
             for i, direction in enumerate(self._dims):
                 if self._dims[direction] is None:
                     self._dims[direction] = new_values.dims[i]
@@ -61,13 +64,13 @@ class GraphicalView(View):
                         new_values.data, unit=self.canvas.units['y']
                     )
 
-            if 'artist' in inf:
-                self.artists[key] = inf['artist']
+            if key not in self.artists:
+                self.artists[key] = self.make_artist(new_values)
                 if self.colormapper is not None:
-                    self.colormapper[key] = inf['artist']
+                    self.colormapper[key] = self.artists[key]
 
             self.artists[key].update(new_values=new_values)
 
         if self.colormapper is not None:
-            self.colormapper.update({k: v['data'] for k, v in info.items()})
+            self.colormapper.update(args, **kwargs)
         self.canvas.autoscale()
