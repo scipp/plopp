@@ -10,6 +10,7 @@ from matplotlib.lines import Line2D
 
 from ...core.utils import merge_masks
 from .canvas import Canvas
+from .utils import make_legend
 
 
 def _parse_dicts_in_kwargs(kwargs, name):
@@ -95,22 +96,20 @@ class Scatter:
             s=s,
             marker=merged_kwargs['marker'],
             edgecolors=mask_color,
-            # facecolors="None",
+            facecolor="None",
             # mew=3.0,
+            linewidth=3.0,
             zorder=self._scatter.get_zorder() + 1,
             visible=visible_mask,
         )
 
-        if self.label and self._canvas._legend:
-            leg_args = {}
-            if isinstance(self._canvas._legend, (list, tuple)):
-                leg_args = {'loc': self._canvas._legend}
-            elif not isinstance(self._canvas._legend, bool):
-                raise TypeError(
-                    "Legend must be a bool, tuple, or a list, "
-                    f"not {type(self._canvas._legend)}"
-                )
-            self._ax.legend(**leg_args)
+        if self._canvas._legend:
+            leg_args = make_legend(self._canvas._legend)
+            if np.shape(s) == np.shape(self._data.coords[self._x].values):
+                handles, labels = self._scatter.legend_elements(prop="sizes")
+                self._ax.legend(handles, labels, title="Sizes", **leg_args)
+            if self.label:
+                self._ax.legend(**leg_args)
 
     def update(self, new_values: sc.DataArray):
         """
@@ -123,12 +122,10 @@ class Scatter:
         """
         self._data = new_values
         self._scatter.set_offsets(
-            sc.concat(
-                [self._data.coords[self._x], self._data.coords[self._y]],
-                dim=f'{self._dim}_new',
+            np.stack(
+                [self._data.coords[self._x].values, self._data.coords[self._y].values],
+                axis=1,
             )
-            .transpose()
-            .values
         )
         if self._size is not None:
             self._scatter.set_sizes(self._data.coords[self._size].values)

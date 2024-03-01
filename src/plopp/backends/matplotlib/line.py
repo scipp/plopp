@@ -11,6 +11,7 @@ from numpy.typing import ArrayLike
 
 from ..common import make_line_data
 from .canvas import Canvas
+from .utils import make_legend
 
 
 def _parse_dicts_in_kwargs(kwargs, name):
@@ -168,15 +169,7 @@ class Line:
             self._error[2][0]._plopp_mask = line_mask[1:] if data["hist"] else line_mask
 
         if self.label and self._canvas._legend:
-            leg_args = {}
-            if isinstance(self._canvas._legend, (list, tuple)):
-                leg_args = {'loc': self._canvas._legend}
-            elif not isinstance(self._canvas._legend, bool):
-                raise TypeError(
-                    "Legend must be a bool, tuple, or a list, "
-                    f"not {type(self._canvas._legend)}"
-                )
-            self._ax.legend(**leg_args)
+            self._ax.legend(**make_legend(self._canvas._legend))
 
     def update(self, new_values: sc.DataArray):
         """

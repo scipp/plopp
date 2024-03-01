@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from io import BytesIO
-from typing import Literal
+from typing import Literal, Tuple, Union
 
 import matplotlib as mpl
 from matplotlib.pyplot import Figure, _get_backend_mod
@@ -54,6 +54,18 @@ def make_figure(*args, **kwargs) -> Figure:
     backend = _get_backend_mod()
     manager = backend.new_figure_manager(1, *args, FigureClass=Figure, **kwargs)
     return manager.canvas.figure
+
+
+def make_legend(leg: Union[bool, Tuple[float, float]]):
+    """
+    Create a dict of arguments to be used in the legend creation.
+    """
+    leg_args = {}
+    if isinstance(leg, (list, tuple)):
+        leg_args = {'loc': leg}
+    elif not isinstance(leg, bool):
+        raise TypeError(f"Legend must be a bool, tuple, or a list, not {type(leg)}")
+    return leg_args
 
 
 def require_interactive_backend(func: str):
