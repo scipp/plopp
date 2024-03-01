@@ -107,7 +107,7 @@ def test_raises_ValueError_when_given_binned_data(use_ipympl):
 
 
 @pytest.mark.parametrize('ndim', [2, 3])
-def test_from_node(ndim):
+def test_from_node(use_ipympl, ndim):
     da = data_array(ndim=ndim)
     Slicer(Node(da))
 

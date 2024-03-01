@@ -10,8 +10,13 @@ from scipp.typing import VariableLike
 
 from ..core import widget_node
 from ..core.typing import PlottableMulti
-from .common import input_to_nodes, preprocess, require_interactive_backend
-from .plot import plot
+from ..graphics import imagefigure, linefigure
+from .common import (
+    input_to_nodes,
+    preprocess,
+    raise_multiple_inputs_for_2d_plot_error,
+    require_interactive_backend,
+)
 
 
 class Slicer:
@@ -118,7 +123,20 @@ class Slicer:
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
 
-        self.figure = plot(
+        ndims = len(keep)
+        if ndims == 1:
+            make_figure = linefigure
+        elif ndims == 2:
+            if len(self.slice_nodes) > 1:
+                raise_multiple_inputs_for_2d_plot_error(origin='slicer')
+            make_figure = imagefigure
+        else:
+            raise ValueError(
+                f'Slicer plot: the number of dims to be kept must be 1 or 2, '
+                f'but {ndims} were requested.'
+            )
+
+        self.figure = make_figure(
             *self.slice_nodes, autoscale=autoscale, vmin=vmin, vmax=vmax, **kwargs
         )
         self.figure.bottom_bar.add(self.slider)
