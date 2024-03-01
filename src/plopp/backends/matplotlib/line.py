@@ -56,11 +56,6 @@ class Line:
             if key in args:
                 args[alias] = args.pop(key)
 
-        dat = make_line_data(data=self._data, dim=self._dim)
-        for key, val in dat.items():
-            if val is not None and key != 'hist':
-                print(key, val['x'].shape, val['y'].shape)
-
         self._make_line(
             data=make_line_data(data=self._data, dim=self._dim),
             number=number,

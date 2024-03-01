@@ -20,6 +20,11 @@ class GraphicalView(View):
             new.update(args)
 
         for key, new_values in new.items():
+            if new_values.ndim != self._ndim:
+                raise ValueError(
+                    f"Expected {self._ndim} dimension(s), but got {new_values.ndim}."
+                )
+
             coords = {}
             for i, direction in enumerate(self._dims):
                 if self._dims[direction] is None:

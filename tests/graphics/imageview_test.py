@@ -25,13 +25,9 @@ def test_update():
 
 def test_update_not_2d_raises():
     fig = ImageView()
-    with pytest.raises(
-        ValueError, match="ImageView can only be used to plot 2-D data."
-    ):
+    with pytest.raises(ValueError, match="Expected 2 dimension"):
         fig.update(data1d=data_array(ndim=1))
-    with pytest.raises(
-        ValueError, match="ImageView can only be used to plot 2-D data."
-    ):
+    with pytest.raises(ValueError, match="Expected 2 dimension"):
         fig.update(data3d=data_array(ndim=3))
 
 
@@ -65,7 +61,7 @@ def test_log_norm():
 def test_raises_for_new_data_with_incompatible_dimension():
     a = data_array(ndim=2)
     b = a.rename(xx='zz')
-    with pytest.raises(sc.DimensionError):
+    with pytest.raises(KeyError):
         ImageView(Node(a), Node(b))
 
 

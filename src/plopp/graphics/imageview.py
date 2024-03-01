@@ -88,6 +88,7 @@ class ImageView(GraphicalView):
 
         # Note: the order of dims matters here, reversing it would transpose the image
         self._dims = {'y': None, 'x': None}
+        self._ndim = 2
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
         self._repr_format = format

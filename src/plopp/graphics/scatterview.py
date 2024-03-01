@@ -39,6 +39,7 @@ class ScatterView(GraphicalView):
         super().__init__(*nodes)
 
         self._dims = {'x': x, 'y': y}
+        self._ndim = 1
         self._size = size
         self._cbar = cbar
         self._scale = {} if scale is None else scale

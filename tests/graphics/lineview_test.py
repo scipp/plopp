@@ -25,9 +25,9 @@ def test_update():
 
 def test_update_not_1d_raises():
     fig = LineView()
-    with pytest.raises(ValueError, match="LineView can only be used to plot 1-D data."):
+    with pytest.raises(ValueError, match="Expected 1 dimension"):
         fig.update(data2d=data_array(ndim=2))
-    with pytest.raises(ValueError, match="LineView can only be used to plot 1-D data."):
+    with pytest.raises(ValueError, match="Expected 1 dimension"):
         fig.update(data3d=data_array(ndim=3))
 
 
@@ -140,7 +140,7 @@ def test_vmin_vmax_no_variable():
 def test_raises_for_new_data_with_incompatible_dimension():
     x = data_array(ndim=1)
     y = x.rename(xx='yy')
-    with pytest.raises(sc.DimensionError):
+    with pytest.raises(KeyError):
         LineView(Node(x), Node(y))
 
 
