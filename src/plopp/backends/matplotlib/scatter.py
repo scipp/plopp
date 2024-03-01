@@ -10,18 +10,7 @@ from matplotlib.lines import Line2D
 
 from ...core.utils import merge_masks
 from .canvas import Canvas
-from .utils import make_legend
-
-
-def _parse_dicts_in_kwargs(kwargs, name):
-    out = {}
-    for key, value in kwargs.items():
-        if isinstance(value, dict):
-            if name in value:
-                out[key] = value[name]
-        else:
-            out[key] = value
-    return out
+from .utils import make_legend, parse_dicts_in_kwargs
 
 
 class Scatter:
@@ -49,11 +38,10 @@ class Scatter:
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
 
-        scatter_kwargs = _parse_dicts_in_kwargs(kwargs, name=data.name)
+        scatter_kwargs = parse_dicts_in_kwargs(kwargs, name=data.name)
 
         self._scatter = None
         self._mask = None
-        # self._error = None
         self._dim = None
         self._unit = None
         self.label = data.name if not cbar else None
@@ -97,7 +85,6 @@ class Scatter:
             marker=merged_kwargs['marker'],
             edgecolors=mask_color,
             facecolor="None",
-            # mew=3.0,
             linewidth=3.0,
             zorder=self._scatter.get_zorder() + 1,
             visible=visible_mask,
@@ -132,27 +119,11 @@ class Scatter:
 
     def remove(self):
         """
-        Remove the line, masks and errorbar artists from the canvas.
+        Remove the scatter and mask artists from the canvas.
         """
         self._scatter.remove()
-        # self._mask.remove()
-        # if self._error is not None:
-        #     self._error.remove()
+        self._mask.remove()
 
-    # @property
-    # def color(self):
-    #     """
-    #     The line color.
-    #     """
-    #     return self._line.get_color()
-
-    # @color.setter
-    # def color(self, val):
-    #     self._line.set_color(val)
-    #     if self._error is not None:
-    #         for artist in self._error.get_children():
-    #             artist.set_color(val)
-    #     self._canvas.draw()
     def set_colors(self, rgba: np.ndarray):
         if self._scatter.get_array() is not None:
             self._scatter.set_array(None)

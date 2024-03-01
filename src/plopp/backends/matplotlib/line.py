@@ -11,18 +11,7 @@ from numpy.typing import ArrayLike
 
 from ..common import make_line_data
 from .canvas import Canvas
-from .utils import make_legend
-
-
-def _parse_dicts_in_kwargs(kwargs, name):
-    out = {}
-    for key, value in kwargs.items():
-        if isinstance(value, dict):
-            if name in value:
-                out[key] = value[name]
-        else:
-            out[key] = value
-    return out
+from .utils import make_legend, parse_dicts_in_kwargs
 
 
 class Line:
@@ -50,7 +39,7 @@ class Line:
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
 
-        args = _parse_dicts_in_kwargs(kwargs, name=data.name)
+        args = parse_dicts_in_kwargs(kwargs, name=data.name)
 
         self._line = None
         self._mask = None

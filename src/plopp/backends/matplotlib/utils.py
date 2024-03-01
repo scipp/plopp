@@ -122,3 +122,14 @@ def copy_figure(fig: FigureLike, **kwargs) -> FigureLike:
     for prop in ('xrange', 'yrange', 'xscale', 'yscale', 'title', 'grid'):
         setattr(out.canvas, prop, getattr(fig.canvas, prop))
     return out
+
+
+def parse_dicts_in_kwargs(kwargs, name):
+    out = {}
+    for key, value in kwargs.items():
+        if isinstance(value, dict):
+            if name in value:
+                out[key] = value[name]
+        else:
+            out[key] = value
+    return out
