@@ -95,7 +95,7 @@ def scatter3d(
     :
         A three-dimensional interactive scatter plot.
     """
-    from ..graphics import figure3d
+    from ..graphics import scatter3dfigure
     from ..widgets import Box, ToggleTool, TriCutTool
 
     if 'ax' in kwargs:
@@ -109,7 +109,7 @@ def scatter3d(
         obj, processor=partial(_preprocess_scatter, x=x, y=y, z=z, pos=pos)
     )
 
-    fig = figure3d(
+    fig = scatter3dfigure(
         *nodes,
         x=x,
         y=y,
