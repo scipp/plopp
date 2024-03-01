@@ -40,12 +40,7 @@ class Scatter:
 
         scatter_kwargs = parse_dicts_in_kwargs(kwargs, name=data.name)
 
-        self._scatter = None
-        self._mask = None
-        self._dim = None
-        self._unit = None
         self.label = data.name if not cbar else None
-        self._dim = self._data.dim
         self._unit = self._data.unit
         self._id = uuid.uuid4().hex
 
