@@ -38,7 +38,7 @@ def scatter(
     *,
     x: str = 'x',
     y: str = 'y',
-    size: Optional[str] = None,
+    size: Optional[Union[str, float]] = None,
     figsize: Tuple[float, float] = None,
     norm: Literal['linear', 'log'] = 'linear',
     title: str = None,
@@ -48,7 +48,42 @@ def scatter(
     cmap: str = 'viridis',
     **kwargs,
 ):
-    """Make a two-dimensional scatter plot."""
+    """
+    Make a two-dimensional scatter plot.
+
+    .. versionadded:: 24.03.0
+
+    Parameters
+    ----------
+    obj:
+        The object to be plotted.
+    x:
+        The name of the coordinate that is to be used for the X positions.
+    y:
+        The name of the coordinate that is to be used for the Y positions.
+    size:
+        The size of the marker. If a float is supplied, all markers will have the same
+        size. If a string is supplied, it will be the name of the coordinate that is to
+        be used for the size of the markers.
+    figsize:
+        The width and height of the figure, in inches.
+    norm:
+        Set to ``'log'`` for a logarithmic colorscale (only applicable if ``cbar`` is
+        ``True``).
+    title:
+        The figure title.
+    vmin:
+        Lower bound for the colorscale for (only applicable if ``cbar`` is ``True``).
+    vmax:
+        Upper bound for the colorscale for (only applicable if ``cbar`` is ``True``).
+    cbar:
+        Show colorbar if ``True``. If ``cbar`` is ``True``, the marker will be colored
+        using the data values in the supplied data array.
+    cmap:
+        The colormap to be used for the colorscale.
+    **kwargs:
+        All other kwargs are forwarded the underlying plotting library.
+    """
     from ..graphics import scatterfigure
 
     nodes = input_to_nodes(

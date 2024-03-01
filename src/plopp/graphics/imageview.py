@@ -111,3 +111,13 @@ class ImageView(GraphicalView):
 
     def make_artist(self, new_values):
         return backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
+
+
+def imagefigure(*args, **kwargs):
+    """
+    Create a figure to represent two-dimensional data from one or more graph node(s).
+
+    .. versionadded:: 24.03.0
+    """
+
+    return backends.figure2d(ImageView, *args, **kwargs)

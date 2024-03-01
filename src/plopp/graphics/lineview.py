@@ -114,3 +114,13 @@ class LineView(GraphicalView):
             mask_color=self._mask_color,
             **self._kwargs,
         )
+
+
+def linefigure(*args, **kwargs):
+    """
+    Create a figure to represent one-dimensional data from one or more graph node(s).
+
+    .. versionadded:: 24.03.0
+    """
+
+    return backends.figure2d(LineView, *args, **kwargs)

@@ -183,3 +183,13 @@ class Scatter3dView(View):
         """
         self.canvas.remove(self.artists[key].points)
         del self.artists[key]
+
+
+def scatter3dfigure(*args, **kwargs):
+    """
+    Create a figure to represent three-dimensional data from one or more graph node(s).
+
+    .. versionadded:: 24.03.0
+    """
+
+    return backends.figure3d(Scatter3dView, *args, **kwargs)
