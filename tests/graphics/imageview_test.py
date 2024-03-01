@@ -19,7 +19,7 @@ def test_update():
     assert len(fig.artists) == 0
     da = data_array(ndim=2)
     key = 'data2d'
-    fig.update(da, key=key)
+    fig.update({key: da})
     assert sc.identical(fig.artists[key]._data, da)
 
 
@@ -28,11 +28,11 @@ def test_update_not_2d_raises():
     with pytest.raises(
         ValueError, match="ImageView can only be used to plot 2-D data."
     ):
-        fig.update(data_array(ndim=1), key='data1d')
+        fig.update(data1d=data_array(ndim=1))
     with pytest.raises(
         ValueError, match="ImageView can only be used to plot 2-D data."
     ):
-        fig.update(data_array(ndim=3), key='data3d')
+        fig.update(data3d=data_array(ndim=3))
 
 
 def test_create_with_node():

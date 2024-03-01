@@ -19,17 +19,16 @@ def test_update():
     fig = LineView()
     assert len(fig.artists) == 0
     da = data_array(ndim=1)
-    key = 'data1d'
-    fig.update(da, key=key)
-    assert sc.identical(fig.artists[key]._data, da)
+    fig.update(data1d=da)
+    assert sc.identical(fig.artists['data1d']._data, da)
 
 
 def test_update_not_1d_raises():
     fig = LineView()
     with pytest.raises(ValueError, match="LineView can only be used to plot 1-D data."):
-        fig.update(data_array(ndim=2), key='data2d')
+        fig.update(data2d=data_array(ndim=2))
     with pytest.raises(ValueError, match="LineView can only be used to plot 1-D data."):
-        fig.update(data_array(ndim=3), key='data3d')
+        fig.update(data3d=data_array(ndim=3))
 
 
 def test_create_with_node():
@@ -75,7 +74,7 @@ def test_update_grows_limits():
     fig = LineView(Node(da))
     old_lims = fig.canvas.yrange
     key = list(fig.artists.keys())[0]
-    fig.update(da * 2.5, key=key)
+    fig.update({key: da * 2.5})
     new_lims = fig.canvas.yrange
     assert new_lims[0] < old_lims[0]
     assert new_lims[1] > old_lims[1]
@@ -87,7 +86,7 @@ def test_update_does_shrink_limits_if_auto_mode():
     old_lims = fig.canvas.yrange
     key = list(fig.artists.keys())[0]
     const = 0.5
-    fig.update(da * const, key=key)
+    fig.update({key: da * const})
     new_lims = fig.canvas.yrange
     assert new_lims[0] == old_lims[0] * const
     assert new_lims[1] == old_lims[1] * const
@@ -98,7 +97,7 @@ def test_update_does_not_shrink_limits_if_grow_mode():
     fig = LineView(Node(da), autoscale='grow')
     old_lims = fig.canvas.yrange
     key = list(fig.artists.keys())[0]
-    fig.update(da * 0.5, key=key)
+    fig.update({key: da * 0.5})
     new_lims = fig.canvas.yrange
     assert new_lims[0] == old_lims[0]
     assert new_lims[1] == old_lims[1]
