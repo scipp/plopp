@@ -144,7 +144,17 @@ def superplot(
         widgets and a tool to save/delete lines.
     """
     require_interactive_backend('superplot')
-    sp = Superplot(obj=obj, keep=keep, **kwargs)
-    from ..widgets import Box
+    slicer = Slicer(obj, keep=keep, **kwargs)
+    linesavetool = LineSaveTool(
+        data_node=slicer.slice_nodes[0],
+        slider_node=slicer.slider_node,
+        fig=slicer.figure,
+    )
+    slicer.figure.right_bar.add(linesavetool.widget)
+    # self.slider = self.slicer.slider
 
-    return Box([[sp.figure, sp.linesavetool.widget], sp.slider])
+    # sp = Superplot(obj=obj, keep=keep, **kwargs)
+    # from ..widgets import Box
+
+    # return Box([[sp.figure, sp.linesavetool.widget], sp.slider])
+    return slicer.figure
