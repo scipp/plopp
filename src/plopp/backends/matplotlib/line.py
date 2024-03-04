@@ -6,8 +6,8 @@ from typing import Dict
 
 import numpy as np
 import scipp as sc
-from matplotlib.lines import Line2D
 from matplotlib.dates import date2num
+from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
 
 from ..common import make_line_data

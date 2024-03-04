@@ -4,7 +4,7 @@
 import ipywidgets as ipw
 import scipp as sc
 
-from plopp import Node, linefigure, imagefigure, node, widget_node
+from plopp import Node, imagefigure, linefigure, node, widget_node
 from plopp.data.testing import data_array, dataset
 from plopp.widgets import Box, Checkboxes, SliceWidget, slice_dims
 

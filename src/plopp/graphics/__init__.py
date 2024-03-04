@@ -9,6 +9,6 @@ from .colormapper import ColorMapper
 from .figure import figure1d, figure2d, figure3d
 from .imageview import ImageView, imagefigure
 from .lineview import LineView, linefigure
-from .scatterview import ScatterView, scatterfigure
 from .scatter3dview import Scatter3dView, scatter3dfigure
+from .scatterview import ScatterView, scatterfigure
 from .tiled import tiled

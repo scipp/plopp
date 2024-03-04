@@ -3,7 +3,6 @@
 
 from typing import Optional
 
-
 from ..core.typing import Plottable
 from .common import require_interactive_backend
 from .slicer import Slicer

@@ -23,8 +23,8 @@ from .graphics import (
     figure3d,
     imagefigure,
     linefigure,
-    scatterfigure,
     scatter3dfigure,
+    scatterfigure,
     tiled,
 )
 from .plotting import inspector, plot, scatter, scatter3d, slicer, superplot, xyplot
