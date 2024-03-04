@@ -40,6 +40,14 @@ class MatplotlibBackend:
 
         return LineMpl(*args, **kwargs)
 
+    def scatter(self, *args, **kwargs):
+        """
+        See :class:`scatter.Scatter` for details.
+        """
+        from .scatter import Scatter as ScatterMpl
+
+        return ScatterMpl(*args, **kwargs)
+
     def image(self, *args, **kwargs):
         """
         See :class:`image.Image` for details.

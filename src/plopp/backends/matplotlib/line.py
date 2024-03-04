@@ -6,22 +6,17 @@ from typing import Dict
 
 import numpy as np
 import scipp as sc
+from matplotlib.dates import date2num
 from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
 
 from ..common import make_line_data
 from .canvas import Canvas
+from .utils import make_legend, parse_dicts_in_kwargs
 
 
-def _parse_dicts_in_kwargs(kwargs, name):
-    out = {}
-    for key, value in kwargs.items():
-        if isinstance(value, dict):
-            if name in value:
-                out[key] = value[name]
-        else:
-            out[key] = value
-    return out
+def _to_float(x):
+    return date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
 
 
 class Line:
@@ -49,7 +44,7 @@ class Line:
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
 
-        args = _parse_dicts_in_kwargs(kwargs, name=data.name)
+        args = parse_dicts_in_kwargs(kwargs, name=data.name)
 
         self._line = None
         self._mask = None
@@ -168,15 +163,7 @@ class Line:
             self._error[2][0]._plopp_mask = line_mask[1:] if data["hist"] else line_mask
 
         if self.label and self._canvas._legend:
-            leg_args = {}
-            if isinstance(self._canvas._legend, (list, tuple)):
-                leg_args = {'loc': self._canvas._legend}
-            elif not isinstance(self._canvas._legend, bool):
-                raise TypeError(
-                    "Legend must be a bool, tuple, or a list, "
-                    f"not {type(self._canvas._legend)}"
-                )
-            self._ax.legend(**leg_args)
+            self._ax.legend(**make_legend(self._canvas._legend))
 
     def update(self, new_values: sc.DataArray):
         """
@@ -198,9 +185,9 @@ class Line:
             coll = self._error.get_children()[0]
             coll.set_segments(
                 self._change_segments_y(
-                    new_values['stddevs']['x'],
-                    new_values['stddevs']['y'],
-                    new_values['stddevs']['e'],
+                    _to_float(new_values['stddevs']['x']),
+                    _to_float(new_values['stddevs']['y']),
+                    _to_float(new_values['stddevs']['e']),
                 )
             )
 

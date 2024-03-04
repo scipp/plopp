@@ -91,27 +91,24 @@ def make_line_data(data: sc.DataArray, dim: str) -> dict:
     y = data.data
     hist = len(x) != len(y)
     error = None
-    mask = {'x': x.values, 'y': np.full(y.shape, np.nan), 'visible': False}
+    xvalues = np.asarray(x.values)
+    yvalues = np.asarray(y.values)
+    values = {'x': xvalues, 'y': yvalues}
+    mask = {'x': xvalues, 'y': np.full(y.shape, np.nan), 'visible': False}
     if data.variances is not None:
         error = {
-            'x': sc.midpoints(x).values if hist else x.values,
-            'y': y.values,
-            'e': sc.stddevs(y).values,
+            'x': np.asarray(sc.midpoints(x).values) if hist else xvalues,
+            'y': yvalues,
+            'e': np.asarray(sc.stddevs(y).values),
         }
     if len(data.masks):
-        one_mask = merge_masks(data.masks).values
+        one_mask = np.asarray(merge_masks(data.masks).values)
         mask = {
-            'x': x.values,
-            'y': np.where(one_mask, y.values, np.nan),
+            'x': xvalues,
+            'y': np.where(one_mask, yvalues, np.nan),
             'visible': True,
         }
     if hist:
-        y = sc.concat([y[0:1], y], dim=dim)
-        if mask is not None:
-            mask['y'] = np.concatenate([mask['y'][0:1], mask['y']])
-    return {
-        'values': {'x': x.values, 'y': y.values},
-        'stddevs': error,
-        'mask': mask,
-        'hist': hist,
-    }
+        for array in (values, mask):
+            array['y'] = np.concatenate([array['y'][0:1], array['y']])
+    return {'values': values, 'stddevs': error, 'mask': mask, 'hist': hist}

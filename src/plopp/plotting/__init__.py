@@ -5,6 +5,7 @@
 
 from .inspector import inspector
 from .plot import plot
+from .scatter import scatter
 from .scatter3d import scatter3d
 from .slicer import slicer
 from .superplot import superplot
