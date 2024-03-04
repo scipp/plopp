@@ -179,11 +179,6 @@ def slicer(
         The maximum value of the y-axis (1d plots) or color range (2d plots).
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
-
-    Returns
-    -------
-    :
-        A :class:`Box` which will contain a :class:`Figure` and slider widgets.
     """
     require_interactive_backend('slicer')
     return Slicer(

@@ -67,7 +67,7 @@ getting-started/saving-figures
 
 ::::{grid} 3
 
-::::{grid-item-card} Slicer plot
+:::{grid-item-card} Slicer plot
 :link: plot-types/slicer-plot.ipynb
 :img-bottom: ../_static/plot-types/slicer-plot.png
 
