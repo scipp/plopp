@@ -309,13 +309,19 @@ class Canvas:
         xstr = _cursor_formatter(x, self.dtypes['x'], self.units['x'])
         ystr = _cursor_formatter(y, self.dtypes['y'], self.units['y'])
         out = f"({self._cursor_x_prefix}{xstr}, {self._cursor_y_prefix}{ystr})"
+        if not self._coord_formatters:
+            return out
         xpos = (
             self.dims['x'],
             _cursor_value_to_variable(x, self.dtypes['x'], self.units['x']),
         )
         ypos = (
-            self.dims['y'],
-            _cursor_value_to_variable(y, self.dtypes['y'], self.units['y']),
+            (
+                self.dims['y'],
+                _cursor_value_to_variable(y, self.dtypes['y'], self.units['y']),
+            )
+            if 'y' in self.dims
+            else None
         )
         extra = [formatter(xpos, ypos) for formatter in self._coord_formatters]
         extra = [e for e in extra if e is not None]
