@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from typing import Tuple
 
 import numpy as np
 import scipp as sc
@@ -132,29 +133,6 @@ class Image:
         if need_grid:
             self._ax.grid(True)
 
-        # Cache slicing order for hover values
-        if self._dim_1d is not None:
-            # If there is a 2d coord, we first slice the 1d coord, and then the
-            # dimension that is left should also be 1d, making value-based slicing
-            # possible.
-            self._hover_slicing = {
-                'dir': (self._dim_1d[0], self._dim_2d[0]),
-                'dim': (self._dim_1d[1], self._dim_2d[1]),
-                'unit': (
-                    self._data.coords[self._dim_1d[1]].unit,
-                    self._data.coords[self._dim_2d[1]].unit,
-                ),
-            }
-        else:
-            self._hover_slicing = {
-                'dir': ('y', 'x'),
-                'dim': (self._data.dims[0], self._data.dims[1]),
-                'unit': (
-                    self._data.coords[self._data.dims[0]].unit,
-                    self._data.coords[self._data.dims[1]].unit,
-                ),
-            }
-
         self._canvas.register_format_coord(self.format_coord)
 
     @property
@@ -204,34 +182,22 @@ class Image:
         self._data = new_values
         self._data_with_bin_edges.data = new_values.data
 
-    def format_coord(self, x: float, y: float) -> str:
+    def format_coord(
+        self, xslice: Tuple[str, sc.Variable], yslice: Tuple[str, sc.Variable]
+    ) -> str:
         """
         Format the coordinates of the mouse pointer to show the value of the
         data at that point.
 
         Parameters
         ----------
-        x:
-            The x coordinate of the mouse pointer.
-        y:
-            The y coordinate of the mouse pointer.
+        xslice:
+            Dimension and x coordinate of the mouse pointer, as slice parameters.
+        yslice:
+            Dimension and y coordinate of the mouse pointer, as slice parameters.
         """
-        xy = {'x': x, 'y': y}
         try:
-            val = self._data_with_bin_edges[
-                self._hover_slicing['dim'][0],
-                sc.scalar(
-                    xy[self._hover_slicing['dir'][0]],
-                    unit=self._hover_slicing['unit'][0],
-                ),
-            ]
-            val = val[
-                self._hover_slicing['dim'][1],
-                sc.scalar(
-                    xy[self._hover_slicing['dir'][1]],
-                    unit=self._hover_slicing['unit'][1],
-                ),
-            ]
+            val = self._data_with_bin_edges[yslice][xslice]
             prefix = self._data.name
             if prefix:
                 prefix += ': '

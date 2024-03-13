@@ -128,7 +128,9 @@ class ImageView(View):
         ycoord = new_values.coords[ydim]
         if self.canvas.empty:
             self.canvas.set_axes(
-                dims={'x': xdim, 'y': ydim}, units={'x': xcoord.unit, 'y': ycoord.unit}
+                dims={'x': xdim, 'y': ydim},
+                units={'x': xcoord.unit, 'y': ycoord.unit},
+                dtypes={'x': xcoord.dtype, 'y': ycoord.dtype},
             )
             self.canvas.xlabel = name_with_unit(var=xcoord, name=xdim)
             self.canvas.ylabel = name_with_unit(var=ycoord, name=ydim)

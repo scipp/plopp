@@ -106,6 +106,7 @@ class Scatter3dView(View):
             self.canvas.set_axes(
                 dims=mapping,
                 units={x: new_values.coords[dim].unit for x, dim in mapping.items()},
+                dtypes={x: new_values.coords[dim].dtype for x, dim in mapping.items()},
             )
             self.colormapper.unit = new_values.unit
         else:

@@ -171,9 +171,10 @@ def scalar_to_string(var: sc.Variable, precision: int = 3) -> str:
     precision:
         The number of decimal places to use for the string output.
     """
-    return value_to_string(var.value, precision=precision) + (
-        f" {var.unit}" if var.unit not in (None, "") else ""
-    )
+    out = value_to_string(var.value, precision=precision)
+    if (var.unit not in (None, "")) and var.dtype != sc.DType.datetime64:
+        out += f" {var.unit}"
+    return out
 
 
 def merge_masks(masks: Dict[str, sc.Variable]) -> sc.Variable:

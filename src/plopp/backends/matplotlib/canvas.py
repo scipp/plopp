@@ -15,7 +15,7 @@ from ..common import BoundingBox, axis_bounds
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
 
 
-def _to_floats(x):
+def _to_floats(x: np.ndarray) -> np.ndarray:
     return mdates.date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
 
 
@@ -23,6 +23,25 @@ def _none_if_not_finite(x: Union[float, int, None]) -> Union[float, int, None]:
     if x is None:
         return None
     return x if np.isfinite(x) else None
+
+
+def _cursor_value_to_variable(
+    x: Union[float, int], dtype: sc.DType, unit: str
+) -> sc.Variable:
+    if dtype == sc.DType.datetime64:
+        # Annoying chain of conversion but matplotlib has its own way of converting
+        # dates to numbers (number of days since epoch), and num2date returns a python
+        # datetime object, while scipp expects a numpy datetime64.
+        return sc.scalar(np.datetime64(mdates.num2date(x).replace(tzinfo=None))).to(
+            unit=unit
+        )
+    return sc.scalar(x, unit=unit)
+
+
+def _cursor_formatter(x: Union[float, int], dtype: sc.DType, unit: str) -> str:
+    if dtype == sc.DType.datetime64:
+        return mdates.num2date(x).replace(tzinfo=None).isoformat()
+    return scalar_to_string(sc.scalar(x, unit=unit))
 
 
 class Canvas:
@@ -246,7 +265,7 @@ class Canvas:
         """
         self.fig.show()
 
-    def set_axes(self, dims, units):
+    def set_axes(self, dims, units, dtypes):
         """
         Set the axes dimensions and units.
 
@@ -256,11 +275,12 @@ class Canvas:
             The dimensions of the data.
         units:
             The units of the data.
+        dtypes:
+            The data types of the data.
         """
         self.units = units
         self.dims = dims
-        self._cursor_x_placeholder = sc.scalar(0.0, unit=self.units['x'])
-        self._cursor_y_placeholder = sc.scalar(0.0, unit=self.units['y'])
+        self.dtypes = dtypes
         self._cursor_x_prefix = ''
         self._cursor_y_prefix = ''
         if 'y' in self.dims:
@@ -286,13 +306,24 @@ class Canvas:
         y:
             The y coordinate of the mouse pointer.
         """
-        self._cursor_x_placeholder.value = x
-        self._cursor_y_placeholder.value = y
-        out = (
-            f"({self._cursor_x_prefix}{scalar_to_string(self._cursor_x_placeholder)}, "
-            f"{self._cursor_y_prefix}{scalar_to_string(self._cursor_y_placeholder)})"
+        xstr = _cursor_formatter(x, self.dtypes['x'], self.units['x'])
+        ystr = _cursor_formatter(y, self.dtypes['y'], self.units['y'])
+        out = f"({self._cursor_x_prefix}{xstr}, {self._cursor_y_prefix}{ystr})"
+        if not self._coord_formatters:
+            return out
+        xpos = (
+            self.dims['x'],
+            _cursor_value_to_variable(x, self.dtypes['x'], self.units['x']),
         )
-        extra = [formatter(x, y) for formatter in self._coord_formatters]
+        ypos = (
+            (
+                self.dims['y'],
+                _cursor_value_to_variable(y, self.dtypes['y'], self.units['y']),
+            )
+            if 'y' in self.dims
+            else None
+        )
+        extra = [formatter(xpos, ypos) for formatter in self._coord_formatters]
         extra = [e for e in extra if e is not None]
         if extra:
             out += ": {" + ", ".join(extra) + "}"
