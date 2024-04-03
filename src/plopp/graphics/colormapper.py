@@ -227,9 +227,10 @@ class ColorMapper:
             self.normalizer.vmin = self.vmin
             self.normalizer.vmax = self.vmax
 
-    def update(self, args=None, **kwargs):
+    def update(self, _=None, **kwargs):
         """
-        Update the colorscale bounds taking into account new values.
+        Update the colorscale bounds taking into account new values,
+        by either supplying a dictionary of new data or by keyword arguments.
         We also update the colorbar widget if it exists.
 
         Parameters
@@ -240,8 +241,8 @@ class ColorMapper:
             The id of the node that provided this data.
         """
         new = kwargs
-        if args is not None:
-            new.update(args)
+        if _ is not None:
+            new.update(_)
         for key, data in new.items():
             if self.name is None:
                 self.name = data.name

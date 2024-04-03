@@ -12,12 +12,15 @@ class GraphicalView(View):
         super().__init__(*nodes)
         self.colormapper = None
 
-    def update(self, args=None, **kwargs):
-        """ """
+    def update(self, _=None, **kwargs):
+        """
+        Update the view with new data by either supplying a dictionary of
+        new data or by keyword arguments.
+        """
 
         new = kwargs
-        if args is not None:
-            new.update(args)
+        if _ is not None:
+            new.update(_)
 
         for key, new_values in new.items():
             if new_values.ndim != self._ndim:

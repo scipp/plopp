@@ -90,20 +90,14 @@ class Scatter3dView(View):
         self._original_artists = [n.id for n in nodes]
         self.render()
 
-    def update(self, args=None, **kwargs):
+    def update(self, _=None, **kwargs):
         """
-        Add new point cloud or update point cloud array with new values.
-
-        Parameters
-        ----------
-        new_values:
-            New data to create or update a :class:`PointCloud` object from.
-        key:
-            The id of the node that sent the new data.
+        Update the view with new point clouds by either supplying a dictionary of
+        new data or by keyword arguments.
         """
         new = kwargs
-        if args is not None:
-            new.update(args)
+        if _ is not None:
+            new.update(_)
 
         mapping = {'x': self._x, 'y': self._y, 'z': self._z}
         for key, new_values in new.items():
