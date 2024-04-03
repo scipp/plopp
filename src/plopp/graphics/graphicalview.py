@@ -28,6 +28,7 @@ class GraphicalView(View):
 
             if self.canvas.empty:
                 axes_units = {k: coord.unit for k, coord in coords.items()}
+                axes_dtypes = {k: coord.dtype for k, coord in coords.items()}
                 if 'y' in self._dims:
                     self.canvas.ylabel = name_with_unit(
                         var=coords['y'], name=self._dims['y']
@@ -37,8 +38,11 @@ class GraphicalView(View):
                 else:
                     self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
                     axes_units['y'] = new_values.unit
+                    axes_dtypes['y'] = new_values.dtype
 
-                self.canvas.set_axes(dims=self._dims, units=axes_units)
+                self.canvas.set_axes(
+                    dims=self._dims, units=axes_units, dtypes=axes_dtypes
+                )
                 self.canvas.xlabel = name_with_unit(
                     var=coords['x'], name=self._dims['x']
                 )
