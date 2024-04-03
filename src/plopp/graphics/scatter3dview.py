@@ -90,7 +90,7 @@ class Scatter3dView(View):
         self._original_artists = [n.id for n in nodes]
         self.render()
 
-    def update(self, new_values: sc.DataArray, key: str):
+    def update(self, args=None, **kwargs):
         """
         Add new point cloud or update point cloud array with new values.
 
@@ -101,35 +101,44 @@ class Scatter3dView(View):
         key:
             The id of the node that sent the new data.
         """
+        new = kwargs
+        if args is not None:
+            new.update(args)
+
         mapping = {'x': self._x, 'y': self._y, 'z': self._z}
-        if self.canvas.empty:
-            self.canvas.set_axes(
-                dims=mapping,
-                units={x: new_values.coords[dim].unit for x, dim in mapping.items()},
-                dtypes={x: new_values.coords[dim].dtype for x, dim in mapping.items()},
-            )
-            self.colormapper.unit = new_values.unit
-        else:
-            new_values.data = make_compatible(
-                new_values.data, unit=self.colormapper.unit
-            )
-            for xyz, dim in mapping.items():
-                new_values.coords[dim] = new_values.coords[dim].to(
-                    unit=self.canvas.units[xyz], copy=False
+        for key, new_values in new.items():
+            if self.canvas.empty:
+                self.canvas.set_axes(
+                    dims=mapping,
+                    units={
+                        x: new_values.coords[dim].unit for x, dim in mapping.items()
+                    },
+                    dtypes={
+                        x: new_values.coords[dim].dtype for x, dim in mapping.items()
+                    },
                 )
+                self.colormapper.unit = new_values.unit
+            else:
+                new_values.data = make_compatible(
+                    new_values.data, unit=self.colormapper.unit
+                )
+                for xyz, dim in mapping.items():
+                    new_values.coords[dim] = new_values.coords[dim].to(
+                        unit=self.canvas.units[xyz], copy=False
+                    )
 
-        if key not in self.artists:
-            pts = backends.point_cloud(
-                data=new_values, x=self._x, y=self._y, z=self._z, **self._kwargs
-            )
-            self.artists[key] = pts
-            self.colormapper[key] = pts
-            self.canvas.add(pts.points)
-            if key in self._original_artists:
-                self.canvas.make_outline(limits=self.get_limits())
+            if key not in self.artists:
+                pts = backends.point_cloud(
+                    data=new_values, x=self._x, y=self._y, z=self._z, **self._kwargs
+                )
+                self.artists[key] = pts
+                self.colormapper[key] = pts
+                self.canvas.add(pts.points)
+                if key in self._original_artists:
+                    self.canvas.make_outline(limits=self.get_limits())
 
-        self.artists[key].update(new_values=new_values)
-        self.colormapper.update(key=key, data=new_values)
+            self.artists[key].update(new_values=new_values)
+        self.colormapper.update(args, **kwargs)
 
     def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
         """

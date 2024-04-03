@@ -6,12 +6,17 @@ from typing import Dict
 
 import numpy as np
 import scipp as sc
+from matplotlib.dates import date2num
 from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
 
 from ..common import make_line_data
 from .canvas import Canvas
 from .utils import make_legend, parse_dicts_in_kwargs
+
+
+def _to_float(x):
+    return date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
 
 
 class Line:
@@ -180,9 +185,9 @@ class Line:
             coll = self._error.get_children()[0]
             coll.set_segments(
                 self._change_segments_y(
-                    new_values['stddevs']['x'],
-                    new_values['stddevs']['y'],
-                    new_values['stddevs']['e'],
+                    _to_float(new_values['stddevs']['x']),
+                    _to_float(new_values['stddevs']['y']),
+                    _to_float(new_values['stddevs']['e']),
                 )
             )
 

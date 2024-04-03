@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
-import numpy as np
-import pytest
 import scipp as sc
 
 import plopp as pp
-from plopp.data.testing import data_array, scatter as scatter_data
+from plopp.data.testing import data_array
+from plopp.data.testing import scatter as scatter_data
 
 
 def test_scatter_simple():

@@ -84,6 +84,7 @@ class LineView(GraphicalView):
         super().__init__(*nodes)
 
         self._dims = {'x': None}
+        self._ndim = 1
         self._scale = {} if scale is None else scale
         self._errorbars = errorbars
         self._mask_color = mask_color

@@ -22,7 +22,7 @@ def test_update():
     fig = Scatter3dView(Node(da), x='x', y='y', z='z')
     assert len(fig.artists) == 1
     key = list(fig.artists.keys())[0]
-    fig.update(da * 3.3, key=key)
+    fig.update({key: da * 3.3})
     assert sc.identical(fig.artists[key]._data, da * 3.3)
 
 

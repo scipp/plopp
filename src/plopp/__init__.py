@@ -16,7 +16,17 @@ backends = BackendManager()
 
 from . import data
 from .core import Node, View, node, show_graph, widget_node
-from .graphics import Camera, figure1d, figure2d, figure3d, tiled
+from .graphics import (
+    Camera,
+    figure1d,
+    figure2d,
+    figure3d,
+    imagefigure,
+    linefigure,
+    scatter3dfigure,
+    scatterfigure,
+    tiled,
+)
 from .plotting import inspector, plot, scatter, scatter3d, slicer, superplot, xyplot
 
 del importlib
@@ -43,11 +53,15 @@ __all__ = [
     'figure1d',
     'figure2d',
     'figure3d',
+    'imagefigure',
     'inspector',
+    'linefigure',
     'node',
     'plot',
     'scatter',
+    'scatterfigure',
     'scatter3d',
+    'scatter3dfigure',
     'show',
     'show_graph',
     'slicer',

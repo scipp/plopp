@@ -82,7 +82,7 @@ class DrawingTool(ToggleTool):
         self._output_nodes[nodeid] = output_node
         if self._destination_is_fig:
             output_node.add_view(self._destination._view)
-            self._destination.update(new_values=output_node(), key=output_node.id)
+            self._destination.update({output_node.id: output_node()})
             self._destination.artists[output_node.id].color = (
                 artist.color if hasattr(artist, 'color') else artist.edgecolor
             )
