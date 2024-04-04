@@ -159,10 +159,15 @@ class Canvas:
         return Image(value=fig_to_bytes(self.fig), format='png')
 
     def to_widget(self):
+        from ipywidgets import Layout
+
         if self.is_widget() and not is_sphinx_build():
-            return self.fig.canvas
+            widget = self.fig.canvas
         else:
-            return self.to_image()
+            widget = self.to_image()
+        # The max_width is set to prevent overflow, see gh-169
+        widget.layout = Layout(max_width='80%', overflow='auto')
+        return widget
 
     def autoscale(self):
         """
