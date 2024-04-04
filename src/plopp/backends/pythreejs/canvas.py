@@ -64,6 +64,7 @@ class Canvas:
         )
 
     def to_widget(self):
+        self.renderer.layout = ipw.Layout(max_width='80%', overflow='auto')
         return self.renderer
 
     def set_axes(self, dims, units, dtypes):
