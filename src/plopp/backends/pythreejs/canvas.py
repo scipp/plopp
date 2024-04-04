@@ -64,6 +64,7 @@ class Canvas:
         )
 
     def to_widget(self):
+        # The max_width is set to prevent overflow, see gh-169
         self.renderer.layout = ipw.Layout(max_width='80%', overflow='auto')
         return self.renderer
 
