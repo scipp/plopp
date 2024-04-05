@@ -11,22 +11,8 @@ from ..core.utils import coord_element_to_string
 from .box import VBar
 
 
-class SliceWidget(VBar):
-    """
-    Widgets containing a slider for each of the requested dimensions.
-    The widget uses the input data array to determine the range each slider should have.
-    Each slider also comes with a checkbox to toggle on and off the slider's continuous
-    update.
-
-    Parameters
-    ----------
-    da:
-        The input data array.
-    dims:
-        The dimensions to make sliders for.
-    """
-
-    def __init__(self, da: sc.DataArray, dims: List[str]):
+class _BaseSliceWidget(VBar):
+    def __init__(self, da: sc.DataArray, dims: List[str], range: bool):
         if isinstance(dims, str):
             dims = [dims]
         self._slider_dims = dims
@@ -40,7 +26,7 @@ class SliceWidget(VBar):
                 if dim in da.coords
                 else sc.arange(dim, da.sizes[dim], unit=None)
             )
-            slider = ipw.IntSlider(
+            widget_args = dict(
                 step=1,
                 description=dim,
                 min=0,
@@ -50,6 +36,10 @@ class SliceWidget(VBar):
                 layout={"width": "200px"},
                 style={'description_width': 'initial'},
             )
+            if range:
+                slider = ipw.IntRangeSlider(**widget_args)
+            else:
+                slider = ipw.IntSlider(**widget_args)
             continuous_update = ipw.Checkbox(
                 value=True,
                 tooltip="Continuous update",
@@ -88,12 +78,50 @@ class SliceWidget(VBar):
             self.controls[dim]['slider'].observe(callback, **kwargs)
 
     @property
-    def value(self) -> Dict[str, int]:
+    def value(self) -> Dict[str, int] | Dict[str, tuple[int]]:
         """
         The widget value, as a dict containing the dims as keys and the slider indices
         as values.
         """
         return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
+
+
+class SliceWidget(_BaseSliceWidget):
+    """
+    Widgets containing a slider for each of the requested dimensions.
+    The widget uses the input data array to determine the range each slider should have.
+    Each slider also comes with a checkbox to toggle on and off the slider's continuous
+    update.
+
+    Parameters
+    ----------
+    da:
+        The input data array.
+    dims:
+        The dimensions to make sliders for.
+    """
+
+    def __init__(self, da: sc.DataArray, dims: List[str]):
+        super().__init__(da, dims, range=False)
+
+
+class RangeSliceWidget(_BaseSliceWidget):
+    """
+    Widgets containing a slider for each of the requested dimensions.
+    The widget uses the input data array to determine the range each slider should have.
+    Each slider also comes with a checkbox to toggle on and off the slider's continuous
+    update.
+
+    Parameters
+    ----------
+    da:
+        The input data array.
+    dims:
+        The dimensions to make sliders for.
+    """
+
+    def __init__(self, da: sc.DataArray, dims: List[str]):
+        super().__init__(da, dims, range=True)
 
 
 @node
@@ -111,4 +139,24 @@ def slice_dims(data_array: sc.DataArray, slices: Dict[str, slice]) -> sc.DataArr
     out = data_array
     for dim, sl in slices.items():
         out = out[dim, sl]
+    return out
+
+
+@node
+def range_slice_dims_sum(
+    data_array: sc.DataArray, slices: Dict[str, slice]
+) -> sc.DataArray:
+    """
+    Slice the data according to input slices and sum over the sliced dimensions.
+
+    Parameters
+    ----------
+    data_array:
+        The input data array to be sliced.
+    slices:
+        Dict of slices to apply for each dimension.
+    """
+    out = data_array
+    for dim, sl in slices.items():
+        out = out[dim, slice(*sl)].sum(dim=dim)
     return out

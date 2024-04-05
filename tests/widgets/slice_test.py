@@ -1,15 +1,22 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import pytest
 from scipp import identical
 
 from plopp.data.testing import data_array
-from plopp.widgets import SliceWidget, slice_dims
+from plopp.widgets import (
+    RangeSliceWidget,
+    SliceWidget,
+    range_slice_dims_sum,
+    slice_dims,
+)
 
 
-def test_slice_creation():
+@pytest.mark.parametrize("widget", [SliceWidget, RangeSliceWidget])
+def test_slice_creation(widget):
     da = data_array(ndim=3)
-    sw = SliceWidget(da, dims=['yy', 'xx'])
+    sw = widget(da, dims=['yy', 'xx'])
     assert sw._slider_dims == ['yy', 'xx']
     assert sw.controls['xx']['slider'].min == 0
     assert sw.controls['xx']['slider'].max == da.sizes['xx'] - 1
@@ -45,3 +52,10 @@ def test_slice_dims():
     slices = {'xx': 8, 'yy': 7}
     expected = da['xx', slices['xx']]['yy', slices['yy']]
     assert identical(slice_dims().func(da, slices=slices), expected)
+
+
+def test_range_slice_dims_sum():
+    da = data_array(ndim=3)
+    slices = {'xx': (8, 19)}
+    expected = da['xx', slice(*slices['xx'])].sum(dim='xx')
+    assert identical(range_slice_dims_sum().func(da, slices=slices), expected)
