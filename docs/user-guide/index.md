@@ -107,6 +107,7 @@ plot-types/image-plot
 plot-types/slicer-plot
 plot-types/inspector-plot
 plot-types/super-plot
+plot-types/scatter-plot
 plot-types/scatter3d-plot
 ```
 
