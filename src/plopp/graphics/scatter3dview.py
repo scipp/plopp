@@ -193,7 +193,7 @@ def scatter3dfigure(*args, **kwargs):
     """
     Create a figure to represent three-dimensional data from one or more graph node(s).
 
-    .. versionadded:: 24.03.0
+    .. versionadded:: 24.04.0
     """
 
     return backends.figure3d(Scatter3dView, *args, **kwargs)

@@ -51,7 +51,7 @@ def scatter(
     """
     Make a two-dimensional scatter plot.
 
-    .. versionadded:: 24.03.0
+    .. versionadded:: 24.04.0
 
     Parameters
     ----------

@@ -23,7 +23,7 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     By default, this will return a figure built from :class:`LineView` (see the
     documentation of this class for a list of available customization arguments).
 
-    .. deprecated:: v24.03.0
+    .. deprecated:: v24.04.0
 
     Parameters
     ----------
@@ -69,7 +69,7 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     By default, this will return a figure built from :class:`ImageView` (see the
     documentation of this class for a list of available customization arguments).
 
-    .. deprecated:: v24.03.0
+    .. deprecated:: v24.04.0
 
     Parameters
     ----------
@@ -107,7 +107,7 @@ def figure3d(*args, style: Literal['scatter'] = 'scatter', **kwargs):
     By default, this will return a figure built from :class:`FigScatter3d` (see the
     documentation of this class for a list of available customization arguments).
 
-    .. deprecated:: v24.03.0
+    .. deprecated:: v24.04.0
 
     Parameters
     ----------

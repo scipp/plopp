@@ -118,7 +118,7 @@ def imagefigure(*args, **kwargs):
     """
     Create a figure to represent two-dimensional data from one or more graph node(s).
 
-    .. versionadded:: 24.03.0
+    .. versionadded:: 24.04.0
     """
 
     return backends.figure2d(ImageView, *args, **kwargs)
