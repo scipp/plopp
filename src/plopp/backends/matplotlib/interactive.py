@@ -26,13 +26,7 @@ class InteractiveFig(Figure, VBox):
         super().__init__(
             [
                 self.top_bar,
-                HBox(
-                    [
-                        self.left_bar,
-                        VBox([self._view.canvas.to_widget()]),
-                        self.right_bar,
-                    ]
-                ),
+                HBox([self.left_bar, self._view.canvas.to_widget(), self.right_bar]),
                 self.bottom_bar,
             ]
         )

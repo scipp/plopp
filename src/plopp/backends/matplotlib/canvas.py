@@ -159,10 +159,13 @@ class Canvas:
         return Image(value=fig_to_bytes(self.fig), format='png')
 
     def to_widget(self):
-        from ipywidgets import Layout
+        from ipywidgets import Layout, VBox
 
         if self.is_widget() and not is_sphinx_build():
-            widget = self.fig.canvas
+            # The Matplotlib canvas tries to fill the entire width of the output cell,
+            # which can add unnecessary whitespace between it and other widgets. To
+            # prevent this, we wrap the canvas in a VBox, which seems to help.
+            widget = VBox([self.fig.canvas])
         else:
             widget = self.to_image()
         # The max_width is set to prevent overflow, see gh-169
