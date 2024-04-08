@@ -251,8 +251,8 @@ def test_toggle_outline():
 
 def test_creation_with_title():
     text = 'My title'
-    canvas = Canvas(figsize=(700, 450), title=text)
+    canvas = Canvas(title=text)
     assert canvas.title == text
     html = '<i>My</i> <b>title</b>'
-    canvas = Canvas(figsize=(700, 450), title=html)
+    canvas = Canvas(title=html)
     assert canvas.title == html
