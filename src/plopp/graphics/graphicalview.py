@@ -3,6 +3,7 @@
 
 from ..core import Node, View
 from ..core.utils import make_compatible, name_with_unit
+from .common import args_to_update
 
 
 class GraphicalView(View):
@@ -12,16 +13,13 @@ class GraphicalView(View):
         super().__init__(*nodes)
         self.colormapper = None
 
-    def update(self, _=None, **kwargs):
+    def update(self, *args, **kwargs):
         """
         Update the view with new data by either supplying a dictionary of
         new data or by keyword arguments.
         """
 
-        new = kwargs
-        if _ is not None:
-            new.update(_)
-
+        new = args_to_update(*args, **kwargs)
         for key, new_values in new.items():
             if new_values.ndim != self._ndim:
                 raise ValueError(

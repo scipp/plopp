@@ -48,7 +48,7 @@ class View:
         self.update(**{node_id: new_values})
 
     @abstractmethod
-    def update(self, _=None, **kwargs):
+    def update(self, *args, **kwargs):
         """
         Update function which is called when a notification is received.
         This has to be overridden by any child class.

@@ -16,6 +16,7 @@ from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normal
 from ..backends.matplotlib.utils import fig_to_bytes
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
+from .common import args_to_update
 
 
 def _get_cmap(name: str, nan_color: str = None) -> Colormap:
@@ -227,22 +228,13 @@ class ColorMapper:
             self.normalizer.vmin = self.vmin
             self.normalizer.vmax = self.vmax
 
-    def update(self, _=None, **kwargs):
+    def update(self, *args, **kwargs):
         """
         Update the colorscale bounds taking into account new values,
         by either supplying a dictionary of new data or by keyword arguments.
         We also update the colorbar widget if it exists.
-
-        Parameters
-        ----------
-        data:
-            The data array to use to update the colorscale range.
-        key:
-            The id of the node that provided this data.
         """
-        new = kwargs
-        if _ is not None:
-            new.update(_)
+        new = args_to_update(*args, **kwargs)
         for key, data in new.items():
             if self.name is None:
                 self.name = data.name

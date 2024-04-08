@@ -8,8 +8,9 @@ import scipp as sc
 from .. import backends
 from ..core import View
 from ..core.utils import make_compatible
-from ..graphics import Camera
+from .camera import Camera
 from .colormapper import ColorMapper
+from .common import args_to_update
 
 
 class Scatter3dView(View):
@@ -90,15 +91,12 @@ class Scatter3dView(View):
         self._original_artists = [n.id for n in nodes]
         self.render()
 
-    def update(self, _=None, **kwargs):
+    def update(self, *args, **kwargs):
         """
         Update the view with new point clouds by either supplying a dictionary of
         new data or by keyword arguments.
         """
-        new = kwargs
-        if _ is not None:
-            new.update(_)
-
+        new = args_to_update(*args, **kwargs)
         mapping = {'x': self._x, 'y': self._y, 'z': self._z}
         for key, new_values in new.items():
             if self.canvas.empty:
