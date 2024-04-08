@@ -7,7 +7,14 @@ from .common import args_to_update
 
 
 class GraphicalView(View):
-    """ """
+    """
+    Base class for graphical 1d and 2d views.
+    It is used to represent line plots, scatter plots, and image plots (heatmaps).
+    In addition to ``View``, it updates the canvas axes and labels when new data is
+    supplied.
+    It also verifies that the new data supplied is compatible with the existing axes
+    dimensions and units.
+    """
 
     def __init__(self, *nodes: Node):
         super().__init__(*nodes)
