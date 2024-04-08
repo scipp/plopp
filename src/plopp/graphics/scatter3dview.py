@@ -132,7 +132,7 @@ class Scatter3dView(View):
                     self.canvas.make_outline(limits=self.get_limits())
 
             self.artists[key].update(new_values=new_values)
-        self.colormapper.update(args, **kwargs)
+        self.colormapper.update(**new)
 
     def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
         """

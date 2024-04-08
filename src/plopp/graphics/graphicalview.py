@@ -80,5 +80,5 @@ class GraphicalView(View):
             self.artists[key].update(new_values=new_values)
 
         if self.colormapper is not None:
-            self.colormapper.update(args, **kwargs)
+            self.colormapper.update(**new)
         self.canvas.autoscale()
