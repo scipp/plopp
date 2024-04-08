@@ -59,7 +59,7 @@ getting-started/saving-figures
 
 ::::{grid-item-card} Scatter plot
 :link: plot-types/scatter-plot.ipynb
-:img-bottom: ../_static/plot-types/scatter-plot.svg
+:img-bottom: ../_static/plot-types/scatter-plot.png
 
 :::
 

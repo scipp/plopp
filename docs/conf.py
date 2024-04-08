@@ -232,6 +232,7 @@ gallery_notebooks = [
     'peeling-layers',
     'tiled-random-samples',
     'polar-plots',
+    'updating-scatter',
 ]
 nbsphinx_thumbnails = {
     os.path.join(notebook_root, notebook): os.path.join(
