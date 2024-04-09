@@ -6,12 +6,11 @@ from typing import Dict, Literal, Optional, Tuple, Union
 import scipp as sc
 
 from .. import backends
-from ..core import View
-from ..core.utils import make_compatible, name_with_unit
 from .colormapper import ColorMapper
+from .graphicalview import GraphicalView
 
 
-class ImageView(View):
+class ImageView(GraphicalView):
     """
     ImageView that makes a visual representation of two-dimensional data.
     It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
@@ -87,6 +86,9 @@ class ImageView(View):
     ):
         super().__init__(*nodes)
 
+        # Note: the order of dims matters here, reversing it would transpose the image
+        self._dims = {'y': None, 'x': None}
+        self._ndim = 2
         self._scale = {} if scale is None else scale
         self._kwargs = kwargs
         self._repr_format = format
@@ -108,52 +110,15 @@ class ImageView(View):
         self.canvas.autoscale()
         self.canvas.finalize()
 
-    def update(self, new_values: sc.DataArray, key: str):
-        """
-        Add new image or update image array with new values.
+    def make_artist(self, new_values):
+        return backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
 
-        Parameters
-        ----------
-        new_values:
-            New data to create or update a :class:`Image` object from.
-        key:
-            The id of the node that sent the new data.
-        """
-        if new_values.ndim != 2:
-            raise ValueError("ImageView can only be used to plot 2-D data.")
 
-        xdim = new_values.dims[1]
-        xcoord = new_values.coords[xdim]
-        ydim = new_values.dims[0]
-        ycoord = new_values.coords[ydim]
-        if self.canvas.empty:
-            self.canvas.set_axes(
-                dims={'x': xdim, 'y': ydim},
-                units={'x': xcoord.unit, 'y': ycoord.unit},
-                dtypes={'x': xcoord.dtype, 'y': ycoord.dtype},
-            )
-            self.canvas.xlabel = name_with_unit(var=xcoord, name=xdim)
-            self.canvas.ylabel = name_with_unit(var=ycoord, name=ydim)
-            self.colormapper.unit = new_values.unit
-            if xdim in self._scale:
-                self.canvas.xscale = self._scale[xdim]
-            if ydim in self._scale:
-                self.canvas.yscale = self._scale[ydim]
-        else:
-            new_values.data = make_compatible(
-                new_values.data, unit=self.colormapper.unit
-            )
-            for xyz, dim in {'x': xdim, 'y': ydim}.items():
-                new_values.coords[dim] = make_compatible(
-                    new_values.coords[dim],
-                    dim=self.canvas.dims[xyz],
-                    unit=self.canvas.units[xyz],
-                )
+def imagefigure(*args, **kwargs):
+    """
+    Create a figure to represent two-dimensional data from one or more graph node(s).
 
-        if key not in self.artists:
-            image = backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
-            self.artists[key] = image
-            self.colormapper[key] = image
+    .. versionadded:: 24.04.0
+    """
 
-        self.artists[key].update(new_values=new_values)
-        self.colormapper.update(key=key, data=new_values)
+    return backends.figure2d(ImageView, *args, **kwargs)

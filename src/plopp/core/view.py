@@ -5,8 +5,6 @@ import uuid
 from abc import abstractmethod
 from typing import Any, Dict
 
-import scipp as sc
-
 
 class View:
     """
@@ -47,10 +45,10 @@ class View:
         """
         node_id = message["node_id"]
         new_values = self.graph_nodes[node_id].request_data()
-        self.update(new_values=new_values, key=node_id)
+        self.update(**{node_id: new_values})
 
     @abstractmethod
-    def update(self, new_values: sc.DataArray, key: str):
+    def update(self, *args, **kwargs):
         """
         Update function which is called when a notification is received.
         This has to be overridden by any child class.
@@ -62,6 +60,6 @@ class View:
         At the end of figure creation, this function is called to request data from
         all parent nodes and draw the figure.
         """
-        for node in self.graph_nodes.values():
-            new_values = node.request_data()
-            self.update(new_values=new_values, key=node.id)
+        self.update(
+            **{node.id: node.request_data() for node in self.graph_nodes.values()}
+        )
