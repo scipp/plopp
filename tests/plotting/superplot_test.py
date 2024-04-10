@@ -5,24 +5,24 @@ import scipp as sc
 
 from plopp import Node
 from plopp.data.testing import data_array
-from plopp.plotting.superplot import Superplot
+from plopp.plotting.superplot import superplot
 
 
-def test_creation():
+def test_creation(use_ipympl):
     da = data_array(ndim=2)
-    sp = Superplot(da, keep='xx')
-    assert len(sp.linesavetool._lines) == 0
+    sp = superplot(da, keep='xx')
+    assert len(sp.right_bar[0]._lines) == 0
 
 
-def test_from_node():
+def test_from_node(use_ipympl):
     da = data_array(ndim=2)
-    Superplot(Node(da))
+    superplot(Node(da))
 
 
-def test_save_line():
+def test_save_line(use_ipympl):
     da = data_array(ndim=2)
-    sp = Superplot(da, keep='xx')
-    tool = sp.linesavetool
+    sp = superplot(da, keep='xx')
+    tool = sp.right_bar[0]
     assert len(tool._lines) == 0
     tool.save_line()
     assert len(tool._lines) == 1
@@ -30,7 +30,8 @@ def test_save_line():
     assert sc.identical(line['line']._data, da['yy', 0])
     assert len(tool.container.children) == 1
 
-    sp.slider.controls['yy']['slider'].value = 5
+    slider = sp.bottom_bar[0]
+    slider.controls['yy']['slider'].value = 5
     tool.save_line()
     assert len(tool._lines) == 2
     line = list(tool._lines.values())[-1]
@@ -38,15 +39,16 @@ def test_save_line():
     assert len(tool.container.children) == 2
 
 
-def test_remove_line():
+def test_remove_line(use_ipympl):
     da = data_array(ndim=2)
-    sp = Superplot(da, keep='xx')
-    tool = sp.linesavetool
+    sp = superplot(da, keep='xx')
+    tool = sp.right_bar[0]
     assert len(tool._lines) == 0
     tool.save_line()
-    sp.slider.controls['yy']['slider'].value = 5
+    slider = sp.bottom_bar[0]
+    slider.controls['yy']['slider'].value = 5
     tool.save_line()
-    sp.slider.controls['yy']['slider'].value = 15
+    slider.controls['yy']['slider'].value = 15
     tool.save_line()
     assert len(tool._lines) == 3
     assert len(tool.container.children) == 3
@@ -64,17 +66,17 @@ def test_remove_line():
     assert len(tool.container.children) == 1
 
 
-def test_change_line_color():
+def test_change_line_color(use_ipympl):
     da = data_array(ndim=2)
-    sp = Superplot(da, keep='xx')
-    tool = sp.linesavetool
+    sp = superplot(da, keep='xx')
+    tool = sp.right_bar[0]
     tool.save_line()
     line_id = list(tool._lines.keys())[-1]
     tool.change_line_color(change={'new': '#000000'}, line_id=line_id)
     assert tool._lines[line_id]['line'].color == '#000000'
 
 
-def test_raises_ValueError_when_given_binned_data():
+def test_raises_ValueError_when_given_binned_data(use_ipympl):
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
-        Superplot(da, keep='x')
+        superplot(da, keep='x')

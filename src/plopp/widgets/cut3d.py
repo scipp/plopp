@@ -172,8 +172,7 @@ class Cut3dTool(ipw.HBox):
                 self.select_nodes[n.id] = node(partial(select, s=selection))(da=n)
                 self.select_nodes[n.id].add_view(self._view)
                 self._view.update(
-                    self.select_nodes[n.id].request_data(),
-                    key=self.select_nodes[n.id].id,
+                    {self.select_nodes[n.id].id: self.select_nodes[n.id].request_data()}
                 )
 
     def _remove_cut(self):

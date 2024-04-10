@@ -57,15 +57,21 @@ getting-started/saving-figures
 
 :::
 
-::::{grid-item-card} Slicer plot
-:link: plot-types/slicer-plot.ipynb
-:img-bottom: ../_static/plot-types/slicer-plot.png
+::::{grid-item-card} Scatter plot
+:link: plot-types/scatter-plot.ipynb
+:img-bottom: ../_static/plot-types/scatter-plot.png
 
 :::
 
 ::::
 
 ::::{grid} 3
+
+:::{grid-item-card} Slicer plot
+:link: plot-types/slicer-plot.ipynb
+:img-bottom: ../_static/plot-types/slicer-plot.png
+
+:::
 
 :::{grid-item-card} Inspector plot
 :link: plot-types/inspector-plot.ipynb
@@ -78,6 +84,10 @@ getting-started/saving-figures
 :img-bottom: ../_static/plot-types/super-plot.png
 
 :::
+
+::::
+
+::::{grid} 3
 
 :::{grid-item-card} Scatter 3D plot
 :link: plot-types/scatter3d-plot.ipynb
@@ -97,6 +107,7 @@ plot-types/image-plot
 plot-types/slicer-plot
 plot-types/inspector-plot
 plot-types/super-plot
+plot-types/scatter-plot
 plot-types/scatter3d-plot
 ```
 

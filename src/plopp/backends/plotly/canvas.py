@@ -151,7 +151,7 @@ class Canvas:
         else:
             self.fig.write_image(filename)
 
-    def set_axes(self, dims, units):
+    def set_axes(self, dims, units, dtypes):
         """
         Set the axes dimensions and units.
 
@@ -161,9 +161,12 @@ class Canvas:
             The dimensions of the data.
         units:
             The units of the data.
+        dtypes:
+            The data types of the data.
         """
-        self.units = units
         self.dims = dims
+        self.units = units
+        self.dtypes = dtypes
 
     @property
     def empty(self) -> bool:

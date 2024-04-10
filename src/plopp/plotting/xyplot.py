@@ -7,7 +7,7 @@ import scipp as sc
 from numpy import ndarray
 
 from ..core import Node
-from ..graphics import figure1d
+from ..graphics import linefigure
 from .common import to_variable
 
 
@@ -51,4 +51,4 @@ def xyplot(
     dim = x().dim
     if dim != y().dim:
         raise sc.DimensionError("Dimensions of x and y must match")
-    return figure1d(Node(_make_data_array, x=x, y=y), **kwargs)
+    return linefigure(Node(_make_data_array, x=x, y=y), **kwargs)
