@@ -39,7 +39,7 @@ class Clip3dTool(ipw.HBox):
     cut is moved at the same time, while the actual point cloud gets updated less
     frequently using a debounce mechanism.
 
-    .. versionadded:: 24.02.0
+    .. versionadded:: 24.04.0
 
     Parameters
     ----------
@@ -181,7 +181,7 @@ class ClippingPlanes(ipw.HBox):
     A widget to make clipping planes for spatial cutting (see :class:`Clip3dTool`) to
     make spatial cuts in the X, Y, and Z directions on a three-dimensional scatter plot.
 
-    .. versionadded:: 24.02.0
+    .. versionadded:: 24.04.0
 
     Parameters
     ----------
