@@ -158,9 +158,12 @@ class Clip3dTool(ipw.HBox):
         """
         Move the outline of the cut according to new position given by the slider.
         """
-        # Early return if relative difference between new and old value is small
-        old = np.array(value['old'])
-        if np.abs((np.array(value['new']) - old) / old).max() < 1e-6:
+        # Early return if relative difference between new and old value is small.
+        # This also prevents flickering of an existing cut when a new cut is added.
+        if (
+            np.abs((np.array(value['new']) - np.array(value['old']))).max()
+            < 0.01 * self.slider.step
+        ):
             return
         for outline, val in zip(self.outlines, value['new']):
             pos = list(outline.position)
