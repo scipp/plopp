@@ -7,6 +7,7 @@ from typing import Any, Callable, Dict, List, Literal, Tuple
 
 import ipywidgets as ipw
 import numpy as np
+import pythreejs as p3
 import scipp as sc
 
 from ..core import Node
@@ -66,8 +67,6 @@ class Clip3dTool(ipw.HBox):
         color: str = 'red',
         linewidth: float = 1.5,
     ):
-        import pythreejs as p3
-
         self._limits = limits
         self._direction = direction
         axis = 'xyz'.index(self._direction)
@@ -135,7 +134,7 @@ class Clip3dTool(ipw.HBox):
 
         super().__init__([self.slider, ipw.Label(f'[{self._unit}]'), self.cut_visible])
 
-    def toggle(self, owner):
+    def toggle(self, owner: ipw.Button):
         """
         Toggle the visibility of the cut on and off.
         """

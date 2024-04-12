@@ -25,6 +25,8 @@ class Cut3dTool(ipw.HBox):
 
     The tool also has two buttons +/- to increase/decrease the thickness of the cut.
 
+    .. deprecated:: v24.04.0
+
     Parameters
     ----------
     view:
