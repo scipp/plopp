@@ -157,7 +157,7 @@ class Clip3dTool(ipw.HBox):
             outline.visible = value
         # The call to this function comes from the parent widget, so we need to
         # remember the state of the button, so that when we toggle the visbiility of
-        # the cut, the border visbility is in sync with the parent button.
+        # the cut, the border visibility is in sync with the parent button.
         self._border_visible = value
 
     def move(self, value: Dict[str, Any]):
