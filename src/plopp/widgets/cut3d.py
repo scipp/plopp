@@ -1,67 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import asyncio
+
 from functools import partial
-from typing import Any, Callable, Dict, Literal, Tuple
+from typing import Any, Dict, Literal, Tuple
 
 import ipywidgets as ipw
 import numpy as np
 import scipp as sc
 
 from ..core import View, node
+from .debounce import debounce
 from .style import BUTTON_LAYOUT
 from .tools import PlusMinusTool
-
-
-class Timer:
-    """
-    From:
-    https://ipywidgets.readthedocs.io/en/8.0.2/examples/Widget%20Events.html#Debouncing
-    """
-
-    def __init__(self, timeout: float, callback: Callable):
-        self._timeout = timeout
-        self._callback = callback
-
-    async def _job(self):
-        await asyncio.sleep(self._timeout)
-        self._callback()
-
-    def start(self):
-        self._task = asyncio.ensure_future(self._job())
-
-    def cancel(self):
-        self._task.cancel()
-
-
-def debounce(wait: float):
-    """
-    Decorator that will postpone a function's
-    execution until after `wait` seconds
-    have elapsed since the last time it was invoked.
-
-    From:
-    https://ipywidgets.readthedocs.io/en/8.0.2/examples/Widget%20Events.html#Debouncing
-    """
-
-    def decorator(fn: Callable):
-        timer = None
-
-        def debounced(*args, **kwargs):
-            nonlocal timer
-
-            def call_it():
-                fn(*args, **kwargs)
-
-            if timer is not None:
-                timer.cancel()
-            timer = Timer(wait, call_it)
-            timer.start()
-
-        return debounced
-
-    return decorator
 
 
 class Cut3dTool(ipw.HBox):
@@ -73,6 +24,8 @@ class Cut3dTool(ipw.HBox):
     using a debounce mechanism.
 
     The tool also has two buttons +/- to increase/decrease the thickness of the cut.
+
+    .. deprecated:: v24.04.0
 
     Parameters
     ----------

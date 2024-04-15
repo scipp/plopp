@@ -170,14 +170,14 @@ CameraTool = partial(ButtonTool, icon='camera', tooltip='Autoscale view')
 """Tool for changing the position of the camera in a 3d scene."""
 
 OutlineTool = partial(
-    ToggleTool, value=True, icon='codepen', tooltip='Toggle outline visibility'
+    ToggleTool, value=True, icon='cube', tooltip='Toggle outline visibility'
 )
 """Toggle outline visibility tool"""
 
 AxesTool = partial(
     ToggleTool,
     value=True,
-    description='\u27C0',
+    icon='ruler-combined',
     style={'font_weight': 'bold'},
     tooltip='Toggle visibility of XYZ axes',
 )
