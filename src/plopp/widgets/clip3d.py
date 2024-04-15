@@ -66,6 +66,7 @@ class Clip3dTool(ipw.HBox):
         throttled_update: Callable,
         color: str = 'red',
         linewidth: float = 1.5,
+        border_visible: bool = True,
     ):
         self._limits = limits
         self._direction = direction
@@ -75,6 +76,7 @@ class Clip3dTool(ipw.HBox):
         self.visible = True
         self._plain_update = plain_update
         self._throttled_update = throttled_update
+        self._border_visible = border_visible
 
         w_axis = 2 if self._direction == 'x' else 0
         h_axis = 2 if self._direction == 'y' else 1
@@ -127,6 +129,7 @@ class Clip3dTool(ipw.HBox):
             pos = list(center)
             pos[axis] = val
             outline.position = pos
+            outline.visible = self._border_visible
 
         self.unit_label = ipw.Label(f'[{self._unit}]')
         self.cut_visible.on_click(self.toggle)
@@ -140,7 +143,7 @@ class Clip3dTool(ipw.HBox):
         """
         self.visible = not self.visible
         for outline in self.outlines:
-            outline.visible = self.visible
+            outline.visible = self.visible and self._border_visible
         self.slider.disabled = not self.visible
         owner.icon = 'eye-slash' if self.visible else 'eye'
         owner.tooltip = 'Hide cut' if self.visible else 'Show cut'
@@ -152,6 +155,10 @@ class Clip3dTool(ipw.HBox):
         """
         for outline in self.outlines:
             outline.visible = value
+        # The call to this function comes from the parent widget, so we need to
+        # remember the state of the button, so that when we toggle the visbiility of
+        # the cut, the border visbility is in sync with the parent button.
+        self._border_visible = value
 
     def move(self, value: Dict[str, Any]):
         """
@@ -296,6 +303,7 @@ class ClippingPlanes(ipw.HBox):
             limits=self._limits,
             plain_update=self.update_state,
             throttled_update=self.throttled_update,
+            border_visible=self.cut_borders_visibility.value,
         )
         self._view.canvas.add(cut.outlines)
         self.cuts.append(cut)
