@@ -48,10 +48,8 @@ class Clip3dTool(ipw.HBox):
         The spatial extent of the points in the 3d figure in the XYZ directions.
     direction:
         The direction normal to the slice.
-    plain_update:
-        A function to update the scene without debouncing.
-    throttled_update:
-        A function to update the scene with debouncing.
+    update:
+        A function to update the scene.
     color:
         Color of the cut's outline.
     linewidth:
@@ -62,8 +60,7 @@ class Clip3dTool(ipw.HBox):
         self,
         limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
         direction: Literal['x', 'y', 'z'],
-        plain_update: Callable,
-        throttled_update: Callable,
+        update: Callable,
         color: str = 'red',
         linewidth: float = 1.5,
         border_visible: bool = True,
@@ -74,8 +71,7 @@ class Clip3dTool(ipw.HBox):
         self.dim = self._limits[axis].dim
         self._unit = self._limits[axis].unit
         self.visible = True
-        self._plain_update = plain_update
-        self._throttled_update = throttled_update
+        self._update = update
         self._border_visible = border_visible
 
         w_axis = 2 if self._direction == 'x' else 0
@@ -147,7 +143,7 @@ class Clip3dTool(ipw.HBox):
         self.slider.disabled = not self.visible
         owner.icon = 'eye-slash' if self.visible else 'eye'
         owner.tooltip = 'Hide cut' if self.visible else 'Show cut'
-        self._plain_update()
+        self._update()
 
     def toggle_border(self, value: bool):
         """
@@ -183,6 +179,10 @@ class Clip3dTool(ipw.HBox):
         return sc.scalar(self.slider.value[0], unit=self._unit), sc.scalar(
             self.slider.value[1], unit=self._unit
         )
+
+    @debounce(0.3)
+    def _throttled_update(self):
+        self._update()
 
 
 class ClippingPlanes(ipw.HBox):
@@ -301,8 +301,7 @@ class ClippingPlanes(ipw.HBox):
         cut = Clip3dTool(
             direction=direction,
             limits=self._limits,
-            plain_update=self.update_state,
-            throttled_update=self.throttled_update,
+            update=self.update_state,
             border_visible=self.cut_borders_visibility.value,
         )
         self._view.canvas.add(cut.outlines)
@@ -399,7 +398,3 @@ class ClippingPlanes(ipw.HBox):
                 else:
                     self._nodes[n.id]['select'].func = lambda: selection  # noqa: B023
                 self._nodes[n.id]['select'].notify_children("")
-
-    @debounce(0.3)
-    def throttled_update(self):
-        self.update_state()
