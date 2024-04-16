@@ -62,6 +62,8 @@ filterwarnings = [
   'ignore:Passing unrecognized arguments to super:DeprecationWarning',
   'ignore:Jupyter is migrating its paths:DeprecationWarning',
   'ignore:setDaemon\(\) is deprecated, set the daemon attribute instead:DeprecationWarning',
+  'ignore:TriCutTool is deprecated::',
+  'ignore:Cut3dTool is deprecated::',
 ]
 
 [tool.bandit]

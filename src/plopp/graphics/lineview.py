@@ -122,6 +122,28 @@ def linefigure(*args, **kwargs):
     Create a figure to represent one-dimensional data from one or more graph node(s).
 
     .. versionadded:: 24.04.0
+
+    Examples
+    --------
+    Create an input node and attach a ``linefigure`` as a view:
+
+      >>> da = pp.data.data1d()
+      >>> in_node = pp.Node(da)
+      >>> fig = pp.linefigure(in_node)
+
+    Visualize two data arrays on the same figure:
+
+      >>> a = pp.data.data1d()
+      >>> b = 3 * a
+      >>> a_node = pp.Node(a)
+      >>> b_node = pp.Node(b)
+      >>> fig = pp.linefigure(a_node, b_node)
+
+    With a customization argument to make the vertical scale logarithmic:
+
+      >>> da = pp.data.data1d()
+      >>> in_node = pp.Node(da)
+      >>> fig = pp.linefigure(in_node, norm='log')
     """
 
     return backends.figure2d(LineView, *args, **kwargs)

@@ -10,11 +10,13 @@ import numpy as np
 import scipp as sc
 
 from ..core import View, node
+from ..utils import deprecated
 from .debounce import debounce
 from .style import BUTTON_LAYOUT
 from .tools import PlusMinusTool
 
 
+@deprecated("Use ``Clip3dTool`` instead.")
 class Cut3dTool(ipw.HBox):
     """
     A tool that provides a slider to extract a plane of points in a three-dimensional
@@ -220,10 +222,13 @@ class Cut3dTool(ipw.HBox):
         self._add_cut()
 
 
+@deprecated("Use ``ClippingPlanes`` instead.")
 class TriCutTool(ipw.HBox):
     """
     A collection of :class:`Cut3dTool` to make spatial cuts in the X, Y, and Z
     directions on a three-dimensional scatter plot.
+
+    .. deprecated:: v24.04.0
 
     Parameters
     ----------
