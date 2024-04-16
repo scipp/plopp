@@ -38,6 +38,7 @@ docs/generated/
 *.raw
 *.cif
 *.rcif
+*.ort
 
 # Images
 *.png
