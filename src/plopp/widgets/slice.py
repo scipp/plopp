@@ -112,6 +112,8 @@ class RangeSliceWidget(_BaseSliceWidget):
     Each slider also comes with a checkbox to toggle on and off the slider's continuous
     update.
 
+    .. versionadded:: 24.04.0
+
     Parameters
     ----------
     da:
