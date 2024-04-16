@@ -8,9 +8,7 @@ from .core.typing import VisibleDeprecationWarning
 
 
 def deprecated(message: str = '') -> Callable:
-
     def decorator(function: Callable) -> Callable:
-
         def wrapper(*args, **kwargs):
             warnings.warn(
                 f'{function.__name__} is deprecated. {message}',
