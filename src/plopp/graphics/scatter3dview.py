@@ -192,6 +192,20 @@ def scatter3dfigure(*args, **kwargs):
     Create a figure to represent three-dimensional data from one or more graph node(s).
 
     .. versionadded:: 24.04.0
+
+    Examples
+    --------
+    Create an input node and attach a ``scatter3dfigure`` as a view:
+
+      >>> da = pp.data.scatter()
+      >>> in_node = pp.Node(da)
+      >>> fig = pp.scatter3dfigure(in_node)
+
+    With a customization argument to make the color scale logarithmic:
+
+      >>> da = pp.data.scatter()
+      >>> in_node = pp.Node(da)
+      >>> fig = pp.scatter3dfigure(in_node, norm='log')
     """
 
     return backends.figure3d(Scatter3dView, *args, **kwargs)

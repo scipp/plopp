@@ -94,6 +94,20 @@ def scatterfigure(*args, **kwargs):
     Create a figure to represent scatter data from one or more graph node(s).
 
     .. versionadded:: 24.04.0
+
+    Examples
+    --------
+    Create an input node and attach a ``scatterfigure`` as a view:
+
+      >>> da = pp.data.scatter()
+      >>> in_node = pp.Node(da)
+      >>> fig = pp.scatterfigure(in_node)
+
+    A scatter figure with a color bar (using the data values for the color scale):
+
+      >>> da = pp.data.scatter()
+      >>> in_node = pp.Node(da)
+      >>> fig = pp.scatterfigure(in_node, cbar=True)
     """
 
     return backends.figure2d(ScatterView, *args, **kwargs)

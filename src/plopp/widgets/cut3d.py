@@ -225,6 +225,8 @@ class TriCutTool(ipw.HBox):
     A collection of :class:`Cut3dTool` to make spatial cuts in the X, Y, and Z
     directions on a three-dimensional scatter plot.
 
+    .. deprecated:: v24.04.0
+
     Parameters
     ----------
     fig:
