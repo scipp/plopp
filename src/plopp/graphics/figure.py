@@ -1,22 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import warnings
 from typing import Literal
 
 from .. import backends
-from ..core.typing import VisibleDeprecationWarning
+from ..utils import deprecated
 
 
-def _warn_deprecated(func_name: str, new_func_name: str):
-    warnings.warn(
-        f'The function `{func_name}` is deprecated and will be removed in a future '
-        f'version. Use `{new_func_name}` instead.',
-        VisibleDeprecationWarning,
-        stacklevel=2,
-    )
-
-
+@deprecated('Use ``linefigure`` instead.')
 def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     """
     Create a figure to represent one-dimensional data from one or more graph node(s).
@@ -53,8 +44,6 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
       >>> fig = pp.figure1d(in_node, norm='log')
     """
 
-    _warn_deprecated('figure1d', 'linefigure')
-
     if style == 'line':
         from .lineview import LineView
 
@@ -63,6 +52,7 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     raise ValueError(f'Unsupported style={style} for figure1d.')
 
 
+@deprecated('Use ``imagefigure`` instead.')
 def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     """
     Create a figure to represent two-dimensional data from a graph node.
@@ -91,8 +81,6 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
       >>> fig = pp.figure2d(in_node, norm='log')
     """
 
-    _warn_deprecated('figure2d', 'imagefigure')
-
     if style == 'image':
         from .imageview import ImageView
 
@@ -101,6 +89,7 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     raise ValueError(f'Unsupported style={style} for figure2d.')
 
 
+@deprecated('Use ``scatter3dfigure`` instead.')
 def figure3d(*args, style: Literal['scatter'] = 'scatter', **kwargs):
     """
     Create a figure to represent three-dimensional data from a graph node.
@@ -128,8 +117,6 @@ def figure3d(*args, style: Literal['scatter'] = 'scatter', **kwargs):
       >>> in_node = pp.Node(da)
       >>> fig = pp.figure3d(in_node, norm='log')
     """
-
-    _warn_deprecated('figure3d', 'scatter3dfigure')
 
     if style == 'scatter':
         from .scatter3dview import Scatter3dView
