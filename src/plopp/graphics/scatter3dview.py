@@ -7,6 +7,7 @@ import scipp as sc
 
 from .. import backends
 from ..core import View
+from ..core.typing import FigureLike
 from ..core.utils import make_compatible
 from .camera import Camera
 from .colormapper import ColorMapper
@@ -187,7 +188,7 @@ class Scatter3dView(View):
         del self.artists[key]
 
 
-def scatter3dfigure(*args, **kwargs):
+def scatter3dfigure(*args, **kwargs) -> FigureLike:
     """
     Create a figure to represent three-dimensional data from one or more graph node(s).
 

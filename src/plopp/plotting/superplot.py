@@ -3,7 +3,7 @@
 
 from typing import Optional
 
-from ..core.typing import Plottable
+from ..core.typing import FigureLike, Plottable
 from .common import require_interactive_backend
 from .slicer import Slicer
 
@@ -12,7 +12,7 @@ def superplot(
     obj: Plottable,
     keep: Optional[str] = None,
     **kwargs,
-):
+) -> FigureLike:
     """
     Plot a multi-dimensional object as a one-dimensional line, slicing all but one
     dimension. This will produce one slider per sliced dimension, below the figure.

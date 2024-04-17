@@ -7,7 +7,7 @@ from typing import Literal, Optional, Tuple, Union
 
 import scipp as sc
 
-from ..core.typing import PlottableMulti
+from ..core.typing import FigureLike, PlottableMulti
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
 
@@ -47,7 +47,7 @@ def scatter(
     cbar: bool = False,
     cmap: str = 'viridis',
     **kwargs,
-):
+) -> FigureLike:
     """
     Make a two-dimensional scatter plot.
 
