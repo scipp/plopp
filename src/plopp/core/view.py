@@ -5,6 +5,8 @@ import uuid
 from abc import abstractmethod
 from typing import Any, Dict
 
+from .node import Node
+
 
 class View:
     """
@@ -19,7 +21,7 @@ class View:
         The nodes that are attached to the view.
     """
 
-    def __init__(self, *nodes):
+    def __init__(self, *nodes: Node) -> None:
         self._id = uuid.uuid4().hex
         self.graph_nodes = {}
         for node in nodes:
@@ -27,13 +29,13 @@ class View:
         self.artists = {}
 
     @property
-    def id(self):
+    def id(self) -> str:
         """
         The unique id of the view.
         """
         return self._id
 
-    def notify_view(self, message: Dict[str, Any]):
+    def notify_view(self, message: Dict[str, Any]) -> None:
         """
         When a notification is received, request data from the corresponding parent node
         and update the relevant artist.
@@ -48,14 +50,14 @@ class View:
         self.update(**{node_id: new_values})
 
     @abstractmethod
-    def update(self, *args, **kwargs):
+    def update(self, *args: Any, **kwargs: Any) -> None:
         """
         Update function which is called when a notification is received.
         This has to be overridden by any child class.
         """
         ...
 
-    def render(self):
+    def render(self) -> None:
         """
         At the end of figure creation, this function is called to request data from
         all parent nodes and draw the figure.
