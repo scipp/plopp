@@ -16,7 +16,6 @@ from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normal
 from ..backends.matplotlib.utils import fig_to_bytes
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
-from .common import args_to_update
 
 
 def _get_cmap(name: str, nan_color: str = None) -> Colormap:
@@ -234,7 +233,7 @@ class ColorMapper:
         by either supplying a dictionary of new data or by keyword arguments.
         We also update the colorbar widget if it exists.
         """
-        new = args_to_update(*args, **kwargs)
+        new = dict(*args, **kwargs)
         for key, data in new.items():
             if self.name is None:
                 self.name = data.name
