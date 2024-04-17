@@ -9,7 +9,7 @@ from typing import List, Literal, Optional, Union
 from scipp.typing import VariableLike
 
 from ..core import widget_node
-from ..core.typing import PlottableMulti
+from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
 from .common import (
     input_to_nodes,
@@ -151,7 +151,7 @@ def slicer(
     vmin: Union[VariableLike, int, float] = None,
     vmax: Union[VariableLike, int, float] = None,
     **kwargs,
-):
+) -> FigureLike:
     """
     Plot a multi-dimensional object by slicing one or more of the dimensions.
     This will produce one slider per sliced dimension, below the figure.

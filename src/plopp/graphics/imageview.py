@@ -6,6 +6,7 @@ from typing import Dict, Literal, Optional, Tuple, Union
 import scipp as sc
 
 from .. import backends
+from ..core.typing import FigureLike
 from .colormapper import ColorMapper
 from .graphicalview import GraphicalView
 
@@ -114,7 +115,7 @@ class ImageView(GraphicalView):
         return backends.image(canvas=self.canvas, data=new_values, **self._kwargs)
 
 
-def imagefigure(*args, **kwargs):
+def imagefigure(*args, **kwargs) -> FigureLike:
     """
     Create a figure to represent two-dimensional data from one or more graph node(s).
 

@@ -8,7 +8,7 @@ from typing import Optional, Tuple, Union
 import numpy as np
 from matplotlib import gridspec
 
-from ..protocols import FigureLike
+from ...core.typing import FigureLike
 from .static import get_repr_maker
 from .utils import copy_figure, is_interactive_backend, make_figure
 
@@ -73,9 +73,11 @@ class Tiled:
         self.nrows = nrows
         self.ncols = ncols
         self.fig = make_figure(
-            figsize=(min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
-            if figsize is None
-            else figsize,
+            figsize=(
+                (min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
+                if figsize is None
+                else figsize
+            ),
             layout='constrained',
         )
 

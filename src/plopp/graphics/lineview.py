@@ -6,6 +6,7 @@ from typing import Dict, Literal, Optional, Tuple, Union
 import scipp as sc
 
 from .. import backends
+from ..core.typing import FigureLike
 from .graphicalview import GraphicalView
 
 
@@ -117,7 +118,7 @@ class LineView(GraphicalView):
         )
 
 
-def linefigure(*args, **kwargs):
+def linefigure(*args, **kwargs) -> FigureLike:
     """
     Create a figure to represent one-dimensional data from one or more graph node(s).
 

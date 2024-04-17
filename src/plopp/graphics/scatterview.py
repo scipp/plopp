@@ -6,6 +6,7 @@ from typing import Dict, Literal, Optional, Tuple, Union
 import scipp as sc
 
 from .. import backends
+from ..core.typing import FigureLike
 from .colormapper import ColorMapper
 from .graphicalview import GraphicalView
 
@@ -89,7 +90,7 @@ class ScatterView(GraphicalView):
         )
 
 
-def scatterfigure(*args, **kwargs):
+def scatterfigure(*args, **kwargs) -> FigureLike:
     """
     Create a figure to represent scatter data from one or more graph node(s).
 

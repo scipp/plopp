@@ -7,7 +7,7 @@ from typing import Literal, Tuple, Union
 import matplotlib as mpl
 from matplotlib.pyplot import Figure, _get_backend_mod
 
-from ..protocols import FigureLike
+from ...core.typing import FigureLike
 
 
 def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:

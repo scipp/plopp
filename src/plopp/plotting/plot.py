@@ -6,7 +6,7 @@ from typing import Dict, List, Literal, Optional, Tuple, Union
 
 from scipp import Variable
 
-from ..core.typing import PlottableMulti
+from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
 from .common import input_to_nodes, preprocess, raise_multiple_inputs_for_2d_plot_error
 
@@ -30,7 +30,7 @@ def plot(
     autoscale: Literal['auto', 'grow'] = 'auto',
     legend: Union[bool, Tuple[float, float]] = True,
     **kwargs,
-):
+) -> FigureLike:
     """Plot a Scipp object.
 
     Parameters

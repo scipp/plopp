@@ -7,6 +7,7 @@ import scipp as sc
 from numpy import ndarray
 
 from ..core import Node
+from ..core.typing import FigureLike
 from ..graphics import linefigure
 from .common import to_variable
 
@@ -30,7 +31,7 @@ def xyplot(
     x: Union[sc.Variable, ndarray, list, Node],
     y: Union[sc.Variable, ndarray, list, Node],
     **kwargs,
-):
+) -> FigureLike:
     """
     Make a one-dimensional plot of one variable ``y`` as a function of another ``x``.
 
