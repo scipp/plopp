@@ -7,6 +7,7 @@ from typing import Dict, Protocol, Tuple, Union
 
 import scipp as sc
 from numpy import ndarray
+from scipp.typing import VariableLike
 
 from .node import Node
 
@@ -21,7 +22,7 @@ class VisibleDeprecationWarning(UserWarning):
 
 VisibleDeprecationWarning.__module__ = 'plopp'
 
-Plottable = Union[sc.VariableLike, ndarray, Node]
+Plottable = Union[VariableLike, ndarray, Node]
 
 PlottableMulti = Union[Plottable, Dict[str, Plottable]]
 
