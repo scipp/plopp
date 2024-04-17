@@ -140,25 +140,30 @@ def slice_dims(data_array: sc.DataArray, slices: Dict[str, slice]) -> sc.DataArr
     """
     out = data_array
     for dim, sl in slices.items():
+        if isinstance(sl, tuple):
+            sl = slice(*sl)
         out = out[dim, sl]
     return out
 
 
 @node
-def range_slice_dims_sum(
-    data_array: sc.DataArray, slices: Dict[str, slice]
-) -> sc.DataArray:
+def operation_dim(data_array: sc.DataArray, operation: str, dim: str) -> sc.DataArray:
     """
-    Slice the data according to input slices and sum over the sliced dimensions.
+    Apply an operation like `sum`, `mean`, `max` to the input data array
+    along a specified dimension. This can be used when you use the `RangeSliceWidget`
+    widget to slice the data.
 
     Parameters
     ----------
     data_array:
-        The input data array to be sliced.
-    slices:
-        Dict of slices to apply for each dimension.
+        The input data array to apply the operation to.
+    operation:
+        The operation to apply to the input data array. It
+        should be valid scipp operation like `sum`, `mean`, `max`, `min`
+        and a string.
+    dim:
+        The dimension to apply the operation to.
     """
-    out = data_array
-    for dim, sl in slices.items():
-        out = out[dim, slice(*sl)].sum(dim=dim)
+    operation = getattr(sc, operation)
+    out = operation(data_array, dim=dim)
     return out
