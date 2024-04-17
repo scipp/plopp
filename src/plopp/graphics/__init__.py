@@ -12,3 +12,21 @@ from .lineview import LineView, linefigure
 from .scatter3dview import Scatter3dView, scatter3dfigure
 from .scatterview import ScatterView, scatterfigure
 from .tiled import tiled
+
+__all__ = [
+    'BaseFig',
+    'Camera',
+    'ColorMapper',
+    'ImageView',
+    'Scatter3dView',
+    'ScatterView',
+    'figure1d',
+    'figure2d',
+    'figure3d',
+    'imagefigure',
+    'LineView',
+    'linefigure',
+    'scatter3dfigure',
+    'scatterfigure',
+    'tiled',
+]

@@ -32,7 +32,7 @@ from .plotting import inspector, plot, scatter, scatter3d, slicer, superplot, xy
 del importlib
 
 
-def show():
+def show() -> None:
     """
     A function to display all the currently opened figures (note that this only applies
     to the figures created via the Matplotlib backend).

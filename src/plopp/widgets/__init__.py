@@ -12,3 +12,25 @@ from .linesave import LineSaveTool
 from .slice import SliceWidget, slice_dims
 from .toolbar import Toolbar, make_toolbar_canvas2d, make_toolbar_canvas3d
 from .tools import ButtonTool, ColorTool, ToggleTool
+
+__all__ = [
+    "Box",
+    "ButtonTool",
+    "Checkboxes",
+    "Clip3dTool",
+    "ClippingPlanes",
+    "ColorTool",
+    "Cut3dTool",
+    "DrawingTool",
+    "HBar",
+    "LineSaveTool",
+    "PointsTool",
+    "SliceWidget",
+    "ToggleTool",
+    "Toolbar",
+    "TriCutTool",
+    "VBar",
+    "make_toolbar_canvas2d",
+    "make_toolbar_canvas3d",
+    "slice_dims",
+]

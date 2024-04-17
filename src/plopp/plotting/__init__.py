@@ -10,3 +10,13 @@ from .scatter3d import scatter3d
 from .slicer import slicer
 from .superplot import superplot
 from .xyplot import xyplot
+
+__all__ = [
+    'inspector',
+    'plot',
+    'scatter',
+    'scatter3d',
+    'slicer',
+    'superplot',
+    'xyplot',
+]
