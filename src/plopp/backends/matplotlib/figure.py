@@ -35,6 +35,20 @@ class Figure(BaseFig):
         """
         return self._view.canvas.cax
 
+    def save(self, filename, **kwargs):
+        """
+        Save the figure to file.
+        The default directory for writing the file is the same as the
+        directory where the script or notebook is running.
+
+        Parameters
+        ----------
+        filename:
+            Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
+            ``.svg``, and ``.pdf``.
+        """
+        return self._view.canvas.save(filename, **kwargs)
+
     def __add__(self, other):
         from .tiled import hstack
 

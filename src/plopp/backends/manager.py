@@ -80,6 +80,13 @@ class BackendManager:
             raise ValueError(f'Unsupported backend \'{self["2d"]}\' for image (2D).')
         return _image(*args, **kwargs)
 
+    def scatter(self, *args, **kwargs):
+        try:
+            _scatter = self._backends['2d'].scatter
+        except AttributeError:
+            raise ValueError(f'Unsupported backend \'{self["2d"]}\' for scatter.')
+        return _scatter(*args, **kwargs)
+
     def point_cloud(self, *args, **kwargs):
         try:
             _point_cloud = self._backends['3d'].point_cloud

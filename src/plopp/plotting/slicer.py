@@ -9,8 +9,8 @@ from typing import List, Literal, Optional, Union
 from scipp.typing import VariableLike
 
 from ..core import widget_node
-from ..core.typing import PlottableMulti
-from ..graphics import figure1d, figure2d
+from ..core.typing import FigureLike, PlottableMulti
+from ..graphics import imagefigure, linefigure
 from .common import (
     input_to_nodes,
     preprocess,
@@ -125,23 +125,21 @@ class Slicer:
 
         ndims = len(keep)
         if ndims == 1:
-            make_figure = figure1d
+            make_figure = linefigure
         elif ndims == 2:
             if len(self.slice_nodes) > 1:
                 raise_multiple_inputs_for_2d_plot_error(origin='slicer')
-            make_figure = figure2d
+            make_figure = imagefigure
         else:
             raise ValueError(
                 f'Slicer plot: the number of dims to be kept must be 1 or 2, '
                 f'but {ndims} were requested.'
             )
+
         self.figure = make_figure(
-            *self.slice_nodes,
-            autoscale=autoscale,
-            vmin=vmin,
-            vmax=vmax,
-            **kwargs,
+            *self.slice_nodes, autoscale=autoscale, vmin=vmin, vmax=vmax, **kwargs
         )
+        self.figure.bottom_bar.add(self.slider)
 
 
 def slicer(
@@ -153,7 +151,7 @@ def slicer(
     vmin: Union[VariableLike, int, float] = None,
     vmax: Union[VariableLike, int, float] = None,
     **kwargs,
-):
+) -> FigureLike:
     """
     Plot a multi-dimensional object by slicing one or more of the dimensions.
     This will produce one slider per sliced dimension, below the figure.
@@ -181,14 +179,9 @@ def slicer(
         The maximum value of the y-axis (1d plots) or color range (2d plots).
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
-
-    Returns
-    -------
-    :
-        A :class:`Box` which will contain a :class:`Figure` and slider widgets.
     """
     require_interactive_backend('slicer')
-    sl = Slicer(
+    return Slicer(
         obj,
         keep=keep,
         autoscale=autoscale,
@@ -196,7 +189,4 @@ def slicer(
         vmax=vmax,
         coords=coords,
         **kwargs,
-    )
-    from ..widgets import Box
-
-    return Box([sl.figure, sl.slider])
+    ).figure

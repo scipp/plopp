@@ -6,8 +6,8 @@ from typing import Dict, List, Literal, Optional, Tuple, Union
 
 from scipp import Variable
 
-from ..core.typing import PlottableMulti
-from ..graphics import figure1d, figure2d
+from ..core.typing import FigureLike, PlottableMulti
+from ..graphics import imagefigure, linefigure
 from .common import input_to_nodes, preprocess, raise_multiple_inputs_for_2d_plot_error
 
 
@@ -30,7 +30,7 @@ def plot(
     autoscale: Literal['auto', 'grow'] = 'auto',
     legend: Union[bool, Tuple[float, float]] = True,
     **kwargs,
-):
+) -> FigureLike:
     """Plot a Scipp object.
 
     Parameters
@@ -115,7 +115,7 @@ def plot(
         )
     ndim = ndims.pop()
     if ndim == 1:
-        return figure1d(
+        return linefigure(
             *nodes,
             errorbars=errorbars,
             mask_color=mask_color,
@@ -125,7 +125,7 @@ def plot(
     elif ndim == 2:
         if len(nodes) > 1:
             raise_multiple_inputs_for_2d_plot_error(origin='plot')
-        return figure2d(
+        return imagefigure(
             *nodes,
             aspect=aspect,
             cbar=cbar,

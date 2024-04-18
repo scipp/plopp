@@ -8,7 +8,7 @@ import scipp as sc
 from ..core import Node
 from ..core.typing import Plottable
 from ..core.utils import coord_as_bin_edges
-from ..graphics import figure1d, figure2d
+from ..graphics import imagefigure, linefigure
 from .common import preprocess, require_interactive_backend
 
 
@@ -92,8 +92,8 @@ def inspector(
         dim = data.dims[-1]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
-    f2d = figure2d(op_node, **kwargs)
-    f1d = figure1d()
+    f2d = imagefigure(op_node, **kwargs)
+    f1d = linefigure()
 
     from ..widgets import Box, PointsTool
 

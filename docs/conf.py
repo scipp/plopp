@@ -4,12 +4,9 @@
 import doctest
 import os
 import sys
-
-import plopp
+from importlib.metadata import version as get_version
 
 sys.path.insert(0, os.path.abspath('.'))
-
-from _typehints import typehints_formatter_for  # noqa: E402
 
 # General information about the project.
 project = u'Plopp'
@@ -26,6 +23,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
     'sphinx_autodoc_typehints',
     'sphinx_copybutton',
     'sphinx_design',
@@ -33,6 +31,14 @@ extensions = [
     'sphinx_gallery.load_style',
     'myst_parser',
 ]
+
+try:
+    import sciline.sphinxext.domain_types  # noqa: F401
+
+    extensions.append('sciline.sphinxext.domain_types')
+except ModuleNotFoundError:
+    pass
+
 
 myst_enable_extensions = [
     "amsmath",
@@ -77,7 +83,18 @@ napoleon_type_aliases = {
 }
 typehints_defaults = 'comma'
 typehints_use_rtype = False
-typehints_formatter = typehints_formatter_for('plopp')
+
+
+sciline_domain_types_prefix = 'plopp'
+sciline_domain_types_aliases = {
+    'scipp._scipp.core.DataArray': 'scipp.DataArray',
+    'scipp._scipp.core.Dataset': 'scipp.Dataset',
+    'scipp._scipp.core.DType': 'scipp.DType',
+    'scipp._scipp.core.Unit': 'scipp.Unit',
+    'scipp._scipp.core.Variable': 'scipp.Variable',
+    'scipp.core.data_group.DataGroup': 'scipp.DataGroup',
+}
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -96,10 +113,8 @@ master_doc = 'index'
 # built documents.
 #
 
-# The short X.Y version.
-version = plopp.__version__
-# The full version, including alpha/beta/rc tags.
-release = plopp.__version__
+release = get_version("plopp")
+version = ".".join(release.split('.')[:3])  # CalVer
 
 warning_is_error = True
 
@@ -232,6 +247,7 @@ gallery_notebooks = [
     'peeling-layers',
     'tiled-random-samples',
     'polar-plots',
+    'updating-scatter',
 ]
 nbsphinx_thumbnails = {
     os.path.join(notebook_root, notebook): os.path.join(

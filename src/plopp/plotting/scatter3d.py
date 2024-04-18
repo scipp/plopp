@@ -3,41 +3,30 @@
 
 import uuid
 from functools import partial
-from typing import Dict, Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Tuple, Union
 
 import scipp as sc
 
-from ..core.typing import PlottableMulti
+from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
 
-def _to_variable(
-    var: Union[str, sc.Variable], coords: Dict[str, sc.Variable]
-) -> sc.Variable:
-    return coords[var] if isinstance(var, str) else var
-
-
 def _preprocess_scatter(
     obj: PlottableMulti,
-    x: Union[str, sc.Variable],
-    y: Union[str, sc.Variable],
-    z: Union[str, sc.Variable],
-    pos: Union[str, sc.Variable],
+    x: str,
+    y: str,
+    z: str,
+    pos: Optional[str],
     name: Optional[str] = None,
 ) -> sc.DataArray:
     da = from_compatible_lib(obj)
     check_not_binned(da)
 
     if pos is not None:
-        pos = _to_variable(pos, coords=da.coords)
-        coords = {
-            x: pos.fields.x,
-            y: pos.fields.y,
-            z: pos.fields.z,
-        }
+        coords = {k: getattr(da.coords[pos].fields, k) for k in (x, y, z)}
     else:
-        coords = {k: _to_variable(k, coords=da.coords) for k in (x, y, z)}
+        coords = {k: da.coords[k] for k in (x, y, z)}
 
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
     if out.ndim != 1:
@@ -62,7 +51,7 @@ def scatter3d(
     cmap: str = 'viridis',
     camera: Optional[Camera] = None,
     **kwargs,
-):
+) -> FigureLike:
     """Make a three-dimensional scatter plot.
 
     To specify the positions of the scatter points, you can use:
@@ -106,8 +95,8 @@ def scatter3d(
     :
         A three-dimensional interactive scatter plot.
     """
-    from ..graphics import figure3d
-    from ..widgets import Box, ToggleTool, TriCutTool
+    from ..graphics import scatter3dfigure
+    from ..widgets import ClippingPlanes, ToggleTool
 
     if 'ax' in kwargs:
         raise ValueError(
@@ -120,7 +109,7 @@ def scatter3d(
         obj, processor=partial(_preprocess_scatter, x=x, y=y, z=z, pos=pos)
     )
 
-    fig = figure3d(
+    fig = scatter3dfigure(
         *nodes,
         x=x,
         y=y,
@@ -134,10 +123,11 @@ def scatter3d(
         camera=camera,
         **kwargs,
     )
-    tri_cutter = TriCutTool(fig)
+    clip_planes = ClippingPlanes(fig)
     fig.toolbar['cut3d'] = ToggleTool(
-        callback=tri_cutter.toggle_visibility,
-        icon='cube',
+        callback=clip_planes.toggle_visibility,
+        icon='layer-group',
         tooltip='Hide/show spatial cutting tool',
     )
-    return Box([fig, tri_cutter])
+    fig.bottom_bar.add(clip_planes)
+    return fig

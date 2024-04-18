@@ -7,7 +7,8 @@ from .basefig import BaseFig
 from .camera import Camera
 from .colormapper import ColorMapper
 from .figure import figure1d, figure2d, figure3d
-from .imageview import ImageView
-from .lineview import LineView
-from .scatter3dview import Scatter3dView
+from .imageview import ImageView, imagefigure
+from .lineview import LineView, linefigure
+from .scatter3dview import Scatter3dView, scatter3dfigure
+from .scatterview import ScatterView, scatterfigure
 from .tiled import tiled

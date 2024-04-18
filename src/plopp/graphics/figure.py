@@ -4,13 +4,17 @@
 from typing import Literal
 
 from .. import backends
+from ..utils import deprecated
 
 
+@deprecated('Use ``linefigure`` instead.')
 def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     """
     Create a figure to represent one-dimensional data from one or more graph node(s).
     By default, this will return a figure built from :class:`LineView` (see the
     documentation of this class for a list of available customization arguments).
+
+    .. deprecated:: v24.04.0
 
     Parameters
     ----------
@@ -48,11 +52,14 @@ def figure1d(*args, style: Literal['line'] = 'line', **kwargs):
     raise ValueError(f'Unsupported style={style} for figure1d.')
 
 
+@deprecated('Use ``imagefigure`` instead.')
 def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     """
     Create a figure to represent two-dimensional data from a graph node.
     By default, this will return a figure built from :class:`ImageView` (see the
     documentation of this class for a list of available customization arguments).
+
+    .. deprecated:: v24.04.0
 
     Parameters
     ----------
@@ -82,11 +89,14 @@ def figure2d(*args, style: Literal['image'] = 'image', **kwargs):
     raise ValueError(f'Unsupported style={style} for figure2d.')
 
 
+@deprecated('Use ``scatter3dfigure`` instead.')
 def figure3d(*args, style: Literal['scatter'] = 'scatter', **kwargs):
     """
     Create a figure to represent three-dimensional data from a graph node.
     By default, this will return a figure built from :class:`FigScatter3d` (see the
     documentation of this class for a list of available customization arguments).
+
+    .. deprecated:: v24.04.0
 
     Parameters
     ----------
