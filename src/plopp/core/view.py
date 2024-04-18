@@ -1,11 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+from __future__ import annotations
 
 import uuid
 from abc import abstractmethod
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
-from .node import Node
+if TYPE_CHECKING:
+    from .node import Node
 
 
 class View:
