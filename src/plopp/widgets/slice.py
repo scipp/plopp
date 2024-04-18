@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Union
 
 import ipywidgets as ipw
 import scipp as sc
@@ -78,7 +78,7 @@ class _BaseSliceWidget(VBar):
             self.controls[dim]['slider'].observe(callback, **kwargs)
 
     @property
-    def value(self) -> Dict[str, int | tuple[int]]:
+    def value(self) -> Dict[str, Union[int, tuple[int]]]:
         """
         The widget value, as a dict containing the dims as keys and the slider indices
         as values.
@@ -143,27 +143,4 @@ def slice_dims(data_array: sc.DataArray, slices: Dict[str, slice]) -> sc.DataArr
         if isinstance(sl, tuple):
             sl = slice(*sl)
         out = out[dim, sl]
-    return out
-
-
-@node
-def operation_dim(data_array: sc.DataArray, operation: str, dim: str) -> sc.DataArray:
-    """
-    Apply an operation like `sum`, `mean`, `max` to the input data array
-    along a specified dimension. This can be used when you use the `RangeSliceWidget`
-    widget to slice the data.
-
-    Parameters
-    ----------
-    data_array:
-        The input data array to apply the operation to.
-    operation:
-        The operation to apply to the input data array. It
-        should be valid scipp operation like `sum`, `mean`, `max`, `min`
-        and a string.
-    dim:
-        The dimension to apply the operation to.
-    """
-    operation = getattr(sc, operation)
-    out = operation(data_array, dim=dim)
     return out

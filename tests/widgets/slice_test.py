@@ -5,7 +5,7 @@ import pytest
 from scipp import identical
 
 from plopp.data.testing import data_array
-from plopp.widgets import RangeSliceWidget, SliceWidget, operation_dim, slice_dims
+from plopp.widgets import RangeSliceWidget, SliceWidget, slice_dims
 
 
 @pytest.mark.parametrize("widget", [SliceWidget, RangeSliceWidget])
@@ -49,11 +49,8 @@ def test_slice_dims():
     assert identical(slice_dims().func(da, slices=slices), expected)
 
 
-def test_operation_dim():
+def test_range_slice_dims():
     da = data_array(ndim=3)
-    slices = {'xx': (8, 19)}
-    sliced_da = da['xx', slice(*slices['xx'])]
-    expected = sliced_da.sum(dim='xx')
-    assert identical(
-        operation_dim().func(sliced_da, operation='sum', dim='xx'), expected
-    )
+    slices = {'xx': (8, 9), 'yy': (7, 10)}
+    expected = da['xx', slice(*slices['xx'])]['yy', slice(*slices['yy'])]
+    assert identical(slice_dims().func(da, slices=slices), expected)
