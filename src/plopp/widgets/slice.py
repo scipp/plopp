@@ -78,7 +78,7 @@ class _BaseSliceWidget(VBar):
             self.controls[dim]['slider'].observe(callback, **kwargs)
 
     @property
-    def value(self) -> Dict[str, int] | Dict[str, tuple[int]]:
+    def value(self) -> Dict[str, int | tuple[int]]:
         """
         The widget value, as a dict containing the dims as keys and the slider indices
         as values.
