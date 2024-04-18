@@ -3,7 +3,6 @@
 
 from ..core import Node, View
 from ..core.utils import make_compatible, name_with_unit
-from .common import args_to_update
 
 
 class GraphicalView(View):
@@ -26,7 +25,7 @@ class GraphicalView(View):
         new data or by keyword arguments.
         """
 
-        new = args_to_update(*args, **kwargs)
+        new = dict(*args, **kwargs)
         for key, new_values in new.items():
             if new_values.ndim != self._ndim:
                 raise ValueError(
