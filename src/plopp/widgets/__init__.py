@@ -23,6 +23,7 @@ __all__ = [
     "HBar",
     "LineSaveTool",
     "PointsTool",
+    "RangeSliceWidget",
     "SliceWidget",
     "ToggleTool",
     "Toolbar",
