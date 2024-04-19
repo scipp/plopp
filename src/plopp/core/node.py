@@ -10,7 +10,7 @@ from typing import Any, List, Union
 from .view import View
 
 
-def _no_replace_append(container: List[Node], item: Node, kind: str):
+def _no_replace_append(container: List[Node], item: Node, kind: str) -> None:
     """
     Append ``item`` to ``container`` if it is not already in it.
     """
@@ -38,7 +38,7 @@ class Node:
         Keyword arguments that represent the keyword arguments of the function ``func``.
     """
 
-    def __init__(self, func: Any, *parents, **kwparents):
+    def __init__(self, func: Any, *parents: Any, **kwparents: Any) -> None:
         func_is_callable = callable(func)
         self._input_value = None
         if func_is_callable:
@@ -73,7 +73,7 @@ class Node:
         for parent in chain(self.parents, self.kwparents.values()):
             _no_replace_append(parent.children, self, 'child')
 
-    def __call__(self):
+    def __call__(self) -> Any:
         return self.request_data()
 
     @property
@@ -98,7 +98,7 @@ class Node:
         """
         return self._input_value is not None
 
-    def remove(self):
+    def remove(self) -> None:
         """
         Remove the node from the graph.
         This attempts to remove clear the list of parents of the node.
@@ -132,7 +132,7 @@ class Node:
             self._data = self.func(*args, **kwargs)
         return self._data
 
-    def add_parents(self, *parents: Node):
+    def add_parents(self, *parents: Node) -> None:
         """
         Add one or more parents to the node.
         """
@@ -140,7 +140,7 @@ class Node:
             _no_replace_append(self.parents, parent, 'parent')
             _no_replace_append(parent.children, self, 'child')
 
-    def add_kwparents(self, **parents: Node):
+    def add_kwparents(self, **parents: Node) -> None:
         """
         Add one or more keyword parents to the node.
         """
@@ -148,14 +148,14 @@ class Node:
             self.kwparents[key] = parent
             _no_replace_append(parent.children, self, 'child')
 
-    def add_view(self, view: View):
+    def add_view(self, view: View) -> None:
         """
         Add a view to the node.
         """
         _no_replace_append(self.views, view, 'view')
         view.graph_nodes[self.id] = self
 
-    def notify_children(self, message: Any):
+    def notify_children(self, message: Any) -> None:
         """
         Notify all of the node's children with ``message``.
         Receiving a notification also means that the local copy of the data is
@@ -171,7 +171,7 @@ class Node:
         for child in self.children:
             child.notify_children(message)
 
-    def notify_views(self, message: Any):
+    def notify_views(self, message: Any) -> None:
         """
         Notify the node's views with ``message``.
 

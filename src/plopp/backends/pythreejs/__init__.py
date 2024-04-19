@@ -32,3 +32,6 @@ class PythreejsBackend:
         from .figure import Figure as FigP3js
 
         return FigP3js(*args, **kwargs)
+
+
+__all__ = ["PythreejsBackend"]

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple, Union
+from typing import Any, Optional, Tuple, Union
 
 import numpy as np
 from matplotlib import gridspec
@@ -68,8 +68,8 @@ class Tiled:
         nrows: int,
         ncols: int,
         figsize: Optional[Tuple[float, float]] = None,
-        **kwargs,
-    ):
+        **kwargs: Any,
+    ) -> None:
         self.nrows = nrows
         self.ncols = ncols
         self.fig = make_figure(
@@ -90,7 +90,7 @@ class Tiled:
         self,
         inds: Union[int, slice, Tuple[int, int], Tuple[slice, slice]],
         view: FigureLike,
-    ):
+    ) -> None:
         new_view = copy_figure(view, ax=self.fig.add_subplot(self.gs[inds]))
         self.views[inds] = new_view
         self._history.append((inds, new_view))
@@ -114,7 +114,7 @@ class Tiled:
             out.update(get_repr_maker(npoints=npoints)(self.fig))
             return out
 
-    def save(self, filename: str, **kwargs):
+    def save(self, filename: str, **kwargs: Any) -> None:
         """
         Save the figure to file.
         The default directory for writing the file is the same as the
@@ -128,7 +128,7 @@ class Tiled:
         """
         self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
 
-    def show(self):
+    def show(self) -> None:
         """
         Make a call to Matplotlib's underlying ``show`` function.
         """

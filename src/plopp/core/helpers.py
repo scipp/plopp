@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Callable
+from typing import Any, Callable
 
 from .node import Node
 
@@ -17,7 +17,7 @@ def node(func: Callable) -> Callable:
         The callable to create the :class:`Node`.
     """
 
-    def make_node(*args, **kwargs):
+    def make_node(*args: Any, **kwargs: Any) -> None:
         return Node(func, *args, **kwargs)
 
     return make_node
