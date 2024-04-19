@@ -38,7 +38,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 scipp = ["scipp"]
-all = ["scipp", "ipympl", "pythreejs", "mpltoolbox"]
+all = ["scipp", "ipympl", "pythreejs", "mpltoolbox", "ipywidgets", "graphviz"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/scipp/plopp/issues"

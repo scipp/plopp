@@ -32,3 +32,6 @@ class PlotlyBackend:
         from .figure import Figure as FigPlotly
 
         return FigPlotly(*args, **kwargs)
+
+
+__all__ = ["PlotlyBackend"]

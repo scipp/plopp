@@ -11,7 +11,6 @@ from ..core.typing import FigureLike
 from ..core.utils import make_compatible
 from .camera import Camera
 from .colormapper import ColorMapper
-from .common import args_to_update
 
 
 class Scatter3dView(View):
@@ -97,7 +96,7 @@ class Scatter3dView(View):
         Update the view with new point clouds by either supplying a dictionary of
         new data or by keyword arguments.
         """
-        new = args_to_update(*args, **kwargs)
+        new = dict(*args, **kwargs)
         mapping = {'x': self._x, 'y': self._y, 'z': self._z}
         for key, new_values in new.items():
             if self.canvas.empty:

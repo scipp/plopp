@@ -75,3 +75,6 @@ class MatplotlibBackend:
         from .tiled import Tiled as TiledMpl
 
         return TiledMpl(*args, **kwargs)
+
+
+__all__ = ["MatplotlibBackend"]
