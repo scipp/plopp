@@ -61,6 +61,7 @@
    widgets.Box
    widgets.Checkboxes
    widgets.HBar
+   widgets.RangeSliceWidget
    widgets.SliceWidget
    widgets.VBar
 
