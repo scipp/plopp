@@ -7,7 +7,7 @@ from .clip3d import Clip3dTool, ClippingPlanes
 from .cut3d import Cut3dTool, TriCutTool
 from .drawing import DrawingTool, PointsTool
 from .linesave import LineSaveTool
-from .slice import SliceWidget, slice_dims
+from .slice import RangeSliceWidget, SliceWidget, slice_dims
 from .toolbar import Toolbar, make_toolbar_canvas2d, make_toolbar_canvas3d
 from .tools import ButtonTool, ColorTool, ToggleTool
 
@@ -23,6 +23,7 @@ __all__ = [
     "HBar",
     "LineSaveTool",
     "PointsTool",
+    "RangeSliceWidget",
     "SliceWidget",
     "ToggleTool",
     "Toolbar",
