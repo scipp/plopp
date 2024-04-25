@@ -16,9 +16,15 @@ jobs:
           python-version: '3.X'
       - run: pip install copier
       - run: copier update --skip-answered --vcs-ref=HEAD --conflict=rej
+      # The PR is created by a machine account (scipp-bot) and it is pushed to it's own fork
+      # to make sure we don't grant too much access to this bot account.
+      # More details are available at:
+      # https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#push-pull-request-branches-to-a-fork
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
+          token: ${{ secrets.SCIPP_BOT_PAT }}
+          push-to-fork: scipp-bot/plopp
           title: '[CRON] Sync with copier template'
           body: |
             This PR updates the project to the latest version of scipp's [copier-template](https://github.com/scipp/copier_template).

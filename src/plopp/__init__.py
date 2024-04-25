@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
-
-# flake8: noqa E402
+# ruff: noqa: E402, F401
 
 import importlib.metadata
 
