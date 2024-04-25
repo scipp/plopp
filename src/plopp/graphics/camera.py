@@ -10,7 +10,7 @@ from ..core.utils import maybe_variable_to_number
 
 
 def _vector_to_tuple(
-    vector: Union[sc.Variable, Sequence[sc.Variable], Sequence[float]]
+    vector: Union[sc.Variable, Sequence[sc.Variable], Sequence[float]],
 ) -> Tuple[Union[sc.Variable, float], ...]:
     if isinstance(vector, sc.Variable):
         return (vector.fields.x, vector.fields.y, vector.fields.z)
