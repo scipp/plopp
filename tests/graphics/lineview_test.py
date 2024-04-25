@@ -35,7 +35,7 @@ def test_create_with_node():
     da = data_array(ndim=1)
     fig = LineView(Node(da))
     assert len(fig.artists) == 1
-    line = list(fig.artists.values())[0]
+    line = next(iter(fig.artists.values()))
     assert sc.identical(line._data, da)
     assert line._error is None
 
@@ -44,10 +44,10 @@ def test_with_errorbars():
     da = data_array(ndim=1, variances=True)
     fig = LineView(Node(da))
     assert len(fig.artists) == 1
-    line = list(fig.artists.values())[0]
+    line = next(iter(fig.artists.values()))
     assert line._error is not None
     fig = LineView(Node(da), errorbars=False)
-    line = list(fig.artists.values())[0]
+    line = next(iter(fig.artists.values()))
     assert line._error is None
 
 
@@ -55,7 +55,7 @@ def test_with_binedges():
     da = data_array(ndim=1, binedges=True)
     fig = LineView(Node(da))
     assert len(fig.artists) == 1
-    line = list(fig.artists.values())[0]
+    line = next(iter(fig.artists.values()))
     assert sc.identical(line._data, da)
     xdata = line._line.get_xdata()
     assert np.allclose(xdata, da.coords['xx'].values)
@@ -73,7 +73,7 @@ def test_update_grows_limits():
     da = data_array(ndim=1)
     fig = LineView(Node(da))
     old_lims = fig.canvas.yrange
-    key = list(fig.artists.keys())[0]
+    key = next(iter(fig.artists.keys()))
     fig.update({key: da * 2.5})
     new_lims = fig.canvas.yrange
     assert new_lims[0] < old_lims[0]
@@ -84,7 +84,7 @@ def test_update_does_shrink_limits_if_auto_mode():
     da = data_array(ndim=1)
     fig = LineView(Node(da), autoscale='auto')
     old_lims = fig.canvas.yrange
-    key = list(fig.artists.keys())[0]
+    key = next(iter(fig.artists.keys()))
     const = 0.5
     fig.update({key: da * const})
     new_lims = fig.canvas.yrange
@@ -96,7 +96,7 @@ def test_update_does_not_shrink_limits_if_grow_mode():
     da = data_array(ndim=1)
     fig = LineView(Node(da), autoscale='grow')
     old_lims = fig.canvas.yrange
-    key = list(fig.artists.keys())[0]
+    key = next(iter(fig.artists.keys()))
     fig.update({key: da * 0.5})
     new_lims = fig.canvas.yrange
     assert new_lims[0] == old_lims[0]

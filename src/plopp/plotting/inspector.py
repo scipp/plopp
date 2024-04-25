@@ -36,7 +36,7 @@ def _slice_xy(da: sc.DataArray, xy: Dict[str, Dict[str, int]]) -> sc.DataArray:
 
 def inspector(
     obj: Plottable,
-    dim: str = None,
+    dim: str | None = None,
     *,
     operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
     orientation: Literal['horizontal', 'vertical'] = 'horizontal',

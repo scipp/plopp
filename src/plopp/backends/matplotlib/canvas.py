@@ -19,15 +19,13 @@ def _to_floats(x: np.ndarray) -> np.ndarray:
     return mdates.date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
 
 
-def _none_if_not_finite(x: Union[float, int, None]) -> Union[float, int, None]:
+def _none_if_not_finite(x: Union[float, None]) -> Union[float, None]:
     if x is None:
         return None
     return x if np.isfinite(x) else None
 
 
-def _cursor_value_to_variable(
-    x: Union[float, int], dtype: sc.DType, unit: str
-) -> sc.Variable:
+def _cursor_value_to_variable(x: float, dtype: sc.DType, unit: str) -> sc.Variable:
     if dtype == sc.DType.datetime64:
         # Annoying chain of conversion but matplotlib has its own way of converting
         # dates to numbers (number of days since epoch), and num2date returns a python
@@ -38,7 +36,7 @@ def _cursor_value_to_variable(
     return sc.scalar(x, unit=unit)
 
 
-def _cursor_formatter(x: Union[float, int], dtype: sc.DType, unit: str) -> str:
+def _cursor_formatter(x: float, dtype: sc.DType, unit: str) -> str:
     if dtype == sc.DType.datetime64:
         return mdates.num2date(x).replace(tzinfo=None).isoformat()
     return scalar_to_string(sc.scalar(x, unit=unit))
@@ -90,10 +88,10 @@ class Canvas:
         ax: plt.Axes = None,
         cax: plt.Axes = None,
         figsize: Optional[Tuple[float, float]] = None,
-        title: str = None,
+        title: str | None = None,
         grid: bool = False,
-        vmin: Union[sc.Variable, int, float] = None,
-        vmax: Union[sc.Variable, int, float] = None,
+        vmin: Union[sc.Variable, float] = None,
+        vmax: Union[sc.Variable, float] = None,
         autoscale: Literal['auto', 'grow'] = 'auto',
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
@@ -218,7 +216,7 @@ class Canvas:
                 line_y = sc.DataArray(
                     data=sc.array(
                         dims=['x', 'y'],
-                        values=np.array([s for (s, l) in zip(segments, lengths) if l])[
+                        values=np.array([s for (s, L) in zip(segments, lengths) if L])[
                             ..., 1
                         ],
                     ),

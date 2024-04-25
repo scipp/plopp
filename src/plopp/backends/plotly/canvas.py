@@ -38,10 +38,10 @@ class Canvas:
 
     def __init__(
         self,
-        figsize: Tuple[float, float] = None,
-        title: str = None,
-        vmin: Union[sc.Variable, int, float] = None,
-        vmax: Union[sc.Variable, int, float] = None,
+        figsize: Tuple[float, float] | None = None,
+        title: str | None = None,
+        vmin: Union[sc.Variable, float] = None,
+        vmax: Union[sc.Variable, float] = None,
         autoscale: Literal['auto', 'grow'] = 'auto',
         **ignored,
     ):

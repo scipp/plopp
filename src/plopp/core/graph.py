@@ -17,7 +17,7 @@ def _make_graphviz_digraph(*args, **kwargs):
             "Failed to import `graphviz`. "
             "Use `pip install graphviz` (requires installed `graphviz` executable) or "
             "`conda install -c conda-forge python-graphviz`."
-        )
+        ) from None
     return Digraph(*args, **kwargs)
 
 
@@ -119,7 +119,7 @@ def show_graph(entry: Union[Node, View], **kwargs):
     labels = {}
     # If input is a View, get the underlying node
     if hasattr(entry, 'graph_nodes'):
-        entry = list(entry.graph_nodes.values())[0]
+        entry = next(iter(entry.graph_nodes.values()))
     _walk_graph(
         start=entry,
         nodes=nodes,

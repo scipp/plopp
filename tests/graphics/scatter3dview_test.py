@@ -13,7 +13,7 @@ def test_creation():
     da = scatter()
     fig = Scatter3dView(Node(da), x='x', y='y', z='z')
     assert len(fig.artists) == 1
-    key = list(fig.artists.keys())[0]
+    key = next(iter(fig.artists.keys()))
     assert sc.identical(fig.artists[key]._data, da)
 
 
@@ -21,7 +21,7 @@ def test_update():
     da = scatter()
     fig = Scatter3dView(Node(da), x='x', y='y', z='z')
     assert len(fig.artists) == 1
-    key = list(fig.artists.keys())[0]
+    key = next(iter(fig.artists.keys()))
     fig.update({key: da * 3.3})
     assert sc.identical(fig.artists[key]._data, da * 3.3)
 

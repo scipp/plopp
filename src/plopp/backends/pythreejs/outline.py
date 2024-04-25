@@ -77,7 +77,9 @@ class Outline(p3.Group):
     """
 
     def __init__(
-        self, limits: Tuple[Variable, Variable, Variable], tick_size: float = None
+        self,
+        limits: Tuple[Variable, Variable, Variable],
+        tick_size: float | None = None,
     ):
         center = [var.mean().value for var in limits]
         if tick_size is None:

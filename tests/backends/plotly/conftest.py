@@ -7,7 +7,7 @@ import plopp as pp
 
 
 @pytest.fixture(autouse=True, scope='module')
-def use_plotly():
+def _use_plotly():
     pp.backends['2d'] = 'plotly'
     yield
     pp.backends.reset()

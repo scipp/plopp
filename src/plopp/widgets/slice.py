@@ -26,16 +26,16 @@ class _BaseSliceWidget(VBar):
                 if dim in da.coords
                 else sc.arange(dim, da.sizes[dim], unit=None)
             )
-            widget_args = dict(
-                step=1,
-                description=dim,
-                min=0,
-                max=da.sizes[dim] - 1,
-                continuous_update=True,
-                readout=False,
-                layout={"width": "200px"},
-                style={'description_width': 'initial'},
-            )
+            widget_args = {
+                'step': 1,
+                'description': dim,
+                'min': 0,
+                'max': da.sizes[dim] - 1,
+                'continuous_update': True,
+                'readout': False,
+                'layout': {'width': '200px'},
+                'style': {'description_width': 'initial'},
+            }
             if range:
                 slider = ipw.IntRangeSlider(**widget_args)
             else:

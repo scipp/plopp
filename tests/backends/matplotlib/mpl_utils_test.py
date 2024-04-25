@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+import pytest
 
 from plopp import Node
 from plopp.backends.matplotlib.interactive import InteractiveFig
@@ -42,9 +43,11 @@ def test_copy_static_keeps_kwargs():
     do_test_copy_keeps_kwargs(StaticFig)
 
 
-def test_copy_interactive(use_ipympl):
+@pytest.mark.usefixtures("_use_ipympl")
+def test_copy_interactive():
     do_test_copy(InteractiveFig)
 
 
-def test_copy_interactive_keeps_kwargs(use_ipympl):
+@pytest.mark.usefixtures("_use_ipympl")
+def test_copy_interactive_keeps_kwargs():
     do_test_copy_keeps_kwargs(InteractiveFig)

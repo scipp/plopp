@@ -7,13 +7,13 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def reset_mpl_defaults():
+def _reset_mpl_defaults():
     matplotlib.rcdefaults()
     matplotlib.use('Agg')
 
 
 @pytest.fixture(autouse=True)
-def close_figures():
+def _close_figures():
     """
     Force closing all figures after each test case.
     Otherwise, the figures consume a lot of memory and matplotlib complains.
@@ -23,8 +23,8 @@ def close_figures():
         plt.close(fig)
 
 
-@pytest.fixture
-def use_ipympl():
+@pytest.fixture()
+def _use_ipympl():
     matplotlib.use('module://ipympl.backend_nbagg')
 
 

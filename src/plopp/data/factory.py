@@ -139,7 +139,7 @@ def data_array(
     return sc.DataArray(data=data, coords=coord_dict, masks=mask_dict)
 
 
-def dataset(entries: List[str] = None, **kwargs) -> sc.Dataset:
+def dataset(entries: List[str] | None = None, **kwargs) -> sc.Dataset:
     """
     Generate a sample ``Dataset``. See :func:`data_array` for more options.
 

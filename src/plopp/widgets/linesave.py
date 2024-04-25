@@ -40,7 +40,7 @@ class LineSaveTool(VBar):
     def _update_container(self):
         self.container.children = [line['tool'] for line in self._lines.values()]
 
-    def save_line(self, change: Dict[str, Any] = None):
+    def save_line(self, change: Dict[str, Any] | None = None):
         from ..widgets import ColorTool
 
         data = self._data_node.request_data()

@@ -21,7 +21,7 @@ class ButtonTool(ipw.Button):
         All other kwargs are forwarded to ipywidgets.Button.
     """
 
-    def __init__(self, callback: Callable = None, **kwargs):
+    def __init__(self, callback: Callable | None = None, **kwargs):
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
         self.callback = callback
         self.on_click(self)
@@ -109,8 +109,8 @@ class MultiToggleTool(ipw.VBox):
         callback: Callable,
         options: List[str],
         icons: Optional[List[str]] = None,
-        tooltips: List[str] = None,
-        descriptions: List[str] = None,
+        tooltips: List[str] | None = None,
+        descriptions: List[str] | None = None,
         value: Optional[str] = None,
         **kwargs,
     ):
@@ -196,7 +196,7 @@ class PanZoomTool(MultiToggleTool):
         Set the initially selected button. No button selected if ``None``.
     """
 
-    def __init__(self, callback: Callable, value: bool = None, **kwargs):
+    def __init__(self, callback: Callable, value: bool | None = None, **kwargs):
         self._callback = callback
         super().__init__(
             callback=self._panzoom,

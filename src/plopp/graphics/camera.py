@@ -95,13 +95,13 @@ class Camera:
             The unit of the z axis.
         """
         self._parsed_contents = {}
-        for key in set(self._raw_contents) & set(('position', 'look_at')):
+        for key in set(self._raw_contents) & {'position', 'look_at'}:
             self._parsed_contents[key] = tuple(
                 maybe_variable_to_number(x, unit=u)
                 for x, u in zip(self._raw_contents[key], [xunit, yunit, zunit])
             )
 
-        for key in set(self._raw_contents) & set(('near', 'far')):
+        for key in set(self._raw_contents) & {'near', 'far'}:
             if isinstance(self._raw_contents[key], sc.Variable):
                 if not (xunit == yunit == zunit):
                     raise sc.UnitError(

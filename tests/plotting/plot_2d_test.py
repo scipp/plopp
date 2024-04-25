@@ -94,7 +94,7 @@ def test_save_to_disk_2d(ext):
 def test_save_to_disk_with_bad_extension_raises():
     da = data_array(ndim=2)
     fig = pp.plot(da)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Format 'txt' is not supported"):
         fig.save(filename='plopp_fig2d.txt')
 
 

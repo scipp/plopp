@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 import numpy as np
+import pytest
 import scipp as sc
 
 from plopp.backends.matplotlib import MatplotlibBackend
@@ -17,7 +18,8 @@ def test_create_static_fig1d():
     assert isinstance(fig, StaticFig)
 
 
-def test_create_interactive_fig1d(use_ipympl):
+@pytest.mark.usefixtures("_use_ipympl")
+def test_create_interactive_fig1d():
     b = MatplotlibBackend()
     fig = b.figure1d(View=LineView)
     assert isinstance(fig, InteractiveFig)
@@ -29,7 +31,8 @@ def test_create_static_fig2d():
     assert isinstance(fig, StaticFig)
 
 
-def test_create_interactive_fig2d(use_ipympl):
+@pytest.mark.usefixtures("_use_ipympl")
+def test_create_interactive_fig2d():
     b = MatplotlibBackend()
     fig = b.figure2d(View=ImageView)
     assert isinstance(fig, InteractiveFig)

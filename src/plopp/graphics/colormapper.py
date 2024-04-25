@@ -18,7 +18,7 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
 
 
-def _get_cmap(name: str, nan_color: str = None) -> Colormap:
+def _get_cmap(name: str, nan_color: str | None = None) -> Colormap:
     """
     Get a colormap object from a colormap name.
 
@@ -99,8 +99,8 @@ class ColorMapper:
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
         autoscale: Literal['auto', 'grow'] = 'auto',
-        vmin: Optional[Union[sc.Variable, int, float]] = None,
-        vmax: Optional[Union[sc.Variable, int, float]] = None,
+        vmin: Optional[Union[sc.Variable, float]] = None,
+        vmax: Optional[Union[sc.Variable, float]] = None,
         nan_color: Optional[str] = None,
         figsize: Optional[Tuple[float, float]] = None,
     ):
