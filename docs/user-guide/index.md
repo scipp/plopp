@@ -89,6 +89,12 @@ getting-started/saving-figures
 
 ::::{grid} 3
 
+:::{grid-item-card} Density plot
+:link: plot-types/density-plot.ipynb
+:img-bottom: ../_static/plot-types/density-plot.png
+
+:::
+
 :::{grid-item-card} Scatter 3D plot
 :link: plot-types/scatter3d-plot.ipynb
 :img-bottom: ../_static/plot-types/scatter3d-plot.png

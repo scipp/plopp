@@ -15,6 +15,7 @@
    scatter
    scatter3d
    xyplot
+   density_plot
 ```
 
 ## Core
