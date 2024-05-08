@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Callable, Dict, List, Literal, Optional, Tuple, Union
 
 from scipp import Variable
 
@@ -29,6 +29,7 @@ def plot(
     vmax: Optional[Union[Variable, int, float]] = None,
     autoscale: Literal['auto', 'grow'] = 'auto',
     legend: Union[bool, Tuple[float, float]] = True,
+    preprocessor: Optional[Callable] = None,
     **kwargs,
 ) -> FigureLike:
     """Plot a Scipp object.
@@ -75,6 +76,9 @@ def plot(
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
+    preprocessor:
+        A function that takes the input object and returns a data array. This can be
+        used to preprocess the input data before plotting.
     **kwargs:
         All other kwargs are directly forwarded to Matplotlib, the underlying plotting
         library. The underlying functions called are the following:
@@ -102,7 +106,9 @@ def plot(
     }
 
     nodes = input_to_nodes(
-        obj, processor=partial(preprocess, ignore_size=ignore_size, coords=coords)
+        obj,
+        processor=preprocessor
+        or partial(preprocess, ignore_size=ignore_size, coords=coords),
     )
 
     ndims = set()

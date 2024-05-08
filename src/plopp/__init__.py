@@ -27,7 +27,16 @@ from .graphics import (
     scatterfigure,
     tiled,
 )
-from .plotting import inspector, plot, scatter, scatter3d, slicer, superplot, xyplot
+from .plotting import (
+    density_plot,
+    inspector,
+    plot,
+    scatter,
+    scatter3d,
+    slicer,
+    superplot,
+    xyplot,
+)
 
 del importlib
 
@@ -50,6 +59,7 @@ __all__ = [
     'View',
     'backends',
     'data',
+    'density_plot',
     'figure1d',
     'figure2d',
     'figure3d',

@@ -178,9 +178,9 @@ def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
         data=sc.array(dims=['row'], values=values, unit='K'),
         coords={
             'position': vec,
-            'x': vec.fields.x,
-            'y': vec.fields.y,
-            'z': vec.fields.z,
+            'x': vec.fields.x.copy(),
+            'y': vec.fields.y.copy(),
+            'z': vec.fields.z.copy(),
         },
     )
 
