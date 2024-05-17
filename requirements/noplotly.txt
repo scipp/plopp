@@ -9,51 +9,45 @@
 -r basetest.txt
 asttokens==2.4.1
     # via stack-data
-backcall==0.2.0
-    # via ipython
-comm==0.2.1
+comm==0.2.2
     # via ipywidgets
 decorator==5.1.1
     # via ipython
 executing==2.0.1
     # via stack-data
-ipython==8.9.0
-    # via
-    #   -c constraints.in
-    #   ipywidgets
-ipywidgets==8.1.1
+ipython==8.24.0
+    # via ipywidgets
+ipywidgets==8.1.2
     # via -r noplotly.in
 jedi==0.19.1
     # via ipython
-jupyterlab-widgets==3.0.9
+jupyterlab-widgets==3.0.10
     # via ipywidgets
-matplotlib-inline==0.1.6
+matplotlib-inline==0.1.7
     # via ipython
-parso==0.8.3
+parso==0.8.4
     # via jedi
 pexpect==4.9.0
     # via ipython
-pickleshare==0.7.5
+prompt-toolkit==3.0.43
     # via ipython
-prompt-toolkit==3.0.36
-    # via
-    #   -c constraints.in
-    #   ipython
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pygments==2.17.2
+pygments==2.18.0
     # via ipython
 stack-data==0.6.3
     # via ipython
-traitlets==5.14.1
+traitlets==5.14.3
     # via
     #   comm
     #   ipython
     #   ipywidgets
     #   matplotlib-inline
+typing-extensions==4.11.0
+    # via ipython
 wcwidth==0.2.13
     # via prompt-toolkit
-widgetsnbextension==4.0.9
+widgetsnbextension==4.0.10
     # via ipywidgets

@@ -7,55 +7,54 @@
 #
 asttokens==2.4.1
     # via stack-data
-backcall==0.2.0
-    # via ipython
-comm==0.2.1
+comm==0.2.2
     # via ipywidgets
-contourpy==1.2.0
+contourpy==1.2.1
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
 decorator==5.1.1
     # via ipython
+exceptiongroup==1.2.1
+    # via ipython
 executing==2.0.1
     # via stack-data
-fonttools==4.47.2
+fonttools==4.51.0
     # via matplotlib
-graphviz==0.20.1
+graphviz==0.20.3
     # via -r optional.in
 ipydatawidgets==4.3.5
     # via pythreejs
-ipympl==0.9.3
+ipympl==0.9.4
     # via -r optional.in
-ipython==8.9.0
+ipython==8.24.0
     # via
-    #   -c constraints.in
     #   ipympl
     #   ipywidgets
 ipython-genutils==0.2.0
     # via ipympl
-ipywidgets==8.1.1
+ipywidgets==8.1.2
     # via
     #   ipydatawidgets
     #   ipympl
     #   pythreejs
 jedi==0.19.1
     # via ipython
-jupyterlab-widgets==3.0.9
+jupyterlab-widgets==3.0.10
     # via ipywidgets
 kaleido==0.2.1
     # via -r optional.in
 kiwisolver==1.4.5
     # via matplotlib
-matplotlib==3.8.2
+matplotlib==3.9.0
     # via
     #   ipympl
     #   mpltoolbox
-matplotlib-inline==0.1.6
+matplotlib-inline==0.1.7
     # via ipython
-mpltoolbox==23.9.0
+mpltoolbox==24.5.0
     # via -r optional.in
-numpy==1.26.3
+numpy==1.26.4
     # via
     #   contourpy
     #   ipydatawidgets
@@ -67,42 +66,38 @@ numpy==1.26.3
     #   pythreejs
     #   scipy
     #   xarray
-packaging==23.2
+packaging==24.0
     # via
     #   matplotlib
     #   plotly
     #   xarray
-pandas==2.2.0
+pandas==2.2.2
     # via
     #   -r optional.in
     #   xarray
-parso==0.8.3
+parso==0.8.4
     # via jedi
 pexpect==4.9.0
     # via ipython
-pickleshare==0.7.5
-    # via ipython
-pillow==10.2.0
+pillow==10.3.0
     # via
     #   ipympl
     #   matplotlib
-plotly==5.18.0
+plotly==5.22.0
     # via -r optional.in
-prompt-toolkit==3.0.36
-    # via
-    #   -c constraints.in
-    #   ipython
+prompt-toolkit==3.0.43
+    # via ipython
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
     # via stack-data
-pyarrow==15.0.0
+pyarrow==16.1.0
     # via -r optional.in
-pygments==2.17.2
+pygments==2.18.0
     # via ipython
-pyparsing==3.1.1
+pyparsing==3.1.2
     # via matplotlib
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   matplotlib
     #   pandas
@@ -110,7 +105,7 @@ pythreejs==2.4.2
     # via -r optional.in
 pytz==2024.1
     # via pandas
-scipy==1.12.0
+scipy==1.13.0
     # via -r optional.in
 six==1.16.0
     # via
@@ -118,9 +113,9 @@ six==1.16.0
     #   python-dateutil
 stack-data==0.6.3
     # via ipython
-tenacity==8.2.3
+tenacity==8.3.0
     # via plotly
-traitlets==5.14.1
+traitlets==5.14.3
     # via
     #   comm
     #   ipympl
@@ -131,11 +126,13 @@ traitlets==5.14.1
     #   traittypes
 traittypes==0.2.1
     # via ipydatawidgets
-tzdata==2023.4
+typing-extensions==4.11.0
+    # via ipython
+tzdata==2024.1
     # via pandas
 wcwidth==0.2.13
     # via prompt-toolkit
-widgetsnbextension==4.0.9
+widgetsnbextension==4.0.10
     # via ipywidgets
-xarray==2024.1.1
+xarray==2024.5.0
     # via -r optional.in
