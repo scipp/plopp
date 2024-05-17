@@ -93,7 +93,7 @@ def data_array(
         List of dimension labels to use if no ``dims`` are provided.
     """
 
-    coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K']))
+    coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K'], strict=True))
 
     data = variable(
         ndim=ndim,

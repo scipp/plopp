@@ -99,8 +99,8 @@ class ColorMapper:
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
         autoscale: Literal['auto', 'grow'] = 'auto',
-        vmin: sc.Variable | int | float | None = None,
-        vmax: sc.Variable | int | float | None = None,
+        vmin: sc.Variable | float | None = None,
+        vmax: sc.Variable | float | None = None,
         nan_color: str | None = None,
         figsize: tuple[float, float] | None = None,
     ):

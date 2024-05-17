@@ -122,7 +122,7 @@ class Clip3dTool(ipw.HBox):
             layout={'width': '16px', 'padding': '0px'},
         )
 
-        for outline, val in zip(self.outlines, self.slider.value):
+        for outline, val in zip(self.outlines, self.slider.value, strict=True):
             pos = list(center)
             pos[axis] = val
             outline.position = pos
@@ -168,7 +168,7 @@ class Clip3dTool(ipw.HBox):
             < 0.01 * self.slider.step
         ):
             return
-        for outline, val in zip(self.outlines, value['new']):
+        for outline, val in zip(self.outlines, value['new'], strict=True):
             pos = list(outline.position)
             axis = 'xyz'.index(self._direction)
             pos[axis] = val

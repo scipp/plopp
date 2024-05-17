@@ -217,7 +217,11 @@ class Canvas:
                     data=sc.array(
                         dims=['x', 'y'],
                         values=np.array(
-                            [s for (s, length) in zip(segments, lengths) if length]
+                            [
+                                s
+                                for (s, length) in zip(segments, lengths, strict=True)
+                                if length
+                            ]
                         )[..., 1],
                     ),
                     masks={'mask': line_mask},

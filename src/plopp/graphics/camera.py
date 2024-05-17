@@ -94,7 +94,9 @@ class Camera:
         for key in set(self._raw_contents) & {'position', 'look_at'}:
             self._parsed_contents[key] = tuple(
                 maybe_variable_to_number(x, unit=u)
-                for x, u in zip(self._raw_contents[key], [xunit, yunit, zunit])
+                for x, u in zip(
+                    self._raw_contents[key], [xunit, yunit, zunit], strict=True
+                )
             )
 
         for key in set(self._raw_contents) & {'near', 'far'}:
