@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Optional
 
 import numpy as np
 import scipp as sc
@@ -22,7 +21,7 @@ class Scatter:
         data: sc.DataArray,
         x: str = 'x',
         y: str = 'y',
-        size: Optional[str] = None,
+        size: str | None = None,
         number: int = 0,
         mask_color: str = 'black',
         cbar: bool = False,

@@ -3,13 +3,12 @@
 
 import uuid
 from functools import reduce
-from typing import Dict, Optional, Union
 
 import scipp as sc
 
 
 def coord_as_bin_edges(
-    da: sc.DataArray, key: str, dim: Optional[str] = None
+    da: sc.DataArray, key: str, dim: str | None = None
 ) -> sc.Variable:
     """
     If coordinate ``key`` in DataArray ``da`` is already bin edges, return it unchanged.
@@ -72,7 +71,7 @@ def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
 
 
 def maybe_number_to_variable(
-    x: Union[float, sc.Variable], unit: Optional[str] = None
+    x: float | sc.Variable, unit: str | None = None
 ) -> sc.Variable:
     """
     If the input is a raw number, convert to a variable.
@@ -88,14 +87,12 @@ def maybe_number_to_variable(
     """
     return (
         sc.scalar(x, unit=unit)
-        if isinstance(x, (int, float))
+        if isinstance(x, int | float)
         else (x.to(unit=unit) if unit is not None else x)
     )
 
 
-def maybe_variable_to_number(
-    x: Union[float, sc.Variable], unit=None
-) -> Union[int, float]:
+def maybe_variable_to_number(x: float | sc.Variable, unit=None) -> int | float:
     """
     If the input is a variable, return its value.
     If a unit is requested, perform the conversion to that unit first.
@@ -115,7 +112,7 @@ def maybe_variable_to_number(
     return x
 
 
-def name_with_unit(var: sc.Variable, name: Optional[str] = None) -> str:
+def name_with_unit(var: sc.Variable, name: str | None = None) -> str:
     """
     Make a string from a variable dimension and its unit.
     The variable dimension can be overridden by specifying the ``name`` directly.
@@ -138,7 +135,7 @@ def name_with_unit(var: sc.Variable, name: Optional[str] = None) -> str:
     return text
 
 
-def value_to_string(val: Union[float], precision: int = 3) -> str:
+def value_to_string(val: float, precision: int = 3) -> str:
     """
     Convert a number to a human readable string.
 
@@ -156,7 +153,7 @@ def value_to_string(val: Union[float], precision: int = 3) -> str:
     ):
         text = "{val:.{prec}e}".format(val=val, prec=precision)
     else:
-        text = "{}".format(val)
+        text = str(val)
         if len(text) > precision + 2 + (text[0] == '-'):
             text = "{val:.{prec}f}".format(val=val, prec=precision)
     return text
@@ -179,7 +176,7 @@ def scalar_to_string(var: sc.Variable, precision: int = 3) -> str:
     return out
 
 
-def merge_masks(masks: Dict[str, sc.Variable]) -> sc.Variable:
+def merge_masks(masks: dict[str, sc.Variable]) -> sc.Variable:
     """
     Combine all masks into a single one using the OR operation.
 
@@ -209,9 +206,7 @@ def coord_element_to_string(x: sc.Variable) -> str:
     return out
 
 
-def make_compatible(
-    x: sc.Variable, *, unit: Union[str, None], dim: Optional[str] = None
-):
+def make_compatible(x: sc.Variable, *, unit: str | None, dim: str | None = None):
     """
     Raise exception if the dimensions of the supplied variable do not contain the
     requested dimension.

@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from collections.abc import Sequence
-from typing import Any, Optional, Tuple, Union
+from typing import Any
 
 import scipp as sc
 
@@ -10,8 +10,8 @@ from ..core.utils import maybe_variable_to_number
 
 
 def _vector_to_tuple(
-    vector: Union[sc.Variable, Sequence[sc.Variable], Sequence[float]],
-) -> Tuple[Union[sc.Variable, float], ...]:
+    vector: sc.Variable | Sequence[sc.Variable] | Sequence[float],
+) -> tuple[sc.Variable | float, ...]:
     if isinstance(vector, sc.Variable):
         return (vector.fields.x, vector.fields.y, vector.fields.z)
     else:
@@ -41,14 +41,10 @@ class Camera:
 
     def __init__(
         self,
-        position: Optional[
-            Union[sc.Variable, Sequence[sc.Variable], Sequence[float]]
-        ] = None,
-        look_at: Optional[
-            Union[sc.Variable, Sequence[sc.Variable], Sequence[float]]
-        ] = None,
-        near: Optional[Union[sc.Variable, float]] = None,
-        far: Optional[Union[sc.Variable, float]] = None,
+        position: sc.Variable | Sequence[sc.Variable] | Sequence[float] | None = None,
+        look_at: sc.Variable | Sequence[sc.Variable] | Sequence[float] | None = None,
+        near: sc.Variable | float | None = None,
+        far: sc.Variable | float | None = None,
     ):
         self._parsed_contents = None
         self._raw_contents = {}
@@ -61,7 +57,7 @@ class Camera:
         if far is not None:
             self._raw_contents['far'] = far
 
-    def get(self, key: str, default: Optional[Any] = None) -> Any:
+    def get(self, key: str, default: Any | None = None) -> Any:
         """
         Attribute getter.
         If units have been set, the value will be converted to the specified units.
@@ -119,7 +115,7 @@ class Camera:
         return self._parsed_contents is not None
 
     @property
-    def position(self) -> Union[Tuple[float, float, float], None]:
+    def position(self) -> tuple[float, float, float] | None:
         """
         The position of the camera. If camera units have been set, the position returned
         will be converted to the specified units.
@@ -127,7 +123,7 @@ class Camera:
         self.get('position')
 
     @property
-    def look_at(self) -> Union[Tuple[float, float, float], None]:
+    def look_at(self) -> tuple[float, float, float] | None:
         """
         The point the camera is looking at. If camera units have been set, the position
         returned will be converted to the specified units.
@@ -135,7 +131,7 @@ class Camera:
         self.get('look_at')
 
     @property
-    def near(self) -> Union[float, None]:
+    def near(self) -> float | None:
         """
         The distance to the near clipping plane (how close to the camera objects can be
         before they disappear).
@@ -143,7 +139,7 @@ class Camera:
         self.get('near')
 
     @property
-    def far(self) -> Union[float, None]:
+    def far(self) -> float | None:
         """
         The distance to the far clipping plane (how far from the camera objects can be
         before they disappear).

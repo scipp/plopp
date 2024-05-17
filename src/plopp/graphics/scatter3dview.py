@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal
 
 import scipp as sc
 
@@ -63,11 +63,11 @@ class Scatter3dView(View):
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
-        vmin: Optional[Union[sc.Variable, int, float]] = None,
-        vmax: Optional[Union[sc.Variable, int, float]] = None,
-        figsize: Tuple[int, int] = (600, 400),
-        title: Optional[str] = None,
-        camera: Optional[Camera] = None,
+        vmin: sc.Variable | int | float | None = None,
+        vmax: sc.Variable | int | float | None = None,
+        figsize: tuple[int, int] = (600, 400),
+        title: str | None = None,
+        camera: Camera | None = None,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -132,7 +132,7 @@ class Scatter3dView(View):
             self.artists[key].update(new_values=new_values)
         self.colormapper.update(**new)
 
-    def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
+    def get_limits(self) -> tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
         Get global limits for all the point clouds in the scene.
         """

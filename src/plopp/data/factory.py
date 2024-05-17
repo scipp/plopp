@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import List, Optional
 
 import numpy as np
 import scipp as sc
@@ -14,8 +13,8 @@ def variable(
     variances: bool = False,
     dtype: str = 'float64',
     unit: str = 'm/s',
-    dims: Optional[List[str]] = None,
-    dim_list: List[str] = default_dim_list,
+    dims: list[str] | None = None,
+    dim_list: list[str] = default_dim_list,
 ) -> sc.Variable:
     """
     Generate a sample ``Variable`` containing data based on a sine function.
@@ -61,8 +60,8 @@ def data_array(
     ragged: bool = False,
     dtype: str = 'float64',
     unit: str = 'm/s',
-    dims: Optional[List[str]] = None,
-    dim_list: List[str] = default_dim_list,
+    dims: list[str] | None = None,
+    dim_list: list[str] = default_dim_list,
 ) -> sc.DataArray:
     """
     Generate a sample ``DataArray`` containing data based on a sine function, with
@@ -139,7 +138,7 @@ def data_array(
     return sc.DataArray(data=data, coords=coord_dict, masks=mask_dict)
 
 
-def dataset(entries: Optional[List[str]] = None, **kwargs) -> sc.Dataset:
+def dataset(entries: list[str] | None = None, **kwargs) -> sc.Dataset:
     """
     Generate a sample ``Dataset``. See :func:`data_array` for more options.
 

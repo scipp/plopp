@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Optional
 
 from ..core.typing import FigureLike, Plottable
 from .common import require_interactive_backend
@@ -10,7 +9,7 @@ from .slicer import Slicer
 
 def superplot(
     obj: Plottable,
-    keep: Optional[str] = None,
+    keep: str | None = None,
     **kwargs,
 ) -> FigureLike:
     """

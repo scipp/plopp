@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import List, Optional, Tuple
 
 import numpy as np
 import pythreejs as p3
@@ -19,7 +18,7 @@ def _get_delta(x: Variable, axis: int) -> float:
 
 
 def _get_offsets(
-    limits: Tuple[Variable, Variable, Variable], axis: int, ind: int
+    limits: tuple[Variable, Variable, Variable], axis: int, ind: int
 ) -> np.ndarray:
     """
     Compute offsets for 3 dimensions, along the edges of the box.
@@ -29,7 +28,7 @@ def _get_offsets(
     return offsets
 
 
-def _make_geometry(limits: Tuple[Variable, Variable, Variable]) -> p3.EdgesGeometry:
+def _make_geometry(limits: tuple[Variable, Variable, Variable]) -> p3.EdgesGeometry:
     """
     Make a geometry to represent the edges of a cubic box.
     """
@@ -44,7 +43,7 @@ def _make_geometry(limits: Tuple[Variable, Variable, Variable]) -> p3.EdgesGeome
 
 def _make_sprite(
     string: str,
-    position: Tuple[float, float, float],
+    position: tuple[float, float, float],
     color: str = "black",
     size: float = 1.0,
 ) -> p3.Sprite:
@@ -78,8 +77,8 @@ class Outline(p3.Group):
 
     def __init__(
         self,
-        limits: Tuple[Variable, Variable, Variable],
-        tick_size: Optional[float] = None,
+        limits: tuple[Variable, Variable, Variable],
+        tick_size: float | None = None,
     ):
         center = [var.mean().value for var in limits]
         if tick_size is None:
@@ -101,7 +100,7 @@ class Outline(p3.Group):
             self.add(obj)
 
     def _make_ticks(
-        self, limits: Tuple[Variable, Variable, Variable], tick_size: float
+        self, limits: tuple[Variable, Variable, Variable], tick_size: float
     ) -> p3.Group:
         """
         Create tick labels on outline edges
@@ -125,8 +124,8 @@ class Outline(p3.Group):
 
     def _make_labels(
         self,
-        limits: Tuple[Variable, Variable, Variable],
-        center: List[float],
+        limits: tuple[Variable, Variable, Variable],
+        center: list[float],
         tick_size: float,
     ) -> p3.Group:
         """

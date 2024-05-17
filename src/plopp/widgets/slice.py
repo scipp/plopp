@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Any, Callable, Dict, List, Union
+from collections.abc import Callable
+from typing import Any
 
 import ipywidgets as ipw
 import scipp as sc
@@ -12,7 +13,7 @@ from .box import VBar
 
 
 class _BaseSliceWidget(VBar):
-    def __init__(self, da: sc.DataArray, dims: List[str], range: bool):
+    def __init__(self, da: sc.DataArray, dims: list[str], range: bool):
         if isinstance(dims, str):
             dims = [dims]
         self._slider_dims = dims
@@ -60,7 +61,7 @@ class _BaseSliceWidget(VBar):
 
         super().__init__(children)
 
-    def _update_label(self, change: Dict[str, Any]):
+    def _update_label(self, change: dict[str, Any]):
         """
         Update the readout label with the coordinate value, instead of the integer
         readout index.
@@ -78,7 +79,7 @@ class _BaseSliceWidget(VBar):
             self.controls[dim]['slider'].observe(callback, **kwargs)
 
     @property
-    def value(self) -> Dict[str, Union[int, tuple[int]]]:
+    def value(self) -> dict[str, int | tuple[int]]:
         """
         The widget value, as a dict containing the dims as keys and the slider indices
         as values.
@@ -101,7 +102,7 @@ class SliceWidget(_BaseSliceWidget):
         The dimensions to make sliders for.
     """
 
-    def __init__(self, da: sc.DataArray, dims: List[str]):
+    def __init__(self, da: sc.DataArray, dims: list[str]):
         super().__init__(da, dims, range=False)
 
 
@@ -122,12 +123,12 @@ class RangeSliceWidget(_BaseSliceWidget):
         The dimensions to make sliders for.
     """
 
-    def __init__(self, da: sc.DataArray, dims: List[str]):
+    def __init__(self, da: sc.DataArray, dims: list[str]):
         super().__init__(da, dims, range=True)
 
 
 @node
-def slice_dims(data_array: sc.DataArray, slices: Dict[str, slice]) -> sc.DataArray:
+def slice_dims(data_array: sc.DataArray, slices: dict[str, slice]) -> sc.DataArray:
     """
     Slice the data according to input slices.
 

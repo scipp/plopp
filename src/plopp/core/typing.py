@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Protocol, Tuple, Union
+from typing import Protocol
 
 import scipp as sc
 from numpy import ndarray
@@ -22,9 +22,9 @@ class VisibleDeprecationWarning(UserWarning):
 
 VisibleDeprecationWarning.__module__ = 'plopp'
 
-Plottable = Union[VariableLike, ndarray, Node]
+Plottable = VariableLike | ndarray | Node
 
-PlottableMulti = Union[Plottable, Dict[str, Plottable]]
+PlottableMulti = Plottable | dict[str, Plottable]
 
 
 class CanvasLike(Protocol):
@@ -92,16 +92,16 @@ class CanvasLike(Protocol):
     def ymax(self, ymax: float) -> None: ...
 
     @property
-    def xrange(self) -> Tuple[float, float]: ...
+    def xrange(self) -> tuple[float, float]: ...
 
     @xrange.setter
-    def xrange(self, xrange: Tuple[float, float]) -> None: ...
+    def xrange(self, xrange: tuple[float, float]) -> None: ...
 
     @property
-    def yrange(self) -> Tuple[float, float]: ...
+    def yrange(self) -> tuple[float, float]: ...
 
     @yrange.setter
-    def yrange(self, yrange: Tuple[float, float]) -> None: ...
+    def yrange(self, yrange: tuple[float, float]) -> None: ...
 
     def logx(self) -> None: ...
 
@@ -117,10 +117,10 @@ class FigureLike(Protocol):
     def canvas(self) -> CanvasLike: ...
 
     @property
-    def artists(self) -> Dict[str, ArtistLike]: ...
+    def artists(self) -> dict[str, ArtistLike]: ...
 
     @property
-    def graph_nodes(self) -> Dict[str, Node]: ...
+    def graph_nodes(self) -> dict[str, Node]: ...
 
     @property
     def id(self) -> str: ...

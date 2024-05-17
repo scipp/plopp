@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Dict
 
 import numpy as np
 import scipp as sc
@@ -63,7 +62,7 @@ class Line:
 
     def _make_line(
         self,
-        data: Dict,
+        data: dict,
         number: int,
         errorbars: bool = True,
         mask_color: str = 'black',

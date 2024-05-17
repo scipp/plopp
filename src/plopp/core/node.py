@@ -5,12 +5,12 @@ from __future__ import annotations
 
 import uuid
 from itertools import chain
-from typing import Any, List, Union
+from typing import Any
 
 from .view import View
 
 
-def _no_replace_append(container: List[Node], item: Node, kind: str) -> None:
+def _no_replace_append(container: list[Node], item: Node, kind: str) -> None:
     """
     Append ``item`` to ``container`` if it is not already in it.
     """
@@ -66,7 +66,7 @@ class Node:
             fname = getattr(self.func, "__name__", str(self.func))
             self.name = f'{fname}({args_string})'
         else:
-            val_str = f'={func!r}' if isinstance(func, (int, float, str)) else ""
+            val_str = f'={func!r}' if isinstance(func, int | float | str) else ""
             self.name = f'Input <{type(func).__name__}{val_str}>'
 
         # Attempt to set children after setting name in case error message is needed
@@ -186,26 +186,26 @@ class Node:
     def __repr__(self) -> str:
         return f"Node(name={self.name})"
 
-    def __add__(self, other: Union[Node, Any]) -> Node:
+    def __add__(self, other: Node | Any) -> Node:
         return Node(lambda x, y: x + y, self, other)
 
-    def __radd__(self, other: Union[Node, Any]) -> Node:
+    def __radd__(self, other: Node | Any) -> Node:
         return Node(lambda x, y: x + y, other, self)
 
-    def __sub__(self, other: Union[Node, Any]) -> Node:
+    def __sub__(self, other: Node | Any) -> Node:
         return Node(lambda x, y: x - y, self, other)
 
-    def __rsub__(self, other: Union[Node, Any]) -> Node:
+    def __rsub__(self, other: Node | Any) -> Node:
         return Node(lambda x, y: x - y, other, self)
 
-    def __mul__(self, other: Union[Node, Any]) -> Node:
+    def __mul__(self, other: Node | Any) -> Node:
         return Node(lambda x, y: x * y, self, other)
 
-    def __rmul__(self, other: Union[Node, Any]) -> Node:
+    def __rmul__(self, other: Node | Any) -> Node:
         return Node(lambda x, y: x * y, other, self)
 
-    def __truediv__(self, other: Union[Node, Any]) -> Node:
+    def __truediv__(self, other: Node | Any) -> Node:
         return Node(lambda x, y: x / y, self, other)
 
-    def __rtruediv__(self, other: Union[Node, Any]) -> Node:
+    def __rtruediv__(self, other: Node | Any) -> Node:
         return Node(lambda x, y: x / y, other, self)

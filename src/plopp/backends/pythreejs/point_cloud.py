@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Tuple, Union
 
 import numpy as np
 import scipp as sc
@@ -44,7 +43,7 @@ class PointCloud:
         y: str,
         z: str,
         data: sc.DataArray,
-        pixel_size: Union[sc.Variable, float] = 1,
+        pixel_size: sc.Variable | float = 1,
         opacity: float = 1,
     ):
         """
@@ -126,7 +125,7 @@ class PointCloud:
         _check_ndim(new_values)
         self._data = new_values
 
-    def get_limits(self) -> Tuple[sc.Variable, sc.Variable, sc.Variable]:
+    def get_limits(self) -> tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
         Get the spatial extent of all the points in the cloud.
         """

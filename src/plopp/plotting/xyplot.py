@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Union
 
 import scipp as sc
 from numpy import ndarray
@@ -28,8 +27,8 @@ def _make_data_array(x: sc.Variable, y: sc.Variable) -> sc.DataArray:
 
 
 def xyplot(
-    x: Union[sc.Variable, ndarray, list, Node],
-    y: Union[sc.Variable, ndarray, list, Node],
+    x: sc.Variable | ndarray | list | Node,
+    y: sc.Variable | ndarray | list | Node,
     **kwargs,
 ) -> FigureLike:
     """

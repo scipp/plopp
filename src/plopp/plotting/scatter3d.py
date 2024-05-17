@@ -3,7 +3,7 @@
 
 import uuid
 from functools import partial
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal
 
 import scipp as sc
 
@@ -17,8 +17,8 @@ def _preprocess_scatter(
     x: str,
     y: str,
     z: str,
-    pos: Optional[str],
-    name: Optional[str] = None,
+    pos: str | None,
+    name: str | None = None,
 ) -> sc.DataArray:
     da = from_compatible_lib(obj)
     check_not_binned(da)
@@ -42,14 +42,14 @@ def scatter3d(
     x: str = 'x',
     y: str = 'y',
     z: str = 'z',
-    pos: Optional[str] = None,
-    figsize: Tuple[int, int] = (600, 400),
+    pos: str | None = None,
+    figsize: tuple[int, int] = (600, 400),
     norm: Literal['linear', 'log'] = 'linear',
-    title: Optional[str] = None,
-    vmin: Union[sc.Variable, float] = None,
-    vmax: Union[sc.Variable, float] = None,
+    title: str | None = None,
+    vmin: sc.Variable | float = None,
+    vmax: sc.Variable | float = None,
     cmap: str = 'viridis',
-    camera: Optional[Camera] = None,
+    camera: Camera | None = None,
     **kwargs,
 ) -> FigureLike:
     """Make a three-dimensional scatter plot.

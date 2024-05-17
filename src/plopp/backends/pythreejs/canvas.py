@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from copy import copy
-from typing import Any, Optional, Tuple
+from typing import Any
 
 import ipywidgets as ipw
 import numpy as np
@@ -32,9 +32,9 @@ class Canvas:
 
     def __init__(
         self,
-        figsize: Tuple[int, int] = (600, 400),
-        title: Optional[str] = None,
-        camera: Optional[Camera] = None,
+        figsize: tuple[int, int] = (600, 400),
+        title: str | None = None,
+        camera: Camera | None = None,
     ):
         import pythreejs as p3
 
@@ -85,7 +85,7 @@ class Canvas:
         self.dims = dims
         self.dtypes = dtypes
 
-    def make_outline(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
+    def make_outline(self, limits: tuple[sc.Variable, sc.Variable, sc.Variable]):
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
@@ -98,7 +98,7 @@ class Canvas:
         self._update_camera(limits=limits)
         self.axes_3d.scale = [self.camera.far] * 3
 
-    def _update_camera(self, limits: Tuple[sc.Variable, sc.Variable, sc.Variable]):
+    def _update_camera(self, limits: tuple[sc.Variable, sc.Variable, sc.Variable]):
         """
         Update the camera position when a new object is added to the canvas.
         The camera will look at the mean position of all the objects, and its position
@@ -185,7 +185,7 @@ class Canvas:
         """
         self._camera_normal(position=self.camera_backup["z_normal"].copy(), ind=2)
 
-    def _camera_normal(self, position: Tuple[float, float, float], ind: int):
+    def _camera_normal(self, position: tuple[float, float, float], ind: int):
         """
         Move camera to requested normal, and flip if current position is equal
         to the requested position.
@@ -196,8 +196,8 @@ class Canvas:
 
     def move_camera(
         self,
-        position: Tuple[float, float, float],
-        look_at: Optional[Tuple[float, float, float]] = None,
+        position: tuple[float, float, float],
+        look_at: tuple[float, float, float] | None = None,
     ):
         """
         Move the camera to the supplied position.

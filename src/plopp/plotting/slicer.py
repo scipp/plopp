@@ -4,7 +4,7 @@
 import warnings
 from functools import partial, reduce
 from itertools import groupby
-from typing import List, Literal, Optional, Union
+from typing import Literal
 
 from scipp.typing import VariableLike
 
@@ -61,11 +61,11 @@ class Slicer:
         self,
         obj: PlottableMulti,
         *,
-        keep: Optional[List[str]] = None,
+        keep: list[str] | None = None,
         autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
-        coords: Optional[List[str]] = None,
-        vmin: Union[VariableLike, float] = None,
-        vmax: Union[VariableLike, float] = None,
+        coords: list[str] | None = None,
+        vmin: VariableLike | float = None,
+        vmax: VariableLike | float = None,
         **kwargs,
     ):
         nodes = input_to_nodes(
@@ -145,11 +145,11 @@ class Slicer:
 def slicer(
     obj: PlottableMulti,
     *,
-    keep: Optional[List[str]] = None,
+    keep: list[str] | None = None,
     autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
-    coords: Optional[List[str]] = None,
-    vmin: Union[VariableLike, float] = None,
-    vmax: Union[VariableLike, float] = None,
+    coords: list[str] | None = None,
+    vmin: VariableLike | float = None,
+    vmax: VariableLike | float = None,
     **kwargs,
 ) -> FigureLike:
     """

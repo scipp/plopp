@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal, Tuple
+from typing import Literal
 
 import numpy as np
 import scipp as sc
@@ -13,7 +13,7 @@ def find_limits(
     x: sc.DataArray,
     scale: Literal['linear', 'log'] = 'linear',
     pad: bool = False,
-) -> Tuple[sc.Variable, sc.Variable]:
+) -> tuple[sc.Variable, sc.Variable]:
     """
     Find sensible limits, depending on linear or log scale.
     If there are no finite values in the array, raise an error.
@@ -69,8 +69,8 @@ def find_limits(
 
 
 def fix_empty_range(
-    lims: Tuple[sc.Variable, sc.Variable],
-) -> Tuple[sc.Variable, sc.Variable]:
+    lims: tuple[sc.Variable, sc.Variable],
+) -> tuple[sc.Variable, sc.Variable]:
     """
     Range correction in case xmin == xmax
     """

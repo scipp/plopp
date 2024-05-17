@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,7 +19,7 @@ def _to_floats(x: np.ndarray) -> np.ndarray:
     return mdates.date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
 
 
-def _none_if_not_finite(x: Union[float, None]) -> Union[float, int, None]:
+def _none_if_not_finite(x: float | None) -> float | int | None:
     if x is None:
         return None
     return x if np.isfinite(x) else None
@@ -87,15 +87,15 @@ class Canvas:
         self,
         ax: plt.Axes = None,
         cax: plt.Axes = None,
-        figsize: Optional[Tuple[float, float]] = None,
-        title: Optional[str] = None,
+        figsize: tuple[float, float] | None = None,
+        title: str | None = None,
         grid: bool = False,
-        vmin: Union[sc.Variable, float] = None,
-        vmax: Union[sc.Variable, float] = None,
+        vmin: sc.Variable | float = None,
+        vmax: sc.Variable | float = None,
         autoscale: Literal['auto', 'grow'] = 'auto',
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
-        legend: Union[bool, Tuple[float, float]] = True,
+        legend: bool | tuple[float, float] = True,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -431,14 +431,14 @@ class Canvas:
         self.ax.set_xlim(self.xmin, value)
 
     @property
-    def xrange(self) -> Tuple[float, float]:
+    def xrange(self) -> tuple[float, float]:
         """
         Get or set the range/limits of the x-axis.
         """
         return self.ax.get_xlim()
 
     @xrange.setter
-    def xrange(self, value: Tuple[float, float]):
+    def xrange(self, value: tuple[float, float]):
         self.ax.set_xlim(value)
 
     @property
@@ -464,14 +464,14 @@ class Canvas:
         self.ax.set_ylim(self.ymin, value)
 
     @property
-    def yrange(self) -> Tuple[float, float]:
+    def yrange(self) -> tuple[float, float]:
         """
         Get or set the range/limits of the y-axis.
         """
         return self.ax.get_ylim()
 
     @yrange.setter
-    def yrange(self, value: Tuple[float, float]):
+    def yrange(self, value: tuple[float, float]):
         self.ax.set_ylim(value)
 
     @property

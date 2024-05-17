@@ -3,7 +3,6 @@
 
 from html import escape
 from itertools import chain
-from typing import Union
 
 from .node import Node
 from .view import View
@@ -94,7 +93,7 @@ def _make_graph(dot, nodes, edges, labels, views):
     return dot
 
 
-def show_graph(entry: Union[Node, View], **kwargs):
+def show_graph(entry: Node | View, **kwargs):
     """
     Display the connected nodes and views as a graph.
 

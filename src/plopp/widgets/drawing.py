@@ -1,8 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from collections.abc import Callable
 from functools import partial
-from typing import Any, Callable, Union
+from typing import Any
 
 import scipp as sc
 
@@ -51,7 +52,7 @@ class DrawingTool(ToggleTool):
         input_node: Node,
         tool: Any,
         func: Callable,
-        destination: Union[FigureLike, Node],
+        destination: FigureLike | Node,
         get_artist_info: Callable,
         value: bool = False,
         **kwargs,

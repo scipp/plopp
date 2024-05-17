@@ -67,6 +67,6 @@ class Box(VBar):
 
     def __init__(self, widgets):
         children = [
-            HBar(view) if isinstance(view, (list, tuple)) else view for view in widgets
+            HBar(view) if isinstance(view, list | tuple) else view for view in widgets
         ]
         super().__init__(children)
