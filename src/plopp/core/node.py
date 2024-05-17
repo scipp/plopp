@@ -66,7 +66,7 @@ class Node:
             fname = getattr(self.func, "__name__", str(self.func))
             self.name = f'{fname}({args_string})'
         else:
-            val_str = f'={repr(func)}' if isinstance(func, (int, float, str)) else ""
+            val_str = f'={func!r}' if isinstance(func, (int, float, str)) else ""
             self.name = f'Input <{type(func).__name__}{val_str}>'
 
         # Attempt to set children after setting name in case error message is needed

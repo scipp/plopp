@@ -69,7 +69,7 @@ def find_limits(
 
 
 def fix_empty_range(
-    lims: Tuple[sc.Variable, sc.Variable]
+    lims: Tuple[sc.Variable, sc.Variable],
 ) -> Tuple[sc.Variable, sc.Variable]:
     """
     Range correction in case xmin == xmax

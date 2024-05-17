@@ -19,7 +19,7 @@ class Toolbar(VBox):
         Dictionary of tools to populate the toolbar.
     """
 
-    def __init__(self, tools: Dict[str, Any] = None):
+    def __init__(self, tools: Optional[Dict[str, Any]] = None):
         self.tools = {}
         if tools is not None:
             for key, tool in tools.items():

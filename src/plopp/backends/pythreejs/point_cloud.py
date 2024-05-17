@@ -44,7 +44,7 @@ class PointCloud:
         y: str,
         z: str,
         data: sc.DataArray,
-        pixel_size: Union[sc.Variable, float, int] = 1,
+        pixel_size: Union[sc.Variable, float] = 1,
         opacity: float = 1,
     ):
         """
@@ -61,7 +61,7 @@ class PointCloud:
 
         self._pixel_size = pixel_size
         if hasattr(self._pixel_size, 'unit'):
-            if len(set([self._data.coords[dim].unit for dim in [x, y, z]])) > 1:
+            if len({self._data.coords[dim].unit for dim in [x, y, z]}) > 1:
                 raise ValueError(
                     f'The supplied pixel_size has unit {self._pixel_size.unit}, but '
                     'the spatial coordinates do not all have the same units. In this '

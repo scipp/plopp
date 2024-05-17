@@ -61,11 +61,11 @@ class Slicer:
         self,
         obj: PlottableMulti,
         *,
-        keep: List[str] = None,
+        keep: Optional[List[str]] = None,
         autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
         coords: Optional[List[str]] = None,
-        vmin: Union[VariableLike, int, float] = None,
-        vmax: Union[VariableLike, int, float] = None,
+        vmin: Union[VariableLike, float] = None,
+        vmax: Union[VariableLike, float] = None,
         **kwargs,
     ):
         nodes = input_to_nodes(
@@ -145,11 +145,11 @@ class Slicer:
 def slicer(
     obj: PlottableMulti,
     *,
-    keep: List[str] = None,
+    keep: Optional[List[str]] = None,
     autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
     coords: Optional[List[str]] = None,
-    vmin: Union[VariableLike, int, float] = None,
-    vmax: Union[VariableLike, int, float] = None,
+    vmin: Union[VariableLike, float] = None,
+    vmax: Union[VariableLike, float] = None,
     **kwargs,
 ) -> FigureLike:
     """

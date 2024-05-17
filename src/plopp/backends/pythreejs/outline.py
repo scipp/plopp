@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pythreejs as p3
@@ -77,7 +77,9 @@ class Outline(p3.Group):
     """
 
     def __init__(
-        self, limits: Tuple[Variable, Variable, Variable], tick_size: float = None
+        self,
+        limits: Tuple[Variable, Variable, Variable],
+        tick_size: Optional[float] = None,
     ):
         center = [var.mean().value for var in limits]
         if tick_size is None:

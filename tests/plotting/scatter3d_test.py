@@ -34,7 +34,7 @@ def test_scatter3d_dimensions_are_flattened():
         coords={'position': sc.spatial.as_vectors(x, y, 0.0 * sc.units.m)},
     )
     p = pp.scatter3d(da, pos="position")
-    assert list(p.artists.values())[0].data.ndim == 1
+    assert next(iter(p.artists.values())).data.ndim == 1
     nz = 12
     z = sc.linspace(dim='z', start=-10.0, stop=10.0, num=nz, unit='m')
     da = sc.DataArray(
@@ -42,7 +42,7 @@ def test_scatter3d_dimensions_are_flattened():
         coords={'position': sc.spatial.as_vectors(x, y, z)},
     )
     p = pp.scatter3d(da, pos="position")
-    assert list(p.artists.values())[0].data.ndim == 1
+    assert next(iter(p.artists.values())).data.ndim == 1
 
 
 def test_scatter3d_can_plot_scalar_data():
@@ -50,7 +50,7 @@ def test_scatter3d_can_plot_scalar_data():
         data=sc.scalar(1.2), coords={'position': sc.vector(value=[1, 2, 3])}
     )
     p = pp.scatter3d(da, pos='position')
-    assert list(p.artists.values())[0].data.ndim == 1
+    assert next(iter(p.artists.values())).data.ndim == 1
 
 
 def test_raises_ValueError_when_given_binned_data():

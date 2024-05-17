@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Dict, Literal
+from typing import Dict, Literal, Optional
 
 import scipp as sc
 
@@ -36,7 +36,7 @@ def _slice_xy(da: sc.DataArray, xy: Dict[str, Dict[str, int]]) -> sc.DataArray:
 
 def inspector(
     obj: Plottable,
-    dim: str = None,
+    dim: Optional[str] = None,
     *,
     operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
     orientation: Literal['horizontal', 'vertical'] = 'horizontal',

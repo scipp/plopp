@@ -306,7 +306,7 @@ class ClippingPlanes(ipw.HBox):
         )
         self._view.canvas.add(cut.outlines)
         self.cuts.append(cut)
-        self.tabs.children = list(self.tabs.children) + [cut]
+        self.tabs.children = [*self.tabs.children, cut]
         self.tabs.selected_index = len(self.cuts) - 1
         self.update_controls()
         self.update_state()

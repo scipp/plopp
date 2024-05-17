@@ -77,7 +77,7 @@ class LineView(GraphicalView):
         aspect: Literal['auto', 'equal'] = 'auto',
         grid: bool = False,
         title: Optional[str] = None,
-        figsize: Tuple[float, float] = None,
+        figsize: Optional[Tuple[float, float]] = None,
         format: Optional[Literal['svg', 'png']] = None,
         legend: Union[bool, Tuple[float, float]] = True,
         **kwargs,

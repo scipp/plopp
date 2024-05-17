@@ -155,7 +155,7 @@ def check_allowed_dtypes(da: sc.DataArray):
 
 
 def _all_dims_sorted(var, order='ascending'):
-    return all([sc.allsorted(var, dim, order=order) for dim in var.dims])
+    return all(sc.allsorted(var, dim, order=order) for dim in var.dims)
 
 
 def preprocess(

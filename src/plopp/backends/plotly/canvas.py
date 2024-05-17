@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal, Tuple, Union
+from typing import Literal, Optional, Tuple, Union
 
 import numpy as np
 import scipp as sc
@@ -38,10 +38,10 @@ class Canvas:
 
     def __init__(
         self,
-        figsize: Tuple[float, float] = None,
-        title: str = None,
-        vmin: Union[sc.Variable, int, float] = None,
-        vmax: Union[sc.Variable, int, float] = None,
+        figsize: Optional[Tuple[float, float]] = None,
+        title: Optional[str] = None,
+        vmin: Union[sc.Variable, float] = None,
+        vmax: Union[sc.Variable, float] = None,
         autoscale: Literal['auto', 'grow'] = 'auto',
         **ignored,
     ):

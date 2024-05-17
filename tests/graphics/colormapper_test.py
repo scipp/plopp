@@ -180,7 +180,7 @@ def test_rgba():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
     colors = mapper.rgba(da)
-    assert colors.shape == da.data.shape + (4,)
+    assert colors.shape == (*da.data.shape, 4)
 
 
 def test_rgba_with_masks():

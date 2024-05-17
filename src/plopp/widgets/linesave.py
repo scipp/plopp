@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import ipywidgets as ipw
 from matplotlib.colors import to_hex
@@ -40,7 +40,7 @@ class LineSaveTool(VBar):
     def _update_container(self):
         self.container.children = [line['tool'] for line in self._lines.values()]
 
-    def save_line(self, change: Dict[str, Any] = None):
+    def save_line(self, change: Optional[Dict[str, Any]] = None):
         from ..widgets import ColorTool
 
         data = self._data_node.request_data()

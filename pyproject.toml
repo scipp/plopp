@@ -95,6 +95,7 @@ pydocstyle.convention = "numpy"
 ]
 "*.ipynb" = [
     "E501",  # longer lines are sometimes more readable
+    "E741",  # the fonts in Jupyter and Sphinx makes these chars distinguishable
     "F403",  # *-imports used with domain types
     "F405",  # linter may fail to find names because of *-imports
     "I",  # we don't collect imports at the top

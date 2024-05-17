@@ -18,7 +18,7 @@ def plot(
     cbar: bool = True,
     coords: Optional[List[str]] = None,
     errorbars: bool = True,
-    figsize: Tuple[float, float] = None,
+    figsize: Optional[Tuple[float, float]] = None,
     grid: bool = False,
     ignore_size: bool = False,
     mask_color: str = 'black',

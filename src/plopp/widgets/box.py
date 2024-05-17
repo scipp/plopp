@@ -16,7 +16,7 @@ class Bar:
         """
         Append a widget to the list of children.
         """
-        self.children = list(self.children) + [obj]
+        self.children = [*self.children, obj]
 
     def remove(self, obj: Widget):
         """
@@ -66,7 +66,7 @@ class Box(VBar):
     """
 
     def __init__(self, widgets):
-        children = []
-        for view in widgets:
-            children.append(HBar(view) if isinstance(view, (list, tuple)) else view)
+        children = [
+            HBar(view) if isinstance(view, (list, tuple)) else view for view in widgets
+        ]
         super().__init__(children)

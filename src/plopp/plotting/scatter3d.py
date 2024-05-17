@@ -42,12 +42,12 @@ def scatter3d(
     x: str = 'x',
     y: str = 'y',
     z: str = 'z',
-    pos: str = None,
+    pos: Optional[str] = None,
     figsize: Tuple[int, int] = (600, 400),
     norm: Literal['linear', 'log'] = 'linear',
-    title: str = None,
-    vmin: Union[sc.Variable, int, float] = None,
-    vmax: Union[sc.Variable, int, float] = None,
+    title: Optional[str] = None,
+    vmin: Union[sc.Variable, float] = None,
+    vmax: Union[sc.Variable, float] = None,
     cmap: str = 'viridis',
     camera: Optional[Camera] = None,
     **kwargs,
@@ -102,7 +102,7 @@ def scatter3d(
         raise ValueError(
             'Keyword "ax" detected. Embedding 3D scatter plots inside Matplotlib axes '
             'is not supported. See '
-            'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'  # noqa: E501
+            'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'
         )
 
     nodes = input_to_nodes(

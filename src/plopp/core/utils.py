@@ -8,7 +8,9 @@ from typing import Dict, Optional, Union
 import scipp as sc
 
 
-def coord_as_bin_edges(da: sc.DataArray, key: str, dim: str = None) -> sc.Variable:
+def coord_as_bin_edges(
+    da: sc.DataArray, key: str, dim: Optional[str] = None
+) -> sc.Variable:
     """
     If coordinate ``key`` in DataArray ``da`` is already bin edges, return it unchanged.
     If it is midpoints, return as bin edges.
@@ -70,7 +72,7 @@ def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
 
 
 def maybe_number_to_variable(
-    x: Union[int, float, sc.Variable], unit: Optional[str] = None
+    x: Union[float, sc.Variable], unit: Optional[str] = None
 ) -> sc.Variable:
     """
     If the input is a raw number, convert to a variable.
@@ -92,7 +94,7 @@ def maybe_number_to_variable(
 
 
 def maybe_variable_to_number(
-    x: Union[int, float, sc.Variable], unit=None
+    x: Union[float, sc.Variable], unit=None
 ) -> Union[int, float]:
     """
     If the input is a variable, return its value.
@@ -113,7 +115,7 @@ def maybe_variable_to_number(
     return x
 
 
-def name_with_unit(var: sc.Variable, name: str = None) -> str:
+def name_with_unit(var: sc.Variable, name: Optional[str] = None) -> str:
     """
     Make a string from a variable dimension and its unit.
     The variable dimension can be overridden by specifying the ``name`` directly.
@@ -136,7 +138,7 @@ def name_with_unit(var: sc.Variable, name: str = None) -> str:
     return text
 
 
-def value_to_string(val: Union[int, float], precision: int = 3) -> str:
+def value_to_string(val: Union[float], precision: int = 3) -> str:
     """
     Convert a number to a human readable string.
 

@@ -18,7 +18,7 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
 
 
-def _get_cmap(name: str, nan_color: str = None) -> Colormap:
+def _get_cmap(name: str, nan_color: Optional[str] = None) -> Colormap:
     """
     Get a colormap object from a colormap name.
 
