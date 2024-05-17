@@ -78,7 +78,7 @@ class ColorMapper:
     autoscale:
         The behavior of the color range limits. If ``auto``, the limits automatically
         adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
+        grow with time but they do not shrink. If ``False``, autoscale is disabled.
     vmin:
         The minimum value for the colorscale range. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the data unit.
@@ -98,7 +98,7 @@ class ColorMapper:
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
-        autoscale: Literal['auto', 'grow'] = 'auto',
+        autoscale: Literal['auto', 'grow', False] = 'auto',
         vmin: Optional[Union[sc.Variable, int, float]] = None,
         vmax: Optional[Union[sc.Variable, int, float]] = None,
         nan_color: Optional[str] = None,

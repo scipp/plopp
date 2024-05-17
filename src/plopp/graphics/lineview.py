@@ -31,7 +31,7 @@ class LineView(GraphicalView):
     autoscale:
         The behavior of the axis limits. If ``auto``, the limits automatically
         adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
+        grow with time but they do not shrink. If ``False``, autoscale is disabled.
     scale:
         Control the scaling of the horizontal axis. For example, specify
         ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
@@ -70,7 +70,7 @@ class LineView(GraphicalView):
         norm: Literal['linear', 'log'] = 'linear',
         vmin: Optional[Union[sc.Variable, int, float]] = None,
         vmax: Optional[Union[sc.Variable, int, float]] = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
+        autoscale: Literal['auto', 'grow', False] = 'auto',
         scale: Optional[Dict[str, str]] = None,
         errorbars: bool = True,
         mask_color: str = 'black',

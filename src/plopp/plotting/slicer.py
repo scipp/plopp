@@ -45,7 +45,7 @@ class Slicer:
         The behavior of the y-axis (1d plots) and color range (2d plots) limits.
         If ``auto``, the limits automatically adjusts every time the data changes.
         If ``grow``, the limits are allowed to grow with time but they do not shrink.
-        If ``fixed``, the limits are fixed to the full data range and do not change
+        If ``False``, the limits are fixed to the full data range and do not change
         with time.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
@@ -62,7 +62,7 @@ class Slicer:
         obj: PlottableMulti,
         *,
         keep: List[str] = None,
-        autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
+        autoscale: Literal['auto', 'grow', False] = 'auto',
         coords: Optional[List[str]] = None,
         vmin: Union[VariableLike, int, float] = None,
         vmax: Union[VariableLike, int, float] = None,
@@ -101,10 +101,10 @@ class Slicer:
                 f"were not found in the input's dimensions {dims}."
             )
 
-        if autoscale == 'fixed':
+        if not autoscale:
             if None not in (vmin, vmax):
                 warnings.warn(
-                    'Slicer plot: autoscale is set to "fixed", but vmin and vmax '
+                    'Slicer plot: autoscale is set to `False`, but vmin and vmax '
                     'are also specified. They will override the autoscale setting.',
                     RuntimeWarning,
                     stacklevel=2,

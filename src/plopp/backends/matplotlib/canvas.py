@@ -75,7 +75,7 @@ class Canvas:
     autoscale:
         The behavior of the axis limits. If ``auto``, the limits automatically
         adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
+        grow with time but they do not shrink. If ``False``, autoscale is disabled.
     aspect:
         The aspect ratio for the axes.
     cbar:
@@ -94,7 +94,7 @@ class Canvas:
         grid: bool = False,
         vmin: Union[sc.Variable, int, float] = None,
         vmax: Union[sc.Variable, int, float] = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
+        autoscale: Literal['auto', 'grow', False] = 'auto',
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
         legend: Union[bool, Tuple[float, float]] = True,
@@ -172,11 +172,24 @@ class Canvas:
         widget.layout = Layout(max_width='80%', overflow='auto')
         return widget
 
+    def home(self):
+        """
+        Fit the view to the data.
+        """
+        backup = self._autoscale
+        self._autoscale = 'auto'
+        self.autoscale()
+        self._autoscale = backup
+
     def autoscale(self):
         """
         Find the limits of the artists on the canvas and adjust the axes ranges.
         Add some padding in the case of 1d lines.
         """
+        if not self._autoscale:
+            self.draw()
+            return
+
         bbox = BoundingBox()
         lines = [line for line in self.ax.lines if hasattr(line, '_plopp_mask')]
         for line in lines:
@@ -229,7 +242,7 @@ class Canvas:
                 )
                 bbox = bbox.union(line_bbox)
 
-        self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
+        self._bbox = {'grow': self._bbox.union(bbox), 'auto': bbox}[self._autoscale]
         if self._user_vmin is not None:
             self._bbox.ymin = maybe_variable_to_number(
                 self._user_vmin, unit=self.units.get('y')

@@ -64,7 +64,7 @@ def make_toolbar_canvas2d(
         image plots).
     """
     tool_list = {
-        'home': tools.HomeTool(canvas.autoscale),
+        'home': tools.HomeTool(canvas.home),
         'panzoom': tools.PanZoomTool(canvas.panzoom),
         'logx': tools.LogxTool(canvas.logx, value=canvas.xscale == 'log'),
         'logy': tools.LogyTool(canvas.logy, value=canvas.yscale == 'log'),

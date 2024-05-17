@@ -27,7 +27,7 @@ def plot(
     title: Optional[str] = None,
     vmin: Optional[Union[Variable, int, float]] = None,
     vmax: Optional[Union[Variable, int, float]] = None,
-    autoscale: Literal['auto', 'grow'] = 'auto',
+    autoscale: Literal['auto', 'grow', False] = 'auto',
     legend: Union[bool, Tuple[float, float]] = True,
     **kwargs,
 ) -> FigureLike:
@@ -72,6 +72,7 @@ def plot(
         The behavior of the axis (1d plots) or the color range limits (2d plots).
         If ``auto``, the limits automatically adjusts every time the data changes.
         If ``grow``, the limits are allowed to grow with time but they do not shrink.
+        If ``False``, autoscale is disabled.
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.

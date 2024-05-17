@@ -12,7 +12,68 @@ from .graphicalview import GraphicalView
 
 
 class ScatterView(GraphicalView):
-    """ """
+    """
+    ScatterView that makes a visual representation of one-dimensional data as a
+    scatter plot.
+    It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
+    function that generates :class:`Image` artists.
+
+    .. versionadded:: 24.04.0
+
+    Parameters
+    ----------
+    *nodes:
+        The nodes that are attached to the view.
+    x:
+        The name of the coordinate to be used for the x-values.
+    y:
+        The name of the coordinate to be used for the y-values.
+    size:
+        The name of the coordinate to be used for the size of the markers.
+    norm:
+        Control the scaling on the vertical axis.
+    vmin:
+        Lower bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
+    vmax:
+        Upper bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
+    autoscale:
+        The behavior of the color range limits. If ``auto``, the limits automatically
+        adjusts every time the data changes. If ``grow``, the limits are allowed to
+        grow with time but they do not shrink. If ``False``, autoscale is disabled.
+    scale:
+        Control the scaling of the horizontal axis. For example, specify
+        ``scale={'time': 'log'}`` if you want log-scale for the ``time`` dimension.
+    mask_color:
+        The color of the masks.
+    aspect:
+        Aspect ratio for the axes.
+    grid:
+        Show grid if ``True``.
+    title:
+        The figure title.
+    figsize:
+        The width and height of the figure, in inches.
+    format:
+        Format of the figure displayed in the Jupyter notebook. If ``None``, a SVG is
+        created as long as the number of markers in the figure is not too large. If too
+        many markers are drawn, a PNG image is created instead.
+    legend:
+        Show legend if ``True``. If ``legend`` is a tuple, it should contain the
+        ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
+    cmap:
+        The name of the colormap for the data
+        (see https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+        In addition to the Matplotlib docs, if the name is just a single html color,
+        a colormap with that single color will be used.
+    mask_cmap:
+        The name of the colormap for masked data.
+    cbar:
+        Show colorbar if ``True``.
+    **kwargs:
+        All other kwargs are forwarded to the Scatter artist.
+    """
 
     def __init__(
         self,
@@ -23,7 +84,7 @@ class ScatterView(GraphicalView):
         norm: Literal['linear', 'log'] = 'linear',
         vmin: Optional[Union[sc.Variable, int, float]] = None,
         vmax: Optional[Union[sc.Variable, int, float]] = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
+        autoscale: Literal['auto', 'grow', False] = 'auto',
         scale: Optional[Dict[str, str]] = None,
         mask_color: str = 'black',
         aspect: Literal['auto', 'equal'] = 'auto',
