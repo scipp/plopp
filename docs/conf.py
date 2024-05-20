@@ -9,9 +9,9 @@ from importlib.metadata import version as get_version
 sys.path.insert(0, os.path.abspath('.'))
 
 # General information about the project.
-project = u'Plopp'
-copyright = u'2024 Scipp contributors'
-author = u'Scipp contributors'
+project = 'Plopp'
+copyright = '2024 Scipp contributors'
+author = 'Scipp contributors'
 
 html_show_sourcelink = True
 
@@ -28,7 +28,6 @@ extensions = [
     'sphinx_copybutton',
     'sphinx_design',
     'nbsphinx',
-    'sphinx_gallery.load_style',
     'myst_parser',
 ]
 

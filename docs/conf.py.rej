@@ -1,0 +1,15 @@
+diff a/docs/conf.py b/docs/conf.py	(rejected hunks)
+@@ -27,11 +28,13 @@ extensions = [
+     'sphinx_copybutton',
+     'sphinx_design',
+     'nbsphinx',
++    'sphinx_gallery.load_style',
+     'myst_parser',
+ ]
+ 
+ try:
+     import sciline.sphinxext.domain_types  # noqa: F401
++
+     extensions.append('sciline.sphinxext.domain_types')
+ except ModuleNotFoundError:
+     pass

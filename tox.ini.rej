@@ -1,0 +1,27 @@
+diff a/tox.ini b/tox.ini	(rejected hunks)
+@@ -8,6 +8,16 @@ setenv =
+   JUPYTER_PLATFORM_DIRS = 1
+ commands = pytest {posargs}
+ 
++[testenv:minimal]
++description = Test if plopp can plot when installed with only base dependencies
++deps = -r requirements/mini.txt
++commands = pytest tests/minimal_plot.py
++
++[testenv:noplotly]
++description = Test that plotly tests are skipped if plotly is not installed
++deps = -r requirements/noplotly.txt
++commands = pytest tests/backends/plotly
++
+ [testenv:nightly]
+ deps = -r requirements/nightly.txt
+ commands = pytest
+@@ -16,6 +26,8 @@ commands = pytest
+ description = Test with unpinned dependencies, as a user would install now.
+ deps =
+   -r requirements/basetest.txt
++  -r requirements/base.in
++  -r requirements/optional.in
+   plopp
+ commands = pytest
+ 

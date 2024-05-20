@@ -59,25 +59,45 @@ addopts = """
 testpaths = "tests"
 filterwarnings = [
   "error",
-  'ignore:\n            Sentinel is not a public part of the traitlets API:DeprecationWarning',
-  'ignore:Passing unrecognized arguments to super:DeprecationWarning',
-  'ignore:Jupyter is migrating its paths:DeprecationWarning',
-  'ignore:setDaemon\(\) is deprecated, set the daemon attribute instead:DeprecationWarning',
-  'ignore:TriCutTool is deprecated::',
-  'ignore:Cut3dTool is deprecated::',
 ]
 
-[tool.bandit]
-# Excluding tests because bandit doesn't like `assert`.
-exclude_dirs = ["docs/conf.py", "tests"]
+[tool.ruff]
+line-length = 88
+extend-include = ["*.ipynb"]
+extend-exclude = [
+    ".*", "__pycache__", "build", "dist", "install",
+]
 
-[tool.black]
-skip-string-normalization = true
+[tool.ruff.lint]
+# See https://docs.astral.sh/ruff/rules/
+select = ["B", "C4", "DTZ", "E", "F", "G", "I", "PERF", "PGH", "PT", "PYI", "RUF", "S", "T20", "W"]
+ignore = [
+    # Conflict with ruff format, see
+    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    "COM812", "COM819", "D206", "D300", "E111", "E114", "E117", "ISC001", "ISC002", "Q000", "Q001", "Q002", "Q003", "W191",
+]
+fixable = ["I001", "B010"]
+isort.known-first-party = ["plopp"]
+pydocstyle.convention = "numpy"
 
-[tool.isort]
-skip_gitignore = true
-profile = "black"
-known_first_party = ["plopp"]
+[tool.ruff.lint.per-file-ignores]
+# those files have an increased risk of relying on import order
+"__init__.py" = ["I"]
+"tests/*" = [
+    "S101",  # asserts are fine in tests
+    "B018",  # 'useless expressions' are ok because some tests just check for exceptions
+]
+"*.ipynb" = [
+    "E501",  # longer lines are sometimes more readable
+    "F403",  # *-imports used with domain types
+    "F405",  # linter may fail to find names because of *-imports
+    "I",  # we don't collect imports at the top
+    "S101",  # asserts are used for demonstration and are safe in notebooks
+    "T201",  # printing is ok for demonstration purposes
+]
+
+[tool.ruff.format]
+quote-style = "preserve"
 
 [tool.mypy]
 strict = true

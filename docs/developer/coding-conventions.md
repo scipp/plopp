@@ -2,7 +2,7 @@
 
 ## Code formatting
 
-There are no explicit code formatting conventions since we use `black` to enforce a format.
+There are no explicit code formatting conventions since we use `ruff` to enforce a format.
 
 ## Docstring format
 

@@ -1,0 +1,14 @@
+diff a/pyproject.toml b/pyproject.toml	(rejected hunks)
+@@ -54,6 +59,12 @@ addopts = """
+ testpaths = "tests"
+ filterwarnings = [
+   "error",
++  'ignore:\n            Sentinel is not a public part of the traitlets API:DeprecationWarning',
++  'ignore:Passing unrecognized arguments to super:DeprecationWarning',
++  'ignore:Jupyter is migrating its paths:DeprecationWarning',
++  'ignore:setDaemon\(\) is deprecated, set the daemon attribute instead:DeprecationWarning',
++  'ignore:TriCutTool is deprecated::',
++  'ignore:Cut3dTool is deprecated::',
+ ]
+ 
+ [tool.bandit]
