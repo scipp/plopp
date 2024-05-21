@@ -29,9 +29,11 @@ def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
 
 def is_interactive_backend() -> bool:
     """
-    Return `True` if the current backend used by Matplotlib is the widget backend.
+    Return ``True`` if the current backend used by Matplotlib is the widget/ipympl
+    backend.
     """
-    return 'ipympl' in mpl.get_backend()
+    backend = mpl.get_backend()
+    return any(x in backend for x in ("ipympl", "widget"))
 
 
 def make_figure(*args, **kwargs) -> Figure:
