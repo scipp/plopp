@@ -105,10 +105,14 @@ class Node:
         The operation fails is the node has children, as removing it would leave the
         graph in an ill-defined state.
         """
-        if self.children:
-            raise RuntimeError(
-                f"Cannot delete node because it has children {self.children}."
-            )
+        for child in self.children:
+            if self in child.parents:
+                child.parents.remove(self)
+            child.kwparents = {
+                key: parent for key, parent in child.kwparents.items() if parent != self
+            }
+            child._data = None
+        self.children.clear()
         for view in self.views:
             del view.graph_nodes[self.id]
         for parent in chain(self.parents, self.kwparents.values()):
@@ -116,6 +120,7 @@ class Node:
         self.views.clear()
         self.parents.clear()
         self.kwparents.clear()
+        self._data = None
 
     def request_data(self) -> Any:
         """
@@ -182,6 +187,11 @@ class Node:
         """
         for view in self.views:
             view.notify_view({"node_id": self.id, "message": message})
+
+    def __eq__(self, other: Node | Any) -> bool:
+        if not isinstance(other, Node):
+            return False
+        return self.id == other.id
 
     def __repr__(self) -> str:
         return f"Node(name={self.name})"
