@@ -220,7 +220,7 @@ def test_save_to_disk_1d(ext):
 def test_save_to_disk_with_bad_extension_raises():
     da = data_array(ndim=1)
     fig = pp.plot(da)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='txt'):
         fig.save(filename='plopp_fig1d.txt')
 
 
@@ -263,7 +263,7 @@ def test_plot_pandas_series():
     s = pd.Series(np.arange(100.0), name='MyDataSeries')
     p = pp.plot(s)
     assert p.canvas.dims['x'] == 'row'
-    assert list(p._view.artists.values())[0].label == 'MyDataSeries'
+    assert next(iter(p._view.artists.values())).label == 'MyDataSeries'
 
 
 def test_plot_pandas_dataframe():

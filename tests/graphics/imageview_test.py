@@ -35,14 +35,14 @@ def test_create_with_node():
     da = data_array(ndim=2)
     fig = ImageView(Node(da))
     assert len(fig.artists) == 1
-    assert sc.identical(list(fig.artists.values())[0]._data, da)
+    assert sc.identical(next(iter(fig.artists.values()))._data, da)
 
 
 def test_create_with_bin_edges():
     da = data_array(ndim=2, binedges=True)
     fig = ImageView(Node(da))
     assert len(fig.artists) == 1
-    assert sc.identical(list(fig.artists.values())[0]._data, da)
+    assert sc.identical(next(iter(fig.artists.values()))._data, da)
 
 
 def test_create_with_only_one_bin_edge_coord():
@@ -50,7 +50,7 @@ def test_create_with_only_one_bin_edge_coord():
     da.coords['xx'] = sc.midpoints(da.coords['xx'])
     fig = ImageView(Node(da))
     assert len(fig.artists) == 1
-    assert sc.identical(list(fig.artists.values())[0]._data, da)
+    assert sc.identical(next(iter(fig.artists.values()))._data, da)
 
 
 def test_log_norm():

@@ -14,7 +14,7 @@
 -r wheels.txt
 annotated-types==0.6.0
     # via pydantic
-anyio==4.2.0
+anyio==4.3.0
     # via
     #   httpx
     #   jupyter-server
@@ -32,9 +32,9 @@ click==8.1.7
     # via
     #   pip-compile-multi
     #   pip-tools
-copier==9.1.1
+copier==9.2.0
     # via -r dev.in
-dunamai==1.19.0
+dunamai==1.21.1
     # via copier
 fqdn==1.5.1
     # via jsonschema
@@ -42,40 +42,40 @@ funcy==2.0
     # via copier
 h11==0.14.0
     # via httpcore
-httpcore==1.0.2
+httpcore==1.0.5
     # via httpx
-httpx==0.26.0
+httpx==0.27.0
     # via jupyterlab
 isoduration==20.11.0
     # via jsonschema
 jinja2-ansible-filters==1.3.2
     # via copier
-json5==0.9.14
+json5==0.9.25
     # via jupyterlab-server
 jsonpointer==2.4
     # via jsonschema
-jsonschema[format-nongpl]==4.21.1
+jsonschema[format-nongpl]==4.22.0
     # via
     #   jupyter-events
     #   jupyterlab-server
     #   nbformat
-jupyter-events==0.9.0
+jupyter-events==0.10.0
     # via jupyter-server
-jupyter-lsp==2.2.2
+jupyter-lsp==2.2.5
     # via jupyterlab
-jupyter-server==2.12.5
+jupyter-server==2.14.0
     # via
     #   jupyter-lsp
     #   jupyterlab
     #   jupyterlab-server
     #   notebook-shim
-jupyter-server-terminals==0.5.2
+jupyter-server-terminals==0.5.3
     # via jupyter-server
-jupyterlab==4.1.0
+jupyterlab==4.2.0
     # via -r dev.in
-jupyterlab-server==2.25.2
+jupyterlab-server==2.27.1
     # via jupyterlab
-notebook-shim==0.2.3
+notebook-shim==0.2.4
     # via jupyterlab
 overrides==7.7.0
     # via jupyter-server
@@ -83,23 +83,21 @@ pathspec==0.12.1
     # via copier
 pip-compile-multi==2.6.3
     # via -r dev.in
-pip-tools==7.3.0
+pip-tools==7.4.1
     # via pip-compile-multi
-plumbum==1.8.2
+plumbum==1.8.3
     # via copier
-prometheus-client==0.19.0
+prometheus-client==0.20.0
     # via jupyter-server
-pycparser==2.21
+pycparser==2.22
     # via cffi
-pydantic==2.6.0
+pydantic==2.7.1
     # via copier
-pydantic-core==2.16.1
+pydantic-core==2.18.2
     # via pydantic
 python-json-logger==2.0.7
     # via jupyter-events
-pyyaml-include==1.3.2
-    # via copier
-questionary==2.0.1
+questionary==1.10.0
     # via copier
 rfc3339-validator==0.1.4
     # via
@@ -109,27 +107,27 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-send2trash==1.8.2
+send2trash==1.8.3
     # via jupyter-server
-sniffio==1.3.0
+sniffio==1.3.1
     # via
     #   anyio
     #   httpx
-terminado==0.18.0
+terminado==0.18.1
     # via
     #   jupyter-server
     #   jupyter-server-terminals
 toposort==1.10
     # via pip-compile-multi
-types-python-dateutil==2.8.19.20240106
+types-python-dateutil==2.9.0.20240316
     # via arrow
 uri-template==1.3.0
     # via jsonschema
 webcolors==1.13
     # via jsonschema
-websocket-client==1.7.0
+websocket-client==1.8.0
     # via jupyter-server
-wheel==0.42.0
+wheel==0.43.0
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:

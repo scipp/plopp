@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal, Tuple, Union
+from typing import Literal
 
 import numpy as np
 import scipp as sc
@@ -38,10 +38,10 @@ class Canvas:
 
     def __init__(
         self,
-        figsize: Tuple[float, float] = None,
-        title: str = None,
-        vmin: Union[sc.Variable, int, float] = None,
-        vmax: Union[sc.Variable, int, float] = None,
+        figsize: tuple[float, float] | None = None,
+        title: str | None = None,
+        vmin: sc.Variable | float = None,
+        vmax: sc.Variable | float = None,
         autoscale: Literal['auto', 'grow'] = 'auto',
         **ignored,
     ):
@@ -258,14 +258,14 @@ class Canvas:
         self.fig.layout.xaxis.range = [self.xmin, value]
 
     @property
-    def xrange(self) -> Tuple[float, float]:
+    def xrange(self) -> tuple[float, float]:
         """
         Get or set the range/limits of the x-axis.
         """
         return self.fig.layout.xaxis.range
 
     @xrange.setter
-    def xrange(self, value: Tuple[float, float]):
+    def xrange(self, value: tuple[float, float]):
         self.fig.layout.xaxis.range = value
 
     @property
@@ -291,14 +291,14 @@ class Canvas:
         self.fig.layout.yaxis.range = [self.ymin, value]
 
     @property
-    def yrange(self) -> Tuple[float, float]:
+    def yrange(self) -> tuple[float, float]:
         """
         Get or set the range/limits of the y-axis.
         """
         return self.fig.layout.yaxis.range
 
     @yrange.setter
-    def yrange(self, value: Tuple[float, float]):
+    def yrange(self, value: tuple[float, float]):
         self.fig.layout.yaxis.range = value
 
     def reset_mode(self):

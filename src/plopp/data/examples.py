@@ -71,7 +71,7 @@ def three_bands(npeaks=200, per_peak=500, spread=30.0):
     xcenters = rng.uniform(0, nx, size=npeaks)
     ycenters = rng.choice([ny / 4, ny / 2, 3 * ny / 4], size=npeaks)
     spreads = rng.uniform(0, spread, size=npeaks)
-    for i, (xc, yc, sp) in enumerate(zip(xcenters, ycenters, spreads)):
+    for i, (xc, yc, sp) in enumerate(zip(xcenters, ycenters, spreads, strict=True)):
         xy = np.random.normal(loc=(xc, yc), scale=sp, size=[per_peak, 2])
         x[i, :] = xy[:, 0]
         y[i, :] = xy[:, 1]

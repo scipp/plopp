@@ -3,7 +3,6 @@
 
 from html import escape
 from itertools import chain
-from typing import Union
 
 from .node import Node
 from .view import View
@@ -17,7 +16,7 @@ def _make_graphviz_digraph(*args, **kwargs):
             "Failed to import `graphviz`. "
             "Use `pip install graphviz` (requires installed `graphviz` executable) or "
             "`conda install -c conda-forge python-graphviz`."
-        )
+        ) from None
     return Digraph(*args, **kwargs)
 
 
@@ -94,7 +93,7 @@ def _make_graph(dot, nodes, edges, labels, views):
     return dot
 
 
-def show_graph(entry: Union[Node, View], **kwargs):
+def show_graph(entry: Node | View, **kwargs):
     """
     Display the connected nodes and views as a graph.
 
@@ -119,7 +118,7 @@ def show_graph(entry: Union[Node, View], **kwargs):
     labels = {}
     # If input is a View, get the underlying node
     if hasattr(entry, 'graph_nodes'):
-        entry = list(entry.graph_nodes.values())[0]
+        entry = next(iter(entry.graph_nodes.values()))
     _walk_graph(
         start=entry,
         nodes=nodes,

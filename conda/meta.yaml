@@ -19,7 +19,8 @@ requirements:
     - setuptools
     - setuptools_scm
   run:
-    - python>=3.9
+    - python>=3.10
+
   {% for package in dependencies %}
     - {% if package == "graphviz" %}python-graphviz{% else %}{{ package }}{% endif %}
   {% endfor %}

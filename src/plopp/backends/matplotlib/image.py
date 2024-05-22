@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Tuple
 
 import numpy as np
 import scipp as sc
@@ -183,7 +182,7 @@ class Image:
         self._data_with_bin_edges.data = new_values.data
 
     def format_coord(
-        self, xslice: Tuple[str, sc.Variable], yslice: Tuple[str, sc.Variable]
+        self, xslice: tuple[str, sc.Variable], yslice: tuple[str, sc.Variable]
     ) -> str:
         """
         Format the coordinates of the mouse pointer to show the value of the

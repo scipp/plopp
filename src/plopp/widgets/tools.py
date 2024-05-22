@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from collections.abc import Callable
 from functools import partial
-from typing import Callable, List, Optional, Union
 
 import ipywidgets as ipw
 
@@ -21,7 +21,7 @@ class ButtonTool(ipw.Button):
         All other kwargs are forwarded to ipywidgets.Button.
     """
 
-    def __init__(self, callback: Callable = None, **kwargs):
+    def __init__(self, callback: Callable | None = None, **kwargs):
         super().__init__(**{**BUTTON_LAYOUT, **kwargs})
         self.callback = callback
         self.on_click(self)
@@ -107,11 +107,11 @@ class MultiToggleTool(ipw.VBox):
     def __init__(
         self,
         callback: Callable,
-        options: List[str],
-        icons: Optional[List[str]] = None,
-        tooltips: List[str] = None,
-        descriptions: List[str] = None,
-        value: Optional[str] = None,
+        options: list[str],
+        icons: list[str] | None = None,
+        tooltips: list[str] | None = None,
+        descriptions: list[str] | None = None,
+        value: str | None = None,
         **kwargs,
     ):
         self.callback = callback
@@ -143,7 +143,7 @@ class MultiToggleTool(ipw.VBox):
         self.callback()
 
     @property
-    def value(self) -> Union[str, None]:
+    def value(self) -> str | None:
         for b in self._buttons.values():
             if b.value:
                 return b._option
@@ -196,7 +196,7 @@ class PanZoomTool(MultiToggleTool):
         Set the initially selected button. No button selected if ``None``.
     """
 
-    def __init__(self, callback: Callable, value: bool = None, **kwargs):
+    def __init__(self, callback: Callable, value: bool | None = None, **kwargs):
         self._callback = callback
         super().__init__(
             callback=self._panzoom,

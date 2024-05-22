@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ipywidgets import VBox
 
@@ -19,7 +19,7 @@ class Toolbar(VBox):
         Dictionary of tools to populate the toolbar.
     """
 
-    def __init__(self, tools: Dict[str, Any] = None):
+    def __init__(self, tools: dict[str, Any] | None = None):
         self.tools = {}
         if tools is not None:
             for key, tool in tools.items():
@@ -49,7 +49,7 @@ class Toolbar(VBox):
 
 
 def make_toolbar_canvas2d(
-    canvas: Any, colormapper: Optional[ColorMapper] = None
+    canvas: Any, colormapper: ColorMapper | None = None
 ) -> Toolbar:
     """
     Create a toolbar for a 2D canvas.
@@ -78,7 +78,7 @@ def make_toolbar_canvas2d(
 
 
 def make_toolbar_canvas3d(
-    canvas: Any, colormapper: Optional[ColorMapper] = None
+    canvas: Any, colormapper: ColorMapper | None = None
 ) -> Toolbar:
     """
     Create a toolbar for a 3D canvas.

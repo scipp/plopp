@@ -60,7 +60,7 @@ def test_preprocess_no_warning_if_dtype_cannot_be_sorted():
 )
 def test_preprocess_raises_for_unsupported_dtype(dtype_and_shape):
     dtype, shape = dtype_and_shape
-    x = np.random.random(shape + (5,))
+    x = np.random.random((*shape, 5))
     values = x / np.broadcast_to(
         np.linalg.norm(x, axis=tuple(range(len(shape)))), x.shape
     )

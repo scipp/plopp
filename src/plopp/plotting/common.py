@@ -2,7 +2,8 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
-from typing import Any, Callable, List, Optional, Union
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
 import scipp as sc
@@ -46,7 +47,7 @@ def from_compatible_lib(obj: Any) -> Any:
     return obj
 
 
-def _maybe_to_variable(obj: Union[Plottable, list]) -> Plottable:
+def _maybe_to_variable(obj: Plottable | list) -> Plottable:
     """
     Attempt to convert the input to a Variable.
     If the input is either a list or a numpy array, it will be converted.
@@ -78,7 +79,7 @@ def to_variable(obj) -> sc.Variable:
 
 
 def to_data_array(
-    obj: Union[Plottable, list],
+    obj: Plottable | list,
 ) -> sc.DataArray:
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
@@ -155,14 +156,14 @@ def check_allowed_dtypes(da: sc.DataArray):
 
 
 def _all_dims_sorted(var, order='ascending'):
-    return all([sc.allsorted(var, dim, order=order) for dim in var.dims])
+    return all(sc.allsorted(var, dim, order=order) for dim in var.dims)
 
 
 def preprocess(
-    obj: Union[Plottable, list],
-    name: Optional[str] = None,
+    obj: Plottable | list,
+    name: str | None = None,
     ignore_size: bool = False,
-    coords: Optional[List[str]] = None,
+    coords: list[str] | None = None,
 ) -> sc.DataArray:
     """
     Pre-process input data for plotting.
@@ -219,7 +220,7 @@ def preprocess(
     return out
 
 
-def input_to_nodes(obj: PlottableMulti, processor: Callable) -> List[Node]:
+def input_to_nodes(obj: PlottableMulti, processor: Callable) -> list[Node]:
     """
     Convert an input or dict of inputs to a list of nodes that provide pre-processed
     data.

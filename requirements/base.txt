@@ -5,28 +5,28 @@
 #
 #    pip-compile-multi
 #
-contourpy==1.2.0
+contourpy==1.2.1
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-fonttools==4.47.2
+fonttools==4.51.0
     # via matplotlib
 kiwisolver==1.4.5
     # via matplotlib
-matplotlib==3.8.2
+matplotlib==3.9.0
     # via -r base.in
-numpy==1.26.3
+numpy==1.26.4
     # via
     #   contourpy
     #   matplotlib
     #   scipp
-packaging==23.2
+packaging==24.0
     # via matplotlib
-pillow==10.2.0
+pillow==10.3.0
     # via matplotlib
-pyparsing==3.1.1
+pyparsing==3.1.2
     # via matplotlib
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via matplotlib
 scipp==24.2.0
     # via -r base.in

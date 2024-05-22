@@ -2,7 +2,7 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 import asyncio
-from typing import Callable
+from collections.abc import Callable
 
 
 class Timer:

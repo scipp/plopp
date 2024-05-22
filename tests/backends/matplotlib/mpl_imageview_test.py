@@ -75,10 +75,10 @@ def test_with_strings_as_bin_edges_other_coord_is_bin_centers():
 def test_kwargs_are_forwarded_to_artist():
     da = data_array(ndim=2)
     fig = ImageView(Node(da), rasterized=True)
-    artist = list(fig.artists.values())[0]
+    [artist] = fig.artists.values()
     assert artist._mesh.get_rasterized()
     fig = ImageView(Node(da), rasterized=False)
-    artist = list(fig.artists.values())[0]
+    [artist] = fig.artists.values()
     assert not artist._mesh.get_rasterized()
 
 

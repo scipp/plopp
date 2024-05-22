@@ -59,7 +59,7 @@ def test_xyplot_variable_kwargs():
     y = sc.arange('time', 100.0, 120.0, unit='K')
     fig = pp.xyplot(x, y, color='red', vmin=102.0, vmax=115.0)
     assert np.allclose(fig.canvas.yrange, [102.0, 115.0])
-    line = list(fig.artists.values())[0]
+    [line] = fig.artists.values()
     assert line.color == 'red'
 
 
@@ -67,7 +67,7 @@ def test_xyplot_bin_edges():
     x = sc.arange('time', 21.0, unit='s')
     y = sc.arange('time', 100.0, 120.0, unit='K')
     fig = pp.xyplot(x, y)
-    line = list(fig.artists.values())[0]
+    [line] = fig.artists.values()
     assert len(line._line.get_xdata()) == 21
 
 

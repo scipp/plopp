@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 from matplotlib import gridspec
@@ -67,7 +67,7 @@ class Tiled:
         self,
         nrows: int,
         ncols: int,
-        figsize: Optional[Tuple[float, float]] = None,
+        figsize: tuple[float, float] | None = None,
         **kwargs: Any,
     ) -> None:
         self.nrows = nrows
@@ -88,7 +88,7 @@ class Tiled:
 
     def __setitem__(
         self,
-        inds: Union[int, slice, Tuple[int, int], Tuple[slice, slice]],
+        inds: int | slice | tuple[int, int] | tuple[slice, slice],
         view: FigureLike,
     ) -> None:
         new_view = copy_figure(view, ax=self.fig.add_subplot(self.gs[inds]))
@@ -96,7 +96,7 @@ class Tiled:
         self._history.append((inds, new_view))
 
     def __getitem__(
-        self, inds: Union[int, slice, Tuple[int, int], Tuple[slice, slice]]
+        self, inds: int | slice | tuple[int, int] | tuple[slice, slice]
     ) -> FigureLike:
         return self.views[inds]
 
@@ -161,7 +161,7 @@ class Tiled:
         return out
 
 
-def hstack(left: Union[Tiled, FigureLike], right: Union[Tiled, FigureLike]) -> Tiled:
+def hstack(left: Tiled | FigureLike, right: Tiled | FigureLike) -> Tiled:
     """
     Display two views side by side.
 
@@ -189,7 +189,7 @@ def hstack(left: Union[Tiled, FigureLike], right: Union[Tiled, FigureLike]) -> T
         return t + right
 
 
-def vstack(top: Union[Tiled, FigureLike], bottom: Union[Tiled, FigureLike]) -> Tiled:
+def vstack(top: Tiled | FigureLike, bottom: Tiled | FigureLike) -> Tiled:
     """
     Display two views on top of each other.
 

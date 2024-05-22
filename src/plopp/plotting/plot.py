@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Literal
 
 from scipp import Variable
 
@@ -16,19 +16,19 @@ def plot(
     *,
     aspect: Literal['auto', 'equal'] = 'auto',
     cbar: bool = True,
-    coords: Optional[List[str]] = None,
+    coords: list[str] | None = None,
     errorbars: bool = True,
-    figsize: Tuple[float, float] = None,
+    figsize: tuple[float, float] | None = None,
     grid: bool = False,
     ignore_size: bool = False,
     mask_color: str = 'black',
     norm: Literal['linear', 'log'] = 'linear',
-    scale: Optional[Dict[str, str]] = None,
-    title: Optional[str] = None,
-    vmin: Optional[Union[Variable, int, float]] = None,
-    vmax: Optional[Union[Variable, int, float]] = None,
+    scale: dict[str, str] | None = None,
+    title: str | None = None,
+    vmin: Variable | float | None = None,
+    vmax: Variable | float | None = None,
     autoscale: Literal['auto', 'grow'] = 'auto',
-    legend: Union[bool, Tuple[float, float]] = True,
+    legend: bool | tuple[float, float] = True,
     **kwargs,
 ) -> FigureLike:
     """Plot a Scipp object.

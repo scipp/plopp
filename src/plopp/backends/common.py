@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Literal, Optional, Tuple
+from typing import Literal
 
 import numpy as np
 import scipp as sc
@@ -27,10 +27,10 @@ class BoundingBox:
     A bounding box in 2D space.
     """
 
-    xmin: Optional[float] = None
-    xmax: Optional[float] = None
-    ymin: Optional[float] = None
-    ymax: Optional[float] = None
+    xmin: float | None = None
+    xmax: float | None = None
+    ymin: float | None = None
+    ymax: float | None = None
 
     def union(self, other: BoundingBox) -> BoundingBox:
         """
@@ -46,11 +46,11 @@ class BoundingBox:
 
 
 def axis_bounds(
-    keys: Tuple[str, str],
+    keys: tuple[str, str],
     x: sc.DataArray,
     scale: Literal['linear', 'log'],
     pad=False,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Find sensible limits for an axis, depending on linear or log scale.
 
@@ -68,7 +68,7 @@ def axis_bounds(
         Whether to pad the limits.
     """
     values = fix_empty_range(find_limits(x, scale=scale, pad=pad))
-    bounds = {k: v for k, v in zip(keys, (val.value for val in values))}
+    bounds = dict(zip(keys, (val.value for val in values), strict=True))
     return bounds
 
 

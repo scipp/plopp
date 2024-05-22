@@ -4,7 +4,7 @@
 from collections.abc import Iterable
 from copy import copy
 from functools import reduce
-from typing import Any, Literal, Optional, Tuple, Union
+from typing import Any, Literal
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -18,7 +18,7 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
 
 
-def _get_cmap(name: str, nan_color: str = None) -> Colormap:
+def _get_cmap(name: str, nan_color: str | None = None) -> Colormap:
     """
     Get a colormap object from a colormap name.
 
@@ -93,16 +93,16 @@ class ColorMapper:
 
     def __init__(
         self,
-        canvas: Optional[Any] = None,
+        canvas: Any | None = None,
         cbar: bool = True,
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
         autoscale: Literal['auto', 'grow'] = 'auto',
-        vmin: Optional[Union[sc.Variable, int, float]] = None,
-        vmax: Optional[Union[sc.Variable, int, float]] = None,
-        nan_color: Optional[str] = None,
-        figsize: Optional[Tuple[float, float]] = None,
+        vmin: sc.Variable | float | None = None,
+        vmax: sc.Variable | float | None = None,
+        nan_color: str | None = None,
+        figsize: tuple[float, float] | None = None,
     ):
         self.cax = canvas.cax if canvas is not None else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from typing import Dict, Literal, Optional, Tuple, Union
+from typing import Literal
 
 import scipp as sc
 
@@ -68,18 +68,18 @@ class LineView(GraphicalView):
         self,
         *nodes,
         norm: Literal['linear', 'log'] = 'linear',
-        vmin: Optional[Union[sc.Variable, int, float]] = None,
-        vmax: Optional[Union[sc.Variable, int, float]] = None,
+        vmin: sc.Variable | float | None = None,
+        vmax: sc.Variable | float | None = None,
         autoscale: Literal['auto', 'grow'] = 'auto',
-        scale: Optional[Dict[str, str]] = None,
+        scale: dict[str, str] | None = None,
         errorbars: bool = True,
         mask_color: str = 'black',
         aspect: Literal['auto', 'equal'] = 'auto',
         grid: bool = False,
-        title: Optional[str] = None,
-        figsize: Tuple[float, float] = None,
-        format: Optional[Literal['svg', 'png']] = None,
-        legend: Union[bool, Tuple[float, float]] = True,
+        title: str | None = None,
+        figsize: tuple[float, float] | None = None,
+        format: Literal['svg', 'png'] | None = None,
+        legend: bool | tuple[float, float] = True,
         **kwargs,
     ):
         super().__init__(*nodes)

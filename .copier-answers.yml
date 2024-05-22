@@ -1,9 +1,9 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: d91bf92
+_commit: 78693de
 _src_path: https://github.com/scipp/copier_template.git
 description: Visualization library for Scipp
 max_python: '3.12'
-min_python: '3.9'
+min_python: '3.10'
 namespace_package: ''
 nightly_deps: scipp
 orgname: scipp

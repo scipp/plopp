@@ -3,7 +3,7 @@
 
 
 from functools import partial
-from typing import Any, Dict, Literal, Tuple
+from typing import Any, Literal
 
 import ipywidgets as ipw
 import numpy as np
@@ -50,7 +50,7 @@ class Cut3dTool(ipw.HBox):
     def __init__(
         self,
         view: View,
-        limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
+        limits: tuple[sc.Variable, sc.Variable, sc.Variable],
         direction: Literal['x', 'y', 'z'],
         value: bool = False,
         color: str = 'red',
@@ -135,7 +135,7 @@ class Cut3dTool(ipw.HBox):
             ]
         )
 
-    def toggle(self, change: Dict[str, Any]):
+    def toggle(self, change: dict[str, Any]):
         """
         Toggle the tool on and off.
         """
@@ -147,7 +147,7 @@ class Cut3dTool(ipw.HBox):
         else:
             self._remove_cut()
 
-    def move(self, value: Dict[str, Any]):
+    def move(self, value: dict[str, Any]):
         """
         Move the outline of the cut according to new position given by the slider.
         """
@@ -307,7 +307,7 @@ class TriCutTool(ipw.HBox):
         opacity = self.opacity.value if active_cut else 1.0
         self._set_opacity({'new': opacity})
 
-    def _set_opacity(self, change: Dict[str, Any]):
+    def _set_opacity(self, change: dict[str, Any]):
         """
         Set the opacity of the original point clouds in the figure, not the cuts.
         """

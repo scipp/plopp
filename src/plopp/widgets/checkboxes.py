@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from collections.abc import Callable
 from html import escape
-from typing import Callable, Dict, List
 
 import ipywidgets as ipw
 
@@ -21,7 +21,7 @@ class Checkboxes(ipw.HBox):
         Default value to set all the checkboxes to.
     """
 
-    def __init__(self, entries: List[str], description: str = "", value: bool = True):
+    def __init__(self, entries: list[str], description: str = "", value: bool = True):
         self.checkboxes = {}
         self._lock = False
         self.description = ipw.Label(value=description)
@@ -61,7 +61,7 @@ class Checkboxes(ipw.HBox):
             chbx.observe(callback, **kwargs)
 
     @property
-    def value(self) -> Dict[str, bool]:
+    def value(self) -> dict[str, bool]:
         """
         Returns a dict containing one entry per checkbox, giving the checkbox's value.
         """

@@ -2,8 +2,9 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from collections.abc import Callable
 from functools import partial, reduce
-from typing import Any, Callable, Dict, List, Literal, Tuple
+from typing import Any, Literal
 
 import ipywidgets as ipw
 import numpy as np
@@ -16,7 +17,7 @@ from .debounce import debounce
 from .style import BUTTON_LAYOUT
 
 
-def _xor(x: List[sc.Variable]) -> sc.Variable:
+def _xor(x: list[sc.Variable]) -> sc.Variable:
     dim = uuid.uuid4().hex
     return sc.concat(x, dim).sum(dim) == sc.scalar(1, unit=None)
 
@@ -28,7 +29,7 @@ OPERATIONS = {
 }
 
 
-def select(da: sc.DataArray, s: Tuple[str, sc.Variable]) -> sc.DataArray:
+def select(da: sc.DataArray, s: tuple[str, sc.Variable]) -> sc.DataArray:
     return da[s]
 
 
@@ -58,7 +59,7 @@ class Clip3dTool(ipw.HBox):
 
     def __init__(
         self,
-        limits: Tuple[sc.Variable, sc.Variable, sc.Variable],
+        limits: tuple[sc.Variable, sc.Variable, sc.Variable],
         direction: Literal['x', 'y', 'z'],
         update: Callable,
         color: str = 'red',
@@ -121,7 +122,7 @@ class Clip3dTool(ipw.HBox):
             layout={'width': '16px', 'padding': '0px'},
         )
 
-        for outline, val in zip(self.outlines, self.slider.value):
+        for outline, val in zip(self.outlines, self.slider.value, strict=True):
             pos = list(center)
             pos[axis] = val
             outline.position = pos
@@ -156,18 +157,18 @@ class Clip3dTool(ipw.HBox):
         # the cut, the border visibility is in sync with the parent button.
         self._border_visible = value
 
-    def move(self, value: Dict[str, Any]):
+    def move(self, value: dict[str, Any]):
         """
         Move the outline of the cut according to new position given by the slider.
         """
         # Early return if relative difference between new and old value is small.
         # This also prevents flickering of an existing cut when a new cut is added.
         if (
-            np.abs((np.array(value['new']) - np.array(value['old']))).max()
+            np.abs(np.array(value['new']) - np.array(value['old'])).max()
             < 0.01 * self.slider.step
         ):
             return
-        for outline, val in zip(self.outlines, value['new']):
+        for outline, val in zip(self.outlines, value['new'], strict=True):
             pos = list(outline.position)
             axis = 'xyz'.index(self._direction)
             pos[axis] = val
@@ -306,7 +307,7 @@ class ClippingPlanes(ipw.HBox):
         )
         self._view.canvas.add(cut.outlines)
         self.cuts.append(cut)
-        self.tabs.children = list(self.tabs.children) + [cut]
+        self.tabs.children = [*self.tabs.children, cut]
         self.tabs.selected_index = len(self.cuts) - 1
         self.update_controls()
         self.update_state()
@@ -333,7 +334,7 @@ class ClippingPlanes(ipw.HBox):
         opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
 
-    def _set_opacity(self, change: Dict[str, Any]):
+    def _set_opacity(self, change: dict[str, Any]):
         """
         Set the opacity of the original point clouds in the figure, not the cuts.
         """
@@ -345,14 +346,14 @@ class ClippingPlanes(ipw.HBox):
         """
         self.layout.display = None if self.layout.display == 'none' else 'none'
 
-    def toggle_border_visibility(self, change: Dict[str, Any]):
+    def toggle_border_visibility(self, change: dict[str, Any]):
         """
         Toggle the visibility of the borders of the cuts.
         """
         for cut in self.cuts:
             cut.toggle_border(change['new'])
 
-    def change_operation(self, change: Dict[str, Any]):
+    def change_operation(self, change: dict[str, Any]):
         """
         Change the operation to combine multiple cuts.
         """

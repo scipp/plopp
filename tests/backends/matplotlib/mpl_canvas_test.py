@@ -52,5 +52,5 @@ def test_save_to_disk(ext):
 
 def test_save_to_disk_with_bad_extension_raises():
     canvas = Canvas()
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='txt'):
         canvas.save(filename='plopp_fig.txt')

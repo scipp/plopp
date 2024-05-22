@@ -3,7 +3,7 @@
 
 import uuid
 from functools import partial
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal
 
 import scipp as sc
 
@@ -15,8 +15,8 @@ def _preprocess_scatter(
     obj: PlottableMulti,
     x: str,
     y: str,
-    size: Optional[str],
-    name: Optional[str] = None,
+    size: str | None,
+    name: str | None = None,
 ):
     da = from_compatible_lib(obj)
     check_not_binned(da)
@@ -38,12 +38,12 @@ def scatter(
     *,
     x: str = 'x',
     y: str = 'y',
-    size: Optional[Union[str, float]] = None,
-    figsize: Tuple[float, float] = None,
+    size: str | float | None = None,
+    figsize: tuple[float, float] | None = None,
     norm: Literal['linear', 'log'] = 'linear',
-    title: str = None,
-    vmin: Union[sc.Variable, int, float] = None,
-    vmax: Union[sc.Variable, int, float] = None,
+    title: str | None = None,
+    vmin: sc.Variable | float = None,
+    vmax: sc.Variable | float = None,
     cbar: bool = False,
     cmap: str = 'viridis',
     **kwargs,

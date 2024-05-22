@@ -8,18 +8,21 @@ from plopp.data.testing import data_array
 from plopp.plotting.superplot import superplot
 
 
-def test_creation(use_ipympl):
+@pytest.mark.usefixtures('_use_ipympl')
+def test_creation():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
     assert len(sp.right_bar[0]._lines) == 0
 
 
-def test_from_node(use_ipympl):
+@pytest.mark.usefixtures('_use_ipympl')
+def test_from_node():
     da = data_array(ndim=2)
     superplot(Node(da))
 
 
-def test_save_line(use_ipympl):
+@pytest.mark.usefixtures('_use_ipympl')
+def test_save_line():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
     tool = sp.right_bar[0]
@@ -39,7 +42,8 @@ def test_save_line(use_ipympl):
     assert len(tool.container.children) == 2
 
 
-def test_remove_line(use_ipympl):
+@pytest.mark.usefixtures('_use_ipympl')
+def test_remove_line():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
     tool = sp.right_bar[0]
@@ -66,7 +70,8 @@ def test_remove_line(use_ipympl):
     assert len(tool.container.children) == 1
 
 
-def test_change_line_color(use_ipympl):
+@pytest.mark.usefixtures('_use_ipympl')
+def test_change_line_color():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
     tool = sp.right_bar[0]
@@ -76,7 +81,8 @@ def test_change_line_color(use_ipympl):
     assert tool._lines[line_id]['line'].color == '#000000'
 
 
-def test_raises_ValueError_when_given_binned_data(use_ipympl):
+@pytest.mark.usefixtures('_use_ipympl')
+def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         superplot(da, keep='x')

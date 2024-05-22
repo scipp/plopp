@@ -5,11 +5,11 @@
 #
 #    pip-compile-multi
 #
-build==1.0.3
+build==1.2.1
     # via -r wheels.in
-packaging==23.2
+packaging==24.0
     # via build
-pyproject-hooks==1.0.0
+pyproject-hooks==1.1.0
     # via build
 tomli==2.0.1
     # via build

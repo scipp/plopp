@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .node import Node
@@ -37,7 +37,7 @@ class View:
         """
         return self._id
 
-    def notify_view(self, message: Dict[str, Any]) -> None:
+    def notify_view(self, message: dict[str, Any]) -> None:
         """
         When a notification is received, request data from the corresponding parent node
         and update the relevant artist.
