@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from .inspector import inspector
+from .mesh3d import mesh3d
 from .plot import plot
 from .scatter import scatter
 from .scatter3d import scatter3d
@@ -11,6 +12,7 @@ from .xyplot import xyplot
 
 __all__ = [
     'inspector',
+    'mesh3d',
     'plot',
     'scatter',
     'scatter3d',

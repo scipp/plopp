@@ -7,6 +7,7 @@ from .colormapper import ColorMapper
 from .figure import figure1d, figure2d, figure3d
 from .imageview import ImageView, imagefigure
 from .lineview import LineView, linefigure
+from .mesh3dview import Mesh3dView, mesh3dfigure
 from .scatter3dview import Scatter3dView, scatter3dfigure
 from .scatterview import ScatterView, scatterfigure
 from .tiled import tiled
