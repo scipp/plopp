@@ -126,7 +126,24 @@ def test_data_request_is_cached():
     assert log == 'cd'  # 'c' requests data from 'a' but 'a' is cached so no 'a' in log
 
 
-def test_remove_node():
+def test_remove_node_args():
+    a = Node(lambda: 5)
+    b = Node(lambda x: x - 2, a)
+    c = Node(lambda x: x + 2, a)
+    bv = DataView(b)
+    cv = DataView(c)
+    assert a is b.parents[0]
+    assert b in a.children
+    assert c in a.children
+    assert bv in b.views
+    b.remove()
+    assert bv not in b.views
+    assert b not in a.children
+    assert c in a.children
+    assert cv in c.views
+
+
+def test_remove_node_kwargs():
     a = Node(lambda: 5)
     b = Node(lambda x: x - 2, x=a)
     c = Node(lambda x: x + 2, x=a)
@@ -144,14 +161,40 @@ def test_remove_node():
     assert cv in c.views
 
 
-def test_cannot_remove_node_with_children():
+def test_remove_node_with_children_args():
+    a = Node(lambda: 5)
+    b = Node(lambda x: x - 2, a)
+    av = DataView(a)
+    a.remove()
+    assert b not in a.children
+    assert a not in b.parents
+    assert a not in b.kwparents.values()
+    assert av not in a.views
+
+
+def test_remove_node_with_children_multiple_args():
+    a = Node(lambda: 5)
+    b = Node(lambda: 3)
+    c = Node(lambda: 11)
+    d = Node(lambda *args: sum(args), a, b, c)
+    assert d() == 19
+    a.remove()
+    assert d() == 14
+    b.remove()
+    assert d() == 11
+    c.remove()
+    assert d() == 0
+
+
+def test_remove_node_with_children_kwargs():
     a = Node(lambda: 5)
     b = Node(lambda x: x - 2, x=a)
     av = DataView(a)
-    with pytest.raises(RuntimeError, match="Cannot delete node"):
-        a.remove()
-    assert b in a.children
-    assert av in a.views
+    a.remove()
+    assert b not in a.children
+    assert a not in b.parents
+    assert a not in b.kwparents.values()
+    assert av not in a.views
 
 
 def add(x, y):
