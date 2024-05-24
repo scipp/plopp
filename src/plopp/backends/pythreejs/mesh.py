@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 import uuid
 
@@ -10,39 +10,39 @@ import scipp as sc
 class Mesh:
     """ """
 
-    def __init__(
-        self,
-        *,
-        # color: str,
-        data: sc.DataArray,
-        opacity: float = 1,
-    ):
+    def __init__(self, *, data: sc.DataArray, opacity: float = 1):
         """ """
         import pythreejs as p3
 
-        self._data = data
-        # self._color = color
+        self._datagroup = data
+        self._data = None
+        if "vertexcolors" in self._datagroup:
+            self._data = sc.DataArray(data=self._datagroup["vertexcolors"])
         self._id = uuid.uuid4().hex
 
         position = p3.BufferAttribute(
-            array=self._data["vertices"].values.astype('float32')
+            array=self._datagroup["vertices"].values.astype('float32')
         )
-        # color = p3.BufferAttribute(array=np.random.random([4, 3]).astype('float32'))
+        # Note: index *must* be unsigned!
         index = p3.BufferAttribute(
-            array=self._data["faces"].values.flatten().astype('uint32')
-        )  # *MUST* be unsigned!
+            array=self._datagroup["faces"].values.flatten().astype('uint32')
+        )
 
         attributes = {
             'position': position,
         }
-        if "vertexcolors" in self._data:
+        if self._data is not None:
             attributes["color"] = p3.BufferAttribute(
-                array=self._data["vertexcolors"].values.astype('float32')
+                array=np.zeros((len(self._data), 3), dtype='float32')
             )
 
         self.geometry = p3.BufferGeometry(index=index, attributes=attributes)
         self.material = p3.MeshBasicMaterial(
-            vertexColors='VertexColors', transparent=True, side='DoubleSide'
+            vertexColors='VertexColors',
+            transparent=True,
+            side='DoubleSide',
+            opacity=opacity,
+            depthTest=opacity > 0.5,
         )
         self.mesh = p3.Mesh(geometry=self.geometry, material=self.material)
 
@@ -66,22 +66,20 @@ class Mesh:
         new_values:
             New data to update the mesh values from.
         """
-        # _check_ndim(new_values)
-        self._data = new_values
-        self.geometry.attributes["position"].array = self._data[
+        self._datagroup = new_values
+        if "vertexcolors" in self._datagroup:
+            self._data.data = self._datagroup["vertexcolors"]
+        self.geometry.attributes["position"].array = self._datagroup[
             "vertices"
         ].values.astype('float32')
-        # self.geometry.index.array = (
-        #     self._data["faces"].values.flatten().astype('uint32')
-        # )
 
     def get_limits(self) -> tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
         Get the spatial extent of all the points in the cloud.
         """
-        xcoord = self._data["vertices"].fields.x
-        ycoord = self._data["vertices"].fields.y
-        zcoord = self._data["vertices"].fields.z
+        xcoord = self._datagroup["vertices"].fields.x
+        ycoord = self._datagroup["vertices"].fields.y
+        zcoord = self._datagroup["vertices"].fields.z
         return (
             sc.concat([xcoord.min(), xcoord.max()], dim='x'),
             sc.concat([ycoord.min(), ycoord.max()], dim='y'),

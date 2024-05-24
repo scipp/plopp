@@ -95,6 +95,12 @@ getting-started/saving-figures
 
 :::
 
+:::{grid-item-card} Mesh 3D plot
+:link: plot-types/mesh3d-plot.ipynb
+:img-bottom: ../_static/plot-types/mesh3d-plot.png
+
+:::
+
 ::::
 
 ```{toctree}

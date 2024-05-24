@@ -14,7 +14,37 @@ from .colormapper import ColorMapper
 
 
 class Mesh3dView(View):
-    """ """
+    """
+    View that makes a visual representation of three-dimensional mesh data.
+    It has a :class:`Canvas`, a :class:`ColorMapper` and a specialized ``update``
+    function that generates :class:`Mesh` artists.
+
+    Parameters
+    ----------
+    *nodes:
+        The nodes that are attached to the view.
+    cmap:
+        The name of the colormap for the data
+        (see https://matplotlib.org/stable/tutorials/colors/colormaps.html).
+        In addition to the Matplotlib docs, if the name is just a single html color,
+        a colormap with that single color will be used.
+    mask_cmap:
+        The name of the colormap for masked data.
+    norm:
+        Control the scaling on the vertical axis.
+    vmin:
+        Lower bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
+    vmax:
+        Upper bound for the colorbar. If a number (without a unit) is supplied, it is
+        assumed that the unit is the same as the data unit.
+    figsize:
+        The width and height of the figure, in pixels.
+    title:
+        The figure title.
+    camera:
+        Initial camera configuration (position, target).
+    """
 
     def __init__(
         self,
@@ -53,29 +83,28 @@ class Mesh3dView(View):
         new data or by keyword arguments.
         """
         new = dict(*args, **kwargs)
-        # mapping = {'x': self._x, 'y': self._y, 'z': self._z}
-        print('new', new)
+        new_colors = {
+            key: sc.DataArray(data=values["vertexcolors"])
+            for key, values in new.items()
+            if "vertexcolors" in values
+        }
         for key, new_values in new.items():
-            print('new_values', new_values)
-            # if self.canvas.empty:
-            #     self.canvas.set_axes(
-            #         dims=mapping,
-            #         units={
-            #             x: new_values.coords[dim].unit for x, dim in mapping.items()
-            #         },
-            #         dtypes={
-            #             x: new_values.coords[dim].dtype for x, dim in mapping.items()
-            #         },
-            #     )
-            #     self.colormapper.unit = new_values.unit
-            # else:
-            #     new_values.data = make_compatible(
-            #         new_values.data, unit=self.colormapper.unit
-            #     )
-            #     for xyz, dim in mapping.items():
-            #         new_values.coords[dim] = new_values.coords[dim].to(
-            #             unit=self.canvas.units[xyz], copy=False
-            #         )
+            if self.canvas.empty:
+                self.canvas.set_axes(
+                    dims=None,
+                    units={"vertices": new_values["vertices"].unit},
+                    dtypes=None,
+                )
+                color = new_colors.get(key, None)
+                self.colormapper.unit = color.unit if color is not None else None
+            else:
+                if key in new_colors:
+                    new_colors[key].data = make_compatible(
+                        new_colors[key].data, unit=self.colormapper.unit
+                    )
+                new_values["vertices"] = make_compatible(
+                    new_values["vertices"], unit=self.canvas.units["vertices"]
+                )
 
             if key not in self.artists:
                 mesh = backends.mesh(data=new_values, **self._kwargs)
@@ -86,7 +115,13 @@ class Mesh3dView(View):
                     self.canvas.make_outline(limits=self.get_limits())
 
             self.artists[key].update(new_values=new_values)
-        self.colormapper.update(**new["color"])
+        self.colormapper.update(
+            **{
+                key: sc.DataArray(data=values["vertexcolors"])
+                for key, values in new.items()
+                if "vertexcolors" in values
+            }
+        )
 
     def get_limits(self) -> tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
@@ -144,6 +179,10 @@ class Mesh3dView(View):
 
 
 def mesh3dfigure(*args, **kwargs) -> FigureLike:
-    """ """
+    """
+    Create a 3D mesh figure.
+
+    .. versionadded:: 24.06.0
+    """
 
     return backends.figure3d(Mesh3dView, *args, **kwargs)
