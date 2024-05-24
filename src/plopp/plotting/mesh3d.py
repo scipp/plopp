@@ -7,26 +7,35 @@ from typing import Literal
 
 import scipp as sc
 
-from ..core.typing import FigureLike, PlottableMulti
+from ..core import Node
+from ..core.typing import FigureLike, Plottable, PlottableMulti
 from ..graphics import Camera
-from .common import check_not_binned, from_compatible_lib, input_to_nodes
+from .common import _maybe_to_variable, input_to_nodes
 
 
 def _preprocess_mesh(
-    obj: PlottableMulti,
-    name: str | None = None,
-) -> sc.DataArray:
-    out = obj.copy(deep=False)
-    if name is not None:
-        out.name = name
-    return out
+    vertices: Plottable,
+    faces: Plottable,
+    facecolors: Plottable | None = None,
+    vertexcolors: Plottable | None = None,
+) -> sc.DataGroup:
+    return sc.DataGroup(
+        {
+            name: _maybe_to_variable(data)
+            for name, data in zip(
+                ['vertices', 'faces', 'facecolors', 'vertexcolors'],
+                [vertices, faces, facecolors, vertexcolors],
+            )
+            if data is not None
+        }
+    )
 
 
 def mesh3d(
-    obj: PlottableMulti,
-    *,
-    vertices: str = 'vertices',
-    faces: str = 'faces',
+    vertices: Plottable,
+    faces: Plottable,
+    facecolors: Plottable | None = None,
+    vertexcolors: Plottable | None = None,
     figsize: tuple[int, int] = (600, 400),
     norm: Literal['linear', 'log'] = 'linear',
     title: str | None = None,
@@ -40,12 +49,16 @@ def mesh3d(
     from ..graphics import mesh3dfigure
     # from ..widgets import ClippingPlanes, ToggleTool
 
-    nodes = input_to_nodes(obj, processor=_preprocess_mesh)
-
-    fig = mesh3dfigure(
-        *nodes,
+    input_node = Node(
+        _preprocess_mesh,
         vertices=vertices,
         faces=faces,
+        facecolors=facecolors,
+        vertexcolors=vertexcolors,
+    )
+
+    fig = mesh3dfigure(
+        input_node,
         figsize=figsize,
         norm=norm,
         title=title,

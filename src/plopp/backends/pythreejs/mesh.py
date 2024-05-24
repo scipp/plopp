@@ -13,8 +13,6 @@ class Mesh:
     def __init__(
         self,
         *,
-        vertices: str,
-        faces: str,
         # color: str,
         data: sc.DataArray,
         opacity: float = 1,
@@ -23,27 +21,26 @@ class Mesh:
         import pythreejs as p3
 
         self._data = data
-        self._vertices = vertices
-        self._faces = faces
         # self._color = color
         self._id = uuid.uuid4().hex
 
         position = p3.BufferAttribute(
-            array=self._data[self._vertices].values.astype('float32')
+            array=self._data["vertices"].values.astype('float32')
         )
         # color = p3.BufferAttribute(array=np.random.random([4, 3]).astype('float32'))
         index = p3.BufferAttribute(
-            array=self._data[self._faces].values.flatten().astype('uint32')
+            array=self._data["faces"].values.flatten().astype('uint32')
         )  # *MUST* be unsigned!
 
-        self.geometry = p3.BufferGeometry(
-            index=index,
-            attributes={
-                'position': position,
-                #  'color': color
-            },
-        )
+        attributes = {
+            'position': position,
+        }
+        if "vertexcolors" in self._data:
+            attributes["color"] = p3.BufferAttribute(
+                array=self._data["vertexcolors"].values.astype('float32')
+            )
 
+        self.geometry = p3.BufferGeometry(index=index, attributes=attributes)
         self.material = p3.MeshBasicMaterial(
             vertexColors='VertexColors', transparent=True, side='DoubleSide'
         )
@@ -71,14 +68,20 @@ class Mesh:
         """
         # _check_ndim(new_values)
         self._data = new_values
+        self.geometry.attributes["position"].array = self._data[
+            "vertices"
+        ].values.astype('float32')
+        # self.geometry.index.array = (
+        #     self._data["faces"].values.flatten().astype('uint32')
+        # )
 
     def get_limits(self) -> tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
         Get the spatial extent of all the points in the cloud.
         """
-        xcoord = self._data[self._vertices].fields.x
-        ycoord = self._data[self._vertices].fields.y
-        zcoord = self._data[self._vertices].fields.z
+        xcoord = self._data["vertices"].fields.x
+        ycoord = self._data["vertices"].fields.y
+        zcoord = self._data["vertices"].fields.z
         return (
             sc.concat([xcoord.min(), xcoord.max()], dim='x'),
             sc.concat([ycoord.min(), ycoord.max()], dim='y'),

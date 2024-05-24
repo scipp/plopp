@@ -19,8 +19,6 @@ class Mesh3dView(View):
     def __init__(
         self,
         *nodes,
-        vertices: str = 'vertices',
-        faces: str = 'faces',
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
@@ -33,8 +31,6 @@ class Mesh3dView(View):
     ):
         super().__init__(*nodes)
 
-        self._vertices = vertices
-        self._faces = faces
         self._kwargs = kwargs
 
         self.canvas = backends.canvas3d(figsize=figsize, title=title, camera=camera)
@@ -82,12 +78,7 @@ class Mesh3dView(View):
             #         )
 
             if key not in self.artists:
-                mesh = backends.mesh(
-                    data=new_values,
-                    vertices=self._vertices,
-                    faces=self._faces,
-                    **self._kwargs,
-                )
+                mesh = backends.mesh(data=new_values, **self._kwargs)
                 self.artists[key] = mesh
                 self.colormapper[key] = mesh
                 self.canvas.add(mesh.mesh)
@@ -95,7 +86,7 @@ class Mesh3dView(View):
                     self.canvas.make_outline(limits=self.get_limits())
 
             self.artists[key].update(new_values=new_values)
-        # self.colormapper.update(**new)
+        self.colormapper.update(**new["color"])
 
     def get_limits(self) -> tuple[sc.Variable, sc.Variable, sc.Variable]:
         """
