@@ -115,6 +115,7 @@ plot-types/inspector-plot
 plot-types/super-plot
 plot-types/scatter-plot
 plot-types/scatter3d-plot
+plot-types/mesh3d-plot
 ```
 
 ## Custom figures

@@ -8,6 +8,7 @@
 
    backends.pythreejs.PythreejsBackend
    backends.pythreejs.canvas.Canvas
+   backends.pythreejs.mesh.Mesh
    backends.pythreejs.outline.Outline
    backends.pythreejs.point_cloud.PointCloud
    backends.pythreejs.figure.Figure
