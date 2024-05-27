@@ -40,11 +40,11 @@ class Mesh:
         self._id = uuid.uuid4().hex
 
         position = p3.BufferAttribute(
-            array=self._datagroup["vertices"].values.astype('float32')
+            array=self._datagroup["vertices"].values.astype('float32', copy=False)
         )
         # Note: index *must* be unsigned!
         index = p3.BufferAttribute(
-            array=self._datagroup["faces"].values.flatten().astype('uint32')
+            array=self._datagroup["faces"].values.flatten().astype('uint32', copy=False)
         )
 
         attributes = {
@@ -64,16 +64,19 @@ class Mesh:
             depthTest=opacity > 0.5,
         )
         self.mesh = p3.Mesh(geometry=self.geometry, material=self.material)
-        self.edges = p3.LineSegments(
-            p3.EdgesGeometry(self.geometry),
-            p3.LineBasicMaterial(
-                color=edgecolor or 'black',
-                linewidth=2,
-                opacity=opacity,
-                transparent=True,
-            ),
+        self.edges = (
+            p3.LineSegments(
+                p3.EdgesGeometry(self.geometry),
+                p3.LineBasicMaterial(
+                    color=edgecolor or 'black',
+                    linewidth=2,
+                    opacity=opacity,
+                    transparent=True,
+                ),
+            )
+            if edgecolor is not None
+            else None
         )
-        self.edges.visible = edgecolor is not None
 
     def set_colors(self, rgba):
         """
@@ -84,7 +87,9 @@ class Mesh:
         rgba:
             The array of rgba colors.
         """
-        self.geometry.attributes["color"].array = rgba[..., :3].astype('float32')
+        self.geometry.attributes["color"].array = rgba[..., :3].astype(
+            'float32', copy=False
+        )
 
     def update(self, new_values):
         """

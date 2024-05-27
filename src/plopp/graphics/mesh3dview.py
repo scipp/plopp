@@ -111,7 +111,8 @@ class Mesh3dView(View):
                 self.artists[key] = mesh
                 self.colormapper[key] = mesh
                 self.canvas.add(mesh.mesh)
-                self.canvas.add(mesh.edges)
+                if mesh.edges is not None:
+                    self.canvas.add(mesh.edges)
                 if key in self._original_artists:
                     self.canvas.make_outline(limits=self.get_limits())
 
