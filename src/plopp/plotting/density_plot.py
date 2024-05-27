@@ -16,7 +16,6 @@ def _convert_to_density(da: PlottableMulti, name: str = None):
             widths = w
         else:
             widths = widths * w
-    print(widths)
     out = da / widths
     if name is not None:
         out.name = name
