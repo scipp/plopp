@@ -8,10 +8,29 @@ import scipp as sc
 
 
 class Mesh:
-    """ """
+    """
+    Artist to represent a three-dimensional mesh.
 
-    def __init__(self, *, data: sc.DataArray, opacity: float = 1):
-        """ """
+    Parameters
+    ----------
+    data:
+        The initial data to create the mesh from. Must be a DataGroup that contains at
+        least the following fields:
+        - vertices: a DataArray with the vertices of the mesh.
+        - faces: a DataArray with the faces of the mesh.
+    opacity:
+        The opacity of the mesh.
+    edgecolor:
+        The color of the edges of the mesh. If None, the edges will not be shown.
+    """
+
+    def __init__(
+        self,
+        *,
+        data: sc.DataArray,
+        opacity: float = 1,
+        edgecolor: str | None = None,
+    ):
         import pythreejs as p3
 
         self._datagroup = data
@@ -45,6 +64,16 @@ class Mesh:
             depthTest=opacity > 0.5,
         )
         self.mesh = p3.Mesh(geometry=self.geometry, material=self.material)
+        self.edges = p3.LineSegments(
+            p3.EdgesGeometry(self.geometry),
+            p3.LineBasicMaterial(
+                color=edgecolor or 'black',
+                linewidth=2,
+                opacity=opacity,
+                transparent=True,
+            ),
+        )
+        self.edges.visible = edgecolor is not None
 
     def set_colors(self, rgba):
         """
@@ -69,9 +98,10 @@ class Mesh:
         self._datagroup = new_values
         if "vertexcolors" in self._datagroup:
             self._data.data = self._datagroup["vertexcolors"]
-        self.geometry.attributes["position"].array = self._datagroup[
-            "vertices"
-        ].values.astype('float32')
+        # TODO: for now we only update the colors of the mesh. Updating the positions
+        # of the vertices is doable but is made more complicated by the edges geometry,
+        # whose positions cannot just be updated. A new geometry and edge lines would
+        # have to be created, the old one removed from the scene and the new one added.
 
     def get_limits(self) -> tuple[sc.Variable, sc.Variable, sc.Variable]:
         """

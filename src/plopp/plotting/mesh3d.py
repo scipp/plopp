@@ -14,15 +14,15 @@ from .common import _maybe_to_variable
 def _preprocess_mesh(
     vertices: Plottable,
     faces: Plottable,
-    facecolors: Plottable | None = None,
     vertexcolors: Plottable | None = None,
 ) -> sc.DataGroup:
     out = sc.DataGroup(
         {
             name: _maybe_to_variable(data)
             for name, data in zip(
-                ['vertices', 'faces', 'facecolors', 'vertexcolors'],
-                [vertices, faces, facecolors, vertexcolors],
+                ['vertices', 'faces', 'vertexcolors'],
+                [vertices, faces, vertexcolors],
+                strict=True,
             )
             if data is not None
         }
@@ -35,8 +35,8 @@ def _preprocess_mesh(
 def mesh3d(
     vertices: Plottable,
     faces: Plottable,
-    facecolors: Plottable | None = None,
     vertexcolors: Plottable | None = None,
+    edgecolor: str | None = None,
     figsize: tuple[int, int] = (600, 400),
     norm: Literal['linear', 'log'] = 'linear',
     title: str | None = None,
@@ -57,10 +57,10 @@ def mesh3d(
         The vertices of the mesh. Must be a variable of dtype vector3.
     faces:
         The indices that construct the faces of the mesh.
-    facecolors:
-        The colors of the faces of the mesh.
     vertexcolors:
         The colors of the vertices of the mesh.
+    edgecolor:
+        The color of the edges. If None, no edges are drawn.
     figsize:
         The size of the figure.
     norm:
@@ -82,12 +82,12 @@ def mesh3d(
         _preprocess_mesh,
         vertices=vertices,
         faces=faces,
-        facecolors=facecolors,
         vertexcolors=vertexcolors,
     )
 
     fig = mesh3dfigure(
         input_node,
+        edgecolor=edgecolor,
         figsize=figsize,
         norm=norm,
         title=title,
