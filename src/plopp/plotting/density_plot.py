@@ -10,6 +10,8 @@ def _convert_to_density(da: PlottableMulti, name: str = None):
     check_not_binned(da)
     widths = None
     for dim in da.dims:
+        if not da.coords.is_edges(dim):
+            raise ValueError(f"Coordinate {dim} must be bin edges for density_plot.")
         coord = da.coords[dim]
         w = coord[1:] - coord[:-1]
         if widths is None:
