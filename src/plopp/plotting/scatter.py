@@ -40,6 +40,7 @@ def scatter(
     y: str = 'y',
     size: str | float | None = None,
     figsize: tuple[float, float] | None = None,
+    mask_color: str = 'black',
     norm: Literal['linear', 'log'] = 'linear',
     title: str | None = None,
     vmin: sc.Variable | float = None,
@@ -67,6 +68,8 @@ def scatter(
         be used for the size of the markers.
     figsize:
         The width and height of the figure, in inches.
+    mask_color:
+        The color of the masks.
     norm:
         Set to ``'log'`` for a logarithmic colorscale (only applicable if ``cbar`` is
         ``True``).
@@ -96,6 +99,7 @@ def scatter(
         y=y,
         size=size,
         figsize=figsize,
+        mask_color=mask_color,
         norm=norm,
         title=title,
         vmin=vmin,
