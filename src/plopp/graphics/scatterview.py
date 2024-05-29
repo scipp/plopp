@@ -28,7 +28,13 @@ def scatterfigure(*nodes, **kwargs) -> FigureLike:
       >>> in_node = pp.Node(da)
       >>> fig = pp.scatterfigure(in_node, cbar=True)
     """
-    artist_args = {key: kwargs.pop(key) for key in ('x', 'y', 'size', 'mask_color')}
+    default_args = {'x': 'x', 'y': 'y', 'cbar': False}
+    kwargs = {**default_args, **kwargs}
+    artist_args = {
+        key: kwargs.pop(key)
+        for key in ('x', 'y', 'size', 'mask_color')
+        if key in kwargs
+    }
     # Add cbar but we do not want to pop from kwargs
     artist_args['cbar'] = kwargs['cbar']
 

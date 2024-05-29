@@ -13,7 +13,29 @@ from .utils import make_legend, parse_dicts_in_kwargs
 
 
 class Scatter:
-    """ """
+    """
+    Artist to represent a two-dimensional scatter plot.
+
+    Parameters
+    ----------
+    canvas:
+        The canvas that will display the scatter plot.
+    data:
+        The initial data to create the scatter plot from.
+    x:
+        The name of the coordinate that is to be used for the X positions.
+    y:
+        The name of the coordinate that is to be used for the Y positions.
+    size:
+        The name of the coordinate that is to be used for the size of the markers.
+    artist_number:
+        The canvas keeps track of how many lines have been added to it. This number is
+        used to set the color and marker parameters of the different scatter groups.
+    mask_color:
+        The color of the mask markers.
+    cbar:
+        Whether to add a colorbar to the scatter plot.
+    """
 
     def __init__(
         self,

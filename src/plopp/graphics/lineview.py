@@ -36,7 +36,9 @@ def linefigure(*nodes, **kwargs) -> FigureLike:
       >>> in_node = pp.Node(da)
       >>> fig = pp.linefigure(in_node, norm='log')
     """
-    artist_args = {key: kwargs.pop(key) for key in ('errorbars', 'mask_color')}
+    artist_args = {
+        key: kwargs.pop(key) for key in ('errorbars', 'mask_color') if key in kwargs
+    }
 
     view_maker = partial(
         GraphicalView,
