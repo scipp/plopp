@@ -106,6 +106,7 @@ class DrawingTool(ToggleTool):
             self._destination.canvas.draw()
         output_node.remove()
         draw_node.remove()
+        del self._draw_nodes[nodeid]
 
     def start_stop(self):
         """
