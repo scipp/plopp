@@ -31,7 +31,7 @@ class GraphicalView(View):
         colormapper: bool = False,
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
-        cbar: bool = True,
+        cbar: bool = False,
         norm: Literal['linear', 'log'] = 'linear',
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,

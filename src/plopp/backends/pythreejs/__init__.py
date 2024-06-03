@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from importlib import import_module
+from typing import Any
+
 
 class PythreejsBackend:
     def is_interactive(self):
@@ -9,37 +12,43 @@ class PythreejsBackend:
         """
         return True
 
-    def canvas3d(self, *args, **kwargs):
+    def get(self, name: str) -> Any:
         """
-        See :class:`canvas.Canvas` for details.
+        Get a module from the backend.
         """
-        from .canvas import Canvas as CanvasP3js
+        return import_module(name.capitalize(), f".{name}")
 
-        return CanvasP3js(*args, **kwargs)
+    # def canvas3d(self, *args, **kwargs):
+    #     """
+    #     See :class:`canvas.Canvas` for details.
+    #     """
+    #     from .canvas import Canvas as CanvasP3js
 
-    def mesh(self, *args, **kwargs):
-        """
-        See :class:`mesh.Mesh` for details.
-        """
-        from .mesh import Mesh as MeshP3js
+    #     return CanvasP3js(*args, **kwargs)
 
-        return MeshP3js(*args, **kwargs)
+    # def mesh(self, *args, **kwargs):
+    #     """
+    #     See :class:`mesh.Mesh` for details.
+    #     """
+    #     from .mesh import Mesh as MeshP3js
 
-    def point_cloud(self, *args, **kwargs):
-        """
-        See :class:`point_cloud.PointCloud` for details.
-        """
-        from .point_cloud import PointCloud as PointCloudP3js
+    #     return MeshP3js(*args, **kwargs)
 
-        return PointCloudP3js(*args, **kwargs)
+    # def point_cloud(self, *args, **kwargs):
+    #     """
+    #     See :class:`point_cloud.PointCloud` for details.
+    #     """
+    #     from .point_cloud import PointCloud as PointCloudP3js
 
-    def figure3d(self, *args, **kwargs):
-        """
-        See :class:`figure.Figure` for details.
-        """
-        from .figure import Figure as FigP3js
+    #     return PointCloudP3js(*args, **kwargs)
 
-        return FigP3js(*args, **kwargs)
+    # def figure3d(self, *args, **kwargs):
+    #     """
+    #     See :class:`figure.Figure` for details.
+    #     """
+    #     from .figure import Figure as FigP3js
+
+    #     return FigP3js(*args, **kwargs)
 
 
 __all__ = ["PythreejsBackend"]

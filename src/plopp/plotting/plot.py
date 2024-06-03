@@ -6,8 +6,10 @@ from typing import Literal
 
 from scipp import Variable
 
+from .. import viewlibrary
 from ..core.typing import FigureLike, PlottableMulti
-from ..graphics import imagefigure, linefigure
+
+# from ..graphics import imagefigure, linefigure
 from .common import input_to_nodes, preprocess, raise_multiple_inputs_for_2d_plot_error
 
 
@@ -119,7 +121,7 @@ def plot(
         )
     ndim = ndims.pop()
     if ndim == 1:
-        return linefigure(
+        return viewlibrary['linefigure'](
             *nodes,
             errorbars=errorbars,
             mask_color=mask_color,

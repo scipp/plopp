@@ -107,6 +107,7 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
+        print('Canvas.__init__', cbar)
         self.fig = None
         self.ax = ax
         self.cax = cax

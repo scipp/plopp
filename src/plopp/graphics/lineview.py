@@ -3,7 +3,7 @@
 
 from functools import partial
 
-from .. import backends
+from .. import backends, dispatcher
 from ..core.typing import FigureLike
 from .graphicalview import GraphicalView
 
@@ -39,12 +39,14 @@ def linefigure(*nodes, **kwargs) -> FigureLike:
     artist_args = {
         key: kwargs.pop(key) for key in ('errorbars', 'mask_color') if key in kwargs
     }
+    # print(kwargs)
 
     view_maker = partial(
         GraphicalView,
         dims={'x': None},
-        canvas_maker=backends.canvas2d,
-        artist_maker=partial(backends.line, **artist_args),
+        canvas_maker=dispatcher['canvas'],
+        artist_maker=partial(dispatcher['line'], **artist_args),
         colormapper=False,
     )
-    return backends.figure2d(view_maker, *nodes, **kwargs)
+    print(kwargs)
+    return dispatcher['figure'](view_maker, *nodes, **kwargs)

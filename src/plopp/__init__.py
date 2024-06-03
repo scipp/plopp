@@ -10,8 +10,14 @@ except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
 from .backends.manager import BackendManager
+from .backends.dispatcher import Dispatcher
 
-backends = BackendManager()
+# backends = BackendManager()
+dispatcher = Dispatcher()
+
+from .graphics.viewlibrary import ViewLibrary
+
+viewlibrary = ViewLibrary()
 
 from . import data
 from .core import Node, View, node, show_graph, widget_node
