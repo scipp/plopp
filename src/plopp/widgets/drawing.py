@@ -98,7 +98,7 @@ class DrawingTool(ToggleTool):
 
     def remove_node(self, artist):
         nodeid = artist.nodeid
-        draw_node = self._draw_nodes[nodeid]
+        draw_node = self._draw_nodes.pop(nodeid)
         output_node = self._output_nodes[nodeid]
         if self._destination_is_fig:
             self._destination.artists[output_node.id].remove()
@@ -106,7 +106,6 @@ class DrawingTool(ToggleTool):
             self._destination.canvas.draw()
         output_node.remove()
         draw_node.remove()
-        del self._draw_nodes[nodeid]
 
     def start_stop(self):
         """
