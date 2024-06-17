@@ -33,5 +33,13 @@ class PlotlyBackend:
 
         return FigPlotly(*args, **kwargs)
 
+    def figure2d(self, *args, **kwargs):
+        """
+        See :class:`figure.Figure` for details.
+        """
+        from .figure import Figure as FigPlotly
+
+        return FigPlotly(*args, **kwargs)
+
 
 __all__ = ["PlotlyBackend"]

@@ -33,7 +33,7 @@ class Canvas:
     autoscale:
         The behavior of the axis limits. If ``auto``, the limits automatically
         adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
+        grow with time but they do not shrink. If `False`, autoscale is disabled.
     """
 
     def __init__(
@@ -42,7 +42,7 @@ class Canvas:
         title: str | None = None,
         vmin: sc.Variable | float = None,
         vmax: sc.Variable | float = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
+        autoscale: Literal['auto', 'grow', False] = 'auto',
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -89,10 +89,22 @@ class Canvas:
     def to_widget(self):
         return self.fig
 
+    def home(self):
+        """
+        Fit the view to the data.
+        """
+        backup = self._autoscale
+        self._autoscale = 'auto'
+        self.autoscale()
+        self._autoscale = backup
+
     def autoscale(self):
         """
         Auto-scale the axes ranges to show all data in the canvas.
         """
+        if not self._autoscale:
+            return
+
         bbox = BoundingBox()
         lines = [trace for trace in self.fig.data if hasattr(trace, '_plopp_mask')]
         for line in lines:
@@ -115,7 +127,7 @@ class Canvas:
             )
             bbox = bbox.union(line_bbox)
 
-        self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
+        self._bbox = {'grow': self._bbox.union(bbox), 'auto': bbox}[self._autoscale]
         if self._user_vmin is not None:
             self._bbox.ymin = maybe_variable_to_number(
                 self._user_vmin, unit=self.units.get('y')

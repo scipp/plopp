@@ -39,7 +39,7 @@ class ImageView(GraphicalView):
     autoscale:
         The behavior of the color range limits. If ``auto``, the limits automatically
         adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
+        grow with time but they do not shrink. If ``False``, autoscale is disabled.
     scale:
         Control the scaling of the horizontal axis. For example, specify
         ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
@@ -75,7 +75,7 @@ class ImageView(GraphicalView):
         norm: Literal['linear', 'log'] = 'linear',
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
+        autoscale: Literal['auto', 'grow', False] = 'auto',
         scale: dict[str, str] | None = None,
         aspect: Literal['auto', 'equal'] = 'auto',
         grid: bool = False,
@@ -94,7 +94,13 @@ class ImageView(GraphicalView):
         self._kwargs = kwargs
         self._repr_format = format
         self.canvas = backends.canvas2d(
-            cbar=cbar, aspect=aspect, grid=grid, title=title, figsize=figsize, **kwargs
+            cbar=cbar,
+            aspect=aspect,
+            grid=grid,
+            title=title,
+            figsize=figsize,
+            autoscale=autoscale,
+            **kwargs,
         )
         self.colormapper = ColorMapper(
             cmap=cmap,
