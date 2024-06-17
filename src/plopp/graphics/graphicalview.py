@@ -26,6 +26,7 @@ class GraphicalView(View):
         """
 
         new = dict(*args, **kwargs)
+        force_autoscale = False
         for key, new_values in new.items():
             if new_values.ndim != self._ndim:
                 raise ValueError(
@@ -80,9 +81,12 @@ class GraphicalView(View):
                 self.artists[key] = self.make_artist(new_values)
                 if self.colormapper is not None:
                     self.colormapper[key] = self.artists[key]
+                force_autoscale = True
+            else:
+                force_autoscale = False
 
             self.artists[key].update(new_values=new_values)
 
         if self.colormapper is not None:
             self.colormapper.update(**new)
-        self.canvas.autoscale()
+        self.canvas.autoscale(override=force_autoscale)

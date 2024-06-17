@@ -98,11 +98,11 @@ class Canvas:
         self.autoscale()
         self._autoscale = backup
 
-    def autoscale(self):
+    def autoscale(self, override: bool = False):
         """
         Auto-scale the axes ranges to show all data in the canvas.
         """
-        if not self._autoscale:
+        if (not self._autoscale) and (not override):
             return
 
         bbox = BoundingBox()

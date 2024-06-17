@@ -73,7 +73,7 @@ class Canvas:
     autoscale:
         The behavior of the axis limits. If ``auto``, the limits automatically
         adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink. If ``False``, autoscale is disabled.
+        grow with time but they do not shrink. If ``none``, auto-scaling is disabled.
     aspect:
         The aspect ratio for the axes.
     cbar:
@@ -92,7 +92,7 @@ class Canvas:
         grid: bool = False,
         vmin: sc.Variable | float = None,
         vmax: sc.Variable | float = None,
-        autoscale: Literal['auto', 'grow', False] = 'auto',
+        autoscale: Literal['auto', 'grow', 'none'] = 'auto',
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
@@ -179,12 +179,12 @@ class Canvas:
         self.autoscale()
         self._autoscale = backup
 
-    def autoscale(self):
+    def autoscale(self, override: bool = False):
         """
         Find the limits of the artists on the canvas and adjust the axes ranges.
         Add some padding in the case of 1d lines.
         """
-        if not self._autoscale:
+        if (self._autoscale == 'none') and (not override):
             self.draw()
             return
 
@@ -244,7 +244,10 @@ class Canvas:
                 )
                 bbox = bbox.union(line_bbox)
 
-        self._bbox = {'grow': self._bbox.union(bbox), 'auto': bbox}[self._autoscale]
+        self._bbox = (
+            bbox if self._autoscale in ('auto', 'none') else self._bbox.union(bbox)
+        )
+
         if self._user_vmin is not None:
             self._bbox.ymin = maybe_variable_to_number(
                 self._user_vmin, unit=self.units.get('y')
