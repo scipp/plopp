@@ -192,11 +192,13 @@ class Line:
         """
         self._data = new_values
         new_values = make_line_data(data=self._data, dim=self._dim)
+        line_mask = ~np.isnan(new_values['mask']['y'])
 
         with self._fig.batch_update():
             self._line.update(
                 {'x': new_values['values']['x'], 'y': new_values['values']['y']}
             )
+            self._line._plopp_mask = line_mask
 
             if (self._error is not None) and (new_values['stddevs'] is not None):
                 self._error.update(
@@ -205,6 +207,9 @@ class Line:
                         'y': new_values['stddevs']['y'],
                         'error_y': {'array': new_values['stddevs']['e']},
                     }
+                )
+                self._error._plopp_mask = (
+                    line_mask[1:] if new_values["hist"] else line_mask
                 )
 
             if new_values['mask']['visible']:

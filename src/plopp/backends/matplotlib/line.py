@@ -180,6 +180,9 @@ class Line:
         self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
         self._mask.set_visible(new_values['mask']['visible'])
 
+        line_mask = ~np.isnan(new_values['mask']['y'])
+        self._line._plopp_mask = line_mask
+
         if (self._error is not None) and (new_values['stddevs'] is not None):
             coll = self._error.get_children()[0]
             coll.set_segments(
@@ -188,6 +191,9 @@ class Line:
                     _to_float(new_values['stddevs']['y']),
                     _to_float(new_values['stddevs']['e']),
                 )
+            )
+            self._error[2][0]._plopp_mask = (
+                line_mask[1:] if new_values["hist"] else line_mask
             )
 
     def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
