@@ -25,6 +25,7 @@ class GraphicalView(View):
         new data or by keyword arguments.
         """
 
+        autoscale_axes = ''
         new = dict(*args, **kwargs)
         for key, new_values in new.items():
             if new_values.ndim != self._ndim:
@@ -38,10 +39,12 @@ class GraphicalView(View):
                     self._dims[direction] = new_values.dims[i]
                 coords[direction] = new_values.coords[self._dims[direction]]
 
+            one_dimensional = 'y' not in self._dims
+
             if self.canvas.empty:
                 axes_units = {k: coord.unit for k, coord in coords.items()}
                 axes_dtypes = {k: coord.dtype for k, coord in coords.items()}
-                if 'y' in self._dims:
+                if not one_dimensional:
                     self.canvas.ylabel = name_with_unit(
                         var=coords['y'], name=self._dims['y']
                     )
@@ -71,7 +74,7 @@ class GraphicalView(View):
                     new_values.coords[dim] = make_compatible(
                         coords[xy], unit=self.canvas.units[xy]
                     )
-                if 'y' not in self._dims:
+                if one_dimensional:
                     new_values.data = make_compatible(
                         new_values.data, unit=self.canvas.units['y']
                     )
@@ -80,9 +83,13 @@ class GraphicalView(View):
                 self.artists[key] = self.make_artist(new_values)
                 if self.colormapper is not None:
                     self.colormapper[key] = self.artists[key]
+                autoscale_axes = 'xy'
+            elif one_dimensional:
+                autoscale_axes = 'y'
 
             self.artists[key].update(new_values=new_values)
 
         if self.colormapper is not None:
             self.colormapper.update(**new)
-        self.canvas.autoscale()
+        self.canvas.autoscale(axes=autoscale_axes)
+        # self.canvas.autoscale()

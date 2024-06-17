@@ -170,7 +170,7 @@ class Canvas:
         widget.layout = Layout(max_width='80%', overflow='auto')
         return widget
 
-    def autoscale(self):
+    def autoscale(self, axes='xy'):
         """
         Find the limits of the artists on the canvas and adjust the axes ranges.
         Add some padding in the case of 1d lines.
@@ -241,12 +241,16 @@ class Canvas:
                 self._user_vmax, unit=self.units.get('y')
             )
 
-        self.ax.set_xlim(
-            _none_if_not_finite(self._bbox.xmin), _none_if_not_finite(self._bbox.xmax)
-        )
-        self.ax.set_ylim(
-            _none_if_not_finite(self._bbox.ymin), _none_if_not_finite(self._bbox.ymax)
-        )
+        if 'x' in axes:
+            self.ax.set_xlim(
+                _none_if_not_finite(self._bbox.xmin),
+                _none_if_not_finite(self._bbox.xmax),
+            )
+        if 'y' in axes:
+            self.ax.set_ylim(
+                _none_if_not_finite(self._bbox.ymin),
+                _none_if_not_finite(self._bbox.ymax),
+            )
         self.draw()
 
     def draw(self):
