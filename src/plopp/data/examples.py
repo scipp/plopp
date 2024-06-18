@@ -18,7 +18,10 @@ def _make_pooch():
         env='PLOPP_DATA_DIR',
         base_url='https://public.esss.dk/groups/scipp/plopp/{version}/',
         version=_version,
-        registry={'nyc_taxi_data.h5': 'md5:fc0867ec061e4ac0cbe5975a665a0eea'},
+        registry={
+            'nyc_taxi_data.h5': 'md5:fc0867ec061e4ac0cbe5975a665a0eea',
+            'teapot.h5': 'md5:012994ffc56f520589b921c2ce655c19',
+        },
     )
 
 
@@ -47,6 +50,19 @@ def nyc_taxi() -> str:
     This data has been manipulated!
     """
     return get_path('nyc_taxi_data.h5')
+
+
+def teapot() -> str:
+    """
+    Values extracted from the Utah teapot:
+    https://graphics.cs.utah.edu/courses/cs6620/fall2013/?prj=5
+    using PyWavefront https://pypi.org/project/PyWavefront/
+    >> import pywavefront
+    >> scene = pywavefront.Wavefront('path/to/teapot-low.obj', collect_faces=True)
+    >> vertices = scene.vertices
+    >> faces = scene.meshes[None].faces
+    """
+    return get_path('teapot.h5')
 
 
 def three_bands(npeaks=200, per_peak=500, spread=30.0):

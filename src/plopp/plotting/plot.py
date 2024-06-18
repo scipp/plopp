@@ -17,6 +17,7 @@ def plot(
     aspect: Literal['auto', 'equal'] = 'auto',
     cbar: bool = True,
     coords: list[str] | None = None,
+    cmap: str = 'viridis',
     errorbars: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
@@ -43,6 +44,9 @@ def plot(
         Show colorbar in 2d plots if ``True``.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
+    cmap:
+        The name of the colormap for the data
+        (see https://matplotlib.org/stable/users/explain/colors/colormaps.html).
     errorbars:
         Show errorbars in 1d plots if ``True``.
     figsize:
@@ -129,6 +133,7 @@ def plot(
             *nodes,
             aspect=aspect,
             cbar=cbar,
+            cmap=cmap,
             **common_args,
         )
     else:

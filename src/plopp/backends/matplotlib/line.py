@@ -30,12 +30,14 @@ class Line:
         The canvas that will display the line.
     data:
         The initial data to create the line from.
-    number:
+    artist_number:
         The canvas keeps track of how many lines have been added to it. This number is
         used to set the color and marker parameters of the line.
     """
 
-    def __init__(self, canvas: Canvas, data: sc.DataArray, number: int = 0, **kwargs):
+    def __init__(
+        self, canvas: Canvas, data: sc.DataArray, artist_number: int = 0, **kwargs
+    ):
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
@@ -62,14 +64,14 @@ class Line:
 
         self._make_line(
             data=make_line_data(data=self._data, dim=self._dim),
-            number=number,
+            artist_number=artist_number,
             **args,
         )
 
     def _make_line(
         self,
         data: dict,
-        number: int,
+        artist_number: int,
         errorbars: bool = True,
         mask_color: str = 'black',
         **kwargs,
@@ -83,8 +85,8 @@ class Line:
         data:
             A dictionary containing data entries that have been pre-processed to be in
             a format that Matplotlib can directly use.
-        number:
-            The line number to set colors and marker style.
+        artist_number:
+            The line artist_number to set colors and marker style.
         errorbars:
             Show errorbars if ``True``.
         mask_color:
@@ -95,18 +97,17 @@ class Line:
             - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
             - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
         """
-
         default_step_style = {
             'linestyle': 'solid',
             'linewidth': 1.5,
-            'color': f'C{number}',
+            'color': f'C{artist_number}',
         }
         markers = list(Line2D.markers.keys())
         default_plot_style = {
             'linestyle': 'none',
             'linewidth': 1.5,
-            'marker': markers[(number + 2) % len(markers)],
-            'color': f'C{number}',
+            'marker': markers[(artist_number + 2) % len(markers)],
+            'color': f'C{artist_number}',
         }
 
         if data["hist"]:

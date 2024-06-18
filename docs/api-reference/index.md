@@ -8,12 +8,13 @@
 .. autosummary::
    :toctree: ../generated
 
-   plot
-   slicer
-   superplot
    inspector
+   mesh3d
+   plot
    scatter
    scatter3d
+   slicer
+   superplot
    xyplot
 ```
 
@@ -45,6 +46,8 @@
    graphics.ImageView
    graphics.linefigure
    graphics.LineView
+   graphics.Mesh3dView
+   graphics.mesh3dfigure
    graphics.scatterfigure
    graphics.ScatterView
    graphics.scatter3dfigure

@@ -1,96 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
-from typing import Literal
-
-import scipp as sc
+from functools import partial
 
 from .. import backends
 from ..core.typing import FigureLike
-from .colormapper import ColorMapper
 from .graphicalview import GraphicalView
 
 
-class ScatterView(GraphicalView):
-    """ """
-
-    def __init__(
-        self,
-        *nodes,
-        x: str = 'x',
-        y: str = 'y',
-        size: str | None = None,
-        norm: Literal['linear', 'log'] = 'linear',
-        vmin: sc.Variable | float | None = None,
-        vmax: sc.Variable | float | None = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
-        scale: dict[str, str] | None = None,
-        mask_color: str = 'black',
-        aspect: Literal['auto', 'equal'] = 'auto',
-        grid: bool = False,
-        title: str | None = None,
-        figsize: tuple[float, float] | None = None,
-        format: Literal['svg', 'png'] | None = None,
-        legend: bool | tuple[float, float] = True,
-        cmap: str = 'viridis',
-        mask_cmap: str = 'gray',
-        cbar: bool = False,
-        **kwargs,
-    ):
-        super().__init__(*nodes)
-
-        self._dims = {'x': x, 'y': y}
-        self._ndim = 1
-        self._size = size
-        self._cbar = cbar
-        self._scale = {} if scale is None else scale
-        self._mask_color = mask_color
-        self._kwargs = kwargs
-        self._repr_format = format
-        self.canvas = backends.canvas2d(
-            cbar=self._cbar,
-            aspect=aspect,
-            grid=grid,
-            figsize=figsize,
-            title=title,
-            vmin=vmin,
-            vmax=vmax,
-            autoscale=autoscale,
-            legend=legend,
-            **kwargs,
-        )
-        if self._cbar:
-            self.colormapper = ColorMapper(
-                cmap=cmap,
-                cbar=True,
-                mask_cmap=mask_cmap,
-                norm=norm,
-                vmin=vmin,
-                vmax=vmax,
-                autoscale=autoscale,
-                canvas=self.canvas,
-            )
-        else:
-            self.colormapper = None
-
-        self.render()
-        self.canvas.finalize()
-
-    def make_artist(self, new_values):
-        return backends.scatter(
-            canvas=self.canvas,
-            data=new_values,
-            x=self._dims['x'],
-            y=self._dims['y'],
-            size=self._size,
-            number=len(self.artists),
-            mask_color=self._mask_color,
-            cbar=self._cbar,
-            **self._kwargs,
-        )
-
-
-def scatterfigure(*args, **kwargs) -> FigureLike:
+def scatterfigure(*nodes, **kwargs) -> FigureLike:
     """
     Create a figure to represent scatter data from one or more graph node(s).
 
@@ -110,5 +28,15 @@ def scatterfigure(*args, **kwargs) -> FigureLike:
       >>> in_node = pp.Node(da)
       >>> fig = pp.scatterfigure(in_node, cbar=True)
     """
+    artist_args = {key: kwargs.pop(key) for key in ('x', 'y', 'size', 'mask_color')}
+    # Add cbar but we do not want to pop from kwargs
+    artist_args['cbar'] = kwargs['cbar']
 
-    return backends.figure2d(ScatterView, *args, **kwargs)
+    view_maker = partial(
+        GraphicalView,
+        dims={'x': artist_args['x'], 'y': artist_args['y']},
+        canvas_maker=backends.canvas2d,
+        artist_maker=partial(backends.scatter, **artist_args),
+        colormapper=kwargs['cbar'],
+    )
+    return backends.figure2d(view_maker, *nodes, **kwargs)

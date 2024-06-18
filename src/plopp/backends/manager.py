@@ -97,6 +97,15 @@ class BackendManager:
             ) from None
         return _scatter(*args, **kwargs)
 
+    def mesh(self, *args, **kwargs):
+        try:
+            _mesh = self._backends['3d'].mesh
+        except AttributeError:
+            raise ValueError(
+                f'Unsupported backend \'{self["3d"]}\' for mesh (3D).'
+            ) from None
+        return _mesh(*args, **kwargs)
+
     def point_cloud(self, *args, **kwargs):
         try:
             _point_cloud = self._backends['3d'].point_cloud
