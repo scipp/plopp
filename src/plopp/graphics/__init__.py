@@ -1,20 +1,22 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
-import sys
-from functools import partial
+# import sys
+# from functools import partial
 
-from .. import dispatcher
-from ..core.typing import FigureLike
+# from .. import dispatcher
+# from ..core.typing import FigureLike
 from .basefig import BaseFig
 from .camera import Camera
 from .colormapper import ColorMapper
 from .figure import figure1d, figure2d, figure3d
 from .figures import linefigure, imagefigure, scatterfigure
 from .graphicalview import GraphicalView
-from .imageview import ImageView  # , imagefigure
-from .lineview import LineView  # , linefigure
+
+# from .imageview import ImageView  # , imagefigure
+# from .lineview import LineView  # , linefigure
 from .scatter3dview import Scatter3dView, scatter3dfigure
-from .scatterview import ScatterView  # , scatterfigure
+
+# from .scatterview import ScatterView  # , scatterfigure
 from .tiled import tiled
 
 
@@ -32,14 +34,15 @@ __all__ = [
     'BaseFig',
     'Camera',
     'ColorMapper',
-    'ImageView',
+    'GraphicalView',
+    # 'ImageView',
     'Scatter3dView',
-    'ScatterView',
+    # 'ScatterView',
     'figure1d',
     'figure2d',
     'figure3d',
     'imagefigure',
-    'LineView',
+    # 'LineView',
     'linefigure',
     'scatter3dfigure',
     'scatterfigure',

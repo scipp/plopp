@@ -2,12 +2,14 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from typing import Literal
 
 import numpy as np
 import scipp as sc
 from matplotlib.lines import Line2D
 
 from ...core.utils import merge_masks
+from ...graphics.bbox import BoundingBox, axis_bounds
 from .canvas import Canvas
 from .utils import make_legend, parse_dicts_in_kwargs
 
@@ -128,13 +130,13 @@ class Scatter:
         """ """
         return self._data
 
-
-# PARAMETERS = {
-#     'dims': {'x': None},
-#     'canvas_maker': Canvas,
-#     'artist_maker': Line,
-#     'colormapper': False,
-# }
-
-
-# self._dims = {'x': x, 'y': y}
+    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+        """
+        The bounding box of the line.`
+        """
+        scatter_x = self._data.coords[self._x]
+        scatter_y = self._data.coords[self._y]
+        return BoundingBox(
+            **{**axis_bounds(('xmin', 'xmax'), scatter_x, xscale, pad=True)},
+            **{**axis_bounds(('ymin', 'ymax'), scatter_y, yscale, pad=True)},
+        )

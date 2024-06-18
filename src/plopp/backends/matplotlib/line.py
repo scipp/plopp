@@ -190,19 +190,19 @@ class Line:
             New data to update the line values, masks, errorbars from.
         """
         self._data = new_values
-        new_values = make_line_data(data=self._data, dim=self._dim)
+        line_data = make_line_data(data=self._data, dim=self._dim)
 
-        self._line.set_data(new_values['values']['x'], new_values['values']['y'])
-        self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
-        self._mask.set_visible(new_values['mask']['visible'])
+        self._line.set_data(line_data['values']['x'], line_data['values']['y'])
+        self._mask.set_data(line_data['mask']['x'], line_data['mask']['y'])
+        self._mask.set_visible(line_data['mask']['visible'])
 
-        if (self._error is not None) and (new_values['stddevs'] is not None):
+        if (self._error is not None) and (line_data['stddevs'] is not None):
             coll = self._error.get_children()[0]
             coll.set_segments(
                 self._change_segments_y(
-                    _to_float(new_values['stddevs']['x']),
-                    _to_float(new_values['stddevs']['y']),
-                    _to_float(new_values['stddevs']['e']),
+                    _to_float(line_data['stddevs']['x']),
+                    _to_float(line_data['stddevs']['y']),
+                    _to_float(line_data['stddevs']['e']),
                 )
             )
 

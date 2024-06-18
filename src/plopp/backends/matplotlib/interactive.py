@@ -15,6 +15,7 @@ class InteractiveFig(Figure, VBox):
     def __init__(self, View, *args, **kwargs):
         self.__init_figure__(View, *args, **kwargs)
         self.toolbar = make_toolbar_canvas2d(
+            home=self._view.autoscale(),
             canvas=self._view.canvas,
             colormapper=getattr(self._view, 'colormapper', None),
         )

@@ -4,6 +4,11 @@
 from ...graphics import BaseFig
 from .utils import fig_to_bytes
 
+try:
+    from ipywidgets import VBox
+except ImportError:
+    VBox = object
+
 
 class MplBaseFig(BaseFig):
     """
@@ -82,7 +87,38 @@ def get_repr_maker(form=None, npoints=0):
     return REPR_MAP[form.lower()]
 
 
-class Figure(MplBaseFig):
+# def Figure(*args, **kwargs):
+
+
+class InteractiveFigure(MplBaseFig, VBox):
+    """
+    Create an interactive Matplotlib figure.
+    """
+
+    def __init__(self, View, *args, **kwargs):
+        from ...widgets import HBar, VBar, make_toolbar_canvas2d
+
+        self.__init_figure__(View, *args, **kwargs)
+        self.toolbar = make_toolbar_canvas2d(
+            home=self._view.autoscale,
+            canvas=self._view.canvas,
+            colormapper=getattr(self._view, 'colormapper', None),
+        )
+        self.left_bar = VBar([self.toolbar])
+        self.right_bar = VBar()
+        self.bottom_bar = HBar()
+        self.top_bar = HBar()
+
+        super().__init__(
+            [
+                self.top_bar,
+                HBar([self.left_bar, self._view.canvas.to_widget(), self.right_bar]),
+                self.bottom_bar,
+            ]
+        )
+
+
+class StaticFigure(MplBaseFig):
     """
     Create a static Matplotlib figure.
     The output will be either svg or png, depending on the number of drawn onto the
@@ -111,3 +147,12 @@ class Figure(MplBaseFig):
         Convert the Matplotlib figure to an image widget.
         """
         return self._view.canvas.to_image()
+
+
+def Figure(*args, **kwargs):
+    from .utils import is_interactive_backend
+
+    if is_interactive_backend():
+        return InteractiveFigure(*args, **kwargs)
+    else:
+        return StaticFigure(*args, **kwargs)

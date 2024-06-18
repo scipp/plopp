@@ -5,11 +5,12 @@ from collections.abc import Callable
 from functools import partial
 
 from .. import dispatcher
+from ..core import Node
 from ..core.typing import FigureLike
 from .graphicalview import GraphicalView
 
 
-def linefigure(*nodes, **kwargs) -> FigureLike:
+def linefigure(*nodes: Node, **kwargs) -> FigureLike:
     view_maker = partial(
         GraphicalView,
         dims={'x': None},
@@ -20,7 +21,7 @@ def linefigure(*nodes, **kwargs) -> FigureLike:
     return dispatcher['figure'](view_maker, *nodes, **kwargs)
 
 
-def imagefigure(*nodes, **kwargs) -> FigureLike:
+def imagefigure(*nodes: Node, **kwargs) -> FigureLike:
     view_maker = partial(
         GraphicalView,
         dims={'y': None, 'x': None},
@@ -31,7 +32,7 @@ def imagefigure(*nodes, **kwargs) -> FigureLike:
     return dispatcher['figure'](view_maker, *nodes, **kwargs)
 
 
-def scatterfigure(*nodes, x, y, cbar, **kwargs) -> FigureLike:
+def scatterfigure(*nodes: Node, x: str, y: str, cbar: bool, **kwargs) -> FigureLike:
     view_maker = partial(
         GraphicalView,
         dims={'x': x, 'y': y},
@@ -39,4 +40,6 @@ def scatterfigure(*nodes, x, y, cbar, **kwargs) -> FigureLike:
         artist_maker=dispatcher['scatter'],
         colormapper=cbar,
     )
+    if cbar:
+        kwargs = {**kwargs, **{"edgecolors": "none"}}
     return dispatcher['figure'](view_maker, *nodes, x=x, y=y, cbar=cbar, **kwargs)

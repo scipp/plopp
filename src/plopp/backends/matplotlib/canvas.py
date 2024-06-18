@@ -7,22 +7,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 from matplotlib import dates as mdates
-from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from ...core.utils import maybe_variable_to_number, scalar_to_string
-from ..common import BoundingBox, axis_bounds
+from ...core.utils import scalar_to_string
+
+# from ..common import BoundingBox, axis_bounds
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
-
-
-def _to_floats(x: np.ndarray) -> np.ndarray:
-    return mdates.date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
-
-
-def _none_if_not_finite(x: float | None) -> float | int | None:
-    if x is None:
-        return None
-    return x if np.isfinite(x) else None
 
 
 def _cursor_value_to_variable(x: float, dtype: sc.DType, unit: str) -> sc.Variable:
@@ -143,7 +133,6 @@ class Canvas:
         if title:
             self.ax.set_title(title)
         self._coord_formatters = []
-        self._bbox = BoundingBox()
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
@@ -169,86 +158,6 @@ class Canvas:
         # The max_width is set to prevent overflow, see gh-169
         widget.layout = Layout(max_width='80%', overflow='auto')
         return widget
-
-    def autoscale(self):
-        """
-        Find the limits of the artists on the canvas and adjust the axes ranges.
-        Add some padding in the case of 1d lines.
-        """
-        return
-        bbox = BoundingBox()
-        lines = [line for line in self.ax.lines if hasattr(line, '_plopp_mask')]
-        for line in lines:
-            line_mask = sc.array(dims=['x'], values=line._plopp_mask)
-            line_x = sc.DataArray(
-                data=sc.array(dims=['x'], values=_to_floats(line.get_xdata()))
-            )
-            line_y = sc.DataArray(
-                data=sc.array(dims=['x'], values=_to_floats(line.get_ydata())),
-                masks={'mask': line_mask},
-            )
-            line_bbox = BoundingBox(
-                **{**axis_bounds(('xmin', 'xmax'), line_x, self.xscale, pad=True)},
-                **{**axis_bounds(('ymin', 'ymax'), line_y, self.yscale, pad=True)},
-            )
-            bbox = bbox.union(line_bbox)
-
-        for c in self.ax.collections:
-            if isinstance(c, QuadMesh):
-                coords = c.get_coordinates()
-                mesh_x = sc.DataArray(
-                    data=sc.array(dims=['x', 'y'], values=coords[..., 0])
-                )
-                mesh_y = sc.DataArray(
-                    data=sc.array(dims=['x', 'y'], values=coords[..., 1])
-                )
-                mesh_bbox = BoundingBox(
-                    **{**axis_bounds(('xmin', 'xmax'), mesh_x, self.xscale)},
-                    **{**axis_bounds(('ymin', 'ymax'), mesh_y, self.yscale)},
-                )
-                bbox = bbox.union(mesh_bbox)
-
-            elif hasattr(c, '_plopp_mask'):
-                segments = c.get_segments()
-                # Here get_segments() can return empty segments in the case where the
-                # data values are NaN, which we filter out.
-                lengths = np.array([len(segs) for segs in segments])
-                line_mask = sc.array(dims=['x'], values=c._plopp_mask[lengths > 0])
-                line_y = sc.DataArray(
-                    data=sc.array(
-                        dims=['x', 'y'],
-                        values=np.array(
-                            [
-                                s
-                                for (s, length) in zip(segments, lengths, strict=True)
-                                if length
-                            ]
-                        )[..., 1],
-                    ),
-                    masks={'mask': line_mask},
-                )
-                line_bbox = BoundingBox(
-                    **axis_bounds(('ymin', 'ymax'), line_y, self.yscale, pad=True)
-                )
-                bbox = bbox.union(line_bbox)
-
-        self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
-        if self._user_vmin is not None:
-            self._bbox.ymin = maybe_variable_to_number(
-                self._user_vmin, unit=self.units.get('y')
-            )
-        if self._user_vmax is not None:
-            self._bbox.ymax = maybe_variable_to_number(
-                self._user_vmax, unit=self.units.get('y')
-            )
-
-        self.ax.set_xlim(
-            _none_if_not_finite(self._bbox.xmin), _none_if_not_finite(self._bbox.xmax)
-        )
-        self.ax.set_ylim(
-            _none_if_not_finite(self._bbox.ymin), _none_if_not_finite(self._bbox.ymax)
-        )
-        self.draw()
 
     def draw(self):
         """

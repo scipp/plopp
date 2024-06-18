@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from collections.abc import Callable
 from typing import Any
 
 from ipywidgets import VBox
@@ -49,7 +50,7 @@ class Toolbar(VBox):
 
 
 def make_toolbar_canvas2d(
-    canvas: Any, colormapper: ColorMapper | None = None
+    home: Callable, canvas: Any, colormapper: ColorMapper | None = None
 ) -> Toolbar:
     """
     Create a toolbar for a 2D canvas.
@@ -64,7 +65,7 @@ def make_toolbar_canvas2d(
         image plots).
     """
     tool_list = {
-        'home': tools.HomeTool(canvas.autoscale),
+        'home': tools.HomeTool(home),
         'panzoom': tools.PanZoomTool(canvas.panzoom),
         'logx': tools.LogxTool(canvas.logx, value=canvas.xscale == 'log'),
         'logy': tools.LogyTool(canvas.logy, value=canvas.yscale == 'log'),

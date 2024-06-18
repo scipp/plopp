@@ -32,8 +32,6 @@ class Library:
         Get a module from the backend.
         """
         module = import_module(f".{name}", __package__)
-        print("Artist library", name)
-        # return module
         return getattr(module, name.capitalize())
 
     def module(self, name: str) -> Any:
@@ -41,7 +39,6 @@ class Library:
         Get a module from the backend.
         """
         _module = import_module(f".{name}", __package__)
-        print("Module library", name)
         return _module
         # return getattr(module, name.capitalize())
 
