@@ -47,7 +47,7 @@ def test_find_limits_with_inf():
 
 def test_find_limits_with_ninf():
     da = sc.DataArray(data=sc.arange('x', 11.0, unit='m'))
-    da.values[5] = np.NINF
+    da.values[5] = -np.inf
     lims = find_limits(da)
     assert sc.identical(lims[0], sc.scalar(0.0, unit='m'))
     assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
@@ -55,7 +55,7 @@ def test_find_limits_with_ninf():
 
 def test_find_limits_no_finite_values_raises():
     da = sc.DataArray(
-        data=sc.array(dims=['x'], values=[np.nan, np.inf, np.NINF, np.nan], unit='m')
+        data=sc.array(dims=['x'], values=[np.nan, np.inf, -np.inf, np.nan], unit='m')
     )
     with pytest.raises(ValueError, match="No finite values were found in array"):
         _ = find_limits(da)

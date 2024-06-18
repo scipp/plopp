@@ -110,7 +110,7 @@ class ColorMapper:
         self.user_vmin = vmin
         self.user_vmax = vmax
         self.vmin = np.inf
-        self.vmax = np.NINF
+        self.vmax = -np.inf
         self.norm = norm
         self._autoscale = autoscale
 
@@ -271,7 +271,7 @@ class ColorMapper:
         self.norm = "log" if self.norm == 'linear' else 'linear'
         self.normalizer = _get_normalizer(self.norm)
         self.vmin = np.inf
-        self.vmax = np.NINF
+        self.vmax = -np.inf
         self.autoscale()
         self._set_normalizer_limits()
         self._set_artists_colors(self.artists.keys())
