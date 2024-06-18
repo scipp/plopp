@@ -75,13 +75,16 @@ class Image:
         self,
         canvas: Canvas,
         data: sc.DataArray,
+        artist_number: int = 0,
         shading: str = 'auto',
         rasterized: bool = True,
         **kwargs,
     ):
+        print("Making image")
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
+        self._artist_number = artist_number
         self._id = uuid.uuid4().hex
         # Because all keyword arguments from the figure are forwarded to both the canvas
         # and the line, we need to remove the arguments that belong to the canvas.

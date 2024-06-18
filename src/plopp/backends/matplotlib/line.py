@@ -30,12 +30,20 @@ class Line:
         The canvas that will display the line.
     data:
         The initial data to create the line from.
-    number:
+    artist_number:
         The canvas keeps track of how many lines have been added to it. This number is
         used to set the color and marker parameters of the line.
     """
 
-    def __init__(self, canvas: Canvas, data: sc.DataArray, number: int = 0, **kwargs):
+    def __init__(
+        self,
+        canvas: Canvas,
+        data: sc.DataArray,
+        artist_number: int = 0,
+        errorbars: bool = True,
+        mask_color: str = 'black',
+        **kwargs,
+    ):
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
@@ -43,7 +51,7 @@ class Line:
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
 
-        args = parse_dicts_in_kwargs(kwargs, name=data.name)
+        line_args = parse_dicts_in_kwargs(kwargs, name=data.name)
 
         self._line = None
         self._mask = None
@@ -57,109 +65,114 @@ class Line:
 
         aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
         for key, alias in aliases.items():
-            if key in args:
-                args[alias] = args.pop(key)
+            if key in line_args:
+                line_args[alias] = line_args.pop(key)
 
-        self._make_line(
-            data=make_line_data(data=self._data, dim=self._dim),
-            number=number,
-            **args,
-        )
+        line_data = make_line_data(data=self._data, dim=self._dim)
 
-    def _make_line(
-        self,
-        data: dict,
-        number: int,
-        errorbars: bool = True,
-        mask_color: str = 'black',
-        **kwargs,
-    ):
-        """
-        Create either plot markers or a step function, depending on whether the data
-        contains bin edges or not.
+        # self._make_line(
+        #     data=make_line_data(data=self._data, dim=self._dim),
+        #     artist_number=artist_number,
+        #     **args,
+        # )
 
-        Parameters
-        ----------
-        data:
-            A dictionary containing data entries that have been pre-processed to be in
-            a format that Matplotlib can directly use.
-        number:
-            The line number to set colors and marker style.
-        errorbars:
-            Show errorbars if ``True``.
-        mask_color:
-            The color to be used to represent the masks.
-        **kwargs:
-            The kwargs are forwarded to:
+        # def _make_line(
+        #     self,
+        #     data: dict,
+        #     artist_number: int,
+        #     errorbars: bool = True,
+        #     mask_color: str = 'black',
+        #     **kwargs,
+        # ):
+        #     """
+        #     Create either plot markers or a step function, depending on whether the data
+        #     contains bin edges or not.
 
-            - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
-            - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
-        """
+        #     Parameters
+        #     ----------
+        #     data:
+        #         A dictionary containing data entries that have been pre-processed to be in
+        #         a format that Matplotlib can directly use.
+        #     artist_number:
+        #         The line artist_number to set colors and marker style.
+        #     errorbars:
+        #         Show errorbars if ``True``.
+        #     mask_color:
+        #         The color to be used to represent the masks.
+        #     **kwargs:
+        #         The kwargs are forwarded to:
 
+        #         - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
+        #         - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
+        #     """
         default_step_style = {
             'linestyle': 'solid',
             'linewidth': 1.5,
-            'color': f'C{number}',
+            'color': f'C{artist_number}',
         }
         markers = list(Line2D.markers.keys())
         default_plot_style = {
             'linestyle': 'none',
             'linewidth': 1.5,
-            'marker': markers[(number + 2) % len(markers)],
-            'color': f'C{number}',
+            'marker': markers[(artist_number + 2) % len(markers)],
+            'color': f'C{artist_number}',
         }
 
-        if data["hist"]:
+        if line_data["hist"]:
             self._line = self._ax.step(
-                data['values']['x'],
-                data['values']['y'],
+                line_data['values']['x'],
+                line_data['values']['y'],
                 label=self.label,
                 zorder=10,
-                **{**default_step_style, **kwargs},
+                **{**default_step_style, **line_args},
             )[0]
 
-            self._mask = self._ax.step(data['mask']['x'], data['mask']['y'])[0]
+            self._mask = self._ax.step(line_data['mask']['x'], line_data['mask']['y'])[
+                0
+            ]
             self._mask.update_from(self._line)
             self._mask.set_color(mask_color)
             self._mask.set_label(None)
             self._mask.set_linewidth(self._mask.get_linewidth() * 3)
             self._mask.set_zorder(self._mask.get_zorder() - 1)
-            self._mask.set_visible(data['mask']['visible'])
+            self._mask.set_visible(line_data['mask']['visible'])
         else:
             self._line = self._ax.plot(
-                data['values']['x'],
-                data['values']['y'],
+                line_data['values']['x'],
+                line_data['values']['y'],
                 label=self.label,
                 zorder=10,
-                **{**default_plot_style, **kwargs},
+                **{**default_plot_style, **line_args},
             )[0]
             self._mask = self._ax.plot(
-                data['mask']['x'],
-                data['mask']['y'],
+                line_data['mask']['x'],
+                line_data['mask']['y'],
                 zorder=11,
                 mec=mask_color,
                 mfc="None",
                 mew=3.0,
                 linestyle="none",
                 marker=self._line.get_marker(),
-                visible=data['mask']['visible'],
+                visible=line_data['mask']['visible'],
             )[0]
 
-        line_mask = ~np.isnan(data['mask']['y'])
+        line_mask = ~np.isnan(line_data['mask']['y'])
         self._line._plopp_mask = line_mask
 
         # Add error bars
-        if errorbars and (data['stddevs'] is not None):
+        if errorbars and (line_data['stddevs'] is not None):
             self._error = self._ax.errorbar(
-                data['stddevs']['x'],
-                data['stddevs']['y'],
-                yerr=data['stddevs']['e'],
+                line_data['stddevs']['x'],
+                line_data['stddevs']['y'],
+                yerr=line_data['stddevs']['e'],
                 color=self._line.get_color(),
                 zorder=10,
                 fmt="none",
             )
             # Set the selection mask on the line collection that makes the segments
-            self._error[2][0]._plopp_mask = line_mask[1:] if data["hist"] else line_mask
+            self._error[2][0]._plopp_mask = (
+                line_mask[1:] if line_data["hist"] else line_mask
+            )
 
         if self.label and self._canvas._legend:
             self._ax.legend(**make_legend(self._canvas._legend))
@@ -180,9 +193,6 @@ class Line:
         self._mask.set_data(new_values['mask']['x'], new_values['mask']['y'])
         self._mask.set_visible(new_values['mask']['visible'])
 
-        line_mask = ~np.isnan(new_values['mask']['y'])
-        self._line._plopp_mask = line_mask
-
         if (self._error is not None) and (new_values['stddevs'] is not None):
             coll = self._error.get_children()[0]
             coll.set_segments(
@@ -191,9 +201,6 @@ class Line:
                     _to_float(new_values['stddevs']['y']),
                     _to_float(new_values['stddevs']['e']),
                 )
-            )
-            self._error[2][0]._plopp_mask = (
-                line_mask[1:] if new_values["hist"] else line_mask
             )
 
     def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
@@ -227,3 +234,11 @@ class Line:
             for artist in self._error.get_children():
                 artist.set_color(val)
         self._canvas.draw()
+
+
+PARAMETERS = {
+    'dims': {'x': None},
+    'canvas_maker': Canvas,
+    'artist_maker': Line,
+    'colormapper': False,
+}

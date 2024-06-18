@@ -1,5 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
+
+from importlib import import_module
+from typing import Any
 
 
 def _make_figure(*args, **kwargs):
@@ -15,7 +18,7 @@ def _make_figure(*args, **kwargs):
         return StaticFig(*args, **kwargs)
 
 
-class MatplotlibBackend:
+class Library:
     def is_interactive(self):
         """
         Returns ``True`` if the backend currently in use allows for interactive figures.
@@ -24,57 +27,75 @@ class MatplotlibBackend:
 
         return is_interactive_backend()
 
-    def canvas2d(self, *args, **kwargs):
+    def __getitem__(self, name: str) -> Any:
         """
-        See :class:`canvas.Canvas` for details.
+        Get a module from the backend.
         """
-        from .canvas import Canvas as CanvasMpl
+        module = import_module(f".{name}", __package__)
+        print("Artist library", name)
+        # return module
+        return getattr(module, name.capitalize())
 
-        return CanvasMpl(*args, **kwargs)
-
-    def line(self, *args, **kwargs):
+    def module(self, name: str) -> Any:
         """
-        See :class:`line.Line` for details.
+        Get a module from the backend.
         """
-        from .line import Line as LineMpl
+        _module = import_module(f".{name}", __package__)
+        print("Module library", name)
+        return _module
+        # return getattr(module, name.capitalize())
 
-        return LineMpl(*args, **kwargs)
+    # def canvas2d(self, *args, **kwargs):
+    #     """
+    #     See :class:`canvas.Canvas` for details.
+    #     """
+    #     from .canvas import Canvas as CanvasMpl
 
-    def scatter(self, *args, **kwargs):
-        """
-        See :class:`scatter.Scatter` for details.
-        """
-        from .scatter import Scatter as ScatterMpl
+    #     return CanvasMpl(*args, **kwargs)
 
-        return ScatterMpl(*args, **kwargs)
+    # def line(self, *args, **kwargs):
+    #     """
+    #     See :class:`line.Line` for details.
+    #     """
+    #     from .line import Line as LineMpl
 
-    def image(self, *args, **kwargs):
-        """
-        See :class:`image.Image` for details.
-        """
-        from .image import Image as ImageMpl
+    #     return LineMpl(*args, **kwargs)
 
-        return ImageMpl(*args, **kwargs)
+    # def scatter(self, *args, **kwargs):
+    #     """
+    #     See :class:`scatter.Scatter` for details.
+    #     """
+    #     from .scatter import Scatter as ScatterMpl
 
-    def figure1d(self, *args, **kwargs):
-        """
-        See :class:`static.StaticFig` and :class:`interactive.InteractiveFig` for
-        details.
-        """
-        return _make_figure(*args, **kwargs)
+    #     return ScatterMpl(*args, **kwargs)
 
-    def figure2d(self, *args, **kwargs):
-        """
-        See :class:`static.StaticFig` and :class:`interactive.InteractiveFig` for
-        details.
-        """
-        return _make_figure(*args, **kwargs)
+    # def image(self, *args, **kwargs):
+    #     """
+    #     See :class:`image.Image` for details.
+    #     """
+    #     from .image import Image as ImageMpl
 
-    def tiled(self, *args, **kwargs):
-        """ """
-        from .tiled import Tiled as TiledMpl
+    #     return ImageMpl(*args, **kwargs)
 
-        return TiledMpl(*args, **kwargs)
+    # def figure1d(self, *args, **kwargs):
+    #     """
+    #     See :class:`static.StaticFig` and :class:`interactive.InteractiveFig` for
+    #     details.
+    #     """
+    #     return _make_figure(*args, **kwargs)
+
+    # def figure2d(self, *args, **kwargs):
+    #     """
+    #     See :class:`static.StaticFig` and :class:`interactive.InteractiveFig` for
+    #     details.
+    #     """
+    #     return _make_figure(*args, **kwargs)
+
+    # def tiled(self, *args, **kwargs):
+    #     """ """
+    #     from .tiled import Tiled as TiledMpl
+
+    #     return TiledMpl(*args, **kwargs)
 
 
 __all__ = ["MatplotlibBackend"]

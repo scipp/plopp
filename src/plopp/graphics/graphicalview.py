@@ -1,8 +1,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
+from collections.abc import Callable
+from typing import Literal
+
+import scipp as sc
+
 from ..core import Node, View
+from ..core.typing import CanvasLike
 from ..core.utils import make_compatible, name_with_unit
+from .colormapper import ColorMapper
 
 
 class GraphicalView(View):
@@ -15,9 +22,70 @@ class GraphicalView(View):
     dimensions and units.
     """
 
-    def __init__(self, *nodes: Node):
+    def __init__(
+        self,
+        *nodes: Node,
+        dims: dict[str, str | None],
+        canvas_maker: CanvasLike,
+        artist_maker: Callable,
+        colormapper: bool = False,
+        cmap: str = 'viridis',
+        mask_cmap: str = 'gray',
+        cbar: bool = False,
+        norm: Literal['linear', 'log'] = 'linear',
+        vmin: sc.Variable | float | None = None,
+        vmax: sc.Variable | float | None = None,
+        autoscale: Literal['auto', 'grow'] = 'auto',
+        scale: dict[str, str] | None = None,
+        aspect: Literal['auto', 'equal'] = 'auto',
+        grid: bool = False,
+        title: str | None = None,
+        figsize: tuple[float, float] | None = None,
+        format: Literal['svg', 'png'] | None = None,
+        legend: bool | tuple[float, float] = False,
+        **kwargs,
+    ):
         super().__init__(*nodes)
-        self.colormapper = None
+        self._dims = dims
+        self._scale = {} if scale is None else scale
+        self.artists = {}
+        self._artist_maker = artist_maker
+        self._kwargs = kwargs
+        self._repr_format = format
+
+        self.canvas = canvas_maker(
+            cbar=cbar,
+            aspect=aspect,
+            grid=grid,
+            figsize=figsize,
+            title=title,
+            vmin=vmin,
+            vmax=vmax,
+            autoscale=autoscale,
+            legend=legend,
+            **kwargs,
+        )
+
+        self.colormapper = (
+            ColorMapper(
+                cmap=cmap,
+                cbar=cbar,
+                mask_cmap=mask_cmap,
+                norm=norm,
+                vmin=vmin,
+                vmax=vmax,
+                autoscale=autoscale,
+                canvas=self.canvas,
+            )
+            if colormapper
+            else None
+        )
+
+        if len(self._dims) == 1:
+            self.canvas.yscale = norm
+        self.render()
+        # self.canvas.autoscale()
+        self.canvas.finalize()
 
     def update(self, *args, **kwargs):
         """
@@ -27,10 +95,10 @@ class GraphicalView(View):
 
         new = dict(*args, **kwargs)
         for key, new_values in new.items():
-            if new_values.ndim != self._ndim:
-                raise ValueError(
-                    f"Expected {self._ndim} dimension(s), but got {new_values.ndim}."
-                )
+            # if new_values.ndim != self._ndim:
+            #     raise ValueError(
+            #         f"Expected {self._ndim} dimension(s), but got {new_values.ndim}."
+            #     )
 
             coords = {}
             for i, direction in enumerate(self._dims):
@@ -77,7 +145,13 @@ class GraphicalView(View):
                     )
 
             if key not in self.artists:
-                self.artists[key] = self.make_artist(new_values)
+                self.artists[key] = self._artist_maker(
+                    canvas=self.canvas,
+                    data=new_values,
+                    artist_number=len(self.artists),
+                    **self._kwargs,
+                )
+
                 if self.colormapper is not None:
                     self.colormapper[key] = self.artists[key]
 
