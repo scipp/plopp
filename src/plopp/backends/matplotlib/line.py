@@ -236,9 +236,9 @@ class Line:
         self._canvas.draw()
 
 
-PARAMETERS = {
-    'dims': {'x': None},
-    'canvas_maker': Canvas,
-    'artist_maker': Line,
-    'colormapper': False,
-}
+# PARAMETERS = {
+#     'dims': {'x': None},
+#     'canvas_maker': Canvas,
+#     'artist_maker': Line,
+#     'colormapper': False,
+# }

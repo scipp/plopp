@@ -22,7 +22,7 @@ class Scatter:
         x: str = 'x',
         y: str = 'y',
         size: str | None = None,
-        number: int = 0,
+        artist_number: int = 0,
         mask_color: str = 'black',
         cbar: bool = False,
         **kwargs,
@@ -45,10 +45,10 @@ class Scatter:
 
         markers = list(Line2D.markers.keys())
         default_plot_style = {
-            'marker': markers[(number + 2) % len(markers)],
+            'marker': markers[(artist_number + 2) % len(markers)],
         }
         if not cbar:
-            default_plot_style['color'] = f'C{number}'
+            default_plot_style['color'] = f'C{artist_number}'
 
         merged_kwargs = {**default_plot_style, **scatter_kwargs}
         if self._size is None:
@@ -127,3 +127,14 @@ class Scatter:
     def data(self):
         """ """
         return self._data
+
+
+# PARAMETERS = {
+#     'dims': {'x': None},
+#     'canvas_maker': Canvas,
+#     'artist_maker': Line,
+#     'colormapper': False,
+# }
+
+
+# self._dims = {'x': x, 'y': y}
