@@ -4,12 +4,20 @@
 from collections.abc import Callable
 from typing import Literal
 
+import numpy as np
 import scipp as sc
 
 from ..core import Node, View
 from ..core.typing import CanvasLike
 from ..core.utils import make_compatible, name_with_unit
+from .bbox import BoundingBox
 from .colormapper import ColorMapper
+
+
+def _none_if_not_finite(x: float | None) -> float | int | None:
+    if x is None:
+        return None
+    return x if np.isfinite(x) else None
 
 
 class GraphicalView(View):
@@ -52,6 +60,8 @@ class GraphicalView(View):
         self._artist_maker = artist_maker
         self._kwargs = kwargs
         self._repr_format = format
+        self._autoscale = autoscale
+        self._bbox = BoundingBox()
 
         self.canvas = canvas_maker(
             cbar=cbar,
@@ -86,6 +96,23 @@ class GraphicalView(View):
         self.render()
         # self.canvas.autoscale()
         self.canvas.finalize()
+
+    def autoscale(self):
+        bbox = BoundingBox()
+        for artist in self.artists.values():
+            bbox = bbox.union(
+                artist.bbox(xscale=self.canvas.xscale, yscale=self.canvas.yscale)
+            )
+        self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
+        self.canvas.xrange = (
+            _none_if_not_finite(self._bbox.xmin),
+            _none_if_not_finite(self._bbox.xmax),
+        )
+        self.canvas.yrange = (
+            _none_if_not_finite(self._bbox.ymin),
+            _none_if_not_finite(self._bbox.ymax),
+        )
+        self.canvas.draw()
 
     def update(self, *args, **kwargs):
         """
@@ -159,4 +186,4 @@ class GraphicalView(View):
 
         if self.colormapper is not None:
             self.colormapper.update(**new)
-        self.canvas.autoscale()
+        self.autoscale()

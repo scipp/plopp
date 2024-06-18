@@ -9,7 +9,7 @@ from scipp import Variable
 from ..core.typing import FigureLike, PlottableMulti
 
 # from ..graphics import viewlibrary
-from ..graphics import linefigure
+from ..graphics import imagefigure, linefigure
 from .common import input_to_nodes, preprocess, raise_multiple_inputs_for_2d_plot_error
 
 

@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from typing import Literal
 
 import numpy as np
 import scipp as sc
@@ -9,6 +10,8 @@ from matplotlib.dates import date2num
 from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
 
+from ...core.utils import merge_masks
+from ...graphics.bbox import BoundingBox, axis_bounds
 from ..common import make_line_data
 from .canvas import Canvas
 from .utils import make_legend, parse_dicts_in_kwargs
@@ -156,8 +159,8 @@ class Line:
                 visible=line_data['mask']['visible'],
             )[0]
 
-        line_mask = ~np.isnan(line_data['mask']['y'])
-        self._line._plopp_mask = line_mask
+        self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
+        # self._line._plopp_mask = line_mask
 
         # Add error bars
         if errorbars and (line_data['stddevs'] is not None):
@@ -169,10 +172,10 @@ class Line:
                 zorder=10,
                 fmt="none",
             )
-            # Set the selection mask on the line collection that makes the segments
-            self._error[2][0]._plopp_mask = (
-                line_mask[1:] if line_data["hist"] else line_mask
-            )
+            # # Set the selection mask on the line collection that makes the segments
+            # self._error[2][0]._plopp_mask = (
+            #     line_mask[1:] if line_data["hist"] else line_mask
+            # )
 
         if self.label and self._canvas._legend:
             self._ax.legend(**make_legend(self._canvas._legend))
@@ -235,10 +238,19 @@ class Line:
                 artist.set_color(val)
         self._canvas.draw()
 
+    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+        """
+        The bounding box of the line.
+        """
+        line_x = self._data.coords[self._dim]
+        line_y = self._data.data
+        if self._data.masks:
+            line_y = line_y[merge_masks(self._data.masks)]
+        if self._error is not None:
+            stddevs = sc.stddevs(self._data)
+            line_y = sc.concat([line_y - stddevs, line_y + stddevs], self._dim)
 
-# PARAMETERS = {
-#     'dims': {'x': None},
-#     'canvas_maker': Canvas,
-#     'artist_maker': Line,
-#     'colormapper': False,
-# }
+        return BoundingBox(
+            **{**axis_bounds(('xmin', 'xmax'), line_x, xscale, pad=True)},
+            **{**axis_bounds(('ymin', 'ymax'), line_y, yscale, pad=True)},
+        )

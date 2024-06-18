@@ -2,11 +2,13 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from typing import Literal
 
 import numpy as np
 import scipp as sc
 
 from ...core.utils import coord_as_bin_edges, merge_masks, repeat, scalar_to_string
+from ...graphics.bbox import BoundingBox, axis_bounds
 from .canvas import Canvas
 
 
@@ -206,3 +208,16 @@ class Image:
             return prefix + scalar_to_string(val)
         except IndexError:
             return None
+
+    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+        """
+        The bounding box of the line.`
+        """
+        ydim, xdim = self._data.dims
+        image_x = self._data.coords[xdim]
+        image_y = self._data.coords[ydim]
+
+        return BoundingBox(
+            **{**axis_bounds(('xmin', 'xmax'), image_x, xscale)},
+            **{**axis_bounds(('ymin', 'ymax'), image_y, yscale)},
+        )

@@ -175,6 +175,7 @@ class Canvas:
         Find the limits of the artists on the canvas and adjust the axes ranges.
         Add some padding in the case of 1d lines.
         """
+        return
         bbox = BoundingBox()
         lines = [line for line in self.ax.lines if hasattr(line, '_plopp_mask')]
         for line in lines:
