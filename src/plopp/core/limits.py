@@ -29,7 +29,7 @@ def find_limits(
     if x.masks:
         x = sc.where(
             merge_masks(x.masks),
-            sc.scalar(np.NaN, unit=x.unit),
+            sc.scalar(np.nan, unit=x.unit),
             x.data.to(dtype='float64'),
         )
     v = x.values

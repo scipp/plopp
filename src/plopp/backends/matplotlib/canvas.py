@@ -533,7 +533,7 @@ class Canvas:
         """
         self.xscale = 'log' if self.xscale == 'linear' else 'linear'
         self._bbox.xmin = np.inf
-        self._bbox.xmax = np.NINF
+        self._bbox.xmax = -np.inf
         self.autoscale()
 
     def logy(self):
@@ -542,7 +542,7 @@ class Canvas:
         """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
         self._bbox.ymin = np.inf
-        self._bbox.ymax = np.NINF
+        self._bbox.ymax = -np.inf
         self.autoscale()
 
     def finalize(self):
