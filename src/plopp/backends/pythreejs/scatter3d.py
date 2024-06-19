@@ -2,9 +2,13 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from typing import Literal
 
 import numpy as np
 import scipp as sc
+
+from ...graphics.bbox import BoundingBox, axis_bounds
+from .canvas import Canvas
 
 
 def _check_ndim(data):
@@ -16,7 +20,7 @@ def _check_ndim(data):
         )
 
 
-class PointCloud:
+class Scatter3d:
     """
     Artist to represent a three-dimensional point cloud/scatter plot.
 
@@ -30,7 +34,7 @@ class PointCloud:
         The name of the coordinate that is to be used for the Z positions.
     data:
         The initial data to create the line from.
-    pixel_size:
+    size:
         The size of the markers.
     opacity:
         The opacity of the points.
@@ -39,11 +43,13 @@ class PointCloud:
     def __init__(
         self,
         *,
+        canvas: Canvas,
         x: str,
         y: str,
         z: str,
         data: sc.DataArray,
-        pixel_size: sc.Variable | float = 1,
+        size: sc.Variable | float = 1,
+        artist_number: int = 0,
         opacity: float = 1,
     ):
         """
@@ -52,22 +58,24 @@ class PointCloud:
         import pythreejs as p3
 
         _check_ndim(data)
+        self._canvas = canvas
         self._data = data
         self._x = x
         self._y = y
         self._z = z
         self._id = uuid.uuid4().hex
+        self._artist_number = artist_number
 
-        self._pixel_size = pixel_size
-        if hasattr(self._pixel_size, 'unit'):
+        self._size = size
+        if hasattr(self._size, 'unit'):
             if len({self._data.coords[dim].unit for dim in [x, y, z]}) > 1:
                 raise ValueError(
-                    f'The supplied pixel_size has unit {self._pixel_size.unit}, but '
+                    f'The supplied size has unit {self._size.unit}, but '
                     'the spatial coordinates do not all have the same units. In this '
-                    'case the pixel_size should just be a float with no unit.'
+                    'case the size should just be a float with no unit.'
                 )
             else:
-                self._pixel_size = self._pixel_size.to(
+                self._size = self._size.to(
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
 
@@ -96,11 +104,12 @@ class PointCloud:
         # be required to get the sizes right in the scene.
         self.material = p3.PointsMaterial(
             vertexColors='VertexColors',
-            size=2.5 * self._pixel_size * pixel_ratio,
+            size=2.5 * self._size * pixel_ratio,
             transparent=True,
             opacity=opacity,
         )
         self.points = p3.Points(geometry=self.geometry, material=self.material)
+        self._canvas.add(self.points)
 
     def set_colors(self, rgba):
         """
@@ -132,7 +141,7 @@ class PointCloud:
         xcoord = self._data.coords[self._x]
         ycoord = self._data.coords[self._y]
         zcoord = self._data.coords[self._z]
-        half_pixel = 0.5 * self._pixel_size
+        half_pixel = 0.5 * self._size
         dx = sc.scalar(half_pixel, unit=xcoord.unit)
         dy = sc.scalar(half_pixel, unit=ycoord.unit)
         dz = sc.scalar(half_pixel, unit=zcoord.unit)
@@ -163,3 +172,16 @@ class PointCloud:
         Get the point cloud data.
         """
         return self._data
+
+    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+        """
+        The bounding box of the line.`
+        """
+        scatter_x = self._data.coords[self._x]
+        scatter_y = self._data.coords[self._y]
+        scatter_z = self._data.coords[self._z]
+        return BoundingBox(
+            **{**axis_bounds(('xmin', 'xmax'), scatter_x, xscale)},
+            **{**axis_bounds(('ymin', 'ymax'), scatter_y, yscale)},
+            **{**axis_bounds(('zmin', 'zmax'), scatter_z, yscale)},
+        )

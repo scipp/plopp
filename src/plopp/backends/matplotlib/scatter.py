@@ -132,7 +132,7 @@ class Scatter:
 
     def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
         """
-        The bounding box of the line.`
+        The bounding box of the scatter points.
         """
         scatter_x = self._data.coords[self._x]
         scatter_y = self._data.coords[self._y]

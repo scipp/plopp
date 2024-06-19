@@ -211,7 +211,7 @@ class Image:
 
     def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
         """
-        The bounding box of the line.`
+        The bounding box of the image.
         """
         ydim, xdim = self._data.dims
         image_x = self._data.coords[xdim]

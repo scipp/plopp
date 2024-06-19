@@ -9,6 +9,7 @@ import numpy as np
 import scipp as sc
 
 from ...graphics import Camera
+from ...graphics.bbox import BoundingBox
 
 
 class Canvas:
@@ -32,17 +33,20 @@ class Canvas:
 
     def __init__(
         self,
-        figsize: tuple[int, int] = (600, 400),
+        figsize: tuple[int, int] | None = None,
         title: str | None = None,
         camera: Camera | None = None,
+        **ignored,
     ):
         import pythreejs as p3
 
         self.dims = {}
         self.units = {}
+        self.xscale = 'linear'
+        self.yscale = 'linear'
         self.outline = None
         self.axticks = None
-        self.figsize = np.asarray(figsize)
+        self.figsize = np.asarray(figsize if figsize is not None else (600, 400))
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
@@ -50,7 +54,7 @@ class Canvas:
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
-        self.outline = None
+        self._limits = BoundingBox()
         self.scene = p3.Scene(
             children=[self.camera, self.axes_3d], background="#f0f0f0"
         )
@@ -85,27 +89,27 @@ class Canvas:
         self.dims = dims
         self.dtypes = dtypes
 
-    def make_outline(self, limits: tuple[sc.Variable, sc.Variable, sc.Variable]):
+    def draw(self):
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
         from .outline import Outline
 
+        limits = (
+            sc.array(dims=[self.dims['x']], values=self.xrange, unit=self.units['x']),
+            sc.array(dims=[self.dims['y']], values=self.yrange, unit=self.units['y']),
+            sc.array(dims=[self.dims['z']], values=self.zrange, unit=self.units['z']),
+        )
+
         if self.outline is not None:
             self.remove(self.outline)
         self.outline = Outline(limits=limits)
         self.add(self.outline)
-        self._update_camera(limits=limits)
-        self.axes_3d.scale = [self.camera.far] * 3
-
-    def _update_camera(self, limits: tuple[sc.Variable, sc.Variable, sc.Variable]):
-        """
-        Update the camera position when a new object is added to the canvas.
-        The camera will look at the mean position of all the objects, and its position
-        will be far enough from the center to see all the objects.
-        This 'Home' position will be backed up so it can be used when resetting the
-        camera via the ``home`` function.
-        """
+        # Update the camera position when a new object is added to the canvas.
+        # The camera will look at the mean position of all the objects, and its position
+        # will be far enough from the center to see all the objects.
+        # This 'Home' position will be backed up so it can be used when resetting the
+        # camera via the ``home`` function.
         if not self._user_camera.has_units():
             self._user_camera.set_units(
                 self.units.get('x'), self.units.get('y'), self.units.get('z')
@@ -151,6 +155,7 @@ class Canvas:
             center[1],
             center[2] - distance_fudge_factor * box_mean_size,
         ]
+        self.axes_3d.scale = [self.camera.far] * 3
 
     @property
     def empty(self) -> bool:
@@ -271,3 +276,36 @@ class Canvas:
         self.renderer.width = self.figsize[0]
         self.renderer.height = self.figsize[1]
         self.camera.aspect = self.figsize[0] / self.figsize[1]
+
+    @property
+    def xrange(self) -> tuple[float, float]:
+        """
+        Get or set the range/limits of the x-axis.
+        """
+        return (self._limits.xmin, self._limits.xmax)
+
+    @xrange.setter
+    def xrange(self, value: tuple[float, float]):
+        self._limits.xmin, self._limits.xmax = value
+
+    @property
+    def yrange(self) -> tuple[float, float]:
+        """
+        Get or set the range/limits of the y-axis.
+        """
+        return (self._limits.ymin, self._limits.ymax)
+
+    @yrange.setter
+    def yrange(self, value: tuple[float, float]):
+        self._limits.ymin, self._limits.ymax = value
+
+    @property
+    def zrange(self) -> tuple[float, float]:
+        """
+        Get or set the range/limits of the z-axis.
+        """
+        return (self._limits.zmin, self._limits.zmax)
+
+    @zrange.setter
+    def zrange(self, value: tuple[float, float]):
+        self._limits.zmin, self._limits.zmax = value

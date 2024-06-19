@@ -3,10 +3,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
 
-import numpy as np
+# import numpy as np
 import scipp as sc
 
 from ..core.limits import find_limits, fix_empty_range
@@ -14,12 +15,15 @@ from ..core.limits import find_limits, fix_empty_range
 # from ..core.utils import merge_masks
 
 
-def _none_min(*args: float) -> float:
-    return min(x for x in args if x is not None)
+def _none_reduce(*args: float, op: Callable) -> float:
+    elems = [x for x in args if x is not None]
+    if not elems:
+        return None
+    return op(elems)
 
 
-def _none_max(*args: float) -> float:
-    return max(x for x in args if x is not None)
+# def _none_max(*args: float) -> float:
+#     return max(x for x in args if x is not None)
 
 
 @dataclass
@@ -32,6 +36,8 @@ class BoundingBox:
     xmax: float | None = None
     ymin: float | None = None
     ymax: float | None = None
+    zmin: float | None = None
+    zmax: float | None = None
 
     def union(self, other: BoundingBox) -> BoundingBox:
         """
@@ -39,10 +45,12 @@ class BoundingBox:
         """
 
         return BoundingBox(
-            xmin=_none_min(self.xmin, other.xmin),
-            xmax=_none_max(self.xmax, other.xmax),
-            ymin=_none_min(self.ymin, other.ymin),
-            ymax=_none_max(self.ymax, other.ymax),
+            xmin=_none_reduce(self.xmin, other.xmin, op=min),
+            xmax=_none_reduce(self.xmax, other.xmax, op=max),
+            ymin=_none_reduce(self.ymin, other.ymin, op=min),
+            ymax=_none_reduce(self.ymax, other.ymax, op=max),
+            zmin=_none_reduce(self.zmin, other.zmin, op=min),
+            zmax=_none_reduce(self.zmax, other.zmax, op=max),
         )
 
 

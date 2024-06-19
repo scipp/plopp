@@ -82,7 +82,7 @@ class Canvas:
         grid: bool = False,
         vmin: sc.Variable | float = None,
         vmax: sc.Variable | float = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
+        # autoscale: Literal['auto', 'grow'] = 'auto',
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
@@ -104,16 +104,17 @@ class Canvas:
         self._user_vmax = vmax
         self.units = {}
         self.dims = {}
-        self._own_axes = False
-        self._autoscale = autoscale
+        # self._own_axes = False
+        # self._autoscale = autoscale
         self._legend = legend
 
         if self.ax is None:
-            self._own_axes = True
+            # self._own_axes = True
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
             self.ax.set_aspect(aspect)
             self.ax.grid(grid)
+            self.fig.tight_layout()
         else:
             self.fig = self.ax.get_figure()
         if self.is_widget():
@@ -449,10 +450,9 @@ class Canvas:
         """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
 
-    def finalize(self):
-        """
-        Finalize is called at the end of figure creation. Add any polishing operations
-        here: trim the margins around the figure.
-        """
-        if self._own_axes:
-            self.fig.tight_layout()
+    # def finalize(self):
+    #     """
+    #     Finalize is called at the end of figure creation. Add any polishing operations
+    #     here: trim the margins around the figure.
+    #     """
+    #     if self._own_axes:

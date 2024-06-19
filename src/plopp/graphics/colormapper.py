@@ -104,7 +104,7 @@ class ColorMapper:
         nan_color: str | None = None,
         figsize: tuple[float, float] | None = None,
     ):
-        self.cax = canvas.cax if canvas is not None else None
+        self.cax = canvas.cax if hasattr(canvas, 'cax') else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin

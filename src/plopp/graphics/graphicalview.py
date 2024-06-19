@@ -11,6 +11,7 @@ from ..core import Node, View
 from ..core.typing import CanvasLike
 from ..core.utils import make_compatible, name_with_unit
 from .bbox import BoundingBox
+from .camera import Camera
 from .colormapper import ColorMapper
 
 
@@ -51,6 +52,7 @@ class GraphicalView(View):
         figsize: tuple[float, float] | None = None,
         format: Literal['svg', 'png'] | None = None,
         legend: bool | tuple[float, float] = False,
+        camera: Camera | None = None,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -71,8 +73,9 @@ class GraphicalView(View):
             title=title,
             vmin=vmin,
             vmax=vmax,
-            autoscale=autoscale,
+            # autoscale=autoscale,
             legend=legend,
+            camera=camera,
             **kwargs,
         )
 
@@ -86,6 +89,7 @@ class GraphicalView(View):
                 vmax=vmax,
                 autoscale=autoscale,
                 canvas=self.canvas,
+                figsize=getattr(self.canvas, "figsize", None),
             )
             if colormapper
             else None
@@ -95,7 +99,7 @@ class GraphicalView(View):
             self.canvas.yscale = norm
         self.render()
         # self.canvas.autoscale()
-        self.canvas.finalize()
+        # self.canvas.finalize()
 
     def autoscale(self):
         bbox = BoundingBox()
@@ -112,6 +116,11 @@ class GraphicalView(View):
             _none_if_not_finite(self._bbox.ymin),
             _none_if_not_finite(self._bbox.ymax),
         )
+        if hasattr(self.canvas, 'zrange'):
+            self.canvas.zrange = (
+                _none_if_not_finite(self._bbox.zmin),
+                _none_if_not_finite(self._bbox.zmax),
+            )
         self.canvas.draw()
 
     def update(self, *args, **kwargs):

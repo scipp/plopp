@@ -44,14 +44,18 @@ def scatterfigure(*nodes: Node, x: str, y: str, cbar: bool, **kwargs) -> FigureL
     return dispatcher['2d']['figure'](view_maker, *nodes, x=x, y=y, cbar=cbar, **kwargs)
 
 
-def scatter3dfigure(*nodes: Node, x: str, y: str, z: str, **kwargs) -> FigureLike:
+def scatter3dfigure(
+    *nodes: Node, x: str, y: str, z: str, cbar: bool, **kwargs
+) -> FigureLike:
     view_maker = partial(
         GraphicalView,
         dims={'x': x, 'y': y, 'z': z},
         canvas_maker=dispatcher['3d']['canvas'],
         artist_maker=dispatcher['3d']['scatter3d'],
-        colormapper=True,
+        colormapper=cbar,
     )
     # if cbar:
     #     kwargs = {**kwargs, **{"edgecolors": "none"}}
-    return dispatcher['3d']['figure'](view_maker, *nodes, x=x, y=y, z=z, **kwargs)
+    return dispatcher['3d']['figure'](
+        view_maker, *nodes, x=x, y=y, z=z, cbar=cbar, **kwargs
+    )
