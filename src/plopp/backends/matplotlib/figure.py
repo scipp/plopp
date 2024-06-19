@@ -100,9 +100,9 @@ class InteractiveFigure(MplBaseFig, VBox):
 
         self.__init_figure__(View, *args, **kwargs)
         self.toolbar = make_toolbar_canvas2d(
-            home=self._view.autoscale,
-            canvas=self._view.canvas,
-            colormapper=getattr(self._view, 'colormapper', None),
+            # home=self._view.autoscale,
+            view=self._view,
+            # colormapper=getattr(self._view, 'colormapper', None),
         )
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar()

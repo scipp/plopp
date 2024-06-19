@@ -442,20 +442,12 @@ class Canvas:
         Toggle the scale between ``linear`` and ``log`` along the horizontal axis.
         """
         self.xscale = 'log' if self.xscale == 'linear' else 'linear'
-        # self._bbox.xmin = np.inf
-        # self._bbox.xmax = -np.inf
-        # self.autoscale()
-        self.draw()
 
     def logy(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
-        # self._bbox.ymin = np.inf
-        # self._bbox.ymax = -np.inf
-        # self.autoscale()
-        self.draw()
 
     def finalize(self):
         """

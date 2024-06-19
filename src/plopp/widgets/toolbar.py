@@ -6,7 +6,7 @@ from typing import Any
 
 from ipywidgets import VBox
 
-from ..graphics import ColorMapper
+from ..graphics import ColorMapper, GraphicalView
 from . import tools
 
 
@@ -50,7 +50,8 @@ class Toolbar(VBox):
 
 
 def make_toolbar_canvas2d(
-    home: Callable, canvas: Any, colormapper: ColorMapper | None = None
+    view: GraphicalView,
+    # colormapper: ColorMapper | None = None
 ) -> Toolbar:
     """
     Create a toolbar for a 2D canvas.
@@ -58,23 +59,29 @@ def make_toolbar_canvas2d(
 
     Parameters
     ----------
-    canvas:
-        The 2D canvas to operate on.
-    colormapper:
-        The colormapper which controls the colors of the artists in the canvas (for
-        image plots).
+    view:
+        The 2D view to operate on.
     """
+
+    def logx() -> None:
+        view.canvas.logx()
+        view.autoscale()
+
+    def logy() -> None:
+        view.canvas.logy()
+        view.autoscale()
+
     tool_list = {
-        'home': tools.HomeTool(home),
-        'panzoom': tools.PanZoomTool(canvas.panzoom),
-        'logx': tools.LogxTool(canvas.logx, value=canvas.xscale == 'log'),
-        'logy': tools.LogyTool(canvas.logy, value=canvas.yscale == 'log'),
+        'home': tools.HomeTool(view.autoscale),
+        'panzoom': tools.PanZoomTool(view.canvas.panzoom),
+        'logx': tools.LogxTool(logx, value=view.canvas.xscale == 'log'),
+        'logy': tools.LogyTool(logy, value=view.canvas.yscale == 'log'),
     }
-    if colormapper is not None:
+    if view.colormapper is not None:
         tool_list['lognorm'] = tools.LogNormTool(
-            colormapper.toggle_norm, value=colormapper.norm == 'log'
+            view.colormapper.toggle_norm, value=view.colormapper.norm == 'log'
         )
-    tool_list['save'] = tools.SaveTool(canvas.download_figure)
+    tool_list['save'] = tools.SaveTool(view.canvas.download_figure)
     return Toolbar(tools=tool_list)
 
 
