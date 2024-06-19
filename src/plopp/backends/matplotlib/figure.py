@@ -108,14 +108,17 @@ class InteractiveFigure(MplBaseFig, VBox):
         self.right_bar = VBar()
         self.bottom_bar = HBar()
         self.top_bar = HBar()
+        super().__init__()
 
-        super().__init__(
-            [
-                self.top_bar,
-                HBar([self.left_bar, self._view.canvas.to_widget(), self.right_bar]),
-                self.bottom_bar,
-            ]
-        )
+    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
+        from ...widgets import HBar
+
+        self.children = [
+            self.top_bar,
+            HBar([self.left_bar, self._view.canvas.to_widget(), self.right_bar]),
+            self.bottom_bar,
+        ]
+        return super()._repr_mimebundle_(include=include, exclude=exclude)
 
 
 class StaticFigure(MplBaseFig):
