@@ -9,10 +9,10 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-from .backends.dispatcher import Dispatcher
+# from .backends.dispatcher import dispatcher
 
 # backends = BackendManager()
-dispatcher = Dispatcher()
+# dispatcher = Dispatcher()
 
 # from .graphics.viewlibrary import ViewLibrary
 

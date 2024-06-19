@@ -18,7 +18,7 @@ def _make_figure(*args, **kwargs):
         return StaticFig(*args, **kwargs)
 
 
-class Library:
+class MplLibrary:
     def is_interactive(self):
         """
         Returns ``True`` if the backend currently in use allows for interactive figures.
@@ -95,4 +95,4 @@ class Library:
     #     return TiledMpl(*args, **kwargs)
 
 
-__all__ = ["MatplotlibBackend"]
+__all__ = ["MplLibrary"]

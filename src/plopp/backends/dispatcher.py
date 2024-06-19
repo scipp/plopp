@@ -4,15 +4,19 @@
 # DEFAULTS = {'2d': 'matplotlib', '3d': 'pythreejs'}
 from typing import Any
 
-from .matplotlib import Library as MplLibrary
+from .matplotlib import MplLibrary
+from .pythreejs import P3jsLibrary
 
 
-class Dispatcher:
-    def __init__(self):
-        self._backends = [MplLibrary()]
+class LibManager:
+    def __init__(self, library):
+        self._library = library
 
     def __getitem__(self, name: str) -> Any:
-        return self._backends[0][name]
+        return self._library[name]
 
     def module(self, name: str) -> Any:
-        return self._backends[0].module(name)
+        return self._library.module(name)
+
+
+dispatcher = {"2d": LibManager(MplLibrary()), "3d": LibManager(P3jsLibrary())}

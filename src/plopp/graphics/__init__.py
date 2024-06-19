@@ -9,12 +9,12 @@ from .basefig import BaseFig
 from .camera import Camera
 from .colormapper import ColorMapper
 from .figure import figure1d, figure2d, figure3d
-from .figures import linefigure, imagefigure, scatterfigure
+from .figures import linefigure, imagefigure, scatterfigure, scatter3dfigure
 from .graphicalview import GraphicalView
 
 # from .imageview import ImageView  # , imagefigure
 # from .lineview import LineView  # , linefigure
-from .scatter3dview import Scatter3dView, scatter3dfigure
+# from .scatter3dview import Scatter3dView, scatter3dfigure
 
 # from .scatterview import ScatterView  # , scatterfigure
 from .tiled import tiled
@@ -36,7 +36,7 @@ __all__ = [
     'ColorMapper',
     'GraphicalView',
     # 'ImageView',
-    'Scatter3dView',
+    # 'Scatter3dView',
     # 'ScatterView',
     'figure1d',
     'figure2d',
