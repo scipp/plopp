@@ -16,6 +16,10 @@ class BaseFig:
     def canvas(self):
         return self._view.canvas
 
+    @property
+    def ax(self):
+        return self._view.canvas.ax
+
     def autoscale(self):
         self._view.autoscale()
 

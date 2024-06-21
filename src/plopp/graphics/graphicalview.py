@@ -53,6 +53,7 @@ class GraphicalView(View):
         format: Literal['svg', 'png'] | None = None,
         legend: bool | tuple[float, float] = False,
         camera: Camera | None = None,
+        ax=None,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -76,7 +77,8 @@ class GraphicalView(View):
             # autoscale=autoscale,
             legend=legend,
             camera=camera,
-            **kwargs,
+            ax=ax,
+            # **kwargs,
         )
 
         self.colormapper = (
