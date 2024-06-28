@@ -358,7 +358,8 @@ class ClippingPlanes(ipw.HBox):
         """
         Set the opacity of the original point clouds in the figure, not the cuts.
         """
-        self._view.set_opacity(change['new'])
+        for n in self._original_nodes:
+            self._view.artists[n.id].opacity = change['new']
 
     def toggle_visibility(self):
         """
