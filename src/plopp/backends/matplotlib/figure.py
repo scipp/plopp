@@ -27,12 +27,12 @@ class MplBaseFig(BaseFig):
         """
         return self._view.canvas.fig
 
-    # @property
-    # def ax(self):
-    #     """
-    #     Get the underlying Matplotlib axes.
-    #     """
-    #     return self._view.canvas.ax
+    @property
+    def ax(self):
+        """
+        Get the underlying Matplotlib axes.
+        """
+        return self._view.canvas.ax
 
     @property
     def cax(self):

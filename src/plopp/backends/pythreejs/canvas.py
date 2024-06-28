@@ -45,7 +45,7 @@ class Canvas:
         figsize: tuple[int, int] | None = None,
         title: str | None = None,
         camera: Camera | None = None,
-        ax: Axes | None = None,
+        # ax: Axes | None = None,
         **ignored,
     ):
         import pythreejs as p3
@@ -63,21 +63,22 @@ class Canvas:
         self._user_camera = Camera() if camera is None else camera
         self.camera = (
             p3.PerspectiveCamera(aspect=width / height)
-            if ax is None
-            else ax.parent.camera
+            # if ax is None
+            # else ax.parent.camera
         )
         self.camera_backup = {}
-        self.axes_3d = p3.AxesHelper() if ax is None else ax.parent.axes_3d
+        self.axes_3d = p3.AxesHelper()  # if ax is None else ax.parent.axes_3d
         self._limits = BoundingBox()
+        self._cached_limits = None
         self.scene = (
             p3.Scene(children=[self.camera, self.axes_3d], background="#f0f0f0")
-            if ax is None
-            else ax.scene
+            # if ax is None
+            # else ax.scene
         )
         self.controls = (
             p3.OrbitControls(controlling=self.camera)
-            if ax is None
-            else ax.parent.controls
+            # if ax is None
+            # else ax.parent.controls
         )
         self.renderer = (
             p3.Renderer(
@@ -87,8 +88,8 @@ class Canvas:
                 width=width,
                 height=height,
             )
-            if ax is None
-            else ax.parent.renderer
+            # if ax is None
+            # else ax.parent.renderer
         )
 
     def to_widget(self):
@@ -124,6 +125,15 @@ class Canvas:
             sc.array(dims=[self.dims['y']], values=self.yrange, unit=self.units['y']),
             sc.array(dims=[self.dims['z']], values=self.zrange, unit=self.units['z']),
         )
+
+        if self._cached_limits is not None:
+            if all(
+                sc.allclose(lim, cached_lim)
+                for lim, cached_lim in zip(limits, self._cached_limits, strict=True)
+            ):
+                return
+
+        self._cached_limits = limits
 
         if self.outline is not None:
             self.remove(self.outline)
@@ -334,9 +344,9 @@ class Canvas:
     def zrange(self, value: tuple[float, float]):
         self._limits.zmin, self._limits.zmax = value
 
-    @property
-    def ax(self):
-        """
-        Get the axes object.
-        """
-        return Axes(scene=self.scene, parent=self)
+    # @property
+    # def ax(self):
+    #     """
+    #     Get the axes object.
+    #     """
+    #     return Axes(scene=self.scene, parent=self)

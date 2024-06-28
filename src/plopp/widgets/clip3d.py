@@ -201,7 +201,27 @@ class ClippingPlanes(ipw.HBox):
 
     def __init__(self, fig: BaseFig):
         self._view = fig._view
-        self._limits = self._view.get_limits()
+        bbox = self._view._bbox
+        canvas = self._view.canvas
+
+        self._limits = (
+            sc.array(
+                dims=[canvas.dims['x']],
+                values=[bbox.xmin, bbox.xmax],
+                unit=canvas.units['x'],
+            ),
+            sc.array(
+                dims=[canvas.dims['y']],
+                values=[bbox.ymin, bbox.ymax],
+                unit=canvas.units['y'],
+            ),
+            sc.array(
+                dims=[canvas.dims['z']],
+                values=[bbox.zmin, bbox.zmax],
+                unit=canvas.units['z'],
+            ),
+        )
+
         self.cuts = []
         self._operation = 'or'
 
