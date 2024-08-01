@@ -10,7 +10,7 @@ from .utils import merge_masks
 
 
 def find_limits(
-    x: sc.DataArray,
+    x: sc.Variable | sc.DataArray,
     scale: Literal['linear', 'log'] = 'linear',
     pad: bool = False,
 ) -> tuple[sc.Variable, sc.Variable]:
@@ -24,14 +24,13 @@ def find_limits(
     # Computing limits for string arrays is not supported, so we convert them to
     # dummy numerical arrays.
     if x.dtype == sc.DType.string:
-        x = x.copy(deep=False)
-        x.data = sc.arange(x.dim, float(len(x)), unit=x.unit)
-    # if x.masks:
-    #     x = sc.where(
-    #         merge_masks(x.masks),
-    #         sc.scalar(np.nan, unit=x.unit),
-    #         x.data.to(dtype='float64'),
-    #     )
+        x = sc.arange(x.dim, float(len(x)), unit=x.unit)
+    if getattr(x, 'masks', None):
+        x = sc.where(
+            merge_masks(x.masks),
+            sc.scalar(np.nan, unit=x.unit),
+            x.data.to(dtype='float64'),
+        )
     v = x.values
     finite_inds = np.isfinite(v)
     if np.sum(finite_inds) == 0:

@@ -246,11 +246,10 @@ class Line:
         The bounding box of the line.
         """
         line_x = self._data.coords[self._dim]
-        line_y = self._data.data
-        if self._data.masks:
-            line_y = line_y[~merge_masks(self._data.masks)]
+        sel = ~merge_masks(self._data.masks) if self._data.masks else slice(None)
+        line_y = self._data.data[sel]
         if self._error is not None:
-            stddevs = sc.stddevs(self._data)
+            stddevs = sc.stddevs(self._data.data[sel])
             line_y = sc.concat([line_y - stddevs, line_y + stddevs], self._dim)
 
         return BoundingBox(

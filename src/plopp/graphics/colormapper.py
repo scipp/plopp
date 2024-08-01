@@ -182,6 +182,20 @@ class ColorMapper:
             fix_empty_range(find_limits(artist._data, scale=self.norm))
             for artist in self.artists.values()
         ]
+        # limits = [
+        #     fix_empty_range(find_limits(sc.where(
+        #     merge_masks(artist._data.masks),
+        #     sc.scalar(np.nan, unit=x.unit),
+        #     .data.to(dtype='float64'),
+        # ), scale=self.norm))
+        #     for artist in self.artists.values()
+        # ]
+
+        # x = sc.where(
+        #     merge_masks(x.masks),
+        #     sc.scalar(np.nan, unit=x.unit),
+        #     x.data.to(dtype='float64'),
+        # )
         vmin = reduce(min, [v[0] for v in limits])
         vmax = reduce(max, [v[1] for v in limits])
         if self.user_vmin is not None:

@@ -21,55 +21,55 @@ def _none_max(*args: float) -> float:
     return max(x for x in args if x is not None)
 
 
-@dataclass
-class BoundingBox:
-    """
-    A bounding box in 2D space.
-    """
+# @dataclass
+# class BoundingBox:
+#     """
+#     A bounding box in 2D space.
+#     """
 
-    xmin: float | None = None
-    xmax: float | None = None
-    ymin: float | None = None
-    ymax: float | None = None
+#     xmin: float | None = None
+#     xmax: float | None = None
+#     ymin: float | None = None
+#     ymax: float | None = None
 
-    def union(self, other: BoundingBox) -> BoundingBox:
-        """
-        Return the union of this bounding box with another one.
-        """
+#     def union(self, other: BoundingBox) -> BoundingBox:
+#         """
+#         Return the union of this bounding box with another one.
+#         """
 
-        return BoundingBox(
-            xmin=_none_min(self.xmin, other.xmin),
-            xmax=_none_max(self.xmax, other.xmax),
-            ymin=_none_min(self.ymin, other.ymin),
-            ymax=_none_max(self.ymax, other.ymax),
-        )
+#         return BoundingBox(
+#             xmin=_none_min(self.xmin, other.xmin),
+#             xmax=_none_max(self.xmax, other.xmax),
+#             ymin=_none_min(self.ymin, other.ymin),
+#             ymax=_none_max(self.ymax, other.ymax),
+#         )
 
 
-def axis_bounds(
-    keys: tuple[str, str],
-    x: sc.DataArray,
-    scale: Literal['linear', 'log'],
-    pad=False,
-) -> dict[str, float]:
-    """
-    Find sensible limits for an axis, depending on linear or log scale.
+# def axis_bounds(
+#     keys: tuple[str, str],
+#     x: sc.DataArray,
+#     scale: Literal['linear', 'log'],
+#     pad=False,
+# ) -> dict[str, float]:
+#     """
+#     Find sensible limits for an axis, depending on linear or log scale.
 
-    Parameters
-    ----------
-    keys:
-        The keys to use for constructing a bounding box. The keys should be
-        ``('xmin', 'xmax')`` for the horizontal axis, and ``('ymin', 'ymax')`` for the
-        vertical axis.
-    x:
-        The data array to find limits for.
-    scale:
-        The scale of the axis (linear or log).
-    pad:
-        Whether to pad the limits.
-    """
-    values = fix_empty_range(find_limits(x, scale=scale, pad=pad))
-    bounds = dict(zip(keys, (val.value for val in values), strict=True))
-    return bounds
+#     Parameters
+#     ----------
+#     keys:
+#         The keys to use for constructing a bounding box. The keys should be
+#         ``('xmin', 'xmax')`` for the horizontal axis, and ``('ymin', 'ymax')`` for the
+#         vertical axis.
+#     x:
+#         The data array to find limits for.
+#     scale:
+#         The scale of the axis (linear or log).
+#     pad:
+#         Whether to pad the limits.
+#     """
+#     values = fix_empty_range(find_limits(x, scale=scale, pad=pad))
+#     bounds = dict(zip(keys, (val.value for val in values), strict=True))
+#     return bounds
 
 
 def make_line_data(data: sc.DataArray, dim: str) -> dict:
