@@ -3,17 +3,29 @@
 
 from functools import partial
 
+import scipp as sc
+
 from .. import backends
 from ..core import Node
 from ..core.typing import FigureLike
+from .bbox import BoundingBox
 from .graphicalview import GraphicalView
 
 
-def linefigure(*nodes: Node, **kwargs) -> FigureLike:
+def linefigure(
+    *nodes: Node,
+    vmin: sc.Variable | float | None = None,
+    vmax: sc.Variable | float | None = None,
+    **kwargs,
+) -> FigureLike:
     view_maker = partial(
         GraphicalView,
         dims={'x': None},
-        canvas_maker=backends.get(group='2d', name='canvas'),
+        canvas_maker=partial(
+            backends.get(group='2d', name='canvas'),
+            user_vmin=vmin,
+            user_vmax=vmax,
+        ),
         artist_maker=backends.get(group='2d', name='line'),
         colormapper=False,
     )

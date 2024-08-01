@@ -73,41 +73,6 @@ class Line:
 
         line_data = make_line_data(data=self._data, dim=self._dim)
 
-        # self._make_line(
-        #     data=make_line_data(data=self._data, dim=self._dim),
-        #     artist_number=artist_number,
-        #     **args,
-        # )
-
-        # def _make_line(
-        #     self,
-        #     data: dict,
-        #     artist_number: int,
-        #     errorbars: bool = True,
-        #     mask_color: str = 'black',
-        #     **kwargs,
-        # ):
-        #     """
-        #     Create either plot markers or a step function, depending on whether the data
-        #     contains bin edges or not.
-
-        #     Parameters
-        #     ----------
-        #     data:
-        #         A dictionary containing data entries that have been pre-processed to be in
-        #         a format that Matplotlib can directly use.
-        #     artist_number:
-        #         The line artist_number to set colors and marker style.
-        #     errorbars:
-        #         Show errorbars if ``True``.
-        #     mask_color:
-        #         The color to be used to represent the masks.
-        #     **kwargs:
-        #         The kwargs are forwarded to:
-
-        #         - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
-        #         - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
-        #     """
         default_step_style = {
             'linestyle': 'solid',
             'linewidth': 1.5,
@@ -225,6 +190,7 @@ class Line:
         if self._error is not None:
             self._error.remove()
         self.update_legend()
+        self._canvas.draw()
 
     @property
     def color(self):
@@ -252,7 +218,10 @@ class Line:
             stddevs = sc.stddevs(self._data.data[sel])
             line_y = sc.concat([line_y - stddevs, line_y + stddevs], self._dim)
 
-        return BoundingBox(
+        out = BoundingBox(
             **{**axis_bounds(('xmin', 'xmax'), line_x, xscale, pad=True)},
             **{**axis_bounds(('ymin', 'ymax'), line_y, yscale, pad=True)},
         )
+        print('in artists')
+        print(out.ymin, out.ymax)
+        return out

@@ -18,9 +18,6 @@ from . import data
 from .core import Node, View, node, show_graph, widget_node
 from .graphics import (
     Camera,
-    figure1d,
-    figure2d,
-    figure3d,
     imagefigure,
     linefigure,
     scatter3dfigure,
@@ -50,9 +47,6 @@ __all__ = [
     'View',
     'backends',
     'data',
-    'figure1d',
-    'figure2d',
-    'figure3d',
     'imagefigure',
     'inspector',
     'linefigure',

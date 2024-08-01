@@ -92,11 +92,12 @@ def maybe_number_to_variable(
     )
 
 
-def maybe_variable_to_number(x: float | sc.Variable, unit=None) -> float:
+def maybe_variable_to_number(x: float | sc.Variable | None, unit=None) -> float | None:
     """
     If the input is a variable, return its value.
     If a unit is requested, perform the conversion to that unit first.
     If the input is a number, return it unchanged.
+    If the input is None, return it unchanged.
 
     Parameters
     ----------

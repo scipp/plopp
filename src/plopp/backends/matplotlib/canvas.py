@@ -9,7 +9,8 @@ import scipp as sc
 from matplotlib import dates as mdates
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from ...core.utils import scalar_to_string
+from ...core.utils import maybe_variable_to_number, scalar_to_string
+from ...graphics.bbox import BoundingBox
 
 # from ..common import BoundingBox, axis_bounds
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
@@ -52,18 +53,10 @@ class Canvas:
         The title to be placed above the figure.
     grid:
         Display the figure grid if ``True``.
-    vmin:
-        The minimum value for the vertical axis. If a number (without a unit) is
-        supplied, it is assumed that the unit is the same as the current vertical axis
-        unit.
-    vmax:
-        The maximum value for the vertical axis. If a number (without a unit) is
-        supplied, it is assumed that the unit is the same as the current vertical axis
-        unit.
-    autoscale:
-        The behavior of the axis limits. If ``auto``, the limits automatically
-        adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
+    user_vmin:
+        The minimum value for the y axis (1d plots only).
+    user_vmax:
+        The maximum value for the y axis (1d plots only).
     aspect:
         The aspect ratio for the axes.
     cbar:
@@ -80,8 +73,9 @@ class Canvas:
         figsize: tuple[float, float] | None = None,
         title: str | None = None,
         grid: bool = False,
-        vmin: sc.Variable | float = None,
-        vmax: sc.Variable | float = None,
+        # bbox: BoundingBox | None = None,
+        user_vmin: sc.Variable | float = None,
+        user_vmax: sc.Variable | float = None,
         # autoscale: Literal['auto', 'grow'] = 'auto',
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
@@ -97,11 +91,14 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
+        # print(vmin, vmax)
+
         self.fig = None
         self.ax = ax
         self.cax = cax
-        self._user_vmin = vmin
-        self._user_vmax = vmax
+        # self.bbox = bbox if bbox is not None else BoundingBox()
+        self._user_vmin = user_vmin
+        self._user_vmax = user_vmax
         self.units = {}
         self.dims = {}
         # self._own_axes = False
@@ -208,6 +205,10 @@ class Canvas:
             self._cursor_x_prefix = self.dims['x'] + '='
             self._cursor_y_prefix = self.dims['y'] + '='
         self.ax.format_coord = self.format_coord
+        self.bbox = BoundingBox(
+            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units.get('y')),
+            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units.get('y')),
+        )
 
     def register_format_coord(self, formatter):
         """

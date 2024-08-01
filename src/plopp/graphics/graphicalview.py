@@ -110,6 +110,7 @@ class GraphicalView(View):
                 artist.bbox(xscale=self.canvas.xscale, yscale=self.canvas.yscale)
             )
         self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
+        self._bbox = self._bbox.override(self.canvas.bbox)
         self.canvas.xrange = (
             _none_if_not_finite(self._bbox.xmin),
             _none_if_not_finite(self._bbox.xmax),

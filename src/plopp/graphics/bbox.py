@@ -5,7 +5,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Literal
+from types import UnionType
+from typing import Any, Literal
 
 import scipp as sc
 
@@ -36,7 +37,6 @@ class BoundingBox:
         """
         Return the union of this bounding box with another one.
         """
-
         return BoundingBox(
             xmin=_none_reduce(self.xmin, other.xmin, op=min),
             xmax=_none_reduce(self.xmax, other.xmax, op=max),
@@ -44,6 +44,32 @@ class BoundingBox:
             ymax=_none_reduce(self.ymax, other.ymax, op=max),
             zmin=_none_reduce(self.zmin, other.zmin, op=min),
             zmax=_none_reduce(self.zmax, other.zmax, op=max),
+        )
+
+    def intersection(self, other: BoundingBox) -> BoundingBox:
+        """
+        Return the intersection of this bounding box with another one.
+        """
+        return BoundingBox(
+            xmin=_none_reduce(self.xmin, other.xmin, op=max),
+            xmax=_none_reduce(self.xmax, other.xmax, op=min),
+            ymin=_none_reduce(self.ymin, other.ymin, op=max),
+            ymax=_none_reduce(self.ymax, other.ymax, op=min),
+            zmin=_none_reduce(self.zmin, other.zmin, op=max),
+            zmax=_none_reduce(self.zmax, other.zmax, op=min),
+        )
+
+    def override(self, other: BoundingBox) -> BoundingBox:
+        """
+        Return a new bounding box with values from another one if they are not None.
+        """
+        return BoundingBox(
+            xmin=other.xmin if other.xmin is not None else self.xmin,
+            xmax=other.xmax if other.xmax is not None else self.xmax,
+            ymin=other.ymin if other.ymin is not None else self.ymin,
+            ymax=other.ymax if other.ymax is not None else self.ymax,
+            zmin=other.zmin if other.zmin is not None else self.zmin,
+            zmax=other.zmax if other.zmax is not None else self.zmax,
         )
 
 

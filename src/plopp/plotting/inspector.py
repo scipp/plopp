@@ -40,6 +40,7 @@ def inspector(
     *,
     operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
     orientation: Literal['horizontal', 'vertical'] = 'horizontal',
+    cbar: bool = True,
     **kwargs,
 ):
     """
@@ -71,6 +72,8 @@ def inspector(
     orientation:
         Display the two panels side-by-side ('horizontal') or one below the other
         ('vertical').
+    cbar:
+        Show a colorbar on the image.
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
 
@@ -94,7 +97,7 @@ def inspector(
         dim = data.dims[-1]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
-    f2d = imagefigure(op_node, **kwargs)
+    f2d = imagefigure(op_node, cbar=cbar, **kwargs)
 
     from ..widgets import Box, PointsTool
 
