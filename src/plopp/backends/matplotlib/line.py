@@ -248,7 +248,7 @@ class Line:
         line_x = self._data.coords[self._dim]
         line_y = self._data.data
         if self._data.masks:
-            line_y = line_y[merge_masks(self._data.masks)]
+            line_y = line_y[~merge_masks(self._data.masks)]
         if self._error is not None:
             stddevs = sc.stddevs(self._data)
             line_y = sc.concat([line_y - stddevs, line_y + stddevs], self._dim)

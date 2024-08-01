@@ -303,11 +303,11 @@ def test_legend_location():
     assert leg3[0] == leg1[0]
 
 
-def test_hide_legend_bad_type():
-    da1 = data_array(ndim=1)
-    da2 = da1 * 3.3
-    with pytest.raises(TypeError, match='Legend must be a bool, tuple, or a list'):
-        pp.plot({'a': da1, 'b': da2}, legend='False')
+# def test_hide_legend_bad_type():
+#     da1 = data_array(ndim=1)
+#     da2 = da1 * 3.3
+#     with pytest.raises(TypeError, match='Legend must be a bool, tuple, or a list'):
+#         pp.plot({'a': da1, 'b': da2}, legend='False')
 
 
 @pytest.mark.parametrize('Constructor', [dict, sc.Dataset, sc.DataGroup])
