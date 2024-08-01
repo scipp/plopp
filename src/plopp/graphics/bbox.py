@@ -7,12 +7,9 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
 
-# import numpy as np
 import scipp as sc
 
 from ..core.limits import find_limits, fix_empty_range
-
-# from ..core.utils import merge_masks
 
 
 def _none_reduce(*args: float, op: Callable) -> float:
@@ -20,10 +17,6 @@ def _none_reduce(*args: float, op: Callable) -> float:
     if not elems:
         return None
     return op(elems)
-
-
-# def _none_max(*args: float) -> float:
-#     return max(x for x in args if x is not None)
 
 
 @dataclass

@@ -8,16 +8,16 @@ from typing import Any
 import numpy as np
 import scipp as sc
 
-from .. import backends
+# from .. import backends
 from ..core import Node
-from ..core.typing import Plottable, PlottableMulti
+from ..core.typing import FigureLike, Plottable, PlottableMulti
 
 
-def require_interactive_backend(func: str):
+def require_interactive_figure(fig: FigureLike, func: str):
     """
-    Raise an error if the current backend in use is non-interactive.
+    Raise an error if the figure is non-interactive.
     """
-    if not backends.is_interactive():
+    if not fig.interactive:
         raise RuntimeError(
             f"The {func} can only be used with an interactive backend "
             "backend. Use `%matplotlib widget` at the start of your "

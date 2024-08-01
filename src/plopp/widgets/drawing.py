@@ -9,13 +9,17 @@ import scipp as sc
 
 from ..core import Node, node
 from ..core.typing import FigureLike
+from ..graphics import BaseFig
 from .tools import ToggleTool
 
 
 def is_figure(x):
-    from ..backends.matplotlib.interactive import InteractiveFig
+    # from ..backends.matplotlib.interactive import InteractiveFig
 
-    return isinstance(x, InteractiveFig)
+    # return isinstance(x, InteractiveFig)
+    answer = isinstance(x, BaseFig)
+    print(f"is_figure: {answer}")
+    return answer
 
 
 class DrawingTool(ToggleTool):

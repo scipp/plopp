@@ -99,6 +99,7 @@ class InteractiveFigure(MplBaseFig, VBox):
         from ...widgets import HBar, VBar, make_toolbar_canvas2d
 
         self.__init_figure__(View, *args, **kwargs)
+        self.interactive = True
         self.toolbar = make_toolbar_canvas2d(
             # home=self._view.autoscale,
             view=self._view,
@@ -108,16 +109,19 @@ class InteractiveFigure(MplBaseFig, VBox):
         self.right_bar = VBar()
         self.bottom_bar = HBar()
         self.top_bar = HBar()
-        super().__init__()
+        super().__init__(self._make_children())
 
-    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
+    def _make_children(self):
         from ...widgets import HBar
 
-        self.children = [
+        return [
             self.top_bar,
             HBar([self.left_bar, self._view.canvas.to_widget(), self.right_bar]),
             self.bottom_bar,
         ]
+
+    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
+        self.children = self._make_children()
         return super()._repr_mimebundle_(include=include, exclude=exclude)
 
 
@@ -130,6 +134,7 @@ class StaticFigure(MplBaseFig):
 
     def __init__(self, View, *args, **kwargs):
         self.__init_figure__(View, *args, **kwargs)
+        self.interactive = False
 
     def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
         """
