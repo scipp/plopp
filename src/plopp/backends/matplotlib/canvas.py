@@ -96,7 +96,7 @@ class Canvas:
         self.fig = None
         self.ax = ax
         self.cax = cax
-        # self.bbox = bbox if bbox is not None else BoundingBox()
+        self.bbox = BoundingBox()
         self._user_vmin = user_vmin
         self._user_vmax = user_vmax
         self.units = {}

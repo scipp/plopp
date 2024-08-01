@@ -54,6 +54,7 @@ class Canvas:
         self.units = {}
         self.xscale = 'linear'
         self.yscale = 'linear'
+        self.bbox = BoundingBox()
         self.outline = None
         self.axticks = None
         self.figsize = np.asarray(figsize if figsize is not None else (600, 400))

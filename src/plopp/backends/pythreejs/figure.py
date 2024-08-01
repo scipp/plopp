@@ -20,7 +20,11 @@ class Figure(BaseFig, VBox):
             canvas=self._view.canvas, colormapper=self._view.colormapper
         )
         self.left_bar = VBar([self.toolbar])
-        self.right_bar = VBar([self._view.colormapper.to_widget()])
+        self.right_bar = VBar(
+            [self._view.colormapper.to_widget()]
+            if self._view.colormapper is not None
+            else []
+        )
         self.bottom_bar = HBar()
         self.top_bar = HBar([self._view.canvas._title])
 
