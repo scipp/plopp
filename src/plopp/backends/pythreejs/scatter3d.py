@@ -185,3 +185,9 @@ class Scatter3d:
             **{**axis_bounds(('ymin', 'ymax'), scatter_y, yscale)},
             **{**axis_bounds(('zmin', 'zmax'), scatter_z, yscale)},
         )
+
+    def remove(self) -> None:
+        """
+        Remove the point cloud from the canvas.
+        """
+        self._canvas.remove(self.points)

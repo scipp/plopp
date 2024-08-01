@@ -8,7 +8,7 @@ import numpy as np
 import scipp as sc
 
 from ..core import Node, View
-from ..core.typing import CanvasLike
+from ..core.typing import ArtistLike, CanvasLike, Plottable
 from ..core.utils import make_compatible, name_with_unit
 from .bbox import BoundingBox
 from .camera import Camera
@@ -125,7 +125,7 @@ class GraphicalView(View):
             )
         self.canvas.draw()
 
-    def update(self, *args, **kwargs):
+    def update(self, *args, **kwargs) -> None:
         """
         Update the view with new data by either supplying a dictionary of
         new data or by keyword arguments.
@@ -197,4 +197,17 @@ class GraphicalView(View):
 
         if self.colormapper is not None:
             self.colormapper.update(**new)
+        self.autoscale()
+
+    def remove(self, key: str) -> None:
+        """
+        Remove an object from the scene.
+
+        Parameters
+        ----------
+        key:
+            The id of the object to be removed.
+        """
+        self.artists[key].remove()
+        del self.artists[key]
         self.autoscale()

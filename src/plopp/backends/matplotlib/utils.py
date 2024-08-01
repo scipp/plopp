@@ -58,16 +58,11 @@ def make_figure(*args, **kwargs) -> Figure:
     return manager.canvas.figure
 
 
-def make_legend(leg: bool | tuple[float, float]):
+def make_legend(leg: bool | tuple[float, float] | str) -> dict:
     """
     Create a dict of arguments to be used in the legend creation.
     """
-    leg_args = {}
-    if isinstance(leg, list | tuple):
-        leg_args = {'loc': leg}
-    elif not isinstance(leg, bool):
-        raise TypeError(f"Legend must be a bool, tuple, or a list, not {type(leg)}")
-    return leg_args
+    return {'loc': leg} if not isinstance(leg, bool) else {}
 
 
 def require_interactive_backend(func: str):

@@ -176,7 +176,9 @@ class Line:
             # self._error[2][0]._plopp_mask = (
             #     line_mask[1:] if line_data["hist"] else line_mask
             # )
+        self.update_legend()
 
+    def update_legend(self) -> None:
         if self.label and self._canvas._legend:
             self._ax.legend(**make_legend(self._canvas._legend))
 
@@ -222,6 +224,7 @@ class Line:
         self._mask.remove()
         if self._error is not None:
             self._error.remove()
+        self.update_legend()
 
     @property
     def color(self):
