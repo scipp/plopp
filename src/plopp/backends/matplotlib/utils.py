@@ -7,8 +7,6 @@ from typing import Literal
 import matplotlib as mpl
 from matplotlib.pyplot import Figure, _get_backend_mod
 
-from ...core.typing import FigureLike
-
 
 def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
     """
@@ -108,17 +106,6 @@ def is_sphinx_build() -> bool:
     if hasattr(meta, "to_dict"):
         meta = meta.to_dict()
     return meta.get("scipp_sphinx_build", False)
-
-
-def copy_figure(fig: FigureLike, **kwargs) -> FigureLike:
-    out = fig.__class__(
-        fig._view.__class__,
-        *fig._args,
-        **{**fig._kwargs, **kwargs},
-    )
-    for prop in ('xrange', 'yrange', 'xscale', 'yscale', 'title', 'grid'):
-        setattr(out.canvas, prop, getattr(fig.canvas, prop))
-    return out
 
 
 def parse_dicts_in_kwargs(kwargs, name):

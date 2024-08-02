@@ -222,6 +222,4 @@ class Line:
             **{**axis_bounds(('xmin', 'xmax'), line_x, xscale, pad=True)},
             **{**axis_bounds(('ymin', 'ymax'), line_y, yscale, pad=True)},
         )
-        print('in artists')
-        print(out.ymin, out.ymax)
         return out

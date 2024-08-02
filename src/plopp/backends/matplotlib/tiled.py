@@ -9,8 +9,25 @@ import numpy as np
 from matplotlib import gridspec
 
 from ...core.typing import FigureLike
-from .static import get_repr_maker
-from .utils import copy_figure, is_interactive_backend, make_figure
+from .canvas import Canvas
+from .figure import get_repr_maker
+from .utils import is_interactive_backend, make_figure
+
+
+def copy_figure(fig: FigureLike, **kwargs) -> FigureLike:
+    args = fig._kwargs.copy()
+    args.update(kwargs)
+    args.update(
+        dims=fig._view._dims, canvas_maker=Canvas, artist_maker=fig._view._artist_maker
+    )
+    out = fig.__class__(
+        fig._view.__class__,
+        *fig._args,
+        **args,
+    )
+    for prop in ('xrange', 'yrange', 'xscale', 'yscale', 'title', 'grid'):
+        setattr(out.canvas, prop, getattr(fig.canvas, prop))
+    return out
 
 
 class Tiled:
