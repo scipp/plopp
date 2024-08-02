@@ -6,6 +6,7 @@ from typing import Literal
 
 import numpy as np
 import scipp as sc
+from matplotlib.colors import to_rgb
 
 from ...graphics.bbox import BoundingBox, axis_bounds
 from .canvas import Canvas
@@ -36,6 +37,8 @@ class Scatter3d:
         The initial data to create the line from.
     size:
         The size of the markers.
+    color:
+        The color of the markers (this is ignored if a colorbar is used).
     opacity:
         The opacity of the points.
     """
@@ -49,6 +52,7 @@ class Scatter3d:
         z: str,
         data: sc.DataArray,
         size: sc.Variable | float = 1,
+        color: str = 'black',
         artist_number: int = 0,
         opacity: float = 1,
     ):
@@ -91,9 +95,10 @@ class Scatter3d:
                     ).T
                 ),
                 'color': p3.BufferAttribute(
-                    array=np.zeros(
-                        [self._data.coords[self._x].shape[0], 3], dtype='float32'
-                    )
+                    array=np.broadcast_to(
+                        np.array(to_rgb(color)),
+                        (self._data.coords[self._x].shape[0], 3),
+                    ).astype('float32')
                 ),
             }
         )
