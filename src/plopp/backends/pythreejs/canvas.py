@@ -45,7 +45,6 @@ class Canvas:
         figsize: tuple[int, int] | None = None,
         title: str | None = None,
         camera: Camera | None = None,
-        # ax: Axes | None = None,
         **ignored,
     ):
         import pythreejs as p3

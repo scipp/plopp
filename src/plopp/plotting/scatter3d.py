@@ -99,12 +99,12 @@ def scatter3d(
     from ..graphics import scatter3dfigure
     from ..widgets import ClippingPlanes, ToggleTool
 
-    # if 'ax' in kwargs:
-    #     raise ValueError(
-    #         'Keyword "ax" detected. Embedding 3D scatter plots inside Matplotlib axes '
-    #         'is not supported. See '
-    #         'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'
-    #     )
+    if 'ax' in kwargs:
+        raise ValueError(
+            'Keyword "ax" detected. Embedding 3D scatter plots inside Matplotlib axes '
+            'is not supported. See '
+            'https://scipp.github.io/plopp/customization/subplots.html#FAQ:-subplots-with-3D-scatter-plots'
+        )
 
     nodes = input_to_nodes(
         obj, processor=partial(_preprocess_scatter, x=x, y=y, z=z, pos=pos)
