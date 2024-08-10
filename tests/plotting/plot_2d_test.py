@@ -51,6 +51,12 @@ def test_plot_2d_coord_with_mask():
     pp.plot(da)
 
 
+def test_kwarg_norm():
+    da = data_array(ndim=2)
+    p = pp.plot(da, norm='log')
+    assert p._view.colormapper.norm == 'log'
+
+
 def test_kwarg_cmap():
     da = data_array(ndim=2)
     p = pp.plot(da, cmap='magma')
@@ -177,3 +183,54 @@ def test_plot_2d_datetime_coord_binedges():
         coords={'time': time, 'z': z},
     )
     pp.plot(da)
+
+
+def test_create_with_bin_edges():
+    da = data_array(ndim=2, binedges=True)
+    fig = da.plot()
+    assert len(fig.artists) == 1
+    [img] = fig.artists.values()
+    assert sc.identical(img._data, da)
+
+
+def test_create_with_only_one_bin_edge_coord():
+    da = data_array(ndim=2, binedges=True)
+    da.coords['xx'] = sc.midpoints(da.coords['xx'])
+    fig = da.plot()
+    assert len(fig.artists) == 1
+    [img] = fig.artists.values()
+    assert sc.identical(img._data, da)
+
+
+def test_colorbar_label_has_correct_unit():
+    da = data_array(ndim=2, unit='K')
+    fig = da.plot()
+    assert fig.canvas.cblabel == '[K]'
+
+
+def test_colorbar_label_has_correct_name():
+    da = data_array(ndim=2, unit='K')
+    name = 'My Experimental Data'
+    da.name = name
+    fig = da.plot()
+    assert fig.canvas.cblabel == name + ' [K]'
+
+
+def test_colorbar_label_has_no_name_with_multiple_artists():
+    a = data_array(ndim=2, unit='K')
+    b = 3.3 * a
+    a.name = 'A data'
+    b.name = 'B data'
+    fig = pp.imagefigure(pp.Node(a), pp.Node(b), cbar=True)
+    assert fig.canvas.cblabel == '[K]'
+
+
+def test_axis_label_with_transposed_2d_coord():
+    a = sc.linspace('a', 0, 1, 10, unit='m')
+    b = sc.linspace('b', 0, 2, 5, unit='s')
+    da = sc.DataArray(a * b, coords={'a': a, 'b': b * a})
+    fig = da.plot()
+    assert fig.canvas.xlabel == 'b [m*s]'
+    da = sc.DataArray(a * b, coords={'a': a, 'b': a * b})
+    fig2 = da.plot()
+    assert fig2.canvas.xlabel == fig.canvas.xlabel

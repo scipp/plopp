@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 from dataclasses import dataclass
 from functools import partial
 from typing import Callable
@@ -20,7 +20,7 @@ class FigureAndData:
 
 ALLCASES = [
     FigureAndData(linefigure, data1d),
-    FigureAndData(imagefigure, data2d),
+    FigureAndData(partial(imagefigure, cbar=True), data2d),
     FigureAndData(partial(scatterfigure, x='x', y='y', cbar=True), scatter),
     FigureAndData(partial(scatter3dfigure, x='x', y='y', z='z', cbar=True), scatter),
 ]
