@@ -449,3 +449,75 @@ def test_plot_1d_data_with_variances_and_nan_values():
     p = da.plot()
     assert p.canvas.ymin < -1.0
     assert p.canvas.ymax > 1.0
+
+
+def test_plot_1d_data_with_binedges():
+    da = data_array(ndim=1, binedges=True)
+    da.plot()
+
+
+def test_update_grows_limits():
+    da = data_array(ndim=1)
+    fig = da.plot()
+    old_lims = fig.canvas.yrange
+    [key] = fig.artists.keys()
+    fig.update({key: da * 2.5})
+    new_lims = fig.canvas.yrange
+    assert new_lims[0] < old_lims[0]
+    assert new_lims[1] > old_lims[1]
+
+
+def test_update_does_shrink_limits_if_auto_mode():
+    da = data_array(ndim=1)
+    fig = da.plot(autoscale='auto')
+    old_lims = fig.canvas.yrange
+    [key] = fig.artists.keys()
+    const = 0.5
+    fig.update({key: da * const})
+    new_lims = fig.canvas.yrange
+    assert new_lims[0] == old_lims[0] * const
+    assert new_lims[1] == old_lims[1] * const
+
+
+def test_update_does_not_shrink_limits_if_grow_mode():
+    da = data_array(ndim=1)
+    fig = da.plot(autoscale='grow')
+    old_lims = fig.canvas.yrange
+    [key] = fig.artists.keys()
+    fig.update({key: da * 0.5})
+    new_lims = fig.canvas.yrange
+    assert new_lims[0] == old_lims[0]
+    assert new_lims[1] == old_lims[1]
+
+
+def test_vmin():
+    da = data_array(ndim=1)
+    fig = da.plot(vmin=sc.scalar(-0.5, unit='m/s'))
+    assert fig.canvas.ymin == -0.5
+
+
+def test_vmin_unit_mismatch_raises():
+    da = data_array(ndim=1)
+    with pytest.raises(sc.UnitError):
+        _ = da.plot(vmin=sc.scalar(-0.5, unit='m'))
+
+
+def test_vmax():
+    da = data_array(ndim=1)
+    fig = da.plot(vmax=sc.scalar(0.68, unit='m/s'))
+    assert fig.canvas.ymax == 0.68
+
+
+def test_vmin_vmax():
+    da = data_array(ndim=1)
+    fig = da.plot(
+        vmin=sc.scalar(-0.5, unit='m/s'),
+        vmax=sc.scalar(0.68, unit='m/s'),
+    )
+    assert np.allclose(fig.canvas.yrange, [-0.5, 0.68])
+
+
+def test_vmin_vmax_no_variable():
+    da = data_array(ndim=1)
+    fig = da.plot(vmin=-0.5, vmax=0.68)
+    assert np.allclose(fig.canvas.yrange, [-0.5, 0.68])

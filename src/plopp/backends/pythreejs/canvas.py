@@ -120,6 +120,9 @@ class Canvas:
         """
         from .outline import Outline
 
+        if self.empty:
+            return
+
         limits = (
             sc.array(dims=[self.dims['x']], values=self.xrange, unit=self.units['x']),
             sc.array(dims=[self.dims['y']], values=self.yrange, unit=self.units['y']),
