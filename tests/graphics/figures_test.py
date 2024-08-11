@@ -101,3 +101,12 @@ def test_converts_new_data_units_integers(case):
     [art_a, art_b] = fig.artists.values()
     assert sc.identical(art_a._data, a)
     assert sc.identical(art_b._data, b.to(unit='m', dtype=float))
+
+
+def test_colorbar_label_has_no_name_with_multiple_artists():
+    a = data2d(unit='K')
+    b = 3.3 * a
+    a.name = 'A data'
+    b.name = 'B data'
+    fig = imagefigure(Node(a), Node(b), cbar=True)
+    assert fig.canvas.cblabel == '[K]'

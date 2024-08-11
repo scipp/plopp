@@ -216,15 +216,6 @@ def test_colorbar_label_has_correct_name():
     assert fig.canvas.cblabel == name + ' [K]'
 
 
-def test_colorbar_label_has_no_name_with_multiple_artists():
-    a = data_array(ndim=2, unit='K')
-    b = 3.3 * a
-    a.name = 'A data'
-    b.name = 'B data'
-    fig = pp.imagefigure(pp.Node(a), pp.Node(b), cbar=True)
-    assert fig.canvas.cblabel == '[K]'
-
-
 def test_axis_label_with_transposed_2d_coord():
     a = sc.linspace('a', 0, 1, 10, unit='m')
     b = sc.linspace('b', 0, 2, 5, unit='s')
