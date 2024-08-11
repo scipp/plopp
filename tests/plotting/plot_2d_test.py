@@ -234,3 +234,27 @@ def test_axis_label_with_transposed_2d_coord():
     da = sc.DataArray(a * b, coords={'a': a, 'b': a * b})
     fig2 = da.plot()
     assert fig2.canvas.xlabel == fig.canvas.xlabel
+
+
+def test_plot_1d_data_over_2d_data():
+    f = data_array(ndim=2).plot()
+    data_array(ndim=1).plot(ax=f.ax)
+
+
+def test_plot_1d_data_over_2d_data_datetime():
+    # 2d data
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    z = sc.arange('z', 50.0, unit='m')
+    v = 10 * np.random.random(z.shape + time.shape)
+    da2d = sc.DataArray(
+        data=sc.array(dims=['z', 'time'], values=v), coords={'time': time, 'z': z}
+    )
+    fig2d = pp.plot(da2d)
+
+    # 1d data
+    v = np.random.rand(time.sizes['time'])
+    da1d = sc.DataArray(data=sc.array(dims=['time'], values=v), coords={'time': time})
+    pp.plot(da1d, ax=fig2d.ax)
