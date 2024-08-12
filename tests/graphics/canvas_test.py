@@ -7,7 +7,7 @@ from typing import Callable
 import pytest
 
 from plopp import Node, backends
-from plopp.data import data1d, data2d, scatter
+from plopp.data import data1d, data2d, data_array, scatter
 from plopp.graphics import imagefigure, linefigure, scatterfigure
 
 
@@ -28,6 +28,8 @@ CASES = [
     FigureAndData(partial(imagefigure, cbar=True), data2d),
     FigureAndData(partial(scatterfigure, x='x', y='y', cbar=True), scatter),
 ]
+
+CASES1D = CASES[:2]
 
 
 @pytest.mark.parametrize('case', CASES)
@@ -153,3 +155,61 @@ def test_logy(case):
     canvas.logy()
     assert canvas.xscale == 'linear'
     assert canvas.yscale == 'log'
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+@pytest.mark.parametrize('case', CASES1D)
+def test_logx_1d_toolbar_button_state_agrees_with_kwarg(case):
+    da = case.data()
+    fig = case.figure(Node(da), scale={'x': 'log'})
+    assert fig.toolbar['logx'].value
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+@pytest.mark.parametrize('case', CASES1D)
+def test_logx_1d_toolbar_button_toggles_xscale(case):
+    da = case.data()
+    fig = case.figure(Node(da))
+    assert fig.canvas.xscale == 'linear'
+    fig.toolbar['logx'].value = True
+    assert fig.canvas.xscale == 'log'
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+@pytest.mark.parametrize('case', CASES1D)
+def test_logy_1d_toolbar_button_state_agrees_with_kwarg(case):
+    da = case.data()
+    fig = case.figure(Node(da), norm='log')
+    assert fig.toolbar['logy'].value
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+@pytest.mark.parametrize('case', CASES1D)
+def test_logy_1d_toolbar_button_toggles_yscale(case):
+    da = case.data()
+    fig = case.figure(Node(da))
+    assert fig.canvas.yscale == 'linear'
+    fig.toolbar['logy'].value = True
+    assert fig.canvas.yscale == 'log'
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_logxy_2d_toolbar_buttons_state_agrees_with_kwarg():
+    da = data_array(ndim=2)
+    fig = da.plot(scale={'x': 'log', 'y': 'log'})
+    assert fig.toolbar['logx'].value
+    assert fig.toolbar['logy'].value
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_logxy_2d_toolbar_buttons_toggles_xyscale():
+    da = data_array(ndim=2)
+    fig = da.plot()
+    assert fig.canvas.xscale == 'linear'
+    assert fig.canvas.yscale == 'linear'
+    fig.toolbar['logx'].value = True
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'linear'
+    fig.toolbar['logy'].value = True
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'log'
