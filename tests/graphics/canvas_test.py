@@ -6,7 +6,7 @@ from typing import Callable
 
 import pytest
 
-from plopp import Node
+from plopp import Node, backends
 from plopp.data import data1d, data2d, scatter
 from plopp.graphics import imagefigure, linefigure, scatterfigure
 
@@ -17,8 +17,14 @@ class FigureAndData:
     data: Callable
 
 
+def backend_linefigure(*args, backend=None, **kwargs):
+    backends['2d'] = backend
+    return linefigure(*args, **kwargs)
+
+
 CASES = [
-    FigureAndData(linefigure, data1d),
+    FigureAndData(partial(backend_linefigure, backend='matplotlib'), data1d),
+    FigureAndData(partial(backend_linefigure, backend='plotly'), data1d),
     FigureAndData(partial(imagefigure, cbar=True), data2d),
     FigureAndData(partial(scatterfigure, x='x', y='y', cbar=True), scatter),
 ]
@@ -37,7 +43,7 @@ def test_title(case):
     canvas = case.figure(Node(da), title=title).canvas
     assert canvas.title == title
     canvas = case.figure(Node(da)).canvas
-    assert canvas.title == ''
+    assert not canvas.title
     canvas.title = title + '2'
     assert canvas.title == title + '2'
 

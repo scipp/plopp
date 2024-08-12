@@ -19,8 +19,17 @@ from plopp.data.testing import data_array, dataset
 # @pytest.mark.parametrize('backend',  ['matplotlib', 'plotly'])
 # class TestParametrized:
 
+BACKENDS = ['matplotlib']
 
-@pytest.fixture(params=['matplotlib', 'plotly'], autouse=True)
+try:
+    import plotly
+
+    BACKENDS.append('plotly')
+except ImportError:
+    pass
+
+
+@pytest.fixture(params=BACKENDS, autouse=True)
 def backend(request):
     pp.backends['2d'] = request.param
     # return request.param
