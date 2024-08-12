@@ -137,21 +137,21 @@ def test_kwarg_linestyle():
     line = Line(canvas=Canvas(), data=da, linestyle='solid')
     assert line._line.get_linestyle() == '-'
     line = Line(canvas=Canvas(), data=da, ls='dashed')
-    assert line.get_linestyle() == '--'
+    assert line._line.get_linestyle() == '--'
 
 
 def test_kwarg_linewidth():
     da = data_array(ndim=1)
     line = Line(canvas=Canvas(), data=da, linewidth=3)
-    assert line.get_linewidth() == 3
+    assert line._line.get_linewidth() == 3
     line = Line(canvas=Canvas(), data=da, lw=5)
-    assert line.get_linewidth() == 5
+    assert line._line.get_linewidth() == 5
 
 
 def test_kwarg_marker():
     da = data_array(ndim=1)
     line = Line(canvas=Canvas(), data=da, marker='+')
-    assert line.get_marker() == '+'
+    assert line._line.get_marker() == '+'
 
 
 def test_line_color_with_errorbars():
@@ -166,27 +166,3 @@ def test_line_color_with_errorbars():
     assert line.color == 'C1'
     assert line._line.get_color() == 'C1'
     assert to_hex(line._error.get_children()[0].get_color()) == to_hex('C1')
-
-
-def test_with_string_coord():
-    strings = ['a', 'b', 'c', 'd', 'e']
-    da = sc.DataArray(
-        data=sc.array(dims=['x'], values=np.random.random(5)),
-        coords={
-            'x': sc.array(dims=['x'], values=strings, unit='s'),
-        },
-    )
-    fig = da.plot()
-    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
-
-
-def test_with_strings_as_bin_edges():
-    strings = ['a', 'b', 'c', 'd', 'e', 'f']
-    da = sc.DataArray(
-        data=sc.array(dims=['y', 'x'], values=np.random.random(5)),
-        coords={
-            'x': sc.array(dims=['x'], values=strings, unit='s'),
-        },
-    )
-    fig = da.plot()
-    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings

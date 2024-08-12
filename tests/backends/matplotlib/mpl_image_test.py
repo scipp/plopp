@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 
@@ -27,50 +26,11 @@ def test_update_on_one_mesh_changes_colors_on_second_mesh():
     assert not np.allclose(old_b_colors, f.artists[b.id]._mesh.get_facecolors())
 
 
-def test_with_string_coord():
-    strings = ['a', 'b', 'c', 'd', 'e']
-    da = sc.DataArray(
-        data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
-        coords={
-            'x': sc.array(dims=['x'], values=strings, unit='s'),
-            'y': sc.arange('y', 5.0, unit='m'),
-        },
-    )
-    fig = da.plot()
-    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
-
-
-def test_with_strings_as_bin_edges():
-    strings = ['a', 'b', 'c', 'd', 'e', 'f']
-    da = sc.DataArray(
-        data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
-        coords={
-            'x': sc.array(dims=['x'], values=strings, unit='s'),
-            'y': sc.arange('y', 6.0, unit='m'),
-        },
-    )
-    fig = da.plot()
-    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
-
-
-def test_with_strings_as_bin_edges_other_coord_is_bin_centers():
-    strings = ['a', 'b', 'c', 'd', 'e', 'f']
-    da = sc.DataArray(
-        data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
-        coords={
-            'x': sc.array(dims=['x'], values=strings, unit='s'),
-            'y': sc.arange('y', 5.0, unit='m'),
-        },
-    )
-    fig = da.plot()
-    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
-
-
 def test_kwargs_are_forwarded_to_artist():
     da = data_array(ndim=2)
-    fig = da.plot(rasterized=True)
+    fig = imagefigure(Node(da), rasterized=True)
     [artist] = fig.artists.values()
     assert artist._mesh.get_rasterized()
-    fig = da.plot(rasterized=False)
+    fig = imagefigure(Node(da), rasterized=False)
     [artist] = fig.artists.values()
     assert not artist._mesh.get_rasterized()

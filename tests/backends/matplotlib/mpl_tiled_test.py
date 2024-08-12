@@ -1,9 +1,51 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import pytest
 
-from plopp.backends.matplotlib.tiled import Tiled
+from plopp.backends.matplotlib.tiled import Tiled, copy_figure
 from plopp.data.testing import data_array
+
+
+def do_test_copy():
+    da = data_array(ndim=1)
+    original = da.plot()
+    copy = copy_figure(original)
+    assert original.graph_nodes.keys() == copy.graph_nodes.keys()
+    assert original.artists.keys() == copy.artists.keys()
+
+
+def do_test_copy_keeps_kwargs():
+    da = data_array(ndim=1)
+    original = da.plot(
+        scale={'xx': 'log'},
+        norm='log',
+        grid=True,
+        title='A nice title',
+    )
+    copy = copy_figure(original)
+    assert copy.canvas.xscale == 'log'
+    assert copy.canvas.yscale == 'log'
+    assert copy.canvas.grid
+    assert copy.canvas.title == 'A nice title'
+
+
+def test_copy_static():
+    do_test_copy()
+
+
+def test_copy_static_keeps_kwargs():
+    do_test_copy_keeps_kwargs()
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_copy_interactive():
+    do_test_copy()
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_copy_interactive_keeps_kwargs():
+    do_test_copy_keeps_kwargs()
 
 
 def test_side_by_side():

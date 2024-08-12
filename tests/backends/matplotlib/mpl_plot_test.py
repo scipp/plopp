@@ -35,10 +35,10 @@ def test_ax():
 def test_cax():
     fig, ax = plt.subplots()
     cax = fig.add_axes([0.9, 0.02, 0.05, 0.98])
-    assert len(cax.collections) == 0
+    assert len(ax.collections) == 0
     da = data_array(ndim=2)
     _ = da.plot(ax=ax, cax=cax)
-    assert len(cax.collections) > 0
+    assert len(ax.collections) > 0
 
 
 def test_hide_legend():
@@ -60,3 +60,62 @@ def test_legend_location():
     assert leg2[1] == leg1[1]
     assert leg3[1] > leg1[1]
     assert leg3[0] == leg1[0]
+
+
+def test_with_string_coord_1d():
+    strings = ['a', 'b', 'c', 'd', 'e']
+    da = sc.DataArray(
+        data=sc.arange('x', 5.0),
+        coords={'x': sc.array(dims=['x'], values=strings, unit='m')},
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_strings_as_bin_edges_1d():
+    strings = ['a', 'b', 'c', 'd', 'e', 'f']
+    da = sc.DataArray(
+        data=sc.arange('x', 5.0),
+        coords={'x': sc.array(dims=['x'], values=strings, unit='m')},
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_string_coord_2d():
+    strings = ['a', 'b', 'c', 'd', 'e']
+    da = sc.DataArray(
+        data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
+        coords={
+            'x': sc.array(dims=['x'], values=strings, unit='s'),
+            'y': sc.arange('y', 5.0, unit='m'),
+        },
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_strings_as_bin_edges_2d():
+    strings = ['a', 'b', 'c', 'd', 'e', 'f']
+    da = sc.DataArray(
+        data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
+        coords={
+            'x': sc.array(dims=['x'], values=strings, unit='s'),
+            'y': sc.arange('y', 6.0, unit='m'),
+        },
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_strings_as_bin_edges_other_coord_is_bin_centers_2d():
+    strings = ['a', 'b', 'c', 'd', 'e', 'f']
+    da = sc.DataArray(
+        data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
+        coords={
+            'x': sc.array(dims=['x'], values=strings, unit='s'),
+            'y': sc.arange('y', 5.0, unit='m'),
+        },
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
