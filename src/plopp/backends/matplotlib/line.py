@@ -158,6 +158,7 @@ class Line:
         """
         self._data = new_values
         line_data = make_line_data(data=self._data, dim=self._dim)
+        self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
 
         self._line.set_data(line_data['values']['x'], line_data['values']['y'])
         self._mask.set_data(line_data['mask']['x'], line_data['mask']['y'])

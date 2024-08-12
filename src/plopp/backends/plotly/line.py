@@ -2,10 +2,15 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from typing import Literal
 
 import numpy as np
+import plotly.graph_objects as go
 import scipp as sc
+from plotly.colors import qualitative as plotly_colors
 
+from ...core.utils import merge_masks
+from ...graphics.bbox import BoundingBox, axis_bounds
 from ..common import make_line_data
 from .canvas import Canvas
 
@@ -33,16 +38,34 @@ class Line:
         The canvas that will display the line.
     data:
         The initial data to create the line from.
-    number:
+    artist_number:
         The canvas keeps track of how many lines have been added to it. This number is
         used to set the color and marker parameters of the line.
+    errorbars:
+        Show errorbars if ``True``.
+    mask_color:
+        The color to be used to represent the masks.
+    mode:
+        The mode of the line, either 'markers' or 'lines'.
+    marker:
+        The marker style to use.
     """
 
-    def __init__(self, canvas: Canvas, data: sc.DataArray, number: int = 0, **kwargs):
+    def __init__(
+        self,
+        canvas: Canvas,
+        data: sc.DataArray,
+        artist_number: int = 0,
+        errorbars: bool = True,
+        mask_color: str = 'black',
+        mode: str = 'markers',
+        marker: str | None = None,
+        **kwargs,
+    ):
         self._fig = canvas.fig
         self._data = data
 
-        args = _parse_dicts_in_kwargs(kwargs, name=data.name)
+        line_args = _parse_dicts_in_kwargs(kwargs, name=data.name)
 
         self._line = None
         self._mask = None
@@ -54,62 +77,68 @@ class Line:
         self._coord = self._data.coords[self._dim]
         self._id = uuid.uuid4().hex
 
-        self._make_line(
-            data=make_line_data(data=self._data, dim=self._dim),
-            number=number,
-            **args,
-        )
+        #     self._make_line(
+        #         data=make_line_data(data=self._data, dim=self._dim),
+        #         number=number,
+        #         **args,
+        #     )
 
-    def _make_line(
-        self,
-        data: dict,
-        number: int,
-        errorbars: bool = True,
-        mask_color: str = 'black',
-        mode='markers',
-        marker=None,
-        **kwargs,
-    ):
-        """
-        Create either plot markers or a step function, depending on whether the data
-        contains bin edges or not.
+        # def _make_line(
+        #     self,
+        #     data: dict,
+        #     number: int,
+        #     errorbars: bool = True,
+        #     mask_color: str = 'black',
+        #     mode='markers',
+        #     marker=None,
+        #     **kwargs,
+        # ):
+        #     """
+        #     Create either plot markers or a step function, depending on whether the data
+        #     contains bin edges or not.
 
-        Parameters
-        ----------
-        data:
-            A dictionary containing data entries that have been pre-processed to be in
-            a format that Matplotlib can directly use.
-        number:
-            The line number to set colors and marker style.
-        errorbars:
-            Show errorbars if ``True``.
-        mask_color:
-            The color to be used to represent the masks.
-        **kwargs:
-            The kwargs are forwarded to:
+        #     Parameters
+        #     ----------
+        #     data:
+        #         A dictionary containing data entries that have been pre-processed to be in
+        #         a format that Matplotlib can directly use.
+        #     number:
+        #         The line number to set colors and marker style.
+        #     errorbars:
+        #         Show errorbars if ``True``.
+        #     mask_color:
+        #         The color to be used to represent the masks.
+        #     **kwargs:
+        #         The kwargs are forwarded to:
 
-            - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
-            - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
-        """
-        import plotly.graph_objects as go
-        from plotly.colors import qualitative as plotly_colors
+        #         - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
+        #         - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
+        #     """
+        #     import plotly.graph_objects as go
+        #     from plotly.colors import qualitative as plotly_colors
+
+        line_data = make_line_data(data=self._data, dim=self._dim)
 
         default_colors = plotly_colors.Plotly
-        default_line_style = {'color': default_colors[number % len(default_colors)]}
-        default_marker_style = {'symbol': number % 53}  # Plotly has 52 marker styles
+        default_line_style = {
+            'color': default_colors[artist_number % len(default_colors)]
+        }
+        default_marker_style = {
+            'symbol': artist_number % 53
+        }  # Plotly has 52 marker styles
 
         line_shape = None
 
-        if data["hist"]:
+        if line_data["hist"]:
             line_shape = 'vh'
             mode = 'lines'
 
         marker_style = default_marker_style if marker is None else marker
-        line_style = {**default_line_style, **kwargs}
+        line_style = {**default_line_style, **line_args}
 
         self._line = go.Scatter(
-            x=np.asarray(data['values']['x']),
-            y=np.asarray(data['values']['y']),
+            x=np.asarray(line_data['values']['x']),
+            y=np.asarray(line_data['values']['y']),
             name=self.label,
             mode=mode,
             marker=marker_style,
@@ -117,15 +146,15 @@ class Line:
             line=line_style,
         )
 
-        if errorbars and (data['stddevs'] is not None):
+        if errorbars and (line_data['stddevs'] is not None):
             self._error = go.Scatter(
-                x=np.asarray(data['stddevs']['x']),
-                y=np.asarray(data['stddevs']['y']),
+                x=np.asarray(line_data['stddevs']['x']),
+                y=np.asarray(line_data['stddevs']['y']),
                 line=line_style,
                 name=self.label,
                 mode='markers',
                 marker={'opacity': 0},
-                error_y={'type': 'data', 'array': data['stddevs']['e']},
+                error_y={'type': 'data', 'array': line_data['stddevs']['e']},
                 showlegend=False,
             )
 
@@ -138,18 +167,18 @@ class Line:
             line_style['width'] *= 5
         else:
             line_style['width'] = 5
-        if data["hist"]:
+        if line_data["hist"]:
             line_style['color'] = mask_color
 
         self._mask = go.Scatter(
-            x=np.asarray(data['mask']['x']),
-            y=np.asarray(data['mask']['y']),
+            x=np.asarray(line_data['mask']['x']),
+            y=np.asarray(line_data['mask']['y']),
             name=self.label,
             mode=mode,
             marker=marker_style,
             line_shape=line_shape,
             line=line_style,
-            visible=data['mask']['visible'],
+            visible=line_data['mask']['visible'],
             showlegend=False,
         )
 
@@ -157,7 +186,7 @@ class Line:
         # that ends up in the figure is a copy of the one above.
         # Plotly has no concept of zorder, so we need to add the traces in a specific
         # order
-        if data["hist"]:
+        if line_data["hist"]:
             self._fig.add_trace(self._mask)
             self._mask = self._fig.data[-1]
             self._fig.add_trace(self._line)
@@ -174,12 +203,14 @@ class Line:
             self._fig.add_trace(self._mask)
             self._mask = self._fig.data[-1]
         self._line._plopp_id = self._id
-        line_mask = ~np.isnan(data['mask']['y'])
-        self._line._plopp_mask = line_mask
+        # line_mask = ~np.isnan(line_data['mask']['y'])
+        self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
+
+        # self._line._plopp_mask = line_mask
         self._mask._plopp_id = self._id
         if self._error is not None:
             self._error._plopp_id = self._id
-            self._error._plopp_mask = line_mask[1:] if data["hist"] else line_mask
+            # self._error._plopp_mask = line_mask[1:] if line_data["hist"] else line_mask
 
     def update(self, new_values: sc.DataArray):
         """
@@ -191,29 +222,29 @@ class Line:
             New data to update the line values, masks, errorbars from.
         """
         self._data = new_values
-        new_values = make_line_data(data=self._data, dim=self._dim)
-        line_mask = ~np.isnan(new_values['mask']['y'])
+        line_data = make_line_data(data=self._data, dim=self._dim)
+        self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
 
         with self._fig.batch_update():
             self._line.update(
-                {'x': new_values['values']['x'], 'y': new_values['values']['y']}
+                {'x': line_data['values']['x'], 'y': line_data['values']['y']}
             )
-            self._line._plopp_mask = line_mask
+            # self._line._plopp_mask = line_mask
 
-            if (self._error is not None) and (new_values['stddevs'] is not None):
+            if (self._error is not None) and (line_data['stddevs'] is not None):
                 self._error.update(
                     {
-                        'x': new_values['stddevs']['x'],
-                        'y': new_values['stddevs']['y'],
-                        'error_y': {'array': new_values['stddevs']['e']},
+                        'x': line_data['stddevs']['x'],
+                        'y': line_data['stddevs']['y'],
+                        'error_y': {'array': line_data['stddevs']['e']},
                     }
                 )
-                self._error._plopp_mask = (
-                    line_mask[1:] if new_values["hist"] else line_mask
-                )
+                # self._error._plopp_mask = (
+                #     line_mask[1:] if line_data["hist"] else line_mask
+                # )
 
-            if new_values['mask']['visible']:
-                update = {'x': new_values['mask']['x'], 'y': new_values['mask']['y']}
+            if line_data['mask']['visible']:
+                update = {'x': line_data['mask']['x'], 'y': line_data['mask']['y']}
                 self._mask.update(update)
                 self._mask.visible = True
             else:
@@ -237,3 +268,26 @@ class Line:
     @color.setter
     def color(self, val):
         self._line.line.color = val
+
+    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+        """
+        The bounding box of the line.
+        """
+        line_x = self._data.coords[self._dim]
+        sel = ~merge_masks(self._data.masks) if self._data.masks else slice(None)
+        line_y = self._data.data[sel]
+        if self._error is not None:
+            stddevs = sc.stddevs(self._data.data[sel])
+            line_y = sc.concat([line_y - stddevs, line_y + stddevs], self._dim)
+
+        out = BoundingBox(
+            **{**axis_bounds(('xmin', 'xmax'), line_x, xscale, pad=True)},
+            **{**axis_bounds(('ymin', 'ymax'), line_y, yscale, pad=True)},
+        )
+        if xscale == 'log':
+            out.xmin = np.log10(out.xmin)
+            out.xmax = np.log10(out.xmax)
+        if yscale == 'log':
+            out.ymin = np.log10(out.ymin)
+            out.ymax = np.log10(out.ymax)
+        return out

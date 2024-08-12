@@ -249,3 +249,9 @@ def test_plot_1d_data_over_2d_data_datetime():
     v = np.random.rand(time.sizes['time'])
     da1d = sc.DataArray(data=sc.array(dims=['time'], values=v), coords={'time': time})
     pp.plot(da1d, ax=fig2d.ax)
+
+
+def test_no_cbar():
+    da = data_array(ndim=2)
+    fig = da.plot(cbar=False)
+    assert fig._view.colormapper is None

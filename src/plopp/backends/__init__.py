@@ -34,6 +34,9 @@ class BackendManager:
         module = import_module(f".{self._backends[group]}", __package__)
         return module.is_interactive()
 
+    def __getitem__(self, key: str) -> str:
+        return self._backends[key]
+
     def __setitem__(self, key: str, value: str):
         self._backends[key] = value
 
