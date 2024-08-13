@@ -16,9 +16,7 @@ class Figure(BaseFig, VBox):
 
     def __init__(self, View, *args, **kwargs):
         self.view = View(*args, **kwargs)
-        self.toolbar = make_toolbar_canvas3d(
-            canvas=self.view.canvas, colormapper=self.view.colormapper
-        )
+        self.toolbar = make_toolbar_canvas3d(view=self.view)
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar(
             [self.view.colormapper.to_widget()]
