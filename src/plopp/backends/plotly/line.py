@@ -77,46 +77,6 @@ class Line:
         self._coord = self._data.coords[self._dim]
         self._id = uuid.uuid4().hex
 
-        #     self._make_line(
-        #         data=make_line_data(data=self._data, dim=self._dim),
-        #         number=number,
-        #         **args,
-        #     )
-
-        # def _make_line(
-        #     self,
-        #     data: dict,
-        #     number: int,
-        #     errorbars: bool = True,
-        #     mask_color: str = 'black',
-        #     mode='markers',
-        #     marker=None,
-        #     **kwargs,
-        # ):
-        #     """
-        #     Create either plot markers or a step function, depending on whether the data
-        #     contains bin edges or not.
-
-        #     Parameters
-        #     ----------
-        #     data:
-        #         A dictionary containing data entries that have been pre-processed to be in
-        #         a format that Matplotlib can directly use.
-        #     number:
-        #         The line number to set colors and marker style.
-        #     errorbars:
-        #         Show errorbars if ``True``.
-        #     mask_color:
-        #         The color to be used to represent the masks.
-        #     **kwargs:
-        #         The kwargs are forwarded to:
-
-        #         - ``matplotlib.pyplot.plot`` for data with a non bin-edge coordinate
-        #         - ``matplotlib.pyplot.step`` for data with a bin-edge coordinate
-        #     """
-        #     import plotly.graph_objects as go
-        #     from plotly.colors import qualitative as plotly_colors
-
         line_data = make_line_data(data=self._data, dim=self._dim)
 
         default_colors = plotly_colors.Plotly
@@ -203,14 +163,11 @@ class Line:
             self._fig.add_trace(self._mask)
             self._mask = self._fig.data[-1]
         self._line._plopp_id = self._id
-        # line_mask = ~np.isnan(line_data['mask']['y'])
         self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
 
-        # self._line._plopp_mask = line_mask
         self._mask._plopp_id = self._id
         if self._error is not None:
             self._error._plopp_id = self._id
-            # self._error._plopp_mask = line_mask[1:] if line_data["hist"] else line_mask
 
     def update(self, new_values: sc.DataArray):
         """
@@ -229,7 +186,6 @@ class Line:
             self._line.update(
                 {'x': line_data['values']['x'], 'y': line_data['values']['y']}
             )
-            # self._line._plopp_mask = line_mask
 
             if (self._error is not None) and (line_data['stddevs'] is not None):
                 self._error.update(
@@ -239,9 +195,6 @@ class Line:
                         'error_y': {'array': line_data['stddevs']['e']},
                     }
                 )
-                # self._error._plopp_mask = (
-                #     line_mask[1:] if line_data["hist"] else line_mask
-                # )
 
             if line_data['mask']['visible']:
                 update = {'x': line_data['mask']['x'], 'y': line_data['mask']['y']}

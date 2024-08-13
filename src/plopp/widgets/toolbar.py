@@ -1,12 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from collections.abc import Callable
 from typing import Any
 
 from ipywidgets import VBox
 
-from ..graphics import ColorMapper, GraphicalView
+from ..graphics import GraphicalView
 from . import tools
 
 
@@ -49,10 +48,7 @@ class Toolbar(VBox):
         self.children = list(self.tools.values())
 
 
-def make_toolbar_canvas2d(
-    view: GraphicalView,
-    # colormapper: ColorMapper | None = None
-) -> Toolbar:
+def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
     """
     Create a toolbar for a 2D canvas.
     If the colormapper is defined, add a button to toggle the norm of the colormapper.
@@ -85,49 +81,51 @@ def make_toolbar_canvas2d(
     return Toolbar(tools=tool_list)
 
 
-def make_toolbar_canvas3d(
-    canvas: Any, colormapper: ColorMapper | None = None
-) -> Toolbar:
+def make_toolbar_canvas3d(view: GraphicalView) -> Toolbar:
     """
     Create a toolbar for a 3D canvas.
     If the colormapper is defined, add a button to toggle the norm of the colormapper.
 
     Parameters
     ----------
-    canvas:
-        The 3D canvas to operate on.
-    colormapper:
-        The colormapper which controls the colors of the artists in the canvas.
+    view:
+        The 3D view to operate on.
     """
     tool_list = {
-        'home': tools.HomeTool(canvas.home),
+        'home': tools.HomeTool(view.canvas.home),
         'camerax': tools.CameraTool(
-            canvas.camera_x_normal,
+            view.canvas.camera_x_normal,
             description='X',
             tooltip='Camera to X normal. ' 'Click twice to flip the view direction.',
         ),
         'cameray': tools.CameraTool(
-            canvas.camera_y_normal,
+            view.canvas.camera_y_normal,
             description='Y',
             tooltip='Camera to Y normal. ' 'Click twice to flip the view direction.',
         ),
         'cameraz': tools.CameraTool(
-            canvas.camera_z_normal,
+            view.canvas.camera_z_normal,
             description='Z',
             tooltip='Camera to Z normal. ' 'Click twice to flip the view direction.',
         ),
     }
-    if colormapper is not None:
+    if view.colormapper is not None:
         tool_list['lognorm'] = tools.LogNormTool(
-            colormapper.toggle_norm, value=colormapper.norm == 'log'
+            view.colormapper.toggle_norm, value=view.colormapper.norm == 'log'
         )
     tool_list.update(
         {
-            'box': tools.OutlineTool(canvas.toggle_outline),
-            'axes': tools.AxesTool(canvas.toggle_axes3d),
+            'box': tools.OutlineTool(view.canvas.toggle_outline),
+            'axes': tools.AxesTool(view.canvas.toggle_axes3d),
             'size': tools.PlusMinusTool(
-                plus={'callback': canvas.bigger, 'tooltip': 'Increase canvas size'},
-                minus={'callback': canvas.smaller, 'tooltip': 'Decrease canvas size'},
+                plus={
+                    'callback': view.canvas.bigger,
+                    'tooltip': 'Increase canvas size',
+                },
+                minus={
+                    'callback': view.canvas.smaller,
+                    'tooltip': 'Decrease canvas size',
+                },
             ),
         }
     )

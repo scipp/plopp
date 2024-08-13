@@ -3,6 +3,7 @@
 
 import os
 import tempfile
+from importlib import util
 
 import numpy as np
 import pytest
@@ -12,17 +13,12 @@ import plopp as pp
 from plopp.data.testing import data_array, dataset
 
 BACKENDS = ['matplotlib']
-
-try:
-    import plotly
-
+if util.find_spec('plotly') is not None:
     BACKENDS.append('plotly')
-except ImportError:
-    pass
 
 
 @pytest.fixture(params=BACKENDS, autouse=True)
-def backend(request):
+def _backend(request):
     pp.backends['2d'] = request.param
 
 
@@ -271,8 +267,6 @@ def test_names_are_overridden_when_plotting_dicts(Constructor):
     da1.name = "DA1"
     da2.name = "DA2"
     p = pp.plot(Constructor({'a': da1, 'b': da2}))
-    # assert p.ax.get_legend().texts[0].get_text() == 'a'
-    # assert p.ax.get_legend().texts[1].get_text() == 'b'
     artists = list(p.view.artists.values())
     assert artists[0].label == 'a'
     assert artists[1].label == 'b'
@@ -352,7 +346,7 @@ def test_plot_1d_datetime_coord_with_mask_and_binedges():
 
 def test_plot_1d_datetime_coord_log():
     if pp.backends['2d'] == 'plotly':
-        pytest.skip('Log scale not supported in plotly')
+        pytest.skip('Log scale with datetime not supported in plotly')
     t = np.arange(
         np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
     )
@@ -367,7 +361,7 @@ def test_plot_1d_datetime_coord_log():
 
 def test_plot_1d_datetime_coord_log_binedges():
     if pp.backends['2d'] == 'plotly':
-        pytest.skip('Log scale not supported in plotly')
+        pytest.skip('Log scale with datetime not supported in plotly')
     t = np.arange(
         np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
     )
@@ -382,7 +376,7 @@ def test_plot_1d_datetime_coord_log_binedges():
 
 def test_plot_1d_datetime_coord_log_with_mask():
     if pp.backends['2d'] == 'plotly':
-        pytest.skip('Log scale not supported in plotly')
+        pytest.skip('Log scale with datetime not supported in plotly')
     t = np.arange(
         np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
     )

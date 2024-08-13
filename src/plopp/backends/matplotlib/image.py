@@ -82,7 +82,6 @@ class Image:
         rasterized: bool = True,
         **kwargs,
     ):
-        print("Making image")
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data

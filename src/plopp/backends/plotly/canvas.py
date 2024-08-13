@@ -3,13 +3,10 @@
 
 from typing import Literal
 
-import numpy as np
 import scipp as sc
 
 from ...core.utils import maybe_variable_to_number
 from ...graphics.bbox import BoundingBox
-
-# from ..common import BoundingBox, axis_bounds
 
 
 class Canvas:
@@ -90,50 +87,6 @@ class Canvas:
 
     def to_widget(self):
         return self.fig
-
-    # def autoscale(self):
-    #     """
-    #     Auto-scale the axes ranges to show all data in the canvas.
-    #     """
-    #     bbox = BoundingBox()
-    #     lines = [trace for trace in self.fig.data if hasattr(trace, '_plopp_mask')]
-    #     for line in lines:
-    #         line_mask = sc.array(dims=['x'], values=line._plopp_mask)
-    #         line_x = sc.DataArray(data=sc.array(dims=['x'], values=line.x))
-    #         line_y = sc.array(dims=['x'], values=line.y)
-    #         if line.error_y.array is not None:
-    #             line_y = sc.concat(
-    #                 [
-    #                     line_y,
-    #                     sc.array(dims=['x'], values=line.y + line.error_y.array),
-    #                     sc.array(dims=['x'], values=line.y - line.error_y.array),
-    #                 ],
-    #                 dim='y',
-    #             )
-    #         line_y = sc.DataArray(data=line_y, masks={'mask': line_mask})
-    #         line_bbox = BoundingBox(
-    #             **{**axis_bounds(('xmin', 'xmax'), line_x, self.xscale, pad=True)},
-    #             **{**axis_bounds(('ymin', 'ymax'), line_y, self.yscale, pad=True)},
-    #         )
-    #         bbox = bbox.union(line_bbox)
-
-    #     self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
-    #     if self._user_vmin is not None:
-    #         self._bbox.ymin = maybe_variable_to_number(
-    #             self._user_vmin, unit=self.units.get('y')
-    #         )
-    #     if self._user_vmax is not None:
-    #         self._bbox.ymax = maybe_variable_to_number(
-    #             self._user_vmax, unit=self.units.get('y')
-    #         )
-
-    #     xrange = np.array([self._bbox.xmin, self._bbox.xmax])
-    #     yrange = np.array([self._bbox.ymin, self._bbox.ymax])
-    #     if self.xscale == 'log':
-    #         xrange = np.log10(xrange)
-    #     if self.yscale == 'log':
-    #         yrange = np.log10(yrange)
-    #     self.fig.update_layout(xaxis_range=xrange, yaxis_range=yrange)
 
     def save(self, filename: str):
         """
@@ -356,10 +309,3 @@ class Canvas:
 
     def draw(self):
         pass
-
-    # def finalize(self):
-    #     """
-    #     Finalize is called at the end of figure creation. Add any polishing operations
-    #     here.
-    #     """
-    #     return

@@ -8,7 +8,6 @@ import scipp as sc
 from .. import backends
 from ..core import Node
 from ..core.typing import FigureLike
-from .bbox import BoundingBox
 from .graphicalview import GraphicalView
 
 
@@ -68,8 +67,6 @@ def scatter3dfigure(
         artist_maker=backends.get(group='3d', name='scatter3d'),
         colormapper=cbar,
     )
-    # if cbar:
-    #     kwargs = {**kwargs, **{"edgecolors": "none"}}
     return backends.get(group='3d', name='figure')(
         view_maker, *nodes, x=x, y=y, z=z, cbar=cbar, **kwargs
     )

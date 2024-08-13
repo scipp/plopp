@@ -5,8 +5,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from types import UnionType
-from typing import Any, Literal
+from typing import Literal
 
 import scipp as sc
 

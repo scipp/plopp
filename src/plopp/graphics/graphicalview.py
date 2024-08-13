@@ -2,13 +2,13 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 from collections.abc import Callable
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import scipp as sc
 
 from ..core import Node, View
-from ..core.typing import ArtistLike, CanvasLike, Plottable
+from ..core.typing import CanvasLike
 from ..core.utils import make_compatible, name_with_unit
 from .bbox import BoundingBox
 from .camera import Camera
@@ -53,7 +53,7 @@ class GraphicalView(View):
         format: Literal['svg', 'png'] | None = None,
         legend: bool | tuple[float, float] = False,
         camera: Camera | None = None,
-        ax=None,
+        ax: Any = None,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -74,11 +74,9 @@ class GraphicalView(View):
             title=title,
             vmin=vmin,
             vmax=vmax,
-            # autoscale=autoscale,
             legend=legend,
             camera=camera,
             ax=ax,
-            # **kwargs,
         )
 
         self.colormapper = (
@@ -100,8 +98,6 @@ class GraphicalView(View):
         if len(self._dims) == 1:
             self.canvas.yscale = norm
         self.render()
-        # self.canvas.autoscale()
-        # self.canvas.finalize()
 
     def autoscale(self):
         bbox = BoundingBox()
