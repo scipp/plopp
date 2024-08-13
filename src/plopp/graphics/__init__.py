@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from .basefig import BaseFig
+from .bbox import BoundingBox
 from .camera import Camera
 from .colormapper import ColorMapper
 from .figures import linefigure, imagefigure, scatterfigure, scatter3dfigure
@@ -11,6 +12,7 @@ from .tiled import tiled
 
 __all__ = [
     'BaseFig',
+    'BoundingBox',
     'Camera',
     'ColorMapper',
     'GraphicalView',

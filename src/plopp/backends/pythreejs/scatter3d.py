@@ -42,6 +42,8 @@ class Scatter3d:
         The color of the markers (this is ignored if a colorbar is used).
     opacity:
         The opacity of the points.
+    pixel_size:
+        The size of the pixels in the plot. Deprecated (use size instead).
     """
 
     def __init__(
@@ -56,6 +58,7 @@ class Scatter3d:
         color: str = 'black',
         artist_number: int = 0,
         opacity: float = 1,
+        pixel_size: sc.Variable | float | None = None,
     ):
         """
         Make a point cloud using pythreejs
@@ -71,7 +74,8 @@ class Scatter3d:
         self._id = uuid.uuid4().hex
         self._artist_number = artist_number
 
-        self._size = size
+        # TODO: remove pixel_size in the next release
+        self._size = size if pixel_size is None else pixel_size
         if hasattr(self._size, 'unit'):
             if len({self._data.coords[dim].unit for dim in [x, y, z]}) > 1:
                 raise ValueError(

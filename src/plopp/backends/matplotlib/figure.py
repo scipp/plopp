@@ -109,7 +109,8 @@ class InteractiveFigure(MplBaseFig, VBox):
 
         return [
             self.top_bar,
-            HBar([self.left_bar, self.view.canvas.to_widget(), self.right_bar]),
+            # HBar([self.left_bar, self.view.canvas.to_widget(), self.right_bar]),
+            HBar([self.left_bar, self.view.canvas.to_image(), self.right_bar]),
             self.bottom_bar,
         ]
 
