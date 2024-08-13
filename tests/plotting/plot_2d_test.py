@@ -253,5 +253,7 @@ def test_plot_1d_data_over_2d_data_datetime():
 
 def test_no_cbar():
     da = data_array(ndim=2)
+    fig = da.plot(cbar=True)
+    assert fig.view.colormapper.colorbar is not None
     fig = da.plot(cbar=False)
-    assert fig.view.colormapper is None
+    assert fig.view.colormapper.colorbar is None
