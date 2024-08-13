@@ -31,6 +31,7 @@ def _preprocess_scatter(
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
     if out.ndim != 1:
         out = out.flatten(to=uuid.uuid4().hex)
+    print("name in preprocess", name)
     if name is not None:
         out.name = name
     return out

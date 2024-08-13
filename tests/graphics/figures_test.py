@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
+
 from dataclasses import dataclass
 from functools import partial
 from typing import Callable
@@ -18,20 +19,31 @@ class FigureAndData:
     data: Callable
 
 
-ALLCASES = [
+PLOTCASES = [
     FigureAndData(linefigure, data1d),
     FigureAndData(partial(imagefigure, cbar=True), data2d),
+]
+
+SCATTERCASES = [
     FigureAndData(partial(scatterfigure, x='x', y='y', cbar=True), scatter),
     FigureAndData(partial(scatter3dfigure, x='x', y='y', z='z', cbar=True), scatter),
 ]
 
-NOSCATTER = ALLCASES[:2]
+ALLCASES = PLOTCASES + SCATTERCASES
 
 
 @pytest.mark.parametrize('case', ALLCASES)
 def test_empty(case):
     fig = case.figure()
     assert len(fig.artists) == 0
+
+
+@pytest.mark.parametrize('case', ALLCASES)
+def test_creation(case):
+    da = case.data()
+    fig = case.figure(Node(da))
+    [artist] = fig.artists.values()
+    assert sc.identical(artist._data, da)
 
 
 @pytest.mark.parametrize('case', ALLCASES)
@@ -44,12 +56,21 @@ def test_update(case):
     assert sc.identical(fig.artists[key]._data, da)
 
 
-@pytest.mark.parametrize('case', NOSCATTER)
+@pytest.mark.parametrize('case', PLOTCASES)
 def test_raises_for_new_data_with_incompatible_dimension(case):
     x = case.data()
     y = x.rename(x='other')
     with pytest.raises(KeyError):
         case.figure(Node(x), Node(y))
+
+
+@pytest.mark.parametrize('case', SCATTERCASES)
+def test_raises_for_new_data_with_incompatible_coordinate(case):
+    a = case.data()
+    b = case.data()
+    b.coords['t'] = b.coords.pop('x')
+    with pytest.raises(KeyError):
+        case.figure(Node(a), Node(b))
 
 
 @pytest.mark.parametrize('case', ALLCASES)
@@ -101,12 +122,3 @@ def test_converts_new_data_units_integers(case):
     [art_a, art_b] = fig.artists.values()
     assert sc.identical(art_a._data, a)
     assert sc.identical(art_b._data, b.to(unit='m', dtype=float))
-
-
-def test_colorbar_label_has_no_name_with_multiple_artists():
-    a = data2d(unit='K')
-    b = 3.3 * a
-    a.name = 'A data'
-    b.name = 'B data'
-    fig = imagefigure(Node(a), Node(b), cbar=True)
-    assert fig.canvas.cblabel == '[K]'

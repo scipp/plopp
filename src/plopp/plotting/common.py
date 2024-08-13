@@ -235,7 +235,7 @@ def input_to_nodes(obj: PlottableMulti, processor: Callable) -> list[Node]:
     if hasattr(obj, 'items') and not is_pandas_series(obj):
         to_nodes = obj.items()
     else:
-        to_nodes = [(None, obj)]
+        to_nodes = [(getattr(obj, "name", None), obj)]
     nodes = [Node(processor, inp, name=name) for name, inp in to_nodes]
     for node in nodes:
         if hasattr(processor, 'func'):

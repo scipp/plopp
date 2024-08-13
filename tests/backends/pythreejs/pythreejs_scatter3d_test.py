@@ -45,14 +45,6 @@ def test_bounding_box():
         ],
     )
 
-    # xlims, ylims, zlims = scat.get_limits()
-    # assert sc.identical(xlims[0], da.coords['x'].min() - sc.scalar(0.5 * pix, unit='m'))
-    # assert sc.identical(xlims[1], da.coords['x'].max() + sc.scalar(0.5 * pix, unit='m'))
-    # assert sc.identical(ylims[0], da.coords['y'].min() - sc.scalar(0.5 * pix, unit='m'))
-    # assert sc.identical(ylims[1], da.coords['y'].max() + sc.scalar(0.5 * pix, unit='m'))
-    # assert sc.identical(zlims[0], da.coords['z'].min() - sc.scalar(0.5 * pix, unit='m'))
-    # assert sc.identical(zlims[1], da.coords['z'].max() + sc.scalar(0.5 * pix, unit='m'))
-
 
 def test_get_limits_flat_panel():
     da = scatter()
@@ -71,17 +63,6 @@ def test_get_limits_flat_panel():
             0.5 * pix,
         ],
     )
-    # da = scatter()
-    # da.coords['z'] *= 0.0
-    # pix = 0.5
-    # scat = Scatter3d(data=da, x='x', y='y', z='z', pixel_size=pix)
-    # xlims, ylims, zlims = scat.get_limits()
-    # assert sc.identical(xlims[0], da.coords['x'].min() - sc.scalar(0.5 * pix, unit='m'))
-    # assert sc.identical(xlims[1], da.coords['x'].max() + sc.scalar(0.5 * pix, unit='m'))
-    # assert sc.identical(ylims[0], da.coords['y'].min() - sc.scalar(0.5 * pix, unit='m'))
-    # assert sc.identical(ylims[1], da.coords['y'].max() + sc.scalar(0.5 * pix, unit='m'))
-    # assert sc.identical(zlims[0], sc.scalar(-0.5 * pix, unit='m'))
-    # assert sc.identical(zlims[1], sc.scalar(0.5 * pix, unit='m'))
 
 
 def test_pixel_size():

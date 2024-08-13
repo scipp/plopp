@@ -105,7 +105,9 @@ class GraphicalView(View):
 
     def autoscale(self):
         bbox = BoundingBox()
-        scales = {f"{k}scale": getattr(self.canvas, f"{k}scale") for k in self._dims}
+        scales = {"xscale": self.canvas.xscale, "yscale": self.canvas.yscale}
+        if hasattr(self.canvas, 'zscale'):
+            scales['zscale'] = self.canvas.zscale
         for artist in self.artists.values():
             bbox = bbox.union(artist.bbox(**scales))
         self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
