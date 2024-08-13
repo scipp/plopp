@@ -8,7 +8,7 @@ import pytest
 
 from plopp import Node, backends
 from plopp.data import data1d, data2d, data_array, scatter
-from plopp.graphics import imagefigure, linefigure, scatterfigure
+from plopp.graphics import imagefigure, linefigure, scatter3dfigure, scatterfigure
 
 
 @dataclass
@@ -27,9 +27,11 @@ CASES = [
     FigureAndData(partial(backend_linefigure, backend='plotly'), data1d),
     FigureAndData(partial(imagefigure, cbar=True), data2d),
     FigureAndData(partial(scatterfigure, x='x', y='y', cbar=True), scatter),
+    FigureAndData(partial(scatter3dfigure, x='x', y='y', z='z', cbar=True), scatter),
 ]
 
 CASES1D = CASES[:2]
+CASESNO3D = CASES[:4]
 
 
 @pytest.mark.parametrize('case', CASES)
@@ -135,7 +137,7 @@ def test_yrange(case):
     assert canvas.yrange == (-123.0, 34.0)
 
 
-@pytest.mark.parametrize('case', CASES)
+@pytest.mark.parametrize('case', CASESNO3D)
 def test_logx(case):
     da = case.data()
     canvas = case.figure(Node(da)).canvas
@@ -146,7 +148,7 @@ def test_logx(case):
     assert canvas.yscale == 'linear'
 
 
-@pytest.mark.parametrize('case', CASES)
+@pytest.mark.parametrize('case', CASESNO3D)
 def test_logy(case):
     da = case.data()
     canvas = case.figure(Node(da)).canvas

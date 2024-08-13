@@ -315,37 +315,103 @@ class Canvas:
         self.camera.aspect = self.figsize[0] / self.figsize[1]
 
     @property
+    def xmin(self) -> float:
+        """
+        Get or set the minimum x-axis value.
+        """
+        return self._limits.xmin
+
+    @xmin.setter
+    def xmin(self, value: float):
+        self._limits.xmin = value
+
+    @property
+    def xmax(self) -> float:
+        """
+        Get or set the maximum x-axis value.
+        """
+        return self._limits.xmax
+
+    @xmax.setter
+    def xmax(self, value: float):
+        self._limits.xmax = value
+
+    @property
     def xrange(self) -> tuple[float, float]:
         """
         Get or set the range/limits of the x-axis.
         """
-        return (self._limits.xmin, self._limits.xmax)
+        return (self.xmin, self.xmax)
 
     @xrange.setter
     def xrange(self, value: tuple[float, float]):
-        self._limits.xmin, self._limits.xmax = value
+        self.xmin, self.xmax = value
+
+    @property
+    def ymin(self) -> float:
+        """
+        Get or set the minimum y-axis value.
+        """
+        return self._limits.ymin
+
+    @ymin.setter
+    def ymin(self, value: float):
+        self._limits.ymin = value
+
+    @property
+    def ymax(self) -> float:
+        """
+        Get or set the maximum y-axis value.
+        """
+        return self._limits.ymax
+
+    @ymax.setter
+    def ymax(self, value: float):
+        self._limits.ymax = value
 
     @property
     def yrange(self) -> tuple[float, float]:
         """
         Get or set the range/limits of the y-axis.
         """
-        return (self._limits.ymin, self._limits.ymax)
+        return (self.ymin, self.ymax)
 
     @yrange.setter
     def yrange(self, value: tuple[float, float]):
-        self._limits.ymin, self._limits.ymax = value
+        self.ymin, self.ymax = value
+
+    @property
+    def zmin(self) -> float:
+        """
+        Get or set the minimum z-axis value.
+        """
+        return self._limits.zmin
+
+    @zmin.setter
+    def zmin(self, value: float):
+        self._limits.zmin = value
+
+    @property
+    def zmax(self) -> float:
+        """
+        Get or set the maximum z-axis value.
+        """
+        return self._limits.zmax
+
+    @zmax.setter
+    def zmax(self, value: float):
+        self._limits.zmax = value
 
     @property
     def zrange(self) -> tuple[float, float]:
         """
         Get or set the range/limits of the z-axis.
         """
-        return (self._limits.zmin, self._limits.zmax)
+        return (self.zmin, self.zmax)
 
     @zrange.setter
     def zrange(self, value: tuple[float, float]):
-        self._limits.zmin, self._limits.zmax = value
+        self.zmin, self.zmax = value
 
     # @property
     # def ax(self):
