@@ -15,23 +15,23 @@ class Figure(BaseFig, VBox):
     """
 
     def __init__(self, View, *args, **kwargs):
-        self._view = View(*args, **kwargs)
+        self.view = View(*args, **kwargs)
         self.toolbar = make_toolbar_canvas3d(
-            canvas=self._view.canvas, colormapper=self._view.colormapper
+            canvas=self.view.canvas, colormapper=self.view.colormapper
         )
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar(
-            [self._view.colormapper.to_widget()]
-            if self._view.colormapper is not None
+            [self.view.colormapper.to_widget()]
+            if self.view.colormapper is not None
             else []
         )
         self.bottom_bar = HBar()
-        self.top_bar = HBar([self._view.canvas._title])
+        self.top_bar = HBar([self.view.canvas._title])
 
         super().__init__(
             [
                 self.top_bar,
-                HBox([self.left_bar, self._view.canvas.to_widget(), self.right_bar]),
+                HBox([self.left_bar, self.view.canvas.to_widget(), self.right_bar]),
                 self.bottom_bar,
             ]
         )
@@ -52,7 +52,7 @@ class Figure(BaseFig, VBox):
             raise ValueError('File extension must be .html for saving 3d figures.')
         from ipywidgets.embed import dependency_state, embed_minimal_html
 
-        out = HBox([self._view.canvas.to_widget(), self.right_bar])
+        out = HBox([self.view.canvas.to_widget(), self.right_bar])
         # Garbage collection for embedded html output:
         # https://github.com/jupyter-widgets/pythreejs/issues/217
         state = dependency_state(out)
@@ -60,6 +60,6 @@ class Figure(BaseFig, VBox):
         embed_minimal_html(
             filename,
             out,
-            title=self._view.canvas.title if self._view.canvas.title else 'figure3d',
+            title=self.view.canvas.title if self.view.canvas.title else 'figure3d',
             state=state,
         )

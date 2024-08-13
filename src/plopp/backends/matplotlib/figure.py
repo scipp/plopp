@@ -16,7 +16,7 @@ class MplBaseFig(BaseFig):
     """
 
     def __init_figure__(self, View, *args, **kwargs):
-        self._view = View(*args, **kwargs)
+        self.view = View(*args, **kwargs)
         self._args = args
         self._kwargs = kwargs
 
@@ -25,21 +25,21 @@ class MplBaseFig(BaseFig):
         """
         Get the underlying Matplotlib figure.
         """
-        return self._view.canvas.fig
+        return self.view.canvas.fig
 
     @property
     def ax(self):
         """
         Get the underlying Matplotlib axes.
         """
-        return self._view.canvas.ax
+        return self.view.canvas.ax
 
     @property
     def cax(self):
         """
         Get the underlying Matplotlib colorbar axes.
         """
-        return self._view.canvas.cax
+        return self.view.canvas.cax
 
     def save(self, filename, **kwargs):
         """
@@ -53,7 +53,7 @@ class MplBaseFig(BaseFig):
             Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
             ``.svg``, and ``.pdf``.
         """
-        return self._view.canvas.save(filename, **kwargs)
+        return self.view.canvas.save(filename, **kwargs)
 
     def __add__(self, other):
         from .tiled import hstack
@@ -102,7 +102,7 @@ class InteractiveFigure(MplBaseFig, VBox):
         self.interactive = True
         self.toolbar = make_toolbar_canvas2d(
             # home=self._view.autoscale,
-            view=self._view,
+            view=self.view,
             # colormapper=getattr(self._view, 'colormapper', None),
         )
         self.left_bar = VBar([self.toolbar])
@@ -116,7 +116,7 @@ class InteractiveFigure(MplBaseFig, VBox):
 
         return [
             self.top_bar,
-            HBar([self.left_bar, self._view.canvas.to_widget(), self.right_bar]),
+            HBar([self.left_bar, self.view.canvas.to_widget(), self.right_bar]),
             self.bottom_bar,
         ]
 
@@ -142,19 +142,19 @@ class StaticFigure(MplBaseFig):
         """
         str_repr = str(self.fig)
         out = {'text/plain': str_repr[:-1] + f', {len(self.artists)} artists)'}
-        if self._view._repr_format is not None:
-            repr_maker = get_repr_maker(form=self._view._repr_format)
+        if self.view._repr_format is not None:
+            repr_maker = get_repr_maker(form=self.view._repr_format)
         else:
-            npoints = sum(len(line.get_xdata()) for line in self._view.canvas.ax.lines)
+            npoints = sum(len(line.get_xdata()) for line in self.view.canvas.ax.lines)
             repr_maker = get_repr_maker(npoints=npoints)
-        out.update(repr_maker(self._view.canvas.fig))
+        out.update(repr_maker(self.view.canvas.fig))
         return out
 
     def to_widget(self):
         """
         Convert the Matplotlib figure to an image widget.
         """
-        return self._view.canvas.to_image()
+        return self.view.canvas.to_image()
 
 
 def Figure(*args, **kwargs):

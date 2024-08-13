@@ -10,37 +10,37 @@ class BaseFig:
     A Mixin class which is the base for all figures.
     """
 
-    _view: View
+    view: View
 
     @property
     def canvas(self):
-        return self._view.canvas
+        return self.view.canvas
 
     # @property
     # def ax(self):
     #     return self._view.canvas.ax
 
     def autoscale(self):
-        self._view.autoscale()
+        self.view.autoscale()
 
     @property
     def artists(self):
-        return self._view.artists
+        return self.view.artists
 
     @property
     def dims(self):
-        return self._view.dims
+        return self.view.dims
 
     @property
     def graph_nodes(self):
-        return self._view.graph_nodes
+        return self.view.graph_nodes
 
     @property
     def id(self):
-        return self._view.id
+        return self.view.id
 
     def update(self, *args, **kwargs):
-        return self._view.update(*args, **kwargs)
+        return self.view.update(*args, **kwargs)
 
     def notify_view(self, *args, **kwargs):
-        return self._view.notify_view(*args, **kwargs)
+        return self.view.notify_view(*args, **kwargs)

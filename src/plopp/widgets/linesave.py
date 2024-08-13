@@ -47,8 +47,8 @@ class LineSaveTool(VBar):
         node = Node(data)
         node.name = f'Save node {len(self._lines)}'
         line_id = node._id
-        node.add_view(self._fig._view)
-        self._fig._view.render()
+        node.add_view(self._fig.view)
+        self._fig.view.render()
         text = ', '.join(
             f'{k}: {coord_element_to_string(data.coords[k])}'
             for k in self._slider_node.request_data()

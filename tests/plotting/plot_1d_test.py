@@ -11,14 +11,6 @@ import scipp as sc
 import plopp as pp
 from plopp.data.testing import data_array, dataset
 
-# @pytest.fixture()
-# def skip(lib):
-#     pp.backends['2d'] = backend
-
-
-# @pytest.mark.parametrize('backend',  ['matplotlib', 'plotly'])
-# class TestParametrized:
-
 BACKENDS = ['matplotlib']
 
 try:
@@ -32,8 +24,6 @@ except ImportError:
 @pytest.fixture(params=BACKENDS, autouse=True)
 def backend(request):
     pp.backends['2d'] = request.param
-    # return request.param
-    # return
 
 
 def test_plot_ndarray():
@@ -139,7 +129,7 @@ def test_plot_with_non_dimensional_unsorted_coord_does_not_warn():
 def test_linecolor():
     da = data_array(ndim=1)
     fig = pp.plot(da, color='red')
-    [line] = fig._view.artists.values()
+    [line] = fig.view.artists.values()
     assert line.color == 'red'
 
 
@@ -160,7 +150,7 @@ def test_kwarg_for_two_lines():
     a = data_array(ndim=1)
     b = 2.0 * a
     fig = pp.plot({'a': a, 'b': b}, color='red')
-    [line_a, line_b] = fig._view.artists.values()
+    [line_a, line_b] = fig.view.artists.values()
     assert line_a.color == 'red'
     assert line_b.color == 'red'
 
@@ -169,7 +159,7 @@ def test_kwarg_as_dict():
     a = data_array(ndim=1)
     b = 2.0 * a
     fig = pp.plot({'a': a, 'b': b}, color={'a': 'red', 'b': 'black'})
-    [line_a, line_b] = fig._view.artists.values()
+    [line_a, line_b] = fig.view.artists.values()
     assert line_a.color == 'red'
     assert line_b.color == 'black'
 
@@ -245,7 +235,7 @@ def test_plot_xarray_dataset():
     assert p.canvas.dims['x'] == 'time'
     assert p.canvas.units['x'] == 'dimensionless'
     assert p.canvas.units['y'] == 'dimensionless'
-    assert len(p._view.artists) == 2
+    assert len(p.view.artists) == 2
 
 
 def test_plot_pandas_series():
@@ -254,7 +244,7 @@ def test_plot_pandas_series():
     s = pd.Series(np.arange(100.0), name='MyDataSeries')
     p = pp.plot(s)
     assert p.canvas.dims['x'] == 'row'
-    [line] = p._view.artists.values()
+    [line] = p.view.artists.values()
     assert line.label == 'MyDataSeries'
 
 
@@ -271,35 +261,7 @@ def test_plot_pandas_dataframe():
     )
     p = pp.plot(df)
     assert p.canvas.dims['x'] == 'row'
-    assert len(p._view.artists) == 4
-
-
-# def test_hide_legend():
-#     da1 = data_array(ndim=1)
-#     da2 = da1 * 3.3
-#     p = pp.plot({'a': da1, 'b': da2}, legend=False)
-#     leg = p.ax.get_legend()
-#     assert leg is None
-
-
-# def test_legend_location():
-#     da1 = data_array(ndim=1)
-#     da2 = da1 * 3.3
-#     data = {'a': da1, 'b': da2}
-#     leg1 = pp.plot(data, legend=(0.5, 0.5)).ax.get_legend().get_window_extent().bounds
-#     leg2 = pp.plot(data, legend=(0.9, 0.5)).ax.get_legend().get_window_extent().bounds
-#     leg3 = pp.plot(data, legend=(0.5, 0.9)).ax.get_legend().get_window_extent().bounds
-#     assert leg2[0] > leg1[0]
-#     assert leg2[1] == leg1[1]
-#     assert leg3[1] > leg1[1]
-#     assert leg3[0] == leg1[0]
-
-
-# def test_hide_legend_bad_type():
-#     da1 = data_array(ndim=1)
-#     da2 = da1 * 3.3
-#     with pytest.raises(TypeError, match='Legend must be a bool, tuple, or a list'):
-#         pp.plot({'a': da1, 'b': da2}, legend='False')
+    assert len(p.view.artists) == 4
 
 
 @pytest.mark.parametrize('Constructor', [dict, sc.Dataset, sc.DataGroup])
@@ -311,7 +273,7 @@ def test_names_are_overridden_when_plotting_dicts(Constructor):
     p = pp.plot(Constructor({'a': da1, 'b': da2}))
     # assert p.ax.get_legend().texts[0].get_text() == 'a'
     # assert p.ax.get_legend().texts[1].get_text() == 'b'
-    artists = list(p._view.artists.values())
+    artists = list(p.view.artists.values())
     assert artists[0].label == 'a'
     assert artists[1].label == 'b'
     assert da1.name == 'DA1'

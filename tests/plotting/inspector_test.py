@@ -88,5 +88,5 @@ def test_operation():
     da = pp.data.data3d()
     ip_sum = pp.inspector(da, operation='sum')
     ip_mean = pp.inspector(da, operation='mean')
-    assert ip_sum[0][0]._view.colormapper.vmax > ip_mean[0][0]._view.colormapper.vmax
-    assert ip_sum[0][0]._view.colormapper.vmin < ip_mean[0][0]._view.colormapper.vmin
+    assert ip_sum[0][0].view.colormapper.vmax > ip_mean[0][0].view.colormapper.vmax
+    assert ip_sum[0][0].view.colormapper.vmin < ip_mean[0][0].view.colormapper.vmin

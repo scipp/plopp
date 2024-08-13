@@ -14,11 +14,7 @@ from .tools import ToggleTool
 
 
 def is_figure(x):
-    # from ..backends.matplotlib.interactive import InteractiveFig
-
-    # return isinstance(x, InteractiveFig)
     answer = isinstance(x, BaseFig)
-    print(f"is_figure: {answer}")
     return answer
 
 
@@ -86,7 +82,7 @@ class DrawingTool(ToggleTool):
         output_node.name = f'Output node {len(self._output_nodes)}'
         self._output_nodes[nodeid] = output_node
         if self._destination_is_fig:
-            output_node.add_view(self._destination._view)
+            output_node.add_view(self._destination.view)
             self._destination.update({output_node.id: output_node()})
             self._destination.artists[output_node.id].color = (
                 artist.color if hasattr(artist, 'color') else artist.edgecolor

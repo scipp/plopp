@@ -54,13 +54,13 @@ def test_plot_2d_coord_with_mask():
 def test_kwarg_norm():
     da = data_array(ndim=2)
     p = pp.plot(da, norm='log')
-    assert p._view.colormapper.norm == 'log'
+    assert p.view.colormapper.norm == 'log'
 
 
 def test_kwarg_cmap():
     da = data_array(ndim=2)
     p = pp.plot(da, cmap='magma')
-    assert p._view.colormapper.cmap.name == 'magma'
+    assert p.view.colormapper.cmap.name == 'magma'
 
 
 def test_kwarg_scale_2d():
@@ -136,7 +136,7 @@ def test_plot_2d_ignores_masked_data_for_colorbar_range():
     da['xx', 10]['yy', 10].values = 100
     da.masks['m'] = da.data > sc.scalar(5.0, unit='m/s')
     p = pp.plot(da)
-    assert p._view.colormapper.vmax < 100
+    assert p.view.colormapper.vmax < 100
 
 
 def test_plot_2d_includes_masked_data_in_horizontal_range():
@@ -254,4 +254,4 @@ def test_plot_1d_data_over_2d_data_datetime():
 def test_no_cbar():
     da = data_array(ndim=2)
     fig = da.plot(cbar=False)
-    assert fig._view.colormapper is None
+    assert fig.view.colormapper is None

@@ -13,10 +13,10 @@ class Figure(BaseFig, VBox):
     """
 
     def __init__(self, View, *args, **kwargs):
-        self._view = View(*args, **kwargs)
+        self.view = View(*args, **kwargs)
         self.toolbar = make_toolbar_canvas2d(
             # canvas=self._view.canvas
-            view=self._view
+            view=self.view
         )
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar()
@@ -26,7 +26,7 @@ class Figure(BaseFig, VBox):
         super().__init__(
             [
                 self.top_bar,
-                HBox([self.left_bar, self._view.canvas.to_widget(), self.right_bar]),
+                HBox([self.left_bar, self.view.canvas.to_widget(), self.right_bar]),
                 self.bottom_bar,
             ]
         )
@@ -43,4 +43,4 @@ class Figure(BaseFig, VBox):
             Name of the output file. Possible file extensions are ``.jpg``, ``.png``,
             ``.svg``, ``.pdf``, and ``html``.
         """
-        return self._view.canvas.save(filename, **kwargs)
+        return self.view.canvas.save(filename, **kwargs)

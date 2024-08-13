@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import os
+import tempfile
+
 import numpy as np
 import pytest
 import scipp as sc
@@ -109,3 +112,17 @@ def test_scatter3d_mixing_raw_data_and_nodes():
     b.coords['x'] += sc.scalar(100, unit='m')
     pp.scatter3d({'a': a, 'b': pp.Node(b)})
     pp.scatter3d({'a': pp.Node(a), 'b': b})
+
+
+def test_save_to_html():
+    fig = pp.scatter3d(scatter())
+    with tempfile.TemporaryDirectory() as path:
+        fname = os.path.join(path, 'plopp_fig3d.html')
+        fig.save(filename=fname)
+        assert os.path.isfile(fname)
+
+
+def test_save_to_html_with_bad_extension_raises():
+    fig = pp.scatter3d(scatter())
+    with pytest.raises(ValueError, match=r'File extension must be \.html'):
+        fig.save(filename='plopp_fig3d.png')

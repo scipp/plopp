@@ -4,10 +4,12 @@
 from dataclasses import dataclass
 
 import numpy as np
+import pytest
 import scipp as sc
 from matplotlib.colors import LogNorm, Normalize
 
-from plopp.data.testing import data_array
+import plopp as pp
+from plopp.data.testing import data_array, scatter
 from plopp.graphics.colormapper import ColorMapper
 
 
@@ -287,3 +289,41 @@ def test_autoscale_auto_vmax_set():
     mapper.update(data=da + sc.scalar(5.0, unit='K'))
     assert mapper.vmax == 0.5
     assert mapper.vmin < mapper.vmax
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_toolbar_log_norm_button_state_agrees_with_kwarg_image_2d():
+    da = data_array(ndim=2)
+    fig = da.plot()
+    assert not fig.toolbar['lognorm'].value
+    assert fig.view.colormapper.norm == 'linear'
+    fig = da.plot(norm='log')
+    assert fig.toolbar['lognorm'].value
+    assert fig.view.colormapper.norm == 'log'
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_toolbar_log_norm_button_toggles_colormapper_norm_image_2d():
+    da = data_array(ndim=2)
+    fig = da.plot()
+    assert fig.view.colormapper.norm == 'linear'
+    fig.toolbar['lognorm'].value = True
+    assert fig.view.colormapper.norm == 'log'
+
+
+def test_toolbar_log_norm_button_state_agrees_with_kwarg_scatter_3d():
+    da = scatter()
+    fig = pp.scatter3d(da, cbar=True)
+    assert not fig.toolbar['lognorm'].value
+    assert fig.view.colormapper.norm == 'linear'
+    fig = pp.scatter3d(da, cbar=True, norm='log')
+    assert fig.toolbar['lognorm'].value
+    assert fig.view.colormapper.norm == 'log'
+
+
+def test_toolbar_log_norm_button_toggles_colormapper_norm_scatter_3d():
+    da = scatter()
+    fig = pp.scatter3d(da, cbar=True)
+    assert fig.view.colormapper.norm == 'linear'
+    fig.toolbar['lognorm'].value = True
+    assert fig.view.colormapper.norm == 'log'

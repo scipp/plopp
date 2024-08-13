@@ -18,10 +18,10 @@ def copy_figure(fig: FigureLike, **kwargs) -> FigureLike:
     args = fig._kwargs.copy()
     args.update(kwargs)
     args.update(
-        dims=fig._view._dims, canvas_maker=Canvas, artist_maker=fig._view._artist_maker
+        dims=fig.view._dims, canvas_maker=Canvas, artist_maker=fig.view._artist_maker
     )
     out = fig.__class__(
-        fig._view.__class__,
+        fig.view.__class__,
         *fig._args,
         **args,
     )
