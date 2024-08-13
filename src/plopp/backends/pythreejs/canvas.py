@@ -53,6 +53,7 @@ class Canvas:
         self.units = {}
         self.xscale = 'linear'
         self.yscale = 'linear'
+        self.zscale = 'linear'
         self.bbox = BoundingBox()
         self.outline = None
         self.axticks = None

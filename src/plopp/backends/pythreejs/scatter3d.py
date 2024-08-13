@@ -8,14 +8,15 @@ import numpy as np
 import scipp as sc
 from matplotlib.colors import to_rgb
 
-from ...graphics.bbox import BoundingBox, axis_bounds
+from ...core.limits import find_limits
+from ...graphics.bbox import BoundingBox
 from .canvas import Canvas
 
 
 def _check_ndim(data):
     if data.ndim != 1:
         raise ValueError(
-            'PointCloud only accepts one dimensional data, '
+            'Scatter3d only accepts one dimensional data, '
             f'found {data.ndim} dimensions. You should flatten your data '
             '(using scipp.flatten) before sending it to the point cloud.'
         )
@@ -178,17 +179,26 @@ class Scatter3d:
         """
         return self._data
 
-    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+    def bbox(
+        self,
+        xscale: Literal['linear', 'log'],
+        yscale: Literal['linear', 'log'],
+        zscale: Literal['linear', 'log'],
+    ) -> BoundingBox:
         """
-        The bounding box of the line.`
+        The bounding box of the scatter points.
         """
-        scatter_x = self._data.coords[self._x]
-        scatter_y = self._data.coords[self._y]
-        scatter_z = self._data.coords[self._z]
+        padding = 0.5 * self._size
+        xbounds = find_limits(self._data.coords[self._x], scale=xscale)
+        ybounds = find_limits(self._data.coords[self._y], scale=yscale)
+        zbounds = find_limits(self._data.coords[self._z], scale=zscale)
         return BoundingBox(
-            **{**axis_bounds(('xmin', 'xmax'), scatter_x, xscale)},
-            **{**axis_bounds(('ymin', 'ymax'), scatter_y, yscale)},
-            **{**axis_bounds(('zmin', 'zmax'), scatter_z, yscale)},
+            xmin=xbounds[0].value - padding,
+            xmax=xbounds[1].value + padding,
+            ymin=ybounds[0].value - padding,
+            ymax=ybounds[1].value + padding,
+            zmin=zbounds[0].value - padding,
+            zmax=zbounds[1].value + padding,
         )
 
     def remove(self) -> None:

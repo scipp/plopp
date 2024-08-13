@@ -19,6 +19,15 @@ def find_limits(
     If there are no finite values in the array, raise an error.
     If there are no positive values in the array, and the scale is log, fall back to
     some sensible default values.
+
+    Parameters
+    ----------
+    x:
+        The data for which to find the limits.
+    scale:
+        The scale to use for the limits.
+    pad:
+        Whether to pad the limits.
     """
     is_datetime = x.dtype == sc.DType.datetime64
     # Computing limits for string arrays is not supported, so we convert them to
