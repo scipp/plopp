@@ -63,18 +63,6 @@ def make_legend(leg: bool | tuple[float, float] | str) -> dict:
     return {'loc': leg} if not isinstance(leg, bool) else {}
 
 
-# def require_interactive_backend(func: str):
-#     """
-#     Raise an error if the current backend in use is non-interactive.
-#     """
-#     if not is_interactive_backend():
-#         raise RuntimeError(
-#             f"The {func} can only be used with the interactive widget "
-#             "backend. Use `%matplotlib widget` at the start of your "
-#             "notebook."
-#         )
-
-
 def _running_in_jupyter() -> bool:
     """
     Detect whether Python is running in Jupyter.

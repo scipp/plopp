@@ -125,7 +125,6 @@ class Line:
             )[0]
 
         self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
-        # self._line._plopp_mask = line_mask
 
         # Add error bars
         if errorbars and (line_data['stddevs'] is not None):
@@ -137,10 +136,6 @@ class Line:
                 zorder=10,
                 fmt="none",
             )
-            # # Set the selection mask on the line collection that makes the segments
-            # self._error[2][0]._plopp_mask = (
-            #     line_mask[1:] if line_data["hist"] else line_mask
-            # )
         self.update_legend()
 
     def update_legend(self) -> None:

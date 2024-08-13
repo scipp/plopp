@@ -28,7 +28,6 @@ class View:
         self.graph_nodes = {}
         for node in nodes:
             node.add_view(self)
-        # self.artists = {}
 
     @property
     def id(self) -> str:

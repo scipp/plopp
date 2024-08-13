@@ -11,8 +11,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ...graphics.bbox import BoundingBox
-
-# from ..common import BoundingBox, axis_bounds
 from .utils import fig_to_bytes, is_sphinx_build, make_figure
 
 
@@ -73,10 +71,8 @@ class Canvas:
         figsize: tuple[float, float] | None = None,
         title: str | None = None,
         grid: bool = False,
-        # bbox: BoundingBox | None = None,
         user_vmin: sc.Variable | float = None,
         user_vmax: sc.Variable | float = None,
-        # autoscale: Literal['auto', 'grow'] = 'auto',
         aspect: Literal['auto', 'equal'] = 'auto',
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
@@ -91,8 +87,6 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
-        # print(vmin, vmax)
-
         self.fig = None
         self.ax = ax
         self.cax = cax
@@ -101,12 +95,9 @@ class Canvas:
         self._user_vmax = user_vmax
         self.units = {}
         self.dims = {}
-        # self._own_axes = False
-        # self._autoscale = autoscale
         self._legend = legend
 
         if self.ax is None:
-            # self._own_axes = True
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
             self.ax.set_aspect(aspect)
@@ -450,10 +441,3 @@ class Canvas:
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
-
-    # def finalize(self):
-    #     """
-    #     Finalize is called at the end of figure creation. Add any polishing operations
-    #     here: trim the margins around the figure.
-    #     """
-    #     if self._own_axes:

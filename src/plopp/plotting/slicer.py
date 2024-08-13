@@ -181,7 +181,6 @@ def slicer(
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
     """
-    # require_interactive_backend('slicer')
     return Slicer(
         obj,
         keep=keep,

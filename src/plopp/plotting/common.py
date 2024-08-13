@@ -8,7 +8,6 @@ from typing import Any
 import numpy as np
 import scipp as sc
 
-# from .. import backends
 from ..core import Node
 from ..core.typing import FigureLike, Plottable, PlottableMulti
 

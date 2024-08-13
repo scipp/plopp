@@ -14,10 +14,7 @@ class Figure(BaseFig, VBox):
 
     def __init__(self, View, *args, **kwargs):
         self.view = View(*args, **kwargs)
-        self.toolbar = make_toolbar_canvas2d(
-            # canvas=self._view.canvas
-            view=self.view
-        )
+        self.toolbar = make_toolbar_canvas2d(view=self.view)
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar()
         self.bottom_bar = HBar()

@@ -9,7 +9,6 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
-
 from .backends import BackendManager
 
 backends = BackendManager()

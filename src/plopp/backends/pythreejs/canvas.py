@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 from copy import copy
-from dataclasses import dataclass
 from typing import Any
 
 import ipywidgets as ipw
@@ -13,12 +12,6 @@ import scipp as sc
 
 from ...graphics import Camera
 from ...graphics.bbox import BoundingBox
-
-
-@dataclass
-class Axes:
-    scene: Any
-    parent: Canvas
 
 
 class Canvas:
@@ -62,35 +55,21 @@ class Canvas:
         self._title = self._make_title()
         width, height = self.figsize
         self._user_camera = Camera() if camera is None else camera
-        self.camera = (
-            p3.PerspectiveCamera(aspect=width / height)
-            # if ax is None
-            # else ax.parent.camera
-        )
+        self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
-        self.axes_3d = p3.AxesHelper()  # if ax is None else ax.parent.axes_3d
+        self.axes_3d = p3.AxesHelper()
         self._limits = BoundingBox()
         self._cached_limits = None
-        self.scene = (
-            p3.Scene(children=[self.camera, self.axes_3d], background="#f0f0f0")
-            # if ax is None
-            # else ax.scene
+        self.scene = p3.Scene(
+            children=[self.camera, self.axes_3d], background="#f0f0f0"
         )
-        self.controls = (
-            p3.OrbitControls(controlling=self.camera)
-            # if ax is None
-            # else ax.parent.controls
-        )
-        self.renderer = (
-            p3.Renderer(
-                camera=self.camera,
-                scene=self.scene,
-                controls=[self.controls],
-                width=width,
-                height=height,
-            )
-            # if ax is None
-            # else ax.parent.renderer
+        self.controls = p3.OrbitControls(controlling=self.camera)
+        self.renderer = p3.Renderer(
+            camera=self.camera,
+            scene=self.scene,
+            controls=[self.controls],
+            width=width,
+            height=height,
         )
 
     def to_widget(self):
@@ -413,10 +392,3 @@ class Canvas:
     @zrange.setter
     def zrange(self, value: tuple[float, float]):
         self.zmin, self.zmax = value
-
-    # @property
-    # def ax(self):
-    #     """
-    #     Get the axes object.
-    #     """
-    #     return Axes(scene=self.scene, parent=self)

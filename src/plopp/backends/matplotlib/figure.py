@@ -87,9 +87,6 @@ def get_repr_maker(form=None, npoints=0):
     return REPR_MAP[form.lower()]
 
 
-# def Figure(*args, **kwargs):
-
-
 class InteractiveFigure(MplBaseFig, VBox):
     """
     Create an interactive Matplotlib figure.
