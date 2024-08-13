@@ -42,7 +42,9 @@ def imagefigure(*nodes: Node, **kwargs) -> FigureLike:
     return backends.get(group='2d', name='figure')(view_maker, *nodes, **kwargs)
 
 
-def scatterfigure(*nodes: Node, x: str, y: str, cbar: bool, **kwargs) -> FigureLike:
+def scatterfigure(
+    *nodes: Node, x: str = 'x', y: str = 'y', cbar: bool = False, **kwargs
+) -> FigureLike:
     view_maker = partial(
         GraphicalView,
         dims={'x': x, 'y': y},
@@ -58,7 +60,7 @@ def scatterfigure(*nodes: Node, x: str, y: str, cbar: bool, **kwargs) -> FigureL
 
 
 def scatter3dfigure(
-    *nodes: Node, x: str, y: str, z: str, cbar: bool, **kwargs
+    *nodes: Node, x: str = 'x', y: str = 'y', z: str = 'z', cbar: bool = False, **kwargs
 ) -> FigureLike:
     view_maker = partial(
         GraphicalView,

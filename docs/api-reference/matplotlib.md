@@ -6,12 +6,10 @@
 .. autosummary::
    :toctree: ../generated
 
-   backends.matplotlib.MatplotlibBackend
    backends.matplotlib.canvas.Canvas
-   backends.matplotlib.line.Line
+   backends.matplotlib.figure.Figure
    backends.matplotlib.image.Image
+   backends.matplotlib.line.Line
    backends.matplotlib.scatter.Scatter
-   backends.matplotlib.static.StaticFig
-   backends.matplotlib.interactive.InteractiveFig
    backends.matplotlib.tiled.Tiled
 ```

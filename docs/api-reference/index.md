@@ -36,19 +36,13 @@
 .. autosummary::
    :toctree: ../generated
 
+   graphics.BoundingBox
    graphics.Camera
    graphics.ColorMapper
-   graphics.figure1d
-   graphics.figure2d
-   graphics.figure3d
    graphics.imagefigure
-   graphics.ImageView
    graphics.linefigure
-   graphics.LineView
    graphics.scatterfigure
-   graphics.ScatterView
    graphics.scatter3dfigure
-   graphics.Scatter3dView
    graphics.tiled
 ```
 
