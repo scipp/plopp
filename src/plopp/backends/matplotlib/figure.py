@@ -17,6 +17,8 @@ class MplBaseFig(BaseFig):
 
     def __init_figure__(self, View, *args, **kwargs):
         self.view = View(*args, **kwargs)
+        # Saving the following is necessary for making copies of the figure
+        self._view_maker = View
         self._args = args
         self._kwargs = kwargs
 

@@ -21,7 +21,7 @@ def copy_figure(fig: FigureLike, **kwargs) -> FigureLike:
         dims=fig.view._dims, canvas_maker=Canvas, artist_maker=fig.view._artist_maker
     )
     out = fig.__class__(
-        fig.view.__class__,
+        fig._view_maker,
         *fig._args,
         **args,
     )
