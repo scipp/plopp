@@ -54,6 +54,7 @@ class GraphicalView(View):
         legend: bool | tuple[float, float] = False,
         camera: Camera | None = None,
         ax: Any = None,
+        cax: Any = None,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -77,6 +78,7 @@ class GraphicalView(View):
             legend=legend,
             camera=camera,
             ax=ax,
+            cax=cax,
         )
 
         self.colormapper = (

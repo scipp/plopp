@@ -37,8 +37,9 @@ def test_cax():
     cax = fig.add_axes([0.9, 0.02, 0.05, 0.98])
     assert len(ax.collections) == 0
     da = data_array(ndim=2)
-    _ = da.plot(ax=ax, cax=cax)
+    fig = da.plot(ax=ax, cax=cax)
     assert len(ax.collections) > 0
+    assert fig.canvas.cax is cax
 
 
 def test_hide_legend():
