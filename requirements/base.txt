@@ -28,7 +28,7 @@ pyparsing==3.1.2
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
-scipp==24.6.0
+scipp==24.8.0
     # via -r base.in
 six==1.16.0
     # via python-dateutil
