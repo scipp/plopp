@@ -53,4 +53,3 @@ def tiled(nrows: int, ncols: int, **kwargs):
 
     """
     return backends.get(group='2d', name='tiled')(nrows=nrows, ncols=ncols, **kwargs)
-    # return backends.tiled(nrows=nrows, ncols=ncols, **kwargs)
