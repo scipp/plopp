@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
+import pytest
 import scipp as sc
 
 import plopp as pp
@@ -85,3 +86,16 @@ def test_scatter_log_axes():
     scat = pp.scatter(a, scale={'x': 'log', 'y': 'log'})
     assert scat.view.canvas.xscale == 'log'
     assert scat.view.canvas.yscale == 'log'
+
+
+def test_scatter_does_not_accept_data_with_other_dimensionality_on_update():
+    da = scatter_data()
+    fig = pp.scatter(da)
+    with pytest.raises(
+        sc.DimensionError, match='Scatter only accepts data with 1 dimension'
+    ):
+        fig.update(new=data_array(ndim=2, dims=['y', 'x']))
+    with pytest.raises(
+        sc.DimensionError, match='Scatter only accepts data with 1 dimension'
+    ):
+        fig.update(new=data_array(ndim=3, dims=['z', 'y', 'x']))

@@ -1,11 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-
 import numpy as np
 import scipp as sc
 
-default_dim_list = ['x', 'y', 'z', 'time', 'temperature']
+dims_and_units = {'x': 'm', 'y': 'm', 'z': 'm', 'time': 's', 'temperature': 'K'}
 
 
 def variable(
@@ -14,7 +13,6 @@ def variable(
     dtype: str = 'float64',
     unit: str = 'm/s',
     dims: list[str] | None = None,
-    dim_list: list[str] = default_dim_list,
 ) -> sc.Variable:
     """
     Generate a sample ``Variable`` containing data based on a sine function.
@@ -31,13 +29,11 @@ def variable(
         The output variable's unit.
     dims:
         List of dimension labels. If ``None``, they will be auto-generated.
-    dim_list:
-        List of dimension labels to use if no ``dims`` are provided.
     """
 
     shapes = np.arange(50, 0, -10)[:ndim][::-1]
     if dims is None:
-        dims = dim_list[:ndim][::-1]
+        dims = list(dims_and_units.keys())[:ndim][::-1]
 
     axes = [np.arange(shape, dtype=np.float64) for shape in shapes]
     pos = np.meshgrid(*axes, indexing='ij')
@@ -61,7 +57,6 @@ def data_array(
     dtype: str = 'float64',
     unit: str = 'm/s',
     dims: list[str] | None = None,
-    dim_list: list[str] = default_dim_list,
 ) -> sc.DataArray:
     """
     Generate a sample ``DataArray`` containing data based on a sine function, with
@@ -89,11 +84,7 @@ def data_array(
         The output variable's unit.
     dims:
         List of dimension labels. If ``None``, they will be auto-generated.
-    dim_list:
-        List of dimension labels to use if no ``dims`` are provided.
     """
-
-    coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K'], strict=True))
 
     data = variable(
         ndim=ndim,
@@ -101,14 +92,13 @@ def data_array(
         dims=dims,
         dtype=dtype,
         unit=unit,
-        dim_list=dim_list,
     )
 
     coord_dict = {
         data.dims[i]: sc.arange(
             data.dims[i],
             data.shape[i] + binedges,
-            unit=coord_units[data.dims[i]],
+            unit=dims_and_units[data.dims[i]],
             dtype=np.float64,
         )
         for i in range(ndim)
@@ -203,7 +193,7 @@ def random(shape, dtype='float64', unit='', dims=None, seed=None) -> sc.DataArra
     """
     rng = np.random.default_rng(seed)
     if dims is None:
-        dims = default_dim_list[: len(shape)][::-1]
+        dims = list(dims_and_units.keys())[: len(shape)][::-1]
     return sc.DataArray(
         data=sc.array(
             dims=dims,

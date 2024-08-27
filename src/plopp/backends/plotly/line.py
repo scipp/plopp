@@ -11,7 +11,7 @@ from plotly.colors import qualitative as plotly_colors
 
 from ...core.utils import merge_masks
 from ...graphics.bbox import BoundingBox, axis_bounds
-from ..common import make_line_data
+from ..common import check_ndim, make_line_data
 from .canvas import Canvas
 
 
@@ -62,6 +62,7 @@ class Line:
         marker: str | None = None,
         **kwargs,
     ):
+        check_ndim(data, ndim=1, origin='Line')
         self._fig = canvas.fig
         self._data = data
 
@@ -178,6 +179,7 @@ class Line:
         new_values:
             New data to update the line values, masks, errorbars from.
         """
+        check_ndim(new_values, ndim=1, origin='Line')
         self._data = new_values
         line_data = make_line_data(data=self._data, dim=self._dim)
         self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))

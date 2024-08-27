@@ -9,7 +9,7 @@ import pytest
 import scipp as sc
 
 import plopp as pp
-from plopp.data.testing import scatter
+from plopp.data.testing import data_array, scatter
 
 
 def test_scatter3d_from_pos():
@@ -126,3 +126,18 @@ def test_save_to_html_with_bad_extension_raises():
     fig = pp.scatter3d(scatter())
     with pytest.raises(ValueError, match=r'File extension must be \.html'):
         fig.save(filename='plopp_fig3d.png')
+
+
+def test_scatter3d_does_not_accept_data_with_other_dimensionality_on_update():
+    da = scatter()
+    fig = pp.scatter3d(da)
+    # There is no 'z' coordinate in the data
+    with pytest.raises(
+        sc.DimensionError, match='Supplied data is incompatible with this view'
+    ):
+        fig.update(new=data_array(ndim=2, dims=['y', 'x']))
+    # The data has 3 dimensions
+    with pytest.raises(
+        sc.DimensionError, match='Scatter3d only accepts data with 1 dimension'
+    ):
+        fig.update(new=data_array(ndim=3, dims=['z', 'y', 'x']))

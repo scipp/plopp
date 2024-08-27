@@ -10,16 +10,8 @@ from matplotlib.colors import to_rgb
 
 from ...core.limits import find_limits
 from ...graphics.bbox import BoundingBox
+from ..common import check_ndim
 from .canvas import Canvas
-
-
-def _check_ndim(data):
-    if data.ndim != 1:
-        raise ValueError(
-            'Scatter3d only accepts one dimensional data, '
-            f'found {data.ndim} dimensions. You should flatten your data '
-            '(using scipp.flatten) before sending it to the point cloud.'
-        )
 
 
 class Scatter3d:
@@ -65,7 +57,7 @@ class Scatter3d:
         """
         import pythreejs as p3
 
-        _check_ndim(data)
+        check_ndim(data, ndim=1, origin='Scatter3d')
         self._canvas = canvas
         self._data = data
         self._x = x
@@ -142,7 +134,7 @@ class Scatter3d:
         new_values:
             New data to update the point cloud values from.
         """
-        _check_ndim(new_values)
+        check_ndim(new_values, ndim=1, origin='Scatter3d')
         self._data = new_values
 
     def get_limits(self) -> tuple[sc.Variable, sc.Variable, sc.Variable]:

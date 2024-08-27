@@ -1,12 +1,31 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from __future__ import annotations
-
 import numpy as np
 import scipp as sc
 
 from ..core.utils import merge_masks
+
+
+def check_ndim(data: sc.DataArray, ndim: int, origin: str) -> None:
+    """
+    Check the dimensionality of the data array.
+    If the data array does not have the expected dimensionality, a ValueError is raised.
+
+    Parameters
+    ----------
+    data:
+        The data array to check.
+    ndim:
+        The expected dimensionality of the data array.
+    origin:
+        The name of the function that called this function.
+    """
+    if data.ndim != ndim:
+        raise sc.DimensionError(
+            f'{origin} only accepts data with {ndim} dimension(s), '
+            f'found {data.ndim} dimension(s).'
+        )
 
 
 def make_line_data(data: sc.DataArray, dim: str) -> dict:

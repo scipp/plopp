@@ -257,3 +257,16 @@ def test_no_cbar():
     assert fig.view.colormapper.colorbar is not None
     fig = da.plot(cbar=False)
     assert fig.view.colormapper.colorbar is None
+
+
+def test_2d_plot_does_not_accept_data_with_other_dimensionality_on_update():
+    da = data_array(ndim=2)
+    fig = da.plot()
+    # The data has no 'y' coordinate
+    with pytest.raises(KeyError, match='Supplied data is incompatible with this view'):
+        fig.update(new=data_array(ndim=1))
+    # The data has 3 dimensions
+    with pytest.raises(
+        sc.DimensionError, match='Image only accepts data with 2 dimension'
+    ):
+        fig.update(new=data_array(ndim=3))

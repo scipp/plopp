@@ -5,9 +5,10 @@ from functools import partial
 
 from . import factory as fa
 
-testing_dim_list = ['xx', 'yy', 'zz', 'time', 'temperature']
+testing_dims = ['xx', 'yy', 'zz', 'time', 'temperature']
 
-variable = partial(fa.variable, dim_list=testing_dim_list)
-data_array = partial(fa.data_array, dim_list=testing_dim_list)
-dataset = partial(fa.dataset, dim_list=testing_dim_list)
+
+variable = partial(fa.variable, dims=testing_dims)
+data_array = partial(fa.data_array, dims=testing_dims)
+dataset = partial(fa.dataset, dims=testing_dims)
 scatter = fa.scatter

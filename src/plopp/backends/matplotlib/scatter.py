@@ -10,6 +10,7 @@ from matplotlib.lines import Line2D
 
 from ...core.utils import merge_masks
 from ...graphics.bbox import BoundingBox, axis_bounds
+from ..common import check_ndim
 from .canvas import Canvas
 from .utils import make_legend, parse_dicts_in_kwargs
 
@@ -29,6 +30,7 @@ class Scatter:
         cbar: bool = False,
         **kwargs,
     ):
+        check_ndim(data, ndim=1, origin='Scatter')
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
@@ -103,6 +105,7 @@ class Scatter:
         new_values:
             New data to update the line values, masks, errorbars from.
         """
+        check_ndim(new_values, ndim=1, origin='Scatter')
         self._data = new_values
         self._scatter.set_offsets(
             np.stack(

@@ -475,3 +475,16 @@ def test_vmin_vmax_no_variable():
     da = data_array(ndim=1)
     fig = da.plot(vmin=-0.5, vmax=0.68)
     assert np.allclose(fig.canvas.yrange, [-0.5, 0.68])
+
+
+def test_1d_plot_does_not_accept_higher_dimension_data_on_update():
+    da = data_array(ndim=1)
+    fig = da.plot()
+    with pytest.raises(
+        sc.DimensionError, match='Line only accepts data with 1 dimension'
+    ):
+        fig.update(new=data_array(ndim=2))
+    with pytest.raises(
+        sc.DimensionError, match='Line only accepts data with 1 dimension'
+    ):
+        fig.update(new=data_array(ndim=3))

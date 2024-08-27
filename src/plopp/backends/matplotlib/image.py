@@ -9,6 +9,7 @@ import scipp as sc
 
 from ...core.utils import coord_as_bin_edges, merge_masks, repeat, scalar_to_string
 from ...graphics.bbox import BoundingBox, axis_bounds
+from ..common import check_ndim
 from .canvas import Canvas
 
 
@@ -81,6 +82,7 @@ class Image:
         rasterized: bool = True,
         **kwargs,
     ):
+        check_ndim(data, ndim=2, origin='Image')
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
@@ -182,6 +184,7 @@ class Image:
         new_values:
             New data to update the mesh values from.
         """
+        check_ndim(new_values, ndim=2, origin='Image')
         self._data = new_values
         self._data_with_bin_edges.data = new_values.data
 

@@ -130,25 +130,19 @@ class GraphicalView(View):
         Update the view with new data by either supplying a dictionary of
         new data or by keyword arguments.
         """
-
         new = dict(*args, **kwargs)
         for key, new_values in new.items():
-            # if new_values.ndim != self._ndim:
-            #     raise ValueError(
-            #         f"Expected {self._ndim} dimension(s), but got {new_values.ndim}."
-            #     )
-
             coords = {}
             for i, direction in enumerate(self._dims):
                 if self._dims[direction] is None:
                     self._dims[direction] = new_values.dims[i]
-                c = self._dims[direction]
-                if c not in new_values.coords:
-                    raise ValueError(
+                try:
+                    coords[direction] = new_values.coords[self._dims[direction]]
+                except KeyError as e:
+                    raise KeyError(
                         "Supplied data is incompatible with this view: "
-                        f"coordinate {c} not found in data."
-                    )
-                coords[direction] = new_values.coords[c]
+                        f"coordinate '{self._dims[direction]}' was not found in data."
+                    ) from e
 
             if self.canvas.empty:
                 axes_units = {k: coord.unit for k, coord in coords.items()}
@@ -200,8 +194,6 @@ class GraphicalView(View):
                     self.colormapper[key] = self.artists[key]
 
             self.artists[key].update(new_values=new_values)
-
-            print('self._dims', self._dims)
 
         if self.colormapper is not None:
             self.colormapper.update(**new)
