@@ -77,7 +77,6 @@ class Image:
         self,
         canvas: Canvas,
         data: sc.DataArray,
-        artist_number: int = 0,
         shading: str = 'auto',
         rasterized: bool = True,
         **kwargs,
@@ -85,12 +84,13 @@ class Image:
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
-        self._artist_number = artist_number
         self._id = uuid.uuid4().hex
         # Because all keyword arguments from the figure are forwarded to both the canvas
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
         kwargs.pop('cax', None)
+        # An artist number is passed to the artist, but is unused for the image.
+        kwargs.pop('artist_number', None)
         # If the grid is visible on the axes, we need to set that on again after we
         # call pcolormesh, because that turns the grid off automatically.
         # See https://github.com/matplotlib/matplotlib/issues/15600.

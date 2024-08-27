@@ -55,7 +55,7 @@ class Scatter3d:
         z: str,
         data: sc.DataArray,
         size: sc.Variable | float = 1,
-        color: str = 'black',
+        color: str | None = None,
         artist_number: int = 0,
         opacity: float = 1,
         pixel_size: sc.Variable | float | None = None,
@@ -72,7 +72,6 @@ class Scatter3d:
         self._y = y
         self._z = z
         self._id = uuid.uuid4().hex
-        self._artist_number = artist_number
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -101,7 +100,9 @@ class Scatter3d:
                 ),
                 'color': p3.BufferAttribute(
                     array=np.broadcast_to(
-                        np.array(to_rgb(color)),
+                        np.array(
+                            to_rgb(f'C{artist_number}' if color is None else color)
+                        ),
                         (self._data.coords[self._x].shape[0], 3),
                     ).astype('float32')
                 ),
