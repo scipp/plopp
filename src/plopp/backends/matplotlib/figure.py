@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 
 from ...graphics import BaseFig
 from .canvas import Canvas
@@ -27,27 +28,27 @@ class MplBaseFig(BaseFig):
         self._kwargs = kwargs
 
     @property
-    def fig(self):
+    def fig(self) -> Figure:
         """
         Get the underlying Matplotlib figure.
         """
         return self.view.canvas.fig
 
     @property
-    def ax(self):
+    def ax(self) -> Axes:
         """
         Get the underlying Matplotlib axes.
         """
         return self.view.canvas.ax
 
     @property
-    def cax(self):
+    def cax(self) -> Axes:
         """
         Get the underlying Matplotlib colorbar axes.
         """
         return self.view.canvas.cax
 
-    def save(self, filename, **kwargs):
+    def save(self, filename: str, **kwargs):
         """
         Save the figure to file.
         The default directory for writing the file is the same as the

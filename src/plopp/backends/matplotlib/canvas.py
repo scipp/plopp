@@ -101,8 +101,6 @@ class Canvas:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
             self.ax.set_aspect(aspect)
-            self.ax.grid(grid)
-            self.fig.tight_layout()
         else:
             self.fig = self.ax.get_figure()
         if self.is_widget():
@@ -119,6 +117,7 @@ class Canvas:
                 divider = make_axes_locatable(self.ax)
                 self.cax = divider.append_axes("right", "4%", pad="5%")
 
+        self.ax.grid(grid)
         if title:
             self.ax.set_title(title)
         self._coord_formatters = []
@@ -138,6 +137,7 @@ class Canvas:
         from ipywidgets import Layout, VBox
 
         if self.is_widget() and not is_sphinx_build():
+            self.fig.tight_layout()
             # The Matplotlib canvas tries to fill the entire width of the output cell,
             # which can add unnecessary whitespace between it and other widgets. To
             # prevent this, we wrap the canvas in a VBox, which seems to help.

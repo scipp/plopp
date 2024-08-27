@@ -43,7 +43,7 @@ class View:
 
         Parameters
         ----------
-        *message:
+        message:
             The notification message containing the node id it originated from.
         """
         node_id = message["node_id"]
