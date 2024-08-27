@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
+from __future__ import annotations
+
+from matplotlib.axes import Axes
 
 from ...graphics import BaseFig
+from .canvas import Canvas
 from .utils import fig_to_bytes
 
 try:
@@ -66,6 +70,31 @@ class MplBaseFig(BaseFig):
         from .tiled import vstack
 
         return vstack(self, other)
+
+    def copy(self, ax: Axes | None = None) -> MplBaseFig:
+        """
+        Create a copy of the figure.
+
+        Parameters
+        ----------
+        ax:
+            The axes to use for the new figure. If ``None``, new axes will be created.
+        """
+        kwargs = self._kwargs.copy()
+        kwargs.update(ax=ax)
+        kwargs.update(
+            dims=self.view._dims,
+            canvas_maker=Canvas,
+            artist_maker=self.view._artist_maker,
+        )
+        out = self.__class__(
+            self._view_maker,
+            *self._args,
+            **kwargs,
+        )
+        for prop in ('xrange', 'yrange', 'xscale', 'yscale', 'title', 'grid'):
+            setattr(out.canvas, prop, getattr(self.canvas, prop))
+        return out
 
 
 def _make_png_repr(fig):

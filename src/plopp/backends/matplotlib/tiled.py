@@ -9,25 +9,8 @@ import numpy as np
 from matplotlib import gridspec
 
 from ...core.typing import FigureLike
-from .canvas import Canvas
 from .figure import get_repr_maker
 from .utils import is_interactive_backend, make_figure
-
-
-def copy_figure(fig: FigureLike, **kwargs) -> FigureLike:
-    args = fig._kwargs.copy()
-    args.update(kwargs)
-    args.update(
-        dims=fig.view._dims, canvas_maker=Canvas, artist_maker=fig.view._artist_maker
-    )
-    out = fig.__class__(
-        fig._view_maker,
-        *fig._args,
-        **args,
-    )
-    for prop in ('xrange', 'yrange', 'xscale', 'yscale', 'title', 'grid'):
-        setattr(out.canvas, prop, getattr(fig.canvas, prop))
-    return out
 
 
 class Tiled:
@@ -100,22 +83,22 @@ class Tiled:
 
         self.gs = gridspec.GridSpec(nrows, ncols, figure=self.fig, **kwargs)
         self.axes = []
-        self.views = np.full((nrows, ncols), None)
+        self.figures = np.full((nrows, ncols), None)
         self._history = []
 
     def __setitem__(
         self,
         inds: int | slice | tuple[int, int] | tuple[slice, slice],
-        view: FigureLike,
+        fig: FigureLike,
     ) -> None:
-        new_view = copy_figure(view, ax=self.fig.add_subplot(self.gs[inds]))
-        self.views[inds] = new_view
-        self._history.append((inds, new_view))
+        new_fig = fig.copy(ax=self.fig.add_subplot(self.gs[inds]))
+        self.figures[inds] = new_fig
+        self._history.append((inds, new_fig))
 
     def __getitem__(
         self, inds: int | slice | tuple[int, int] | tuple[slice, slice]
     ) -> FigureLike:
-        return self.views[inds]
+        return self.figures[inds]
 
     def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
         """
