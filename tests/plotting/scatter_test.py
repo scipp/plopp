@@ -94,8 +94,8 @@ def test_scatter_does_not_accept_data_with_other_dimensionality_on_update():
     with pytest.raises(
         sc.DimensionError, match='Scatter only accepts data with 1 dimension'
     ):
-        fig.update(new=data_array(ndim=2, dims=['y', 'x']))
+        fig.update(new=data_array(ndim=2, dim_list="xyzab"))
     with pytest.raises(
         sc.DimensionError, match='Scatter only accepts data with 1 dimension'
     ):
-        fig.update(new=data_array(ndim=3, dims=['z', 'y', 'x']))
+        fig.update(new=data_array(ndim=3, dim_list="xyzab"))

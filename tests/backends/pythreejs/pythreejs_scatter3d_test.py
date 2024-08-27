@@ -110,7 +110,9 @@ def test_pixel_size_cannot_have_units_when_spatial_dimensions_have_different_uni
 def test_creation_raises_when_data_is_not_1d():
     da = scatter()
     da2d = sc.broadcast(da, sizes={**da.sizes, **{'time': 10}})
-    with pytest.raises(ValueError, match='Scatter3d only accepts one dimensional data'):
+    with pytest.raises(
+        sc.DimensionError, match='Scatter3d only accepts data with 1 dimension'
+    ):
         Scatter3d(canvas=Canvas(), data=da2d, x='x', y='y', z='z')
 
 
@@ -118,5 +120,7 @@ def test_update_raises_when_data_is_not_1d():
     da = scatter()
     scat = Scatter3d(canvas=Canvas(), data=da, x='x', y='y', z='z')
     da2d = sc.broadcast(da, sizes={**da.sizes, **{'time': 10}})
-    with pytest.raises(ValueError, match='Scatter3d only accepts one dimensional data'):
+    with pytest.raises(
+        sc.DimensionError, match='Scatter3d only accepts data with 1 dimension'
+    ):
         scat.update(da2d)

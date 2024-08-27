@@ -132,12 +132,10 @@ def test_scatter3d_does_not_accept_data_with_other_dimensionality_on_update():
     da = scatter()
     fig = pp.scatter3d(da)
     # There is no 'z' coordinate in the data
-    with pytest.raises(
-        sc.DimensionError, match='Supplied data is incompatible with this view'
-    ):
-        fig.update(new=data_array(ndim=2, dims=['y', 'x']))
+    with pytest.raises(KeyError, match='Supplied data is incompatible with this view'):
+        fig.update(new=data_array(ndim=2, dim_list="xyzab"))
     # The data has 3 dimensions
     with pytest.raises(
         sc.DimensionError, match='Scatter3d only accepts data with 1 dimension'
     ):
-        fig.update(new=data_array(ndim=3, dims=['z', 'y', 'x']))
+        fig.update(new=data_array(ndim=3, dim_list="xyzab"))
