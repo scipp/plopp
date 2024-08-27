@@ -3,14 +3,14 @@
 
 import pytest
 
-from plopp.backends.matplotlib.tiled import Tiled, copy_figure
+from plopp.backends.matplotlib.tiled import Tiled
 from plopp.data.testing import data_array
 
 
 def do_test_copy():
     da = data_array(ndim=1)
     original = da.plot()
-    copy = copy_figure(original)
+    copy = original.copy()
     assert original.graph_nodes.keys() == copy.graph_nodes.keys()
     assert original.artists.keys() == copy.artists.keys()
 
@@ -23,7 +23,7 @@ def do_test_copy_keeps_kwargs():
         grid=True,
         title='A nice title',
     )
-    copy = copy_figure(original)
+    copy = original.copy()
     assert copy.canvas.xscale == 'log'
     assert copy.canvas.yscale == 'log'
     assert copy.canvas.grid

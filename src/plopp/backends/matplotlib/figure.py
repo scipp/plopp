@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure
+from matplotlib.figure import Figure as MplFigure
 
 from ...graphics import BaseFig
 from .canvas import Canvas
@@ -28,7 +28,7 @@ class MplBaseFig(BaseFig):
         self._kwargs = kwargs
 
     @property
-    def fig(self) -> Figure:
+    def fig(self) -> MplFigure:
         """
         Get the underlying Matplotlib figure.
         """
