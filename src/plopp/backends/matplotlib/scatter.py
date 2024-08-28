@@ -2,12 +2,15 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from typing import Literal
 
 import numpy as np
 import scipp as sc
 from matplotlib.lines import Line2D
 
 from ...core.utils import merge_masks
+from ...graphics.bbox import BoundingBox, axis_bounds
+from ..common import check_ndim
 from .canvas import Canvas
 from .utils import make_legend, parse_dicts_in_kwargs
 
@@ -22,11 +25,12 @@ class Scatter:
         x: str = 'x',
         y: str = 'y',
         size: str | None = None,
-        number: int = 0,
+        artist_number: int = 0,
         mask_color: str = 'black',
         cbar: bool = False,
         **kwargs,
     ):
+        check_ndim(data, ndim=1, origin='Scatter')
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
@@ -45,10 +49,10 @@ class Scatter:
 
         markers = list(Line2D.markers.keys())
         default_plot_style = {
-            'marker': markers[(number + 2) % len(markers)],
+            'marker': markers[(artist_number + 2) % len(markers)],
         }
         if not cbar:
-            default_plot_style['color'] = f'C{number}'
+            default_plot_style['color'] = f'C{artist_number}'
 
         merged_kwargs = {**default_plot_style, **scatter_kwargs}
         if self._size is None:
@@ -101,6 +105,7 @@ class Scatter:
         new_values:
             New data to update the line values, masks, errorbars from.
         """
+        check_ndim(new_values, ndim=1, origin='Scatter')
         self._data = new_values
         self._scatter.set_offsets(
             np.stack(
@@ -127,3 +132,14 @@ class Scatter:
     def data(self):
         """ """
         return self._data
+
+    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+        """
+        The bounding box of the scatter points.
+        """
+        scatter_x = self._data.coords[self._x]
+        scatter_y = self._data.coords[self._y]
+        return BoundingBox(
+            **{**axis_bounds(('xmin', 'xmax'), scatter_x, xscale, pad=True)},
+            **{**axis_bounds(('ymin', 'ymax'), scatter_y, yscale, pad=True)},
+        )

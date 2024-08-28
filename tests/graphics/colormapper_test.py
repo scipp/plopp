@@ -2,12 +2,16 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from dataclasses import dataclass
+from functools import partial
+from typing import Callable
 
 import numpy as np
+import pytest
 import scipp as sc
 from matplotlib.colors import LogNorm, Normalize
 
-from plopp.data.testing import data_array
+from plopp import Node, imagefigure, scatter3dfigure
+from plopp.data.testing import data_array, scatter
 from plopp.graphics.colormapper import ColorMapper
 
 
@@ -287,3 +291,47 @@ def test_autoscale_auto_vmax_set():
     mapper.update(data=da + sc.scalar(5.0, unit='K'))
     assert mapper.vmax == 0.5
     assert mapper.vmin < mapper.vmax
+
+
+@dataclass
+class FigureAndData:
+    figure: Callable
+    data: Callable
+
+
+PLOTCASES = [
+    FigureAndData(partial(imagefigure, cbar=True), partial(data_array, ndim=2)),
+    FigureAndData(partial(scatter3dfigure, x='x', y='y', z='z', cbar=True), scatter),
+]
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+@pytest.mark.parametrize('case', PLOTCASES)
+def test_toolbar_log_norm_button_state_agrees_with_kwarg(case):
+    da = case.data()
+    fig = case.figure(Node(da))
+    assert not fig.toolbar['lognorm'].value
+    assert fig.view.colormapper.norm == 'linear'
+    fig = case.figure(Node(da), norm='log')
+    assert fig.toolbar['lognorm'].value
+    assert fig.view.colormapper.norm == 'log'
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+@pytest.mark.parametrize('case', PLOTCASES)
+def test_toolbar_log_norm_button_toggles_colormapper_norm(case):
+    da = case.data()
+    fig = case.figure(Node(da))
+    assert fig.view.colormapper.norm == 'linear'
+    fig.toolbar['lognorm'].value = True
+    assert fig.view.colormapper.norm == 'log'
+
+
+@pytest.mark.parametrize('case', PLOTCASES)
+def test_colorbar_label_has_no_name_with_multiple_artists(case):
+    a = case.data(unit='K')
+    b = 3.3 * a
+    a.name = 'A data'
+    b.name = 'B data'
+    fig = case.figure(Node(a), Node(b))
+    assert fig.view.colormapper.cax.get_ylabel() == '[K]'

@@ -2,11 +2,14 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from typing import Literal
 
 import numpy as np
 import scipp as sc
 
 from ...core.utils import coord_as_bin_edges, merge_masks, repeat, scalar_to_string
+from ...graphics.bbox import BoundingBox, axis_bounds
+from ..common import check_ndim
 from .canvas import Canvas
 
 
@@ -79,6 +82,7 @@ class Image:
         rasterized: bool = True,
         **kwargs,
     ):
+        check_ndim(data, ndim=2, origin='Image')
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
@@ -87,6 +91,8 @@ class Image:
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
         kwargs.pop('cax', None)
+        # An artist number is passed to the artist, but is unused for the image.
+        kwargs.pop('artist_number', None)
         # If the grid is visible on the axes, we need to set that on again after we
         # call pcolormesh, because that turns the grid off automatically.
         # See https://github.com/matplotlib/matplotlib/issues/15600.
@@ -178,6 +184,7 @@ class Image:
         new_values:
             New data to update the mesh values from.
         """
+        check_ndim(new_values, ndim=2, origin='Image')
         self._data = new_values
         self._data_with_bin_edges.data = new_values.data
 
@@ -203,3 +210,16 @@ class Image:
             return prefix + scalar_to_string(val)
         except IndexError:
             return None
+
+    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+        """
+        The bounding box of the image.
+        """
+        ydim, xdim = self._data.dims
+        image_x = self._data.coords[xdim]
+        image_y = self._data.coords[ydim]
+
+        return BoundingBox(
+            **{**axis_bounds(('xmin', 'xmax'), image_x, xscale)},
+            **{**axis_bounds(('ymin', 'ymax'), image_y, yscale)},
+        )

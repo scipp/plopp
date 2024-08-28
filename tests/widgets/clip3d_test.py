@@ -11,7 +11,7 @@ from plopp.widgets import ClippingPlanes
 
 def test_add_remove_cuts():
     da = scatter()
-    fig = scatter3dfigure(Node(da), x='x', y='y', z='z')
+    fig = scatter3dfigure(Node(da), x='x', y='y', z='z', cbar=True)
     clip = ClippingPlanes(fig)
     assert len(fig.artists) == 1
     clip.add_x_cut.click()
@@ -41,7 +41,7 @@ def test_add_remove_cuts():
 
 def test_move_cut():
     da = scatter()
-    fig = scatter3dfigure(Node(da), x='x', y='y', z='z')
+    fig = scatter3dfigure(Node(da), x='x', y='y', z='z', cbar=True)
     clip = ClippingPlanes(fig)
     clip.add_x_cut.click()
     xcut = clip.cuts[-1]
@@ -60,7 +60,7 @@ def test_move_cut():
 def test_operation_or():
     dim = 'pix'
     da = data_array(ndim=3).flatten(to=dim)
-    fig = scatter3dfigure(Node(da), x='xx', y='yy', z='zz')
+    fig = scatter3dfigure(Node(da), x='xx', y='yy', z='zz', cbar=True)
     clip = ClippingPlanes(fig)
     clip.cut_operation.value = 'OR'
 
@@ -98,7 +98,7 @@ def test_operation_or():
 def test_operation_and():
     dim = 'pix'
     da = data_array(ndim=3).flatten(to=dim)
-    fig = scatter3dfigure(Node(da), x='xx', y='yy', z='zz')
+    fig = scatter3dfigure(Node(da), x='xx', y='yy', z='zz', cbar=True)
     clip = ClippingPlanes(fig)
     clip.cut_operation.value = 'AND'
 
@@ -133,7 +133,7 @@ def test_operation_and():
 def test_operation_xor():
     dim = 'pix'
     da = data_array(ndim=3).flatten(to=dim)
-    fig = scatter3dfigure(Node(da), x='xx', y='yy', z='zz')
+    fig = scatter3dfigure(Node(da), x='xx', y='yy', z='zz', cbar=True)
     clip = ClippingPlanes(fig)
     clip.cut_operation.value = 'XOR'
 

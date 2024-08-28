@@ -5,11 +5,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pytest
 
+import plopp as pp
+
 
 @pytest.fixture(autouse=True)
 def _reset_mpl_defaults():
     matplotlib.rcdefaults()
     matplotlib.use('Agg')
+    pp.backends.reset()
 
 
 @pytest.fixture(autouse=True)

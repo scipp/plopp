@@ -124,19 +124,41 @@ def test_line_datetime_binedges_with_errorbars():
 
 def test_line_color():
     da = data_array(ndim=1)
-    line = Line(canvas=Canvas(), data=da)
-    assert line.color == 'C0'
-    assert line._line.get_color() == 'C0'
-    line.color = 'C1'
-    assert line.color == 'C1'
-    assert line._line.get_color() == 'C1'
+    line = Line(canvas=Canvas(), data=da, color='red')
+    assert line.color == 'red'
+    assert line._line.get_color() == 'red'
+    line.color = 'blue'
+    assert line.color == 'blue'
+    assert line._line.get_color() == 'blue'
+
+
+def test_kwarg_linestyle():
+    da = data_array(ndim=1)
+    line = Line(canvas=Canvas(), data=da, linestyle='solid')
+    assert line._line.get_linestyle() == '-'
+    line = Line(canvas=Canvas(), data=da, ls='dashed')
+    assert line._line.get_linestyle() == '--'
+
+
+def test_kwarg_linewidth():
+    da = data_array(ndim=1)
+    line = Line(canvas=Canvas(), data=da, linewidth=3)
+    assert line._line.get_linewidth() == 3
+    line = Line(canvas=Canvas(), data=da, lw=5)
+    assert line._line.get_linewidth() == 5
+
+
+def test_kwarg_marker():
+    da = data_array(ndim=1)
+    line = Line(canvas=Canvas(), data=da, marker='+')
+    assert line._line.get_marker() == '+'
 
 
 def test_line_color_with_errorbars():
     from matplotlib.colors import to_hex
 
     da = data_array(ndim=1, variances=True)
-    line = Line(canvas=Canvas(), data=da)
+    line = Line(canvas=Canvas(), data=da, color='C0')
     assert line.color == 'C0'
     assert line._line.get_color() == 'C0'
     assert to_hex(line._error.get_children()[0].get_color()) == to_hex('C0')

@@ -156,7 +156,7 @@ def dataset(entries: list[str] | None = None, **kwargs) -> sc.Dataset:
     )
 
 
-def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
+def scatter(npoints=500, scale=10.0, seed=1, unit='K') -> sc.DataArray:
     """
     Generate some three-dimensional scatter data, based on a normal distribution.
 
@@ -168,13 +168,15 @@ def scatter(npoints=500, scale=10.0, seed=1) -> sc.DataArray:
         Standard deviation (spread or 'width') of the distribution.
     seed:
         The seed for the random number generator.
+    unit:
+        The unit of the output data array.
     """
     rng = np.random.default_rng(seed)
     position = scale * rng.standard_normal(size=[npoints, 3])
     values = np.linalg.norm(position, axis=1)
     vec = sc.vectors(dims=['row'], unit='m', values=position)
     return sc.DataArray(
-        data=sc.array(dims=['row'], values=values, unit='K'),
+        data=sc.array(dims=['row'], values=values, unit=unit),
         coords={
             'position': vec,
             'x': vec.fields.x,

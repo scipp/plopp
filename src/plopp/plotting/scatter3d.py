@@ -48,6 +48,7 @@ def scatter3d(
     title: str | None = None,
     vmin: sc.Variable | float = None,
     vmax: sc.Variable | float = None,
+    cbar: bool = False,
     cmap: str = 'viridis',
     camera: Camera | None = None,
     **kwargs,
@@ -120,6 +121,7 @@ def scatter3d(
         vmin=vmin,
         vmax=vmax,
         cmap=cmap,
+        cbar=cbar,
         camera=camera,
         **kwargs,
     )

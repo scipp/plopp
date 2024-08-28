@@ -9,8 +9,8 @@ import numpy as np
 from matplotlib import gridspec
 
 from ...core.typing import FigureLike
-from .static import get_repr_maker
-from .utils import copy_figure, is_interactive_backend, make_figure
+from .figure import get_repr_maker
+from .utils import is_interactive_backend, make_figure
 
 
 class Tiled:
@@ -83,22 +83,22 @@ class Tiled:
 
         self.gs = gridspec.GridSpec(nrows, ncols, figure=self.fig, **kwargs)
         self.axes = []
-        self.views = np.full((nrows, ncols), None)
+        self.figures = np.full((nrows, ncols), None)
         self._history = []
 
     def __setitem__(
         self,
         inds: int | slice | tuple[int, int] | tuple[slice, slice],
-        view: FigureLike,
+        fig: FigureLike,
     ) -> None:
-        new_view = copy_figure(view, ax=self.fig.add_subplot(self.gs[inds]))
-        self.views[inds] = new_view
-        self._history.append((inds, new_view))
+        new_fig = fig.copy(ax=self.fig.add_subplot(self.gs[inds]))
+        self.figures[inds] = new_fig
+        self._history.append((inds, new_fig))
 
     def __getitem__(
         self, inds: int | slice | tuple[int, int] | tuple[slice, slice]
     ) -> FigureLike:
-        return self.views[inds]
+        return self.figures[inds]
 
     def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
         """

@@ -51,10 +51,16 @@ def test_plot_2d_coord_with_mask():
     pp.plot(da)
 
 
+def test_kwarg_norm():
+    da = data_array(ndim=2)
+    p = pp.plot(da, norm='log')
+    assert p.view.colormapper.norm == 'log'
+
+
 def test_kwarg_cmap():
     da = data_array(ndim=2)
     p = pp.plot(da, cmap='magma')
-    assert p._view.colormapper.cmap.name == 'magma'
+    assert p.view.colormapper.cmap.name == 'magma'
 
 
 def test_kwarg_scale_2d():
@@ -130,7 +136,7 @@ def test_plot_2d_ignores_masked_data_for_colorbar_range():
     da['xx', 10]['yy', 10].values = 100
     da.masks['m'] = da.data > sc.scalar(5.0, unit='m/s')
     p = pp.plot(da)
-    assert p._view.colormapper.vmax < 100
+    assert p.view.colormapper.vmax < 100
 
 
 def test_plot_2d_includes_masked_data_in_horizontal_range():
@@ -177,3 +183,90 @@ def test_plot_2d_datetime_coord_binedges():
         coords={'time': time, 'z': z},
     )
     pp.plot(da)
+
+
+def test_create_with_bin_edges():
+    da = data_array(ndim=2, binedges=True)
+    fig = da.plot()
+    assert len(fig.artists) == 1
+    [img] = fig.artists.values()
+    assert sc.identical(img._data, da)
+
+
+def test_create_with_only_one_bin_edge_coord():
+    da = data_array(ndim=2, binedges=True)
+    da.coords['xx'] = sc.midpoints(da.coords['xx'])
+    fig = da.plot()
+    assert len(fig.artists) == 1
+    [img] = fig.artists.values()
+    assert sc.identical(img._data, da)
+
+
+def test_colorbar_label_has_correct_unit():
+    da = data_array(ndim=2, unit='K')
+    fig = da.plot()
+    assert fig.canvas.cblabel == '[K]'
+
+
+def test_colorbar_label_has_correct_name():
+    da = data_array(ndim=2, unit='K')
+    name = 'My Experimental Data'
+    da.name = name
+    fig = da.plot()
+    assert fig.canvas.cblabel == name + ' [K]'
+
+
+def test_axis_label_with_transposed_2d_coord():
+    a = sc.linspace('a', 0, 1, 10, unit='m')
+    b = sc.linspace('b', 0, 2, 5, unit='s')
+    da = sc.DataArray(a * b, coords={'a': a, 'b': b * a})
+    fig = da.plot()
+    assert fig.canvas.xlabel == 'b [m*s]'
+    da = sc.DataArray(a * b, coords={'a': a, 'b': a * b})
+    fig2 = da.plot()
+    assert fig2.canvas.xlabel == fig.canvas.xlabel
+
+
+def test_plot_1d_data_over_2d_data():
+    f = data_array(ndim=2).plot()
+    data_array(ndim=1).plot(ax=f.ax)
+
+
+def test_plot_1d_data_over_2d_data_datetime():
+    # 2d data
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    z = sc.arange('z', 50.0, unit='m')
+    v = 10 * np.random.random(z.shape + time.shape)
+    da2d = sc.DataArray(
+        data=sc.array(dims=['z', 'time'], values=v), coords={'time': time, 'z': z}
+    )
+    fig2d = pp.plot(da2d)
+
+    # 1d data
+    v = np.random.rand(time.sizes['time'])
+    da1d = sc.DataArray(data=sc.array(dims=['time'], values=v), coords={'time': time})
+    pp.plot(da1d, ax=fig2d.ax)
+
+
+def test_no_cbar():
+    da = data_array(ndim=2)
+    fig = da.plot(cbar=True)
+    assert fig.view.colormapper.colorbar is not None
+    fig = da.plot(cbar=False)
+    assert fig.view.colormapper.colorbar is None
+
+
+def test_2d_plot_does_not_accept_data_with_other_dimensionality_on_update():
+    da = data_array(ndim=2)
+    fig = da.plot()
+    # The data has no 'y' coordinate
+    with pytest.raises(KeyError, match='Supplied data is incompatible with this view'):
+        fig.update(new=data_array(ndim=1))
+    # The data has 3 dimensions
+    with pytest.raises(
+        sc.DimensionError, match='Image only accepts data with 2 dimension'
+    ):
+        fig.update(new=data_array(ndim=3))

@@ -52,4 +52,4 @@ def tiled(nrows: int, ncols: int, **kwargs):
       >>> tiled[0, 2] = da2.plot()
 
     """
-    return backends.tiled(nrows=nrows, ncols=ncols, **kwargs)
+    return backends.get(group='2d', name='tiled')(nrows=nrows, ncols=ncols, **kwargs)

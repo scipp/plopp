@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
+import pytest
 import scipp as sc
 
 import plopp as pp
@@ -38,13 +39,13 @@ def test_scatter_two_inputs_color():
 
 def test_scatter_with_colorbar():
     scat = pp.scatter(scatter_data(), cbar=True)
-    assert scat._view.colormapper is not None
+    assert scat.view.colormapper is not None
 
 
 def test_scatter_with_cmap():
     name = 'magma'
     scat = pp.scatter(scatter_data(), cbar=True, cmap=name)
-    assert scat._view.colormapper.cmap.name == name
+    assert scat.view.colormapper.cmap.name == name
 
 
 def test_scatter_with_size():
@@ -72,16 +73,29 @@ def test_scatter_flattens_2d_data():
 def test_scatter_with_norm():
     a = scatter_data()
     scat = pp.scatter(a, cbar=True, norm='linear')
-    assert scat._view.colormapper.norm == 'linear'
+    assert scat.view.colormapper.norm == 'linear'
     scat = pp.scatter(a, cbar=True, norm='log')
-    assert scat._view.colormapper.norm == 'log'
+    assert scat.view.colormapper.norm == 'log'
 
 
 def test_scatter_log_axes():
     a = scatter_data()
     scat = pp.scatter(a)
-    assert scat._view.canvas.xscale == 'linear'
-    assert scat._view.canvas.yscale == 'linear'
+    assert scat.view.canvas.xscale == 'linear'
+    assert scat.view.canvas.yscale == 'linear'
     scat = pp.scatter(a, scale={'x': 'log', 'y': 'log'})
-    assert scat._view.canvas.xscale == 'log'
-    assert scat._view.canvas.yscale == 'log'
+    assert scat.view.canvas.xscale == 'log'
+    assert scat.view.canvas.yscale == 'log'
+
+
+def test_scatter_does_not_accept_data_with_other_dimensionality_on_update():
+    da = scatter_data()
+    fig = pp.scatter(da)
+    with pytest.raises(
+        sc.DimensionError, match='Scatter only accepts data with 1 dimension'
+    ):
+        fig.update(new=data_array(ndim=2, dim_list="xyzab"))
+    with pytest.raises(
+        sc.DimensionError, match='Scatter only accepts data with 1 dimension'
+    ):
+        fig.update(new=data_array(ndim=3, dim_list="xyzab"))

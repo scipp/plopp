@@ -7,8 +7,6 @@ from typing import Literal
 import matplotlib as mpl
 from matplotlib.pyplot import Figure, _get_backend_mod
 
-from ...core.typing import FigureLike
-
 
 def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
     """
@@ -58,28 +56,11 @@ def make_figure(*args, **kwargs) -> Figure:
     return manager.canvas.figure
 
 
-def make_legend(leg: bool | tuple[float, float]):
+def make_legend(leg: bool | tuple[float, float] | str) -> dict:
     """
     Create a dict of arguments to be used in the legend creation.
     """
-    leg_args = {}
-    if isinstance(leg, list | tuple):
-        leg_args = {'loc': leg}
-    elif not isinstance(leg, bool):
-        raise TypeError(f"Legend must be a bool, tuple, or a list, not {type(leg)}")
-    return leg_args
-
-
-def require_interactive_backend(func: str):
-    """
-    Raise an error if the current backend in use is non-interactive.
-    """
-    if not is_interactive_backend():
-        raise RuntimeError(
-            f"The {func} can only be used with the interactive widget "
-            "backend. Use `%matplotlib widget` at the start of your "
-            "notebook."
-        )
+    return {'loc': leg} if not isinstance(leg, bool) else {}
 
 
 def _running_in_jupyter() -> bool:
@@ -113,17 +94,6 @@ def is_sphinx_build() -> bool:
     if hasattr(meta, "to_dict"):
         meta = meta.to_dict()
     return meta.get("scipp_sphinx_build", False)
-
-
-def copy_figure(fig: FigureLike, **kwargs) -> FigureLike:
-    out = fig.__class__(
-        fig._view.__class__,
-        *fig._args,
-        **{**fig._kwargs, **kwargs},
-    )
-    for prop in ('xrange', 'yrange', 'xscale', 'yscale', 'title', 'grid'):
-        setattr(out.canvas, prop, getattr(fig.canvas, prop))
-    return out
 
 
 def parse_dicts_in_kwargs(kwargs, name):

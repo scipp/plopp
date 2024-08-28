@@ -1,0 +1,122 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+
+import matplotlib.pyplot as plt
+import numpy as np
+import scipp as sc
+
+import plopp as pp
+from plopp.data.testing import data_array
+
+pp.backends['2d'] = 'matplotlib'
+
+
+def test_figsize():
+    da = data_array(ndim=1)
+    size = (8.1, 8.3)
+    fig = da.plot(figsize=size)
+    assert np.allclose(fig.canvas.fig.get_size_inches(), size)
+
+
+def test_grid():
+    da = data_array(ndim=1)
+    fig = da.plot(grid=True)
+    assert fig.canvas.ax.xaxis.get_gridlines()[0].get_visible()
+
+
+def test_ax():
+    _, ax = plt.subplots()
+    assert len(ax.collections) == 0
+    da = data_array(ndim=2)
+    _ = da.plot(ax=ax)
+    assert len(ax.collections) == 1
+
+
+def test_cax():
+    fig, ax = plt.subplots()
+    cax = fig.add_axes([0.9, 0.02, 0.05, 0.98])
+    assert len(ax.collections) == 0
+    da = data_array(ndim=2)
+    fig = da.plot(ax=ax, cax=cax)
+    assert len(ax.collections) > 0
+    assert fig.canvas.cax is cax
+
+
+def test_hide_legend():
+    da1 = data_array(ndim=1)
+    da2 = da1 * 3.3
+    p = pp.plot({'a': da1, 'b': da2}, legend=False)
+    leg = p.ax.get_legend()
+    assert leg is None
+
+
+def test_legend_location():
+    da1 = data_array(ndim=1)
+    da2 = da1 * 3.3
+    data = {'a': da1, 'b': da2}
+    leg1 = pp.plot(data, legend=(0.5, 0.5)).ax.get_legend().get_window_extent().bounds
+    leg2 = pp.plot(data, legend=(0.9, 0.5)).ax.get_legend().get_window_extent().bounds
+    leg3 = pp.plot(data, legend=(0.5, 0.9)).ax.get_legend().get_window_extent().bounds
+    assert leg2[0] > leg1[0]
+    assert leg2[1] == leg1[1]
+    assert leg3[1] > leg1[1]
+    assert leg3[0] == leg1[0]
+
+
+def test_with_string_coord_1d():
+    strings = ['a', 'b', 'c', 'd', 'e']
+    da = sc.DataArray(
+        data=sc.arange('x', 5.0),
+        coords={'x': sc.array(dims=['x'], values=strings, unit='m')},
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_strings_as_bin_edges_1d():
+    strings = ['a', 'b', 'c', 'd', 'e', 'f']
+    da = sc.DataArray(
+        data=sc.arange('x', 5.0),
+        coords={'x': sc.array(dims=['x'], values=strings, unit='m')},
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_string_coord_2d():
+    strings = ['a', 'b', 'c', 'd', 'e']
+    da = sc.DataArray(
+        data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
+        coords={
+            'x': sc.array(dims=['x'], values=strings, unit='s'),
+            'y': sc.arange('y', 5.0, unit='m'),
+        },
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_strings_as_bin_edges_2d():
+    strings = ['a', 'b', 'c', 'd', 'e', 'f']
+    da = sc.DataArray(
+        data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
+        coords={
+            'x': sc.array(dims=['x'], values=strings, unit='s'),
+            'y': sc.arange('y', 6.0, unit='m'),
+        },
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_with_strings_as_bin_edges_other_coord_is_bin_centers_2d():
+    strings = ['a', 'b', 'c', 'd', 'e', 'f']
+    da = sc.DataArray(
+        data=sc.array(dims=['y', 'x'], values=np.random.random((5, 5))),
+        coords={
+            'x': sc.array(dims=['x'], values=strings, unit='s'),
+            'y': sc.arange('y', 5.0, unit='m'),
+        },
+    )
+    fig = da.plot()
+    assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings

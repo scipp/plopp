@@ -2,27 +2,21 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from .basefig import BaseFig
+from .bbox import BoundingBox
 from .camera import Camera
 from .colormapper import ColorMapper
-from .figure import figure1d, figure2d, figure3d
-from .imageview import ImageView, imagefigure
-from .lineview import LineView, linefigure
-from .scatter3dview import Scatter3dView, scatter3dfigure
-from .scatterview import ScatterView, scatterfigure
+from .figures import linefigure, imagefigure, scatterfigure, scatter3dfigure
+from .graphicalview import GraphicalView
 from .tiled import tiled
+
 
 __all__ = [
     'BaseFig',
+    'BoundingBox',
     'Camera',
     'ColorMapper',
-    'ImageView',
-    'Scatter3dView',
-    'ScatterView',
-    'figure1d',
-    'figure2d',
-    'figure3d',
+    'GraphicalView',
     'imagefigure',
-    'LineView',
     'linefigure',
     'scatter3dfigure',
     'scatterfigure',
