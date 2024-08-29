@@ -58,48 +58,91 @@ def test_autoscale():
     mapper['data'] = artist
 
     mapper.update(data=da)
+    mapper.autoscale()
     assert mapper.vmin == da.min().value
     assert mapper.vmax == da.max().value
 
+    # Limits grow
     const = 2.3
     artist.update(da * const)
     mapper.update(data=da * const)
+    mapper.autoscale()
     assert mapper.vmin == (da.min() * const).value
     assert mapper.vmax == (da.max() * const).value
 
-
-def test_auto_rescale_limits_can_shrink():
-    da = data_array(ndim=2, unit='K')
-    mapper = ColorMapper(autoscale='auto')
-    artist = DummyChild(da)
-    mapper['data'] = artist
-
-    mapper.update(data=da)
-    assert mapper.vmin == da.min().value
-    assert mapper.vmax == da.max().value
-
+    # Limits shrink
     const = 0.5
     artist.update(da * const)
     mapper.update(data=da * const)
+    mapper.autoscale()
     assert mapper.vmin == da.min().value * const
     assert mapper.vmax == da.max().value * const
 
 
-def test_grow_rescale_limits_do_not_shrink():
+def test_update_without_autoscale_does_not_change_limits():
     da = data_array(ndim=2, unit='K')
-    mapper = ColorMapper(autoscale='grow')
+    mapper = ColorMapper()
     artist = DummyChild(da)
     mapper['data'] = artist
 
     mapper.update(data=da)
+    mapper.autoscale()
     assert mapper.vmin == da.min().value
     assert mapper.vmax == da.max().value
 
+    backup = mapper.vmin, mapper.vmax
+
+    # Limits grow
+    const = 2.3
+    artist.update(da * const)
+    mapper.update(data=da * const)
+    assert mapper.vmin != (da.min() * const).value
+    assert mapper.vmin == backup[0]
+    assert mapper.vmax != (da.max() * const).value
+    assert mapper.vmax == backup[1]
+
+    # Limits shrink
     const = 0.5
     artist.update(da * const)
     mapper.update(data=da * const)
-    assert mapper.vmin == da.min().value
-    assert mapper.vmax == da.max().value
+    assert mapper.vmin != da.min().value * const
+    assert mapper.vmin == backup[0]
+    assert mapper.vmax != da.max().value * const
+    assert mapper.vmax == backup[1]
+
+
+# def test_auto_rescale_limits_can_shrink():
+#     da = data_array(ndim=2, unit='K')
+#     mapper = ColorMapper(autoscale='auto')
+#     artist = DummyChild(da)
+#     mapper['data'] = artist
+
+#     mapper.update(data=da)
+#     assert mapper.vmin == da.min().value
+#     assert mapper.vmax == da.max().value
+
+#     const = 0.5
+#     artist.update(da * const)
+#     mapper.update(data=da * const)
+#     assert mapper.vmin == da.min().value * const
+#     assert mapper.vmax == da.max().value * const
+
+
+# def test_grow_rescale_limits_do_not_shrink():
+#     da = data_array(ndim=2, unit='K')
+#     mapper = ColorMapper(autoscale='grow')
+#     artist = DummyChild(da)
+#     mapper['data'] = artist
+
+#     mapper.update(data=da)
+#     assert mapper.vmin == da.min().value
+#     assert mapper.vmax == da.max().value
+
+#     const = 0.5
+#     artist.update(da * const)
+#     mapper.update(data=da * const)
+#     assert mapper.vmin == da.min().value
+#     assert mapper.vmax == da.max().value
 
 
 def test_correct_normalizer_limits():
@@ -108,6 +151,7 @@ def test_correct_normalizer_limits():
     artist = DummyChild(da)
     mapper['data'] = artist
     mapper.update(data=da)
+    mapper.autoscale()
     assert mapper.vmin == da.min().value
     assert mapper.vmax == da.max().value
     # The normalizer initially has limits [0, 1].
@@ -126,6 +170,7 @@ def test_vmin_vmax():
     artist = DummyChild(da)
     mapper['data'] = artist
     mapper.update(data=da)
+    mapper.autoscale()
     assert mapper.user_vmin == vmin.value
     assert mapper.user_vmax == vmax.value
     assert mapper.vmin == vmin.value
@@ -140,6 +185,7 @@ def test_vmin_vmax_no_variable():
     artist = DummyChild(da)
     mapper['data'] = artist
     mapper.update(data=da)
+    mapper.autoscale()
     assert mapper.user_vmin == vmin
     assert mapper.user_vmax == vmax
     assert mapper.vmin == vmin
@@ -151,6 +197,7 @@ def test_toggle_norm():
     da = data_array(ndim=2, unit='K')
     mapper['child1'] = DummyChild(da)
     mapper.update(child1=da)
+    mapper.autoscale()
     assert mapper.norm == 'linear'
     assert isinstance(mapper.normalizer, Normalize)
     assert mapper.vmin == da.min().value
@@ -170,12 +217,14 @@ def test_update_changes_limits():
     mapper['data'] = artist
 
     mapper.update(data=da)
+    mapper.autoscale()
     assert mapper.normalizer.vmin == da.min().value
     assert mapper.normalizer.vmax == da.max().value
 
     const = 2.3
     artist.update(da * const)
     mapper.update(data=da * const)
+    mapper.autoscale()
     assert mapper.normalizer.vmin == (da.min() * const).value
     assert mapper.normalizer.vmax == (da.max() * const).value
 
@@ -202,6 +251,7 @@ def test_colorbar_updated_on_rescale():
     mapper[key] = artist
 
     mapper.update(data=da)
+    mapper.autoscale()
     _ = mapper.to_widget()
     old_image = mapper.widget.value
     old_image_array = old_image
@@ -209,43 +259,53 @@ def test_colorbar_updated_on_rescale():
     # Update with the same values should not make a new colorbar image
     artist.update(da)
     mapper.update(data=da)
-    assert old_image is mapper.widget.value
+    mapper.autoscale()
+    assert old_image == mapper.widget.value
 
-    # Update with new values should make a new colorbar image
+    # Update with a smaller range should make a new colorbar image
+    const = 0.8
+    artist.update(da * const)
+    mapper.update(data=da * const)
+    mapper.autoscale()
+    assert old_image != mapper.widget.value
+
+    # Update with larger range should make a new colorbar image
     const = 2.3
     artist.update(da * const)
     mapper.update(data=da * const)
+    mapper.autoscale()
     assert old_image_array != mapper.widget.value
 
 
-def test_colorbar_does_not_update_on_rescale_if_limits_can_only_grow():
+def test_colorbar_does_not_update_if_no_autoscale():
     da = data_array(ndim=2, unit='K')
-    mapper = ColorMapper(autoscale='grow')
+    mapper = ColorMapper()
     artist = DummyChild(da)
     key = 'data'
     mapper[key] = artist
 
     mapper.update(data=da)
+    mapper.autoscale()
     _ = mapper.to_widget()
     old_image = mapper.widget.value
     old_image_array = old_image
 
-    # Update with the same values should not make a new colorbar image
+    # Update with the same values
     artist.update(da)
     mapper.update(data=da)
     assert old_image is mapper.widget.value
 
-    # Update with a smaller range should not make a new colorbar image
+    # Update with a smaller range
     const = 0.8
     artist.update(da * const)
     mapper.update(data=da * const)
     assert old_image is mapper.widget.value
 
-    # Update with new values should make a new colorbar image
+    # Update with larger range
     const = 2.3
     artist.update(da * const)
     mapper.update(data=da * const)
-    assert old_image_array != mapper.widget.value
+    assert old_image_array is mapper.widget.value
 
 
 def test_colorbar_is_not_created_if_cbar_false():

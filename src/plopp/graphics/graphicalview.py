@@ -205,6 +205,8 @@ class GraphicalView(View):
         """
         # Autoscale the colormapper first to make use of the single draw call made by
         # ``self.autoscale()``
+        if not self.artists:
+            return
         if self.colormapper is not None:
             self.colormapper.autoscale()
         self.autoscale()

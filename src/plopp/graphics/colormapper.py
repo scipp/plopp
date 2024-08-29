@@ -169,8 +169,7 @@ class ColorMapper:
     def autoscale(self):
         """
         Re-compute the global min and max range of values by iterating over all the
-        artists. If autoscale is set to ``'auto'``, the limits adjust to he current
-        range. If it is set to ``'grow'``, limits can grow but not shrink.
+        artists and adjust the limits.
         """
         limits = [
             fix_empty_range(find_limits(artist._data, scale=self.norm))
