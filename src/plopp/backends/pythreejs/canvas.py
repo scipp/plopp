@@ -47,7 +47,6 @@ class Canvas:
         self.xscale = 'linear'
         self.yscale = 'linear'
         self.zscale = 'linear'
-        self.bbox = BoundingBox()
         self.outline = None
         self.axticks = None
         self.figsize = np.asarray(figsize if figsize is not None else (600, 400))
@@ -58,7 +57,7 @@ class Canvas:
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
-        self._limits = BoundingBox()
+        self.bbox = BoundingBox()
         self._cached_limits = None
         self.scene = p3.Scene(
             children=[self.camera, self.axes_3d], background="#f0f0f0"
@@ -299,22 +298,22 @@ class Canvas:
         """
         Get or set the minimum x-axis value.
         """
-        return self._limits.xmin
+        return self.bbox.xmin
 
     @xmin.setter
     def xmin(self, value: float):
-        self._limits.xmin = value
+        self.bbox.xmin = value
 
     @property
     def xmax(self) -> float:
         """
         Get or set the maximum x-axis value.
         """
-        return self._limits.xmax
+        return self.bbox.xmax
 
     @xmax.setter
     def xmax(self, value: float):
-        self._limits.xmax = value
+        self.bbox.xmax = value
 
     @property
     def xrange(self) -> tuple[float, float]:
@@ -332,22 +331,22 @@ class Canvas:
         """
         Get or set the minimum y-axis value.
         """
-        return self._limits.ymin
+        return self.bbox.ymin
 
     @ymin.setter
     def ymin(self, value: float):
-        self._limits.ymin = value
+        self.bbox.ymin = value
 
     @property
     def ymax(self) -> float:
         """
         Get or set the maximum y-axis value.
         """
-        return self._limits.ymax
+        return self.bbox.ymax
 
     @ymax.setter
     def ymax(self, value: float):
-        self._limits.ymax = value
+        self.bbox.ymax = value
 
     @property
     def yrange(self) -> tuple[float, float]:
@@ -365,22 +364,22 @@ class Canvas:
         """
         Get or set the minimum z-axis value.
         """
-        return self._limits.zmin
+        return self.bbox.zmin
 
     @zmin.setter
     def zmin(self, value: float):
-        self._limits.zmin = value
+        self.bbox.zmin = value
 
     @property
     def zmax(self) -> float:
         """
         Get or set the maximum z-axis value.
         """
-        return self._limits.zmax
+        return self.bbox.zmax
 
     @zmax.setter
     def zmax(self, value: float):
-        self._limits.zmax = value
+        self.bbox.zmax = value
 
     @property
     def zrange(self) -> tuple[float, float]:

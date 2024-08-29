@@ -123,6 +123,7 @@ class Slicer:
         self.figure = make_figure(*self.slice_nodes, vmin=vmin, vmax=vmax, **kwargs)
 
         if autoscale:
+            self.figure.view.draw_on_update = False
             self.slider._plopp_observe_(
                 lambda _: self.figure.view.home(), names='value'
             )

@@ -144,6 +144,13 @@ class ColorMapper:
         self._update_colorbar_widget()
         return self.widget
 
+    def _update_colorbar_widget(self):
+        """
+        Upon an updated colorscale range, we need to update the image inside the widget.
+        """
+        if self.widget is not None:
+            self.widget.value = fig_to_bytes(self.cax.get_figure(), form='svg').decode()
+
     def rgba(self, data: sc.DataArray) -> np.ndarray:
         """
         Return rgba values given a data array.
@@ -198,12 +205,9 @@ class ColorMapper:
             self.normalizer.vmin = self.vmin
             self.normalizer.vmax = self.vmax
 
-        # Set the artists colors
         self._set_artists_colors()
-
-        # Update the colorbar widget
-        if self.widget is not None:
-            self.widget.value = fig_to_bytes(self.cax.get_figure(), form='svg').decode()
+        if self.colorbar is not None:
+            self._update_colorbar_widget()
 
     def _set_artists_colors(self):
         """

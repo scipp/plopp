@@ -63,6 +63,8 @@ class GraphicalView(View):
         self._artist_maker = artist_maker
         self._kwargs = kwargs
         self._repr_format = format
+        self.bbox = BoundingBox()
+        self.draw_on_update = True
 
         self.canvas = canvas_maker(
             cbar=cbar,
@@ -104,19 +106,20 @@ class GraphicalView(View):
             scales['zscale'] = self.canvas.zscale
         for artist in self.artists.values():
             bbox = bbox.union(artist.bbox(**scales))
-        bbox = bbox.override(self.canvas.bbox)
+        self.bbox = bbox
+        self.bbox = self.bbox.override(self.canvas.bbox)
         self.canvas.xrange = (
-            _none_if_not_finite(bbox.xmin),
-            _none_if_not_finite(bbox.xmax),
+            _none_if_not_finite(self.bbox.xmin),
+            _none_if_not_finite(self.bbox.xmax),
         )
         self.canvas.yrange = (
-            _none_if_not_finite(bbox.ymin),
-            _none_if_not_finite(bbox.ymax),
+            _none_if_not_finite(self.bbox.ymin),
+            _none_if_not_finite(self.bbox.ymax),
         )
         if hasattr(self.canvas, 'zrange'):
             self.canvas.zrange = (
-                _none_if_not_finite(bbox.zmin),
-                _none_if_not_finite(bbox.zmax),
+                _none_if_not_finite(self.bbox.zmin),
+                _none_if_not_finite(self.bbox.zmax),
             )
         self.canvas.draw()
 
@@ -192,7 +195,9 @@ class GraphicalView(View):
 
         if self.colormapper is not None:
             self.colormapper.update(**new)
-        self.canvas.draw()
+
+        if self.draw_on_update:
+            self.canvas.draw()
 
     def home(self) -> None:
         """
@@ -210,8 +215,10 @@ class GraphicalView(View):
         all parent nodes and draw the figure.
         In addition, we call the home method to autoscale the axes and colormapper.
         """
+        self.draw_on_update = False
         super().render()
         self.home()
+        self.draw_on_update = True
 
     def remove(self, key: str) -> None:
         """
