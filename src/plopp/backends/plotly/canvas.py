@@ -29,10 +29,6 @@ class Canvas:
         The maximum value for the vertical axis. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the current vertical axis
         unit.
-    autoscale:
-        The behavior of the axis limits. If ``auto``, the limits automatically
-        adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
     """
 
     def __init__(
@@ -41,7 +37,6 @@ class Canvas:
         title: str | None = None,
         user_vmin: sc.Variable | float = None,
         user_vmax: sc.Variable | float = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -80,7 +75,6 @@ class Canvas:
         self.units = {}
         self.dims = {}
         self._own_axes = False
-        self._autoscale = autoscale
         if title:
             self.title = title
         self.bbox = BoundingBox()

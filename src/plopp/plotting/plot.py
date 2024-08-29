@@ -27,7 +27,6 @@ def plot(
     title: str | None = None,
     vmin: Variable | float | None = None,
     vmax: Variable | float | None = None,
-    autoscale: Literal['auto', 'grow'] = 'auto',
     legend: bool | tuple[float, float] = True,
     **kwargs,
 ) -> FigureLike:
@@ -68,10 +67,6 @@ def plot(
     vmax:
         Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
         2d plots).
-    autoscale:
-        The behavior of the axis (1d plots) or the color range limits (2d plots).
-        If ``auto``, the limits automatically adjusts every time the data changes.
-        If ``grow``, the limits are allowed to grow with time but they do not shrink.
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
@@ -96,7 +91,6 @@ def plot(
         'title': title,
         'vmin': vmin,
         'vmax': vmax,
-        'autoscale': autoscale,
         'figsize': figsize,
         **kwargs,
     }

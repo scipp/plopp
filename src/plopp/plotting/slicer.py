@@ -1,10 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import warnings
-from functools import partial, reduce
+from functools import partial
 from itertools import groupby
-from typing import Literal
 
 from scipp.typing import VariableLike
 
@@ -42,17 +40,16 @@ class Slicer:
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
     autoscale:
-        The behavior of the y-axis (1d plots) and color range (2d plots) limits.
-        If ``auto``, the limits automatically adjusts every time the data changes.
-        If ``grow``, the limits are allowed to grow with time but they do not shrink.
-        If ``fixed``, the limits are fixed to the full data range and do not change
-        with time.
+        Automatically adjust range of the y-axis (1d plots) or color scale (2d plots)
+        every time the data changes if ``True``.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     vmin:
         The minimum value of the y-axis (1d plots) or color range (2d plots).
     vmax:
         The maximum value of the y-axis (1d plots) or color range (2d plots).
+    cbar:
+        Whether to display a colorbar for 2D plots.
     **kwargs:
         The additional arguments are forwarded to the underlying 1D or 2D figures.
     """
@@ -62,10 +59,11 @@ class Slicer:
         obj: PlottableMulti,
         *,
         keep: list[str] | None = None,
-        autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
+        autoscale: bool = True,
         coords: list[str] | None = None,
         vmin: VariableLike | float = None,
         vmax: VariableLike | float = None,
+        cbar: bool = True,
         **kwargs,
     ):
         nodes = input_to_nodes(
@@ -101,20 +99,6 @@ class Slicer:
                 f"were not found in the input's dimensions {dims}."
             )
 
-        if autoscale == 'fixed':
-            if None not in (vmin, vmax):
-                warnings.warn(
-                    'Slicer plot: autoscale is set to "fixed", but vmin and vmax '
-                    'are also specified. They will override the autoscale setting.',
-                    RuntimeWarning,
-                    stacklevel=2,
-                )
-            if vmin is None:
-                vmin = reduce(min, [node().data.min() for node in nodes])
-            if vmax is None:
-                vmax = reduce(max, [node().data.max() for node in nodes])
-            autoscale = 'auto'  # Change back to something the figure understands
-
         from ..widgets import SliceWidget, slice_dims
 
         self.slider = SliceWidget(
@@ -129,16 +113,24 @@ class Slicer:
         elif ndims == 2:
             if len(self.slice_nodes) > 1:
                 raise_multiple_inputs_for_2d_plot_error(origin='slicer')
-            make_figure = imagefigure
+            make_figure = partial(imagefigure, cbar=cbar)
         else:
             raise ValueError(
                 f'Slicer plot: the number of dims to be kept must be 1 or 2, '
                 f'but {ndims} were requested.'
             )
 
-        self.figure = make_figure(
-            *self.slice_nodes, autoscale=autoscale, vmin=vmin, vmax=vmax, **kwargs
-        )
+        self.figure = make_figure(*self.slice_nodes, vmin=vmin, vmax=vmax, **kwargs)
+
+        if autoscale:
+            self.slider._plopp_observe_(
+                lambda _: self.figure.view.home(), names='value'
+            )
+            if ndims == 2:
+                # Do not set colors on update, as this is done during the autoscale.
+                # This way, we avoid paying the cost of setting the colors twice.
+                self.figure.view.colormapper.set_colors_on_update = False
+
         require_interactive_figure(self.figure, 'slicer')
         self.figure.bottom_bar.add(self.slider)
 
@@ -147,10 +139,11 @@ def slicer(
     obj: PlottableMulti,
     *,
     keep: list[str] | None = None,
-    autoscale: Literal['auto', 'grow', 'fixed'] = 'auto',
+    autoscale: bool = True,
     coords: list[str] | None = None,
     vmin: VariableLike | float = None,
     vmax: VariableLike | float = None,
+    cbar: bool = True,
     **kwargs,
 ) -> FigureLike:
     """
@@ -167,17 +160,16 @@ def slicer(
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
     autoscale:
-        The behavior of the y-axis (1d plots) and color range (2d plots) limits.
-        If ``auto``, the limits automatically adjusts every time the data changes.
-        If ``grow``, the limits are allowed to grow with time but they do not shrink.
-        If ``fixed``, the limits are fixed to the full data range and do not change
-        with time.
+        Automatically adjust range of the y-axis (1d plots) or color scale (2d plots)
+        every time the data changes if ``True``.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     vmin:
         The minimum value of the y-axis (1d plots) or color range (2d plots).
     vmax:
         The maximum value of the y-axis (1d plots) or color range (2d plots).
+    cbar:
+        Whether to display a colorbar for 2D plots.
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
     """
@@ -188,5 +180,6 @@ def slicer(
         vmin=vmin,
         vmax=vmax,
         coords=coords,
+        cbar=cbar,
         **kwargs,
     ).figure

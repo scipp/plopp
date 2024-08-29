@@ -75,10 +75,6 @@ class ColorMapper:
         The name of the colormap for masked data.
     norm:
         The colorscale normalization.
-    autoscale:
-        The behavior of the color range limits. If ``auto``, the limits automatically
-        adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
     vmin:
         The minimum value for the colorscale range. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the data unit.
@@ -98,7 +94,6 @@ class ColorMapper:
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
-        autoscale: Literal['auto', 'grow'] = 'auto',
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
         nan_color: str | None = None,
@@ -112,7 +107,7 @@ class ColorMapper:
         self.vmin = np.inf
         self.vmax = -np.inf
         self.norm = norm
-        self._autoscale = autoscale
+        self.set_colors_on_update = True
 
         # Note that we need to set vmin/vmax for the LogNorm, if not an error is
         # raised when making the colorbar before any call to update is made.
@@ -150,13 +145,6 @@ class ColorMapper:
         self._update_colorbar_widget()
         return self.widget
 
-    def _update_colorbar_widget(self):
-        """
-        Upon an updated colorscale range, we need to update the image inside the widget.
-        """
-        if self.widget is not None:
-            self.widget.value = fig_to_bytes(self.cax.get_figure(), form='svg').decode()
-
     def rgba(self, data: sc.DataArray) -> np.ndarray:
         """
         Return rgba values given a data array.
@@ -186,11 +174,11 @@ class ColorMapper:
         vmax = reduce(max, [v[1] for v in limits])
         if self.user_vmin is not None:
             self.vmin = self.user_vmin
-        elif (vmin.value < self.vmin) or (self._autoscale == 'auto'):
+        else:
             self.vmin = vmin.value
         if self.user_vmax is not None:
             self.vmax = self.user_vmax
-        elif (vmax.value > self.vmax) or (self._autoscale == 'auto'):
+        else:
             self.vmax = vmax.value
 
         if self.vmin >= self.vmax:
@@ -201,23 +189,7 @@ class ColorMapper:
                 self.vmin = self.user_vmin
                 self.vmax = self.user_vmin + abs(self.user_vmin) * 0.1
 
-    def _set_artists_colors(self, keys: Iterable):
-        """
-        Update the colors of all the artists apart from the one that triggered the
-        update, as those get updated by the figure.
-
-        Parameters
-        ----------
-        keys:
-            List of artists to update.
-        """
-        for k in keys:
-            self.artists[k].set_colors(self.rgba(self.artists[k].data))
-
-    def _set_normalizer_limits(self):
-        """
-        Synchronize the underlying normalizer limits to the current state.
-        """
+        # Synchronize the underlying normalizer limits to the current state.
         # Note that the order matters here, as for a normalizer vmin cannot be set above
         # the current vmax.
         if self.vmin >= self.normalizer.vmax:
@@ -227,6 +199,26 @@ class ColorMapper:
             self.normalizer.vmin = self.vmin
             self.normalizer.vmax = self.vmax
 
+        # Set the artists colors
+        self._set_artists_colors()
+
+        # Update the colorbar widget
+        if self.widget is not None:
+            self.widget.value = fig_to_bytes(self.cax.get_figure(), form='svg').decode()
+
+    def _set_artists_colors(self):
+        """
+        Update the colors of all the artists apart from the one that triggered the
+        update, as those get updated by the figure.
+
+        Parameters
+        ----------
+        keys:
+            List of artists to update.
+        """
+        for k in self.artists.keys():
+            self.artists[k].set_colors(self.rgba(self.artists[k].data))
+
     def update(self, *args, **kwargs):
         """
         Update the colorscale bounds taking into account new values,
@@ -234,7 +226,7 @@ class ColorMapper:
         We also update the colorbar widget if it exists.
         """
         new = dict(*args, **kwargs)
-        for key, data in new.items():
+        for data in new.values():
             if self.name is None:
                 self.name = data.name
                 # If name is None, this is the first time update is called
@@ -253,16 +245,8 @@ class ColorMapper:
                 if self.unit is not None:
                     text += f'{" " if self.name else ""}[{self.unit}]'
                 self.cax.set_ylabel(text)
-            old_bounds = np.array([self.vmin, self.vmax])
-            self.autoscale()
-            self._set_normalizer_limits()
-
-            if not np.allclose(old_bounds, np.array([self.vmin, self.vmax])):
-                self._update_colorbar_widget()
-                keys = self.artists.keys()
-            else:
-                keys = [key]
-            self._set_artists_colors(keys)
+        if self.set_colors_on_update:
+            self._set_artists_colors()
 
     def toggle_norm(self):
         """
@@ -272,9 +256,6 @@ class ColorMapper:
         self.normalizer = _get_normalizer(self.norm)
         self.vmin = np.inf
         self.vmax = -np.inf
-        self.autoscale()
-        self._set_normalizer_limits()
-        self._set_artists_colors(self.artists.keys())
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
-            self._update_colorbar_widget()
+        self.autoscale()

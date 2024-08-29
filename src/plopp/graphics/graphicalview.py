@@ -44,7 +44,6 @@ class GraphicalView(View):
         norm: Literal['linear', 'log'] = 'linear',
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
         scale: dict[str, str] | None = None,
         aspect: Literal['auto', 'equal'] = 'auto',
         grid: bool = False,
@@ -64,8 +63,6 @@ class GraphicalView(View):
         self._artist_maker = artist_maker
         self._kwargs = kwargs
         self._repr_format = format
-        self._autoscale = autoscale
-        self._bbox = BoundingBox()
 
         self.canvas = canvas_maker(
             cbar=cbar,
@@ -89,7 +86,6 @@ class GraphicalView(View):
                 norm=norm,
                 vmin=vmin,
                 vmax=vmax,
-                autoscale=autoscale,
                 canvas=self.canvas,
                 figsize=getattr(self.canvas, "figsize", None),
             )
@@ -108,20 +104,19 @@ class GraphicalView(View):
             scales['zscale'] = self.canvas.zscale
         for artist in self.artists.values():
             bbox = bbox.union(artist.bbox(**scales))
-        self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
-        self._bbox = self._bbox.override(self.canvas.bbox)
+        bbox = bbox.override(self.canvas.bbox)
         self.canvas.xrange = (
-            _none_if_not_finite(self._bbox.xmin),
-            _none_if_not_finite(self._bbox.xmax),
+            _none_if_not_finite(bbox.xmin),
+            _none_if_not_finite(bbox.xmax),
         )
         self.canvas.yrange = (
-            _none_if_not_finite(self._bbox.ymin),
-            _none_if_not_finite(self._bbox.ymax),
+            _none_if_not_finite(bbox.ymin),
+            _none_if_not_finite(bbox.ymax),
         )
         if hasattr(self.canvas, 'zrange'):
             self.canvas.zrange = (
-                _none_if_not_finite(self._bbox.zmin),
-                _none_if_not_finite(self._bbox.zmax),
+                _none_if_not_finite(bbox.zmin),
+                _none_if_not_finite(bbox.zmax),
             )
         self.canvas.draw()
 
@@ -197,7 +192,26 @@ class GraphicalView(View):
 
         if self.colormapper is not None:
             self.colormapper.update(**new)
+        self.canvas.draw()
+
+    def home(self) -> None:
+        """
+        Autoscale axes and colormapper.
+        """
+        # Autoscale the colormapper first to make use of the single draw call made by
+        # ``self.autoscale()``
+        if self.colormapper is not None:
+            self.colormapper.autoscale()
         self.autoscale()
+
+    def render(self) -> None:
+        """
+        At the end of figure creation, this function is called to request data from
+        all parent nodes and draw the figure.
+        In addition, we call the home method to autoscale the axes and colormapper.
+        """
+        super().render()
+        self.home()
 
     def remove(self, key: str) -> None:
         """
