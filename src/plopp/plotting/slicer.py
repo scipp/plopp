@@ -125,7 +125,7 @@ class Slicer:
         if autoscale:
             self.figure.view.draw_on_update = False
             self.slider._plopp_observe_(
-                lambda _: self.figure.view.home(), names='value'
+                lambda _: self.figure.view.fit_to_data(), names='value'
             )
             if ndims == 2:
                 # Do not set colors on update, as this is done during the autoscale.

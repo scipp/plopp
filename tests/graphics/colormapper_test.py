@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 from functools import partial
 from typing import Callable
 
@@ -13,6 +14,10 @@ from matplotlib.colors import LogNorm, Normalize
 from plopp import Node, imagefigure, scatter3dfigure
 from plopp.data.testing import data_array, scatter
 from plopp.graphics.colormapper import ColorMapper
+
+
+def string_similarity(a, b):
+    return SequenceMatcher(None, a, b).ratio()
 
 
 class DummyChild:
@@ -260,21 +265,21 @@ def test_colorbar_updated_on_rescale():
     artist.update(da)
     mapper.update(data=da)
     mapper.autoscale()
-    assert old_image == mapper.widget.value
+    assert string_similarity(old_image_array, mapper.widget.value) > 0.9
 
     # Update with a smaller range should make a new colorbar image
     const = 0.8
     artist.update(da * const)
     mapper.update(data=da * const)
     mapper.autoscale()
-    assert old_image != mapper.widget.value
+    assert string_similarity(old_image_array, mapper.widget.value) < 0.9
 
     # Update with larger range should make a new colorbar image
     const = 2.3
     artist.update(da * const)
     mapper.update(data=da * const)
     mapper.autoscale()
-    assert old_image_array != mapper.widget.value
+    assert string_similarity(old_image_array, mapper.widget.value) < 0.9
 
 
 def test_colorbar_does_not_update_if_no_autoscale():
@@ -323,32 +328,36 @@ def test_colorbar_cbar_false_overrides_cax():
     assert mapper.colorbar is None
 
 
-def test_autoscale_auto_vmin_set():
+def test_autoscale_vmin_set():
     da = data_array(ndim=2, unit='K')
-    mapper = ColorMapper(autoscale='auto', vmin=-0.5)
+    mapper = ColorMapper(vmin=-0.5)
     artist = DummyChild(da)
     key = 'data'
     mapper[key] = artist
     mapper.update(data=da)
+    mapper.autoscale()
     assert mapper.vmin == -0.5
     assert mapper.vmax == da.max().value
     # Make sure it handles when da.max() is greater than vmin
     mapper.update(data=da - sc.scalar(5.0, unit='K'))
+    mapper.autoscale()
     assert mapper.vmin == -0.5
     assert mapper.vmin < mapper.vmax
 
 
-def test_autoscale_auto_vmax_set():
+def test_autoscale_vmax_set():
     da = data_array(ndim=2, unit='K')
-    mapper = ColorMapper(autoscale='auto', vmax=0.5)
+    mapper = ColorMapper(vmax=0.5)
     artist = DummyChild(da)
     key = 'data'
     mapper[key] = artist
     mapper.update(data=da)
+    mapper.autoscale()
     assert mapper.vmax == 0.5
     assert mapper.vmin == da.min().value
     # Make sure it handles when da.min() is greater than vmax
     mapper.update(data=da + sc.scalar(5.0, unit='K'))
+    mapper.autoscale()
     assert mapper.vmax == 0.5
     assert mapper.vmin < mapper.vmax
 

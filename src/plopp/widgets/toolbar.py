@@ -68,7 +68,7 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
         view.autoscale()
 
     tool_list = {
-        'home': tools.HomeTool(view.home),
+        'home': tools.HomeTool(view.fit_to_data),
         'panzoom': tools.PanZoomTool(view.canvas.panzoom),
         'logx': tools.LogxTool(logx, value=view.canvas.xscale == 'log'),
         'logy': tools.LogyTool(logy, value=view.canvas.yscale == 'log'),

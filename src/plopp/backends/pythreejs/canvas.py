@@ -99,7 +99,9 @@ class Canvas:
         """
         from .outline import Outline
 
-        if self.empty:
+        # If `None` is found in the limits, it means we are waiting first for a call
+        # to autoscale on the parent view.
+        if self.empty or (None in self.bbox.asdict().values()):
             return
 
         limits = (

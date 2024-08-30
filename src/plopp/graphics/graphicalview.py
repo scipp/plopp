@@ -199,7 +199,7 @@ class GraphicalView(View):
         if self.draw_on_update:
             self.canvas.draw()
 
-    def home(self) -> None:
+    def fit_to_data(self) -> None:
         """
         Autoscale axes and colormapper.
         """
@@ -219,7 +219,7 @@ class GraphicalView(View):
         """
         self.draw_on_update = False
         super().render()
-        self.home()
+        self.fit_to_data()
         self.draw_on_update = True
 
     def remove(self, key: str) -> None:
