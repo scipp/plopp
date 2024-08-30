@@ -410,38 +410,29 @@ def test_plot_1d_data_with_binedges():
     da.plot()
 
 
-def test_update_grows_limits():
+def test_autoscale_after_update_grows_limits():
     da = data_array(ndim=1)
     fig = da.plot()
     old_lims = fig.canvas.yrange
     [key] = fig.artists.keys()
     fig.update({key: da * 2.5})
+    fig.view.autoscale()
     new_lims = fig.canvas.yrange
     assert new_lims[0] < old_lims[0]
     assert new_lims[1] > old_lims[1]
 
 
-def test_update_does_shrink_limits_if_auto_mode():
+def test_autoscale_after_update_shrinks_limits():
     da = data_array(ndim=1)
-    fig = da.plot(autoscale='auto')
+    fig = da.plot()
     old_lims = fig.canvas.yrange
     [key] = fig.artists.keys()
     const = 0.5
     fig.update({key: da * const})
+    fig.view.autoscale()
     new_lims = fig.canvas.yrange
     assert new_lims[0] == old_lims[0] * const
     assert new_lims[1] == old_lims[1] * const
-
-
-def test_update_does_not_shrink_limits_if_grow_mode():
-    da = data_array(ndim=1)
-    fig = da.plot(autoscale='grow')
-    old_lims = fig.canvas.yrange
-    [key] = fig.artists.keys()
-    fig.update({key: da * 0.5})
-    new_lims = fig.canvas.yrange
-    assert new_lims[0] == old_lims[0]
-    assert new_lims[1] == old_lims[1]
 
 
 def test_vmin():
@@ -469,6 +460,17 @@ def test_vmin_vmax():
         vmax=sc.scalar(0.68, unit='m/s'),
     )
     assert np.allclose(fig.canvas.yrange, [-0.5, 0.68])
+
+
+def test_autoscale_after_update_does_not_change_limits_if_vmin_vmax():
+    da = data_array(ndim=1)
+    fig = da.plot(vmin=-0.51, vmax=0.78)
+    assert np.allclose(fig.canvas.yrange, [-0.51, 0.78])
+    old_lims = fig.canvas.yrange
+    [key] = fig.artists.keys()
+    fig.update({key: da * 2.5})
+    fig.view.autoscale()
+    assert np.allclose(fig.canvas.yrange, old_lims)
 
 
 def test_vmin_vmax_no_variable():
