@@ -156,13 +156,34 @@ def test_raises_when_number_of_keep_dims_requested_is_bad():
 
 
 @pytest.mark.usefixtures('_use_ipympl')
-def test_autoscale_fixed():
+def test_update_triggers_autoscale():
     da = sc.DataArray(
         data=sc.arange('x', 5 * 10 * 20).fold(dim='x', sizes={'z': 20, 'y': 10, 'x': 5})
     )
-    sl = Slicer(da, keep=['y', 'x'], autoscale='fixed')
-    assert sl.figure.view.colormapper.vmin == 0
-    assert sl.figure.view.colormapper.vmax == 5 * 10 * 20 - 1
-    sl.slider.controls['z']['slider'].value = 5
-    assert sl.figure.view.colormapper.vmin == 0
-    assert sl.figure.view.colormapper.vmax == 5 * 10 * 20 - 1
+    # `autoscale=True` should be the default, but there is no guarantee that it will
+    # not change in the future, so we explicitly set it here to make the test robust.
+    sl = Slicer(da, keep=['y', 'x'], autoscale=True)
+    cm = sl.figure.view.colormapper
+    # Colormapper fits to the values in the first slice
+    assert cm.vmin == 0
+    assert cm.vmax == 5 * 10 * 1 - 1
+    sl.slider.controls['z']['slider'].value = 6
+    # Colormapper range fits to the values in the new slice
+    assert cm.vmin == 5 * 10 * 6
+    assert cm.vmax == 5 * 10 * 7 - 1
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_no_autoscale():
+    da = sc.DataArray(
+        data=sc.arange('x', 5 * 10 * 20).fold(dim='x', sizes={'z': 20, 'y': 10, 'x': 5})
+    )
+    sl = Slicer(da, keep=['y', 'x'], autoscale=False)
+    cm = sl.figure.view.colormapper
+    # Colormapper fits to the values in the first slice
+    assert cm.vmin == 0
+    assert cm.vmax == 5 * 10 * 1 - 1
+    sl.slider.controls['z']['slider'].value = 6
+    # Colormapper range does not change
+    assert cm.vmin == 0
+    assert cm.vmax == 5 * 10 * 1 - 1
