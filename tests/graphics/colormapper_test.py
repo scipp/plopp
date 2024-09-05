@@ -116,40 +116,6 @@ def test_update_without_autoscale_does_not_change_limits():
     assert mapper.vmax == backup[1]
 
 
-# def test_auto_rescale_limits_can_shrink():
-#     da = data_array(ndim=2, unit='K')
-#     mapper = ColorMapper(autoscale='auto')
-#     artist = DummyChild(da)
-#     mapper['data'] = artist
-
-#     mapper.update(data=da)
-#     assert mapper.vmin == da.min().value
-#     assert mapper.vmax == da.max().value
-
-#     const = 0.5
-#     artist.update(da * const)
-#     mapper.update(data=da * const)
-#     assert mapper.vmin == da.min().value * const
-#     assert mapper.vmax == da.max().value * const
-
-
-# def test_grow_rescale_limits_do_not_shrink():
-#     da = data_array(ndim=2, unit='K')
-#     mapper = ColorMapper(autoscale='grow')
-#     artist = DummyChild(da)
-#     mapper['data'] = artist
-
-#     mapper.update(data=da)
-#     assert mapper.vmin == da.min().value
-#     assert mapper.vmax == da.max().value
-
-#     const = 0.5
-#     artist.update(da * const)
-#     mapper.update(data=da * const)
-#     assert mapper.vmin == da.min().value
-#     assert mapper.vmax == da.max().value
-
-
 def test_correct_normalizer_limits():
     da = sc.DataArray(data=sc.array(dims=['y', 'x'], values=[[1, 2], [3, 4]]))
     mapper = ColorMapper()
