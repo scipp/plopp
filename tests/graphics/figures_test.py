@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import partial
-from typing import Callable
 
 import pytest
 import scipp as sc

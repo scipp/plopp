@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from functools import partial
-from typing import Callable
 
 import numpy as np
 import pytest
