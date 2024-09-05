@@ -216,8 +216,8 @@ class Image:
         The bounding box of the image.
         """
         ydim, xdim = self._data.dims
-        image_x = self._data.coords[xdim]
-        image_y = self._data.coords[ydim]
+        image_x = self._data_with_bin_edges.coords[xdim]
+        image_y = self._data_with_bin_edges.coords[ydim]
 
         return BoundingBox(
             **{**axis_bounds(('xmin', 'xmax'), image_x, xscale)},
