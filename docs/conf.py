@@ -248,6 +248,7 @@ gallery_notebooks = [
     'tiled-random-samples',
     'polar-plots',
     'updating-scatter',
+    'streaming-plot',
 ]
 nbsphinx_thumbnails = {
     os.path.join(notebook_root, notebook): os.path.join(
