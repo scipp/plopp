@@ -1,5 +1,5 @@
 -r base.in
--r optional.in
+-r basetest.in
 gitpython
 h5py
 ipykernel
