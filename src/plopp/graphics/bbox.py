@@ -71,6 +71,19 @@ class BoundingBox:
             zmax=other.zmax if other.zmax is not None else self.zmax,
         )
 
+    def asdict(self) -> dict[str, float | None]:
+        """
+        Return the bounding box as a dictionary.
+        """
+        return {
+            'xmin': self.xmin,
+            'xmax': self.xmax,
+            'ymin': self.ymin,
+            'ymax': self.ymax,
+            'zmin': self.zmin,
+            'zmax': self.zmax,
+        }
+
 
 def axis_bounds(
     keys: tuple[str, str],
