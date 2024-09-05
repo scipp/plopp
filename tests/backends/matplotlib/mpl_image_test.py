@@ -34,3 +34,25 @@ def test_kwargs_are_forwarded_to_artist():
     fig = imagefigure(Node(da), rasterized=False)
     [artist] = fig.artists.values()
     assert not artist._mesh.get_rasterized()
+
+
+def test_bbox_midpoints():
+    da = data_array(ndim=2)
+    fig = imagefigure(Node(da))
+    [artist] = fig.artists.values()
+    bbox = artist.bbox(xscale='linear', yscale='linear')
+    assert bbox.xmin < da.coords['xx'].min().value
+    assert bbox.xmax > da.coords['xx'].max().value
+    assert bbox.ymin < da.coords['yy'].min().value
+    assert bbox.ymax > da.coords['yy'].max().value
+
+
+def test_bbox_binedges():
+    da = data_array(ndim=2, binedges=True)
+    fig = imagefigure(Node(da))
+    [artist] = fig.artists.values()
+    bbox = artist.bbox(xscale='linear', yscale='linear')
+    assert bbox.xmin == da.coords['xx'].min().value
+    assert bbox.xmax == da.coords['xx'].max().value
+    assert bbox.ymin == da.coords['yy'].min().value
+    assert bbox.ymax == da.coords['yy'].max().value
