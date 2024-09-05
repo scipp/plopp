@@ -41,8 +41,26 @@ on:
         type: string
 
 jobs:
+  package-test:
+    runs-on: ${{ inputs.os-variant }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install .
+      - run: python tests/package_test.py
+        name: Run package tests
+
   test:
     runs-on: ${{ inputs.os-variant }}
+    env:
+        ESS_PROTECTED_FILESTORE_USERNAME: ${{ secrets.ESS_PROTECTED_FILESTORE_USERNAME }}
+        ESS_PROTECTED_FILESTORE_PASSWORD: ${{ secrets.ESS_PROTECTED_FILESTORE_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v4
