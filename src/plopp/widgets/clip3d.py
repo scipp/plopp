@@ -201,7 +201,7 @@ class ClippingPlanes(ipw.HBox):
 
     def __init__(self, fig: BaseFig):
         self._view = fig.view
-        bbox = self._view._bbox
+        bbox = self._view.bbox
         canvas = self._view.canvas
 
         self._limits = (

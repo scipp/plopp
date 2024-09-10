@@ -19,10 +19,12 @@ def test_update_on_one_mesh_changes_colors_on_second_mesh():
     old_b_colors = f.artists[b.id]._mesh.get_facecolors()
     a.func = lambda: da1 * 2.1
     a.notify_children('updated a')
+    f.view.colormapper.autoscale()  # Autoscale the colorbar limits
     # No change because the update did not change the colorbar limits
     assert np.allclose(old_b_colors, f.artists[b.id]._mesh.get_facecolors())
     a.func = lambda: da1 * 5.0
     a.notify_children('updated a')
+    f.view.colormapper.autoscale()  # Autoscale the colorbar limits
     assert not np.allclose(old_b_colors, f.artists[b.id]._mesh.get_facecolors())
 
 

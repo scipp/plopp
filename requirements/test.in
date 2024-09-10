@@ -2,4 +2,3 @@
 
 -r base.in
 -r basetest.in
--r optional.in

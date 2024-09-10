@@ -26,7 +26,7 @@ def _close_figures():
         plt.close(fig)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _use_ipympl():
     matplotlib.use('module://ipympl.backend_nbagg')
 
