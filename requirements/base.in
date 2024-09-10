@@ -1,4 +1,3 @@
--c constraints.in
 # Scipp is listed here because we need it for development
 # but the package does not declare a dependency on Scipp.
 scipp

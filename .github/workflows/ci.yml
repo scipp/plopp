@@ -46,6 +46,7 @@ jobs:
       os-variant: ${{ matrix.os }}
       python-version: ${{ matrix.python.version }}
       tox-env: ${{ matrix.python.tox-env }}
+    secrets: inherit
 
   docs:
     needs: tests
@@ -54,3 +55,4 @@ jobs:
       publish: false
       linkcheck: ${{ contains(matrix.variant.os, 'ubuntu') && github.ref == 'refs/heads/main' }}
       branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}
+    secrets: inherit
