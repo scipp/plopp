@@ -242,13 +242,26 @@ class ColorMapper:
                     )
             elif data.name != self.name:
                 self.name = ''
-            if self.cax is not None:
-                text = self.name
-                if self.unit is not None:
-                    text += f'{" " if self.name else ""}[{self.unit}]'
-                self.cax.set_ylabel(text)
+            # if self.cax is not None:
+            #     text = self.name
+            #     if self.unit is not None:
+            #         text += f'{" " if self.name else ""}[{self.unit}]'
+            #     self.cax.set_ylabel(text)
         if self.set_colors_on_update:
             self._set_artists_colors()
+
+    @property
+    def ylabel(self) -> str | None:
+        """
+        Get or set the label of the colorbar axis.
+        """
+        if self.cax is not None:
+            return self.cax.get_ylabel()
+
+    @ylabel.setter
+    def ylabel(self, lab: str):
+        if self.cax is not None:
+            self.cax.set_ylabel(lab)
 
     def toggle_norm(self):
         """
