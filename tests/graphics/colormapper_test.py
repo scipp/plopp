@@ -41,14 +41,10 @@ def test_creation():
         cmap='magma',
         mask_cmap='jet',
         norm='linear',
-        vmin=sc.scalar(1, unit='K'),
-        vmax=sc.scalar(10, unit='K'),
     )
     assert mapper.cmap.name == 'magma'
     assert mapper.mask_cmap.name == 'jet'
     assert mapper.norm == 'linear'
-    assert sc.identical(mapper.user_vmin, sc.scalar(1, unit='K'))
-    assert sc.identical(mapper.user_vmax, sc.scalar(10, unit='K'))
 
 
 def test_norm():
@@ -62,7 +58,6 @@ def test_autoscale():
     artist = DummyChild(da)
     mapper['data'] = artist
 
-    mapper.update(data=da)
     mapper.autoscale()
     assert mapper.vmin == da.min().value
     assert mapper.vmax == da.max().value
@@ -70,7 +65,6 @@ def test_autoscale():
     # Limits grow
     const = 2.3
     artist.update(da * const)
-    mapper.update(data=da * const)
     mapper.autoscale()
     assert mapper.vmin == (da.min() * const).value
     assert mapper.vmax == (da.max() * const).value
@@ -78,7 +72,6 @@ def test_autoscale():
     # Limits shrink
     const = 0.5
     artist.update(da * const)
-    mapper.update(data=da * const)
     mapper.autoscale()
     assert mapper.vmin == da.min().value * const
     assert mapper.vmax == da.max().value * const
@@ -90,7 +83,6 @@ def test_update_without_autoscale_does_not_change_limits():
     artist = DummyChild(da)
     mapper['data'] = artist
 
-    mapper.update(data=da)
     mapper.autoscale()
     assert mapper.vmin == da.min().value
     assert mapper.vmax == da.max().value
@@ -100,7 +92,7 @@ def test_update_without_autoscale_does_not_change_limits():
     # Limits grow
     const = 2.3
     artist.update(da * const)
-    mapper.update(data=da * const)
+    mapper.update()
     assert mapper.vmin != (da.min() * const).value
     assert mapper.vmin == backup[0]
     assert mapper.vmax != (da.max() * const).value
@@ -109,7 +101,7 @@ def test_update_without_autoscale_does_not_change_limits():
     # Limits shrink
     const = 0.5
     artist.update(da * const)
-    mapper.update(data=da * const)
+    mapper.update()
     assert mapper.vmin != da.min().value * const
     assert mapper.vmin == backup[0]
     assert mapper.vmax != da.max().value * const
@@ -121,7 +113,6 @@ def test_correct_normalizer_limits():
     mapper = ColorMapper()
     artist = DummyChild(da)
     mapper['data'] = artist
-    mapper.update(data=da)
     mapper.autoscale()
     assert mapper.vmin == da.min().value
     assert mapper.vmax == da.max().value
@@ -140,7 +131,6 @@ def test_vmin_vmax():
     mapper = ColorMapper(vmin=vmin, vmax=vmax)
     artist = DummyChild(da)
     mapper['data'] = artist
-    mapper.update(data=da)
     mapper.autoscale()
     assert mapper.user_vmin == vmin.value
     assert mapper.user_vmax == vmax.value
@@ -363,10 +353,18 @@ def test_toolbar_log_norm_button_toggles_colormapper_norm(case):
 
 
 @pytest.mark.parametrize('case', PLOTCASES)
+def test_colorbar_label_has_name_with_one_artist(case):
+    a = case.data(unit='K')
+    a.name = 'A data'
+    fig = case.figure(Node(a))
+    assert fig.view.colormapper.ylabel == 'A data [K]'
+
+
+@pytest.mark.parametrize('case', PLOTCASES)
 def test_colorbar_label_has_no_name_with_multiple_artists(case):
     a = case.data(unit='K')
     b = 3.3 * a
     a.name = 'A data'
     b.name = 'B data'
     fig = case.figure(Node(a), Node(b))
-    assert fig.view.colormapper.cax.get_ylabel() == '[K]'
+    assert fig.view.colormapper.ylabel == '[K]'
