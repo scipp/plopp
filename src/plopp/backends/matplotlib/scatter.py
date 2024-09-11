@@ -43,7 +43,7 @@ class Scatter:
 
         scatter_kwargs = parse_dicts_in_kwargs(kwargs, name=data.name)
 
-        self.label = data.name if not cbar else None
+        self.legend_label = data.name if not cbar else None
         self._unit = self._data.unit
         self._id = uuid.uuid4().hex
 
@@ -64,7 +64,7 @@ class Scatter:
             self._data.coords[self._x].values,
             self._data.coords[self._y].values,
             s=s,
-            label=self.label,
+            label=self.legend_label,
             **merged_kwargs,
         )
 
@@ -88,13 +88,15 @@ class Scatter:
             visible=visible_mask,
         )
 
-        if self._canvas._legend:
-            leg_args = make_legend(self._canvas._legend)
-            if np.shape(s) == np.shape(self._data.coords[self._x].values):
-                handles, labels = self._scatter.legend_elements(prop="sizes")
-                self._ax.legend(handles, labels, title="Sizes", **leg_args)
-            if self.label:
-                self._ax.legend(**leg_args)
+        # print("self._canvas._legend", self._canvas._legend)
+        # if self._canvas._legend:
+        #     leg_args = make_legend(self._canvas._legend)
+        #     if np.shape(s) == np.shape(self._data.coords[self._x].values):
+        #         handles, labels = self._scatter.legend_elements(prop="sizes")
+        #         self._ax.legend(handles, labels, title="Sizes", **leg_args)
+        #     print("self.label", self.label)
+        #     if self.label:
+        #         self._ax.legend(**leg_args)
 
     def update(self, new_values: sc.DataArray):
         """

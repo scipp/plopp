@@ -61,7 +61,7 @@ class Line:
         self._mask = None
         self._error = None
         self._unit = None
-        self.label = data.name
+        self.legend_label = data.name
         self._dim = self._data.dim
         self._unit = self._data.unit
         self._coord = self._data.coords[self._dim]
@@ -91,7 +91,7 @@ class Line:
             self._line = self._ax.step(
                 line_data['values']['x'],
                 line_data['values']['y'],
-                label=self.label,
+                label=self.legend_label,
                 zorder=10,
                 **{**default_step_style, **line_args},
             )[0]
@@ -109,7 +109,7 @@ class Line:
             self._line = self._ax.plot(
                 line_data['values']['x'],
                 line_data['values']['y'],
-                label=self.label,
+                label=self.legend_label,
                 zorder=10,
                 **{**default_plot_style, **line_args},
             )[0]
@@ -137,11 +137,12 @@ class Line:
                 zorder=10,
                 fmt="none",
             )
-        self.update_legend()
 
-    def update_legend(self) -> None:
-        if self.label and self._canvas._legend:
-            self._ax.legend(**make_legend(self._canvas._legend))
+    #     self.update_legend()
+
+    # def update_legend(self) -> None:
+    #     if self.label and self._canvas._legend:
+    #         self._ax.legend(**make_legend(self._canvas._legend))
 
     def update(self, new_values: sc.DataArray):
         """
@@ -187,7 +188,7 @@ class Line:
         self._mask.remove()
         if self._error is not None:
             self._error.remove()
-        self.update_legend()
+        # self.update_legend()
         self._canvas.draw()
 
     @property

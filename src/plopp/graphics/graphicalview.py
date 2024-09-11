@@ -65,6 +65,7 @@ class GraphicalView(View):
         self._repr_format = format
         self.bbox = BoundingBox()
         self.draw_on_update = True
+        self._yaxis_name = None
 
         self.canvas = canvas_maker(
             cbar=cbar,
@@ -129,6 +130,7 @@ class GraphicalView(View):
         new data or by keyword arguments.
         """
         new = dict(*args, **kwargs)
+        need_legend_update = False
         for key, new_values in new.items():
             coords = {}
             for i, direction in enumerate(self._dims):
@@ -152,7 +154,10 @@ class GraphicalView(View):
                     if self._dims['y'] in self._scale:
                         self.canvas.yscale = self._scale[self._dims['y']]
                 else:
-                    self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
+                    self._yaxis_name = new_values.name
+                    self.canvas.ylabel = name_with_unit(
+                        var=new_values.data, name=self._yaxis_name
+                    )
                     axes_units['y'] = new_values.unit
                     axes_dtypes['y'] = new_values.dtype
 
@@ -179,6 +184,11 @@ class GraphicalView(View):
                     new_values.data = make_compatible(
                         new_values.data, unit=self.canvas.units['y']
                     )
+                    if self._yaxis_name and (new_values.name != self._yaxis_name):
+                        self._yaxis_name = ''
+                        self.canvas.xlabel = name_with_unit(
+                            var=new_values.data, name=''
+                        )
 
             if key not in self.artists:
                 self.artists[key] = self._artist_maker(
@@ -191,13 +201,24 @@ class GraphicalView(View):
                 if self.colormapper is not None:
                     self.colormapper[key] = self.artists[key]
 
+                need_legend_update = getattr(self.artists[key], "legend_label", False)
+
             self.artists[key].update(new_values=new_values)
 
         if self.colormapper is not None:
             self.colormapper.update(**new)
 
+        if need_legend_update:
+            self.canvas.update_legend()
+
         if self.draw_on_update:
             self.canvas.draw()
+
+    # def _is_1d_plot(self) -> bool:
+    #     """
+    #     Check if the plot is 1d.
+    #     """
+    #     return 'y' not in self._dims
 
     def fit_to_data(self) -> None:
         """

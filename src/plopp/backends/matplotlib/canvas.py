@@ -11,7 +11,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ...graphics.bbox import BoundingBox
-from .utils import fig_to_bytes, is_sphinx_build, make_figure
+from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
 
 def _cursor_value_to_variable(x: float, dtype: sc.DType, unit: str) -> sc.Variable:
@@ -149,6 +149,16 @@ class Canvas:
         Make a draw call to the underlying figure.
         """
         self.fig.canvas.draw_idle()
+
+    def update_legend(self):
+        """
+        Update the legend on the canvas.
+        """
+        if self._legend:
+            handles, labels = self.ax.get_legend_handles_labels()
+            if len(handles) > 1:
+                self.ax.legend(handles, labels, **make_legend(self._legend))
+            # self.ax.legend(**make_legend(self._legend))
 
     def save(self, filename: str, **kwargs):
         """
