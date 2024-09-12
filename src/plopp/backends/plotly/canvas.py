@@ -303,3 +303,6 @@ class Canvas:
 
     def draw(self):
         pass
+
+    def update_legend(self):
+        pass

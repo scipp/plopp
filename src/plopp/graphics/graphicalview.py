@@ -250,4 +250,5 @@ class GraphicalView(View):
         """
         self.artists[key].remove()
         del self.artists[key]
+        self.canvas.update_legend()
         self.autoscale()

@@ -158,6 +158,8 @@ class Canvas:
             handles, labels = self.ax.get_legend_handles_labels()
             if len(handles) > 1:
                 self.ax.legend(handles, labels, **make_legend(self._legend))
+            elif (leg := self.ax.get_legend()) is not None:
+                leg.remove()
 
     def save(self, filename: str, **kwargs):
         """

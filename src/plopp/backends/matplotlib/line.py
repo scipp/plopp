@@ -14,7 +14,7 @@ from ...core.utils import merge_masks
 from ...graphics.bbox import BoundingBox, axis_bounds
 from ..common import check_ndim, make_line_data
 from .canvas import Canvas
-from .utils import make_legend, parse_dicts_in_kwargs
+from .utils import parse_dicts_in_kwargs
 
 
 def _to_float(x):
@@ -137,12 +137,6 @@ class Line:
                 zorder=10,
                 fmt="none",
             )
-
-    #     self.update_legend()
-
-    # def update_legend(self) -> None:
-    #     if self.label and self._canvas._legend:
-    #         self._ax.legend(**make_legend(self._canvas._legend))
 
     def update(self, new_values: sc.DataArray):
         """
