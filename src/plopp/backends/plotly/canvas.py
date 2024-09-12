@@ -116,9 +116,10 @@ class Canvas:
         self.dims = dims
         self.units = units
         self.dtypes = dtypes
+        key = 'y' if 'y' in self.units else 'data'
         self.bbox = BoundingBox(
-            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units.get('y')),
-            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units.get('y')),
+            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
+            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
         )
 
     @property

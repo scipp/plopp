@@ -203,9 +203,10 @@ class Canvas:
             self._cursor_x_prefix = self.dims['x'] + '='
             self._cursor_y_prefix = self.dims['y'] + '='
         self.ax.format_coord = self.format_coord
+        key = 'y' if 'y' in self.units else 'data'
         self.bbox = BoundingBox(
-            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units.get('y')),
-            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units.get('y')),
+            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
+            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
         )
 
     def register_format_coord(self, formatter):

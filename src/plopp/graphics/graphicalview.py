@@ -74,8 +74,6 @@ class GraphicalView(View):
             grid=grid,
             figsize=figsize,
             title=title,
-            vmin=vmin,
-            vmax=vmax,
             legend=legend,
             camera=camera,
             ax=ax,
@@ -205,7 +203,7 @@ class GraphicalView(View):
                 if self.colormapper is not None:
                     self.colormapper[key] = self.artists[key]
 
-                need_legend_update = getattr(self.artists[key], "legend_label", False)
+                need_legend_update = getattr(self.artists[key], "label", False)
 
             self.artists[key].update(new_values=new_values)
 

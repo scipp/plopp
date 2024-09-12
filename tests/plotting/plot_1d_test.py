@@ -211,7 +211,7 @@ def test_plot_xarray_data_array_1d():
     p = pp.plot(da)
     assert p.canvas.dims['x'] == 'time'
     assert p.canvas.units['x'] == 'dimensionless'
-    assert p.canvas.units['y'] == 'dimensionless'
+    assert p.canvas.units['data'] == 'dimensionless'
 
 
 def test_plot_xarray_dataset():
@@ -230,7 +230,7 @@ def test_plot_xarray_dataset():
     p = pp.plot(ds)
     assert p.canvas.dims['x'] == 'time'
     assert p.canvas.units['x'] == 'dimensionless'
-    assert p.canvas.units['y'] == 'dimensionless'
+    assert p.canvas.units['data'] == 'dimensionless'
     assert len(p.view.artists) == 2
 
 
