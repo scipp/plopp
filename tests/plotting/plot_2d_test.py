@@ -270,3 +270,28 @@ def test_2d_plot_does_not_accept_data_with_other_dimensionality_on_update():
         sc.DimensionError, match='Image only accepts data with 2 dimension'
     ):
         fig.update(new=data_array(ndim=3))
+
+
+def test_figure_has_data_name_on_colorbar_for_one_image():
+    da = data_array(ndim=2)
+    da.name = "Velocity"
+    fig = da.plot()
+    ylabel = fig.view.colormapper.ylabel
+    assert da.name in ylabel
+    assert str(da.unit) in ylabel
+
+
+def test_figure_has_only_unit_on_colorbar_for_multiple_images():
+    a = data_array(ndim=2)
+    a.name = "Velocity"
+    b = a * 1.67
+    dim = b.dims[-1]
+    b.coords[dim] += b.coords[dim].max() * 1.1
+    b.name = "Speed"
+
+    fig = pp.imagefigure(pp.Node(a), pp.Node(b), cbar=True)
+    ylabel = fig.view.colormapper.ylabel
+    assert str(a.unit) in ylabel
+    assert str(b.unit) in ylabel
+    assert a.name not in ylabel
+    assert b.name not in ylabel

@@ -496,15 +496,17 @@ def test_figure_has_data_name_on_vertical_axis_for_one_curve():
     da = data_array(ndim=1)
     da.name = "Velocity"
     fig = da.plot()
-    assert da.name in fig.canvas.ylabel
-    assert str(da.unit) in fig.canvas.ylabel
+    ylabel = fig.canvas.ylabel
+    assert da.name in ylabel
+    assert str(da.unit) in ylabel
 
 
 def test_figure_has_data_name_on_vertical_axis_for_dict_with_one_entry():
     da = data_array(ndim=1)
     fig = pp.plot({"Velocity": da})
-    assert da.name in fig.canvas.ylabel
-    assert str(da.unit) in fig.canvas.ylabel
+    ylabel = fig.canvas.ylabel
+    assert da.name in ylabel
+    assert str(da.unit) in ylabel
 
 
 def test_figure_has_only_unit_on_vertical_axis_for_multiple_curves():
@@ -514,15 +516,17 @@ def test_figure_has_only_unit_on_vertical_axis_for_multiple_curves():
     b.name = "Speed"
 
     fig = pp.plot({'a': a, 'b': b})
-    assert str(a.unit) in fig.canvas.ylabel
-    assert str(b.unit) in fig.canvas.ylabel
-    assert a.name not in fig.canvas.ylabel
-    assert b.name not in fig.canvas.ylabel
+    ylabel = fig.canvas.ylabel
+    assert str(a.unit) in ylabel
+    assert str(b.unit) in ylabel
+    assert a.name not in ylabel
+    assert b.name not in ylabel
 
     c = a * 2.5
     c.name = "Rate"
     fig = pp.plot({'a': a, 'b': b, 'c': c})
-    assert str(a.unit) in fig.canvas.ylabel
-    assert a.name not in fig.canvas.ylabel
-    assert b.name not in fig.canvas.ylabel
-    assert c.name not in fig.canvas.ylabel
+    ylabel = fig.canvas.ylabel
+    assert str(a.unit) in ylabel
+    assert a.name not in ylabel
+    assert b.name not in ylabel
+    assert c.name not in ylabel
