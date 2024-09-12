@@ -152,9 +152,11 @@ class GraphicalView(View):
 
                 if set(self._dims) == {'x'}:
                     axes_units['data'] = new_values.unit
+                    axes_dtypes['data'] = new_values.dtype
                 if self.colormapper is not None:
                     self.colormapper.unit = new_values.unit
                     axes_units['data'] = new_values.unit
+                    axes_dtypes['data'] = new_values.dtype
                     self._data_axis = self.colormapper
                 else:
                     self._data_axis = self.canvas

@@ -390,6 +390,18 @@ def test_plot_1d_datetime_coord_log_with_mask():
     pp.plot(da, scale={'time': 'log'})
 
 
+def test_plot_1d_datetime_data():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    da = sc.DataArray(
+        data=time,
+        coords={'x': sc.arange('time', len(time), unit='m')},
+    )
+    pp.plot(da)
+
+
 def test_plot_1d_data_with_errorbars():
     da = data_array(ndim=1, variances=True)
     p = da.plot()

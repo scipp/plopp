@@ -227,7 +227,8 @@ class Canvas:
             The y coordinate of the mouse pointer.
         """
         xstr = _cursor_formatter(x, self.dtypes['x'], self.units['x'])
-        ystr = _cursor_formatter(y, self.dtypes['y'], self.units['y'])
+        key = 'y' if 'y' in self.dtypes else 'data'
+        ystr = _cursor_formatter(y, self.dtypes[key], self.units[key])
         out = f"({self._cursor_x_prefix}{xstr}, {self._cursor_y_prefix}{ystr})"
         if not self._coord_formatters:
             return out
