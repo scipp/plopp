@@ -395,3 +395,6 @@ class Canvas:
     @zrange.setter
     def zrange(self, value: tuple[float, float]):
         self.zmin, self.zmax = value
+
+    def update_legend(self):
+        pass

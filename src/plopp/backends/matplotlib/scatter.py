@@ -43,7 +43,7 @@ class Scatter:
 
         scatter_kwargs = parse_dicts_in_kwargs(kwargs, name=data.name)
 
-        self.legend_label = data.name if not cbar else None
+        self.label = data.name if not cbar else None
         self._unit = self._data.unit
         self._id = uuid.uuid4().hex
 
@@ -64,7 +64,7 @@ class Scatter:
             self._data.coords[self._x].values,
             self._data.coords[self._y].values,
             s=s,
-            label=self.legend_label,
+            label=self.label,
             **merged_kwargs,
         )
 
