@@ -490,3 +490,39 @@ def test_1d_plot_does_not_accept_higher_dimension_data_on_update():
         sc.DimensionError, match='Line only accepts data with 1 dimension'
     ):
         fig.update(new=data_array(ndim=3))
+
+
+def test_figure_has_data_name_on_vertical_axis_for_one_curve():
+    da = data_array(ndim=1)
+    da.name = "Velocity"
+    fig = da.plot()
+    assert da.name in fig.canvas.ylabel
+    assert str(da.unit) in fig.canvas.ylabel
+
+
+def test_figure_has_data_name_on_vertical_axis_for_dict_with_one_entry():
+    da = data_array(ndim=1)
+    fig = pp.plot({"Velocity": da})
+    assert da.name in fig.canvas.ylabel
+    assert str(da.unit) in fig.canvas.ylabel
+
+
+def test_figure_has_only_unit_on_vertical_axis_for_multiple_curves():
+    a = data_array(ndim=1)
+    a.name = "Velocity"
+    b = a * 1.67
+    b.name = "Speed"
+
+    fig = pp.plot({'a': a, 'b': b})
+    assert str(a.unit) in fig.canvas.ylabel
+    assert str(b.unit) in fig.canvas.ylabel
+    assert a.name not in fig.canvas.ylabel
+    assert b.name not in fig.canvas.ylabel
+
+    c = a * 2.5
+    c.name = "Rate"
+    fig = pp.plot({'a': a, 'b': b, 'c': c})
+    assert str(a.unit) in fig.canvas.ylabel
+    assert a.name not in fig.canvas.ylabel
+    assert b.name not in fig.canvas.ylabel
+    assert c.name not in fig.canvas.ylabel

@@ -63,6 +63,14 @@ def test_legend_location():
     assert leg3[0] == leg1[0]
 
 
+def test_no_legend_for_single_artist():
+    da = data_array(ndim=1)
+    da.name = "Velocity"
+    p = pp.plot(da)
+    leg = p.ax.get_legend()
+    assert leg is None
+
+
 def test_with_string_coord_1d():
     strings = ['a', 'b', 'c', 'd', 'e']
     da = sc.DataArray(
