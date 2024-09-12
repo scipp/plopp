@@ -211,7 +211,7 @@ def test_plot_xarray_data_array_1d():
     p = pp.plot(da)
     assert p.canvas.dims['x'] == 'time'
     assert p.canvas.units['x'] == 'dimensionless'
-    assert p.canvas.units['y'] == 'dimensionless'
+    assert p.canvas.units['data'] == 'dimensionless'
 
 
 def test_plot_xarray_dataset():
@@ -230,7 +230,7 @@ def test_plot_xarray_dataset():
     p = pp.plot(ds)
     assert p.canvas.dims['x'] == 'time'
     assert p.canvas.units['x'] == 'dimensionless'
-    assert p.canvas.units['y'] == 'dimensionless'
+    assert p.canvas.units['data'] == 'dimensionless'
     assert len(p.view.artists) == 2
 
 
@@ -390,6 +390,18 @@ def test_plot_1d_datetime_coord_log_with_mask():
     pp.plot(da, scale={'time': 'log'})
 
 
+def test_plot_1d_datetime_data():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    da = sc.DataArray(
+        data=time,
+        coords={'x': sc.arange('time', len(time), unit='m')},
+    )
+    pp.plot(da)
+
+
 def test_plot_1d_data_with_errorbars():
     da = data_array(ndim=1, variances=True)
     p = da.plot()
@@ -490,3 +502,43 @@ def test_1d_plot_does_not_accept_higher_dimension_data_on_update():
         sc.DimensionError, match='Line only accepts data with 1 dimension'
     ):
         fig.update(new=data_array(ndim=3))
+
+
+def test_figure_has_data_name_on_vertical_axis_for_one_curve():
+    da = data_array(ndim=1)
+    da.name = "Velocity"
+    fig = da.plot()
+    ylabel = fig.canvas.ylabel
+    assert da.name in ylabel
+    assert str(da.unit) in ylabel
+
+
+def test_figure_has_data_name_on_vertical_axis_for_dict_with_one_entry():
+    da = data_array(ndim=1)
+    fig = pp.plot({"Velocity": da})
+    ylabel = fig.canvas.ylabel
+    assert da.name in ylabel
+    assert str(da.unit) in ylabel
+
+
+def test_figure_has_only_unit_on_vertical_axis_for_multiple_curves():
+    a = data_array(ndim=1)
+    a.name = "Velocity"
+    b = a * 1.67
+    b.name = "Speed"
+
+    fig = pp.plot({'a': a, 'b': b})
+    ylabel = fig.canvas.ylabel
+    assert str(a.unit) in ylabel
+    assert str(b.unit) in ylabel
+    assert a.name not in ylabel
+    assert b.name not in ylabel
+
+    c = a * 2.5
+    c.name = "Rate"
+    fig = pp.plot({'a': a, 'b': b, 'c': c})
+    ylabel = fig.canvas.ylabel
+    assert str(a.unit) in ylabel
+    assert a.name not in ylabel
+    assert b.name not in ylabel
+    assert c.name not in ylabel

@@ -65,6 +65,8 @@ class GraphicalView(View):
         self._repr_format = format
         self.bbox = BoundingBox()
         self.draw_on_update = True
+        self._data_name = None
+        self._data_axis = None
 
         self.canvas = canvas_maker(
             cbar=cbar,
@@ -72,8 +74,6 @@ class GraphicalView(View):
             grid=grid,
             figsize=figsize,
             title=title,
-            vmin=vmin,
-            vmax=vmax,
             legend=legend,
             camera=camera,
             ax=ax,
@@ -129,6 +129,7 @@ class GraphicalView(View):
         new data or by keyword arguments.
         """
         new = dict(*args, **kwargs)
+        need_legend_update = False
         for key, new_values in new.items():
             coords = {}
             for i, direction in enumerate(self._dims):
@@ -143,42 +144,53 @@ class GraphicalView(View):
                     ) from e
 
             if self.canvas.empty:
+                self._data_name = new_values.name
                 axes_units = {k: coord.unit for k, coord in coords.items()}
                 axes_dtypes = {k: coord.dtype for k, coord in coords.items()}
-                if 'y' in self._dims:
-                    self.canvas.ylabel = name_with_unit(
-                        var=coords['y'], name=self._dims['y']
-                    )
-                    if self._dims['y'] in self._scale:
-                        self.canvas.yscale = self._scale[self._dims['y']]
+
+                if set(self._dims) == {'x'}:
+                    axes_units['data'] = new_values.unit
+                    axes_dtypes['data'] = new_values.dtype
+                if self.colormapper is not None:
+                    self.colormapper.unit = new_values.unit
+                    axes_units['data'] = new_values.unit
+                    axes_dtypes['data'] = new_values.dtype
+                    self._data_axis = self.colormapper
                 else:
-                    self.canvas.ylabel = name_with_unit(var=new_values.data, name="")
-                    axes_units['y'] = new_values.unit
-                    axes_dtypes['y'] = new_values.dtype
+                    self._data_axis = self.canvas
 
                 self.canvas.set_axes(
                     dims=self._dims, units=axes_units, dtypes=axes_dtypes
                 )
-                self.canvas.xlabel = name_with_unit(
-                    var=coords['x'], name=self._dims['x']
-                )
-                if self.colormapper is not None:
-                    self.colormapper.unit = new_values.unit
-                if self._dims['x'] in self._scale:
-                    self.canvas.xscale = self._scale[self._dims['x']]
-            else:
-                if self.colormapper is not None:
-                    new_values.data = make_compatible(
-                        new_values.data, unit=self.colormapper.unit
+
+                for xyz, dim in self._dims.items():
+                    setattr(
+                        self.canvas,
+                        f'{xyz}label',
+                        name_with_unit(var=coords[xyz], name=dim),
                     )
+                    if dim in self._scale:
+                        setattr(self.canvas, f'{xyz}scale', self._scale[dim])
+
+                if self._data_axis is not None:
+                    self._data_axis.ylabel = name_with_unit(
+                        var=new_values.data, name=self._data_name
+                    )
+
+            else:
                 for xy, dim in self._dims.items():
                     new_values.coords[dim] = make_compatible(
                         coords[xy], unit=self.canvas.units[xy]
                     )
-                if 'y' not in self._dims:
+                if 'data' in self.canvas.units:
                     new_values.data = make_compatible(
-                        new_values.data, unit=self.canvas.units['y']
+                        new_values.data, unit=self.canvas.units['data']
                     )
+                    if self._data_name and (new_values.name != self._data_name):
+                        self._data_name = None
+                        self._data_axis.ylabel = name_with_unit(
+                            var=sc.scalar(0.0, unit=self.canvas.units['data']), name=''
+                        )
 
             if key not in self.artists:
                 self.artists[key] = self._artist_maker(
@@ -191,10 +203,15 @@ class GraphicalView(View):
                 if self.colormapper is not None:
                     self.colormapper[key] = self.artists[key]
 
+                need_legend_update = getattr(self.artists[key], "label", False)
+
             self.artists[key].update(new_values=new_values)
 
         if self.colormapper is not None:
-            self.colormapper.update(**new)
+            self.colormapper.update()
+
+        if need_legend_update:
+            self.canvas.update_legend()
 
         if self.draw_on_update:
             self.canvas.draw()
@@ -233,4 +250,5 @@ class GraphicalView(View):
         """
         self.artists[key].remove()
         del self.artists[key]
+        self.canvas.update_legend()
         self.autoscale()
