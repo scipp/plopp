@@ -139,3 +139,25 @@ def test_scatter3d_does_not_accept_data_with_other_dimensionality_on_update():
         sc.DimensionError, match='Scatter3d only accepts data with 1 dimension'
     ):
         fig.update(new=data_array(ndim=3, dim_list="xyzab"))
+
+
+def test_figure_has_data_name_on_colorbar_for_one_set_of_scatter_points():
+    da = scatter()
+    da.name = "MyScatterData"
+    fig = pp.scatter3d(da, cbar=True)
+    ylabel = fig.view.colormapper.ylabel
+    assert da.name in ylabel
+    assert str(da.unit) in ylabel
+
+
+def test_figure_has_only_unit_on_colorbar_for_multiple_sets_of_scatter_points():
+    a = scatter(seed=1)
+    a.name = "A data"
+    b = scatter(seed=2)
+    b.name = "B data"
+    fig = pp.scatter3d({'a': a, 'b': b}, cbar=True)
+    ylabel = fig.view.colormapper.ylabel
+    assert str(a.unit) in ylabel
+    assert str(b.unit) in ylabel
+    assert a.name not in ylabel
+    assert b.name not in ylabel
