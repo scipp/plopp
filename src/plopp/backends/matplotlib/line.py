@@ -204,7 +204,11 @@ class Line:
         The bounding box of the line.
         """
         line_x = self._data.coords[self._dim]
-        sel = ~merge_masks(self._data.masks) if self._data.masks else slice(None)
+        sel = slice(None)
+        if self._data.masks:
+            sel = ~merge_masks(self._data.masks)
+            if set(sel.dims) != set(self._data.data.dims):
+                sel = sc.broadcast(sel, sizes=self._data.data.sizes).copy()
         line_y = self._data.data[sel]
         if self._error is not None:
             stddevs = sc.stddevs(self._data.data[sel])
