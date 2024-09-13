@@ -14,7 +14,7 @@ from .common import input_to_nodes, preprocess, raise_multiple_inputs_for_2d_plo
 def plot(
     obj: PlottableMulti,
     *,
-    aspect: Literal['auto', 'equal'] = 'auto',
+    aspect: Literal['auto', 'equal', None] = None,
     cbar: bool = True,
     coords: list[str] | None = None,
     errorbars: bool = True,
