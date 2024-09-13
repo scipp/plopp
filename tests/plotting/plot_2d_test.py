@@ -87,6 +87,16 @@ def test_use_non_dimension_coords():
     assert p.canvas.ymax == 3.3 * da.coords['yy'].max().value
 
 
+def test_use_two_coords_for_same_underlying_dimension_raises():
+    da = data_array(ndim=2)
+    da.coords['a'] = da.coords['xx'] * 2
+    msg = "coords: Cannot use the more than one coordinate"
+    with pytest.raises(ValueError, match=msg):
+        pp.plot(da, coords=['xx', 'a'])
+    with pytest.raises(ValueError, match=msg):
+        pp.plot(da, coords=['a', 'xx'])
+
+
 @pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
 def test_save_to_disk_2d(ext):
     da = data_array(ndim=2)
