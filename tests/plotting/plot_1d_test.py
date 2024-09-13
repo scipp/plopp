@@ -542,3 +542,12 @@ def test_figure_has_only_unit_on_vertical_axis_for_multiple_curves():
     assert a.name not in ylabel
     assert b.name not in ylabel
     assert c.name not in ylabel
+
+
+def test_plot_1d_scalar_mask():
+    da = sc.DataArray(
+        sc.ones(sizes={'x': 3}),
+        coords={'x': sc.arange('x', 3)},
+        masks={'m': sc.scalar(False)},
+    )
+    _ = da.plot()

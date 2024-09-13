@@ -1,10 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from typing import Literal
+
 import numpy as np
 import scipp as sc
 
 from ..core.utils import merge_masks
+from ..graphics.bbox import BoundingBox, axis_bounds
 
 
 def check_ndim(data: sc.DataArray, ndim: int, origin: str) -> None:
@@ -68,3 +71,44 @@ def make_line_data(data: sc.DataArray, dim: str) -> dict:
         for array in (values, mask):
             array['y'] = np.concatenate([array['y'][0:1], array['y']])
     return {'values': values, 'stddevs': error, 'mask': mask, 'hist': hist}
+
+
+def make_line_bbox(
+    data: sc.DataArray,
+    dim: str,
+    errorbars: bool,
+    xscale: Literal['linear', 'log'],
+    yscale: Literal['linear', 'log'],
+) -> BoundingBox:
+    """
+    Calculate the bounding box of a line artist.
+    This includes the x and y bounds of the line and optionally the error bars.
+
+    Parameters
+    ----------
+    data:
+        The data array to extract values from.
+    dim:
+        The dimension along which to extract values.
+    errorbars:
+        Whether to include error bars in the bounding box.
+    xscale:
+        The scale of the x-axis.
+    yscale:
+        The scale of the y-axis.
+    """
+    line_x = data.coords[dim]
+    sel = slice(None)
+    if data.masks:
+        sel = ~merge_masks(data.masks)
+        if set(sel.dims) != set(data.data.dims):
+            sel = sc.broadcast(sel, sizes=data.data.sizes).copy()
+    line_y = data.data[sel]
+    if errorbars:
+        stddevs = sc.stddevs(data.data[sel])
+        line_y = sc.concat([line_y - stddevs, line_y + stddevs], dim)
+
+    return BoundingBox(
+        **{**axis_bounds(('xmin', 'xmax'), line_x, xscale, pad=True)},
+        **{**axis_bounds(('ymin', 'ymax'), line_y, yscale, pad=True)},
+    )
