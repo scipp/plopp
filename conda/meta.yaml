@@ -35,7 +35,7 @@ test:
 
   {# Conda does not allow spaces between package name and version, so remove them #}
   {% for package in test_dependencies %}
-    - {% if package == "graphviz" %}python-graphviz{% else %}{{ package|replace(" ", "") }}{% endif %}
+    - {% if package == "graphviz" %}python-graphviz{% elif package == "kaleido" %}python-kaleido{% else %}{{ package|replace(" ", "") }}{% endif %}
   {% endfor %}
 
 

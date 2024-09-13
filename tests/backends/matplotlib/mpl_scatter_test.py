@@ -4,6 +4,7 @@
 import numpy as np
 import scipp as sc
 
+import plopp as pp
 from plopp.backends.matplotlib.canvas import Canvas
 from plopp.backends.matplotlib.scatter import Scatter
 from plopp.data.testing import scatter as scatter_data
@@ -44,3 +45,33 @@ def test_scatter_update():
     x, y = scat._scatter.get_offsets().T
     assert np.allclose(x, new.coords['x'].values)
     assert np.allclose(y, new.coords['y'].values)
+
+
+def test_scatter_no_legend_for_a_single_artist():
+    da = scatter_data()
+    da.name = "SomeScatterData"
+    fig = pp.scatter(da)
+    leg = fig.ax.get_legend()
+    assert leg is None
+
+
+def test_scatter_has_legend_for_multiple_artists():
+    a = scatter_data(seed=1)
+    b = scatter_data(seed=2)
+    fig = pp.scatter({'a': a, 'b': b})
+    leg = fig.ax.get_legend()
+    assert leg is not None
+    texts = leg.get_texts()
+    assert len(texts) == 2
+    assert texts[0].get_text() == 'a'
+    assert texts[1].get_text() == 'b'
+
+    c = scatter_data(seed=3)
+    fig = pp.scatter({'a': a, 'b': b, 'c': c})
+    leg = fig.ax.get_legend()
+    assert leg is not None
+    texts = leg.get_texts()
+    assert len(texts) == 3
+    assert texts[0].get_text() == 'a'
+    assert texts[1].get_text() == 'b'
+    assert texts[2].get_text() == 'c'

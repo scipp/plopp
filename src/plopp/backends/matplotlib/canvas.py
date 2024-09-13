@@ -11,7 +11,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ...graphics.bbox import BoundingBox
-from .utils import fig_to_bytes, is_sphinx_build, make_figure
+from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
 
 def _cursor_value_to_variable(x: float, dtype: sc.DType, unit: str) -> sc.Variable:
@@ -134,25 +134,32 @@ class Canvas:
         return Image(value=fig_to_bytes(self.fig), format='png')
 
     def to_widget(self):
-        from ipywidgets import Layout, VBox
+        from ipywidgets import VBox
 
         if self.is_widget() and not is_sphinx_build():
             self.fig.tight_layout()
             # The Matplotlib canvas tries to fill the entire width of the output cell,
             # which can add unnecessary whitespace between it and other widgets. To
             # prevent this, we wrap the canvas in a VBox, which seems to help.
-            widget = VBox([self.fig.canvas])
-        else:
-            widget = self.to_image()
-        # The max_width is set to prevent overflow, see gh-169
-        widget.layout = Layout(max_width='80%', overflow='auto')
-        return widget
+            return VBox([self.fig.canvas])
+        return self.to_image()
 
     def draw(self):
         """
         Make a draw call to the underlying figure.
         """
         self.fig.canvas.draw_idle()
+
+    def update_legend(self):
+        """
+        Update the legend on the canvas.
+        """
+        if self._legend:
+            handles, labels = self.ax.get_legend_handles_labels()
+            if len(handles) > 1:
+                self.ax.legend(handles, labels, **make_legend(self._legend))
+            elif (leg := self.ax.get_legend()) is not None:
+                leg.remove()
 
     def save(self, filename: str, **kwargs):
         """
@@ -196,9 +203,10 @@ class Canvas:
             self._cursor_x_prefix = self.dims['x'] + '='
             self._cursor_y_prefix = self.dims['y'] + '='
         self.ax.format_coord = self.format_coord
+        key = 'y' if 'y' in self.units else 'data'
         self.bbox = BoundingBox(
-            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units.get('y')),
-            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units.get('y')),
+            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
+            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
         )
 
     def register_format_coord(self, formatter):
@@ -220,7 +228,8 @@ class Canvas:
             The y coordinate of the mouse pointer.
         """
         xstr = _cursor_formatter(x, self.dtypes['x'], self.units['x'])
-        ystr = _cursor_formatter(y, self.dtypes['y'], self.units['y'])
+        key = 'y' if 'y' in self.dtypes else 'data'
+        ystr = _cursor_formatter(y, self.dtypes[key], self.units[key])
         out = f"({self._cursor_x_prefix}{xstr}, {self._cursor_y_prefix}{ystr})"
         if not self._coord_formatters:
             return out

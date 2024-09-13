@@ -112,9 +112,8 @@ class ColorMapper:
         # raised when making the colorbar before any call to update is made.
         self.normalizer = _get_normalizer(self.norm)
         self.colorbar = None
-        self.unit = None
-
-        self.name = None
+        self._unit = None
+        self.empty = True
         self.changed = False
         self.artists = {}
         self.widget = None
@@ -221,34 +220,41 @@ class ColorMapper:
         for k in self.artists.keys():
             self.artists[k].set_colors(self.rgba(self.artists[k].data))
 
-    def update(self, *args, **kwargs):
+    def update(self):
         """
-        Update the colorscale bounds taking into account new values,
-        by either supplying a dictionary of new data or by keyword arguments.
-        We also update the colorbar widget if it exists.
+        Update the colors of all artists, if the `self.set_colors_on_update` attribute
+        is set to `True`.
         """
-        new = dict(*args, **kwargs)
-        for data in new.values():
-            if self.name is None:
-                self.name = data.name
-                # If name is None, this is the first time update is called
-                if self.user_vmin is not None:
-                    self.user_vmin = maybe_variable_to_number(
-                        self.user_vmin, unit=self.unit
-                    )
-                if self.user_vmax is not None:
-                    self.user_vmax = maybe_variable_to_number(
-                        self.user_vmax, unit=self.unit
-                    )
-            elif data.name != self.name:
-                self.name = ''
-            if self.cax is not None:
-                text = self.name
-                if self.unit is not None:
-                    text += f'{" " if self.name else ""}[{self.unit}]'
-                self.cax.set_ylabel(text)
         if self.set_colors_on_update:
             self._set_artists_colors()
+
+    @property
+    def unit(self) -> str | None:
+        """
+        Get or set the unit of the colorbar.
+        """
+        return self._unit
+
+    @unit.setter
+    def unit(self, unit: str | None):
+        self._unit = unit
+        if self.user_vmin is not None:
+            self.user_vmin = maybe_variable_to_number(self.user_vmin, unit=self._unit)
+        if self.user_vmax is not None:
+            self.user_vmax = maybe_variable_to_number(self.user_vmax, unit=self._unit)
+
+    @property
+    def ylabel(self) -> str | None:
+        """
+        Get or set the label of the colorbar axis.
+        """
+        if self.cax is not None:
+            return self.cax.get_ylabel()
+
+    @ylabel.setter
+    def ylabel(self, lab: str):
+        if self.cax is not None:
+            self.cax.set_ylabel(lab)
 
     def toggle_norm(self):
         """

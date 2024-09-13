@@ -10,11 +10,10 @@ from matplotlib.dates import date2num
 from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
 
-from ...core.utils import merge_masks
-from ...graphics.bbox import BoundingBox, axis_bounds
-from ..common import check_ndim, make_line_data
+from ...graphics.bbox import BoundingBox
+from ..common import check_ndim, make_line_bbox, make_line_data
 from .canvas import Canvas
-from .utils import make_legend, parse_dicts_in_kwargs
+from .utils import parse_dicts_in_kwargs
 
 
 def _to_float(x):
@@ -137,11 +136,6 @@ class Line:
                 zorder=10,
                 fmt="none",
             )
-        self.update_legend()
-
-    def update_legend(self) -> None:
-        if self.label and self._canvas._legend:
-            self._ax.legend(**make_legend(self._canvas._legend))
 
     def update(self, new_values: sc.DataArray):
         """
@@ -187,7 +181,6 @@ class Line:
         self._mask.remove()
         if self._error is not None:
             self._error.remove()
-        self.update_legend()
         self._canvas.draw()
 
     @property
@@ -205,19 +198,24 @@ class Line:
                 artist.set_color(val)
         self._canvas.draw()
 
-    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+    def bbox(
+        self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']
+    ) -> BoundingBox:
         """
         The bounding box of the line.
-        """
-        line_x = self._data.coords[self._dim]
-        sel = ~merge_masks(self._data.masks) if self._data.masks else slice(None)
-        line_y = self._data.data[sel]
-        if self._error is not None:
-            stddevs = sc.stddevs(self._data.data[sel])
-            line_y = sc.concat([line_y - stddevs, line_y + stddevs], self._dim)
+        This includes the x and y bounds of the line and optionally the error bars.
 
-        out = BoundingBox(
-            **{**axis_bounds(('xmin', 'xmax'), line_x, xscale, pad=True)},
-            **{**axis_bounds(('ymin', 'ymax'), line_y, yscale, pad=True)},
+        Parameters
+        ----------
+        xscale:
+            The scale of the x-axis.
+        yscale:
+            The scale of the y-axis.
+        """
+        return make_line_bbox(
+            data=self._data,
+            dim=self._dim,
+            errorbars=self._error is not None,
+            xscale=xscale,
+            yscale=yscale,
         )
-        return out

@@ -72,8 +72,10 @@ class Canvas:
         )
 
     def to_widget(self):
-        # The max_width is set to prevent overflow, see gh-169
-        self.renderer.layout = ipw.Layout(max_width='80%', overflow='auto')
+        # The max_width is set to prevent overflow, see
+        # https://github.com/scipp/plopp/issues/169.
+        # See also https://github.com/scipp/plopp/pull/367.
+        self.renderer.layout = ipw.Layout(max_width='100%', overflow='auto')
         return self.renderer
 
     def set_axes(self, dims, units, dtypes):
@@ -393,3 +395,6 @@ class Canvas:
     @zrange.setter
     def zrange(self, value: tuple[float, float]):
         self.zmin, self.zmax = value
+
+    def update_legend(self):
+        pass
