@@ -90,7 +90,7 @@ def test_use_non_dimension_coords():
 def test_use_two_coords_for_same_underlying_dimension_raises():
     da = data_array(ndim=2)
     da.coords['a'] = da.coords['xx'] * 2
-    msg = "coords: Cannot use the more than one coordinate"
+    msg = "coords: Cannot use more than one coordinate"
     with pytest.raises(ValueError, match=msg):
         pp.plot(da, coords=['xx', 'a'])
     with pytest.raises(ValueError, match=msg):
