@@ -108,14 +108,19 @@ class GraphicalView(View):
             bbox = bbox.union(artist.bbox(**scales))
         self.bbox = bbox
         self.bbox = self.bbox.override(self.canvas.bbox)
-        self.canvas.xrange = (
+        xrange = (
             _none_if_not_finite(self.bbox.xmin),
             _none_if_not_finite(self.bbox.xmax),
         )
-        self.canvas.yrange = (
+        yrange = (
             _none_if_not_finite(self.bbox.ymin),
             _none_if_not_finite(self.bbox.ymax),
         )
+        if self.canvas.ax.name == 'polar':
+            xrange = (max(xrange[0], 0), min(xrange[1], 2 * np.pi))
+            yrange = (max(yrange[0], 0), yrange[1])
+        self.canvas.xrange = xrange
+        self.canvas.yrange = yrange
         if hasattr(self.canvas, 'zrange'):
             self.canvas.zrange = (
                 _none_if_not_finite(self.bbox.zmin),
