@@ -196,6 +196,11 @@ def preprocess(
             coords = [coords]
         for dim in coords:
             underlying = out.coords[dim].dims[-1]
+            if underlying in renamed_dims:
+                raise ValueError(
+                    "coords: Cannot use more than one coordinate associated with "
+                    f"the same underlying dimension ({underlying})."
+                )
             renamed_dims[underlying] = dim
         out = out.rename_dims(**renamed_dims)
     for n, coord in out.coords.items():
