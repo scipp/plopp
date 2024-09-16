@@ -73,7 +73,7 @@ class Canvas:
         grid: bool = False,
         user_vmin: sc.Variable | float = None,
         user_vmax: sc.Variable | float = None,
-        aspect: Literal['auto', 'equal'] = 'auto',
+        aspect: Literal['auto', 'equal', None] = None,
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
         **ignored,
@@ -100,9 +100,10 @@ class Canvas:
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
-            self.ax.set_aspect(aspect)
         else:
             self.fig = self.ax.get_figure()
+        if aspect is not None:
+            self.ax.set_aspect(aspect)
         if self.is_widget():
             self.fig.canvas.toolbar_visible = False
             self.fig.canvas.header_visible = False
