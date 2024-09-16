@@ -219,3 +219,18 @@ class Line:
             xscale=xscale,
             yscale=yscale,
         )
+
+    def to_dict(self) -> dict:
+        """
+        Return a dictionary representation of the line.
+        """
+        return {
+            'type': 'line',
+            'data': {'x': self._data.coords[self._dim].values, 'y': self._data.values},
+            'label': self.label,
+            'color': self.color,
+            'linestyle': self._line.get_linestyle(),
+            'linewidth': self._line.get_linewidth(),
+            'marker': self._line.get_marker(),
+            'opacity': self._line.get_alpha(),
+        }

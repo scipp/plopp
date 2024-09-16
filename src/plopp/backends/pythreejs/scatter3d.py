@@ -64,6 +64,7 @@ class Scatter3d:
         self._y = y
         self._z = z
         self._id = uuid.uuid4().hex
+        self._color = f'C{artist_number}' if color is None else color
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -92,9 +93,7 @@ class Scatter3d:
                 ),
                 'color': p3.BufferAttribute(
                     array=np.broadcast_to(
-                        np.array(
-                            to_rgb(f'C{artist_number}' if color is None else color)
-                        ),
+                        np.array(to_rgb(self._color)),
                         (self._data.coords[self._x].shape[0], 3),
                     ).astype('float32')
                 ),
@@ -170,6 +169,20 @@ class Scatter3d:
         self.material.depthTest = val > 0.5
 
     @property
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self, value):
+        self._color = value
+        self.set_colors(
+            np.broadcast_to(
+                np.array(to_rgb(self._color)),
+                (self._data.coords[self._x].shape[0], 3),
+            )
+        )
+
+    @property
     def data(self):
         """
         Get the point cloud data.
@@ -203,3 +216,17 @@ class Scatter3d:
         Remove the point cloud from the canvas.
         """
         self._canvas.remove(self.points)
+
+    def to_dict(self):
+        return {
+            'type': 'scatter3d',
+            'data': {
+                'x': self._data.coords[self._x].values,
+                'y': self._data.coords[self._y].values,
+                'z': self._data.coords[self._z].values,
+                'values': self._data.values,
+                'size': self._size,
+            },
+            'color': self.color,
+            'opacity': self.material.opacity,
+        }

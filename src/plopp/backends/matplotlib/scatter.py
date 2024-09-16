@@ -135,3 +135,18 @@ class Scatter:
             **{**axis_bounds(('xmin', 'xmax'), scatter_x, xscale, pad=True)},
             **{**axis_bounds(('ymin', 'ymax'), scatter_y, yscale, pad=True)},
         )
+
+    def to_dict(self):
+        return {
+            'type': 'scatter',
+            'data': {
+                'x': self._data.coords[self._x].values,
+                'y': self._data.coords[self._y].values,
+                'values': self._data.values,
+                'size': self._size,
+            },
+            'label': self.label,
+            'edgecolor': self._scatter.get_edgecolor(),
+            'facecolor': self._scatter.get_facecolor(),
+            'opacity': self._scatter.get_alpha(),
+        }

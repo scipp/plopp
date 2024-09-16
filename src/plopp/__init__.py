@@ -24,6 +24,7 @@ from .graphics import (
     tiled,
 )
 from .plotting import inspector, plot, scatter, scatter3d, slicer, superplot, xyplot
+from .utils import to_dict
 
 del importlib
 
@@ -60,6 +61,7 @@ __all__ = [
     'slicer',
     'superplot',
     'tiled',
+    'to_dict',
     'widget_node',
     'xyplot',
 ]

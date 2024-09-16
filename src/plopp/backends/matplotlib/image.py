@@ -223,3 +223,14 @@ class Image:
             **{**axis_bounds(('xmin', 'xmax'), image_x, xscale)},
             **{**axis_bounds(('ymin', 'ymax'), image_y, yscale)},
         )
+
+    def to_dict(self):
+        return {
+            'type': 'heatmap',
+            'data': {
+                'x': self._data_with_bin_edges.coords['x'].values,
+                'y': self._data_with_bin_edges.coords['y'].values,
+                'z': self._data.values,
+            },
+            'opacity': self._mesh.get_alpha(),
+        }
