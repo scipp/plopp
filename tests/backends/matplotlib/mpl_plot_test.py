@@ -150,3 +150,40 @@ def test_with_strings_as_bin_edges_other_coord_is_bin_centers_2d():
     )
     fig = da.plot()
     assert [t.get_text() for t in fig.canvas.ax.get_xticklabels()] == strings
+
+
+def test_polar_axes_limits_with_padding_are_clipped():
+    # Make some spiral data
+    N = 50
+    r = sc.linspace('theta', 0, 10, N, unit='m')
+    theta = sc.linspace('theta', 0, 0.995 * 2 * np.pi, N, unit='rad')
+    da = sc.DataArray(data=r, coords={'theta': theta})
+
+    _, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    fig = pp.plot(da, ax=ax)
+    assert fig.canvas.xrange == (0, 2 * np.pi)
+
+
+def test_polar_axes_limits_more_than_two_pi_are_clipped():
+    # Make some spiral data
+    N = 50
+    r = sc.linspace('theta', 0, 10, N, unit='m')
+    theta = sc.linspace('theta', 0, 3.5 * 2 * np.pi, N, unit='rad')
+    da = sc.DataArray(data=r, coords={'theta': theta})
+
+    _, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    fig = pp.plot(da, ax=ax)
+    assert fig.canvas.xrange == (0, 2 * np.pi)
+
+
+def test_polar_axes_limits_small_range_fits_to_data():
+    # Make some spiral data
+    N = 50
+    r = sc.linspace('theta', 0, 10, N, unit='m')
+    theta = sc.linspace('theta', 0.25 * 2 * np.pi, 0.75 * 2 * np.pi, N, unit='rad')
+    da = sc.DataArray(data=r, coords={'theta': theta})
+
+    _, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    fig = pp.plot(da, ax=ax)
+    assert fig.canvas.xmin > 0.0
+    assert fig.canvas.xmax < 2 * np.pi
