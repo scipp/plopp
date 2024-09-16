@@ -45,7 +45,7 @@ class GraphicalView(View):
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
         scale: dict[str, str] | None = None,
-        aspect: Literal['auto', 'equal'] = 'auto',
+        aspect: Literal['auto', 'equal', None] = None,
         grid: bool = False,
         title: str | None = None,
         figsize: tuple[float, float] | None = None,

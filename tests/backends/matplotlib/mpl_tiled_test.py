@@ -225,3 +225,12 @@ def test_tiled_keeps_figure_props():
     assert tiled[0, 0].canvas.yscale == 'log'
     assert tiled[0, 1].canvas.xscale == 'log'
     assert tiled[0, 1].canvas.yscale == 'linear'
+
+
+def test_tiled_keeps_aspect():
+    a = data_array(ndim=2)
+    f1 = a.plot(aspect='equal')
+    f2 = a.plot(cbar=False)
+    tiled = f1 + f2
+    assert tiled.fig.get_axes()[0].get_aspect() == 1.0
+    assert tiled.fig.get_axes()[2].get_aspect() == "auto"
