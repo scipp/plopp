@@ -19,23 +19,10 @@ def _preprocess_mesh(
     vertices, faces, vertexcolors = (
         _maybe_to_variable(data) if data is not None else None
         for data in (vertices, faces, vertexcolors)
-        # if data is not None
     )
 
-    # variables = {
-    #     name: _maybe_to_variable(data)
-    #     for name, data in zip(
-    #         ['vertices', 'faces', 'vertexcolors'],
-    #         [vertices, faces, vertexcolors],
-    #         strict=True,
-    #     )
-    #     if data is not None
-    # }
     if vertices.dtype != sc.DType.vector3:
         raise ValueError("Vertices must be of dtype vector3.")
-    # v = vertices.rename_dims(pix='vertices')
-    # if vertexcolors is None:
-    #     vertexcolors = sc.broadcast(sc.empty(sizes={}), sizes=vertices.sizes)
     out = sc.DataArray(
         data=sc.broadcast(sc.empty(sizes={}), sizes=vertices.sizes),
         coords={
@@ -46,8 +33,7 @@ def _preprocess_mesh(
         },
     )
     if vertexcolors is not None:
-        out.coords['vertexcolors'] = vertexcolors  # .rename_dims(pix='vertices')
-    print("OUT", out)
+        out.data = vertexcolors
     return out
 
 
@@ -77,7 +63,8 @@ def mesh3d(
     faces:
         The indices that construct the faces of the mesh.
     vertexcolors:
-        The colors of the vertices of the mesh.
+        The colors of the vertices of the mesh. If ``None``, the mesh will have a
+        single solid color.
     edgecolor:
         The color of the edges. If None, no edges are drawn.
     figsize:
@@ -106,9 +93,6 @@ def mesh3d(
 
     fig = mesh3dfigure(
         input_node,
-        x='x',
-        y='y',
-        z='z',
         vertexcolors=vertexcolors,
         edgecolor=edgecolor,
         figsize=figsize,

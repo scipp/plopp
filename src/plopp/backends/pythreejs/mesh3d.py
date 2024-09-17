@@ -6,6 +6,7 @@ from typing import Literal
 
 import numpy as np
 import scipp as sc
+from matplotlib.colors import to_rgb
 
 from ...core.limits import find_limits
 from ...graphics.bbox import BoundingBox
@@ -18,15 +19,23 @@ class Mesh3d:
 
     Parameters
     ----------
+    canvas:
+        The canvas to draw the mesh on.
     data:
         The initial data to create the mesh from. Must be a DataGroup that contains at
         least the following fields:
         - vertices: a DataArray with the vertices of the mesh.
         - faces: a DataArray with the faces of the mesh.
+    color:
+        The color of the mesh. If None, the mesh will be colored according to the
+        artist number.
     opacity:
         The opacity of the mesh.
     edgecolor:
         The color of the edges of the mesh. If None, the edges will not be shown.
+    artist_number:
+        The number of the artist. This is used to determine the color of the mesh if
+        `color` is None.
     """
 
     def __init__(
@@ -34,6 +43,7 @@ class Mesh3d:
         *,
         canvas: Canvas,
         data: sc.DataArray,
+        color: str | None = None,
         opacity: float = 1,
         edgecolor: str | None = None,
         artist_number: int = 0,
@@ -43,20 +53,8 @@ class Mesh3d:
         self._data = data
         self._canvas = canvas
         self._artist_number = artist_number
-        # self._data = None
-        # if "vertexcolors" in self._dataset.coords:
-        #     self._data = sc.DataArray(data=self._dataset["vertexcolors"])
         self._id = uuid.uuid4().hex
 
-        position = p3.BufferAttribute(
-            array=np.array(
-                [
-                    self._data.coords["x"].values.astype('float32', copy=False),
-                    self._data.coords["y"].values.astype('float32', copy=False),
-                    self._data.coords["z"].values.astype('float32', copy=False),
-                ]
-            ).T
-        )
         # Note: index *must* be unsigned!
         index = p3.BufferAttribute(
             array=self._data.coords["faces"]
@@ -65,12 +63,22 @@ class Mesh3d:
         )
 
         attributes = {
-            'position': position,
+            'position': p3.BufferAttribute(
+                array=np.array(
+                    [
+                        self._data.coords["x"].values.astype('float32', copy=False),
+                        self._data.coords["y"].values.astype('float32', copy=False),
+                        self._data.coords["z"].values.astype('float32', copy=False),
+                    ]
+                ).T
+            ),
+            'color': p3.BufferAttribute(
+                array=np.broadcast_to(
+                    np.array(to_rgb(f'C{artist_number}' if color is None else color)),
+                    (self._data.coords["x"].shape[0], 3),
+                ).astype('float32')
+            ),
         }
-        if "vertexcolors" in self._data.coords:
-            attributes["color"] = p3.BufferAttribute(
-                array=np.zeros((len(self._data), 3), dtype='float32')
-            )
 
         self.geometry = p3.BufferGeometry(index=index, attributes=attributes)
         self.material = p3.MeshBasicMaterial(
@@ -121,8 +129,6 @@ class Mesh3d:
             New data to update the mesh values from.
         """
         self._data = new_values
-        # if "vertexcolors" in self._dataset:
-        #     self._data.data = self._dataset["vertexcolors"]
         # TODO: for now we only update the colors of the mesh. Updating the positions
         # of the vertices is doable but is made more complicated by the edges geometry,
         # whose positions cannot just be updated. A new geometry and edge lines would
@@ -137,10 +143,6 @@ class Mesh3d:
         """
         The bounding box of the mesh.
         """
-        # xcoord = self._dataset["vertices"].fields.x
-        # ycoord = self._dataset["vertices"].fields.y
-        # zcoord = self._dataset["vertices"].fields.z
-        # verts = self._data.coords["vertices"]
         coords = self._data.coords
         xbounds = find_limits(coords['x'], scale=xscale)
         ybounds = find_limits(coords['y'], scale=yscale)
@@ -153,12 +155,6 @@ class Mesh3d:
             zmin=zbounds[0].value,
             zmax=zbounds[1].value,
         )
-
-        # return (
-        #     sc.concat([xcoord.min(), xcoord.max()], dim='x'),
-        #     sc.concat([ycoord.min(), ycoord.max()], dim='y'),
-        #     sc.concat([zcoord.min(), zcoord.max()], dim='z'),
-        # )
 
     @property
     def opacity(self):

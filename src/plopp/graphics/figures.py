@@ -74,13 +74,11 @@ def scatter3dfigure(
     )
 
 
-def mesh3dfigure(
-    *nodes: Node, x: str = 'x', y: str = 'y', z: str = 'z', vertexcolors, **kwargs
-) -> FigureLike:
+def mesh3dfigure(*nodes: Node, vertexcolors, **kwargs) -> FigureLike:
     colormapper = vertexcolors is not None
     view_maker = partial(
         GraphicalView,
-        dims={'x': x, 'y': y, 'z': z},
+        dims={'x': 'x', 'y': 'y', 'z': 'z'},
         canvas_maker=backends.get(group='3d', name='canvas'),
         artist_maker=backends.get(group='3d', name='mesh3d'),
         colormapper=colormapper,

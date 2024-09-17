@@ -95,6 +95,12 @@ getting-started/saving-figures
 
 :::
 
+:::{grid-item-card} Mesh 3D plot
+:link: plot-types/mesh3d-plot.ipynb
+:img-bottom: ../_static/plot-types/mesh3d-plot.png
+
+:::
+
 ::::
 
 ```{toctree}
@@ -109,6 +115,7 @@ plot-types/inspector-plot
 plot-types/super-plot
 plot-types/scatter-plot
 plot-types/scatter3d-plot
+plot-types/mesh3d-plot
 ```
 
 ## Custom figures
