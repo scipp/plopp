@@ -9,6 +9,7 @@ import scipp as sc
 
 from ...core.limits import find_limits
 from ...graphics.bbox import BoundingBox
+from .canvas import Canvas
 
 
 class Mesh3d:
@@ -31,20 +32,30 @@ class Mesh3d:
     def __init__(
         self,
         *,
+        canvas: Canvas,
         data: sc.DataArray,
         opacity: float = 1,
         edgecolor: str | None = None,
+        artist_number: int = 0,
     ):
         import pythreejs as p3
 
         self._data = data
+        self._canvas = canvas
+        self._artist_number = artist_number
         # self._data = None
         # if "vertexcolors" in self._dataset.coords:
         #     self._data = sc.DataArray(data=self._dataset["vertexcolors"])
         self._id = uuid.uuid4().hex
 
         position = p3.BufferAttribute(
-            array=self._data.coords["vertices"].values.astype('float32', copy=False)
+            array=np.array(
+                [
+                    self._data.coords["x"].values.astype('float32', copy=False),
+                    self._data.coords["y"].values.astype('float32', copy=False),
+                    self._data.coords["z"].values.astype('float32', copy=False),
+                ]
+            ).T
         )
         # Note: index *must* be unsigned!
         index = p3.BufferAttribute(
@@ -83,6 +94,9 @@ class Mesh3d:
             if edgecolor is not None
             else None
         )
+        self._canvas.add(self.mesh)
+        if self.edges is not None:
+            self._canvas.add(self.edges)
 
     def set_colors(self, rgba):
         """
@@ -126,10 +140,11 @@ class Mesh3d:
         # xcoord = self._dataset["vertices"].fields.x
         # ycoord = self._dataset["vertices"].fields.y
         # zcoord = self._dataset["vertices"].fields.z
-        verts = self._data.coords["vertices"]
-        xbounds = find_limits(verts.fields.x, scale=xscale)
-        ybounds = find_limits(verts.fields.y, scale=yscale)
-        zbounds = find_limits(verts.fields.z, scale=zscale)
+        # verts = self._data.coords["vertices"]
+        coords = self._data.coords
+        xbounds = find_limits(coords['x'], scale=xscale)
+        ybounds = find_limits(coords['y'], scale=yscale)
+        zbounds = find_limits(coords['z'], scale=zscale)
         return BoundingBox(
             xmin=xbounds[0].value,
             xmax=xbounds[1].value,

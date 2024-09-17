@@ -39,7 +39,9 @@ def _preprocess_mesh(
     out = sc.DataArray(
         data=sc.broadcast(sc.empty(sizes={}), sizes=vertices.sizes),
         coords={
-            'vertices': vertices,
+            'x': vertices.fields.x,
+            'y': vertices.fields.y,
+            'z': vertices.fields.z,
             'faces': sc.scalar(faces),
         },
     )
@@ -104,6 +106,9 @@ def mesh3d(
 
     fig = mesh3dfigure(
         input_node,
+        x='x',
+        y='y',
+        z='z',
         vertexcolors=vertexcolors,
         edgecolor=edgecolor,
         figsize=figsize,
