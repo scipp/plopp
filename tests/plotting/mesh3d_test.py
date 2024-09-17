@@ -9,7 +9,7 @@ import plopp as pp
 from plopp.data import examples
 
 
-@pytest.fixture()
+@pytest.fixture
 def teapot_data():
     return sc.io.load_hdf5(examples.teapot())
 
