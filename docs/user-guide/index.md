@@ -2,7 +2,7 @@
 
 ## Getting started
 
-::::{grid} 3
+::::{grid} 2
 
 :::{grid-item-card} {octicon}`desktop-download;1em`&nbsp; Installation
 :link: getting-started/installation.md
@@ -14,14 +14,14 @@
 
 :::
 
+::::
+
+::::{grid} 2
+
 :::{grid-item-card} {octicon}`graph;1em`&nbsp; Numpy, Pandas, and Xarray
 :link: getting-started/numpy-pandas-xarray.ipynb
 
 :::
-
-::::
-
-::::{grid} 3
 
 :::{grid-item-card} {octicon}`download;1em`&nbsp; Saving figures to disk
 :link: plot-types/saving-figures.ipynb

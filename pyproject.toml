@@ -40,6 +40,7 @@ scipp = ["scipp"]
 all = ["scipp", "ipympl", "pythreejs", "mpltoolbox", "ipywidgets", "graphviz"]
 test = [
     "graphviz",
+    "h5py",
     "ipympl",
     "ipywidgets",
     "kaleido",
