@@ -14,6 +14,7 @@ kaleido
 mpltoolbox
 pandas
 plotly
+pooch
 pyarrow
 pytest
 pythreejs

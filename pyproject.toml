@@ -46,6 +46,7 @@ test = [
     "mpltoolbox",
     "pandas",
     "plotly",
+    "pooch",
     "pyarrow",
     "pytest",
     "pythreejs",
