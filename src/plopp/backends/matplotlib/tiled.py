@@ -82,7 +82,6 @@ class Tiled:
         )
 
         self.gs = gridspec.GridSpec(nrows, ncols, figure=self.fig, **kwargs)
-        self.axes = []
         self.figures = np.full((nrows, ncols), None)
         self._history = []
 
@@ -109,7 +108,7 @@ class Tiled:
         else:
             out = {'text/plain': f'TiledFigure(nrows={self.nrows}, ncols={self.ncols})'}
             npoints = sum(
-                len(line.get_xdata()) for ax in self.axes for line in ax.lines
+                len(line.get_xdata()) for ax in self.fig.get_axes() for line in ax.lines
             )
             out.update(get_repr_maker(npoints=npoints)(self.fig))
             return out

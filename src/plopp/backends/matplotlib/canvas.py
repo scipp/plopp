@@ -31,6 +31,25 @@ def _cursor_formatter(x: float, dtype: sc.DType, unit: str) -> str:
     return scalar_to_string(sc.scalar(x, unit=unit))
 
 
+def _maybe_trim_polar_limits(
+    axis_type: str, limits: tuple[float, float]
+) -> tuple[float, float]:
+    """
+    If the axes are polar, trim the limits of the polar plot to be within the range
+    [0, 2π].
+
+    Parameters
+    ----------
+    axis_type:
+        The type of the axis. If this is not 'polar', the limits are returned as is.
+    limits:
+        The limits of the axis.
+    """
+    if axis_type != 'polar':
+        return limits
+    return tuple(np.clip(limits, 0, 2 * np.pi))
+
+
 class Canvas:
     """
     Matplotlib-based canvas used to render 2D graphics.
@@ -73,7 +92,7 @@ class Canvas:
         grid: bool = False,
         user_vmin: sc.Variable | float = None,
         user_vmax: sc.Variable | float = None,
-        aspect: Literal['auto', 'equal'] = 'auto',
+        aspect: Literal['auto', 'equal', None] = None,
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
         **ignored,
@@ -100,9 +119,10 @@ class Canvas:
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
-            self.ax.set_aspect(aspect)
         else:
             self.fig = self.ax.get_figure()
+        if aspect is not None:
+            self.ax.set_aspect(aspect)
         if self.is_widget():
             self.fig.canvas.toolbar_visible = False
             self.fig.canvas.header_visible = False
@@ -333,7 +353,9 @@ class Canvas:
 
     @xmin.setter
     def xmin(self, value: float):
-        self.ax.set_xlim(value, self.xmax)
+        self.ax.set_xlim(
+            _maybe_trim_polar_limits(axis_type=self.ax.name, limits=(value, self.xmax))
+        )
 
     @property
     def xmax(self) -> float:
@@ -344,7 +366,9 @@ class Canvas:
 
     @xmax.setter
     def xmax(self, value: float):
-        self.ax.set_xlim(self.xmin, value)
+        self.ax.set_xlim(
+            _maybe_trim_polar_limits(axis_type=self.ax.name, limits=(self.xmin, value))
+        )
 
     @property
     def xrange(self) -> tuple[float, float]:
@@ -355,7 +379,7 @@ class Canvas:
 
     @xrange.setter
     def xrange(self, value: tuple[float, float]):
-        self.ax.set_xlim(value)
+        self.ax.set_xlim(_maybe_trim_polar_limits(axis_type=self.ax.name, limits=value))
 
     @property
     def ymin(self) -> float:
