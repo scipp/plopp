@@ -62,16 +62,19 @@ class Mesh3d:
             .astype('uint32', copy=False)
         )
 
+        pos = (
+            self._data.coords["vertices"].values.astype('float32')
+            if 'vertices' in self._data.coords
+            else np.array(
+                [
+                    self._data.coords["x"].values.astype('float32', copy=False),
+                    self._data.coords["y"].values.astype('float32', copy=False),
+                    self._data.coords["z"].values.astype('float32', copy=False),
+                ]
+            ).T
+        )
         attributes = {
-            'position': p3.BufferAttribute(
-                array=np.array(
-                    [
-                        self._data.coords["x"].values.astype('float32', copy=False),
-                        self._data.coords["y"].values.astype('float32', copy=False),
-                        self._data.coords["z"].values.astype('float32', copy=False),
-                    ]
-                ).T
-            ),
+            'position': p3.BufferAttribute(array=pos),
             'color': p3.BufferAttribute(
                 array=np.broadcast_to(
                     np.array(to_rgb(f'C{artist_number}' if color is None else color)),
@@ -129,10 +132,11 @@ class Mesh3d:
             New data to update the mesh values from.
         """
         self._data = new_values
-        # TODO: for now we only update the colors of the mesh. Updating the positions
-        # of the vertices is doable but is made more complicated by the edges geometry,
-        # whose positions cannot just be updated. A new geometry and edge lines would
-        # have to be created, the old one removed from the scene and the new one added.
+        # TODO: for now we only update the data values of the artist.
+        # Updating the positions of the vertices is doable but is made more complicated
+        # by the edges geometry, whose positions cannot just be updated.
+        # A new geometry and edge lines would have to be created, the old one removed
+        # from the scene and the new one added.
 
     def bbox(
         self,

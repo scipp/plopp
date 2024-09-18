@@ -29,6 +29,7 @@ def _preprocess_mesh(
             'x': vertices.fields.x,
             'y': vertices.fields.y,
             'z': vertices.fields.z,
+            'vertices': vertices,
             'faces': sc.scalar(faces),
         },
     )
@@ -54,7 +55,7 @@ def mesh3d(
     """
     Create a 3D mesh plot.
 
-    .. versionadded:: 24.06.0
+    .. versionadded:: 24.10.0
 
     Parameters
     ----------
