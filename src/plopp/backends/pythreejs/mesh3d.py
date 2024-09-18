@@ -24,6 +24,7 @@ class Mesh3d:
     data:
         The initial data to create the mesh from. Must be a DataGroup that contains at
         least the following fields:
+
         - vertices: a DataArray with the vertices of the mesh.
         - faces: a DataArray with the faces of the mesh.
     color:
