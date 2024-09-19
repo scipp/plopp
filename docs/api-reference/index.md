@@ -8,10 +8,11 @@
 .. autosummary::
    :toctree: ../generated
 
+   inspector
+   mesh3d
    plot
    slicer
    superplot
-   inspector
    scatter
    scatter3d
    xyplot
@@ -26,8 +27,8 @@
    core.Node
    core.View
    core.node
-   core.widget_node
    core.show_graph
+   core.widget_node
 ```
 
 ## Graphics
@@ -41,6 +42,7 @@
    graphics.ColorMapper
    graphics.imagefigure
    graphics.linefigure
+   graphics.mesh3dfigure
    graphics.scatterfigure
    graphics.scatter3dfigure
    graphics.tiled

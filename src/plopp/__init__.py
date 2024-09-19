@@ -23,7 +23,16 @@ from .graphics import (
     scatterfigure,
     tiled,
 )
-from .plotting import inspector, plot, scatter, scatter3d, slicer, superplot, xyplot
+from .plotting import (
+    inspector,
+    mesh3d,
+    plot,
+    scatter,
+    scatter3d,
+    slicer,
+    superplot,
+    xyplot,
+)
 
 del importlib
 
@@ -50,6 +59,7 @@ __all__ = [
     'inspector',
     'linefigure',
     'node',
+    'mesh3d',
     'plot',
     'scatter',
     'scatterfigure',

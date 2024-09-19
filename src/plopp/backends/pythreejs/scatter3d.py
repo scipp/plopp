@@ -137,23 +137,6 @@ class Scatter3d:
         check_ndim(new_values, ndim=1, origin='Scatter3d')
         self._data = new_values
 
-    def get_limits(self) -> tuple[sc.Variable, sc.Variable, sc.Variable]:
-        """
-        Get the spatial extent of all the points in the cloud.
-        """
-        xcoord = self._data.coords[self._x]
-        ycoord = self._data.coords[self._y]
-        zcoord = self._data.coords[self._z]
-        half_pixel = 0.5 * self._size
-        dx = sc.scalar(half_pixel, unit=xcoord.unit)
-        dy = sc.scalar(half_pixel, unit=ycoord.unit)
-        dz = sc.scalar(half_pixel, unit=zcoord.unit)
-        return (
-            sc.concat([xcoord.min() - dx, xcoord.max() + dx], dim=self._x),
-            sc.concat([ycoord.min() - dy, ycoord.max() + dy], dim=self._y),
-            sc.concat([zcoord.min() - dz, zcoord.max() + dz], dim=self._z),
-        )
-
     @property
     def opacity(self):
         """
