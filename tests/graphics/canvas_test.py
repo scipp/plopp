@@ -10,6 +10,12 @@ import pytest
 from plopp import Node, backends
 from plopp.data import data1d, data2d, data_array, scatter
 from plopp.graphics import imagefigure, linefigure, scatter3dfigure, scatterfigure
+from plopp.testing import _setup
+
+
+@dataclass
+class BackendParam:
+    param: str
 
 
 @dataclass
@@ -18,21 +24,96 @@ class FigureAndData:
     data: Callable
 
 
-def backend_linefigure(*args, backend=None, **kwargs):
-    backends['2d'] = backend
-    return linefigure(*args, **kwargs)
+# def backend_linefigure(*args, backend=None, **kwargs):
+#     backends['2d'] = backend
+#     return linefigure(*args, **kwargs)
 
+
+def _select_backend(backend, figure):
+    _setup(backend)
+    return figure
+
+
+# CASES = [
+#     FigureAndData(partial(backend_linefigure, backend='matplotlib'), data1d),
+#     FigureAndData(partial(backend_linefigure, backend='plotly'), data1d),
+#     FigureAndData(partial(imagefigure, cbar=True), data2d),
+#     FigureAndData(partial(scatterfigure, x='x', y='y', cbar=True), scatter),
+#     FigureAndData(partial(scatter3dfigure, x='x', y='y', z='z', cbar=True), scatter),
+# ]
 
 CASES = [
-    FigureAndData(partial(backend_linefigure, backend='matplotlib'), data1d),
-    FigureAndData(partial(backend_linefigure, backend='plotly'), data1d),
-    FigureAndData(partial(imagefigure, cbar=True), data2d),
-    FigureAndData(partial(scatterfigure, x='x', y='y', cbar=True), scatter),
-    FigureAndData(partial(scatter3dfigure, x='x', y='y', z='z', cbar=True), scatter),
+    pytest.param(
+        FigureAndData(_select_backend(BackendParam('mpl-static'), linefigure), data1d),
+        id="mpl-static-linefigure",
+    ),
+    pytest.param(
+        FigureAndData(
+            _select_backend(BackendParam('mpl-interactive'), linefigure), data1d
+        ),
+        id="mpl-interactive-linefigure",
+    ),
+    pytest.param(
+        FigureAndData(_select_backend(BackendParam('plotly'), linefigure), data1d),
+        id="plotly-linefigure",
+    ),
+    pytest.param(
+        FigureAndData(
+            _select_backend(
+                BackendParam('mpl-static'), partial(imagefigure, cbar=True)
+            ),
+            data2d,
+        ),
+        id="mpl-static-imagefigure",
+    ),
+    pytest.param(
+        FigureAndData(
+            _select_backend(
+                BackendParam('mpl-interactive'), partial(imagefigure, cbar=True)
+            ),
+            data2d,
+        ),
+        id="mpl-interactive-imagefigure",
+    ),
+    pytest.param(
+        FigureAndData(
+            _select_backend(
+                BackendParam('mpl-static'),
+                partial(scatterfigure, x='x', y='y', cbar=True),
+            ),
+            scatter,
+        ),
+        id="mpl-static-scatterfigure",
+    ),
+    pytest.param(
+        FigureAndData(
+            _select_backend(
+                BackendParam('mpl-interactive'),
+                partial(scatterfigure, x='x', y='y', cbar=True),
+            ),
+            scatter,
+        ),
+        id="mpl-interactive-scatterfigure",
+    ),
+    pytest.param(
+        FigureAndData(
+            _select_backend(
+                BackendParam(''),
+                partial(scatter3dfigure, x='x', y='y', z='z', cbar=True),
+            ),
+            scatter,
+        ),
+        id="scatter3dfigure",
+    ),
+    # FigureAndData(_select_backend(imagefigure, cbar=True), data2d),
+    # FigureAndData(_select_backend(scatterfigure, x='x', y='y', cbar=True), scatter),
+    # FigureAndData(
+    #     _select_backend(scatter3dfigure, x='x', y='y', z='z', cbar=True), scatter
+    # ),
 ]
 
-CASES1D = CASES[:2]
-CASESNO3D = CASES[:4]
+CASES1D = CASES[:4]
+CASESNO3D = CASES[:7]
 
 
 @pytest.mark.parametrize('case', CASES)

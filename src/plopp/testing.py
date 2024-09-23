@@ -15,7 +15,7 @@ if util.find_spec('plotly') is not None:
     BACKENDS_WITH_PLOTLY.append('plotly')
 
 
-def _do_setup(request):
+def _setup(request):
     if request.param == 'mpl-static':
         matplotlib.use('Agg')
         pp.backends['2d'] = 'matplotlib'
@@ -28,9 +28,9 @@ def _do_setup(request):
 
 @pytest.fixture(params=BACKENDS, autouse=True)
 def _setup_backends_mpl(request):
-    _do_setup(request)
+    _setup(request)
 
 
 @pytest.fixture(params=BACKENDS_WITH_PLOTLY, autouse=True)
 def _setup_backends_all(request):
-    _do_setup(request)
+    _setup(request)

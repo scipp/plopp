@@ -82,6 +82,7 @@ filterwarnings = [
   'ignore:TriCutTool is deprecated::',
   'ignore:Cut3dTool is deprecated::',
   'ignore:This figure includes Axes that are not compatible with tight_layout:UserWarning',
+  'ignore:The figure layout has changed to tight:UserWarning',
 ]
 
 [tool.ruff]
