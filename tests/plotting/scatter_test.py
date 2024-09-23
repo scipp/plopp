@@ -7,6 +7,7 @@ import scipp as sc
 import plopp as pp
 from plopp.data.testing import data_array
 from plopp.data.testing import scatter as scatter_data
+from plopp.testing import _setup_backends_mpl
 
 
 def test_scatter_simple():

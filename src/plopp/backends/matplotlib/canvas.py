@@ -157,7 +157,10 @@ class Canvas:
         from ipywidgets import VBox
 
         if self.is_widget() and not is_sphinx_build():
-            self.fig.tight_layout()
+            try:
+                self.fig.tight_layout()
+            except RuntimeError:
+                pass
             # The Matplotlib canvas tries to fill the entire width of the output cell,
             # which can add unnecessary whitespace between it and other widgets. To
             # prevent this, we wrap the canvas in a VBox, which seems to help.

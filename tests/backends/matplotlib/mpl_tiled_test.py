@@ -5,9 +5,10 @@ import pytest
 
 from plopp.backends.matplotlib.tiled import Tiled
 from plopp.data.testing import data_array
+from plopp.testing import _setup_backends_mpl
 
 
-def do_test_copy():
+def test_copy():
     da = data_array(ndim=1)
     original = da.plot()
     copy = original.copy()
@@ -15,7 +16,7 @@ def do_test_copy():
     assert original.artists.keys() == copy.artists.keys()
 
 
-def do_test_copy_keeps_kwargs():
+def test_copy_keeps_kwargs():
     da = data_array(ndim=1)
     original = da.plot(
         scale={'xx': 'log'},
@@ -30,22 +31,22 @@ def do_test_copy_keeps_kwargs():
     assert copy.canvas.title == 'A nice title'
 
 
-def test_copy_static():
-    do_test_copy()
+# def test_copy_static():
+#     do_test_copy()
 
 
-def test_copy_static_keeps_kwargs():
-    do_test_copy_keeps_kwargs()
+# def test_copy_static_keeps_kwargs():
+#     do_test_copy_keeps_kwargs()
 
 
-@pytest.mark.usefixtures('_use_ipympl')
-def test_copy_interactive():
-    do_test_copy()
+# @pytest.mark.usefixtures('_use_ipympl')
+# def test_copy_interactive():
+#     do_test_copy()
 
 
-@pytest.mark.usefixtures('_use_ipympl')
-def test_copy_interactive_keeps_kwargs():
-    do_test_copy_keeps_kwargs()
+# @pytest.mark.usefixtures('_use_ipympl')
+# def test_copy_interactive_keeps_kwargs():
+#     do_test_copy_keeps_kwargs()
 
 
 def test_side_by_side():

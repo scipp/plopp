@@ -10,6 +10,7 @@ import scipp as sc
 
 import plopp as pp
 from plopp.data.testing import data_array, variable
+from plopp.testing import _setup_backends_mpl
 
 
 def test_plot_ndarray():

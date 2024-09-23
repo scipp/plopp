@@ -7,8 +7,7 @@ import scipp as sc
 
 import plopp as pp
 from plopp.data.testing import data_array
-
-pp.backends['2d'] = 'matplotlib'
+from plopp.testing import _setup_backends_mpl
 
 
 def test_figsize():
