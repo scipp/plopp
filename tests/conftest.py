@@ -75,10 +75,6 @@ def _make_fixture_args(params: list):
 
 @pytest.fixture(**_make_fixture_args(BACKENDS_MPL))
 def _parametrize_mpl_backends(request):
-    """
-    This fixture sets up a parametrization of matplotlib backends for all tests when
-    imported.
-    """
     _select_backend(request)
     yield
 
@@ -94,26 +90,15 @@ def _parametrize_mpl_backends(request):
 
 @pytest.fixture(**_make_fixture_args(BACKENDS_MPL + BACKENDS_PLOTLY))
 def _parametrize_all_backends(request):
-    """
-    This fixture sets up a parametrization of all backends for all tests when imported.
-    """
     _select_backend(request)
     yield
 
 
-# @pytest.fixture(params=BACKENDS_MPL_INTERACTIVE + BACKENDS_PLOTLY, autouse=True)
-# def _parametrize_interactive_1d_backends(backend):
-#     """
-#     This fixture sets up a parametrization of 1d interactive backends for all tests when
-#     imported.
-#     """
-#     _setup(backend)
+@pytest.fixture(**_make_fixture_args(BACKENDS_MPL_INTERACTIVE + BACKENDS_PLOTLY))
+def _parametrize_interactive_1d_backends(request):
+    _select_backend(request)
 
 
-# @pytest.fixture(params=BACKENDS_MPL_INTERACTIVE, autouse=True)
-# def _parametrize_interactive_2d_backends(backend):
-#     """
-#     This fixture sets up a parametrization of 2d interactive backends for all tests when
-#     imported.
-#     """
-#     _setup(backend)
+@pytest.fixture(**_make_fixture_args(BACKENDS_MPL_INTERACTIVE))
+def _parametrize_interactive_2d_backends(request):
+    _select_backend(request)

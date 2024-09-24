@@ -6,10 +6,11 @@ import scipp as sc
 from plopp import Node
 from plopp.data.testing import data_array
 from plopp.plotting.superplot import superplot
-from plopp.testing import _parametrize_interactive_1d_backends
+
+pytestmark = pytest.mark.usefixtures("_parametrize_interactive_1d_backends")
 
 
-def test_creation(case):
+def test_creation():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
     assert len(sp.right_bar[0]._lines) == 0
