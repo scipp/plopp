@@ -210,6 +210,8 @@ class Scatter3d:
                 'values': self._data.values,
                 'size': self._size,
             },
-            'color': self.color,
-            'opacity': self.material.opacity,
+            'style': {
+                'color': self.color,
+                'opacity': self.material.opacity,
+            },
         }

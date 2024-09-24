@@ -232,5 +232,7 @@ class Image:
                 'y': self._data_with_bin_edges.coords['y'].values,
                 'z': self._data.values,
             },
-            'opacity': self._mesh.get_alpha(),
+            'style': {
+                'opacity': self._mesh.get_alpha(),
+            },
         }

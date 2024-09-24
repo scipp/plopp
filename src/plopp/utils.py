@@ -47,8 +47,9 @@ def to_dict(fig: BaseFig) -> dict:
         }
     for key, artist in view.artists.items():
         out["artists"][key] = artist.to_dict()
-        if out["artists"][key]["type"] in ("heatmap", "scatter"):
-            out["artists"][key]["colorscale"] = fig.view.colormapper.to_dict()
+        if fig.view.colormapper is not None:
+            # if out["artists"][key]["type"] in ("heatmap", "scatter", "scatter3d"):
+            out["artists"][key]["style"].update(fig.view.colormapper.to_dict())
     return out
 
 

@@ -251,3 +251,27 @@ class Line:
             out.ymin = np.log10(out.ymin)
             out.ymax = np.log10(out.ymax)
         return out
+
+    def to_dict(self) -> dict:
+        """
+        Return a dictionary representation of the line.
+        """
+        return {
+            'type': 'line',
+            'data': {'x': self._data.coords[self._dim].values, 'y': self._data.values},
+            'label': self.label,
+            'style': {
+                'line': {
+                    'color': self.color,
+                    'dash': self._line.line.dash,
+                    'width': self._line.line.width,
+                    'opacity': self._line.opacity,
+                },
+                'marker': {
+                    'symbol': self._line.marker.symbol,
+                    'size': self._line.marker.size,
+                    'color': self._line.marker.color,
+                    'opacity': self._line.marker.opacity,
+                },
+            },
+        }

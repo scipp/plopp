@@ -228,9 +228,18 @@ class Line:
             'type': 'line',
             'data': {'x': self._data.coords[self._dim].values, 'y': self._data.values},
             'label': self.label,
-            'color': self.color,
-            'linestyle': self._line.get_linestyle(),
-            'linewidth': self._line.get_linewidth(),
-            'marker': self._line.get_marker(),
-            'opacity': self._line.get_alpha(),
+            'style': {
+                'line': {
+                    'color': self.color,
+                    'dash': self._line.get_linestyle(),
+                    'width': self._line.get_linewidth(),
+                    'opacity': self._line.get_alpha(),
+                },
+                'marker': {
+                    'symbol': self._line.get_marker(),
+                    'size': self._line.get_markersize(),
+                    'color': self._line.get_markerfacecolor(),
+                    'opacity': self._line.get_alpha(),
+                },
+            },
         }

@@ -278,6 +278,5 @@ class ColorMapper:
             'vmin': self.user_vmin,
             'vmax': self.user_vmax,
             'nan_color': self.cmap.get_bad(),
-            'visible': self.colorbar is not None,
             'ylabel': self.ylabel,
         }

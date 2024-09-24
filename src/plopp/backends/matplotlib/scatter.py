@@ -146,7 +146,11 @@ class Scatter:
                 'size': self._size,
             },
             'label': self.label,
-            'edgecolor': self._scatter.get_edgecolor(),
-            'facecolor': self._scatter.get_facecolor(),
-            'opacity': self._scatter.get_alpha(),
+            'style': {
+                'marker': self._scatter.get_marker(),
+                'size': self._scatter.get_sizes(),
+                'edgecolor': self._scatter.get_edgecolor(),
+                'facecolor': self._scatter.get_facecolor(),
+                'opacity': self._scatter.get_alpha(),
+            },
         }
