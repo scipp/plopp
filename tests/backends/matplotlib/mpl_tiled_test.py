@@ -5,7 +5,7 @@ import pytest
 
 from plopp.backends.matplotlib.tiled import Tiled
 from plopp.data.testing import data_array
-from plopp.testing import _setup_backends_mpl
+from plopp.testing import _parametrize_mpl_backends
 
 
 def test_copy():

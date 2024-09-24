@@ -7,7 +7,7 @@ import scipp as sc
 from plopp import Node
 from plopp.data.testing import data_array
 from plopp.graphics import imagefigure
-from plopp.testing import _setup_backends_mpl
+from plopp.testing import _parametrize_mpl_backends
 
 
 def test_update_on_one_mesh_changes_colors_on_second_mesh():

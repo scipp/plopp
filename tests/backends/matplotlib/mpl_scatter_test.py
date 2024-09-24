@@ -8,7 +8,7 @@ import plopp as pp
 from plopp.backends.matplotlib.canvas import Canvas
 from plopp.backends.matplotlib.scatter import Scatter
 from plopp.data.testing import scatter as scatter_data
-from plopp.testing import _setup_backends_mpl
+from plopp.testing import _parametrize_mpl_backends
 
 
 def test_scatter_creation():

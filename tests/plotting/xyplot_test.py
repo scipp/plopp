@@ -6,7 +6,8 @@ import pytest
 import scipp as sc
 
 import plopp as pp
-from plopp.testing import _setup_backends_mpl
+
+pytestmark = pytest.mark.usefixtures("_parametrize_all_backends")
 
 
 def test_xyplot_variable():
@@ -69,7 +70,8 @@ def test_xyplot_bin_edges():
     y = sc.arange('time', 100.0, 120.0, unit='K')
     fig = pp.xyplot(x, y)
     [line] = fig.artists.values()
-    assert len(line._line.get_xdata()) == 21
+    ldata = line._data
+    assert len(ldata.coords[ldata.dim]) == len(ldata.data) + 1
 
 
 def test_xyplot_from_nodes():

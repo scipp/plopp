@@ -18,9 +18,8 @@ def require_interactive_figure(fig: FigureLike, func: str):
     """
     if not fig.interactive:
         raise RuntimeError(
-            f"The {func} can only be used with an interactive backend "
-            "backend. Use `%matplotlib widget` at the start of your "
-            "notebook."
+            f"The {func} can only be used with an interactive backend. "
+            "Use `%matplotlib widget` at the start of your notebook."
         )
 
 

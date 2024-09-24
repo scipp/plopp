@@ -10,7 +10,8 @@ import scipp as sc
 
 import plopp as pp
 from plopp.data.testing import data_array, dataset
-from plopp.testing import _setup_backends_all
+
+pytestmark = pytest.mark.usefixtures("_parametrize_all_backends")
 
 
 def test_plot_ndarray():

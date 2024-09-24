@@ -11,15 +11,22 @@ import pytest
 
 import plopp as pp
 
-BACKENDS = ['mpl-static', 'mpl-interactive']
+BACKENDS_MPL = [('2d', 'mpl-static'), ('2d', 'mpl-interactive')]
+BACKENDS_MPL_INTERACTIVE = [('2d', 'mpl-interactive')]
 
-BACKENDS_WITH_PLOTLY = BACKENDS.copy()
-if util.find_spec('plotly') is not None:
-    BACKENDS_WITH_PLOTLY.append('plotly')
+BACKENDS_PLOTLY = [('2d', 'plotly')] if util.find_spec('plotly') is not None else []
+# BACKENDS_INTERACTIVE_1D.extend(BACKENDS_PLOTLY)
+
+#     BACKENDS_PLOTLY = ['plotly']
+#     BACKENDS_INTERACTIVE_1D = ['mpl-interactive', 'plotly']
+# else:
+#     BACKENDS_PLOTLY = []
+#     BACKENDS_INTERACTIVE_1D = ['mpl-interactive']
 
 
 def _setup(request):
     group = request.param[0]
+    print(f'Using backend {request.param[1]}')
     if request.param[1] == 'mpl-static':
         matplotlib.use('Agg')
         pp.backends[group] = 'matplotlib'
@@ -30,8 +37,8 @@ def _setup(request):
         pp.backends[group] = request.param[1]
 
 
-@pytest.fixture(params=BACKENDS, autouse=True)
-def _setup_backends_mpl(request):
+@pytest.fixture(params=BACKENDS_MPL, autouse=True)
+def _parametrize_mpl_backends(request):
     """
     This fixture sets up a parametrization of matplotlib backends for all tests when
     imported.
@@ -39,10 +46,37 @@ def _setup_backends_mpl(request):
     _setup(request)
 
 
-@pytest.fixture(params=BACKENDS_WITH_PLOTLY, autouse=True)
-def _setup_backends_all(request):
+# @pytest.fixture(params=BACKENDS_MPL_INTERACTIVE, autouse=True)
+# def _parametrize_mpl_interactive_backends(request):
+#     """
+#     This fixture sets up a parametrization of matplotlib interactive backend for all
+#     tests when imported.
+#     """
+#     _setup(request)
+
+
+@pytest.fixture(params=BACKENDS_MPL + BACKENDS_PLOTLY, autouse=True)
+def _parametrize_all_backends(request):
     """
     This fixture sets up a parametrization of all backends for all tests when imported.
+    """
+    _setup(request)
+
+
+@pytest.fixture(params=BACKENDS_MPL_INTERACTIVE + BACKENDS_PLOTLY, autouse=True)
+def _parametrize_interactive_1d_backends(request):
+    """
+    This fixture sets up a parametrization of 1d interactive backends for all tests when
+    imported.
+    """
+    _setup(request)
+
+
+@pytest.fixture(params=BACKENDS_MPL_INTERACTIVE, autouse=True)
+def _parametrize_interactive_2d_backends(request):
+    """
+    This fixture sets up a parametrization of 2d interactive backends for all tests when
+    imported.
     """
     _setup(request)
 
@@ -53,7 +87,12 @@ class BackendParam:
 
 
 class Case:
-    def __init__(self, backend: tuple[str, str], figure: Callable, data: Callable):
+    def __init__(
+        self,
+        backend: tuple[str, str] | None = None,
+        figure: Callable | None = None,
+        data: Callable | None = None,
+    ):
         self.backend = backend
         self.figure = figure
         self.data = data
@@ -62,12 +101,15 @@ class Case:
         _setup(BackendParam(self.backend))
 
     def __str__(self) -> str:
-        figname = (
-            self.figure.func.__name__
-            if isinstance(self.figure, partial)
-            else self.figure.__name__
-        )
-        return f'{figname}-{self.backend[1]}'
+        out = str(self.backend[1])
+        if self.figure is not None:
+            figname = (
+                self.figure.func.__name__
+                if isinstance(self.figure, partial)
+                else self.figure.__name__
+            )
+            out = f'{figname}-{out}'
+        return out
 
 
 def to_params(case_list: list[Case]):
@@ -75,3 +117,11 @@ def to_params(case_list: list[Case]):
     Turn a list of cases into pytest params with a good id for printing.
     """
     return [pytest.param(c, id=str(c)) for c in case_list]
+
+
+__all__ = [
+    'Case',
+    'to_params',
+    '_parametrize_mpl_backends',
+    '_parametrize_all_backends',
+]
