@@ -93,6 +93,8 @@ class Tiled:
         new_fig = fig.copy(ax=self.fig.add_subplot(self.gs[inds]))
         self.figures[inds] = new_fig
         self._history.append((inds, new_fig))
+        if is_interactive_backend():
+            self.fig.canvas.toolbar_visible = 'fade-in-fade-out'
 
     def __getitem__(
         self, inds: int | slice | tuple[int, int] | tuple[slice, slice]

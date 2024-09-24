@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import warnings
 from typing import Literal
 
 import matplotlib.pyplot as plt
@@ -157,7 +158,9 @@ class Canvas:
         from ipywidgets import VBox
 
         if self.is_widget() and not is_sphinx_build():
-            self.fig.tight_layout()
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                self.fig.tight_layout()
             # The Matplotlib canvas tries to fill the entire width of the output cell,
             # which can add unnecessary whitespace between it and other widgets. To
             # prevent this, we wrap the canvas in a VBox, which seems to help.
