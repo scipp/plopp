@@ -14,6 +14,7 @@ from matplotlib.colors import LogNorm, Normalize
 from plopp import Node, imagefigure, scatter3dfigure
 from plopp.data.testing import data_array, scatter
 from plopp.graphics.colormapper import ColorMapper
+from plopp.testing import Case, to_params
 
 
 def string_similarity(a, b):
@@ -305,21 +306,31 @@ def test_autoscale_vmax_set():
     assert mapper.vmin < mapper.vmax
 
 
-@dataclass
-class FigureAndData:
-    figure: Callable
-    data: Callable
+CASES = to_params(
+    [
+        Case(
+            ('2d', 'mpl-static'),
+            partial(imagefigure, cbar=True),
+            partial(data_array, ndim=2),
+        ),
+        Case(
+            ('2d', 'mpl-interactive'),
+            partial(imagefigure, cbar=True),
+            partial(data_array, ndim=2),
+        ),
+        Case(
+            ('3d', 'pythreejs'),
+            partial(scatter3dfigure, x='x', y='y', z='z', cbar=True),
+            scatter,
+        ),
+    ]
+)
+CASESINTERACTIVE = [c for c in CASES if c.values[0].backend[1] != 'mpl-static']
 
 
-PLOTCASES = [
-    FigureAndData(partial(imagefigure, cbar=True), partial(data_array, ndim=2)),
-    FigureAndData(partial(scatter3dfigure, x='x', y='y', z='z', cbar=True), scatter),
-]
-
-
-@pytest.mark.usefixtures('_use_ipympl')
-@pytest.mark.parametrize('case', PLOTCASES)
+@pytest.mark.parametrize('case', CASESINTERACTIVE)
 def test_toolbar_log_norm_button_state_agrees_with_kwarg(case):
+    case.set_backend()
     da = case.data()
     fig = case.figure(Node(da))
     assert not fig.toolbar['lognorm'].value
@@ -329,9 +340,9 @@ def test_toolbar_log_norm_button_state_agrees_with_kwarg(case):
     assert fig.view.colormapper.norm == 'log'
 
 
-@pytest.mark.usefixtures('_use_ipympl')
-@pytest.mark.parametrize('case', PLOTCASES)
+@pytest.mark.parametrize('case', CASESINTERACTIVE)
 def test_toolbar_log_norm_button_toggles_colormapper_norm(case):
+    case.set_backend()
     da = case.data()
     fig = case.figure(Node(da))
     assert fig.view.colormapper.norm == 'linear'
@@ -339,16 +350,18 @@ def test_toolbar_log_norm_button_toggles_colormapper_norm(case):
     assert fig.view.colormapper.norm == 'log'
 
 
-@pytest.mark.parametrize('case', PLOTCASES)
+@pytest.mark.parametrize('case', CASES)
 def test_colorbar_label_has_name_with_one_artist(case):
+    case.set_backend()
     a = case.data(unit='K')
     a.name = 'A data'
     fig = case.figure(Node(a))
     assert fig.view.colormapper.ylabel == 'A data [K]'
 
 
-@pytest.mark.parametrize('case', PLOTCASES)
+@pytest.mark.parametrize('case', CASES)
 def test_colorbar_label_has_no_name_with_multiple_artists(case):
+    case.set_backend()
     a = case.data(unit='K')
     b = 3.3 * a
     a.name = 'A data'
