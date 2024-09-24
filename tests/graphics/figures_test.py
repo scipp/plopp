@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
-from collections.abc import Callable
-from dataclasses import dataclass
 from functools import partial
 
 import pytest
@@ -11,7 +9,6 @@ import scipp as sc
 from plopp import Node
 from plopp.data import data1d, data2d, scatter
 from plopp.graphics import imagefigure, linefigure, scatter3dfigure, scatterfigure
-from plopp.testing import Case, to_params
 
 PLOTCASES = {
     "linefigure-mpl-static": (('2d', 'mpl-static'), linefigure, data1d),
@@ -120,7 +117,7 @@ class TestFiguresAllCases:
 
 
 @pytest.mark.parametrize(
-    "backend,figure,data", PLOTCASES.values(), ids=PLOTCASES.keys()
+    ("backend", "figure", "data"), PLOTCASES.values(), ids=PLOTCASES.keys()
 )
 def test_raises_for_new_data_with_incompatible_dimension(
     set_backend, backend, figure, data
@@ -132,7 +129,7 @@ def test_raises_for_new_data_with_incompatible_dimension(
 
 
 @pytest.mark.parametrize(
-    "backend,figure,data", SCATTERCASES.values(), ids=SCATTERCASES.keys()
+    ("backend", "figure", "data"), SCATTERCASES.values(), ids=SCATTERCASES.keys()
 )
 def test_raises_for_new_data_with_incompatible_coordinate(
     set_backend, backend, figure, data

@@ -28,7 +28,7 @@ def _close_figures():
         plt.close(fig)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _use_ipympl():
     matplotlib.use('module://ipympl.backend_nbagg')
 
@@ -46,20 +46,11 @@ def pytest_sessionfinish(session, exitstatus):
 
 BACKENDS_MPL = [('2d', 'mpl-static'), ('2d', 'mpl-interactive')]
 BACKENDS_MPL_INTERACTIVE = [('2d', 'mpl-interactive')]
-
 BACKENDS_PLOTLY = [('2d', 'plotly')] if util.find_spec('plotly') is not None else []
-# BACKENDS_INTERACTIVE_1D.extend(BACKENDS_PLOTLY)
-
-#     BACKENDS_PLOTLY = ['plotly']
-#     BACKENDS_INTERACTIVE_1D = ['mpl-interactive', 'plotly']
-# else:
-#     BACKENDS_PLOTLY = []
-#     BACKENDS_INTERACTIVE_1D = ['mpl-interactive']
 
 
 def _select_backend(backend):
     group = backend[0]
-    print(f'Using backend {backend[1]}')
     if backend[1] == 'mpl-static':
         matplotlib.use('Agg')
         pp.backends[group] = 'matplotlib'
@@ -70,37 +61,25 @@ def _select_backend(backend):
         pp.backends[group] = backend[1]
 
 
-@pytest.fixture()
-def set_backend(backend):
-    _select_backend(backend)
-
-
-# def _select_backend(request):
-
-
 def _make_fixture_args(params: list):
     return {"params": params, "ids": [x[1] for x in params]}
+
+
+@pytest.fixture
+def set_backend(backend):  # noqa: PT004
+    _select_backend(backend)
 
 
 @pytest.fixture(**_make_fixture_args(BACKENDS_MPL))
 def _parametrize_mpl_backends(request):
     _select_backend(request.param)
-    yield
-
-
-# # @pytest.fixture(params=BACKENDS_MPL_INTERACTIVE, autouse=True)
-# # def _parametrize_mpl_interactive_backends(backend):
-# #     """
-# #     This fixture sets up a parametrization of matplotlib interactive backend for all
-# #     tests when imported.
-# #     """
-# #     _setup(backend)
+    # yield
 
 
 @pytest.fixture(**_make_fixture_args(BACKENDS_MPL + BACKENDS_PLOTLY))
 def _parametrize_all_backends(request):
     _select_backend(request.param)
-    yield
+    # yield
 
 
 @pytest.fixture(**_make_fixture_args(BACKENDS_MPL_INTERACTIVE + BACKENDS_PLOTLY))

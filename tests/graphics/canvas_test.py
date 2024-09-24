@@ -9,39 +9,6 @@ from plopp import Node
 from plopp.data import data1d, data2d, data_array, scatter
 from plopp.graphics import imagefigure, linefigure, scatter3dfigure, scatterfigure
 
-# from plopp.testing import Case, to_params
-
-# CASES = to_params(
-#     [
-#         Case(('2d', 'mpl-static'), linefigure, data1d),
-#         Case(('2d', 'mpl-interactive'), linefigure, data1d),
-#         Case(('2d', 'plotly'), linefigure, data1d),
-#         Case(('2d', 'mpl-static'), partial(imagefigure, cbar=True), data2d),
-#         Case(('2d', 'mpl-interactive'), partial(imagefigure, cbar=True), data2d),
-#         Case(
-#             ('2d', 'mpl-static'),
-#             partial(scatterfigure, x='x', y='y', cbar=True),
-#             scatter,
-#         ),
-#         Case(
-#             ('2d', 'mpl-interactive'),
-#             partial(scatterfigure, x='x', y='y', cbar=True),
-#             scatter,
-#         ),
-#         Case(
-#             ('3d', 'pythreejs'),
-#             partial(scatter3dfigure, x='x', y='y', z='z', cbar=True),
-#             scatter,
-#         ),
-#     ]
-# )
-# CASES1D = [c for c in CASES if c.values[0].figure is linefigure]
-# CASESNO3D = [c for c in CASES if c.values[0].figure is not scatter3dfigure]
-# CASES1DINTERACTIVE = [c for c in CASES1D if c.values[0].backend[1] != 'mpl-static']
-
-
-# @pytest.mark.parametrize('case', CASES)
-
 CASES = {
     "linefigure-mpl-static": (('2d', 'mpl-static'), linefigure, data1d),
     "linefigure-mpl-interactive": (('2d', 'mpl-interactive'), linefigure, data1d),
@@ -72,10 +39,6 @@ CASES = {
         scatter,
     ),
 }
-
-# CASES1D = [c for c in CASES if c[1] is linefigure]
-# CASESNO3D = [c for c in CASES if c[1] is not scatter3dfigure]
-# CASES1DINTERACTIVE = [c for c in CASES1D if c[0][1] != 'mpl-static']
 
 
 @pytest.mark.parametrize("backend,figure,data", CASES.values(), ids=CASES.keys())

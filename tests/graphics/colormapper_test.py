@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from collections.abc import Callable
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from functools import partial
@@ -14,7 +13,6 @@ from matplotlib.colors import LogNorm, Normalize
 from plopp import Node, imagefigure, scatter3dfigure
 from plopp.data.testing import data_array, scatter
 from plopp.graphics.colormapper import ColorMapper
-from plopp.testing import Case, to_params
 
 
 def string_similarity(a, b):

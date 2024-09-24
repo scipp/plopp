@@ -142,7 +142,8 @@ class TestSlicer2d:
             )
         )
         # `autoscale=True` should be the default, but there is no guarantee that it will
-        # not change in the future, so we explicitly set it here to make the test robust.
+        # not change in the future, so we explicitly set it here to make the test
+        # robust.
         sl = Slicer(da, keep=['y', 'x'], autoscale=True)
         cm = sl.figure.view.colormapper
         # Colormapper fits to the values in the first slice
