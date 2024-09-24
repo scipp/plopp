@@ -113,9 +113,6 @@ class TestSlicer1d:
             Slicer(da, keep=[])
 
 
-# from plopp.testing import _parametrize_interactive_2d_backends
-
-
 @pytest.mark.usefixtures("_parametrize_interactive_2d_backends")
 class TestSlicer2d:
     def test_creation_keep_two_dims(self):
