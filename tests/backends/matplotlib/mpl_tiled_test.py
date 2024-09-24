@@ -32,24 +32,6 @@ def test_copy_keeps_kwargs():
     assert copy.canvas.title == 'A nice title'
 
 
-# def test_copy_static():
-#     do_test_copy()
-
-
-# def test_copy_static_keeps_kwargs():
-#     do_test_copy_keeps_kwargs()
-
-
-# @pytest.mark.usefixtures('_use_ipympl')
-# def test_copy_interactive():
-#     do_test_copy()
-
-
-# @pytest.mark.usefixtures('_use_ipympl')
-# def test_copy_interactive_keeps_kwargs():
-#     do_test_copy_keeps_kwargs()
-
-
 def test_side_by_side():
     da1 = data_array(ndim=1)
     da2 = data_array(ndim=2)
