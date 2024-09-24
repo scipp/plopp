@@ -306,65 +306,69 @@ def test_autoscale_vmax_set():
     assert mapper.vmin < mapper.vmax
 
 
-CASES = to_params(
-    [
-        Case(
-            ('2d', 'mpl-static'),
-            partial(imagefigure, cbar=True),
-            partial(data_array, ndim=2),
-        ),
-        Case(
-            ('2d', 'mpl-interactive'),
-            partial(imagefigure, cbar=True),
-            partial(data_array, ndim=2),
-        ),
-        Case(
-            ('3d', 'pythreejs'),
-            partial(scatter3dfigure, x='x', y='y', z='z', cbar=True),
-            scatter,
-        ),
-    ]
+CASES = {
+    "imagefigure-mpl-static": (
+        ('2d', 'mpl-static'),
+        partial(imagefigure, cbar=True),
+        partial(data_array, ndim=2),
+    ),
+    "imagefigure-mpl-interactive": (
+        ('2d', 'mpl-interactive'),
+        partial(imagefigure, cbar=True),
+        partial(data_array, ndim=2),
+    ),
+    "scatter3dfigure-pythreejs": (
+        ('3d', 'pythreejs'),
+        partial(scatter3dfigure, x='x', y='y', z='z', cbar=True),
+        scatter,
+    ),
+}
+
+
+@pytest.mark.parametrize("backend,figure,data", CASES.values(), ids=CASES.keys())
+class TestColormapperAllCases:
+    def test_colorbar_label_has_name_with_one_artist(
+        self, set_backend, backend, figure, data
+    ):
+        a = data(unit='K')
+        a.name = 'A data'
+        fig = figure(Node(a))
+        assert fig.view.colormapper.ylabel == 'A data [K]'
+
+    def test_colorbar_label_has_no_name_with_multiple_artists(
+        self, set_backend, backend, figure, data
+    ):
+        a = data(unit='K')
+        b = 3.3 * a
+        a.name = 'A data'
+        b.name = 'B data'
+        fig = figure(Node(a), Node(b))
+        assert fig.view.colormapper.ylabel == '[K]'
+
+
+CASESINTERACTIVE = {k: c for k, c in CASES.items() if c[0][1] != 'mpl-static'}
+
+
+@pytest.mark.parametrize(
+    "backend,figure,data", CASESINTERACTIVE.values(), ids=CASESINTERACTIVE.keys()
 )
-CASESINTERACTIVE = [c for c in CASES if c.values[0].backend[1] != 'mpl-static']
+class TestColormapperInteractiveCases:
+    def test_toolbar_log_norm_button_state_agrees_with_kwarg(
+        self, set_backend, backend, figure, data
+    ):
+        da = data()
+        fig = figure(Node(da))
+        assert not fig.toolbar['lognorm'].value
+        assert fig.view.colormapper.norm == 'linear'
+        fig = figure(Node(da), norm='log')
+        assert fig.toolbar['lognorm'].value
+        assert fig.view.colormapper.norm == 'log'
 
-
-@pytest.mark.parametrize('case', CASESINTERACTIVE)
-def test_toolbar_log_norm_button_state_agrees_with_kwarg(case):
-    case.set_backend()
-    da = case.data()
-    fig = case.figure(Node(da))
-    assert not fig.toolbar['lognorm'].value
-    assert fig.view.colormapper.norm == 'linear'
-    fig = case.figure(Node(da), norm='log')
-    assert fig.toolbar['lognorm'].value
-    assert fig.view.colormapper.norm == 'log'
-
-
-@pytest.mark.parametrize('case', CASESINTERACTIVE)
-def test_toolbar_log_norm_button_toggles_colormapper_norm(case):
-    case.set_backend()
-    da = case.data()
-    fig = case.figure(Node(da))
-    assert fig.view.colormapper.norm == 'linear'
-    fig.toolbar['lognorm'].value = True
-    assert fig.view.colormapper.norm == 'log'
-
-
-@pytest.mark.parametrize('case', CASES)
-def test_colorbar_label_has_name_with_one_artist(case):
-    case.set_backend()
-    a = case.data(unit='K')
-    a.name = 'A data'
-    fig = case.figure(Node(a))
-    assert fig.view.colormapper.ylabel == 'A data [K]'
-
-
-@pytest.mark.parametrize('case', CASES)
-def test_colorbar_label_has_no_name_with_multiple_artists(case):
-    case.set_backend()
-    a = case.data(unit='K')
-    b = 3.3 * a
-    a.name = 'A data'
-    b.name = 'B data'
-    fig = case.figure(Node(a), Node(b))
-    assert fig.view.colormapper.ylabel == '[K]'
+    def test_toolbar_log_norm_button_toggles_colormapper_norm(
+        self, set_backend, backend, figure, data
+    ):
+        da = data()
+        fig = figure(Node(da))
+        assert fig.view.colormapper.norm == 'linear'
+        fig.toolbar['lognorm'].value = True
+        assert fig.view.colormapper.norm == 'log'
