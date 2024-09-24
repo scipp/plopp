@@ -13,144 +13,132 @@ from plopp.data import data1d, data2d, scatter
 from plopp.graphics import imagefigure, linefigure, scatter3dfigure, scatterfigure
 from plopp.testing import Case, to_params
 
+PLOTCASES = {
+    "linefigure-mpl-static": (('2d', 'mpl-static'), linefigure, data1d),
+    "linefigure-mpl-interactive": (('2d', 'mpl-interactive'), linefigure, data1d),
+    "linefigure-plotly": (('2d', 'plotly'), linefigure, data1d),
+    "imagefigure-mpl-static": (
+        ('2d', 'mpl-static'),
+        partial(imagefigure, cbar=True),
+        data2d,
+    ),
+    "imagefigure-mpl-interactive": (
+        ('2d', 'mpl-interactive'),
+        partial(imagefigure, cbar=True),
+        data2d,
+    ),
+}
 
-@dataclass
-class FigureAndData:
-    figure: Callable
-    data: Callable
+SCATTERCASES = {
+    "scatterfigure-mpl-static": (
+        ('2d', 'mpl-static'),
+        partial(scatterfigure, x='x', y='y', cbar=True),
+        scatter,
+    ),
+    "scatterfigure-mpl-interactive": (
+        ('2d', 'mpl-interactive'),
+        partial(scatterfigure, x='x', y='y', cbar=True),
+        scatter,
+    ),
+    "scatter3dfigure-pythreejs": (
+        ('3d', 'pythreejs'),
+        partial(scatter3dfigure, x='x', y='y', z='z', cbar=True),
+        scatter,
+    ),
+}
 
 
-PLOTCASES = to_params(
-    [
-        Case(('2d', 'mpl-static'), linefigure, data1d),
-        Case(('2d', 'mpl-interactive'), linefigure, data1d),
-        Case(('2d', 'plotly'), linefigure, data1d),
-        Case(('2d', 'mpl-static'), partial(imagefigure, cbar=True), data2d),
-        Case(('2d', 'mpl-interactive'), partial(imagefigure, cbar=True), data2d),
-    ]
+ALLCASES = {**PLOTCASES, **SCATTERCASES}
+
+
+@pytest.mark.parametrize("backend,figure,data", ALLCASES.values(), ids=ALLCASES.keys())
+class TestFiguresAllCases:
+    def test_empty(self, set_backend, backend, figure, data):
+        fig = figure()
+        assert len(fig.artists) == 0
+
+    def test_creation(self, set_backend, backend, figure, data):
+        da = data()
+        fig = figure(Node(da))
+        [artist] = fig.artists.values()
+        assert sc.identical(artist._data, da)
+
+    def test_update(self, set_backend, backend, figure, data):
+        fig = figure()
+        assert len(fig.artists) == 0
+        da = data()
+        key = 'data_update'
+        fig.update({key: da})
+        assert sc.identical(fig.artists[key]._data, da)
+
+    def test_raises_for_new_data_with_incompatible_unit(
+        self, set_backend, backend, figure, data
+    ):
+        a = data()
+        b = a * a
+        with pytest.raises(sc.UnitError):
+            figure(Node(a), Node(b))
+
+    def test_raises_for_new_data_with_incompatible_coord_unit(
+        self, set_backend, backend, figure, data
+    ):
+        a = data()
+        b = a.copy()
+        b.coords['x'] = a.coords['x'] * a.coords['x']
+        with pytest.raises(sc.UnitError):
+            figure(Node(a), Node(b))
+
+    def test_converts_new_data_units(self, set_backend, backend, figure, data):
+        a = data(unit='m')
+        b = data(unit='cm')
+        fig = figure(Node(a), Node(b))
+        [art_a, art_b] = fig.artists.values()
+        assert sc.identical(art_a._data, a)
+        assert sc.identical(art_b._data, b.to(unit='m'))
+
+    def test_converts_new_data_coordinate_units(
+        self, set_backend, backend, figure, data
+    ):
+        a = data()
+        b = data()
+        b.coords['x'] = b.coords['x'].copy()
+        b.coords['x'].unit = 'cm'
+        fig = figure(Node(a), Node(b))
+        [art_a, art_b] = fig.artists.values()
+        assert sc.identical(art_a._data, a)
+        c = b.copy()
+        c.coords['x'] = c.coords['x'].to(unit='m')
+        assert sc.identical(art_b._data, c)
+
+    def test_converts_new_data_units_integers(self, set_backend, backend, figure, data):
+        a = data(unit='m').to(dtype=int)
+        b = data(unit='m').to(unit='cm', dtype=int)
+        fig = figure(Node(a), Node(b))
+        [art_a, art_b] = fig.artists.values()
+        assert sc.identical(art_a._data, a)
+        assert sc.identical(art_b._data, b.to(unit='m', dtype=float))
+
+
+@pytest.mark.parametrize(
+    "backend,figure,data", PLOTCASES.values(), ids=PLOTCASES.keys()
 )
-
-SCATTERCASES = to_params(
-    [
-        Case(
-            ('2d', 'mpl-static'),
-            partial(scatterfigure, x='x', y='y', cbar=True),
-            scatter,
-        ),
-        Case(
-            ('2d', 'mpl-interactive'),
-            partial(scatterfigure, x='x', y='y', cbar=True),
-            scatter,
-        ),
-        Case(
-            ('3d', 'pythreejs'),
-            partial(scatter3dfigure, x='x', y='y', z='z', cbar=True),
-            scatter,
-        ),
-    ]
-)
-
-
-ALLCASES = PLOTCASES + SCATTERCASES
-
-
-@pytest.mark.parametrize('case', ALLCASES)
-def test_empty(case):
-    case.set_backend()
-    fig = case.figure()
-    assert len(fig.artists) == 0
-
-
-@pytest.mark.parametrize('case', ALLCASES)
-def test_creation(case):
-    case.set_backend()
-    da = case.data()
-    fig = case.figure(Node(da))
-    [artist] = fig.artists.values()
-    assert sc.identical(artist._data, da)
-
-
-@pytest.mark.parametrize('case', ALLCASES)
-def test_update(case):
-    case.set_backend()
-    fig = case.figure()
-    assert len(fig.artists) == 0
-    da = case.data()
-    key = 'data_update'
-    fig.update({key: da})
-    assert sc.identical(fig.artists[key]._data, da)
-
-
-@pytest.mark.parametrize('case', PLOTCASES)
-def test_raises_for_new_data_with_incompatible_dimension(case):
-    case.set_backend()
-    x = case.data()
+def test_raises_for_new_data_with_incompatible_dimension(
+    set_backend, backend, figure, data
+):
+    x = data()
     y = x.rename(x='other')
     with pytest.raises(KeyError):
-        case.figure(Node(x), Node(y))
+        figure(Node(x), Node(y))
 
 
-@pytest.mark.parametrize('case', SCATTERCASES)
-def test_raises_for_new_data_with_incompatible_coordinate(case):
-    case.set_backend()
-    a = case.data()
-    b = case.data()
+@pytest.mark.parametrize(
+    "backend,figure,data", SCATTERCASES.values(), ids=SCATTERCASES.keys()
+)
+def test_raises_for_new_data_with_incompatible_coordinate(
+    set_backend, backend, figure, data
+):
+    a = data()
+    b = data()
     b.coords['t'] = b.coords.pop('x')
     with pytest.raises(KeyError):
-        case.figure(Node(a), Node(b))
-
-
-@pytest.mark.parametrize('case', ALLCASES)
-def test_raises_for_new_data_with_incompatible_unit(case):
-    case.set_backend()
-    a = case.data()
-    b = a * a
-    with pytest.raises(sc.UnitError):
-        case.figure(Node(a), Node(b))
-
-
-@pytest.mark.parametrize('case', ALLCASES)
-def test_raises_for_new_data_with_incompatible_coord_unit(case):
-    case.set_backend()
-    a = case.data()
-    b = a.copy()
-    b.coords['x'] = a.coords['x'] * a.coords['x']
-    with pytest.raises(sc.UnitError):
-        case.figure(Node(a), Node(b))
-
-
-@pytest.mark.parametrize('case', ALLCASES)
-def test_converts_new_data_units(case):
-    case.set_backend()
-    a = case.data(unit='m')
-    b = case.data(unit='cm')
-    fig = case.figure(Node(a), Node(b))
-    [art_a, art_b] = fig.artists.values()
-    assert sc.identical(art_a._data, a)
-    assert sc.identical(art_b._data, b.to(unit='m'))
-
-
-@pytest.mark.parametrize('case', ALLCASES)
-def test_converts_new_data_coordinate_units(case):
-    case.set_backend()
-    a = case.data()
-    b = case.data()
-    b.coords['x'] = b.coords['x'].copy()
-    b.coords['x'].unit = 'cm'
-    fig = case.figure(Node(a), Node(b))
-    [art_a, art_b] = fig.artists.values()
-    assert sc.identical(art_a._data, a)
-    c = b.copy()
-    c.coords['x'] = c.coords['x'].to(unit='m')
-    assert sc.identical(art_b._data, c)
-
-
-@pytest.mark.parametrize('case', ALLCASES)
-def test_converts_new_data_units_integers(case):
-    case.set_backend()
-    a = case.data(unit='m').to(dtype=int)
-    b = case.data(unit='m').to(unit='cm', dtype=int)
-    fig = case.figure(Node(a), Node(b))
-    [art_a, art_b] = fig.artists.values()
-    assert sc.identical(art_a._data, a)
-    assert sc.identical(art_b._data, b.to(unit='m', dtype=float))
+        figure(Node(a), Node(b))
