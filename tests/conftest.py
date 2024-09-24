@@ -28,7 +28,7 @@ def _close_figures():
         plt.close(fig)
 
 
-@pytest.fixture()
+@pytest.fixture
 def _use_ipympl():
     matplotlib.use('module://ipympl.backend_nbagg')
 
@@ -65,7 +65,7 @@ def _make_fixture_args(params: list):
     return {"params": params, "ids": [x[1] for x in params]}
 
 
-@pytest.fixture()
+@pytest.fixture
 def set_backend(backend):  # noqa: PT004
     _select_backend(backend)
 
