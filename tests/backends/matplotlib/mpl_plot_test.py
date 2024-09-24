@@ -3,11 +3,13 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 import scipp as sc
 
 import plopp as pp
 from plopp.data.testing import data_array
-from plopp.testing import _parametrize_mpl_backends
+
+pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
 
 
 def test_figsize():

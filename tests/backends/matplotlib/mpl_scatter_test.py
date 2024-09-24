@@ -2,13 +2,15 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
+import pytest
 import scipp as sc
 
 import plopp as pp
 from plopp.backends.matplotlib.canvas import Canvas
 from plopp.backends.matplotlib.scatter import Scatter
 from plopp.data.testing import scatter as scatter_data
-from plopp.testing import _parametrize_mpl_backends
+
+pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
 
 
 def test_scatter_creation():

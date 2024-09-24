@@ -5,7 +5,8 @@ import pytest
 
 from plopp.backends.matplotlib.tiled import Tiled
 from plopp.data.testing import data_array
-from plopp.testing import _parametrize_mpl_backends
+
+pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
 
 
 def test_copy():
