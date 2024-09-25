@@ -27,10 +27,16 @@ def fig_to_bytes(fig: plt.Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
 
 def is_interactive_backend() -> bool:
     """
-    Return ``True`` if the current backend used by Matplotlib is the widget/ipympl
-    backend.
+    Return ``True`` if the current backend used by Matplotlib creates interactive
+    figures. See
+    https://matplotlib.org/stable/users/explain/figure/backends.html#the-builtin-backends
+    for a list of backends.
     """
-    return "inline" not in mpl.get_backend()
+    backend = mpl.get_backend().lower()
+    return any(
+        b in backend
+        for b in ('qt', 'ipympl', 'gtk', 'tk', 'wx', 'nbagg', 'web', 'macosx', 'widget')
+    )
 
 
 def make_figure(*args, **kwargs) -> plt.Figure:
@@ -51,7 +57,10 @@ def make_figure(*args, **kwargs) -> plt.Figure:
     if is_interactive_backend():
         # Create a manager for the figure, which makes it interactive, as well as
         # making it possible to show the figure from the terminal.
-        plt._backend_mod.new_figure_manager_given_figure(1, fig)
+        try:
+            plt._backend_mod.new_figure_manager_given_figure(1, fig)
+        except AttributeError:
+            pass
     return fig
 
 
