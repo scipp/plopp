@@ -3,7 +3,6 @@
 
 import os
 import tempfile
-from importlib import util
 
 import numpy as np
 import pytest
@@ -12,14 +11,7 @@ import scipp as sc
 import plopp as pp
 from plopp.data.testing import data_array, dataset
 
-BACKENDS = ['matplotlib']
-if util.find_spec('plotly') is not None:
-    BACKENDS.append('plotly')
-
-
-@pytest.fixture(params=BACKENDS, autouse=True)
-def _backend(request):
-    pp.backends['2d'] = request.param
+pytestmark = pytest.mark.usefixtures("_parametrize_all_backends")
 
 
 def test_plot_ndarray():
