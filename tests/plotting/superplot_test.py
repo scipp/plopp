@@ -7,21 +7,20 @@ from plopp import Node
 from plopp.data.testing import data_array
 from plopp.plotting.superplot import superplot
 
+pytestmark = pytest.mark.usefixtures("_parametrize_interactive_1d_backends")
 
-@pytest.mark.usefixtures('_use_ipympl')
+
 def test_creation():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
     assert len(sp.right_bar[0]._lines) == 0
 
 
-@pytest.mark.usefixtures('_use_ipympl')
 def test_from_node():
     da = data_array(ndim=2)
     superplot(Node(da))
 
 
-@pytest.mark.usefixtures('_use_ipympl')
 def test_save_line():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
@@ -42,7 +41,6 @@ def test_save_line():
     assert len(tool.container.children) == 2
 
 
-@pytest.mark.usefixtures('_use_ipympl')
 def test_remove_line():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
@@ -70,7 +68,6 @@ def test_remove_line():
     assert len(tool.container.children) == 1
 
 
-@pytest.mark.usefixtures('_use_ipympl')
 def test_change_line_color():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
@@ -81,7 +78,6 @@ def test_change_line_color():
     assert tool._lines[line_id]['line'].color == '#000000'
 
 
-@pytest.mark.usefixtures('_use_ipympl')
 def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):

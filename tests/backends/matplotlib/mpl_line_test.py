@@ -2,11 +2,14 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
+import pytest
 import scipp as sc
 
 from plopp.backends.matplotlib.canvas import Canvas
 from plopp.backends.matplotlib.line import Line
 from plopp.data.testing import data_array
+
+pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
 
 
 def test_line_creation():

@@ -11,6 +11,8 @@ import scipp as sc
 import plopp as pp
 from plopp.data.testing import data_array, variable
 
+pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
+
 
 def test_plot_ndarray():
     pp.plot(np.arange(50.0).reshape(5, 10))

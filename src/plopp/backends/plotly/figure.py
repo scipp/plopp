@@ -13,6 +13,7 @@ class Figure(BaseFig, VBox):
     """
 
     def __init__(self, View, *args, **kwargs):
+        self.interactive = True
         self.view = View(*args, **kwargs)
         self.toolbar = make_toolbar_canvas2d(view=self.view)
         self.left_bar = VBar([self.toolbar])

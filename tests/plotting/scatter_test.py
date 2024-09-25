@@ -8,6 +8,8 @@ import plopp as pp
 from plopp.data.testing import data_array
 from plopp.data.testing import scatter as scatter_data
 
+pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
+
 
 def test_scatter_simple():
     pp.scatter(scatter_data())

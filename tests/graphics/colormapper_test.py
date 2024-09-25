@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from collections.abc import Callable
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from functools import partial
@@ -305,53 +304,69 @@ def test_autoscale_vmax_set():
     assert mapper.vmin < mapper.vmax
 
 
-@dataclass
-class FigureAndData:
-    figure: Callable
-    data: Callable
+CASES = {
+    "imagefigure-mpl-static": (
+        ('2d', 'mpl-static'),
+        partial(imagefigure, cbar=True),
+        partial(data_array, ndim=2),
+    ),
+    "imagefigure-mpl-interactive": (
+        ('2d', 'mpl-interactive'),
+        partial(imagefigure, cbar=True),
+        partial(data_array, ndim=2),
+    ),
+    "scatter3dfigure-pythreejs": (
+        ('3d', 'pythreejs'),
+        partial(scatter3dfigure, x='x', y='y', z='z', cbar=True),
+        scatter,
+    ),
+}
 
 
-PLOTCASES = [
-    FigureAndData(partial(imagefigure, cbar=True), partial(data_array, ndim=2)),
-    FigureAndData(partial(scatter3dfigure, x='x', y='y', z='z', cbar=True), scatter),
-]
+@pytest.mark.parametrize("backend,figure,data", CASES.values(), ids=CASES.keys())
+class TestColormapperAllCases:
+    def test_colorbar_label_has_name_with_one_artist(
+        self, set_backend, backend, figure, data
+    ):
+        a = data(unit='K')
+        a.name = 'A data'
+        fig = figure(Node(a))
+        assert fig.view.colormapper.ylabel == 'A data [K]'
+
+    def test_colorbar_label_has_no_name_with_multiple_artists(
+        self, set_backend, backend, figure, data
+    ):
+        a = data(unit='K')
+        b = 3.3 * a
+        a.name = 'A data'
+        b.name = 'B data'
+        fig = figure(Node(a), Node(b))
+        assert fig.view.colormapper.ylabel == '[K]'
 
 
-@pytest.mark.usefixtures('_use_ipympl')
-@pytest.mark.parametrize('case', PLOTCASES)
-def test_toolbar_log_norm_button_state_agrees_with_kwarg(case):
-    da = case.data()
-    fig = case.figure(Node(da))
-    assert not fig.toolbar['lognorm'].value
-    assert fig.view.colormapper.norm == 'linear'
-    fig = case.figure(Node(da), norm='log')
-    assert fig.toolbar['lognorm'].value
-    assert fig.view.colormapper.norm == 'log'
+CASESINTERACTIVE = {k: c for k, c in CASES.items() if c[0][1] != 'mpl-static'}
 
 
-@pytest.mark.usefixtures('_use_ipympl')
-@pytest.mark.parametrize('case', PLOTCASES)
-def test_toolbar_log_norm_button_toggles_colormapper_norm(case):
-    da = case.data()
-    fig = case.figure(Node(da))
-    assert fig.view.colormapper.norm == 'linear'
-    fig.toolbar['lognorm'].value = True
-    assert fig.view.colormapper.norm == 'log'
+@pytest.mark.parametrize(
+    "backend,figure,data", CASESINTERACTIVE.values(), ids=CASESINTERACTIVE.keys()
+)
+class TestColormapperInteractiveCases:
+    def test_toolbar_log_norm_button_state_agrees_with_kwarg(
+        self, set_backend, backend, figure, data
+    ):
+        da = data()
+        fig = figure(Node(da))
+        assert not fig.toolbar['lognorm'].value
+        assert fig.view.colormapper.norm == 'linear'
+        fig = figure(Node(da), norm='log')
+        assert fig.toolbar['lognorm'].value
+        assert fig.view.colormapper.norm == 'log'
 
-
-@pytest.mark.parametrize('case', PLOTCASES)
-def test_colorbar_label_has_name_with_one_artist(case):
-    a = case.data(unit='K')
-    a.name = 'A data'
-    fig = case.figure(Node(a))
-    assert fig.view.colormapper.ylabel == 'A data [K]'
-
-
-@pytest.mark.parametrize('case', PLOTCASES)
-def test_colorbar_label_has_no_name_with_multiple_artists(case):
-    a = case.data(unit='K')
-    b = 3.3 * a
-    a.name = 'A data'
-    b.name = 'B data'
-    fig = case.figure(Node(a), Node(b))
-    assert fig.view.colormapper.ylabel == '[K]'
+    def test_toolbar_log_norm_button_toggles_colormapper_norm(
+        self, set_backend, backend, figure, data
+    ):
+        da = data()
+        fig = figure(Node(da))
+        assert fig.view.colormapper.norm == 'linear'
+        fig.toolbar['lognorm'].value = True
+        assert fig.view.colormapper.norm == 'log'

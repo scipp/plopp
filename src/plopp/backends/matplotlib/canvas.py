@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import warnings
 from typing import Literal
 
 import matplotlib.pyplot as plt
@@ -119,13 +120,13 @@ class Canvas:
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
+            if self.is_widget():
+                self.fig.canvas.toolbar_visible = False
+                self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
         if aspect is not None:
             self.ax.set_aspect(aspect)
-        if self.is_widget():
-            self.fig.canvas.toolbar_visible = False
-            self.fig.canvas.header_visible = False
 
         if cbar and (self.cax is None):
             if self.ax.name == 'polar':
@@ -157,7 +158,12 @@ class Canvas:
         from ipywidgets import VBox
 
         if self.is_widget() and not is_sphinx_build():
-            self.fig.tight_layout()
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    self.fig.tight_layout()
+            except RuntimeError:
+                pass
             # The Matplotlib canvas tries to fill the entire width of the output cell,
             # which can add unnecessary whitespace between it and other widgets. To
             # prevent this, we wrap the canvas in a VBox, which seems to help.
