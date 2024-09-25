@@ -120,13 +120,13 @@ class Canvas:
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
+            if self.is_widget():
+                self.fig.canvas.toolbar_visible = False
+                self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
         if aspect is not None:
             self.ax.set_aspect(aspect)
-        if self.is_widget():
-            self.fig.canvas.toolbar_visible = False
-            self.fig.canvas.header_visible = False
 
         if cbar and (self.cax is None):
             if self.ax.name == 'polar':
