@@ -136,7 +136,10 @@ class Scatter:
             **{**axis_bounds(('ymin', 'ymax'), scatter_y, yscale, pad=True)},
         )
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """
+        Return a dictionary representation of the scatter plot.
+        """
         return {
             'type': 'scatter',
             'data': {

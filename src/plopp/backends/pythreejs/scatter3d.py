@@ -200,7 +200,10 @@ class Scatter3d:
         """
         self._canvas.remove(self.points)
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """
+        Return a dictionary representation of the Scatter3d artist.
+        """
         return {
             'type': 'scatter3d',
             'data': {

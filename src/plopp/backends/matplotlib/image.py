@@ -224,7 +224,10 @@ class Image:
             **{**axis_bounds(('ymin', 'ymax'), image_y, yscale)},
         )
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
+        """
+        Return a dictionary representation of the image.
+        """
         return {
             'type': 'heatmap',
             'data': {

@@ -182,3 +182,22 @@ class Mesh3d:
         Get the mesh data.
         """
         return self._data
+
+    def to_dict(self) -> dict:
+        """
+        Return a dictionary representation of the mesh.
+        """
+        return {
+            'type': 'mesh3d',
+            'data': {
+                'vertices': self.geometry.attributes['position'].array,
+                'faces': self.geometry.index.array,
+            },
+            'style': {
+                'color': self.geometry.attributes['color'].array,
+                'opacity': self.material.opacity,
+                'edgecolor': self.edges.material.color
+                if self.edges is not None
+                else None,
+            },
+        }
