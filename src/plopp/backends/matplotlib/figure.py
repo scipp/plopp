@@ -97,6 +97,12 @@ class MplBaseFig(BaseFig):
             setattr(out.canvas, prop, getattr(self.canvas, prop))
         return out
 
+    def show(self):
+        """
+        Make a call to Matplotlib's underlying ``show`` function.
+        """
+        self.fig.show()
+
 
 def _make_png_repr(fig):
     return {'image/png': fig_to_bytes(fig, form='png')}

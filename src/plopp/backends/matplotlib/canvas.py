@@ -201,12 +201,6 @@ class Canvas:
         """
         self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
 
-    def show(self):
-        """
-        Make a call to Matplotlib's underlying ``show`` function.
-        """
-        self.fig.show()
-
     def set_axes(self, dims, units, dtypes):
         """
         Set the axes dimensions and units.

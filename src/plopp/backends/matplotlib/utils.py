@@ -5,8 +5,6 @@ from io import BytesIO
 from typing import Literal
 
 import matplotlib as mpl
-
-# from matplotlib.pyplot import Figure, _backend_mod, _get_backend_mod
 import matplotlib.pyplot as plt
 
 
@@ -32,9 +30,7 @@ def is_interactive_backend() -> bool:
     Return ``True`` if the current backend used by Matplotlib is the widget/ipympl
     backend.
     """
-    backend = mpl.get_backend()
-    # return any(x in backend for x in ("ipympl", "widget"))
-    return "inline" not in backend
+    return "inline" not in mpl.get_backend()
 
 
 def make_figure(*args, **kwargs) -> plt.Figure:
@@ -57,12 +53,6 @@ def make_figure(*args, **kwargs) -> plt.Figure:
         # making it possible to show the figure from the terminal.
         plt._backend_mod.new_figure_manager_given_figure(1, fig)
     return fig
-    # if not is_interactive_backend():
-    #     return fig  # Figure(*args, **kwargs)
-    # # backend = _get_backend_mod()
-    # # manager = backend.new_figure_manager(1, *args, FigureClass=Figure, **kwargs)
-    # else:
-    #     return manager.canvas.figure
 
 
 def make_legend(leg: bool | tuple[float, float] | str) -> dict:
