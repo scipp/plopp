@@ -2,11 +2,14 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
+import pytest
 import scipp as sc
 
 from plopp import Node
 from plopp.data.testing import data_array
 from plopp.graphics import imagefigure
+
+pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
 
 
 def test_update_on_one_mesh_changes_colors_on_second_mesh():
