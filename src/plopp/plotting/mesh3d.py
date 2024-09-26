@@ -55,7 +55,7 @@ def mesh3d(
     """
     Create a 3D mesh plot.
 
-    .. versionadded:: 24.10.0
+    .. versionadded:: 24.09.2
 
     Parameters
     ----------
