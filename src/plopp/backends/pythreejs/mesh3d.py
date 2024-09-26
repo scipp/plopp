@@ -17,6 +17,8 @@ class Mesh3d:
     """
     Artist to represent a three-dimensional mesh.
 
+    .. versionadded:: 24.09.2
+
     Parameters
     ----------
     canvas:
