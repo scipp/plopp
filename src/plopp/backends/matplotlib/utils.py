@@ -35,7 +35,18 @@ def is_interactive_backend() -> bool:
     backend = mpl.get_backend().lower()
     return any(
         b in backend
-        for b in ('qt', 'ipympl', 'gtk', 'tk', 'wx', 'nbagg', 'web', 'macosx', 'widget')
+        for b in (
+            'qt',
+            'ipympl',
+            'gtk',
+            'tk',
+            'wx',
+            'nbagg',
+            'web',
+            'macosx',
+            'widget',
+            'notebook',
+        )
     )
 
 
@@ -57,10 +68,7 @@ def make_figure(*args, **kwargs) -> plt.Figure:
     if is_interactive_backend():
         # Create a manager for the figure, which makes it interactive, as well as
         # making it possible to show the figure from the terminal.
-        try:
-            plt._backend_mod.new_figure_manager_given_figure(1, fig)
-        except AttributeError:
-            pass
+        plt._backend_mod.new_figure_manager_given_figure(1, fig)
     return fig
 
 
