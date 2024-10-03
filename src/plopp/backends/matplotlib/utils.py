@@ -5,10 +5,10 @@ from io import BytesIO
 from typing import Literal
 
 import matplotlib as mpl
-from matplotlib.pyplot import Figure, _get_backend_mod
+import matplotlib.pyplot as plt
 
 
-def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
+def fig_to_bytes(fig: plt.Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
     """
     Convert a Matplotlib figure to png (default) or svg bytes.
 
@@ -27,14 +27,30 @@ def fig_to_bytes(fig: Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
 
 def is_interactive_backend() -> bool:
     """
-    Return ``True`` if the current backend used by Matplotlib is the widget/ipympl
-    backend.
+    Return ``True`` if the current backend used by Matplotlib creates interactive
+    figures. See
+    https://matplotlib.org/stable/users/explain/figure/backends.html#the-builtin-backends
+    for a list of backends.
     """
-    backend = mpl.get_backend()
-    return any(x in backend for x in ("ipympl", "widget"))
+    backend = mpl.get_backend().lower()
+    return any(
+        b in backend
+        for b in (
+            'qt',
+            'ipympl',
+            'gtk',
+            'tk',
+            'wx',
+            'nbagg',
+            'web',
+            'macosx',
+            'widget',
+            'notebook',
+        )
+    )
 
 
-def make_figure(*args, **kwargs) -> Figure:
+def make_figure(*args, **kwargs) -> plt.Figure:
     """
     Create a new figure.
 
@@ -45,15 +61,15 @@ def make_figure(*args, **kwargs) -> Figure:
     F) directly.
     When using the interactive backend, we need to do more work. The ``plt.Figure``
     will not have a toolbar nor will it be interactive, as opposed to what
-    ``plt.figure`` returns. We therefore copy the minimal required code inside the
-    ``plt.figure`` function which creates a figure manager (which is apparently what
-    creates the toolbar and makes the figure interactive).
+    ``plt.figure`` returns. To fix this, we need to create a manager for the figure
+    (see https://stackoverflow.com/a/75477367).
     """
-    if not is_interactive_backend():
-        return Figure(*args, **kwargs)
-    backend = _get_backend_mod()
-    manager = backend.new_figure_manager(1, *args, FigureClass=Figure, **kwargs)
-    return manager.canvas.figure
+    fig = plt.Figure(*args, **kwargs)
+    if is_interactive_backend():
+        # Create a manager for the figure, which makes it interactive, as well as
+        # making it possible to show the figure from the terminal.
+        plt._backend_mod.new_figure_manager_given_figure(1, fig)
+    return fig
 
 
 def make_legend(leg: bool | tuple[float, float] | str) -> dict:

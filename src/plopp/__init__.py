@@ -37,18 +37,6 @@ from .plotting import (
 del importlib
 
 
-def show() -> None:
-    """
-    A function to display all the currently opened figures (note that this only applies
-    to the figures created via the Matplotlib backend).
-    See https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html for more
-    details.
-    """
-    import matplotlib.pyplot as plt
-
-    plt.show()
-
-
 __all__ = [
     'Camera',
     'Node',
@@ -65,7 +53,6 @@ __all__ = [
     'scatterfigure',
     'scatter3d',
     'scatter3dfigure',
-    'show',
     'show_graph',
     'slicer',
     'superplot',

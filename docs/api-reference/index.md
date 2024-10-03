@@ -92,12 +92,3 @@
    plotly
    pythreejs
 ```
-
-## Other
-
-```{eval-rst}
-.. autosummary::
-   :toctree: ../generated
-
-   show
-```
