@@ -123,7 +123,7 @@ class GraphicalView(View):
             )
         self.canvas.draw()
 
-    def update(self, *args, **kwargs) -> None:
+    def _update(self, *args, **kwargs) -> None:
         """
         Update the view with new data by either supplying a dictionary of
         new data or by keyword arguments.
@@ -207,8 +207,8 @@ class GraphicalView(View):
 
             self.artists[key].update(new_values=new_values)
 
-        if self.colormapper is not None:
-            self.colormapper.update()
+            if self.colormapper is not None:
+                self.colormapper.update(key=key)
 
         if need_legend_update:
             self.canvas.update_legend()

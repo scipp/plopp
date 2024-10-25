@@ -226,7 +226,8 @@ class ClippingPlanes(ipw.HBox):
         self._operation = 'or'
 
         self.tabs = ipw.Tab(layout={'width': '550px'})
-        self._original_nodes = list(self._view.graph_nodes.values())
+        # self._original_nodes = list(self._view.graph_nodes.values())
+        self._original_nodes = list(self._view.graph_nodes.keys())
         self._nodes = {}
 
         self.add_cut_label = ipw.Label('Add cut:')
@@ -358,8 +359,8 @@ class ClippingPlanes(ipw.HBox):
         """
         Set the opacity of the original point clouds in the figure, not the cuts.
         """
-        for n in self._original_nodes:
-            self._view.artists[n.id].opacity = change['new']
+        for nid in self._original_nodes:
+            self._view.artists[nid].opacity = change['new']
 
     def toggle_visibility(self):
         """
@@ -400,8 +401,10 @@ class ClippingPlanes(ipw.HBox):
         if not visible_cuts:
             return
 
-        for n in self._original_nodes:
-            da = n.request_data()
+        for nid in self._original_nodes:
+            # for nid in [self._view.graph_nodes[nid] for nid in
+            gnode = self._view.graph_nodes[nid]
+            da = gnode.request_data()
             selections = []
             for cut in visible_cuts:
                 xmin, xmax = cut.range
@@ -410,13 +413,13 @@ class ClippingPlanes(ipw.HBox):
                 )
             selection = OPERATIONS[self._operation](selections)
             if selection.sum().value > 0:
-                if n.id not in self._nodes:
+                if nid not in self._nodes:
                     select_node = Node(selection)
-                    self._nodes[n.id] = {
+                    self._nodes[nid] = {
                         'select': select_node,
-                        'slice': Node(lambda da, s: da[s], da=n, s=select_node),
+                        'slice': Node(lambda da, s: da[s], da=gnode, s=select_node),
                     }
-                    self._nodes[n.id]['slice'].add_view(self._view)
+                    self._nodes[nid]['slice'].add_view(self._view)
                 else:
-                    self._nodes[n.id]['select'].func = lambda: selection  # noqa: B023
-                self._nodes[n.id]['select'].notify_children("")
+                    self._nodes[nid]['select'].func = lambda: selection  # noqa: B023
+                self._nodes[nid]['select'].notify_children("")

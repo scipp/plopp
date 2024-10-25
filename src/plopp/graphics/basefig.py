@@ -35,8 +35,8 @@ class BaseFig:
     def id(self):
         return self.view.id
 
-    def update(self, *args, **kwargs):
-        return self.view.update(*args, **kwargs)
+    # def _update(self, *args, **kwargs):
+    #     return self.view.update(*args, **kwargs)
 
     def notify_view(self, *args, **kwargs):
         return self.view.notify_view(*args, **kwargs)

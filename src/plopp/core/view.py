@@ -48,10 +48,10 @@ class View:
         """
         node_id = message["node_id"]
         new_values = self.graph_nodes[node_id].request_data()
-        self.update(**{node_id: new_values})
+        self._update(**{node_id: new_values})
 
     @abstractmethod
-    def update(self, *args: Any, **kwargs: Any) -> None:
+    def _update(self, *args: Any, **kwargs: Any) -> None:
         """
         Update function which is called when a notification is received.
         This has to be overridden by any child class.

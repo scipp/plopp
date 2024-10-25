@@ -207,7 +207,7 @@ class ColorMapper:
         if self.colorbar is not None:
             self._update_colorbar_widget()
 
-    def _set_artists_colors(self):
+    def _set_artists_colors(self, key: str | None = None):
         """
         Update the colors of all the artists apart from the one that triggered the
         update, as those get updated by the figure.
@@ -217,16 +217,17 @@ class ColorMapper:
         keys:
             List of artists to update.
         """
-        for k in self.artists.keys():
+        keys = self.artists.keys() if key is None else [key]
+        for k in keys:
             self.artists[k].set_colors(self.rgba(self.artists[k].data))
 
-    def update(self):
+    def update(self, key: str | None = None):
         """
         Update the colors of all artists, if the `self.set_colors_on_update` attribute
         is set to `True`.
         """
         if self.set_colors_on_update:
-            self._set_artists_colors()
+            self._set_artists_colors(key=key)
 
     @property
     def unit(self) -> str | None:
