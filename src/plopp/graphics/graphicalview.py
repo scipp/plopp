@@ -197,11 +197,18 @@ class GraphicalView(View):
                     canvas=self.canvas,
                     data=new_values,
                     artist_number=len(self.artists),
-                    **self._kwargs,
+                    **{
+                        **self._kwargs,
+                        **(
+                            {'colormapper': self.colormapper}
+                            if self.colormapper is not None
+                            else {}
+                        ),
+                    },
                 )
 
-                if self.colormapper is not None:
-                    self.colormapper[key] = self.artists[key]
+                # if self.colormapper is not None:
+                #     self.colormapper[key] = self.artists[key]
 
                 need_legend_update = getattr(self.artists[key], "label", False)
 

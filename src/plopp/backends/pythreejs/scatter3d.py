@@ -10,6 +10,7 @@ from matplotlib.colors import to_rgb
 
 from ...core.limits import find_limits
 from ...graphics.bbox import BoundingBox
+from ...graphics.colormapper import ColorMapper
 from ..common import check_ndim
 from .canvas import Canvas
 
@@ -42,6 +43,7 @@ class Scatter3d:
         self,
         *,
         canvas: Canvas,
+        colormapper: ColorMapper | None,
         x: str,
         y: str,
         z: str,
@@ -59,6 +61,7 @@ class Scatter3d:
 
         check_ndim(data, ndim=1, origin='Scatter3d')
         self._canvas = canvas
+        self._colormapper = colormapper
         self._data = data
         self._x = x
         self._y = y
@@ -79,6 +82,14 @@ class Scatter3d:
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
 
+        if self._colormapper is not None:
+            colors = self._colormapper.rgba(self._data.data)[..., :3].astype('float32')
+        else:
+            colors = np.broadcast_to(
+                np.array(to_rgb(f'C{artist_number}' if color is None else color)),
+                (self._data.coords[self._x].shape[0], 3),
+            ).astype('float32')
+
         self.geometry = p3.BufferGeometry(
             attributes={
                 'position': p3.BufferAttribute(
@@ -90,14 +101,7 @@ class Scatter3d:
                         ]
                     ).T
                 ),
-                'color': p3.BufferAttribute(
-                    array=np.broadcast_to(
-                        np.array(
-                            to_rgb(f'C{artist_number}' if color is None else color)
-                        ),
-                        (self._data.coords[self._x].shape[0], 3),
-                    ).astype('float32')
-                ),
+                'color': p3.BufferAttribute(array=colors),
             }
         )
 
@@ -114,7 +118,19 @@ class Scatter3d:
         self.points = p3.Points(geometry=self.geometry, material=self.material)
         self._canvas.add(self.points)
 
-    def set_colors(self, rgba):
+    def notify_artist(self, message: str) -> None:
+        """
+        Receive notification from the colormapper that its state has changed.
+        We thus need to update the colors of the points.
+
+        Parameters
+        ----------
+        message:
+            The message from the colormapper.
+        """
+        self._update_colors()
+
+    def _update_colors(self):
         """
         Set the point cloud's rgba colors:
 
@@ -123,7 +139,9 @@ class Scatter3d:
         rgba:
             The array of rgba colors.
         """
-        self.geometry.attributes["color"].array = rgba[..., :3].astype('float32')
+        self.geometry.attributes["color"].array = self._colormapper.rgba(
+            self._data.data
+        )[..., :3].astype('float32')
 
     def update(self, new_values):
         """
@@ -136,6 +154,10 @@ class Scatter3d:
         """
         check_ndim(new_values, ndim=1, origin='Scatter3d')
         self._data = new_values
+        self._update_colors()
+        # self.geometry.attributes["color"].array = self._colormapper.rgba(
+        #     self._data.data
+        # )[..., :3].astype('float32')
 
     @property
     def opacity(self):
