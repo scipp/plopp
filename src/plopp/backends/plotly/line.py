@@ -33,6 +33,8 @@ class Line:
 
     Parameters
     ----------
+    uid:
+        The unique identifier of the artist.
     canvas:
         The canvas that will display the line.
     data:
@@ -52,6 +54,7 @@ class Line:
 
     def __init__(
         self,
+        uid: str,
         canvas: Canvas,
         data: sc.DataArray,
         artist_number: int = 0,
@@ -62,6 +65,7 @@ class Line:
         **kwargs,
     ):
         check_ndim(data, ndim=1, origin='Line')
+        self.uid = uid
         self._fig = canvas.fig
         self._data = data
 
@@ -75,7 +79,7 @@ class Line:
         self._dim = self._data.dim
         self._unit = self._data.unit
         self._coord = self._data.coords[self._dim]
-        self._id = uuid.uuid4().hex
+        # self._id = uuid.uuid4().hex
 
         line_data = make_line_data(data=self._data, dim=self._dim)
 
@@ -162,12 +166,12 @@ class Line:
                 self._error = self._fig.data[-1]
             self._fig.add_trace(self._mask)
             self._mask = self._fig.data[-1]
-        self._line._plopp_id = self._id
+        self._line._plopp_id = self.uid
         self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
 
-        self._mask._plopp_id = self._id
+        self._mask._plopp_id = self.uid
         if self._error is not None:
-            self._error._plopp_id = self._id
+            self._error._plopp_id = self.uid
 
     def update(self, new_values: sc.DataArray):
         """
@@ -209,7 +213,7 @@ class Line:
         Remove the line, masks and errorbar artists from the canvas.
         """
         self._fig.data = [
-            trace for trace in list(self._fig.data) if trace._plopp_id != self._id
+            trace for trace in list(self._fig.data) if trace._plopp_id != self.uid
         ]
 
     @property
