@@ -9,6 +9,7 @@ import scipp as sc
 
 from ...core.utils import coord_as_bin_edges, merge_masks, repeat, scalar_to_string
 from ...graphics.bbox import BoundingBox, axis_bounds
+from ...graphics.colormapper import ColorMapper
 from ..common import check_ndim
 from .canvas import Canvas
 
@@ -62,10 +63,14 @@ class Image:
 
     Parameters
     ----------
+    uid:
+        The unique identifier of the artist.
     canvas:
-        The canvas that will display the line.
+        The canvas that will display the image.
+    colormapper:
+        The colormapper to use for the image.
     data:
-        The initial data to create the line from.
+        The initial data to create the image from.
     shading:
         The shading to use for the ``pcolormesh``.
     rasterized:
@@ -76,14 +81,18 @@ class Image:
 
     def __init__(
         self,
+        uid: str,
         canvas: Canvas,
+        colormapper: ColorMapper,
         data: sc.DataArray,
         shading: str = 'auto',
         rasterized: bool = True,
         **kwargs,
     ):
         check_ndim(data, ndim=2, origin='Image')
+        self.uid = uid
         self._canvas = canvas
+        self._colormapper = colormapper
         self._ax = self._canvas.ax
         self._data = data
         self._id = uuid.uuid4().hex
@@ -129,7 +138,12 @@ class Image:
             rasterized=rasterized,
             **kwargs,
         )
+
+        # Register artist with colormapper
+        self._colormapper[self.uid] = self
+        # Set mesh colors
         self._mesh.set_array(None)
+        self._update_colors()
 
         for xy, var in string_labels.items():
             getattr(self._ax, f'set_{xy}ticks')(np.arange(float(var.shape[0])))
@@ -163,17 +177,37 @@ class Image:
             )
         return out
 
-    def set_colors(self, rgba: np.ndarray):
+    def notify_artist(self, message: str) -> None:
         """
-        Set the mesh's rgba colors:
+        Receive notification from the colormapper that its state has changed.
+        We thus need to update the colors of the mesh.
 
         Parameters
         ----------
-        rgba:
-            The array of rgba colors.
+        message:
+            The message from the colormapper.
         """
+        self._update_colors()
+
+    def _update_colors(self):
+        """
+        Update the mesh colors.
+        """
+        rgba = self._colormapper.rgba(self._data)
         self._mesh.set_facecolors(rgba.reshape(np.prod(rgba.shape[:-1]), 4))
-        self._canvas.draw()
+        # self._canvas.draw()
+
+    # def set_colors(self, rgba: np.ndarray):
+    #     """
+    #     Set the mesh's rgba colors:
+
+    #     Parameters
+    #     ----------
+    #     rgba:
+    #         The array of rgba colors.
+    #     """
+    #     self._mesh.set_facecolors(rgba.reshape(np.prod(rgba.shape[:-1]), 4))
+    #     self._canvas.draw()
 
     def update(self, new_values: sc.DataArray):
         """
@@ -187,6 +221,7 @@ class Image:
         check_ndim(new_values, ndim=2, origin='Image')
         self._data = new_values
         self._data_with_bin_edges.data = new_values.data
+        self._update_colors()
 
     def format_coord(
         self, xslice: tuple[str, sc.Variable], yslice: tuple[str, sc.Variable]

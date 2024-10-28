@@ -194,6 +194,7 @@ class GraphicalView(View):
 
             if key not in self.artists:
                 self.artists[key] = self._artist_maker(
+                    uid=key,
                     canvas=self.canvas,
                     data=new_values,
                     artist_number=len(self.artists),
@@ -211,11 +212,11 @@ class GraphicalView(View):
                 #     self.colormapper[key] = self.artists[key]
 
                 need_legend_update = getattr(self.artists[key], "label", False)
+            else:
+                self.artists[key].update(new_values=new_values)
 
-            self.artists[key].update(new_values=new_values)
-
-        if self.colormapper is not None:
-            self.colormapper.update()
+        # if self.colormapper is not None:
+        #     self.colormapper.update()
 
         if need_legend_update:
             self.canvas.update_legend()

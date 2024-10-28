@@ -98,13 +98,14 @@ class ColorMapper:
         nan_color: str | None = None,
         figsize: tuple[float, float] | None = None,
     ):
-        self.cax = canvas.cax if hasattr(canvas, 'cax') else None
+        self._canvas = canvas
+        self.cax = self._canvas.cax if hasattr(self._canvas, 'cax') else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         self.user_vmin = vmin
         self.user_vmax = vmax
-        self.vmin = np.inf
-        self.vmax = -np.inf
+        self._vmin = np.inf
+        self._vmax = -np.inf
         self.norm = norm
         self.set_colors_on_update = True
 
@@ -177,56 +178,90 @@ class ColorMapper:
         vmin = reduce(min, [v[0] for v in limits])
         vmax = reduce(max, [v[1] for v in limits])
         if self.user_vmin is not None:
-            self.vmin = self.user_vmin
+            self._vmin = self.user_vmin
         else:
-            self.vmin = vmin.value
+            self._vmin = vmin.value
         if self.user_vmax is not None:
-            self.vmax = self.user_vmax
+            self._vmax = self.user_vmax
         else:
-            self.vmax = vmax.value
+            self._vmax = vmax.value
 
-        if self.vmin >= self.vmax:
+        if self._vmin >= self._vmax:
             if self.user_vmax is not None:
-                self.vmax = self.user_vmax
-                self.vmin = self.user_vmax - abs(self.user_vmax) * 0.1
+                self._vmax = self.user_vmax
+                self._vmin = self.user_vmax - abs(self.user_vmax) * 0.1
             else:
-                self.vmin = self.user_vmin
-                self.vmax = self.user_vmin + abs(self.user_vmin) * 0.1
+                self._vmin = self.user_vmin
+                self._vmax = self.user_vmin + abs(self.user_vmin) * 0.1
 
+        self.apply_limits()
+
+    def apply_limits(self):
         # Synchronize the underlying normalizer limits to the current state.
         # Note that the order matters here, as for a normalizer vmin cannot be set above
         # the current vmax.
-        if self.vmin >= self.normalizer.vmax:
-            self.normalizer.vmax = self.vmax
-            self.normalizer.vmin = self.vmin
+        if self._vmin >= self.normalizer.vmax:
+            self.normalizer.vmax = self._vmax
+            self.normalizer.vmin = self._vmin
         else:
-            self.normalizer.vmin = self.vmin
-            self.normalizer.vmax = self.vmax
+            self.normalizer.vmin = self._vmin
+            self.normalizer.vmax = self._vmax
 
-        self._set_artists_colors()
         if self.colorbar is not None:
             self._update_colorbar_widget()
+        self.notify_artists()
 
-    def _set_artists_colors(self):
+    def notify_artists(self):
         """
-        Update the colors of all the artists apart from the one that triggered the
-        update, as those get updated by the figure.
+        Notify the artists that the state of the colormapper has changed.
+        """
+        for artist in self.artists.values():
+            artist.notify_artist('colormap changed')
 
-        Parameters
-        ----------
-        keys:
-            List of artists to update.
-        """
-        for k in self.artists.keys():
-            self.artists[k].set_colors(self.rgba(self.artists[k].data))
+    # def _set_artists_colors(self):
+    #     """
+    #     Update the colors of all the artists apart from the one that triggered the
+    #     update, as those get updated by the figure.
 
-    def update(self):
+    #     Parameters
+    #     ----------
+    #     keys:
+    #         List of artists to update.
+    #     """
+    #     for k in self.artists.keys():
+    #         self.artists[k].set_colors(self.rgba(self.artists[k].data))
+
+    # def update(self):
+    #     """
+    #     Update the colors of all artists, if the `self.set_colors_on_update` attribute
+    #     is set to `True`.
+    #     """
+    #     if self.set_colors_on_update:
+    #         self._set_artists_colors()
+
+    @property
+    def vmin(self) -> float:
         """
-        Update the colors of all artists, if the `self.set_colors_on_update` attribute
-        is set to `True`.
+        Get or set the minimum value of the colorbar.
         """
-        if self.set_colors_on_update:
-            self._set_artists_colors()
+        return self._vmin
+
+    @vmin.setter
+    def vmin(self, vmin: sc.Variable | float):
+        self._vmin = maybe_variable_to_number(vmin, unit=self._unit)
+        self.apply_limits()
+
+    @property
+    def vmax(self) -> float:
+        """
+        Get or set the maximum value of the colorbar.
+        """
+        return self._vmax
+
+    @vmax.setter
+    def vmax(self, vmax: sc.Variable | float):
+        self._vmax = maybe_variable_to_number(vmax, unit=self._unit)
+        self.apply_limits()
 
     @property
     def unit(self) -> str | None:
@@ -262,8 +297,9 @@ class ColorMapper:
         """
         self.norm = "log" if self.norm == 'linear' else 'linear'
         self.normalizer = _get_normalizer(self.norm)
-        self.vmin = np.inf
-        self.vmax = -np.inf
+        self._vmin = np.inf
+        self._vmax = -np.inf
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
         self.autoscale()
+        self._canvas.draw()

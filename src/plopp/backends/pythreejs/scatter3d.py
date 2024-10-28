@@ -21,6 +21,10 @@ class Scatter3d:
 
     Parameters
     ----------
+    uid:
+        The unique identifier of the artist.
+    canvas:
+        The canvas that will display the scatter plot.
     x:
         The name of the coordinate that is to be used for the X positions.
     y:
@@ -33,6 +37,8 @@ class Scatter3d:
         The size of the markers.
     color:
         The color of the markers (this is ignored if a colorbar is used).
+    colormapper:
+        The colormapper to use for the scatter plot.
     opacity:
         The opacity of the points.
     pixel_size:
@@ -42,14 +48,15 @@ class Scatter3d:
     def __init__(
         self,
         *,
+        uid: str,
         canvas: Canvas,
-        colormapper: ColorMapper | None,
         x: str,
         y: str,
         z: str,
         data: sc.DataArray,
         size: sc.Variable | float = 1,
         color: str | None = None,
+        colormapper: ColorMapper | None = None,
         artist_number: int = 0,
         opacity: float = 1,
         pixel_size: sc.Variable | float | None = None,
@@ -60,6 +67,7 @@ class Scatter3d:
         import pythreejs as p3
 
         check_ndim(data, ndim=1, origin='Scatter3d')
+        self.uid = uid
         self._canvas = canvas
         self._colormapper = colormapper
         self._data = data
@@ -83,7 +91,9 @@ class Scatter3d:
                 ).value
 
         if self._colormapper is not None:
-            colors = self._colormapper.rgba(self._data.data)[..., :3].astype('float32')
+            # Register artist with colormapper
+            self._colormapper[self.uid] = self
+            colors = self._colormapper.rgba(self._data)[..., :3].astype('float32')
         else:
             colors = np.broadcast_to(
                 np.array(to_rgb(f'C{artist_number}' if color is None else color)),
@@ -139,9 +149,9 @@ class Scatter3d:
         rgba:
             The array of rgba colors.
         """
-        self.geometry.attributes["color"].array = self._colormapper.rgba(
-            self._data.data
-        )[..., :3].astype('float32')
+        self.geometry.attributes["color"].array = self._colormapper.rgba(self._data)[
+            ..., :3
+        ].astype('float32')
 
     def update(self, new_values):
         """
@@ -154,7 +164,8 @@ class Scatter3d:
         """
         check_ndim(new_values, ndim=1, origin='Scatter3d')
         self._data = new_values
-        self._update_colors()
+        if self._colormapper is not None:
+            self._update_colors()
         # self.geometry.attributes["color"].array = self._colormapper.rgba(
         #     self._data.data
         # )[..., :3].astype('float32')
