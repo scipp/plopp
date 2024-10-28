@@ -139,9 +139,7 @@ class Image:
             **kwargs,
         )
 
-        # Register artist with colormapper
-        self._colormapper[self.uid] = self
-        # Set mesh colors
+        self._colormapper.add_artist(self.uid, self)
         self._mesh.set_array(None)
         self._update_colors()
 
@@ -264,4 +262,4 @@ class Image:
         Remove the image artist from the canvas.
         """
         self._mesh.remove()
-        del self._colormapper[self.uid]
+        self._colormapper.remove_artist(self.uid)

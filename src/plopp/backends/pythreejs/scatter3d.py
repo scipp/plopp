@@ -93,8 +93,7 @@ class Scatter3d:
                 ).value
 
         if self._colormapper is not None:
-            # Register artist with colormapper
-            self._colormapper[self.uid] = self
+            self._colormapper.add_artist(self.uid, self)
             colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
         else:
             colors = np.broadcast_to(
@@ -217,4 +216,4 @@ class Scatter3d:
         """
         self._canvas.remove(self.points)
         if self._colormapper is not None:
-            del self._colormapper[self.uid]
+            self._colormapper.remove_artist(self.uid)

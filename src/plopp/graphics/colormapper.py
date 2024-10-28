@@ -128,11 +128,11 @@ class ColorMapper:
             self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
             self.cax.yaxis.set_label_coords(-0.9, 0.5)
 
-    def __setitem__(self, key: str, artist: Any):
+    def add_artist(self, key: str, artist: Any):
         self.artists[key] = artist
 
-    def __getitem__(self, key: str) -> Any:
-        return self.artists[key]
+    def remove_artist(self, key: str):
+        del self.artists[key]
 
     def to_widget(self):
         """
@@ -162,11 +162,8 @@ class ColorMapper:
         """
         colors = self.cmap(self.normalizer(data.values))
         if data.masks:
-            one_mask = merge_masks(data.masks)  # .values
-            print(one_mask)
-            colors[one_mask.values] = self.mask_cmap(
-                self.normalizer(data.values[one_mask])
-            )
+            one_mask = merge_masks(data.masks).values
+            colors[one_mask] = self.mask_cmap(self.normalizer(data.values[one_mask]))
         return colors
 
     def autoscale(self):
