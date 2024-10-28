@@ -15,7 +15,7 @@ pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
 
 def test_scatter_creation():
     da = scatter_data()
-    scat = Scatter(canvas=Canvas(), data=da)
+    scat = Scatter(uid="id", canvas=Canvas(), data=da)
     assert scat._unit == da.unit
     assert len(scat._scatter.get_offsets()) == len(da)
     x, y = scat._scatter.get_offsets().T
@@ -27,7 +27,7 @@ def test_scatter_creation():
 def test_scatter_with_mask():
     da = scatter_data()
     da.masks['mask'] = da.coords['x'] > sc.scalar(5, unit='m')
-    scat = Scatter(canvas=Canvas(), data=da)
+    scat = Scatter(uid="id", canvas=Canvas(), data=da)
     assert scat._mask.get_visible()
     expected = da[da.masks['mask']]
     x, y = scat._mask.get_offsets().T
@@ -37,7 +37,7 @@ def test_scatter_with_mask():
 
 def test_scatter_update():
     da = scatter_data()
-    scat = Scatter(canvas=Canvas(), data=da)
+    scat = Scatter(uid="id", canvas=Canvas(), data=da)
     x, y = scat._scatter.get_offsets().T
     assert np.allclose(x, da.coords['x'].values)
     assert np.allclose(y, da.coords['y'].values)
