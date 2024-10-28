@@ -193,19 +193,6 @@ class Image:
         """
         rgba = self._colormapper.rgba(self.data)
         self._mesh.set_facecolors(rgba.reshape(np.prod(rgba.shape[:-1]), 4))
-        # self._canvas.draw()
-
-    # def set_colors(self, rgba: np.ndarray):
-    #     """
-    #     Set the mesh's rgba colors:
-
-    #     Parameters
-    #     ----------
-    #     rgba:
-    #         The array of rgba colors.
-    #     """
-    #     self._mesh.set_facecolors(rgba.reshape(np.prod(rgba.shape[:-1]), 4))
-    #     self._canvas.draw()
 
     def update(self, new_values: sc.DataArray):
         """

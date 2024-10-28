@@ -218,27 +218,6 @@ class ColorMapper:
         for artist in self.artists.values():
             artist.notify_artist('colormap changed')
 
-    # def _set_artists_colors(self):
-    #     """
-    #     Update the colors of all the artists apart from the one that triggered the
-    #     update, as those get updated by the figure.
-
-    #     Parameters
-    #     ----------
-    #     keys:
-    #         List of artists to update.
-    #     """
-    #     for k in self.artists.keys():
-    #         self.artists[k].set_colors(self.rgba(self.artists[k].data))
-
-    # def update(self):
-    #     """
-    #     Update the colors of all artists, if the `self.set_colors_on_update` attribute
-    #     is set to `True`.
-    #     """
-    #     if self.set_colors_on_update:
-    #         self._set_artists_colors()
-
     @property
     def vmin(self) -> float:
         """

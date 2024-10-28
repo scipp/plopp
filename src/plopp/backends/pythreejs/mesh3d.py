@@ -146,19 +146,6 @@ class Mesh3d:
             ..., :3
         ].astype('float32')
 
-    # def set_colors(self, rgba):
-    #     """
-    #     Set the mesh's rgba colors:
-
-    #     Parameters
-    #     ----------
-    #     rgba:
-    #         The array of rgba colors.
-    #     """
-    #     self.geometry.attributes["color"].array = rgba[..., :3].astype(
-    #         'float32', copy=False
-    #     )
-
     def update(self, new_values):
         """
         Update mesh array with new values.

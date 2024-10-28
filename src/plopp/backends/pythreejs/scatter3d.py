@@ -162,9 +162,6 @@ class Scatter3d:
         self._data = new_values
         if self._colormapper is not None:
             self._update_colors()
-        # self.geometry.attributes["color"].array = self._colormapper.rgba(
-        #     self._data.data
-        # )[..., :3].astype('float32')
 
     @property
     def opacity(self):

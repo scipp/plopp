@@ -172,11 +172,6 @@ class Scatter:
         if self._colormapper is not None:
             self._colormapper.remove_artist(self.uid)
 
-    # def set_colors(self, rgba: np.ndarray):
-    #     if self._scatter.get_array() is not None:
-    #         self._scatter.set_array(None)
-    #     self._scatter.set_facecolors(rgba)
-
     @property
     def data(self):
         """ """
