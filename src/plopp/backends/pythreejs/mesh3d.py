@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
-import uuid
 from typing import Literal
 
 import numpy as np
@@ -65,7 +64,6 @@ class Mesh3d:
         self._canvas = canvas
         self._colormapper = colormapper
         self._artist_number = artist_number
-        self._id = uuid.uuid4().hex
 
         # Note: index *must* be unsigned!
         index = p3.BufferAttribute(
