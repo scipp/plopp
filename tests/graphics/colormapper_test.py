@@ -60,7 +60,7 @@ def test_autoscale():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
     artist = DummyChild(data=da, colormapper=mapper)
-    mapper['data'] = artist
+    mapper.add_artist('data', artist)
 
     mapper.autoscale()
     assert mapper.vmin == da.min().value
@@ -85,7 +85,7 @@ def test_update_without_autoscale_does_not_change_limits():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
     artist = DummyChild(data=da, colormapper=mapper)
-    mapper['data'] = artist
+    mapper.add_artist('data', artist)
 
     mapper.autoscale()
     assert mapper.vmin == da.min().value
@@ -114,7 +114,7 @@ def test_correct_normalizer_limits():
     da = sc.DataArray(data=sc.array(dims=['y', 'x'], values=[[1, 2], [3, 4]]))
     mapper = ColorMapper()
     artist = DummyChild(data=da, colormapper=mapper)
-    mapper['data'] = artist
+    mapper.add_artist('data', artist)
     mapper.autoscale()
     assert mapper.vmin == da.min().value
     assert mapper.vmax == da.max().value
@@ -132,7 +132,7 @@ def test_vmin_vmax():
     vmax = sc.scalar(3.5, unit='K')
     mapper = ColorMapper(vmin=vmin, vmax=vmax)
     artist = DummyChild(data=da, colormapper=mapper)
-    mapper['data'] = artist
+    mapper.add_artist('data', artist)
     mapper.unit = 'K'
     mapper.autoscale()
     assert mapper.user_vmin == vmin.value
@@ -147,7 +147,7 @@ def test_vmin_vmax_no_variable():
     vmax = 3.5
     mapper = ColorMapper(vmin=vmin, vmax=vmax)
     artist = DummyChild(data=da, colormapper=mapper)
-    mapper['data'] = artist
+    mapper.add_artist('data', artist)
     mapper.unit = 'K'
     mapper.autoscale()
     assert mapper.user_vmin == vmin
@@ -159,7 +159,7 @@ def test_vmin_vmax_no_variable():
 def test_toggle_norm():
     mapper = ColorMapper()
     da = data_array(ndim=2, unit='K')
-    mapper['child1'] = DummyChild(data=da, colormapper=mapper)
+    mapper.add_artist('child1', DummyChild(data=da, colormapper=mapper))
     mapper.autoscale()
     assert mapper.norm == 'linear'
     assert isinstance(mapper.normalizer, Normalize)
@@ -177,7 +177,7 @@ def test_update_changes_limits():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
     artist = DummyChild(data=da, colormapper=mapper)
-    mapper['data'] = artist
+    mapper.add_artist('data', artist)
 
     mapper.autoscale()
     assert mapper.normalizer.vmin == da.min().value
@@ -208,8 +208,7 @@ def test_colorbar_updated_on_rescale():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
     artist = DummyChild(data=da, colormapper=mapper)
-    key = 'data'
-    mapper[key] = artist
+    mapper.add_artist('data', artist)
 
     mapper.autoscale()
     _ = mapper.to_widget()
@@ -236,8 +235,7 @@ def test_colorbar_does_not_update_if_no_autoscale():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
     artist = DummyChild(data=da, colormapper=mapper)
-    key = 'data'
-    mapper[key] = artist
+    mapper.add_artist('data', artist)
 
     mapper.autoscale()
     _ = mapper.to_widget()
@@ -276,8 +274,7 @@ def test_autoscale_vmin_set():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper(vmin=-0.5)
     artist = DummyChild(data=da, colormapper=mapper)
-    key = 'data'
-    mapper[key] = artist
+    mapper.add_artist('data', artist)
     mapper.autoscale()
     assert mapper.vmin == -0.5
     assert mapper.vmax == da.max().value
@@ -292,8 +289,7 @@ def test_autoscale_vmax_set():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper(vmax=0.5)
     artist = DummyChild(data=da, colormapper=mapper)
-    key = 'data'
-    mapper[key] = artist
+    mapper.add_artist('data', artist)
     mapper.autoscale()
     assert mapper.vmax == 0.5
     assert mapper.vmin == da.min().value
