@@ -140,7 +140,7 @@ class Scatter:
         """
         Update the colors of the scatter points.
         """
-        self._scatter.set_facecolors(self._colormapper.rgba(self._data))
+        self._scatter.set_facecolors(self._colormapper.rgba(self.data))
 
     def update(self, new_values: sc.DataArray):
         """

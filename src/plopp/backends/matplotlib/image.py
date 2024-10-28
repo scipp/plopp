@@ -193,7 +193,7 @@ class Image:
         """
         Update the mesh colors.
         """
-        rgba = self._colormapper.rgba(self._data)
+        rgba = self._colormapper.rgba(self.data)
         self._mesh.set_facecolors(rgba.reshape(np.prod(rgba.shape[:-1]), 4))
         # self._canvas.draw()
 

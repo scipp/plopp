@@ -162,8 +162,11 @@ class ColorMapper:
         """
         colors = self.cmap(self.normalizer(data.values))
         if data.masks:
-            one_mask = merge_masks(data.masks).values
-            colors[one_mask] = self.mask_cmap(self.normalizer(data.values[one_mask]))
+            one_mask = merge_masks(data.masks)  # .values
+            print(one_mask)
+            colors[one_mask.values] = self.mask_cmap(
+                self.normalizer(data.values[one_mask])
+            )
         return colors
 
     def autoscale(self):
@@ -302,4 +305,5 @@ class ColorMapper:
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
         self.autoscale()
-        self._canvas.draw()
+        if self._canvas is not None:
+            self._canvas.draw()

@@ -95,7 +95,7 @@ class Scatter3d:
         if self._colormapper is not None:
             # Register artist with colormapper
             self._colormapper[self.uid] = self
-            colors = self._colormapper.rgba(self._data)[..., :3].astype('float32')
+            colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
         else:
             colors = np.broadcast_to(
                 np.array(to_rgb(f'C{artist_number}' if color is None else color)),
@@ -146,7 +146,7 @@ class Scatter3d:
         """
         Set the point cloud's rgba colors:
         """
-        self.geometry.attributes["color"].array = self._colormapper.rgba(self._data)[
+        self.geometry.attributes["color"].array = self._colormapper.rgba(self.data)[
             ..., :3
         ].astype('float32')
 
