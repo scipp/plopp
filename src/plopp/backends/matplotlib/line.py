@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import uuid
 from typing import Literal
 
 import numpy as np
@@ -72,7 +71,6 @@ class Line:
         self._dim = self._data.dim
         self._unit = self._data.unit
         self._coord = self._data.coords[self._dim]
-        # self._id = uuid.uuid4().hex
 
         aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
         for key, alias in aliases.items():
