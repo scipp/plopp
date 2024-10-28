@@ -39,6 +39,8 @@ class Scatter3d:
         The color of the markers (this is ignored if a colorbar is used).
     colormapper:
         The colormapper to use for the scatter plot.
+    artist_number:
+        Number of the artist (can be used to set the color of the artist).
     opacity:
         The opacity of the points.
     pixel_size:
@@ -143,11 +145,6 @@ class Scatter3d:
     def _update_colors(self):
         """
         Set the point cloud's rgba colors:
-
-        Parameters
-        ----------
-        rgba:
-            The array of rgba colors.
         """
         self.geometry.attributes["color"].array = self._colormapper.rgba(self._data)[
             ..., :3
@@ -219,3 +216,5 @@ class Scatter3d:
         Remove the point cloud from the canvas.
         """
         self._canvas.remove(self.points)
+        if self._colormapper is not None:
+            del self._colormapper[self.uid]

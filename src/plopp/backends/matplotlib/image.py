@@ -258,3 +258,10 @@ class Image:
             **{**axis_bounds(('xmin', 'xmax'), image_x, xscale)},
             **{**axis_bounds(('ymin', 'ymax'), image_y, yscale)},
         )
+
+    def remove(self):
+        """
+        Remove the image artist from the canvas.
+        """
+        self._mesh.remove()
+        del self._colormapper[self.uid]
