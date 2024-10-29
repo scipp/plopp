@@ -6,96 +6,32 @@ from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pyqtgraph as pg
 import scipp as sc
 from matplotlib import dates as mdates
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from ...core.utils import maybe_variable_to_number, scalar_to_string
+# from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ...graphics.bbox import BoundingBox
-from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
-
-def _cursor_value_to_variable(x: float, dtype: sc.DType, unit: str) -> sc.Variable:
-    if dtype == sc.DType.datetime64:
-        # Annoying chain of conversion but matplotlib has its own way of converting
-        # dates to numbers (number of days since epoch), and num2date returns a python
-        # datetime object, while scipp expects a numpy datetime64.
-        return sc.scalar(np.datetime64(mdates.num2date(x).replace(tzinfo=None))).to(
-            unit=unit
-        )
-    return sc.scalar(x, unit=unit)
-
-
-def _cursor_formatter(x: float, dtype: sc.DType, unit: str) -> str:
-    if dtype == sc.DType.datetime64:
-        return mdates.num2date(x).replace(tzinfo=None).isoformat()
-    return scalar_to_string(sc.scalar(x, unit=unit))
-
-
-def _maybe_trim_polar_limits(
-    axis_type: str, limits: tuple[float, float]
-) -> tuple[float, float]:
-    """
-    If the axes are polar, trim the limits of the polar plot to be within the range
-    [0, 2π].
-
-    Parameters
-    ----------
-    axis_type:
-        The type of the axis. If this is not 'polar', the limits are returned as is.
-    limits:
-        The limits of the axis.
-    """
-    if axis_type != 'polar':
-        return limits
-    return tuple(np.clip(limits, 0, 2 * np.pi))
+# from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
 
 class Canvas:
-    """
-    Matplotlib-based canvas used to render 2D graphics.
-    It provides a figure and some axes, as well as functions for controlling the zoom,
-    panning, and the scale of the axes.
-
-    Parameters
-    ----------
-    ax:
-        If supplied, use these axes to create the figure. If none are supplied, the
-        canvas will create its own axes.
-    cax:
-        If supplied, use these axes for the colorbar. If none are supplied, and a
-        colorbar is required, the canvas will create its own axes.
-    figsize:
-        The width and height of the figure, in inches.
-    title:
-        The title to be placed above the figure.
-    grid:
-        Display the figure grid if ``True``.
-    user_vmin:
-        The minimum value for the y axis (1d plots only).
-    user_vmax:
-        The maximum value for the y axis (1d plots only).
-    aspect:
-        The aspect ratio for the axes.
-    cbar:
-        Add axes to host a colorbar if ``True``.
-    legend:
-        Show legend if ``True``. If ``legend`` is a tuple, it should contain the
-        ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
-    """
+    """ """
 
     def __init__(
         self,
-        ax: plt.Axes = None,
-        cax: plt.Axes = None,
-        figsize: tuple[float, float] | None = None,
-        title: str | None = None,
-        grid: bool = False,
+        # ax: plt.Axes = None,
+        # cax: plt.Axes = None,
+        # figsize: tuple[float, float] | None = None,
+        # title: str | None = None,
+        # grid: bool = False,
         user_vmin: sc.Variable | float = None,
         user_vmax: sc.Variable | float = None,
-        aspect: Literal['auto', 'equal', None] = None,
-        cbar: bool = False,
-        legend: bool | tuple[float, float] = True,
+        # aspect: Literal['auto', 'equal', None] = None,
+        # cbar: bool = False,
+        # legend: bool | tuple[float, float] = True,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -107,85 +43,108 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
-        self.fig = None
-        self.ax = ax
-        self.cax = cax
+        # self.viewport = self.addViewBox(None, col=0)
+        # super().__init__()
+        # self.viewbox = pg.ViewBox()
+        # self.viewbox.setAspectLocked(True)
+
+        self.axes = pg.PlotItem()
+        self.axes.getAxis('bottom').setPen(pg.mkPen(color=('black')))
+        self.axes.getAxis('bottom').setTextPen(pg.mkPen(color=('black'), width=2))
+        self.axes.getAxis('left').setPen(pg.mkPen(color=('black')))
+        self.axes.getAxis('left').setTextPen(pg.mkPen(color=('black'), width=2))
+        self.axes.setLabel('bottom', 'X-axis', units='m')
+        self.axes.setLabel('left', 'Y-axis', units='m')
+
+        # cmap = plt.colormaps["viridis"]
+        # self._image = pg.ImageItem(image=cmap(np.random.random((1000, 1000))))
+        # self.viewport.addItem(self._image)
+
+        # self.fig = None
+        # self.ax = ax
+        # self.cax = cax
         self.bbox = BoundingBox()
         self._user_vmin = user_vmin
         self._user_vmax = user_vmax
         self.units = {}
         self.dims = {}
-        self._legend = legend
+        # self._legend = legend
 
-        if self.ax is None:
-            self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
-            self.ax = self.fig.add_subplot()
-            if self.is_widget():
-                self.fig.canvas.toolbar_visible = False
-                self.fig.canvas.header_visible = False
-        else:
-            self.fig = self.ax.get_figure()
-        if aspect is not None:
-            self.ax.set_aspect(aspect)
+        # if self.ax is None:
+        #     self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
+        #     self.ax = self.fig.add_subplot()
+        #     if self.is_widget():
+        #         self.fig.canvas.toolbar_visible = False
+        #         self.fig.canvas.header_visible = False
+        # else:
+        #     self.fig = self.ax.get_figure()
+        # if aspect is not None:
+        #     self.ax.set_aspect(aspect)
 
-        if cbar and (self.cax is None):
-            if self.ax.name == 'polar':
-                bounds = self.ax.get_position().bounds
-                self.cax = self.fig.add_axes(
-                    [bounds[0] + bounds[2] + 0.1, 0.1, 0.03, 0.8]
-                )
-            else:
-                divider = make_axes_locatable(self.ax)
-                self.cax = divider.append_axes("right", "4%", pad="5%")
+        # if cbar and (self.cax is None):
+        #     if self.ax.name == 'polar':
+        #         bounds = self.ax.get_position().bounds
+        #         self.cax = self.fig.add_axes(
+        #             [bounds[0] + bounds[2] + 0.1, 0.1, 0.03, 0.8]
+        #         )
+        #     else:
+        #         divider = make_axes_locatable(self.ax)
+        #         self.cax = divider.append_axes("right", "4%", pad="5%")
 
-        self.ax.grid(grid)
-        if title:
-            self.ax.set_title(title)
-        self._coord_formatters = []
+        # self.ax.grid(grid)
+        # if title:
+        #     self.ax.set_title(title)
+        # self._coord_formatters = []
+
+    def add(self, item):
+        self.viewbox.addItem(item)
 
     def is_widget(self):
-        return hasattr(self.fig.canvas, "on_widget_constructed")
+        return False
 
-    def to_image(self):
-        """
-        Convert the underlying Matplotlib figure to an image widget from ``ipywidgets``.
-        """
-        from ipywidgets import Image
+    # def to_image(self):
+    #     """
+    #     Convert the underlying Matplotlib figure to an image widget from ``ipywidgets``.
+    #     """
+    #     from ipywidgets import Image
 
-        return Image(value=fig_to_bytes(self.fig), format='png')
+    #     return Image(value=fig_to_bytes(self.fig), format='png')
 
-    def to_widget(self):
-        from ipywidgets import VBox
+    # def to_widget(self):
+    #     from ipywidgets import VBox
 
-        if self.is_widget() and not is_sphinx_build():
-            try:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    self.fig.tight_layout()
-            except RuntimeError:
-                pass
-            # The Matplotlib canvas tries to fill the entire width of the output cell,
-            # which can add unnecessary whitespace between it and other widgets. To
-            # prevent this, we wrap the canvas in a VBox, which seems to help.
-            return VBox([self.fig.canvas])
-        return self.to_image()
+    #     if self.is_widget() and not is_sphinx_build():
+    #         try:
+    #             with warnings.catch_warnings():
+    #                 warnings.simplefilter("ignore")
+    #                 self.fig.tight_layout()
+    #         except RuntimeError:
+    #             pass
+    #         # The Matplotlib canvas tries to fill the entire width of the output cell,
+    #         # which can add unnecessary whitespace between it and other widgets. To
+    #         # prevent this, we wrap the canvas in a VBox, which seems to help.
+    #         return VBox([self.fig.canvas])
+    #     return self.to_image()
 
     def draw(self):
         """
         Make a draw call to the underlying figure.
         """
-        self.fig.canvas.draw_idle()
+        return
+        # self.fig.canvas.draw_idle()
 
     def update_legend(self):
-        """
-        Update the legend on the canvas.
-        """
-        if self._legend:
-            handles, labels = self.ax.get_legend_handles_labels()
-            if len(handles) > 1:
-                self.ax.legend(handles, labels, **make_legend(self._legend))
-            elif (leg := self.ax.get_legend()) is not None:
-                leg.remove()
+        return
+
+    #     """
+    #     Update the legend on the canvas.
+    #     """
+    #     if self._legend:
+    #         handles, labels = self.ax.get_legend_handles_labels()
+    #         if len(handles) > 1:
+    #             self.ax.legend(handles, labels, **make_legend(self._legend))
+    #         elif (leg := self.ax.get_legend()) is not None:
+    #             leg.remove()
 
     def save(self, filename: str, **kwargs):
         """
@@ -217,59 +176,59 @@ class Canvas:
         self.units = units
         self.dims = dims
         self.dtypes = dtypes
-        self._cursor_x_prefix = ''
-        self._cursor_y_prefix = ''
-        if 'y' in self.dims:
-            self._cursor_x_prefix = self.dims['x'] + '='
-            self._cursor_y_prefix = self.dims['y'] + '='
-        self.ax.format_coord = self.format_coord
-        key = 'y' if 'y' in self.units else 'data'
+        # self._cursor_x_prefix = ''
+        # self._cursor_y_prefix = ''
+        # if 'y' in self.dims:
+        #     self._cursor_x_prefix = self.dims['x'] + '='
+        #     self._cursor_y_prefix = self.dims['y'] + '='
+        # self.ax.format_coord = self.format_coord
+        # key = 'y' if 'y' in self.units else 'data'
         self.bbox = BoundingBox(
-            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
-            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
+            # ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
+            # ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
         )
 
-    def register_format_coord(self, formatter):
-        """
-        Register a custom axis formatter for the x-axis.
-        """
-        self._coord_formatters.append(formatter)
+    # def register_format_coord(self, formatter):
+    #     """
+    #     Register a custom axis formatter for the x-axis.
+    #     """
+    #     self._coord_formatters.append(formatter)
 
-    def format_coord(self, x: float, y: float) -> str:
-        """
-        Format the coordinates of the mouse pointer to show the value of the
-        data at that point.
+    # def format_coord(self, x: float, y: float) -> str:
+    #     """
+    #     Format the coordinates of the mouse pointer to show the value of the
+    #     data at that point.
 
-        Parameters
-        ----------
-        x:
-            The x coordinate of the mouse pointer.
-        y:
-            The y coordinate of the mouse pointer.
-        """
-        xstr = _cursor_formatter(x, self.dtypes['x'], self.units['x'])
-        key = 'y' if 'y' in self.dtypes else 'data'
-        ystr = _cursor_formatter(y, self.dtypes[key], self.units[key])
-        out = f"({self._cursor_x_prefix}{xstr}, {self._cursor_y_prefix}{ystr})"
-        if not self._coord_formatters:
-            return out
-        xpos = (
-            self.dims['x'],
-            _cursor_value_to_variable(x, self.dtypes['x'], self.units['x']),
-        )
-        ypos = (
-            (
-                self.dims['y'],
-                _cursor_value_to_variable(y, self.dtypes['y'], self.units['y']),
-            )
-            if 'y' in self.dims
-            else None
-        )
-        extra = [formatter(xpos, ypos) for formatter in self._coord_formatters]
-        extra = [e for e in extra if e is not None]
-        if extra:
-            out += ": {" + ", ".join(extra) + "}"
-        return out
+    #     Parameters
+    #     ----------
+    #     x:
+    #         The x coordinate of the mouse pointer.
+    #     y:
+    #         The y coordinate of the mouse pointer.
+    #     """
+    #     xstr = _cursor_formatter(x, self.dtypes['x'], self.units['x'])
+    #     key = 'y' if 'y' in self.dtypes else 'data'
+    #     ystr = _cursor_formatter(y, self.dtypes[key], self.units[key])
+    #     out = f"({self._cursor_x_prefix}{xstr}, {self._cursor_y_prefix}{ystr})"
+    #     if not self._coord_formatters:
+    #         return out
+    #     xpos = (
+    #         self.dims['x'],
+    #         _cursor_value_to_variable(x, self.dtypes['x'], self.units['x']),
+    #     )
+    #     ypos = (
+    #         (
+    #             self.dims['y'],
+    #             _cursor_value_to_variable(y, self.dtypes['y'], self.units['y']),
+    #         )
+    #         if 'y' in self.dims
+    #         else None
+    #     )
+    #     extra = [formatter(xpos, ypos) for formatter in self._coord_formatters]
+    #     extra = [e for e in extra if e is not None]
+    #     if extra:
+    #         out += ": {" + ", ".join(extra) + "}"
+    #     return out
 
     @property
     def empty(self) -> bool:
@@ -298,6 +257,7 @@ class Canvas:
 
     @xlabel.setter
     def xlabel(self, lab: str):
+        return
         self.ax.set_xlabel(lab)
 
     @property
@@ -309,6 +269,7 @@ class Canvas:
 
     @ylabel.setter
     def ylabel(self, lab: str):
+        return
         self.ax.set_ylabel(lab)
 
     @property
@@ -327,10 +288,12 @@ class Canvas:
         """
         Get or set the scale of the x-axis ('linear' or 'log').
         """
+        return 'linear'
         return self.ax.get_xscale()
 
     @xscale.setter
     def xscale(self, scale: Literal['linear', 'log']):
+        return
         self.ax.set_xscale(scale)
 
     @property
@@ -338,10 +301,12 @@ class Canvas:
         """
         Get or set the scale of the y-axis ('linear' or 'log').
         """
+        return 'linear'
         return self.ax.get_yscale()
 
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):
+        return
         self.ax.set_yscale(scale)
 
     @property
@@ -353,6 +318,7 @@ class Canvas:
 
     @xmin.setter
     def xmin(self, value: float):
+        return
         self.ax.set_xlim(
             _maybe_trim_polar_limits(axis_type=self.ax.name, limits=(value, self.xmax))
         )
@@ -366,6 +332,7 @@ class Canvas:
 
     @xmax.setter
     def xmax(self, value: float):
+        return
         self.ax.set_xlim(
             _maybe_trim_polar_limits(axis_type=self.ax.name, limits=(self.xmin, value))
         )
@@ -379,6 +346,7 @@ class Canvas:
 
     @xrange.setter
     def xrange(self, value: tuple[float, float]):
+        return
         self.ax.set_xlim(_maybe_trim_polar_limits(axis_type=self.ax.name, limits=value))
 
     @property
@@ -390,6 +358,7 @@ class Canvas:
 
     @ymin.setter
     def ymin(self, value: float):
+        return
         self.ax.set_ylim(value, self.ymax)
 
     @property
@@ -401,6 +370,7 @@ class Canvas:
 
     @ymax.setter
     def ymax(self, value: float):
+        return
         self.ax.set_ylim(self.ymin, value)
 
     @property
@@ -412,6 +382,7 @@ class Canvas:
 
     @yrange.setter
     def yrange(self, value: tuple[float, float]):
+        return
         self.ax.set_ylim(value)
 
     @property

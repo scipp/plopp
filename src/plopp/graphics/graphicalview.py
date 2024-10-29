@@ -101,6 +101,7 @@ class GraphicalView(View):
 
     def autoscale(self):
         bbox = BoundingBox()
+        # print(dir(self.canvas))
         scales = {"xscale": self.canvas.xscale, "yscale": self.canvas.yscale}
         if hasattr(self.canvas, 'zscale'):
             scales['zscale'] = self.canvas.zscale

@@ -5,7 +5,9 @@ import uuid
 from typing import Literal
 
 import numpy as np
+import pyqtgraph as pg
 import scipp as sc
+from matplotlib import colors as mcolors
 from matplotlib.dates import date2num
 from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
@@ -13,11 +15,23 @@ from numpy.typing import ArrayLike
 from ...graphics.bbox import BoundingBox
 from ..common import check_ndim, make_line_bbox, make_line_data
 from .canvas import Canvas
-from .utils import parse_dicts_in_kwargs
+
+# from .utils import parse_dicts_in_kwargs
 
 
 def _to_float(x):
     return date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
+
+
+def _parse_dicts_in_kwargs(kwargs, name):
+    out = {}
+    for key, value in kwargs.items():
+        if isinstance(value, dict):
+            if name in value:
+                out[key] = value[name]
+        else:
+            out[key] = value
+    return out
 
 
 class Line:
@@ -48,13 +62,13 @@ class Line:
     ):
         check_ndim(data, ndim=1, origin='Line')
         self._canvas = canvas
-        self._ax = self._canvas.ax
+        # self._ax = self._canvas.ax
         self._data = data
-        # Because all keyword arguments from the figure are forwarded to both the canvas
-        # and the line, we need to remove the arguments that belong to the canvas.
-        kwargs.pop('ax', None)
+        # # Because all keyword arguments from the figure are forwarded to both the canvas
+        # # and the line, we need to remove the arguments that belong to the canvas.
+        # kwargs.pop('ax', None)
 
-        line_args = parse_dicts_in_kwargs(kwargs, name=data.name)
+        line_args = _parse_dicts_in_kwargs(kwargs, name=data.name)
 
         self._line = None
         self._mask = None
@@ -66,25 +80,29 @@ class Line:
         self._coord = self._data.coords[self._dim]
         self._id = uuid.uuid4().hex
 
-        aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
-        for key, alias in aliases.items():
-            if key in line_args:
-                line_args[alias] = line_args.pop(key)
-
         line_data = make_line_data(data=self._data, dim=self._dim)
 
-        default_step_style = {
-            'linestyle': 'solid',
-            'linewidth': 1.5,
-            'color': f'C{artist_number}',
+        # default_step_style = {
+        #     'linestyle': 'solid',
+        #     'linewidth': 1.5,
+        #     'color': f'C{artist_number}',
+        # }
+        # markers = list(Line2D.markers.keys())
+        default_line_style = {
+            'color': mcolors.to_hex(f'C{artist_number}'),
+            'width': 2.5,
         }
-        markers = list(Line2D.markers.keys())
-        default_plot_style = {
-            'linestyle': 'none',
-            'linewidth': 1.5,
-            'marker': markers[(artist_number + 2) % len(markers)],
-            'color': f'C{artist_number}',
-        }
+
+        self._line = self._canvas.axes.plot(
+            line_data['values']['x'],
+            line_data['values']['y'],
+            pen=pg.mkPen(
+                default_line_style['color'], width=default_line_style['width']
+            ),
+        )
+
+        # self._canvas.add(self._line)
+        return
 
         if line_data["hist"]:
             self._line = self._ax.step(
@@ -146,6 +164,7 @@ class Line:
         new_values:
             New data to update the line values, masks, errorbars from.
         """
+        return
         check_ndim(new_values, ndim=1, origin='Line')
         self._data = new_values
         line_data = make_line_data(data=self._data, dim=self._dim)
