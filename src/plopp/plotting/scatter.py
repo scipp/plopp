@@ -22,7 +22,7 @@ def _preprocess_scatter(
     check_not_binned(da)
 
     cnames = [x, y]
-    if size is not None:
+    if isinstance(size, str):
         cnames.append(size)
     coords = {k: da.coords[k] for k in cnames}
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
