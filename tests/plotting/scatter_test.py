@@ -50,7 +50,17 @@ def test_scatter_with_cmap():
     assert scat.view.colormapper.cmap.name == name
 
 
-def test_scatter_with_size():
+def test_scatter_with_int_size():
+    a = scatter_data()
+    pp.scatter(a, size=10)
+
+
+def test_scatter_with_float_size():
+    a = scatter_data()
+    pp.scatter(a, size=33.3)
+
+
+def test_scatter_with_variable_size():
     a = scatter_data()
     a.coords['s'] = sc.abs(a.coords['x']) * 5
     pp.scatter(a, size='s')
@@ -60,6 +70,12 @@ def test_scatter_with_size_and_cbar():
     a = scatter_data()
     a.coords['s'] = sc.abs(a.coords['x']) * 5
     pp.scatter(a, size='s', cbar=True)
+
+
+def test_scatter_with_s_kwarg_raises():
+    a = scatter_data()
+    with pytest.raises(ValueError, match="Use 'size' instead of 's' for scatter plot."):
+        pp.scatter(a, s=10)
 
 
 def test_scatter_with_masks():
