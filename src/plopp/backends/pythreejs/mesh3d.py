@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
+import uuid
 from typing import Literal
 
 import numpy as np
@@ -21,8 +22,6 @@ class Mesh3d:
 
     Parameters
     ----------
-    uid:
-        The unique identifier of the artist.
     canvas:
         The canvas to draw the mesh on.
     data:
@@ -31,6 +30,8 @@ class Mesh3d:
 
         - vertices: a DataArray with the vertices of the mesh.
         - faces: a DataArray with the faces of the mesh.
+    uid:
+        The unique identifier of the artist. If None, a random UUID is generated.
     color:
         The color of the mesh. If None, the mesh will be colored according to the
         artist number.
@@ -48,9 +49,9 @@ class Mesh3d:
     def __init__(
         self,
         *,
-        uid: str,
         canvas: Canvas,
         data: sc.DataArray,
+        uid: str | None = None,
         color: str | None = None,
         colormapper: ColorMapper | None = None,
         opacity: float = 1,
@@ -59,7 +60,7 @@ class Mesh3d:
     ):
         import pythreejs as p3
 
-        self.uid = uid
+        self.uid = uid if uid is not None else uuid.uuid4().hex
         self._data = data
         self._canvas = canvas
         self._colormapper = colormapper

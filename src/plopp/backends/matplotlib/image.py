@@ -63,14 +63,14 @@ class Image:
 
     Parameters
     ----------
-    uid:
-        The unique identifier of the artist.
     canvas:
         The canvas that will display the image.
     colormapper:
         The colormapper to use for the image.
     data:
         The initial data to create the image from.
+    uid:
+        The unique identifier of the artist. If None, a random UUID is generated.
     shading:
         The shading to use for the ``pcolormesh``.
     rasterized:
@@ -81,21 +81,20 @@ class Image:
 
     def __init__(
         self,
-        uid: str,
         canvas: Canvas,
         colormapper: ColorMapper,
         data: sc.DataArray,
+        uid: str | None = None,
         shading: str = 'auto',
         rasterized: bool = True,
         **kwargs,
     ):
         check_ndim(data, ndim=2, origin='Image')
-        self.uid = uid
+        self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
         self._colormapper = colormapper
         self._ax = self._canvas.ax
         self._data = data
-        self._id = uuid.uuid4().hex
         # Because all keyword arguments from the figure are forwarded to both the canvas
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)

@@ -21,8 +21,6 @@ class Scatter3d:
 
     Parameters
     ----------
-    uid:
-        The unique identifier of the artist.
     canvas:
         The canvas that will display the scatter plot.
     x:
@@ -33,6 +31,8 @@ class Scatter3d:
         The name of the coordinate that is to be used for the Z positions.
     data:
         The initial data to create the line from.
+    uid:
+        The unique identifier of the artist. If None, a random UUID is generated.
     size:
         The size of the markers.
     color:
@@ -50,12 +50,12 @@ class Scatter3d:
     def __init__(
         self,
         *,
-        uid: str,
         canvas: Canvas,
         x: str,
         y: str,
         z: str,
         data: sc.DataArray,
+        uid: str | None = None,
         size: sc.Variable | float = 1,
         color: str | None = None,
         colormapper: ColorMapper | None = None,
@@ -63,20 +63,16 @@ class Scatter3d:
         opacity: float = 1,
         pixel_size: sc.Variable | float | None = None,
     ):
-        """
-        Make a point cloud using pythreejs
-        """
         import pythreejs as p3
 
         check_ndim(data, ndim=1, origin='Scatter3d')
-        self.uid = uid
+        self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
         self._colormapper = colormapper
         self._data = data
         self._x = x
         self._y = y
         self._z = z
-        self._id = uuid.uuid4().hex
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size

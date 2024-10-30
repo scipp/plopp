@@ -22,8 +22,6 @@ class Scatter:
 
     Parameters
     ----------
-    uid:
-        The unique identifier of the artist.
     canvas:
         The canvas that will display the scatter plot.
     data:
@@ -32,6 +30,8 @@ class Scatter:
         The name of the coordinate that is to be used for the X positions.
     y:
         The name of the coordinate that is to be used for the Y positions.
+    uid:
+        The unique identifier of the artist. If None, a random UUID is generated.
     size:
         The size of the markers.
     color:
@@ -48,11 +48,11 @@ class Scatter:
 
     def __init__(
         self,
-        uid: str,
         canvas: Canvas,
         data: sc.DataArray,
         x: str = 'x',
         y: str = 'y',
+        uid: str | None = None,
         size: str | None = None,
         artist_number: int = 0,
         colormapper: ColorMapper | None = None,
@@ -61,7 +61,7 @@ class Scatter:
         **kwargs,
     ):
         check_ndim(data, ndim=1, origin='Scatter')
-        self.uid = uid
+        self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data

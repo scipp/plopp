@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import uuid
 from typing import Literal
 
 import numpy as np
@@ -27,12 +28,12 @@ class Line:
 
     Parameters
     ----------
-    uid:
-        The unique identifier of the artist.
     canvas:
         The canvas that will display the line.
     data:
         The initial data to create the line from.
+    uid:
+        The unique identifier of the artist. If None, a random UUID is generated.
     artist_number:
         The canvas keeps track of how many lines have been added to it. This number is
         used to set the color and marker parameters of the line.
@@ -44,16 +45,16 @@ class Line:
 
     def __init__(
         self,
-        uid: str,
         canvas: Canvas,
         data: sc.DataArray,
+        uid: str | None = None,
         artist_number: int = 0,
         errorbars: bool = True,
         mask_color: str = 'black',
         **kwargs,
     ):
         check_ndim(data, ndim=1, origin='Line')
-        self.uid = uid
+        self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
