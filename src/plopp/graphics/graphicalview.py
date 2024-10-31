@@ -80,8 +80,8 @@ class GraphicalView(View):
             cax=cax,
         )
 
-        self.colormapper = (
-            ColorMapper(
+        if colormapper:
+            self.colormapper = ColorMapper(
                 cmap=cmap,
                 cbar=cbar,
                 mask_cmap=mask_cmap,
@@ -91,9 +91,9 @@ class GraphicalView(View):
                 canvas=self.canvas,
                 figsize=getattr(self.canvas, "figsize", None),
             )
-            if colormapper
-            else None
-        )
+            self._kwargs['colormapper'] = self.colormapper
+        else:
+            self.colormapper = None
 
         if len(self._dims) == 1:
             self.canvas.yscale = norm
@@ -194,21 +194,16 @@ class GraphicalView(View):
 
             if key not in self.artists:
                 self.artists[key] = self._artist_maker(
+                    uid=key,
                     canvas=self.canvas,
                     data=new_values,
                     artist_number=len(self.artists),
                     **self._kwargs,
                 )
 
-                if self.colormapper is not None:
-                    self.colormapper[key] = self.artists[key]
-
                 need_legend_update = getattr(self.artists[key], "label", False)
-
-            self.artists[key].update(new_values=new_values)
-
-        if self.colormapper is not None:
-            self.colormapper.update()
+            else:
+                self.artists[key].update(new_values=new_values)
 
         if need_legend_update:
             self.canvas.update_legend()

@@ -10,6 +10,7 @@ from matplotlib.colors import to_rgb
 
 from ...core.limits import find_limits
 from ...graphics.bbox import BoundingBox
+from ...graphics.colormapper import ColorMapper
 from .canvas import Canvas
 
 
@@ -29,9 +30,13 @@ class Mesh3d:
 
         - vertices: a DataArray with the vertices of the mesh.
         - faces: a DataArray with the faces of the mesh.
+    uid:
+        The unique identifier of the artist. If None, a random UUID is generated.
     color:
         The color of the mesh. If None, the mesh will be colored according to the
         artist number.
+    colormapper:
+        The colormapper to use for the mesh.
     opacity:
         The opacity of the mesh.
     edgecolor:
@@ -46,17 +51,20 @@ class Mesh3d:
         *,
         canvas: Canvas,
         data: sc.DataArray,
+        uid: str | None = None,
         color: str | None = None,
+        colormapper: ColorMapper | None = None,
         opacity: float = 1,
         edgecolor: str | None = None,
         artist_number: int = 0,
     ):
         import pythreejs as p3
 
+        self.uid = uid if uid is not None else uuid.uuid4().hex
         self._data = data
         self._canvas = canvas
+        self._colormapper = colormapper
         self._artist_number = artist_number
-        self._id = uuid.uuid4().hex
 
         # Note: index *must* be unsigned!
         index = p3.BufferAttribute(
@@ -76,14 +84,19 @@ class Mesh3d:
                 ]
             ).T
         )
+
+        if self._colormapper is not None:
+            self._colormapper.add_artist(self.uid, self)
+            colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
+        else:
+            colors = np.broadcast_to(
+                np.array(to_rgb(f'C{artist_number}' if color is None else color)),
+                (self._data.coords["x"].shape[0], 3),
+            ).astype('float32')
+
         attributes = {
             'position': p3.BufferAttribute(array=pos),
-            'color': p3.BufferAttribute(
-                array=np.broadcast_to(
-                    np.array(to_rgb(f'C{artist_number}' if color is None else color)),
-                    (self._data.coords["x"].shape[0], 3),
-                ).astype('float32')
-            ),
+            'color': p3.BufferAttribute(array=colors),
         }
 
         self.geometry = p3.BufferGeometry(index=index, attributes=attributes)
@@ -112,18 +125,25 @@ class Mesh3d:
         if self.edges is not None:
             self._canvas.add(self.edges)
 
-    def set_colors(self, rgba):
+    def notify_artist(self, message: str) -> None:
         """
-        Set the mesh's rgba colors:
+        Receive notification from the colormapper that its state has changed.
+        We thus need to update the colors of the points.
 
         Parameters
         ----------
-        rgba:
-            The array of rgba colors.
+        message:
+            The message from the colormapper.
         """
-        self.geometry.attributes["color"].array = rgba[..., :3].astype(
-            'float32', copy=False
-        )
+        self._update_colors()
+
+    def _update_colors(self):
+        """
+        Set the point cloud's rgba colors:
+        """
+        self.geometry.attributes["color"].array = self._colormapper.rgba(self.data)[
+            ..., :3
+        ].astype('float32')
 
     def update(self, new_values):
         """
@@ -135,6 +155,8 @@ class Mesh3d:
             New data to update the mesh values from.
         """
         self._data = new_values
+        if self._colormapper is not None:
+            self._update_colors()
         # TODO: for now we only update the data values of the artist.
         # Updating the positions of the vertices is doable but is made more complicated
         # by the edges geometry, whose positions cannot just be updated.
@@ -184,3 +206,11 @@ class Mesh3d:
         Get the mesh data.
         """
         return self._data
+
+    def remove(self) -> None:
+        """
+        Remove the mesh from the canvas.
+        """
+        self._canvas.remove(self.points)
+        if self._colormapper is not None:
+            self._colormapper.remove_artist(self.uid)

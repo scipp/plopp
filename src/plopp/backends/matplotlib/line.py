@@ -32,21 +32,29 @@ class Line:
         The canvas that will display the line.
     data:
         The initial data to create the line from.
+    uid:
+        The unique identifier of the artist. If None, a random UUID is generated.
     artist_number:
         The canvas keeps track of how many lines have been added to it. This number is
         used to set the color and marker parameters of the line.
+    errorbars:
+        Whether to add error bars to the line.
+    mask_color:
+        The color of the masked points.
     """
 
     def __init__(
         self,
         canvas: Canvas,
         data: sc.DataArray,
+        uid: str | None = None,
         artist_number: int = 0,
         errorbars: bool = True,
         mask_color: str = 'black',
         **kwargs,
     ):
         check_ndim(data, ndim=1, origin='Line')
+        self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
@@ -64,7 +72,6 @@ class Line:
         self._dim = self._data.dim
         self._unit = self._data.unit
         self._coord = self._data.coords[self._dim]
-        self._id = uuid.uuid4().hex
 
         aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
         for key, alias in aliases.items():

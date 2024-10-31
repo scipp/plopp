@@ -10,6 +10,7 @@ from matplotlib.colors import to_rgb
 
 from ...core.limits import find_limits
 from ...graphics.bbox import BoundingBox
+from ...graphics.colormapper import ColorMapper
 from ..common import check_ndim
 from .canvas import Canvas
 
@@ -20,6 +21,8 @@ class Scatter3d:
 
     Parameters
     ----------
+    canvas:
+        The canvas that will display the scatter plot.
     x:
         The name of the coordinate that is to be used for the X positions.
     y:
@@ -28,10 +31,16 @@ class Scatter3d:
         The name of the coordinate that is to be used for the Z positions.
     data:
         The initial data to create the line from.
+    uid:
+        The unique identifier of the artist. If None, a random UUID is generated.
     size:
         The size of the markers.
     color:
         The color of the markers (this is ignored if a colorbar is used).
+    colormapper:
+        The colormapper to use for the scatter plot.
+    artist_number:
+        Number of the artist (can be used to set the color of the artist).
     opacity:
         The opacity of the points.
     pixel_size:
@@ -46,24 +55,24 @@ class Scatter3d:
         y: str,
         z: str,
         data: sc.DataArray,
+        uid: str | None = None,
         size: sc.Variable | float = 1,
         color: str | None = None,
+        colormapper: ColorMapper | None = None,
         artist_number: int = 0,
         opacity: float = 1,
         pixel_size: sc.Variable | float | None = None,
     ):
-        """
-        Make a point cloud using pythreejs
-        """
         import pythreejs as p3
 
         check_ndim(data, ndim=1, origin='Scatter3d')
+        self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
+        self._colormapper = colormapper
         self._data = data
         self._x = x
         self._y = y
         self._z = z
-        self._id = uuid.uuid4().hex
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -79,6 +88,15 @@ class Scatter3d:
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
 
+        if self._colormapper is not None:
+            self._colormapper.add_artist(self.uid, self)
+            colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
+        else:
+            colors = np.broadcast_to(
+                np.array(to_rgb(f'C{artist_number}' if color is None else color)),
+                (self._data.coords[self._x].shape[0], 3),
+            ).astype('float32')
+
         self.geometry = p3.BufferGeometry(
             attributes={
                 'position': p3.BufferAttribute(
@@ -90,14 +108,7 @@ class Scatter3d:
                         ]
                     ).T
                 ),
-                'color': p3.BufferAttribute(
-                    array=np.broadcast_to(
-                        np.array(
-                            to_rgb(f'C{artist_number}' if color is None else color)
-                        ),
-                        (self._data.coords[self._x].shape[0], 3),
-                    ).astype('float32')
-                ),
+                'color': p3.BufferAttribute(array=colors),
             }
         )
 
@@ -114,16 +125,25 @@ class Scatter3d:
         self.points = p3.Points(geometry=self.geometry, material=self.material)
         self._canvas.add(self.points)
 
-    def set_colors(self, rgba):
+    def notify_artist(self, message: str) -> None:
         """
-        Set the point cloud's rgba colors:
+        Receive notification from the colormapper that its state has changed.
+        We thus need to update the colors of the points.
 
         Parameters
         ----------
-        rgba:
-            The array of rgba colors.
+        message:
+            The message from the colormapper.
         """
-        self.geometry.attributes["color"].array = rgba[..., :3].astype('float32')
+        self._update_colors()
+
+    def _update_colors(self):
+        """
+        Set the point cloud's rgba colors:
+        """
+        self.geometry.attributes["color"].array = self._colormapper.rgba(self.data)[
+            ..., :3
+        ].astype('float32')
 
     def update(self, new_values):
         """
@@ -136,6 +156,8 @@ class Scatter3d:
         """
         check_ndim(new_values, ndim=1, origin='Scatter3d')
         self._data = new_values
+        if self._colormapper is not None:
+            self._update_colors()
 
     @property
     def opacity(self):
@@ -186,3 +208,5 @@ class Scatter3d:
         Remove the point cloud from the canvas.
         """
         self._canvas.remove(self.points)
+        if self._colormapper is not None:
+            self._colormapper.remove_artist(self.uid)
