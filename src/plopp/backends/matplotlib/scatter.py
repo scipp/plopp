@@ -53,7 +53,7 @@ class Scatter:
         x: str = 'x',
         y: str = 'y',
         uid: str | None = None,
-        size: str | None = None,
+        size: str | float | None = None,
         artist_number: int = 0,
         colormapper: ColorMapper | None = None,
         mask_color: str = 'black',
@@ -72,6 +72,8 @@ class Scatter:
         # Because all keyword arguments from the figure are forwarded to both the canvas
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
+        if 's' in kwargs:
+            raise ValueError("Use 'size' instead of 's' for scatter plot.")
 
         scatter_kwargs = parse_dicts_in_kwargs(kwargs, name=data.name)
 
@@ -87,15 +89,16 @@ class Scatter:
             default_plot_style['color'] = f'C{artist_number}'
 
         merged_kwargs = {**default_plot_style, **scatter_kwargs}
-        if self._size is None:
-            s = merged_kwargs.pop('s', None)
-        else:
-            s = self._data.coords[self._size].values
+        marker_size = (
+            self._data.coords[self._size].values
+            if isinstance(self._size, str)
+            else self._size
+        )
 
         self._scatter = self._ax.scatter(
             self._data.coords[self._x].values,
             self._data.coords[self._y].values,
-            s=s,
+            s=marker_size,
             label=self.label,
             **merged_kwargs,
         )
@@ -114,7 +117,7 @@ class Scatter:
         self._mask = self._ax.scatter(
             xmask,
             ymask,
-            s=s,
+            s=marker_size,
             marker=merged_kwargs['marker'],
             edgecolors=mask_color,
             facecolor="None",
@@ -158,7 +161,7 @@ class Scatter:
                 axis=1,
             )
         )
-        if self._size is not None:
+        if isinstance(self._size, str):
             self._scatter.set_sizes(self._data.coords[self._size].values)
         if self._colormapper is not None:
             self._update_colors()
