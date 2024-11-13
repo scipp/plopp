@@ -99,6 +99,7 @@ class Line:
             pen=pg.mkPen(
                 default_line_style['color'], width=default_line_style['width']
             ),
+            name=self.label,
         )
 
         # self._canvas.add(self._line)

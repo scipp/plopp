@@ -55,6 +55,9 @@ class Canvas:
         self.axes.getAxis('left').setTextPen(pg.mkPen(color=('black'), width=2))
         self.axes.setLabel('bottom', 'X-axis', units='m')
         self.axes.setLabel('left', 'Y-axis', units='m')
+        self.legend = self.axes.addLegend()
+        self.legend.setVisible(False)
+        # self.axes.addItem(self.legend)
 
         # cmap = plt.colormaps["viridis"]
         # self._image = pg.ImageItem(image=cmap(np.random.random((1000, 1000))))
@@ -134,6 +137,9 @@ class Canvas:
         # self.fig.canvas.draw_idle()
 
     def update_legend(self):
+        self.legend.setVisible(True)
+        # self.legend.setVisible(False)
+
         return
 
     #     """

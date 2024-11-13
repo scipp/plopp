@@ -3,6 +3,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import PyQt5.QtWidgets as qw
 import pyqtgraph as pg
 
 
@@ -20,3 +21,16 @@ class Figure(pg.GraphicsLayoutWidget):
         # self.viewport.addItem(self._image)
         canvas = self.view.canvas
         self.addItem(canvas.axes)
+
+    def display(self):
+        main_window = qw.QMainWindow()
+        main_window.setWindowTitle("Figure")
+        main_window.setGeometry(0, 0, 900, 600)
+        # Create a central widget to hold the two widgets
+        central_widget = qw.QWidget()
+        main_window.setCentralWidget(central_widget)
+        # Create a layout for the central widget
+        layout = qw.QHBoxLayout(central_widget)
+        layout.addWidget(self)
+        main_window.show()
+        pg.exec()
