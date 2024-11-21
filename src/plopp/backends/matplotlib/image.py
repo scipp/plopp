@@ -227,7 +227,7 @@ class Image:
             if prefix:
                 prefix += ': '
             return prefix + scalar_to_string(val)
-        except IndexError:
+        except (IndexError, RuntimeError):
             return None
 
     def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
