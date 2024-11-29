@@ -71,6 +71,12 @@ class DrawingTool(ToggleTool):
         self._tool.on_create(self.make_node)
         self._tool.on_change(self.update_node)
         self._tool.on_remove(self.remove_node)
+        # Extra node that contains all the drawings.
+        self._all_drawings = {}
+        self.all_drawings_node = Node(lambda: self._all_drawings)
+        self.all_drawings_node.name = 'All Drawings'
+        self._tool.on_vertex_release(self.update_all_drawings)
+        self._tool.on_drag_release(self.update_all_drawings)
 
     def make_node(self, artist):
         draw_node = Node(self._get_artist_info(artist=artist, figure=self._figure))
@@ -90,11 +96,17 @@ class DrawingTool(ToggleTool):
         elif isinstance(self._destination, Node):
             self._destination.add_parents(output_node)
             self._destination.notify_children(artist)
+        self.update_all_drawings(None)
 
     def update_node(self, artist):
         n = self._draw_nodes[artist.nodeid]
         n.func = self._get_artist_info(artist=artist, figure=self._figure)
         n.notify_children(artist)
+    
+    def update_all_drawings(self, _):
+        for artist in self._tool.children:
+            self._all_drawings[artist.nodeid] = self._get_artist_info(artist=artist, figure=self._figure)()
+        self.all_drawings_node.notify_children("")  # Empty message.
 
     def remove_node(self, artist):
         nodeid = artist.nodeid
@@ -106,6 +118,8 @@ class DrawingTool(ToggleTool):
             self._destination.canvas.draw()
         output_node.remove()
         draw_node.remove()
+        self._all_drawings.pop(nodeid)
+        self.update_all_drawings(None)
 
     def start_stop(self):
         """
