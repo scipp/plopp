@@ -102,10 +102,12 @@ class DrawingTool(ToggleTool):
         n = self._draw_nodes[artist.nodeid]
         n.func = self._get_artist_info(artist=artist, figure=self._figure)
         n.notify_children(artist)
-    
+
     def update_all_drawings(self, _):
         for artist in self._tool.children:
-            self._all_drawings[artist.nodeid] = self._get_artist_info(artist=artist, figure=self._figure)()
+            self._all_drawings[artist.nodeid] = self._get_artist_info(
+                artist=artist, figure=self._figure
+            )()
         self.all_drawings_node.notify_children("")  # Empty message.
 
     def remove_node(self, artist):
