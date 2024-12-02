@@ -97,10 +97,6 @@ jobs:
       - run: pip install -r requirements/test.txt
       - run: pip install pytest-playwright==0.6.2
       - run: pip install -e .
-      - run: playwright install webkit --with-deps # Install a browser
-      - run: pytest tests/widgets/playwright_test.py --browser webkit --tracing on
-      - uses: actions/upload-artifact@v4
-        if: ${{ inputs.playwright-trace-report }}
-        with:
-          name: CoverageReport
-          path: coverage_html/
+      - run: playwright install firefox --with-deps # Install a browser
+      - run: nohup jupyter lab --NotebookApp.token='' --NotebookApp.password='' --no-browser &  # Start a JupyterLab server
+      - run: pytest tests/widgets/playwright_test.py --browser firefox
