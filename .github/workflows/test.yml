@@ -96,6 +96,7 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install -r requirements/test.txt
       - run: pip install pytest-playwright==0.6.2
+      - run: pip install -e .
       - run: playwright install  # Install browsers
       - run: pytest tests/widgets/playwright_test.py --trace on
       - uses: actions/upload-artifact@v4
