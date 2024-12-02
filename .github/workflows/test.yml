@@ -20,6 +20,9 @@ on:
       checkout_ref:
         default: ''
         type: string
+      playwright-trace-report:
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       os-variant:
@@ -39,6 +42,9 @@ on:
       checkout_ref:
         default: ''
         type: string
+      playwright-trace-report:
+        default: false
+        type: boolean
 
 jobs:
   package-test:
@@ -74,6 +80,26 @@ jobs:
       - run: tox -e ${{ inputs.tox-env }}
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.coverage-report }}
+        with:
+          name: CoverageReport
+          path: coverage_html/
+
+  browser-test:
+    runs-on: ${{ inputs.os-variant }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.checkout_ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirements/text.txt
+      - run: pip install pytest-playwright==0.6.2
+      - run: playwright install  # Install browsers
+      - run: pytest tests/widgets/playwright_test.py --trace on
+      - uses: actions/upload-artifact@v4
+        if: ${{ inputs.playwright-trace-report }}
         with:
           name: CoverageReport
           path: coverage_html/
