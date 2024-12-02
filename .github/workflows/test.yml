@@ -20,9 +20,6 @@ on:
       checkout_ref:
         default: ''
         type: string
-      playwright-trace-report:
-        default: false
-        type: boolean
   workflow_call:
     inputs:
       os-variant:
@@ -42,9 +39,6 @@ on:
       checkout_ref:
         default: ''
         type: string
-      playwright-trace-report:
-        default: false
-        type: boolean
 
 jobs:
   package-test:
