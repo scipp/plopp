@@ -97,7 +97,7 @@ jobs:
       - run: pip install -r requirements/test.txt
       - run: pip install pytest-playwright==0.6.2
       - run: pip install -e .
-      - run: playwright install webkit  # Install a browser
+      - run: playwright install webkit --with-deps # Install a browser
       - run: pytest tests/widgets/playwright_test.py --browser webkit --tracing on
       - uses: actions/upload-artifact@v4
         if: ${{ inputs.playwright-trace-report }}
