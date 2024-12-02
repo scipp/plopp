@@ -20,7 +20,7 @@ def jupyter_lab_running(browser: Browser) -> bool:
         pytest.skip(
             f"Jupyter Lab is not running at {_EXPECTED_JUPYTER_LAB_ADDRESS}."
             "Check if jupyter lab is running without TOKEN or PASSWORD"
-            "and the address is correct."
+            "and the address is correct.\n"
             f"Raised error: {e}"
         )
     return True
