@@ -14,18 +14,15 @@ def jupyter_lab_running(browser: Browser) -> bool:
         with browser.new_page() as page:
             page.goto(_EXPECTED_JUPYTER_LAB_ADDRESS)
     except Exception as e:
-        # Check if 'net::ERR_CONNECTION_REFUSED' is in the error message.
         # Playwright does not have different error objects for different errors.
-        # So, we have to check the error message.
-        if "net::ERR_CONNECTION_REFUSED" in str(e):
-            pytest.skip(
-                f"Jupyter Lab is not running at {_EXPECTED_JUPYTER_LAB_ADDRESS}."
-                "Check if jupyter lab is running without TOKEN or PASSWORD"
-                "and the address is correct."
-            )
-            return False
-        # Raise the exception if it is not the expected error.
-        raise e
+        # And error messages differ from browser to browser/OS.
+        # So we skip all tests on any error going to the Jupyter Lab page.
+        pytest.skip(
+            f"Jupyter Lab is not running at {_EXPECTED_JUPYTER_LAB_ADDRESS}."
+            "Check if jupyter lab is running without TOKEN or PASSWORD"
+            "and the address is correct."
+            f"Raised error: {e}"
+        )
     return True
 
 
