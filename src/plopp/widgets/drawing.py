@@ -42,13 +42,12 @@ class DrawingTool(ToggleTool):
         by the ``destination``.
     value:
         Activate the tool upon creation if ``True``.
-    lazy_update:
-        If ``True``, destination will be updated only when the user releases the
+    continuous_update:
+        If ``True``, the tool will update the nodes as a drawing object changes.
+        If ``False``, destination will be updated only when the user releases the
         mouse button.
-        If ``False``, the tool will update the nodes as a drawing object changes.
-        In other words,
-        it can be set ``True`` for tools that uses computationally expensive functions,
-        or ``False`` for tools that needs fast feedback.
+        In other words, it can be set ``True`` for tools that need fast feedback,
+        or ``False`` for tools that use computationally expensive functions.
 
     **kwargs:
         Additional arguments are forwarded to the ``ToggleTool`` constructor.
@@ -63,7 +62,7 @@ class DrawingTool(ToggleTool):
         destination: FigureLike | Node,
         get_artist_info: Callable,
         value: bool = False,
-        lazy_update: bool = False,
+        continuous_update: bool = True,
         **kwargs,
     ):
         super().__init__(callback=self.start_stop, value=value, **kwargs)
@@ -79,11 +78,11 @@ class DrawingTool(ToggleTool):
         self._get_artist_info = get_artist_info
         self._tool.on_create(self.make_node)
         self._tool.on_remove(self.remove_node)
-        if lazy_update:
+        if continuous_update:
+            self._tool.on_change(self.update_node)
+        else:
             self._tool.on_vertex_release(self.update_node)
             self._tool.on_drag_release(self.update_node)
-        else:
-            self._tool.on_change(self.update_node)
 
     def make_node(self, artist):
         draw_node = Node(self._get_artist_info(artist=artist, figure=self._figure))
