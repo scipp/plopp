@@ -1,0 +1,68 @@
+context:
+  # version: {{ GIT_DESCRIBE_TAG }}
+  version: "24.12.0"
+
+package:
+  name: plopp
+  version: ${{ version }}
+
+source:
+  path: ..
+
+build:
+  noarch: python
+  script: pip install . -v
+
+requirements:
+  # note that there is no build section
+  host:
+    - pip
+    - python >=3.7
+    - setuptools
+    - setuptools_scm
+    - wheel
+  run:
+    - scipp
+    - matplotlib>=3.5
+
+tests:
+  - python:
+      imports:
+        - plopp
+  - script:
+      - python -m pytest -Wignore tests
+    requirements:
+      run:
+        - graphviz
+        - h5py
+        - ipympl
+        - ipywidgets
+        - python-kaleido
+        - mpltoolbox
+        - pandas
+        - plotly
+        - pooch
+        - pyarrow
+        - pytest
+        - pythreejs
+        - scipp
+        - scipy
+        - xarray
+    files:
+      source:
+        - pyproject.toml
+        - tests/
+    # commands:
+    #   - python -m pytest -Wignore tests
+
+
+
+
+
+about:
+  homepage: https://github.com/scipp/plopp
+  license: BSD-3-Clause
+  license_file: LICENSE
+  summary: Visualization library for Scipp
+  description: Visualization library for Scipp
+  documentation: https://scipp.github.io/plopp
