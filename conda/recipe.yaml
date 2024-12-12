@@ -33,7 +33,7 @@ tests:
       - python -m pytest -Wignore tests
     requirements:
       run:
-        - graphviz
+        - python-graphviz
         - h5py
         - ipympl
         - ipywidgets
