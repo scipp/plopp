@@ -56,3 +56,7 @@ jobs:
       linkcheck: ${{ contains(matrix.variant.os, 'ubuntu') && github.ref == 'refs/heads/main' }}
       branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}
     secrets: inherit
+
+  build_packages:
+    needs: tests
+    uses: ./.github/workflows/build.yml
