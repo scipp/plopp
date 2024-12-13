@@ -1,0 +1,40 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  formatting:
+    uses: ./.github/workflows/formatting.yml
+
+  tests:
+    name: Tests
+    needs: formatting
+    strategy:
+      matrix:
+        os: ['ubuntu-22.04']
+        python:
+          - version: '${{needs.formatting.outputs.min_python}}'
+            tox-env: '${{needs.formatting.outputs.min_tox_env}}'
+    uses: ./.github/workflows/test.yml
+    with:
+      os-variant: ${{ matrix.os }}
+      python-version: ${{ matrix.python.version }}
+      tox-env: ${{ matrix.python.tox-env }}
+    secrets: inherit
+
+  docs:
+    needs: tests
+    uses: ./.github/workflows/docs.yml
+    with:
+      publish: false
+      linkcheck: true
+      branch: ${{ github.head_ref }}
+      # branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}
+    secrets: inherit
+
+  build_packages:
+    needs: tests
+    uses: ./.github/workflows/build.yml
