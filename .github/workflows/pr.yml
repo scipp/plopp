@@ -28,7 +28,7 @@ jobs:
   #   secrets: inherit
 
   docs:
-    needs: tests
+    needs: setup
     uses: ./.github/workflows/docs.yml
     with:
       publish: false
