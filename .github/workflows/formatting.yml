@@ -2,30 +2,19 @@ name: Formatting
 
 on:
   workflow_call:
-    # Map the workflow outputs to job outputs
-    outputs:
-      min_python:
-        value: ${{ jobs.formatting.outputs.min_python }}
-      min_tox_env:
-        value: ${{ jobs.formatting.outputs.min_tox_env }}
+    inputs:
+      python-version:
+        type: string
 
 jobs:
   formatting:
     name: Formatting and static analysis
     runs-on: 'ubuntu-22.04'
-    outputs:
-      min_python: ${{ steps.vars.outputs.min_python }}
-      min_tox_env: ${{ steps.vars.outputs.min_tox_env }}
     steps:
       - uses: actions/checkout@v4
-      - name: Get Python version for other CI jobs
-        id: vars
-        run: |
-          echo "min_python=$(cat .github/workflows/python-version-ci)" >> $GITHUB_OUTPUT
-          echo "min_tox_env=py$(cat .github/workflows/python-version-ci | sed 's/\.//g')" >> $GITHUB_OUTPUT
       - uses: actions/setup-python@v5
         with:
-          python-version-file: '.github/workflows/python-version-ci'
+          python-version: ${{ inputs.python-version }}
       - uses: pre-commit/action@v3.0.1
         with:
           extra_args: --all-files
