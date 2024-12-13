@@ -5,13 +5,13 @@ on:
     # Map the workflow outputs to job outputs
     outputs:
       min_python:
-        value: ${{ jobs.formatting.outputs.min_python }}
+        value: ${{ jobs.setup.outputs.min_python }}
       min_tox_env:
-        value: ${{ jobs.formatting.outputs.min_tox_env }}
+        value: ${{ jobs.setup.outputs.min_tox_env }}
 
 jobs:
   setup:
-    name: Set up variables (Python version)
+    name: Variables
     runs-on: 'ubuntu-22.04'
     outputs:
       min_python: ${{ steps.vars.outputs.min_python }}
