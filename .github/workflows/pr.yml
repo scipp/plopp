@@ -35,6 +35,6 @@ jobs:
     with:
       publish: false
       linkcheck: false
-      branch: ${{ github.ref_name }}
+      branch: ${{ github.head_ref }}
       # branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}
     secrets: inherit
