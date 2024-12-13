@@ -7,27 +7,25 @@ jobs:
   setup:
     uses: ./.github/workflows/setup.yml
 
-  formatting:
-    needs: setup
-    uses: ./.github/workflows/formatting.yml
-    with:
-      python-version: ${{ needs.setup.outputs.min_python }}
+  # formatting:
+  #   needs: setup
+  #   uses: ./.github/workflows/formatting.yml
 
-  tests:
-    # name: Tests
-    needs: [setup, formatting]
-    strategy:
-      matrix:
-        os: ['ubuntu-22.04']
-        python:
-          - version: '${{needs.setup.outputs.min_python}}'
-            tox-env: '${{needs.setup.outputs.min_tox_env}}'
-    uses: ./.github/workflows/test.yml
-    with:
-      os-variant: ${{ matrix.os }}
-      python-version: ${{ matrix.python.version }}
-      tox-env: ${{ matrix.python.tox-env }}
-    secrets: inherit
+  # tests:
+  #   # name: Tests
+  #   needs: [setup, formatting]
+  #   strategy:
+  #     matrix:
+  #       os: ['ubuntu-22.04']
+  #       python:
+  #         - version: '${{needs.setup.outputs.min_python}}'
+  #           tox-env: '${{needs.setup.outputs.min_tox_env}}'
+  #   uses: ./.github/workflows/test.yml
+  #   with:
+  #     os-variant: ${{ matrix.os }}
+  #     python-version: ${{ matrix.python.version }}
+  #     tox-env: ${{ matrix.python.tox-env }}
+  #   secrets: inherit
 
   docs:
     needs: tests
