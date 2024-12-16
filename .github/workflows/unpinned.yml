@@ -7,21 +7,22 @@ on:
 
 jobs:
   setup:
-    name: Setup variables
-    runs-on: 'ubuntu-22.04'
-    outputs:
-      min_python: ${{ steps.vars.outputs.min_python }}
-      release_tag: ${{ steps.release.outputs.release_tag }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # history required so we can determine latest release tag
-      - name: Get last release tag from git
-        id: release
-        run: echo "release_tag=$(git describe --tags --abbrev=0 --match '[0-9]*.[0-9]*.[0-9]*')" >> $GITHUB_OUTPUT
-      - name: Get Python version for other CI jobs
-        id: vars
-        run: echo "min_python=$(cat .github/workflows/python-version-ci)" >> $GITHUB_OUTPUT
+    uses: ./.github/workflows/setup.yml
+    # name: Setup variables
+    # runs-on: 'ubuntu-22.04'
+    # outputs:
+    #   min_python: ${{ steps.vars.outputs.min_python }}
+    #   release_tag: ${{ steps.release.outputs.release_tag }}
+    # steps:
+    #   - uses: actions/checkout@v4
+    #     with:
+    #       fetch-depth: 0  # history required so we can determine latest release tag
+    #   - name: Get last release tag from git
+    #     id: release
+    #     run: echo "release_tag=$(git describe --tags --abbrev=0 --match '[0-9]*.[0-9]*.[0-9]*')" >> $GITHUB_OUTPUT
+    #   - name: Get Python version for other CI jobs
+    #     id: vars
+    #     run: echo "min_python=$(cat .github/workflows/python-version-ci)" >> $GITHUB_OUTPUT
 
   tests:
     name: Tests
@@ -38,4 +39,12 @@ jobs:
       python-version: ${{ matrix.python.version }}
       tox-env: ${{ matrix.python.tox-env }}
       checkout_ref: ${{ needs.setup.outputs.release_tag }}
+    secrets: inherit
+
+  docs:
+    needs: tests
+    uses: ./.github/workflows/docs.yml
+    with:
+      publish: false
+      linkcheck: true
     secrets: inherit

@@ -8,11 +8,10 @@ jobs:
     uses: ./.github/workflows/setup.yml
 
   formatting:
-    needs: setup
+    # needs: setup
     uses: ./.github/workflows/formatting.yml
 
   tests:
-    # name: Tests
     needs: [setup, formatting]
     strategy:
       matrix:
@@ -33,6 +32,4 @@ jobs:
     with:
       publish: false
       linkcheck: false
-      # branch: ${{ github.head_ref }}
-      # branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}
     secrets: inherit

@@ -6,12 +6,15 @@ on:
       - main
 
 jobs:
+  setup:
+    uses: ./.github/workflows/setup.yml
+
   formatting:
     uses: ./.github/workflows/formatting.yml
 
   tests:
     name: Tests
-    needs: formatting
+    needs: [setup, formatting]
     strategy:
       matrix:
         os: ['ubuntu-22.04']
@@ -31,8 +34,6 @@ jobs:
     with:
       publish: false
       linkcheck: true
-      # branch: 'main'
-      # branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}
     secrets: inherit
 
   build_packages:

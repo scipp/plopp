@@ -8,16 +8,6 @@ on:
 jobs:
   setup:
     uses: ./.github/workflows/setup.yml
-  # setup:
-  #   name: Setup variables
-  #   runs-on: 'ubuntu-22.04'
-  #   outputs:
-  #     min_python: ${{ steps.vars.outputs.min_python }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Get Python version for other CI jobs
-  #       id: vars
-  #       run: echo "min_python=$(cat .github/workflows/python-version-ci)" >> $GITHUB_OUTPUT
 
   tests:
     name: Tests
@@ -41,6 +31,4 @@ jobs:
     with:
       publish: false
       linkcheck: false
-      # branch: ${{ github.head_ref }}
-      # branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}
     secrets: inherit
