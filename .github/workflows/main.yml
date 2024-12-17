@@ -1,23 +1,26 @@
-name: Nightly test at main branch
+name: Main
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '30 1 * * 1-5'
+  push:
+    branches:
+      - main
 
 jobs:
   setup:
     uses: ./.github/workflows/setup.yml
 
+  formatting:
+    uses: ./.github/workflows/formatting.yml
+
   tests:
     name: Tests
-    needs: setup
+    needs: [setup, formatting]
     # strategy:
     #   matrix:
     #     os: ['ubuntu-22.04']
     #     python:
     #       - version: '${{needs.setup.outputs.min_python}}'
-    #         tox-env: 'nightly'
+    #         tox-env: '${{needs.setup.outputs.min_tox_env}}'
     uses: ./.github/workflows/test.yml
     with:
       # os-variant: ${{ matrix.os }}
@@ -30,5 +33,9 @@ jobs:
     uses: ./.github/workflows/docs.yml
     with:
       publish: false
-      linkcheck: false
+      linkcheck: true
     secrets: inherit
+
+  build_packages:
+    needs: tests
+    uses: ./.github/workflows/build.yml
