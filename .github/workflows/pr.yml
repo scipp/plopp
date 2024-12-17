@@ -22,7 +22,7 @@ jobs:
     uses: ./.github/workflows/test.yml
     with:
       # os-variant: ${{ matrix.os }}
-      python-version: ${{ matrix.python.version }}
+      python-version: ${{ needs.setup.outputs.min_python }}
       tox-env: 'test' #${{ matrix.python.tox-env }}
     secrets: inherit
 
