@@ -12,17 +12,17 @@ jobs:
   tests:
     name: Tests
     needs: setup
-    strategy:
-      matrix:
-        os: ['ubuntu-22.04']
-        python:
-          - version: '${{needs.setup.outputs.min_python}}'
-            tox-env: 'nightly'
+    # strategy:
+    #   matrix:
+    #     os: ['ubuntu-22.04']
+    #     python:
+    #       - version: '${{needs.setup.outputs.min_python}}'
+    #         tox-env: 'nightly'
     uses: ./.github/workflows/test.yml
     with:
-      os-variant: ${{ matrix.os }}
-      python-version: ${{ matrix.python.version }}
-      tox-env: ${{ matrix.python.tox-env }}
+      # os-variant: ${{ matrix.os }}
+      python-version: ${{ needs.setup.outputs.min_python }}
+      tox-env: 'test' # ${{ matrix.python.tox-env }}
     secrets: inherit
 
   docs:

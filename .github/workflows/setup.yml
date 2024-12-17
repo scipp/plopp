@@ -6,8 +6,8 @@ on:
     outputs:
       min_python:
         value: ${{ jobs.setup.outputs.min_python }}
-      min_tox_env:
-        value: ${{ jobs.setup.outputs.min_tox_env }}
+      # min_tox_env:
+      #   value: ${{ jobs.setup.outputs.min_tox_env }}
       release_tag:
         value: ${{ jobs.setup.outputs.release_tag }}
 
@@ -17,7 +17,7 @@ jobs:
     runs-on: 'ubuntu-22.04'
     outputs:
       min_python: ${{ steps.vars.outputs.min_python }}
-      min_tox_env: ${{ steps.vars.outputs.min_tox_env }}
+      # min_tox_env: ${{ steps.vars.outputs.min_tox_env }}
       release_tag: ${{ steps.release.outputs.release_tag }}
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,8 @@ jobs:
         id: vars
         run: |
           echo "min_python=$(cat .github/workflows/python-version-ci)" >> $GITHUB_OUTPUT
-          echo "min_tox_env=py$(cat .github/workflows/python-version-ci | sed 's/\.//g')" >> $GITHUB_OUTPUT
       - name: Get last release tag from git
         id: release
         run: echo "release_tag=$(git describe --tags --abbrev=0 --match '[0-9]*.[0-9]*.[0-9]*')" >> $GITHUB_OUTPUT
+
+          # echo "min_tox_env=py$(cat .github/workflows/python-version-ci | sed 's/\.//g')" >> $GITHUB_OUTPUT
