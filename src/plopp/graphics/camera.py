@@ -122,7 +122,7 @@ class Camera:
         The position of the camera. If camera units have been set, the position returned
         will be converted to the specified units.
         """
-        self.get('position')
+        return self.get('position')
 
     @property
     def look_at(self) -> tuple[float, float, float] | None:
@@ -130,7 +130,7 @@ class Camera:
         The point the camera is looking at. If camera units have been set, the position
         returned will be converted to the specified units.
         """
-        self.get('look_at')
+        return self.get('look_at')
 
     @property
     def near(self) -> float | None:
@@ -138,7 +138,7 @@ class Camera:
         The distance to the near clipping plane (how close to the camera objects can be
         before they disappear).
         """
-        self.get('near')
+        return self.get('near')
 
     @property
     def far(self) -> float | None:
@@ -146,7 +146,7 @@ class Camera:
         The distance to the far clipping plane (how far from the camera objects can be
         before they disappear).
         """
-        self.get('far')
+        return self.get('far')
 
     def __repr__(self):
         return (
