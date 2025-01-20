@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from __future__ import annotations
+
 from copy import copy
 from typing import Any
 
@@ -9,6 +11,7 @@ import numpy as np
 import scipp as sc
 
 from ...graphics import Camera
+from ...graphics.bbox import BoundingBox
 
 
 class Canvas:
@@ -32,17 +35,21 @@ class Canvas:
 
     def __init__(
         self,
-        figsize: tuple[int, int] = (600, 400),
+        figsize: tuple[int, int] | None = None,
         title: str | None = None,
         camera: Camera | None = None,
+        **ignored,
     ):
         import pythreejs as p3
 
         self.dims = {}
         self.units = {}
+        self.xscale = 'linear'
+        self.yscale = 'linear'
+        self.zscale = 'linear'
         self.outline = None
         self.axticks = None
-        self.figsize = np.asarray(figsize)
+        self.figsize = np.asarray(figsize if figsize is not None else (600, 400))
         self._title_text = title
         self._title = self._make_title()
         width, height = self.figsize
@@ -50,7 +57,8 @@ class Canvas:
         self.camera = p3.PerspectiveCamera(aspect=width / height)
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
-        self.outline = None
+        self.bbox = BoundingBox()
+        self._cached_limits = None
         self.scene = p3.Scene(
             children=[self.camera, self.axes_3d], background="#f0f0f0"
         )
@@ -64,8 +72,10 @@ class Canvas:
         )
 
     def to_widget(self):
-        # The max_width is set to prevent overflow, see gh-169
-        self.renderer.layout = ipw.Layout(max_width='80%', overflow='auto')
+        # The max_width is set to prevent overflow, see
+        # https://github.com/scipp/plopp/issues/169.
+        # See also https://github.com/scipp/plopp/pull/367.
+        self.renderer.layout = ipw.Layout(max_width='100%', overflow='auto')
         return self.renderer
 
     def set_axes(self, dims, units, dtypes):
@@ -85,27 +95,41 @@ class Canvas:
         self.dims = dims
         self.dtypes = dtypes
 
-    def make_outline(self, limits: tuple[sc.Variable, sc.Variable, sc.Variable]):
+    def draw(self):
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
         from .outline import Outline
 
+        # If `None` is found in the limits, it means we are waiting first for a call
+        # to autoscale on the parent view.
+        if self.empty or (None in self.bbox.asdict().values()):
+            return
+
+        limits = (
+            sc.array(dims=[self.dims['x']], values=self.xrange, unit=self.units['x']),
+            sc.array(dims=[self.dims['y']], values=self.yrange, unit=self.units['y']),
+            sc.array(dims=[self.dims['z']], values=self.zrange, unit=self.units['z']),
+        )
+
+        if self._cached_limits is not None:
+            if all(
+                sc.allclose(lim, cached_lim)
+                for lim, cached_lim in zip(limits, self._cached_limits, strict=True)
+            ):
+                return
+
+        self._cached_limits = limits
+
         if self.outline is not None:
             self.remove(self.outline)
         self.outline = Outline(limits=limits)
         self.add(self.outline)
-        self._update_camera(limits=limits)
-        self.axes_3d.scale = [self.camera.far] * 3
-
-    def _update_camera(self, limits: tuple[sc.Variable, sc.Variable, sc.Variable]):
-        """
-        Update the camera position when a new object is added to the canvas.
-        The camera will look at the mean position of all the objects, and its position
-        will be far enough from the center to see all the objects.
-        This 'Home' position will be backed up so it can be used when resetting the
-        camera via the ``home`` function.
-        """
+        # Update the camera position when a new object is added to the canvas.
+        # The camera will look at the mean position of all the objects, and its position
+        # will be far enough from the center to see all the objects.
+        # This 'Home' position will be backed up so it can be used when resetting the
+        # camera via the ``home`` function.
         if not self._user_camera.has_units():
             self._user_camera.set_units(
                 self.units.get('x'), self.units.get('y'), self.units.get('z')
@@ -151,6 +175,7 @@ class Canvas:
             center[1],
             center[2] - distance_fudge_factor * box_mean_size,
         ]
+        self.axes_3d.scale = [self.camera.far] * 3
 
     @property
     def empty(self) -> bool:
@@ -271,3 +296,105 @@ class Canvas:
         self.renderer.width = self.figsize[0]
         self.renderer.height = self.figsize[1]
         self.camera.aspect = self.figsize[0] / self.figsize[1]
+
+    @property
+    def xmin(self) -> float:
+        """
+        Get or set the minimum x-axis value.
+        """
+        return self.bbox.xmin
+
+    @xmin.setter
+    def xmin(self, value: float):
+        self.bbox.xmin = value
+
+    @property
+    def xmax(self) -> float:
+        """
+        Get or set the maximum x-axis value.
+        """
+        return self.bbox.xmax
+
+    @xmax.setter
+    def xmax(self, value: float):
+        self.bbox.xmax = value
+
+    @property
+    def xrange(self) -> tuple[float, float]:
+        """
+        Get or set the range/limits of the x-axis.
+        """
+        return (self.xmin, self.xmax)
+
+    @xrange.setter
+    def xrange(self, value: tuple[float, float]):
+        self.xmin, self.xmax = value
+
+    @property
+    def ymin(self) -> float:
+        """
+        Get or set the minimum y-axis value.
+        """
+        return self.bbox.ymin
+
+    @ymin.setter
+    def ymin(self, value: float):
+        self.bbox.ymin = value
+
+    @property
+    def ymax(self) -> float:
+        """
+        Get or set the maximum y-axis value.
+        """
+        return self.bbox.ymax
+
+    @ymax.setter
+    def ymax(self, value: float):
+        self.bbox.ymax = value
+
+    @property
+    def yrange(self) -> tuple[float, float]:
+        """
+        Get or set the range/limits of the y-axis.
+        """
+        return (self.ymin, self.ymax)
+
+    @yrange.setter
+    def yrange(self, value: tuple[float, float]):
+        self.ymin, self.ymax = value
+
+    @property
+    def zmin(self) -> float:
+        """
+        Get or set the minimum z-axis value.
+        """
+        return self.bbox.zmin
+
+    @zmin.setter
+    def zmin(self, value: float):
+        self.bbox.zmin = value
+
+    @property
+    def zmax(self) -> float:
+        """
+        Get or set the maximum z-axis value.
+        """
+        return self.bbox.zmax
+
+    @zmax.setter
+    def zmax(self, value: float):
+        self.bbox.zmax = value
+
+    @property
+    def zrange(self) -> tuple[float, float]:
+        """
+        Get or set the range/limits of the z-axis.
+        """
+        return (self.zmin, self.zmax)
+
+    @zrange.setter
+    def zrange(self, value: tuple[float, float]):
+        self.zmin, self.zmax = value
+
+    def update_legend(self):
+        pass

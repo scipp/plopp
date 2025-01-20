@@ -38,6 +38,23 @@ dynamic = ["version"]
 [project.optional-dependencies]
 scipp = ["scipp"]
 all = ["scipp", "ipympl", "pythreejs", "mpltoolbox", "ipywidgets", "graphviz"]
+test = [
+    "graphviz",
+    "h5py",
+    "ipympl",
+    "ipywidgets",
+    "kaleido",
+    "mpltoolbox",
+    "pandas",
+    "plotly",
+    "pooch",
+    "pyarrow",
+    "pytest",
+    "pythreejs",
+    "scipp",
+    "scipy",
+    "xarray"
+]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/scipp/plopp/issues"
@@ -75,13 +92,13 @@ extend-exclude = [
 
 [tool.ruff.lint]
 # See https://docs.astral.sh/ruff/rules/
-select = ["B", "C4", "DTZ", "E", "F", "G", "I", "PERF", "PGH", "PT", "PYI", "RUF", "S", "T20", "W"]
+select = ["B", "C4", "DTZ", "E", "F", "G", "I", "PERF", "PGH", "PT", "PYI", "RUF", "S", "T20", "UP", "W"]
 ignore = [
     # Conflict with ruff format, see
     # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     "COM812", "COM819", "D206", "D300", "E111", "E114", "E117", "ISC001", "ISC002", "Q000", "Q001", "Q002", "Q003", "W191",
 ]
-fixable = ["I001", "B010"]
+fixable = ["B010", "I001", "PT001"]
 isort.known-first-party = ["plopp"]
 pydocstyle.convention = "numpy"
 
@@ -114,3 +131,11 @@ enable_error_code = [
     "truthy-bool",
 ]
 warn_unreachable = true
+
+[tool.codespell]
+ignore-words-list = [
+    # Codespell wants "socioeconomic" which seems to be the standard spelling.
+    # But we use the word in our code of conduct which is the contributor covenant.
+    # Let's not modify it if we don't have to.
+    "socio-economic",
+]

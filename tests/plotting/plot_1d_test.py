@@ -11,6 +11,8 @@ import scipp as sc
 import plopp as pp
 from plopp.data.testing import data_array, dataset
 
+pytestmark = pytest.mark.usefixtures("_parametrize_all_backends")
+
 
 def test_plot_ndarray():
     pp.plot(np.arange(50.0))
@@ -112,75 +114,42 @@ def test_plot_with_non_dimensional_unsorted_coord_does_not_warn():
     pp.plot(da)
 
 
-def _get_artist(fig, n=0):
-    artists = fig.artists
-    keys = list(artists.keys())
-    return artists[keys[n]]
-
-
-def _get_line(fig, n=0):
-    return _get_artist(fig=fig, n=n)._line
-
-
-def test_kwarg_linecolor():
+def test_linecolor():
     da = data_array(ndim=1)
-    p = pp.plot(da, color='r')
-    assert _get_line(p).get_color() == 'r'
-    p = pp.plot(da, c='b')
-    assert _get_line(p).get_color() == 'b'
+    fig = pp.plot(da, color='red')
+    [line] = fig.view.artists.values()
+    assert line.color == 'red'
 
 
-def test_kwarg_linestyle():
-    da = data_array(ndim=1)
-    p = pp.plot(da, linestyle='solid')
-    assert _get_line(p).get_linestyle() == '-'
-    p = pp.plot(da, ls='dashed')
-    assert _get_line(p).get_linestyle() == '--'
-
-
-def test_kwarg_linewidth():
-    da = data_array(ndim=1)
-    p = pp.plot(da, linewidth=3)
-    assert _get_line(p).get_linewidth() == 3
-    p = pp.plot(da, lw=5)
-    assert _get_line(p).get_linewidth() == 5
-
-
-def test_kwarg_marker():
-    da = data_array(ndim=1)
-    p = pp.plot(da, marker='+')
-    assert _get_line(p).get_marker() == '+'
-
-
-def test_kwarg_norm():
+def test_norm():
     da = data_array(ndim=1)
     p = pp.plot(da, norm='log')
-    assert p.canvas.ax.get_yscale() == 'log'
+    assert p.canvas.yscale == 'log'
 
 
-def test_kwarg_scale():
+def test_scale():
     da = data_array(ndim=1)
     p = pp.plot(da, scale={'xx': 'log'})
-    assert p.canvas.ax.get_xscale() == 'log'
-    assert p.canvas.ax.get_yscale() == 'linear'
+    assert p.canvas.xscale == 'log'
+    assert p.canvas.yscale == 'linear'
 
 
 def test_kwarg_for_two_lines():
-    ds = dataset(ndim=1)
-    p = pp.plot(ds, color='r')
-    assert _get_line(p, 0).get_color() == 'r'
-    assert _get_line(p, 1).get_color() == 'r'
+    a = data_array(ndim=1)
+    b = 2.0 * a
+    fig = pp.plot({'a': a, 'b': b}, color='red')
+    [line_a, line_b] = fig.view.artists.values()
+    assert line_a.color == 'red'
+    assert line_b.color == 'red'
 
 
 def test_kwarg_as_dict():
-    ds = dataset(ndim=1)
-    p = pp.plot(ds, color={'a': 'red', 'b': 'black'})
-    assert _get_line(p, 0).get_color() == 'red'
-    assert _get_line(p, 1).get_color() == 'black'
-    da = data_array(ndim=1)
-    p = pp.plot({'a': da, 'b': 0.2 * da}, color={'a': 'red', 'b': 'black'})
-    assert _get_line(p, 0).get_color() == 'red'
-    assert _get_line(p, 1).get_color() == 'black'
+    a = data_array(ndim=1)
+    b = 2.0 * a
+    fig = pp.plot({'a': a, 'b': b}, color={'a': 'red', 'b': 'black'})
+    [line_a, line_b] = fig.view.artists.values()
+    assert line_a.color == 'red'
+    assert line_b.color == 'black'
 
 
 def test_raises_ValueError_when_given_binned_data():
@@ -234,7 +203,7 @@ def test_plot_xarray_data_array_1d():
     p = pp.plot(da)
     assert p.canvas.dims['x'] == 'time'
     assert p.canvas.units['x'] == 'dimensionless'
-    assert p.canvas.units['y'] == 'dimensionless'
+    assert p.canvas.units['data'] == 'dimensionless'
 
 
 def test_plot_xarray_dataset():
@@ -253,8 +222,8 @@ def test_plot_xarray_dataset():
     p = pp.plot(ds)
     assert p.canvas.dims['x'] == 'time'
     assert p.canvas.units['x'] == 'dimensionless'
-    assert p.canvas.units['y'] == 'dimensionless'
-    assert len(p._view.artists) == 2
+    assert p.canvas.units['data'] == 'dimensionless'
+    assert len(p.view.artists) == 2
 
 
 def test_plot_pandas_series():
@@ -263,7 +232,8 @@ def test_plot_pandas_series():
     s = pd.Series(np.arange(100.0), name='MyDataSeries')
     p = pp.plot(s)
     assert p.canvas.dims['x'] == 'row'
-    assert next(iter(p._view.artists.values())).label == 'MyDataSeries'
+    [line] = p.view.artists.values()
+    assert line.label == 'MyDataSeries'
 
 
 def test_plot_pandas_dataframe():
@@ -279,35 +249,7 @@ def test_plot_pandas_dataframe():
     )
     p = pp.plot(df)
     assert p.canvas.dims['x'] == 'row'
-    assert len(p._view.artists) == 4
-
-
-def test_hide_legend():
-    da1 = data_array(ndim=1)
-    da2 = da1 * 3.3
-    p = pp.plot({'a': da1, 'b': da2}, legend=False)
-    leg = p.ax.get_legend()
-    assert leg is None
-
-
-def test_legend_location():
-    da1 = data_array(ndim=1)
-    da2 = da1 * 3.3
-    data = {'a': da1, 'b': da2}
-    leg1 = pp.plot(data, legend=(0.5, 0.5)).ax.get_legend().get_window_extent().bounds
-    leg2 = pp.plot(data, legend=(0.9, 0.5)).ax.get_legend().get_window_extent().bounds
-    leg3 = pp.plot(data, legend=(0.5, 0.9)).ax.get_legend().get_window_extent().bounds
-    assert leg2[0] > leg1[0]
-    assert leg2[1] == leg1[1]
-    assert leg3[1] > leg1[1]
-    assert leg3[0] == leg1[0]
-
-
-def test_hide_legend_bad_type():
-    da1 = data_array(ndim=1)
-    da2 = da1 * 3.3
-    with pytest.raises(TypeError, match='Legend must be a bool, tuple, or a list'):
-        pp.plot({'a': da1, 'b': da2}, legend='False')
+    assert len(p.view.artists) == 4
 
 
 @pytest.mark.parametrize('Constructor', [dict, sc.Dataset, sc.DataGroup])
@@ -317,9 +259,7 @@ def test_names_are_overridden_when_plotting_dicts(Constructor):
     da1.name = "DA1"
     da2.name = "DA2"
     p = pp.plot(Constructor({'a': da1, 'b': da2}))
-    assert p.ax.get_legend().texts[0].get_text() == 'a'
-    assert p.ax.get_legend().texts[1].get_text() == 'b'
-    artists = list(p._view.artists.values())
+    artists = list(p.view.artists.values())
     assert artists[0].label == 'a'
     assert artists[1].label == 'b'
     assert da1.name == 'DA1'
@@ -397,6 +337,8 @@ def test_plot_1d_datetime_coord_with_mask_and_binedges():
 
 
 def test_plot_1d_datetime_coord_log():
+    if pp.backends['2d'] == 'plotly':
+        pytest.skip('Log scale with datetime not supported in plotly')
     t = np.arange(
         np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
     )
@@ -410,6 +352,8 @@ def test_plot_1d_datetime_coord_log():
 
 
 def test_plot_1d_datetime_coord_log_binedges():
+    if pp.backends['2d'] == 'plotly':
+        pytest.skip('Log scale with datetime not supported in plotly')
     t = np.arange(
         np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
     )
@@ -423,6 +367,8 @@ def test_plot_1d_datetime_coord_log_binedges():
 
 
 def test_plot_1d_datetime_coord_log_with_mask():
+    if pp.backends['2d'] == 'plotly':
+        pytest.skip('Log scale with datetime not supported in plotly')
     t = np.arange(
         np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
     )
@@ -434,6 +380,18 @@ def test_plot_1d_datetime_coord_log_with_mask():
         masks={'m': time > sc.datetime('2017-03-16T21:10:00')},
     )
     pp.plot(da, scale={'time': 'log'})
+
+
+def test_plot_1d_datetime_data():
+    t = np.arange(
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+    )
+    time = sc.array(dims=['time'], values=t)
+    da = sc.DataArray(
+        data=time,
+        coords={'x': sc.arange('time', len(time), unit='m')},
+    )
+    pp.plot(da)
 
 
 def test_plot_1d_data_with_errorbars():
@@ -449,3 +407,139 @@ def test_plot_1d_data_with_variances_and_nan_values():
     p = da.plot()
     assert p.canvas.ymin < -1.0
     assert p.canvas.ymax > 1.0
+
+
+def test_plot_1d_data_with_binedges():
+    da = data_array(ndim=1, binedges=True)
+    da.plot()
+
+
+def test_autoscale_after_update_grows_limits():
+    da = data_array(ndim=1)
+    fig = da.plot()
+    old_lims = fig.canvas.yrange
+    [key] = fig.artists.keys()
+    fig.update({key: da * 2.5})
+    fig.view.autoscale()
+    new_lims = fig.canvas.yrange
+    assert new_lims[0] < old_lims[0]
+    assert new_lims[1] > old_lims[1]
+
+
+def test_autoscale_after_update_shrinks_limits():
+    da = data_array(ndim=1)
+    fig = da.plot()
+    old_lims = fig.canvas.yrange
+    [key] = fig.artists.keys()
+    const = 0.5
+    fig.update({key: da * const})
+    fig.view.autoscale()
+    new_lims = fig.canvas.yrange
+    assert new_lims[0] == old_lims[0] * const
+    assert new_lims[1] == old_lims[1] * const
+
+
+def test_vmin():
+    da = data_array(ndim=1)
+    fig = da.plot(vmin=sc.scalar(-0.5, unit='m/s'))
+    assert fig.canvas.ymin == -0.5
+
+
+def test_vmin_unit_mismatch_raises():
+    da = data_array(ndim=1)
+    with pytest.raises(sc.UnitError):
+        _ = da.plot(vmin=sc.scalar(-0.5, unit='m'))
+
+
+def test_vmax():
+    da = data_array(ndim=1)
+    fig = da.plot(vmax=sc.scalar(0.68, unit='m/s'))
+    assert fig.canvas.ymax == 0.68
+
+
+def test_vmin_vmax():
+    da = data_array(ndim=1)
+    fig = da.plot(
+        vmin=sc.scalar(-0.5, unit='m/s'),
+        vmax=sc.scalar(0.68, unit='m/s'),
+    )
+    assert np.allclose(fig.canvas.yrange, [-0.5, 0.68])
+
+
+def test_autoscale_after_update_does_not_change_limits_if_vmin_vmax():
+    da = data_array(ndim=1)
+    fig = da.plot(vmin=-0.51, vmax=0.78)
+    assert np.allclose(fig.canvas.yrange, [-0.51, 0.78])
+    old_lims = fig.canvas.yrange
+    [key] = fig.artists.keys()
+    fig.update({key: da * 2.5})
+    fig.view.autoscale()
+    assert np.allclose(fig.canvas.yrange, old_lims)
+
+
+def test_vmin_vmax_no_variable():
+    da = data_array(ndim=1)
+    fig = da.plot(vmin=-0.5, vmax=0.68)
+    assert np.allclose(fig.canvas.yrange, [-0.5, 0.68])
+
+
+def test_1d_plot_does_not_accept_higher_dimension_data_on_update():
+    da = data_array(ndim=1)
+    fig = da.plot()
+    with pytest.raises(
+        sc.DimensionError, match='Line only accepts data with 1 dimension'
+    ):
+        fig.update(new=data_array(ndim=2))
+    with pytest.raises(
+        sc.DimensionError, match='Line only accepts data with 1 dimension'
+    ):
+        fig.update(new=data_array(ndim=3))
+
+
+def test_figure_has_data_name_on_vertical_axis_for_one_curve():
+    da = data_array(ndim=1)
+    da.name = "Velocity"
+    fig = da.plot()
+    ylabel = fig.canvas.ylabel
+    assert da.name in ylabel
+    assert str(da.unit) in ylabel
+
+
+def test_figure_has_data_name_on_vertical_axis_for_dict_with_one_entry():
+    da = data_array(ndim=1)
+    fig = pp.plot({"Velocity": da})
+    ylabel = fig.canvas.ylabel
+    assert da.name in ylabel
+    assert str(da.unit) in ylabel
+
+
+def test_figure_has_only_unit_on_vertical_axis_for_multiple_curves():
+    a = data_array(ndim=1)
+    a.name = "Velocity"
+    b = a * 1.67
+    b.name = "Speed"
+
+    fig = pp.plot({'a': a, 'b': b})
+    ylabel = fig.canvas.ylabel
+    assert str(a.unit) in ylabel
+    assert str(b.unit) in ylabel
+    assert a.name not in ylabel
+    assert b.name not in ylabel
+
+    c = a * 2.5
+    c.name = "Rate"
+    fig = pp.plot({'a': a, 'b': b, 'c': c})
+    ylabel = fig.canvas.ylabel
+    assert str(a.unit) in ylabel
+    assert a.name not in ylabel
+    assert b.name not in ylabel
+    assert c.name not in ylabel
+
+
+def test_plot_1d_scalar_mask():
+    da = sc.DataArray(
+        sc.ones(sizes={'x': 3}),
+        coords={'x': sc.arange('x', 3)},
+        masks={'m': sc.scalar(False)},
+    )
+    _ = da.plot()

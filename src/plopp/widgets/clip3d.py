@@ -8,7 +8,6 @@ from typing import Any, Literal
 
 import ipywidgets as ipw
 import numpy as np
-import pythreejs as p3
 import scipp as sc
 
 from ..core import Node
@@ -79,6 +78,8 @@ class Clip3dTool(ipw.HBox):
         h_axis = 2 if self._direction == 'y' else 1
         width = (self._limits[w_axis][1] - self._limits[w_axis][0]).value
         height = (self._limits[h_axis][1] - self._limits[h_axis][0]).value
+
+        import pythreejs as p3
 
         self.outlines = [
             p3.LineSegments(
@@ -200,8 +201,28 @@ class ClippingPlanes(ipw.HBox):
     """
 
     def __init__(self, fig: BaseFig):
-        self._view = fig._view
-        self._limits = self._view.get_limits()
+        self._view = fig.view
+        bbox = self._view.bbox
+        canvas = self._view.canvas
+
+        self._limits = (
+            sc.array(
+                dims=[canvas.dims['x']],
+                values=[bbox.xmin, bbox.xmax],
+                unit=canvas.units['x'],
+            ),
+            sc.array(
+                dims=[canvas.dims['y']],
+                values=[bbox.ymin, bbox.ymax],
+                unit=canvas.units['y'],
+            ),
+            sc.array(
+                dims=[canvas.dims['z']],
+                values=[bbox.zmin, bbox.zmax],
+                unit=canvas.units['z'],
+            ),
+        )
+
         self.cuts = []
         self._operation = 'or'
 
@@ -338,7 +359,8 @@ class ClippingPlanes(ipw.HBox):
         """
         Set the opacity of the original point clouds in the figure, not the cuts.
         """
-        self._view.set_opacity(change['new'])
+        for n in self._original_nodes:
+            self._view.artists[n.id].opacity = change['new']
 
     def toggle_visibility(self):
         """

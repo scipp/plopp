@@ -3,7 +3,6 @@
 
 
 from ..core.typing import FigureLike, Plottable
-from .common import require_interactive_backend
 from .slicer import Slicer
 
 
@@ -37,7 +36,6 @@ def superplot(
     """
     from ..widgets import LineSaveTool
 
-    require_interactive_backend('superplot')
     slicer = Slicer(obj, keep=keep, **kwargs)
     slicer.figure.right_bar.add(
         LineSaveTool(

@@ -42,6 +42,10 @@ jobs:
   docs:
     name: Build documentation
     runs-on: 'ubuntu-22.04'
+    env:
+        ESS_PROTECTED_FILESTORE_USERNAME: ${{ secrets.ESS_PROTECTED_FILESTORE_USERNAME }}
+        ESS_PROTECTED_FILESTORE_PASSWORD: ${{ secrets.ESS_PROTECTED_FILESTORE_PASSWORD }}
+
     steps:
       - run: sudo apt install --yes graphviz pandoc
       - uses: actions/checkout@v4
@@ -65,7 +69,7 @@ jobs:
           name: docs_html
           path: html/
 
-      - uses: JamesIves/github-pages-deploy-action@v4.6.0
+      - uses: JamesIves/github-pages-deploy-action@v4.6.4
         if: ${{ inputs.publish }}
         with:
           branch: gh-pages

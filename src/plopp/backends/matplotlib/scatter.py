@@ -2,18 +2,49 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from typing import Literal
 
 import numpy as np
 import scipp as sc
 from matplotlib.lines import Line2D
 
 from ...core.utils import merge_masks
+from ...graphics.bbox import BoundingBox, axis_bounds
+from ...graphics.colormapper import ColorMapper
+from ..common import check_ndim
 from .canvas import Canvas
-from .utils import make_legend, parse_dicts_in_kwargs
+from .utils import parse_dicts_in_kwargs
 
 
 class Scatter:
-    """ """
+    """
+    Artist to represent a two-dimensional scatter plot.
+
+    Parameters
+    ----------
+    canvas:
+        The canvas that will display the scatter plot.
+    data:
+        The initial data to create the line from.
+    x:
+        The name of the coordinate that is to be used for the X positions.
+    y:
+        The name of the coordinate that is to be used for the Y positions.
+    uid:
+        The unique identifier of the artist. If None, a random UUID is generated.
+    size:
+        The size of the markers.
+    color:
+        The color of the markers (this is ignored if a colorbar is used).
+    artist_number:
+        Number of the artist (can be used to set the color of the artist).
+    colormapper:
+        The colormapper to use for the scatter plot.
+    mask_color:
+        The color of the masked points.
+    cbar:
+        Whether to use a colorbar.
+    """
 
     def __init__(
         self,
@@ -21,21 +52,28 @@ class Scatter:
         data: sc.DataArray,
         x: str = 'x',
         y: str = 'y',
-        size: str | None = None,
-        number: int = 0,
+        uid: str | None = None,
+        size: str | float | None = None,
+        artist_number: int = 0,
+        colormapper: ColorMapper | None = None,
         mask_color: str = 'black',
         cbar: bool = False,
         **kwargs,
     ):
+        check_ndim(data, ndim=1, origin='Scatter')
+        self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
         self._x = x
         self._y = y
         self._size = size
+        self._colormapper = colormapper
         # Because all keyword arguments from the figure are forwarded to both the canvas
         # and the line, we need to remove the arguments that belong to the canvas.
         kwargs.pop('ax', None)
+        if 's' in kwargs:
+            raise ValueError("Use 'size' instead of 's' for scatter plot.")
 
         scatter_kwargs = parse_dicts_in_kwargs(kwargs, name=data.name)
 
@@ -45,24 +83,28 @@ class Scatter:
 
         markers = list(Line2D.markers.keys())
         default_plot_style = {
-            'marker': markers[(number + 2) % len(markers)],
+            'marker': markers[(artist_number + 2) % len(markers)],
         }
         if not cbar:
-            default_plot_style['color'] = f'C{number}'
+            default_plot_style['color'] = f'C{artist_number}'
 
         merged_kwargs = {**default_plot_style, **scatter_kwargs}
-        if self._size is None:
-            s = merged_kwargs.pop('s', None)
-        else:
-            s = self._data.coords[self._size].values
+        marker_size = (
+            self._data.coords[self._size].values
+            if isinstance(self._size, str)
+            else self._size
+        )
 
         self._scatter = self._ax.scatter(
             self._data.coords[self._x].values,
             self._data.coords[self._y].values,
-            s=s,
+            s=marker_size,
             label=self.label,
             **merged_kwargs,
         )
+        if self._colormapper is not None:
+            self._colormapper.add_artist(self.uid, self)
+            self._scatter.set_array(None)
 
         xmask = self._data.coords[self._x].values.copy()
         ymask = self._data.coords[self._y].values.copy()
@@ -75,7 +117,7 @@ class Scatter:
         self._mask = self._ax.scatter(
             xmask,
             ymask,
-            s=s,
+            s=marker_size,
             marker=merged_kwargs['marker'],
             edgecolors=mask_color,
             facecolor="None",
@@ -84,13 +126,23 @@ class Scatter:
             visible=visible_mask,
         )
 
-        if self._canvas._legend:
-            leg_args = make_legend(self._canvas._legend)
-            if np.shape(s) == np.shape(self._data.coords[self._x].values):
-                handles, labels = self._scatter.legend_elements(prop="sizes")
-                self._ax.legend(handles, labels, title="Sizes", **leg_args)
-            if self.label:
-                self._ax.legend(**leg_args)
+    def notify_artist(self, message: str) -> None:
+        """
+        Receive notification from the colormapper that its state has changed.
+        We thus need to update the colors of the points.
+
+        Parameters
+        ----------
+        message:
+            The message from the colormapper.
+        """
+        self._update_colors()
+
+    def _update_colors(self):
+        """
+        Update the colors of the scatter points.
+        """
+        self._scatter.set_facecolors(self._colormapper.rgba(self.data))
 
     def update(self, new_values: sc.DataArray):
         """
@@ -101,6 +153,7 @@ class Scatter:
         new_values:
             New data to update the line values, masks, errorbars from.
         """
+        check_ndim(new_values, ndim=1, origin='Scatter')
         self._data = new_values
         self._scatter.set_offsets(
             np.stack(
@@ -108,8 +161,10 @@ class Scatter:
                 axis=1,
             )
         )
-        if self._size is not None:
+        if isinstance(self._size, str):
             self._scatter.set_sizes(self._data.coords[self._size].values)
+        if self._colormapper is not None:
+            self._update_colors()
 
     def remove(self):
         """
@@ -117,13 +172,21 @@ class Scatter:
         """
         self._scatter.remove()
         self._mask.remove()
-
-    def set_colors(self, rgba: np.ndarray):
-        if self._scatter.get_array() is not None:
-            self._scatter.set_array(None)
-        self._scatter.set_facecolors(rgba)
+        if self._colormapper is not None:
+            self._colormapper.remove_artist(self.uid)
 
     @property
     def data(self):
         """ """
         return self._data
+
+    def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
+        """
+        The bounding box of the scatter points.
+        """
+        scatter_x = self._data.coords[self._x]
+        scatter_y = self._data.coords[self._y]
+        return BoundingBox(
+            **{**axis_bounds(('xmin', 'xmax'), scatter_x, xscale, pad=True)},
+            **{**axis_bounds(('ymin', 'ymax'), scatter_y, yscale, pad=True)},
+        )

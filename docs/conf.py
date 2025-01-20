@@ -4,9 +4,14 @@
 import doctest
 import os
 import sys
+from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as get_version
 
+from sphinx.util import logging
+
 sys.path.insert(0, os.path.abspath('.'))
+
+logger = logging.getLogger(__name__)
 
 # General information about the project.
 project = 'Plopp'
@@ -36,6 +41,8 @@ try:
     import sciline.sphinxext.domain_types  # noqa: F401
 
     extensions.append('sciline.sphinxext.domain_types')
+    # See https://github.com/tox-dev/sphinx-autodoc-typehints/issues/457
+    suppress_warnings = ["config.cache"]
 except ModuleNotFoundError:
     pass
 
@@ -113,8 +120,15 @@ master_doc = 'index'
 # built documents.
 #
 
-release = get_version("plopp")
-version = ".".join(release.split('.')[:3])  # CalVer
+try:
+    release = get_version("plopp")
+    version = ".".join(release.split('.')[:3])  # CalVer
+except PackageNotFoundError:
+    logger.info(
+        "Warning: determining version from package metadata failed, falling back to "
+        "a dummy version number."
+    )
+    release = version = "0.0.0-dev"
 
 warning_is_error = True
 
@@ -248,6 +262,7 @@ gallery_notebooks = [
     'tiled-random-samples',
     'polar-plots',
     'updating-scatter',
+    'streaming-plot',
 ]
 nbsphinx_thumbnails = {
     os.path.join(notebook_root, notebook): os.path.join(

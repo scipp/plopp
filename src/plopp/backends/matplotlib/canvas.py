@@ -1,28 +1,18 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import warnings
 from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 from matplotlib import dates as mdates
-from matplotlib.collections import QuadMesh
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
-from ..common import BoundingBox, axis_bounds
-from .utils import fig_to_bytes, is_sphinx_build, make_figure
-
-
-def _to_floats(x: np.ndarray) -> np.ndarray:
-    return mdates.date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
-
-
-def _none_if_not_finite(x: float | None) -> float | int | None:
-    if x is None:
-        return None
-    return x if np.isfinite(x) else None
+from ...graphics.bbox import BoundingBox
+from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
 
 def _cursor_value_to_variable(x: float, dtype: sc.DType, unit: str) -> sc.Variable:
@@ -40,6 +30,25 @@ def _cursor_formatter(x: float, dtype: sc.DType, unit: str) -> str:
     if dtype == sc.DType.datetime64:
         return mdates.num2date(x).replace(tzinfo=None).isoformat()
     return scalar_to_string(sc.scalar(x, unit=unit))
+
+
+def _maybe_trim_polar_limits(
+    axis_type: str, limits: tuple[float, float]
+) -> tuple[float, float]:
+    """
+    If the axes are polar, trim the limits of the polar plot to be within the range
+    [0, 2π].
+
+    Parameters
+    ----------
+    axis_type:
+        The type of the axis. If this is not 'polar', the limits are returned as is.
+    limits:
+        The limits of the axis.
+    """
+    if axis_type != 'polar':
+        return limits
+    return tuple(np.clip(limits, 0, 2 * np.pi))
 
 
 class Canvas:
@@ -62,18 +71,10 @@ class Canvas:
         The title to be placed above the figure.
     grid:
         Display the figure grid if ``True``.
-    vmin:
-        The minimum value for the vertical axis. If a number (without a unit) is
-        supplied, it is assumed that the unit is the same as the current vertical axis
-        unit.
-    vmax:
-        The maximum value for the vertical axis. If a number (without a unit) is
-        supplied, it is assumed that the unit is the same as the current vertical axis
-        unit.
-    autoscale:
-        The behavior of the axis limits. If ``auto``, the limits automatically
-        adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
+    user_vmin:
+        The minimum value for the y axis (1d plots only).
+    user_vmax:
+        The maximum value for the y axis (1d plots only).
     aspect:
         The aspect ratio for the axes.
     cbar:
@@ -90,10 +91,9 @@ class Canvas:
         figsize: tuple[float, float] | None = None,
         title: str | None = None,
         grid: bool = False,
-        vmin: sc.Variable | float = None,
-        vmax: sc.Variable | float = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
-        aspect: Literal['auto', 'equal'] = 'auto',
+        user_vmin: sc.Variable | float = None,
+        user_vmax: sc.Variable | float = None,
+        aspect: Literal['auto', 'equal', None] = None,
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
         **ignored,
@@ -110,25 +110,23 @@ class Canvas:
         self.fig = None
         self.ax = ax
         self.cax = cax
-        self._user_vmin = vmin
-        self._user_vmax = vmax
+        self.bbox = BoundingBox()
+        self._user_vmin = user_vmin
+        self._user_vmax = user_vmax
         self.units = {}
         self.dims = {}
-        self._own_axes = False
-        self._autoscale = autoscale
         self._legend = legend
 
         if self.ax is None:
-            self._own_axes = True
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
-            self.ax.set_aspect(aspect)
-            self.ax.grid(grid)
+            if self.is_widget():
+                self.fig.canvas.toolbar_visible = False
+                self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
-        if self.is_widget():
-            self.fig.canvas.toolbar_visible = False
-            self.fig.canvas.header_visible = False
+        if aspect is not None:
+            self.ax.set_aspect(aspect)
 
         if cbar and (self.cax is None):
             if self.ax.name == 'polar':
@@ -140,10 +138,10 @@ class Canvas:
                 divider = make_axes_locatable(self.ax)
                 self.cax = divider.append_axes("right", "4%", pad="5%")
 
+        self.ax.grid(grid)
         if title:
             self.ax.set_title(title)
         self._coord_formatters = []
-        self._bbox = BoundingBox()
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
@@ -157,103 +155,37 @@ class Canvas:
         return Image(value=fig_to_bytes(self.fig), format='png')
 
     def to_widget(self):
-        from ipywidgets import Layout, VBox
+        from ipywidgets import VBox
 
         if self.is_widget() and not is_sphinx_build():
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    self.fig.tight_layout()
+            except RuntimeError:
+                pass
             # The Matplotlib canvas tries to fill the entire width of the output cell,
             # which can add unnecessary whitespace between it and other widgets. To
             # prevent this, we wrap the canvas in a VBox, which seems to help.
-            widget = VBox([self.fig.canvas])
-        else:
-            widget = self.to_image()
-        # The max_width is set to prevent overflow, see gh-169
-        widget.layout = Layout(max_width='80%', overflow='auto')
-        return widget
-
-    def autoscale(self):
-        """
-        Find the limits of the artists on the canvas and adjust the axes ranges.
-        Add some padding in the case of 1d lines.
-        """
-        bbox = BoundingBox()
-        lines = [line for line in self.ax.lines if hasattr(line, '_plopp_mask')]
-        for line in lines:
-            line_mask = sc.array(dims=['x'], values=line._plopp_mask)
-            line_x = sc.DataArray(
-                data=sc.array(dims=['x'], values=_to_floats(line.get_xdata()))
-            )
-            line_y = sc.DataArray(
-                data=sc.array(dims=['x'], values=_to_floats(line.get_ydata())),
-                masks={'mask': line_mask},
-            )
-            line_bbox = BoundingBox(
-                **{**axis_bounds(('xmin', 'xmax'), line_x, self.xscale, pad=True)},
-                **{**axis_bounds(('ymin', 'ymax'), line_y, self.yscale, pad=True)},
-            )
-            bbox = bbox.union(line_bbox)
-
-        for c in self.ax.collections:
-            if isinstance(c, QuadMesh):
-                coords = c.get_coordinates()
-                mesh_x = sc.DataArray(
-                    data=sc.array(dims=['x', 'y'], values=coords[..., 0])
-                )
-                mesh_y = sc.DataArray(
-                    data=sc.array(dims=['x', 'y'], values=coords[..., 1])
-                )
-                mesh_bbox = BoundingBox(
-                    **{**axis_bounds(('xmin', 'xmax'), mesh_x, self.xscale)},
-                    **{**axis_bounds(('ymin', 'ymax'), mesh_y, self.yscale)},
-                )
-                bbox = bbox.union(mesh_bbox)
-
-            elif hasattr(c, '_plopp_mask'):
-                segments = c.get_segments()
-                # Here get_segments() can return empty segments in the case where the
-                # data values are NaN, which we filter out.
-                lengths = np.array([len(segs) for segs in segments])
-                line_mask = sc.array(dims=['x'], values=c._plopp_mask[lengths > 0])
-                line_y = sc.DataArray(
-                    data=sc.array(
-                        dims=['x', 'y'],
-                        values=np.array(
-                            [
-                                s
-                                for (s, length) in zip(segments, lengths, strict=True)
-                                if length
-                            ]
-                        )[..., 1],
-                    ),
-                    masks={'mask': line_mask},
-                )
-                line_bbox = BoundingBox(
-                    **axis_bounds(('ymin', 'ymax'), line_y, self.yscale, pad=True)
-                )
-                bbox = bbox.union(line_bbox)
-
-        self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
-        if self._user_vmin is not None:
-            self._bbox.ymin = maybe_variable_to_number(
-                self._user_vmin, unit=self.units.get('y')
-            )
-        if self._user_vmax is not None:
-            self._bbox.ymax = maybe_variable_to_number(
-                self._user_vmax, unit=self.units.get('y')
-            )
-
-        self.ax.set_xlim(
-            _none_if_not_finite(self._bbox.xmin), _none_if_not_finite(self._bbox.xmax)
-        )
-        self.ax.set_ylim(
-            _none_if_not_finite(self._bbox.ymin), _none_if_not_finite(self._bbox.ymax)
-        )
-        self.draw()
+            return VBox([self.fig.canvas])
+        return self.to_image()
 
     def draw(self):
         """
         Make a draw call to the underlying figure.
         """
         self.fig.canvas.draw_idle()
+
+    def update_legend(self):
+        """
+        Update the legend on the canvas.
+        """
+        if self._legend:
+            handles, labels = self.ax.get_legend_handles_labels()
+            if len(handles) > 1:
+                self.ax.legend(handles, labels, **make_legend(self._legend))
+            elif (leg := self.ax.get_legend()) is not None:
+                leg.remove()
 
     def save(self, filename: str, **kwargs):
         """
@@ -268,12 +200,6 @@ class Canvas:
             ``.svg``, and ``.pdf``.
         """
         self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
-
-    def show(self):
-        """
-        Make a call to Matplotlib's underlying ``show`` function.
-        """
-        self.fig.show()
 
     def set_axes(self, dims, units, dtypes):
         """
@@ -297,6 +223,11 @@ class Canvas:
             self._cursor_x_prefix = self.dims['x'] + '='
             self._cursor_y_prefix = self.dims['y'] + '='
         self.ax.format_coord = self.format_coord
+        key = 'y' if 'y' in self.units else 'data'
+        self.bbox = BoundingBox(
+            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
+            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
+        )
 
     def register_format_coord(self, formatter):
         """
@@ -317,7 +248,8 @@ class Canvas:
             The y coordinate of the mouse pointer.
         """
         xstr = _cursor_formatter(x, self.dtypes['x'], self.units['x'])
-        ystr = _cursor_formatter(y, self.dtypes['y'], self.units['y'])
+        key = 'y' if 'y' in self.dtypes else 'data'
+        ystr = _cursor_formatter(y, self.dtypes[key], self.units[key])
         out = f"({self._cursor_x_prefix}{xstr}, {self._cursor_y_prefix}{ystr})"
         if not self._coord_formatters:
             return out
@@ -421,7 +353,9 @@ class Canvas:
 
     @xmin.setter
     def xmin(self, value: float):
-        self.ax.set_xlim(value, self.xmax)
+        self.ax.set_xlim(
+            _maybe_trim_polar_limits(axis_type=self.ax.name, limits=(value, self.xmax))
+        )
 
     @property
     def xmax(self) -> float:
@@ -432,7 +366,9 @@ class Canvas:
 
     @xmax.setter
     def xmax(self, value: float):
-        self.ax.set_xlim(self.xmin, value)
+        self.ax.set_xlim(
+            _maybe_trim_polar_limits(axis_type=self.ax.name, limits=(self.xmin, value))
+        )
 
     @property
     def xrange(self) -> tuple[float, float]:
@@ -443,7 +379,7 @@ class Canvas:
 
     @xrange.setter
     def xrange(self, value: tuple[float, float]):
-        self.ax.set_xlim(value)
+        self.ax.set_xlim(_maybe_trim_polar_limits(axis_type=self.ax.name, limits=value))
 
     @property
     def ymin(self) -> float:
@@ -532,23 +468,9 @@ class Canvas:
         Toggle the scale between ``linear`` and ``log`` along the horizontal axis.
         """
         self.xscale = 'log' if self.xscale == 'linear' else 'linear'
-        self._bbox.xmin = np.inf
-        self._bbox.xmax = np.NINF
-        self.autoscale()
 
     def logy(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
-        self._bbox.ymin = np.inf
-        self._bbox.ymax = np.NINF
-        self.autoscale()
-
-    def finalize(self):
-        """
-        Finalize is called at the end of figure creation. Add any polishing operations
-        here: trim the margins around the figure.
-        """
-        if self._own_axes:
-            self.fig.tight_layout()

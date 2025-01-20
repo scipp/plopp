@@ -3,11 +3,10 @@
 
 from typing import Literal
 
-import numpy as np
 import scipp as sc
 
 from ...core.utils import maybe_variable_to_number
-from ..common import BoundingBox, axis_bounds
+from ...graphics.bbox import BoundingBox
 
 
 class Canvas:
@@ -22,27 +21,22 @@ class Canvas:
         The width and height of the figure, in inches.
     title:
         The title to be placed above the figure.
-    vmin:
+    user_vmin:
         The minimum value for the vertical axis. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the current vertical axis
         unit.
-    vmax:
+    user_vmax:
         The maximum value for the vertical axis. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the current vertical axis
         unit.
-    autoscale:
-        The behavior of the axis limits. If ``auto``, the limits automatically
-        adjusts every time the data changes. If ``grow``, the limits are allowed to
-        grow with time but they do not shrink.
     """
 
     def __init__(
         self,
         figsize: tuple[float, float] | None = None,
         title: str | None = None,
-        vmin: sc.Variable | float = None,
-        vmax: sc.Variable | float = None,
-        autoscale: Literal['auto', 'grow'] = 'auto',
+        user_vmin: sc.Variable | float = None,
+        user_vmax: sc.Variable | float = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -76,62 +70,17 @@ class Canvas:
             }
         )
         self.figsize = figsize
-        self._user_vmin = vmin
-        self._user_vmax = vmax
+        self._user_vmin = user_vmin
+        self._user_vmax = user_vmax
         self.units = {}
         self.dims = {}
         self._own_axes = False
-        self._autoscale = autoscale
         if title:
             self.title = title
-        self._bbox = BoundingBox()
+        self.bbox = BoundingBox()
 
     def to_widget(self):
         return self.fig
-
-    def autoscale(self):
-        """
-        Auto-scale the axes ranges to show all data in the canvas.
-        """
-        bbox = BoundingBox()
-        lines = [trace for trace in self.fig.data if hasattr(trace, '_plopp_mask')]
-        for line in lines:
-            line_mask = sc.array(dims=['x'], values=line._plopp_mask)
-            line_x = sc.DataArray(data=sc.array(dims=['x'], values=line.x))
-            line_y = sc.array(dims=['x'], values=line.y)
-            if line.error_y.array is not None:
-                line_y = sc.concat(
-                    [
-                        line_y,
-                        sc.array(dims=['x'], values=line.y + line.error_y.array),
-                        sc.array(dims=['x'], values=line.y - line.error_y.array),
-                    ],
-                    dim='y',
-                )
-            line_y = sc.DataArray(data=line_y, masks={'mask': line_mask})
-            line_bbox = BoundingBox(
-                **{**axis_bounds(('xmin', 'xmax'), line_x, self.xscale, pad=True)},
-                **{**axis_bounds(('ymin', 'ymax'), line_y, self.yscale, pad=True)},
-            )
-            bbox = bbox.union(line_bbox)
-
-        self._bbox = self._bbox.union(bbox) if self._autoscale == 'grow' else bbox
-        if self._user_vmin is not None:
-            self._bbox.ymin = maybe_variable_to_number(
-                self._user_vmin, unit=self.units.get('y')
-            )
-        if self._user_vmax is not None:
-            self._bbox.ymax = maybe_variable_to_number(
-                self._user_vmax, unit=self.units.get('y')
-            )
-
-        xrange = np.array([self._bbox.xmin, self._bbox.xmax])
-        yrange = np.array([self._bbox.ymin, self._bbox.ymax])
-        if self.xscale == 'log':
-            xrange = np.log10(xrange)
-        if self.yscale == 'log':
-            yrange = np.log10(yrange)
-        self.fig.update_layout(xaxis_range=xrange, yaxis_range=yrange)
 
     def save(self, filename: str):
         """
@@ -167,6 +116,11 @@ class Canvas:
         self.dims = dims
         self.units = units
         self.dtypes = dtypes
+        key = 'y' if 'y' in self.units else 'data'
+        self.bbox = BoundingBox(
+            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
+            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
+        )
 
     @property
     def empty(self) -> bool:
@@ -348,9 +302,8 @@ class Canvas:
         """
         self.yscale = 'log' if self.yscale in ('linear', None) else 'linear'
 
-    def finalize(self):
-        """
-        Finalize is called at the end of figure creation. Add any polishing operations
-        here.
-        """
-        return
+    def draw(self):
+        pass
+
+    def update_legend(self):
+        pass

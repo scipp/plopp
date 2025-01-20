@@ -1,9 +1,35 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import pytest
 
 from plopp.backends.matplotlib.tiled import Tiled
 from plopp.data.testing import data_array
+
+pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
+
+
+def test_copy():
+    da = data_array(ndim=1)
+    original = da.plot()
+    copy = original.copy()
+    assert original.graph_nodes.keys() == copy.graph_nodes.keys()
+    assert original.artists.keys() == copy.artists.keys()
+
+
+def test_copy_keeps_kwargs():
+    da = data_array(ndim=1)
+    original = da.plot(
+        scale={'xx': 'log'},
+        norm='log',
+        grid=True,
+        title='A nice title',
+    )
+    copy = original.copy()
+    assert copy.canvas.xscale == 'log'
+    assert copy.canvas.yscale == 'log'
+    assert copy.canvas.grid
+    assert copy.canvas.title == 'A nice title'
 
 
 def test_side_by_side():
@@ -183,3 +209,12 @@ def test_tiled_keeps_figure_props():
     assert tiled[0, 0].canvas.yscale == 'log'
     assert tiled[0, 1].canvas.xscale == 'log'
     assert tiled[0, 1].canvas.yscale == 'linear'
+
+
+def test_tiled_keeps_aspect():
+    a = data_array(ndim=2)
+    f1 = a.plot(aspect='equal')
+    f2 = a.plot(cbar=False)
+    tiled = f1 + f2
+    assert tiled.fig.get_axes()[0].get_aspect() == 1.0
+    assert tiled.fig.get_axes()[2].get_aspect() == "auto"

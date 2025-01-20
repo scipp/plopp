@@ -22,7 +22,7 @@ def _preprocess_scatter(
     check_not_binned(da)
 
     cnames = [x, y]
-    if size is not None:
+    if isinstance(size, str):
         cnames.append(size)
     coords = {k: da.coords[k] for k in cnames}
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
@@ -46,6 +46,7 @@ def scatter(
     vmax: sc.Variable | float = None,
     cbar: bool = False,
     cmap: str = 'viridis',
+    legend: bool | tuple[float, float] = True,
     **kwargs,
 ) -> FigureLike:
     """
@@ -81,6 +82,9 @@ def scatter(
         using the data values in the supplied data array.
     cmap:
         The colormap to be used for the colorscale.
+    legend:
+        Show legend if ``True``. If ``legend`` is a tuple, it should contain the
+        ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
     **kwargs:
         All other kwargs are forwarded the underlying plotting library.
     """
@@ -102,5 +106,6 @@ def scatter(
         vmax=vmax,
         cmap=cmap,
         cbar=cbar,
+        legend=legend,
         **kwargs,
     )

@@ -28,7 +28,6 @@ class View:
         self.graph_nodes = {}
         for node in nodes:
             node.add_view(self)
-        self.artists = {}
 
     @property
     def id(self) -> str:
@@ -44,7 +43,7 @@ class View:
 
         Parameters
         ----------
-        *message:
+        message:
             The notification message containing the node id it originated from.
         """
         node_id = message["node_id"]

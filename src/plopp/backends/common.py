@@ -1,75 +1,34 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from __future__ import annotations
-
-from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
 import scipp as sc
 
-from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import merge_masks
+from ..graphics.bbox import BoundingBox, axis_bounds
 
 
-def _none_min(*args: float) -> float:
-    return min(x for x in args if x is not None)
-
-
-def _none_max(*args: float) -> float:
-    return max(x for x in args if x is not None)
-
-
-@dataclass
-class BoundingBox:
+def check_ndim(data: sc.DataArray, ndim: int, origin: str) -> None:
     """
-    A bounding box in 2D space.
-    """
-
-    xmin: float | None = None
-    xmax: float | None = None
-    ymin: float | None = None
-    ymax: float | None = None
-
-    def union(self, other: BoundingBox) -> BoundingBox:
-        """
-        Return the union of this bounding box with another one.
-        """
-
-        return BoundingBox(
-            xmin=_none_min(self.xmin, other.xmin),
-            xmax=_none_max(self.xmax, other.xmax),
-            ymin=_none_min(self.ymin, other.ymin),
-            ymax=_none_max(self.ymax, other.ymax),
-        )
-
-
-def axis_bounds(
-    keys: tuple[str, str],
-    x: sc.DataArray,
-    scale: Literal['linear', 'log'],
-    pad=False,
-) -> dict[str, float]:
-    """
-    Find sensible limits for an axis, depending on linear or log scale.
+    Check the dimensionality of the data array.
+    If the data array does not have the expected dimensionality, a ValueError is raised.
 
     Parameters
     ----------
-    keys:
-        The keys to use for constructing a bounding box. The keys should be
-        ``('xmin', 'xmax')`` for the horizontal axis, and ``('ymin', 'ymax')`` for the
-        vertical axis.
-    x:
-        The data array to find limits for.
-    scale:
-        The scale of the axis (linear or log).
-    pad:
-        Whether to pad the limits.
+    data:
+        The data array to check.
+    ndim:
+        The expected dimensionality of the data array.
+    origin:
+        The name of the function that called this function.
     """
-    values = fix_empty_range(find_limits(x, scale=scale, pad=pad))
-    bounds = dict(zip(keys, (val.value for val in values), strict=True))
-    return bounds
+    if data.ndim != ndim:
+        raise sc.DimensionError(
+            f'{origin} only accepts data with {ndim} dimension(s), '
+            f'found {data.ndim} dimension(s).'
+        )
 
 
 def make_line_data(data: sc.DataArray, dim: str) -> dict:
@@ -112,3 +71,44 @@ def make_line_data(data: sc.DataArray, dim: str) -> dict:
         for array in (values, mask):
             array['y'] = np.concatenate([array['y'][0:1], array['y']])
     return {'values': values, 'stddevs': error, 'mask': mask, 'hist': hist}
+
+
+def make_line_bbox(
+    data: sc.DataArray,
+    dim: str,
+    errorbars: bool,
+    xscale: Literal['linear', 'log'],
+    yscale: Literal['linear', 'log'],
+) -> BoundingBox:
+    """
+    Calculate the bounding box of a line artist.
+    This includes the x and y bounds of the line and optionally the error bars.
+
+    Parameters
+    ----------
+    data:
+        The data array to extract values from.
+    dim:
+        The dimension along which to extract values.
+    errorbars:
+        Whether to include error bars in the bounding box.
+    xscale:
+        The scale of the x-axis.
+    yscale:
+        The scale of the y-axis.
+    """
+    line_x = data.coords[dim]
+    sel = slice(None)
+    if data.masks:
+        sel = ~merge_masks(data.masks)
+        if set(sel.dims) != set(data.data.dims):
+            sel = sc.broadcast(sel, sizes=data.data.sizes).copy()
+    line_y = data.data[sel]
+    if errorbars:
+        stddevs = sc.stddevs(data.data[sel])
+        line_y = sc.concat([line_y - stddevs, line_y + stddevs], dim)
+
+    return BoundingBox(
+        **{**axis_bounds(('xmin', 'xmax'), line_x, xscale, pad=True)},
+        **{**axis_bounds(('ymin', 'ymax'), line_y, yscale, pad=True)},
+    )

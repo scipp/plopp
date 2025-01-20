@@ -21,6 +21,7 @@ __pycache__/
 .pytest_cache
 .mypy_cache
 docs/generated/
+.ruff_cache
 
 # Editor settings
 .idea/

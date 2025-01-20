@@ -9,7 +9,7 @@ from ..core import Node
 from ..core.typing import Plottable
 from ..core.utils import coord_as_bin_edges
 from ..graphics import imagefigure, linefigure
-from .common import preprocess, require_interactive_backend
+from .common import preprocess, require_interactive_figure
 
 
 def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
@@ -40,6 +40,7 @@ def inspector(
     *,
     operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
     orientation: Literal['horizontal', 'vertical'] = 'horizontal',
+    cbar: bool = True,
     **kwargs,
 ):
     """
@@ -71,6 +72,8 @@ def inspector(
     orientation:
         Display the two panels side-by-side ('horizontal') or one below the other
         ('vertical').
+    cbar:
+        Show a colorbar on the image.
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
 
@@ -79,7 +82,9 @@ def inspector(
     :
         A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
-    require_interactive_backend('inspector')
+
+    f1d = linefigure()
+    require_interactive_figure(f1d, 'inspector')
 
     in_node = Node(preprocess, obj, ignore_size=True)
     data = in_node()
@@ -92,8 +97,7 @@ def inspector(
         dim = data.dims[-1]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
-    f2d = imagefigure(op_node, **kwargs)
-    f1d = linefigure()
+    f2d = imagefigure(op_node, cbar=cbar, **kwargs)
 
     from ..widgets import Box, PointsTool
 

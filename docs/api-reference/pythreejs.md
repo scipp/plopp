@@ -6,9 +6,9 @@
 .. autosummary::
    :toctree: ../generated
 
-   backends.pythreejs.PythreejsBackend
    backends.pythreejs.canvas.Canvas
-   backends.pythreejs.outline.Outline
-   backends.pythreejs.point_cloud.PointCloud
    backends.pythreejs.figure.Figure
+   backends.pythreejs.outline.Outline
+   backends.pythreejs.scatter3d.Scatter3d
+   backends.pythreejs.mesh3d.Mesh3d
 ```

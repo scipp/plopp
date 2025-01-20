@@ -1,12 +1,10 @@
 -r base.in
--r optional.in
+-r basetest.in
 gitpython
-h5py
 ipykernel
 ipython!=8.7.0  # Breaks syntax highlighting in Jupyter code cells.
 myst-parser
 nbsphinx
-pooch
 pydata-sphinx-theme>=0.14
 requests
 sphinx
