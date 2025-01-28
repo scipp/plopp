@@ -9,54 +9,38 @@ try:
 except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
 
+
+import lazy_loader as lazy
+
+__getattr__, __dir__, __all__ = lazy.attach(
+    __name__,
+    submodules=['data'],
+    submod_attrs={
+        'core': ['Node', 'View', 'node', 'show_graph', 'widget_node'],
+        'graphics': [
+            'Camera',
+            'imagefigure',
+            'linefigure',
+            'scatter3dfigure',
+            'scatterfigure',
+            'tiled',
+        ],
+        'plotting': [
+            'inspector',
+            'mesh3d',
+            'plot',
+            'scatter',
+            'scatter3d',
+            'slicer',
+            'superplot',
+            'xyplot',
+        ],
+        'widgets': ['Box', 'Checkboxes', 'SliceWidget', 'slice_dims'],
+    },
+)
+
 from .backends import BackendManager
 
 backends = BackendManager()
 
-from . import data
-from .core import Node, View, node, show_graph, widget_node
-from .graphics import (
-    Camera,
-    imagefigure,
-    linefigure,
-    scatter3dfigure,
-    scatterfigure,
-    tiled,
-)
-from .plotting import (
-    inspector,
-    mesh3d,
-    plot,
-    scatter,
-    scatter3d,
-    slicer,
-    superplot,
-    xyplot,
-)
-
 del importlib
-
-
-__all__ = [
-    'Camera',
-    'Node',
-    'View',
-    'backends',
-    'data',
-    'imagefigure',
-    'inspector',
-    'linefigure',
-    'node',
-    'mesh3d',
-    'plot',
-    'scatter',
-    'scatterfigure',
-    'scatter3d',
-    'scatter3dfigure',
-    'show_graph',
-    'slicer',
-    'superplot',
-    'tiled',
-    'widget_node',
-    'xyplot',
-]

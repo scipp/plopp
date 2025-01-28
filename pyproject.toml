@@ -30,6 +30,7 @@ requires-python = ">=3.10"
 # Run 'tox -e deps' after making changes here. This will update requirement files.
 # Make sure to list one dependency per line.
 dependencies = [
+  "lazy-loader",
   "matplotlib>=3.5",
 ]
 
