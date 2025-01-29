@@ -4,7 +4,7 @@
 from collections.abc import Callable
 from typing import Any
 
-from .node import Node
+from .node_class import Node
 
 
 def node(func: Callable) -> Callable:

@@ -4,7 +4,7 @@
 from html import escape
 from itertools import chain
 
-from .node import Node
+from .node_class import Node
 from .view import View
 
 

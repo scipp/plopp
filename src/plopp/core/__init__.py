@@ -1,9 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2025 Scipp contributors (https://github.com/scipp)
 
-from .graph import show_graph
-from .helpers import node, widget_node
-from .node import Node
-from .view import View
+import lazy_loader as lazy
 
-__all__ = ['Node', 'View', 'node', 'show_graph', 'widget_node']
+__getattr__, __dir__, __all__ = lazy.attach_stub(__name__, __file__)

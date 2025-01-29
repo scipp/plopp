@@ -9,7 +9,7 @@ import scipp as sc
 from numpy import ndarray
 from scipp.typing import VariableLike
 
-from .node import Node
+from .node_class import Node
 
 
 class VisibleDeprecationWarning(UserWarning):
