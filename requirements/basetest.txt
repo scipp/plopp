@@ -19,10 +19,6 @@ cycler==0.12.1
     # via matplotlib
 decorator==5.1.1
     # via ipython
-exceptiongroup==1.2.2
-    # via
-    #   ipython
-    #   pytest
 executing==2.2.0
     # via stack-data
 fonttools==4.55.6
@@ -129,7 +125,7 @@ pytz==2024.2
     # via pandas
 requests==2.32.3
     # via pooch
-scipp==25.1.0
+scipp==25.2.0
     # via -r basetest.in
 scipy==1.15.1
     # via -r basetest.in
@@ -139,8 +135,6 @@ stack-data==0.6.3
     # via ipython
 tenacity==9.0.0
     # via plotly
-tomli==2.2.1
-    # via pytest
 traitlets==5.14.3
     # via
     #   comm
@@ -152,8 +146,6 @@ traitlets==5.14.3
     #   traittypes
 traittypes==0.2.1
     # via ipydatawidgets
-typing-extensions==4.12.2
-    # via ipython
 tzdata==2025.1
     # via pandas
 urllib3==2.3.0
