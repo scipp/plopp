@@ -7,7 +7,7 @@
 #
 asttokens==3.0.0
     # via stack-data
-certifi==2024.12.14
+certifi==2025.1.31
     # via requests
 charset-normalizer==3.4.1
     # via requests
@@ -25,7 +25,7 @@ exceptiongroup==1.2.2
     #   pytest
 executing==2.2.0
     # via stack-data
-fonttools==4.55.6
+fonttools==4.56.0
     # via matplotlib
 graphviz==0.20.3
     # via -r basetest.in
@@ -39,7 +39,7 @@ ipydatawidgets==4.3.5
     # via pythreejs
 ipympl==0.9.6
     # via -r basetest.in
-ipython==8.31.0
+ipython==8.32.0
     # via
     #   ipympl
     #   ipywidgets
@@ -65,6 +65,8 @@ matplotlib-inline==0.1.7
     # via ipython
 mpltoolbox==24.5.1
     # via -r basetest.in
+narwhals==1.26.0
+    # via plotly
 numpy==2.2.2
     # via
     #   contourpy
@@ -99,7 +101,7 @@ pillow==11.1.0
     #   matplotlib
 platformdirs==4.3.6
     # via pooch
-plotly==5.24.1
+plotly==6.0.0
     # via -r basetest.in
 pluggy==1.5.0
     # via pytest
@@ -125,11 +127,11 @@ python-dateutil==2.9.0.post0
     #   pandas
 pythreejs==2.4.2
     # via -r basetest.in
-pytz==2024.2
+pytz==2025.1
     # via pandas
 requests==2.32.3
     # via pooch
-scipp==25.1.0
+scipp==25.2.0
     # via -r basetest.in
 scipy==1.15.1
     # via -r basetest.in
@@ -137,8 +139,6 @@ six==1.17.0
     # via python-dateutil
 stack-data==0.6.3
     # via ipython
-tenacity==9.0.0
-    # via plotly
 tomli==2.2.1
     # via pytest
 traitlets==5.14.3
@@ -162,5 +162,5 @@ wcwidth==0.2.13
     # via prompt-toolkit
 widgetsnbextension==4.0.13
     # via ipywidgets
-xarray==2025.1.1
+xarray==2025.1.2
     # via -r basetest.in

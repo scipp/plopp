@@ -59,7 +59,7 @@ jsonschema[format-nongpl]==4.23.0
     #   jupyter-events
     #   jupyterlab-server
     #   nbformat
-jupyter-events==0.11.0
+jupyter-events==0.12.0
     # via jupyter-server
 jupyter-lsp==2.2.5
     # via jupyterlab
@@ -71,7 +71,7 @@ jupyter-server==2.15.0
     #   notebook-shim
 jupyter-server-terminals==0.5.3
     # via jupyter-server
-jupyterlab==4.3.4
+jupyterlab==4.3.5
     # via -r dev.in
 jupyterlab-server==2.27.3
     # via jupyterlab
