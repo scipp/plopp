@@ -8,7 +8,7 @@ on:
 jobs:
   setup:
     name: Setup variables
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     outputs:
       min_python: ${{ steps.vars.outputs.min_python }}
       release_tag: ${{ steps.release.outputs.release_tag }}
@@ -18,17 +18,17 @@ jobs:
           fetch-depth: 0  # history required so we can determine latest release tag
       - name: Get last release tag from git
         id: release
-        run: echo "release_tag=$(git describe --tags --abbrev=0 --match '[0-9]*.[0-9]*.[0-9]*')" >> $GITHUB_OUTPUT
+        run: echo "release_tag=$(git describe --tags --abbrev=0 --match '[0-9]*.[0-9]*.[0-9]*')" >> "$GITHUB_OUTPUT"
       - name: Get Python version for other CI jobs
         id: vars
-        run: echo "min_python=$(cat .github/workflows/python-version-ci)" >> $GITHUB_OUTPUT
+        run: echo "min_python=$(cat .github/workflows/python-version-ci)" >> "$GITHUB_OUTPUT"
 
   tests:
     name: Tests
     needs: setup
     strategy:
       matrix:
-        os: ['ubuntu-22.04']
+        os: ['ubuntu-24.04']
         python:
           - version: '${{needs.setup.outputs.min_python}}'
             tox-env: 'unpinned'

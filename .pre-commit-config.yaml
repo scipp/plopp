@@ -1,8 +1,10 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-illegal-windows-names
       - id: check-json
         exclude: asv.conf.json
       - id: check-merge-conflict
@@ -21,7 +23,7 @@ repos:
         args: [ "--drop-empty-cells",
                 "--extra-keys 'metadata.language_info.version cell.metadata.jp-MarkdownHeadingCollapsed cell.metadata.pycharm'" ]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.2
+    rev: v0.8.0
     hooks:
       - id: ruff
         args: [ --fix ]
@@ -44,3 +46,9 @@ repos:
       - id: rst-directive-colons
       - id: rst-inline-touching-normal
       - id: text-unicode-replacement-char
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.3
+    hooks:
+      - id: actionlint
+        # Disable because of false-positive SC2046
+        args: ["-shellcheck="]

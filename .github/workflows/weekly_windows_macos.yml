@@ -1,0 +1,42 @@
+name: Windows and MacOS weekly tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 1'
+
+jobs:
+  pytox:
+    name: Python and Tox env
+    runs-on: 'ubuntu-24.04'
+    outputs:
+      min_python: ${{ steps.vars.outputs.min_python }}
+      min_tox_env: ${{ steps.vars.outputs.min_tox_env }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Python version for other CI jobs
+        id: vars
+        run: |
+          echo "min_python=$(cat .github/workflows/python-version-ci)" >> $GITHUB_OUTPUT
+          echo "min_tox_env=py$(cat .github/workflows/python-version-ci | sed 's/\.//g')" >> $GITHUB_OUTPUT
+  tests:
+    name: Tests
+    needs: pytox
+    strategy:
+      matrix:
+        os: ['macos-latest', 'windows-latest']
+        python:
+          - version: '${{needs.pytox.outputs.min_python}}'
+            tox-env: '${{needs.pytox.outputs.min_tox_env}}'
+    uses: ./.github/workflows/test.yml
+    with:
+      os-variant: ${{ matrix.os }}
+      python-version: ${{ matrix.python.version }}
+      tox-env: ${{ matrix.python.tox-env }}
+
+  docs:
+    needs: tests
+    uses: ./.github/workflows/docs.yml
+    with:
+      publish: false
+      branch: ${{ github.head_ref == '' && github.ref_name || github.head_ref }}

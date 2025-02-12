@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2025 Scipp contributors (https://github.com/scipp)
 
 import doctest
 import os
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # General information about the project.
 project = 'Plopp'
-copyright = '2024 Scipp contributors'
+copyright = '2025 Scipp contributors'
 author = 'Scipp contributors'
 
 html_show_sourcelink = True
@@ -167,9 +167,9 @@ html_theme_options = {
         "image_dark": "_static/logo-dark.svg",
     },
     "external_links": [
+        {"name": "Ess", "url": "https://scipp.github.io/ess"},
         {"name": "Scipp", "url": "https://scipp.github.io"},
         {"name": "Scippneutron", "url": "https://scipp.github.io/scippneutron"},
-        {"name": "Ess", "url": "https://scipp.github.io/ess"},
     ],
     "icon_links": [
         {
