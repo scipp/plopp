@@ -17,6 +17,7 @@ pytest
 pythreejs
 scipy
 xarray
+anywidget
 scipp
 --index-url=https://pypi.anaconda.org/scipp-nightly-wheels/simple/
 --extra-index-url=https://pypi.org/simple

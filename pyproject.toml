@@ -55,7 +55,8 @@ test = [
     "pythreejs",
     "scipp",
     "scipy",
-    "xarray"
+    "xarray",
+    "anywidget"
 ]
 
 [project.urls]
