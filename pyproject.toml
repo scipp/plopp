@@ -84,7 +84,8 @@ filterwarnings = [
   'ignore:setDaemon\(\) is deprecated, set the daemon attribute instead:DeprecationWarning',
   'ignore:TriCutTool is deprecated::',
   'ignore:Cut3dTool is deprecated::',
-  'ignore: *scattermapbox* is deprecated:DeprecationWarning',
+  # Should be removed once https://github.com/plotly/plotly.py/issues/4997 is fixed
+  'ignore: \*scattermapbox\* is deprecated:DeprecationWarning',
 ]
 
 [tool.ruff]
