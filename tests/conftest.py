@@ -66,7 +66,7 @@ def _make_fixture_args(params: list):
 
 
 @pytest.fixture
-def set_backend(backend):  # noqa: PT004
+def set_backend(backend):
     _select_backend(backend)
 
 

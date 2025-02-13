@@ -1,4 +1,3 @@
-import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -58,16 +57,22 @@ def as_nightly(repo: str) -> str:
     else:
         org = "scipp"
     if repo == "scipp":
-        version = f"cp{sys.version_info.major}{sys.version_info.minor}"
-        base = "https://github.com/scipp/scipp/releases/download/nightly/scipp-nightly"
-        suffix = "manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
-        prefix = "scipp @ "
-        return prefix + "-".join([base, version, version, suffix])
+        # With the standard pip resolver index-url takes precedence over
+        # extra-index-url but with uv it's reversed, so if we move to tox-uv
+        # this needs to be reversed.
+        return (
+            "scipp\n"
+            "--index-url=https://pypi.anaconda.org/scipp-nightly-wheels/simple/\n"
+            "--extra-index-url=https://pypi.org/simple\n"
+            "--pre"
+        )
     return f"{repo} @ git+https://github.com/{org}/{repo}@main"
 
 
 nightly = tuple(args.nightly.split(",") if args.nightly else [])
-nightly_dependencies = [dep for dep in dependencies if not dep.startswith(nightly)]
+nightly_dependencies = [
+    dep for dep in dependencies + test_dependencies if not dep.startswith(nightly)
+]
 nightly_dependencies += [as_nightly(arg) for arg in nightly]
 
 write_dependencies("nightly", nightly_dependencies)

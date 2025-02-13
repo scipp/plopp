@@ -17,11 +17,11 @@ attrs==25.1.0
     # via
     #   jsonschema
     #   referencing
-babel==2.16.0
+babel==2.17.0
     # via
     #   pydata-sphinx-theme
     #   sphinx
-beautifulsoup4==4.12.3
+beautifulsoup4==4.13.3
     # via
     #   nbconvert
     #   pydata-sphinx-theme
@@ -82,9 +82,9 @@ mdit-py-plugins==0.4.2
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-mistune==3.1.0
+mistune==3.1.1
     # via nbconvert
-myst-parser==4.0.0
+myst-parser==4.0.1
     # via -r docs.in
 nbclient==0.10.2
     # via nbconvert
@@ -107,7 +107,7 @@ pydata-sphinx-theme==0.16.1
     # via -r docs.in
 pyyaml==6.0.2
     # via myst-parser
-pyzmq==26.2.0
+pyzmq==26.2.1
     # via
     #   ipykernel
     #   jupyter-client

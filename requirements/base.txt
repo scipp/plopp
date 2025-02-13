@@ -9,7 +9,7 @@ contourpy==1.3.1
     # via matplotlib
 cycler==0.12.1
     # via matplotlib
-fonttools==4.55.6
+fonttools==4.56.0
     # via matplotlib
 kiwisolver==1.4.8
     # via matplotlib
@@ -32,7 +32,7 @@ pyparsing==3.2.1
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
-scipp==25.1.0
+scipp==25.2.0
     # via -r base.in
 six==1.17.0
     # via python-dateutil

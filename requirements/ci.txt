@@ -7,7 +7,7 @@
 #
 cachetools==5.5.1
     # via tox
-certifi==2024.12.14
+certifi==2025.1.31
     # via requests
 chardet==5.2.0
     # via tox
@@ -54,5 +54,5 @@ typing-extensions==4.12.2
     # via tox
 urllib3==2.3.0
     # via requests
-virtualenv==20.29.1
+virtualenv==20.29.2
     # via tox

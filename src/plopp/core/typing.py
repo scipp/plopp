@@ -133,10 +133,10 @@ class FigureLike(Protocol):
 
 
 __all__ = [
-    'VisibleDeprecationWarning',
+    'ArtistLike',
+    'CanvasLike',
+    'FigureLike',
     'Plottable',
     'PlottableMulti',
-    'CanvasLike',
-    'ArtistLike',
-    'FigureLike',
+    'VisibleDeprecationWarning',
 ]

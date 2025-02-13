@@ -8,21 +8,21 @@ on:
 jobs:
   setup:
     name: Setup variables
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     outputs:
       min_python: ${{ steps.vars.outputs.min_python }}
     steps:
       - uses: actions/checkout@v4
       - name: Get Python version for other CI jobs
         id: vars
-        run: echo "min_python=$(cat .github/workflows/python-version-ci)" >> $GITHUB_OUTPUT
+        run: echo "min_python=$(< .github/workflows/python-version-ci)" >> "$GITHUB_OUTPUT"
 
   tests:
     name: Tests
     needs: setup
     strategy:
       matrix:
-        os: ['ubuntu-22.04']
+        os: ['ubuntu-24.04']
         python:
           - version: '${{needs.setup.outputs.min_python}}'
             tox-env: 'nightly'
