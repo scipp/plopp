@@ -84,6 +84,7 @@ filterwarnings = [
   'ignore:setDaemon\(\) is deprecated, set the daemon attribute instead:DeprecationWarning',
   'ignore:TriCutTool is deprecated::',
   'ignore:Cut3dTool is deprecated::',
+  'ignore: *scattermapbox* is deprecated:DeprecationWarning',
 ]
 
 [tool.ruff]
