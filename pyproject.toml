@@ -45,7 +45,7 @@ test = [
     "h5py",
     "ipympl",
     "ipywidgets",
-    "kaleido",
+    "kaleido<1",
     "mpltoolbox",
     "pandas",
     "plotly",
