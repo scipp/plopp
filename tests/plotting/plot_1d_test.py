@@ -14,6 +14,16 @@ from plopp.data.testing import data_array, dataset
 pytestmark = pytest.mark.usefixtures("_parametrize_all_backends")
 
 
+def _skip_if_kaleido_not_installed():
+    if pp.backends['2d'] == 'plotly':
+        try:
+            import kaleido as kldo
+        except ImportError:
+            kldo = None
+        if kldo is None:
+            pytest.skip("Skipping because kaleido is not installed")
+
+
 def test_plot_ndarray():
     pp.plot(np.arange(50.0))
 
@@ -178,6 +188,7 @@ def test_use_non_dimension_coords_dataset():
 
 @pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
 def test_save_to_disk_1d(ext):
+    _skip_if_kaleido_not_installed()
     da = data_array(ndim=1)
     fig = pp.plot(da)
     with tempfile.TemporaryDirectory() as path:
@@ -187,6 +198,7 @@ def test_save_to_disk_1d(ext):
 
 
 def test_save_to_disk_with_bad_extension_raises():
+    _skip_if_kaleido_not_installed()
     da = data_array(ndim=1)
     fig = pp.plot(da)
     with pytest.raises(ValueError, match='txt'):
