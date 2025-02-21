@@ -11,7 +11,7 @@ graphviz
 h5py
 ipympl
 ipywidgets
-kaleido
+kaleido==0.2.1
 mpltoolbox
 pandas
 plotly

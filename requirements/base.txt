@@ -17,7 +17,7 @@ lazy-loader==0.4
     # via -r base.in
 matplotlib==3.10.0
     # via -r base.in
-numpy==2.2.2
+numpy==2.2.3
     # via
     #   contourpy
     #   matplotlib
