@@ -69,7 +69,7 @@ jobs:
         with:
           name: docs_html
           path: html/
-      - run: echo "::notice::https://remote-unzip.deno.dev/scipp/plopp/artifacts/${{ steps.artifact-upload-step.outputs.artifact-id }}"
+      - run: echo "::notice::https://remote-unzip.deno.dev/${{ github.repository }}/artifacts/${{ steps.artifact-upload-step.outputs.artifact-id }}"
       - uses: JamesIves/github-pages-deploy-action@v4.7.2
         if: ${{ inputs.publish }}
         with:
