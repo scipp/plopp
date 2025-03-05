@@ -91,22 +91,28 @@ def make_toolbar_canvas3d(view: GraphicalView) -> Toolbar:
     view:
         The 3D view to operate on.
     """
+
+    # def home() -> None:
+    #     view.canvas.home()
+    #     view.fit_to_data()
+
     tool_list = {
         'home': tools.HomeTool(view.canvas.home),
+        'autoscale': tools.AutoscaleTool(view.fit_to_data),
         'camerax': tools.CameraTool(
             view.canvas.camera_x_normal,
             description='X',
-            tooltip='Camera to X normal. ' 'Click twice to flip the view direction.',
+            tooltip='Camera to X normal. Click twice to flip the view direction.',
         ),
         'cameray': tools.CameraTool(
             view.canvas.camera_y_normal,
             description='Y',
-            tooltip='Camera to Y normal. ' 'Click twice to flip the view direction.',
+            tooltip='Camera to Y normal. Click twice to flip the view direction.',
         ),
         'cameraz': tools.CameraTool(
             view.canvas.camera_z_normal,
             description='Z',
-            tooltip='Camera to Z normal. ' 'Click twice to flip the view direction.',
+            tooltip='Camera to Z normal. Click twice to flip the view direction.',
         ),
     }
     if view.colormapper is not None:
