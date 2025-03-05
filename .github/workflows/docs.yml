@@ -65,11 +65,13 @@ jobs:
       - run: tox -e linkcheck
         if: ${{ inputs.linkcheck }}
       - uses: actions/upload-artifact@v4
+        id: artifact-upload-step
         with:
           name: docs_html
           path: html/
+      - run: echo "::notice::https://remote-unzip.deno.dev/${{ github.repository }}/artifacts/${{ steps.artifact-upload-step.outputs.artifact-id }}"
 
-      - uses: JamesIves/github-pages-deploy-action@v4.7.2
+      - uses: JamesIves/github-pages-deploy-action@v4.7.3
         if: ${{ inputs.publish }}
         with:
           branch: gh-pages

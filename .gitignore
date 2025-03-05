@@ -15,6 +15,7 @@ venv
 .venv
 
 # Caches
+*.DS_Store
 .clangd/
 *.ipynb_checkpoints
 __pycache__/
