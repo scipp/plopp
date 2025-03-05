@@ -149,7 +149,7 @@ class MultiToggleTool(ipw.VBox):
                 return b._option
 
 
-HomeTool = partial(ButtonTool, icon='home', tooltip='Autoscale view')
+HomeTool = partial(ButtonTool, icon='home')
 """Return home tool."""
 
 AutoscaleTool = partial(
@@ -171,7 +171,7 @@ LogNormTool = partial(
 SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
 """Save figure to png tool."""
 
-CameraTool = partial(ButtonTool, icon='camera', tooltip='Autoscale view')
+CameraTool = partial(ButtonTool, icon='camera')
 """Tool for changing the position of the camera in a 3d scene."""
 
 OutlineTool = partial(

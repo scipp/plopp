@@ -67,18 +67,28 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
         view.canvas.logy()
         view.autoscale()
 
+    def autoscale_colors() -> None:
+        view.colormapper.autoscale()
+        view.canvas.draw()
+
     tool_list = {
-        'home': tools.HomeTool(view.fit_to_data),
+        'home': tools.HomeTool(view.autoscale, tooltip='Autoscale axes range'),
         'panzoom': tools.PanZoomTool(view.canvas.panzoom),
         'logx': tools.LogxTool(logx, value=view.canvas.xscale == 'log'),
         'logy': tools.LogyTool(logy, value=view.canvas.yscale == 'log'),
+        'save': tools.SaveTool(view.canvas.download_figure),
     }
     if view.colormapper is not None:
-        tool_list['lognorm'] = tools.LogNormTool(
-            view.colormapper.toggle_norm, value=view.colormapper.norm == 'log'
+        tool_list.update(
+            {
+                'lognorm': tools.LogNormTool(
+                    view.colormapper.toggle_norm, value=view.colormapper.norm == 'log'
+                ),
+                'autoscale': tools.AutoscaleTool(autoscale_colors),
+            }
         )
-    tool_list['save'] = tools.SaveTool(view.canvas.download_figure)
-    return Toolbar(tools=tool_list)
+    order = ['home', 'autoscale', 'panzoom', 'logx', 'logy', 'lognorm', 'save']
+    return Toolbar(tools={key: tool_list[key] for key in order if key in tool_list})
 
 
 def make_toolbar_canvas3d(view: GraphicalView) -> Toolbar:
@@ -92,12 +102,8 @@ def make_toolbar_canvas3d(view: GraphicalView) -> Toolbar:
         The 3D view to operate on.
     """
 
-    # def home() -> None:
-    #     view.canvas.home()
-    #     view.fit_to_data()
-
     tool_list = {
-        'home': tools.HomeTool(view.canvas.home),
+        'home': tools.HomeTool(view.canvas.home, tooltip='Reset camera'),
         'autoscale': tools.AutoscaleTool(view.fit_to_data),
         'camerax': tools.CameraTool(
             view.canvas.camera_x_normal,

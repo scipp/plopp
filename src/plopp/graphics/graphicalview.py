@@ -52,6 +52,7 @@ class GraphicalView(View):
         format: Literal['svg', 'png'] | None = None,
         legend: bool | tuple[float, float] = False,
         camera: Camera | None = None,
+        autoscale: bool = True,
         ax: Any = None,
         cax: Any = None,
         **kwargs,
@@ -67,6 +68,7 @@ class GraphicalView(View):
         self.draw_on_update = True
         self._data_name = None
         self._data_axis = None
+        self._autoscale = autoscale
 
         self.canvas = canvas_maker(
             cbar=cbar,
@@ -92,6 +94,10 @@ class GraphicalView(View):
                 figsize=getattr(self.canvas, "figsize", None),
             )
             self._kwargs['colormapper'] = self.colormapper
+            if self._autoscale:
+                # Do not set colors on update, as this is done during the autoscale.
+                # This way, we avoid paying the cost of setting the colors twice.
+                self.colormapper.set_colors_on_update = False
         else:
             self.colormapper = None
 
@@ -208,7 +214,12 @@ class GraphicalView(View):
         if need_legend_update:
             self.canvas.update_legend()
 
-        if self.draw_on_update:
+        self._autoscale_or_draw()
+
+    def _autoscale_or_draw(self) -> None:
+        if self._autoscale:
+            self.fit_to_data()
+        else:
             self.canvas.draw()
 
     def fit_to_data(self) -> None:
@@ -216,7 +227,6 @@ class GraphicalView(View):
         Autoscale axes and colormapper.
         """
         # Autoscale the colormapper first to make use of the single draw call made by
-        # ``self.autoscale()``
         if not self.artists:
             return
         if self.colormapper is not None:
@@ -229,10 +239,11 @@ class GraphicalView(View):
         all parent nodes and draw the figure.
         In addition, we call the home method to autoscale the axes and colormapper.
         """
-        self.draw_on_update = False
+        old = self._autoscale
+        self._autoscale = False
         super().render()
         self.fit_to_data()
-        self.draw_on_update = True
+        self._autoscale = old
 
     def remove(self, key: str) -> None:
         """
@@ -246,4 +257,4 @@ class GraphicalView(View):
         self.artists[key].remove()
         del self.artists[key]
         self.canvas.update_legend()
-        self.autoscale()
+        self._autoscale_or_draw()
