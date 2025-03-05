@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       os-variant:
-        default: 'ubuntu-22.04'
+        default: 'ubuntu-24.04'
         type: string
       python-version:
         type: string
@@ -23,7 +23,7 @@ on:
   workflow_call:
     inputs:
       os-variant:
-        default: 'ubuntu-22.04'
+        default: 'ubuntu-24.04'
         type: string
       python-version:
         type: string

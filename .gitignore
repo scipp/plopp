@@ -5,13 +5,17 @@ html
 .tox
 *.egg-info
 *.html
+# we lock dependencies with pip-compile, not uv
+uv.lock
 
 *.sw?
 
 # Environments
 venv
+.venv
 
 # Caches
+*.DS_Store
 .clangd/
 *.ipynb_checkpoints
 __pycache__/
@@ -44,3 +48,6 @@ docs/generated/
 # Images
 *.png
 *.pdf
+*.zip
+*.sqw
+*.nxspe

@@ -41,7 +41,7 @@ env:
 jobs:
   docs:
     name: Build documentation
-    runs-on: 'ubuntu-22.04'
+    runs-on: 'ubuntu-24.04'
     env:
         ESS_PROTECTED_FILESTORE_USERNAME: ${{ secrets.ESS_PROTECTED_FILESTORE_USERNAME }}
         ESS_PROTECTED_FILESTORE_PASSWORD: ${{ secrets.ESS_PROTECTED_FILESTORE_PASSWORD }}
@@ -58,18 +58,20 @@ jobs:
           python-version-file: '.github/workflows/python-version-ci'
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -r requirements/ci.txt
-      - run: tox -e releasedocs -- ${VERSION}
+      - run: tox -e releasedocs -- "${VERSION}"
         if: ${{ inputs.version != '' }}
       - run: tox -e docs
         if: ${{ inputs.version == '' }}
       - run: tox -e linkcheck
         if: ${{ inputs.linkcheck }}
       - uses: actions/upload-artifact@v4
+        id: artifact-upload-step
         with:
           name: docs_html
           path: html/
+      - run: echo "::notice::https://remote-unzip.deno.dev/${{ github.repository }}/artifacts/${{ steps.artifact-upload-step.outputs.artifact-id }}"
 
-      - uses: JamesIves/github-pages-deploy-action@v4.6.4
+      - uses: JamesIves/github-pages-deploy-action@v4.7.3
         if: ${{ inputs.publish }}
         with:
           branch: gh-pages

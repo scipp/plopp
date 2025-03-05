@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Typing :: Typed",
 ]
@@ -30,6 +31,7 @@ requires-python = ">=3.10"
 # Run 'tox -e deps' after making changes here. This will update requirement files.
 # Make sure to list one dependency per line.
 dependencies = [
+  "lazy-loader",
   "matplotlib>=3.5",
 ]
 
@@ -43,7 +45,6 @@ test = [
     "h5py",
     "ipympl",
     "ipywidgets",
-    "kaleido",
     "mpltoolbox",
     "pandas",
     "plotly",
@@ -53,7 +54,8 @@ test = [
     "pythreejs",
     "scipp",
     "scipy",
-    "xarray"
+    "xarray",
+    "anywidget"
 ]
 
 [project.urls]
@@ -81,6 +83,8 @@ filterwarnings = [
   'ignore:setDaemon\(\) is deprecated, set the daemon attribute instead:DeprecationWarning',
   'ignore:TriCutTool is deprecated::',
   'ignore:Cut3dTool is deprecated::',
+  # Should be removed once https://github.com/plotly/plotly.py/issues/4997 is fixed
+  'ignore: \*scattermapbox\* is deprecated:DeprecationWarning',
 ]
 
 [tool.ruff]
@@ -98,13 +102,12 @@ ignore = [
     # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     "COM812", "COM819", "D206", "D300", "E111", "E114", "E117", "ISC001", "ISC002", "Q000", "Q001", "Q002", "Q003", "W191",
 ]
-fixable = ["B010", "I001", "PT001"]
+fixable = ["B010", "I001", "PT001", "RUF022"]
 isort.known-first-party = ["plopp"]
 pydocstyle.convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
 # those files have an increased risk of relying on import order
-"__init__.py" = ["I"]
 "tests/*" = [
     "S101",  # asserts are fine in tests
     "B018",  # 'useless expressions' are ok because some tests just check for exceptions

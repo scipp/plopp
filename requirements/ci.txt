@@ -5,29 +5,29 @@
 #
 #    pip-compile-multi
 #
-cachetools==5.5.0
+cachetools==5.5.2
     # via tox
-certifi==2024.8.30
+certifi==2025.1.31
     # via requests
 chardet==5.2.0
     # via tox
-charset-normalizer==3.3.2
+charset-normalizer==3.4.1
     # via requests
 colorama==0.4.6
     # via tox
-distlib==0.3.8
+distlib==0.3.9
     # via virtualenv
-filelock==3.16.1
+filelock==3.17.0
     # via
     #   tox
     #   virtualenv
-gitdb==4.0.11
+gitdb==4.0.12
     # via gitpython
-gitpython==3.1.43
+gitpython==3.1.44
     # via -r ci.in
 idna==3.10
     # via requests
-packaging==24.1
+packaging==24.2
     # via
     #   -r ci.in
     #   pyproject-api
@@ -38,19 +38,21 @@ platformdirs==4.3.6
     #   virtualenv
 pluggy==1.5.0
     # via tox
-pyproject-api==1.7.1
+pyproject-api==1.9.0
     # via tox
 requests==2.32.3
     # via -r ci.in
-smmap==5.0.1
+smmap==5.0.2
     # via gitdb
-tomli==2.0.1
+tomli==2.2.1
     # via
     #   pyproject-api
     #   tox
-tox==4.19.0
+tox==4.24.1
     # via -r ci.in
-urllib3==2.2.3
+typing-extensions==4.12.2
+    # via tox
+urllib3==2.3.0
     # via requests
-virtualenv==20.26.4
+virtualenv==20.29.2
     # via tox

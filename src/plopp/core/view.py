@@ -7,7 +7,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from .node import Node
+    from .node_class import Node
 
 
 class View:

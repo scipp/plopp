@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2025 Scipp contributors (https://github.com/scipp)
 
 from importlib import import_module
 from typing import Any

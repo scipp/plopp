@@ -24,7 +24,7 @@
 :::
 
 :::{grid-item-card} {octicon}`download;1em`&nbsp; Saving figures to disk
-:link: plot-types/saving-figures.ipynb
+:link: getting-started/saving-figures.ipynb
 
 :::
 
