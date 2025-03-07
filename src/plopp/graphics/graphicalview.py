@@ -126,7 +126,6 @@ class GraphicalView(View):
                 _none_if_not_finite(self.bbox.zmin),
                 _none_if_not_finite(self.bbox.zmax),
             )
-        self.canvas.draw()
 
     def update(self, *args, **kwargs) -> None:
         """
@@ -213,13 +212,10 @@ class GraphicalView(View):
         if need_legend_update:
             self.canvas.update_legend()
 
-        self._autoscale_or_draw()
-
-    def _autoscale_or_draw(self) -> None:
         if self._autoscale:
             self.fit_to_data()
-        else:
-            self.canvas.draw()
+
+        self.canvas.draw()
 
     def fit_to_data(self) -> None:
         """
@@ -238,11 +234,15 @@ class GraphicalView(View):
         At the end of figure creation, this function is called to request data from
         all parent nodes and draw the figure.
         In addition, we call the home method to autoscale the axes and colormapper.
+
+        Note that this function makes multiple draw calls to the canvas, and should thus
+        note be called with a too high frequency.
         """
         old = self._autoscale
         self._autoscale = False
         super().render()
         self.fit_to_data()
+        self.canvas.draw()
         self._autoscale = old
 
     def remove(self, key: str) -> None:
