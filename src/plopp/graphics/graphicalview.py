@@ -65,7 +65,6 @@ class GraphicalView(View):
         self._kwargs = kwargs
         self._repr_format = format
         self.bbox = BoundingBox()
-        self.draw_on_update = True
         self._data_name = None
         self._data_axis = None
         self._autoscale = autoscale
