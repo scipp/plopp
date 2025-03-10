@@ -67,18 +67,32 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
         view.canvas.logy()
         view.autoscale()
 
+    def autoscale_axes() -> None:
+        view.autoscale()
+        view.canvas.draw()
+
+    def autoscale_colors() -> None:
+        view.colormapper.autoscale()
+        view.canvas.draw()
+
     tool_list = {
-        'home': tools.HomeTool(view.fit_to_data),
-        'panzoom': tools.PanZoomTool(view.canvas.panzoom),
-        'logx': tools.LogxTool(logx, value=view.canvas.xscale == 'log'),
-        'logy': tools.LogyTool(logy, value=view.canvas.yscale == 'log'),
+        "home": tools.HomeTool(autoscale_axes, tooltip="Autoscale axes range"),
+        "panzoom": tools.PanZoomTool(view.canvas.panzoom),
+        "logx": tools.LogxTool(logx, value=view.canvas.xscale == "log"),
+        "logy": tools.LogyTool(logy, value=view.canvas.yscale == "log"),
+        "save": tools.SaveTool(view.canvas.download_figure),
     }
     if view.colormapper is not None:
-        tool_list['lognorm'] = tools.LogNormTool(
-            view.colormapper.toggle_norm, value=view.colormapper.norm == 'log'
+        tool_list.update(
+            {
+                "lognorm": tools.LogNormTool(
+                    view.colormapper.toggle_norm, value=view.colormapper.norm == "log"
+                ),
+                "autoscale": tools.AutoscaleTool(autoscale_colors),
+            }
         )
-    tool_list['save'] = tools.SaveTool(view.canvas.download_figure)
-    return Toolbar(tools=tool_list)
+    order = ["home", "autoscale", "panzoom", "logx", "logy", "lognorm", "save"]
+    return Toolbar(tools={key: tool_list[key] for key in order if key in tool_list})
 
 
 def make_toolbar_canvas3d(view: GraphicalView) -> Toolbar:
@@ -91,40 +105,46 @@ def make_toolbar_canvas3d(view: GraphicalView) -> Toolbar:
     view:
         The 3D view to operate on.
     """
+
+    def autoscale_colors() -> None:
+        view.colormapper.autoscale()
+        view.canvas.draw()
+
     tool_list = {
-        'home': tools.HomeTool(view.canvas.home),
-        'camerax': tools.CameraTool(
+        "home": tools.HomeTool(view.canvas.home, tooltip="Reset camera"),
+        "autoscale": tools.AutoscaleTool(autoscale_colors),
+        "camerax": tools.CameraTool(
             view.canvas.camera_x_normal,
-            description='X',
-            tooltip='Camera to X normal. ' 'Click twice to flip the view direction.',
+            description="X",
+            tooltip="Camera to X normal. Click twice to flip the view direction.",
         ),
-        'cameray': tools.CameraTool(
+        "cameray": tools.CameraTool(
             view.canvas.camera_y_normal,
-            description='Y',
-            tooltip='Camera to Y normal. ' 'Click twice to flip the view direction.',
+            description="Y",
+            tooltip="Camera to Y normal. Click twice to flip the view direction.",
         ),
-        'cameraz': tools.CameraTool(
+        "cameraz": tools.CameraTool(
             view.canvas.camera_z_normal,
-            description='Z',
-            tooltip='Camera to Z normal. ' 'Click twice to flip the view direction.',
+            description="Z",
+            tooltip="Camera to Z normal. Click twice to flip the view direction.",
         ),
     }
     if view.colormapper is not None:
-        tool_list['lognorm'] = tools.LogNormTool(
-            view.colormapper.toggle_norm, value=view.colormapper.norm == 'log'
+        tool_list["lognorm"] = tools.LogNormTool(
+            view.colormapper.toggle_norm, value=view.colormapper.norm == "log"
         )
     tool_list.update(
         {
-            'box': tools.OutlineTool(view.canvas.toggle_outline),
-            'axes': tools.AxesTool(view.canvas.toggle_axes3d),
-            'size': tools.PlusMinusTool(
+            "box": tools.OutlineTool(view.canvas.toggle_outline),
+            "axes": tools.AxesTool(view.canvas.toggle_axes3d),
+            "size": tools.PlusMinusTool(
                 plus={
-                    'callback': view.canvas.bigger,
-                    'tooltip': 'Increase canvas size',
+                    "callback": view.canvas.bigger,
+                    "tooltip": "Increase canvas size",
                 },
                 minus={
-                    'callback': view.canvas.smaller,
-                    'tooltip': 'Decrease canvas size',
+                    "callback": view.canvas.smaller,
+                    "tooltip": "Decrease canvas size",
                 },
             ),
         }
