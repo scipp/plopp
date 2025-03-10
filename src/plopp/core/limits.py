@@ -59,7 +59,7 @@ def find_limits(
     finite_vals = v[finite_inds]
     finite_max = None
     if scale == "log":
-        if is_datetime:
+        if is_dt:
             finite_min = np.amin(finite_vals)
         else:
             positives = finite_vals > 0
