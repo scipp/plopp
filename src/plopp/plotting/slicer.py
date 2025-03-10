@@ -39,9 +39,6 @@ class Slicer:
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
-    autoscale:
-        Automatically adjust range of the y-axis (1d plots) or color scale (2d plots)
-        every time the data changes if ``True``.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     vmin:
@@ -59,7 +56,6 @@ class Slicer:
         obj: PlottableMulti,
         *,
         keep: list[str] | None = None,
-        autoscale: bool = True,
         coords: list[str] | None = None,
         vmin: VariableLike | float = None,
         vmax: VariableLike | float = None,
@@ -121,17 +117,6 @@ class Slicer:
             )
 
         self.figure = make_figure(*self.slice_nodes, vmin=vmin, vmax=vmax, **kwargs)
-
-        if autoscale:
-            self.figure.view.draw_on_update = False
-            self.slider._plopp_observe_(
-                lambda _: self.figure.view.fit_to_data(), names='value'
-            )
-            if ndims == 2:
-                # Do not set colors on update, as this is done during the autoscale.
-                # This way, we avoid paying the cost of setting the colors twice.
-                self.figure.view.colormapper.set_colors_on_update = False
-
         require_interactive_figure(self.figure, 'slicer')
         self.figure.bottom_bar.add(self.slider)
 
