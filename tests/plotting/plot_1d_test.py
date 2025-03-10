@@ -406,6 +406,14 @@ def test_plot_1d_datetime_data():
     pp.plot(da)
 
 
+def test_plot_1d_datetime_length_1():
+    da = sc.DataArray(
+        sc.array(dims=['time'], values=[3], unit='deg'),
+        coords={'time': sc.datetimes(dims=['time'], values=['now'], unit='s')},
+    )
+    pp.plot(da)
+
+
 def test_plot_1d_data_with_errorbars():
     da = data_array(ndim=1, variances=True)
     p = da.plot()
