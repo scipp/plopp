@@ -24,7 +24,7 @@ def Image(
         The data to create the image from.
     """
     if all(
-        (sc.islinspace(data.coords[dim]) and (data.coords[dim].ndim < 2))
+        (data.coords[dim].ndim < 2) and (sc.islinspace(data.coords[dim]))
         for dim in data.dims
     ):
         return FastImage(data=data, **kwargs)
