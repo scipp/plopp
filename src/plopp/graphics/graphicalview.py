@@ -52,6 +52,7 @@ class GraphicalView(View):
         format: Literal['svg', 'png'] | None = None,
         legend: bool | tuple[float, float] = False,
         camera: Camera | None = None,
+        autoscale: bool = True,
         ax: Any = None,
         cax: Any = None,
         **kwargs,
@@ -64,9 +65,9 @@ class GraphicalView(View):
         self._kwargs = kwargs
         self._repr_format = format
         self.bbox = BoundingBox()
-        self.draw_on_update = True
         self._data_name = None
         self._data_axis = None
+        self._autoscale = autoscale
 
         self.canvas = canvas_maker(
             cbar=cbar,
@@ -92,6 +93,10 @@ class GraphicalView(View):
                 figsize=getattr(self.canvas, "figsize", None),
             )
             self._kwargs['colormapper'] = self.colormapper
+            if self._autoscale:
+                # Do not set colors on update, as this is done during the autoscale.
+                # This way, we avoid paying the cost of setting the colors twice.
+                self.colormapper.set_colors_on_update = False
         else:
             self.colormapper = None
 
@@ -121,7 +126,6 @@ class GraphicalView(View):
                 _none_if_not_finite(self.bbox.zmin),
                 _none_if_not_finite(self.bbox.zmax),
             )
-        self.canvas.draw()
 
     def update(self, *args, **kwargs) -> None:
         """
@@ -208,15 +212,17 @@ class GraphicalView(View):
         if need_legend_update:
             self.canvas.update_legend()
 
-        if self.draw_on_update:
-            self.canvas.draw()
+        if self._autoscale:
+            self.fit_to_data()
+
+        self.canvas.draw()
 
     def fit_to_data(self) -> None:
         """
         Autoscale axes and colormapper.
         """
         # Autoscale the colormapper first to make use of the single draw call made by
-        # ``self.autoscale()``
+        # ``self.autoscale()``.
         if not self.artists:
             return
         if self.colormapper is not None:
@@ -228,11 +234,16 @@ class GraphicalView(View):
         At the end of figure creation, this function is called to request data from
         all parent nodes and draw the figure.
         In addition, we call the home method to autoscale the axes and colormapper.
+
+        Note that this function makes multiple draw calls to the canvas, and should thus
+        note be called with a too high frequency.
         """
-        self.draw_on_update = False
+        old = self._autoscale
+        self._autoscale = False
         super().render()
         self.fit_to_data()
-        self.draw_on_update = True
+        self.canvas.draw()
+        self._autoscale = old
 
     def remove(self, key: str) -> None:
         """
@@ -246,4 +257,5 @@ class GraphicalView(View):
         self.artists[key].remove()
         del self.artists[key]
         self.canvas.update_legend()
-        self.autoscale()
+        self.fit_to_data()
+        self.canvas.draw()
