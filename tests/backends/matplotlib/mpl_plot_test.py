@@ -27,17 +27,22 @@ def test_grid():
 
 def test_ax():
     _, ax = plt.subplots()
+    assert len(ax.lines) == 0
     assert len(ax.collections) == 0
-    da = data_array(ndim=2)
-    _ = da.plot(ax=ax)
+    assert len(ax.images) == 0
+    data_array(ndim=1).plot(ax=ax)
+    assert len(ax.lines) > 0
+    data_array(ndim=2, linspace=False).plot(ax=ax)
     assert len(ax.collections) == 1
+    data_array(ndim=2, linspace=True).plot(ax=ax)
+    assert len(ax.images) == 1
 
 
 def test_cax():
     fig, ax = plt.subplots()
     cax = fig.add_axes([0.9, 0.02, 0.05, 0.98])
     assert len(ax.collections) == 0
-    da = data_array(ndim=2)
+    da = data_array(ndim=2, linspace=False)
     fig = da.plot(ax=ax, cax=cax)
     assert len(ax.collections) > 0
     assert fig.canvas.cax is cax
