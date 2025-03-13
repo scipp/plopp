@@ -62,10 +62,12 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
     def logx() -> None:
         view.canvas.logx()
         view.autoscale()
+        view.canvas.draw()
 
     def logy() -> None:
         view.canvas.logy()
         view.autoscale()
+        view.canvas.draw()
 
     def autoscale_axes() -> None:
         view.autoscale()
