@@ -26,17 +26,23 @@ def test_plot_variable():
     pp.plot(variable(ndim=2))
 
 
-def test_plot_data_array():
-    pp.plot(data_array(ndim=2))
+@pytest.mark.parametrize('linspace', [True, False])
+def test_plot_data_array(linspace):
+    pp.plot(data_array(ndim=2, linspace=linspace))
 
 
-def test_plot_from_node():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_plot_from_node(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     pp.plot(pp.Node(da))
 
 
-def test_plot_data_array_2d_with_one_missing_coord_and_binedges():
-    da = sc.data.table_xyz(100).bin(x=10, y=12).bins.mean()
+@pytest.mark.parametrize('linspace', [True, False])
+def test_plot_data_array_2d_with_one_missing_coord_and_binedges(linspace):
+    xbins = sc.linspace('x', 0, 1, 10, unit='m')
+    if not linspace:
+        xbins[-1] += sc.scalar(0.1, unit='m')
+    da = sc.data.table_xyz(100).bin(x=xbins, y=12).bins.mean()
     del da.coords['x']
     pp.plot(da)
 
@@ -53,20 +59,23 @@ def test_plot_2d_coord_with_mask():
     pp.plot(da)
 
 
-def test_kwarg_norm():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_kwarg_norm(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     p = pp.plot(da, norm='log')
     assert p.view.colormapper.norm == 'log'
 
 
-def test_kwarg_cmap():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_kwarg_cmap(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     p = pp.plot(da, cmap='magma')
     assert p.view.colormapper.cmap.name == 'magma'
 
 
-def test_kwarg_scale_2d():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_kwarg_scale_2d(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     p = pp.plot(da, scale={'xx': 'log', 'yy': 'log'})
     assert p.canvas.ax.get_xscale() == 'log'
     assert p.canvas.ax.get_yscale() == 'log'
@@ -78,8 +87,9 @@ def test_raises_ValueError_when_given_binned_data():
         pp.plot(da)
 
 
-def test_use_non_dimension_coords():
-    da = data_array(ndim=2, binedges=True)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_use_non_dimension_coords(linspace):
+    da = data_array(ndim=2, binedges=True, linspace=linspace)
     da.coords['xx2'] = 7.5 * da.coords['xx']
     da.coords['yy2'] = 3.3 * da.coords['yy']
     p = pp.plot(da, coords=['xx2', 'yy2'])
@@ -100,8 +110,9 @@ def test_use_two_coords_for_same_underlying_dimension_raises():
 
 
 @pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
-def test_save_to_disk_2d(ext):
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_save_to_disk_2d(ext, linspace):
+    da = data_array(ndim=2, linspace=linspace)
     fig = pp.plot(da)
     with tempfile.TemporaryDirectory() as path:
         fname = os.path.join(path, f'plopp_fig2d.{ext}')
@@ -109,15 +120,17 @@ def test_save_to_disk_2d(ext):
         assert os.path.isfile(fname)
 
 
-def test_save_to_disk_with_bad_extension_raises():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_save_to_disk_with_bad_extension_raises(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     fig = pp.plot(da)
     with pytest.raises(ValueError, match='txt'):
         fig.save(filename='plopp_fig2d.txt')
 
 
-def test_plot_raises_with_multiple_2d_inputs():
-    a = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_plot_raises_with_multiple_2d_inputs(linspace):
+    a = data_array(ndim=2, linspace=linspace)
     b = 3.3 * a
     with pytest.raises(
         ValueError, match='The plot function can only plot a single 2d data entry'
@@ -143,16 +156,18 @@ def test_plot_xarray_data_array_2d():
     assert p.canvas.units['y'] == 'dimensionless'
 
 
-def test_plot_2d_ignores_masked_data_for_colorbar_range():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_plot_2d_ignores_masked_data_for_colorbar_range(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     da['xx', 10]['yy', 10].values = 100
     da.masks['m'] = da.data > sc.scalar(5.0, unit='m/s')
     p = pp.plot(da)
     assert p.view.colormapper.vmax < 100
 
 
-def test_plot_2d_includes_masked_data_in_horizontal_range():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_plot_2d_includes_masked_data_in_horizontal_range(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     da.masks['left'] = da.coords['xx'] < sc.scalar(5.0, unit='m')
     da.masks['right'] = da.coords['xx'] > sc.scalar(30.0, unit='m')
     p = pp.plot(da)
@@ -160,8 +175,9 @@ def test_plot_2d_includes_masked_data_in_horizontal_range():
     assert p.canvas.xmax > 40.0
 
 
-def test_plot_2d_includes_masked_data_in_vertical_range():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_plot_2d_includes_masked_data_in_vertical_range(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     da.masks['bottom'] = da.coords['yy'] < sc.scalar(5.0, unit='m')
     da.masks['top'] = da.coords['yy'] > sc.scalar(20.0, unit='m')
     p = pp.plot(da)
@@ -169,10 +185,13 @@ def test_plot_2d_includes_masked_data_in_vertical_range():
     assert p.canvas.ymax > 30.0
 
 
-def test_plot_2d_datetime_coord():
+@pytest.mark.parametrize('linspace', [True, False])
+def test_plot_2d_datetime_coord(linspace):
     t = np.arange(
         np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
     )
+    if not linspace:
+        t[-1] += np.timedelta64(1, 's')
     time = sc.array(dims=['time'], values=t)
     z = sc.arange('z', 50.0, unit='m')
     v = np.random.random(z.shape + time.shape)
@@ -183,10 +202,13 @@ def test_plot_2d_datetime_coord():
     pp.plot(da)
 
 
-def test_plot_2d_datetime_coord_binedges():
+@pytest.mark.parametrize('linspace', [True, False])
+def test_plot_2d_datetime_coord_binedges(linspace):
     t = np.arange(
         np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
     )
+    if not linspace:
+        t[-1] += np.timedelta64(1, 's')
     time = sc.array(dims=['time'], values=t)
     z = sc.arange('z', 50.0, unit='m')
     v = np.random.random(z[:-1].shape + time[:-1].shape)
@@ -197,16 +219,18 @@ def test_plot_2d_datetime_coord_binedges():
     pp.plot(da)
 
 
-def test_create_with_bin_edges():
-    da = data_array(ndim=2, binedges=True)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_create_with_bin_edges(linspace):
+    da = data_array(ndim=2, binedges=True, linspace=linspace)
     fig = da.plot()
     assert len(fig.artists) == 1
     [img] = fig.artists.values()
     assert sc.identical(img._data, da)
 
 
-def test_create_with_only_one_bin_edge_coord():
-    da = data_array(ndim=2, binedges=True)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_create_with_only_one_bin_edge_coord(linspace):
+    da = data_array(ndim=2, binedges=True, linspace=linspace)
     da.coords['xx'] = sc.midpoints(da.coords['xx'])
     fig = da.plot()
     assert len(fig.artists) == 1
@@ -263,8 +287,9 @@ def test_plot_1d_data_over_2d_data_datetime():
     pp.plot(da1d, ax=fig2d.ax)
 
 
-def test_no_cbar():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_no_cbar(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     fig = da.plot(cbar=True)
     assert fig.view.colormapper.colorbar is not None
     fig = da.plot(cbar=False)
@@ -293,8 +318,9 @@ def test_figure_has_data_name_on_colorbar_for_one_image():
     assert str(da.unit) in ylabel
 
 
-def test_figure_has_only_unit_on_colorbar_for_multiple_images():
-    a = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_figure_has_only_unit_on_colorbar_for_multiple_images(linspace):
+    a = data_array(ndim=2, linspace=linspace)
     a.name = "Velocity"
     b = a * 1.67
     dim = b.dims[-1]

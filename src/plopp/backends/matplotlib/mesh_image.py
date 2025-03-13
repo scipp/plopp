@@ -165,9 +165,7 @@ class MeshImage:
         if self._data.masks:
             out.masks['one_mask'] = _maybe_repeat_values(
                 data=sc.broadcast(
-                    merge_masks(self._data.masks),
-                    dims=self._data.dims,
-                    shape=self._data.shape,
+                    merge_masks(self._data.masks), sizes=self._data.sizes
                 ),
                 dim_1d=self._dim_1d,
                 dim_2d=self._dim_2d,

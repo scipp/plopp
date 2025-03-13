@@ -62,6 +62,7 @@ def data_array(
     unit: str = 'm/s',
     dims: list[str] | None = None,
     dim_list: list[str] = default_dim_list,
+    linspace: bool = True,
 ) -> sc.DataArray:
     """
     Generate a sample ``DataArray`` containing data based on a sine function, with
@@ -91,6 +92,8 @@ def data_array(
         List of dimension labels. If ``None``, they will be auto-generated.
     dim_list:
         List of dimension labels to use if no ``dims`` are provided.
+    linspace:
+        If ``True``, the coordinates will be generated using :func:`scipp.linspace`.
     """
 
     coord_units = dict(zip(dim_list, ['m', 'm', 'm', 's', 'K'], strict=True))
@@ -113,12 +116,16 @@ def data_array(
         )
         for i in range(ndim)
     }
-    mask_dict = {}
+    if not linspace:
+        for dim in coord_dict:
+            coord_dict[dim].values **= 1.01
 
     if labels:
         coord_dict["lab"] = sc.linspace(
             data.dims[0], 101.0, 105.0, data.shape[0], unit='s'
         )
+
+    mask_dict = {}
     if masks:
         mask_dict["mask"] = sc.array(
             dims=data.dims, values=np.where(data.values > 0, True, False)
