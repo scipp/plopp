@@ -27,6 +27,9 @@ class FastImage:
         The colormapper to use for the image.
     data:
         The initial data to create the image from.
+    artist_number:
+        The canvas keeps track of how many images have been added to it. This is unused
+        by the FastImage artist.
     uid:
         The unique identifier of the artist. If None, a random UUID is generated.
     **kwargs:
@@ -38,6 +41,7 @@ class FastImage:
         canvas: Canvas,
         colormapper: ColorMapper,
         data: sc.DataArray,
+        artist_number: int,
         uid: str | None = None,
         **kwargs,
     ):
@@ -47,12 +51,6 @@ class FastImage:
         self._colormapper = colormapper
         self._ax = self._canvas.ax
         self._data = data
-        # Because all keyword arguments from the figure are forwarded to both the canvas
-        # and the line, we need to remove the arguments that belong to the canvas.
-        kwargs.pop("ax", None)
-        kwargs.pop("cax", None)
-        # An artist number is passed to the artist, but is unused for the image.
-        kwargs.pop("artist_number", None)
 
         string_labels = {}
         self._bin_edge_coords = {}
