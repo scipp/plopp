@@ -58,9 +58,6 @@ class Line:
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
-        # Because all keyword arguments from the figure are forwarded to both the canvas
-        # and the line, we need to remove the arguments that belong to the canvas.
-        kwargs.pop('ax', None)
 
         line_args = parse_dicts_in_kwargs(kwargs, name=data.name)
 

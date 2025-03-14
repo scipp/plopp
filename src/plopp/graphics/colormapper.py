@@ -162,7 +162,7 @@ class ColorMapper:
         """
         colors = self.cmap(self.normalizer(data.values))
         if data.masks:
-            one_mask = merge_masks(data.masks).values
+            one_mask = sc.broadcast(merge_masks(data.masks), sizes=data.sizes).values
             colors[one_mask] = self.mask_cmap(self.normalizer(data.values[one_mask]))
         return colors
 

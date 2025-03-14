@@ -69,9 +69,7 @@ class Scatter:
         self._y = y
         self._size = size
         self._colormapper = colormapper
-        # Because all keyword arguments from the figure are forwarded to both the canvas
-        # and the line, we need to remove the arguments that belong to the canvas.
-        kwargs.pop('ax', None)
+
         if 's' in kwargs:
             raise ValueError("Use 'size' instead of 's' for scatter plot.")
 
