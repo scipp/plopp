@@ -98,6 +98,10 @@ def to_data_array(
     for dim, size in out.sizes.items():
         if dim not in out.coords:
             out.coords[dim] = sc.arange(dim, size, unit=None)
+    for name in out.coords:
+        other_dims = [dim for dim in out.coords[name].dims if dim not in out.dims]
+        for dim in other_dims:
+            out.coords[name] = out.coords[name].mean(dim)
     return out
 
 

@@ -333,3 +333,9 @@ def test_figure_has_only_unit_on_colorbar_for_multiple_images(linspace):
     assert str(b.unit) in ylabel
     assert a.name not in ylabel
     assert b.name not in ylabel
+
+
+def test_plot_with_bin_edges_left_over_from_slicing():
+    da = data_array(ndim=2, binedges=True)
+    f = da.fold(dim='xx', sizes={'xx': 25, 'pulse': 2})
+    f['pulse', 0].plot()
