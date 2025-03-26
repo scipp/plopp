@@ -339,3 +339,10 @@ def test_plot_with_bin_edges_left_over_from_slicing():
     da = data_array(ndim=2, binedges=True)
     f = da.fold(dim='xx', sizes={'xx': 25, 'pulse': 2})
     f['pulse', 0].plot()
+
+
+def test_plot_with_scalar_dimension_coord_raises():
+    da = data_array(ndim=2)
+    da.coords['xx'] = sc.scalar(333.0, unit='K')
+    with pytest.raises(ValueError, match='Input data cannot be plotted'):
+        da.plot()
