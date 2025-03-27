@@ -12,7 +12,7 @@ from ..core.utils import coord_element_to_string
 from .box import VBar
 
 
-class _BaseSliceWidget(VBar):
+class _BaseSliceWidget(VBar, ipw.ValueWidget):
     def __init__(self, da: sc.DataArray, dims: list[str], range: bool):
         if isinstance(dims, str):
             dims = [dims]
@@ -57,6 +57,7 @@ class _BaseSliceWidget(VBar):
                 'coord': coord,
             }
             slider.observe(self._update_label, names='value')
+            slider.observe(self._on_slider_change, names='value')
             children.append(ipw.HBox([continuous_update, slider, label]))
 
         super().__init__(children)
@@ -70,21 +71,21 @@ class _BaseSliceWidget(VBar):
         coord = self.controls[dim]['coord'][dim, change['new']]
         self.controls[dim]['label'].value = coord_element_to_string(coord)
 
-    def _plopp_observe_(self, callback: Callable, **kwargs):
-        """
-        Special method which is used instead of the ``observe`` method of ``ipywidgets``
-        because overriding the ``observe`` method of the ``VBox`` causes issues.
-        """
-        for dim in self.controls:
-            self.controls[dim]['slider'].observe(callback, **kwargs)
+    def _on_slider_change(self, _):
+        """ """
+        self.value = {
+            dim: self.controls[dim]['slider'].value for dim in self._slider_dims
+        }
+        # for dim in self.controls:
+        #     self.controls[dim]['slider'].observe(callback, **kwargs)
 
-    @property
-    def value(self) -> dict[str, int | tuple[int]]:
-        """
-        The widget value, as a dict containing the dims as keys and the slider indices
-        as values.
-        """
-        return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
+    # @property
+    # def value(self) -> dict[str, int | tuple[int]]:
+    #     """
+    #     The widget value, as a dict containing the dims as keys and the slider indices
+    #     as values.
+    #     """
+    #     return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
 
 
 class SliceWidget(_BaseSliceWidget):
