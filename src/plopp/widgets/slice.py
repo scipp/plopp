@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from collections.abc import Callable
+from functools import partial
 from typing import Any
 
 import ipywidgets as ipw
@@ -13,7 +13,7 @@ from .box import VBar
 
 
 class _BaseSliceWidget(VBar, ipw.ValueWidget):
-    def __init__(self, da: sc.DataArray, dims: list[str], range: bool):
+    def __init__(self, da: sc.DataArray, dims: list[str], slider_constr: ipw.Widget):
         if isinstance(dims, str):
             dims = [dims]
         self._slider_dims = dims
@@ -37,10 +37,7 @@ class _BaseSliceWidget(VBar, ipw.ValueWidget):
                 'layout': {"width": "200px"},
                 'style': {'description_width': 'initial'},
             }
-            if range:
-                slider = ipw.IntRangeSlider(**widget_args)
-            else:
-                slider = ipw.IntSlider(**widget_args)
+            slider = slider_constr(**widget_args)
             continuous_update = ipw.Checkbox(
                 value=True,
                 tooltip="Continuous update",
@@ -57,9 +54,10 @@ class _BaseSliceWidget(VBar, ipw.ValueWidget):
                 'coord': coord,
             }
             slider.observe(self._update_label, names='value')
-            slider.observe(self._on_slider_change, names='value')
+            slider.observe(self._on_subwidget_change, names='value')
             children.append(ipw.HBox([continuous_update, slider, label]))
 
+        self._on_subwidget_change()
         super().__init__(children)
 
     def _update_label(self, change: dict[str, Any]):
@@ -71,61 +69,47 @@ class _BaseSliceWidget(VBar, ipw.ValueWidget):
         coord = self.controls[dim]['coord'][dim, change['new']]
         self.controls[dim]['label'].value = coord_element_to_string(coord)
 
-    def _on_slider_change(self, _):
-        """ """
+    def _on_subwidget_change(self, _=None):
+        """
+        Update the value of the widget.
+        The value is a dict containing one entry per slider, giving the slider's value.
+        """
         self.value = {
             dim: self.controls[dim]['slider'].value for dim in self._slider_dims
         }
-        # for dim in self.controls:
-        #     self.controls[dim]['slider'].observe(callback, **kwargs)
-
-    # @property
-    # def value(self) -> dict[str, int | tuple[int]]:
-    #     """
-    #     The widget value, as a dict containing the dims as keys and the slider indices
-    #     as values.
-    #     """
-    #     return {dim: self.controls[dim]['slider'].value for dim in self._slider_dims}
 
 
-class SliceWidget(_BaseSliceWidget):
-    """
-    Widgets containing a slider for each of the requested dimensions.
-    The widget uses the input data array to determine the range each slider should have.
-    Each slider also comes with a checkbox to toggle on and off the slider's continuous
-    update.
+SliceWidget = partial(_BaseSliceWidget, slider_constr=ipw.IntSlider)
+"""
+Widgets containing a slider for each of the requested dimensions.
+The widget uses the input data array to determine the range each slider should have.
+Each slider also comes with a checkbox to toggle on and off the slider's continuous
+update.
 
-    Parameters
-    ----------
-    da:
-        The input data array.
-    dims:
-        The dimensions to make sliders for.
-    """
+Parameters
+----------
+da:
+    The input data array.
+dims:
+    The dimensions to make sliders for.
+"""
 
-    def __init__(self, da: sc.DataArray, dims: list[str]):
-        super().__init__(da, dims, range=False)
+RangeSliceWidget = partial(_BaseSliceWidget, slider_constr=ipw.IntRangeSlider)
+"""
+Widgets containing a slider for each of the requested dimensions.
+The widget uses the input data array to determine the range each slider should have.
+Each slider also comes with a checkbox to toggle on and off the slider's continuous
+update.
 
+.. versionadded:: 24.04.0
 
-class RangeSliceWidget(_BaseSliceWidget):
-    """
-    Widgets containing a slider for each of the requested dimensions.
-    The widget uses the input data array to determine the range each slider should have.
-    Each slider also comes with a checkbox to toggle on and off the slider's continuous
-    update.
-
-    .. versionadded:: 24.04.0
-
-    Parameters
-    ----------
-    da:
-        The input data array.
-    dims:
-        The dimensions to make sliders for.
-    """
-
-    def __init__(self, da: sc.DataArray, dims: list[str]):
-        super().__init__(da, dims, range=True)
+Parameters
+----------
+da:
+    The input data array.
+dims:
+    The dimensions to make sliders for.
+"""
 
 
 @node

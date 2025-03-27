@@ -1,13 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from collections.abc import Callable
 from html import escape
 
 import ipywidgets as ipw
 
 
-class Checkboxes(ipw.HBox):
+class Checkboxes(ipw.HBox, ipw.ValueWidget):
     """
     Widget providing a list of checkboxes, along with a button to toggle them all.
 
@@ -27,12 +26,14 @@ class Checkboxes(ipw.HBox):
         self.description = ipw.Label(value=description)
 
         for key in entries:
-            self.checkboxes[key] = ipw.Checkbox(
+            chbx = ipw.Checkbox(
                 value=value,
                 description=f"{escape(key)}",
                 indent=False,
                 layout={"width": "initial"},
             )
+            chbx.observe(self._on_subwidget_change, names="value")
+            self.checkboxes[key] = chbx
 
         to_hbox = [
             self.description,
@@ -50,19 +51,25 @@ class Checkboxes(ipw.HBox):
                 button_style="",
                 layout={"width": "initial"},
             )
-            for cbox in self.checkboxes.values():
-                ipw.jsdlink((self.toggle_all_button, 'value'), (cbox, 'value'))
+            for chbx in self.checkboxes.values():
+                ipw.jsdlink((self.toggle_all_button, 'value'), (chbx, 'value'))
             to_hbox.insert(1, self.toggle_all_button)
 
+        self._on_subwidget_change()
         super().__init__(to_hbox)
 
-    def _plopp_observe_(self, callback: Callable, **kwargs):
+    def _toggle_all(self, _=None):
+        self._lock = True
         for chbx in self.checkboxes.values():
-            chbx.observe(callback, **kwargs)
+            chbx.value = self.toggle_all_button.value
+        self._lock = False
+        self._on_subwidget_change()
 
-    @property
-    def value(self) -> dict[str, bool]:
+    def _on_subwidget_change(self, _=None):
         """
-        Returns a dict containing one entry per checkbox, giving the checkbox's value.
+        The value is a dict containing one entry per checkbox, giving the
+        checkbox's value.
         """
-        return {key: chbx.value for key, chbx in self.checkboxes.items()}
+        if self._lock:
+            return
+        self.value = {key: chbx.value for key, chbx in self.checkboxes.items()}
