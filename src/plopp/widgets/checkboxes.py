@@ -18,9 +18,17 @@ class Checkboxes(ipw.HBox, ipw.ValueWidget):
         Global description for all the checkboxes.
     value:
         Default value to set all the checkboxes to.
+    toggle_all_button:
+        Whether to add a button to toggle all checkboxes at once.
     """
 
-    def __init__(self, entries: list[str], description: str = "", value: bool = True):
+    def __init__(
+        self,
+        entries: list[str],
+        description: str = "",
+        value: bool = True,
+        toggle_all_button: bool = True,
+    ):
         self.checkboxes = {}
         self._lock = False
         self.description = ipw.Label(value=description)
@@ -42,26 +50,21 @@ class Checkboxes(ipw.HBox, ipw.ValueWidget):
             ),
         ]
 
-        if len(self.checkboxes) > 1:
-            # Add a master button to control all masks in one go
+        if len(self.checkboxes) > 1 and toggle_all_button:
+            # Add a master button to control all checkboxes in one go
             self.toggle_all_button = ipw.ToggleButton(
-                value=value,
-                description="Toggle all",
-                disabled=False,
-                button_style="",
-                layout={"width": "initial"},
+                value=value, description="Toggle all", layout={"width": "initial"}
             )
-            for chbx in self.checkboxes.values():
-                ipw.jsdlink((self.toggle_all_button, 'value'), (chbx, 'value'))
+            self.toggle_all_button.observe(self._toggle_all, names="value")
             to_hbox.insert(1, self.toggle_all_button)
 
         self._on_subwidget_change()
         super().__init__(to_hbox)
 
-    def _toggle_all(self, _=None):
+    def _toggle_all(self, change: dict):
         self._lock = True
         for chbx in self.checkboxes.values():
-            chbx.value = self.toggle_all_button.value
+            chbx.value = change["new"]
         self._lock = False
         self._on_subwidget_change()
 
