@@ -226,6 +226,69 @@ class Line:
     def color(self, val):
         self._line.line.color = val
 
+    @property
+    def style(self):
+        """
+        The line style.
+        """
+        return self._line.mode
+
+    @style.setter
+    def style(self, val):
+        self._line.mode = val
+
+    @property
+    def width(self):
+        """
+        The line width.
+        """
+        return self._line.line.width
+
+    @width.setter
+    def width(self, val):
+        self._line.line.width = val
+
+    @property
+    def marker(self):
+        """
+        The marker style.
+        """
+        return self._line.marker
+
+    @marker.setter
+    def marker(self, val):
+        self._line.marker = val
+        self._mask.marker = val
+
+    @property
+    def visible(self):
+        """
+        The visibility of the line.
+        """
+        return self._line.visible
+
+    @visible.setter
+    def visible(self, val):
+        self._line.visible = val
+        self._mask.visible = val
+        if self._error is not None:
+            self._error.visible = val
+
+    @property
+    def opacity(self):
+        """
+        The opacity of the line.
+        """
+        return self._line.opacity
+
+    @opacity.setter
+    def opacity(self, val):
+        self._line.opacity = val
+        self._mask.opacity = val
+        if self._error is not None:
+            self._error.opacity = val
+
+    @property
     def bbox(
         self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']
     ) -> BoundingBox:
