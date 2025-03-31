@@ -288,7 +288,6 @@ class Line:
         if self._error is not None:
             self._error.opacity = val
 
-    @property
     def bbox(
         self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']
     ) -> BoundingBox:
