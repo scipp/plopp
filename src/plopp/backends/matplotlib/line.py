@@ -202,6 +202,73 @@ class Line:
                 artist.set_color(val)
         self._canvas.draw()
 
+    @property
+    def style(self):
+        """
+        The line style.
+        """
+        return self._line.get_linestyle()
+
+    @style.setter
+    def style(self, val):
+        self._line.set_linestyle(val)
+        self._canvas.draw()
+
+    @property
+    def width(self):
+        """
+        The line width.
+        """
+        return self._line.get_linewidth()
+
+    @width.setter
+    def width(self, val):
+        self._line.set_linewidth(val)
+        self._canvas.draw()
+
+    @property
+    def marker(self):
+        """
+        The line marker.
+        """
+        return self._line.get_marker()
+
+    @marker.setter
+    def marker(self, val):
+        self._line.set_marker(val)
+        self._mask.set_marker(val)
+        self._canvas.draw()
+
+    @property
+    def visible(self):
+        """
+        Whether the line is visible.
+        """
+        return self._line.get_visible()
+
+    @visible.setter
+    def visible(self, val):
+        self._line.set_visible(val)
+        self._mask.set_visible(val)
+        if self._error is not None:
+            self._error.set_visible(val)
+        self._canvas.draw()
+
+    @property
+    def opacity(self):
+        """
+        The line opacity.
+        """
+        return self._line.get_alpha()
+
+    @opacity.setter
+    def opacity(self, val):
+        self._line.set_alpha(val)
+        self._mask.set_alpha(val)
+        if self._error is not None:
+            self._error.set_alpha(val)
+        self._canvas.draw()
+
     def bbox(
         self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']
     ) -> BoundingBox:
