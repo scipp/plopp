@@ -226,6 +226,28 @@ class MeshImage:
         except (IndexError, RuntimeError):
             return None
 
+    @property
+    def visible(self):
+        """
+        Whether the image is visible.
+        """
+        return self._mesh.get_visible()
+
+    @visible.setter
+    def visible(self, val: bool):
+        self._mesh.set_visible(val)
+
+    @property
+    def opacity(self):
+        """
+        The opacity of the image.
+        """
+        return self._mesh.get_alpha()
+
+    @opacity.setter
+    def opacity(self, val: float):
+        self._mesh.set_alpha(val)
+
     def bbox(self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']):
         """
         The bounding box of the image.

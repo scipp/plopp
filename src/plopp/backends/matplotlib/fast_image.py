@@ -152,6 +152,28 @@ class FastImage:
         except IndexError:
             return None
 
+    @property
+    def visible(self):
+        """
+        Whether the image is visible.
+        """
+        return self._image.get_visible()
+
+    @visible.setter
+    def visible(self, val: bool):
+        self._image.set_visible(val)
+
+    @property
+    def opacity(self):
+        """
+        The opacity of the image.
+        """
+        return self._image.get_alpha()
+
+    @opacity.setter
+    def opacity(self, val: float):
+        self._image.set_alpha(val)
+
     def bbox(self, xscale: Literal["linear", "log"], yscale: Literal["linear", "log"]):
         """
         The bounding box of the image.
