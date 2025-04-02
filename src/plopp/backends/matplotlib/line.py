@@ -251,7 +251,8 @@ class Line:
         self._line.set_visible(val)
         self._mask.set_visible(val)
         if self._error is not None:
-            self._error.set_visible(val)
+            for artist in self._error.get_children():
+                artist.set_visible(val)
         self._canvas.draw()
 
     @property
@@ -266,7 +267,8 @@ class Line:
         self._line.set_alpha(val)
         self._mask.set_alpha(val)
         if self._error is not None:
-            self._error.set_alpha(val)
+            for artist in self._error.get_children():
+                artist.set_alpha(val)
         self._canvas.draw()
 
     def bbox(

@@ -9,6 +9,26 @@ from plopp.data import examples
 CASES = {
     "line-mpl-static": (('2d', 'mpl-static'), pp.plot, (pp.data.data1d(),)),
     "line-mpl-interactive": (('2d', 'mpl-interactive'), pp.plot, (pp.data.data1d(),)),
+    "line-mpl-masks-static": (
+        ('2d', 'mpl-static'),
+        pp.plot,
+        (pp.data.data1d(masks=True),),
+    ),
+    "line-mpl-masks-interactive": (
+        ('2d', 'mpl-interactive'),
+        pp.plot,
+        (pp.data.data1d(masks=True),),
+    ),
+    "line-mpl-errorbars-static": (
+        ('2d', 'mpl-static'),
+        pp.plot,
+        (pp.data.data1d(variances=True),),
+    ),
+    "line-mpl-errorbars-interactive": (
+        ('2d', 'mpl-interactive'),
+        pp.plot,
+        (pp.data.data1d(variances=True),),
+    ),
     # The properties of plotly objects are not populated if the figure is not displayed
     # "line-plotly": (('2d', 'plotly'), pp.plot, (pp.data.data1d,)),
     "image-mpl-static": (('2d', 'mpl-static'), pp.plot, (pp.data.data2d(),)),
