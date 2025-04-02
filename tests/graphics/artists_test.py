@@ -57,7 +57,7 @@ class TestArtists:
         artist.visible = False
         assert not artist.visible
 
-    def opacity(self, set_backend, backend, func, data):
+    def test_opacity(self, set_backend, backend, func, data):
         fig = func(*data)
         [artist] = fig.artists.values()
         assert artist.opacity == 1.0
