@@ -198,7 +198,8 @@ class Mesh3d:
         Set the material opacity.
         """
         self.material.opacity = val
-        self.edges.material.opacity = val
+        if self.edges is not None:
+            self.edges.material.opacity = val
         self.material.depthTest = val > 0.5
 
     @property
