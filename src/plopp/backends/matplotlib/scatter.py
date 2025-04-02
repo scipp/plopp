@@ -188,3 +188,35 @@ class Scatter:
             **{**axis_bounds(('xmin', 'xmax'), scatter_x, xscale, pad=True)},
             **{**axis_bounds(('ymin', 'ymax'), scatter_y, yscale, pad=True)},
         )
+
+    @property
+    def color(self):
+        """ """
+        return self._scatter.get_facecolor()
+
+    @color.setter
+    def color(self, value: str):
+        """ """
+        self._scatter.set_facecolor(value)
+
+    @property
+    def opacity(self):
+        """ """
+        return self._scatter.get_alpha()
+
+    @opacity.setter
+    def opacity(self, value: float):
+        """ """
+        self._scatter.set_alpha(value)
+        self._mask.set_alpha(value)
+
+    @property
+    def visible(self):
+        """ """
+        return self._scatter.get_visible()
+
+    @visible.setter
+    def visible(self, value: bool):
+        """ """
+        self._scatter.set_visible(value)
+        self._mask.set_visible(value)

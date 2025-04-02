@@ -175,6 +175,20 @@ class Scatter3d:
         self.material.depthTest = val > 0.5
 
     @property
+    def visible(self):
+        """
+        Get the visibility of the points.
+        """
+        return self.points.visible
+
+    @visible.setter
+    def visible(self, val):
+        """
+        Set the visibility of the points.
+        """
+        self.points.visible = val
+
+    @property
     def data(self):
         """
         Get the point cloud data.
