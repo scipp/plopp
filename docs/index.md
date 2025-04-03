@@ -29,7 +29,7 @@
   </br></br>
 </span>
 
-:::{include} user-guide/installation.md
+:::{include} user-guide/getting-started/installation.md
 :heading-offset: 1
 :::
 
