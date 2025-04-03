@@ -216,73 +216,73 @@ class Line:
         ]
 
     @property
-    def color(self):
+    def color(self) -> str:
         """
         The line color.
         """
         return self._line.line.color
 
     @color.setter
-    def color(self, val):
+    def color(self, val: str):
         self._line.line.color = val
 
     @property
-    def style(self):
+    def style(self) -> str:
         """
         The line style.
         """
         return self._line.mode
 
     @style.setter
-    def style(self, val):
+    def style(self, val: str):
         self._line.mode = val
 
     @property
-    def width(self):
+    def width(self) -> float:
         """
         The line width.
         """
         return self._line.line.width
 
     @width.setter
-    def width(self, val):
+    def width(self, val: float):
         self._line.line.width = val
 
     @property
-    def marker(self):
+    def marker(self) -> str:
         """
         The marker style.
         """
         return self._line.marker
 
     @marker.setter
-    def marker(self, val):
+    def marker(self, val: str):
         self._line.marker = val
         self._mask.marker = val
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         """
         The visibility of the line.
         """
         return self._line.visible
 
     @visible.setter
-    def visible(self, val):
+    def visible(self, val: bool):
         self._line.visible = val
         self._mask.visible = val
         if self._error is not None:
             self._error.visible = val
 
     @property
-    def opacity(self):
+    def opacity(self) -> float:
         """
         The opacity of the line.
         """
         return self._line.opacity
 
     @opacity.setter
-    def opacity(self, val):
+    def opacity(self, val: float):
         self._line.opacity = val
         self._mask.opacity = val
         if self._error is not None:

@@ -188,14 +188,14 @@ class Line:
         self._canvas.draw()
 
     @property
-    def color(self):
+    def color(self) -> str:
         """
         The line color.
         """
         return self._line.get_color()
 
     @color.setter
-    def color(self, val):
+    def color(self, val: str):
         self._line.set_color(val)
         if self._error is not None:
             for artist in self._error.get_children():
@@ -203,51 +203,51 @@ class Line:
         self._canvas.draw()
 
     @property
-    def style(self):
+    def style(self) -> str:
         """
         The line style.
         """
         return self._line.get_linestyle()
 
     @style.setter
-    def style(self, val):
+    def style(self, val: str):
         self._line.set_linestyle(val)
         self._canvas.draw()
 
     @property
-    def width(self):
+    def width(self) -> float:
         """
         The line width.
         """
         return self._line.get_linewidth()
 
     @width.setter
-    def width(self, val):
+    def width(self, val: float):
         self._line.set_linewidth(val)
         self._canvas.draw()
 
     @property
-    def marker(self):
+    def marker(self) -> str:
         """
         The line marker.
         """
         return self._line.get_marker()
 
     @marker.setter
-    def marker(self, val):
+    def marker(self, val: str):
         self._line.set_marker(val)
         self._mask.set_marker(val)
         self._canvas.draw()
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         """
         Whether the line is visible.
         """
         return self._line.get_visible()
 
     @visible.setter
-    def visible(self, val):
+    def visible(self, val: bool):
         self._line.set_visible(val)
         self._mask.set_visible(val)
         if self._error is not None:
@@ -256,14 +256,14 @@ class Line:
         self._canvas.draw()
 
     @property
-    def opacity(self):
+    def opacity(self) -> float:
         """
         The line opacity.
         """
         return self._line.get_alpha()
 
     @opacity.setter
-    def opacity(self, val):
+    def opacity(self, val: float):
         self._line.set_alpha(val)
         self._mask.set_alpha(val)
         if self._error is not None:

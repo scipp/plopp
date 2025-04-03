@@ -153,9 +153,9 @@ class FastImage:
             return None
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         """
-        Whether the image is visible.
+        The visibility of the image.
         """
         return self._image.get_visible()
 
@@ -164,7 +164,7 @@ class FastImage:
         self._image.set_visible(val)
 
     @property
-    def opacity(self):
+    def opacity(self) -> float:
         """
         The opacity of the image.
         """

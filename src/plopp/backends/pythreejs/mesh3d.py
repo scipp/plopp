@@ -186,34 +186,28 @@ class Mesh3d:
         )
 
     @property
-    def opacity(self):
+    def opacity(self) -> float:
         """
-        Get the material opacity.
+        The mesh opacity.
         """
         return self.material.opacity
 
     @opacity.setter
-    def opacity(self, val):
-        """
-        Set the material opacity.
-        """
+    def opacity(self, val: float):
         self.material.opacity = val
         if self.edges is not None:
             self.edges.material.opacity = val
         self.material.depthTest = val > 0.5
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         """
-        Get the visibility of the mesh.
+        The visibility of the mesh.
         """
         return self.mesh.visible
 
     @visible.setter
-    def visible(self, val):
-        """
-        Set the visibility of the mesh.
-        """
+    def visible(self, val: bool):
         self.mesh.visible = val
         if self.edges is not None:
             self.edges.visible = val

@@ -227,9 +227,9 @@ class MeshImage:
             return None
 
     @property
-    def visible(self):
+    def visible(self) -> bool:
         """
-        Whether the image is visible.
+        The visibility of the image.
         """
         return self._mesh.get_visible()
 
@@ -238,7 +238,7 @@ class MeshImage:
         self._mesh.set_visible(val)
 
     @property
-    def opacity(self):
+    def opacity(self) -> float:
         """
         The opacity of the image.
         """

@@ -190,33 +190,36 @@ class Scatter:
         )
 
     @property
-    def color(self):
-        """ """
+    def color(self) -> str:
+        """
+        The color of the scatter points.
+        """
         return self._scatter.get_facecolor()
 
     @color.setter
     def color(self, value: str):
-        """ """
         self._scatter.set_facecolor(value)
 
     @property
-    def opacity(self):
-        """ """
+    def opacity(self) -> float:
+        """
+        The scatter points opacity.
+        """
         return self._scatter.get_alpha()
 
     @opacity.setter
     def opacity(self, value: float):
-        """ """
         self._scatter.set_alpha(value)
         self._mask.set_alpha(value)
 
     @property
-    def visible(self):
-        """ """
+    def visible(self) -> bool:
+        """
+        The visibility of the scatter points.
+        """
         return self._scatter.get_visible()
 
     @visible.setter
     def visible(self, value: bool):
-        """ """
         self._scatter.set_visible(value)
         self._mask.set_visible(value)
