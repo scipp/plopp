@@ -160,19 +160,27 @@ class Scatter3d:
             self._update_colors()
 
     @property
-    def opacity(self):
+    def opacity(self) -> float:
         """
-        Get the material opacity.
+        The scatter points opacity.
         """
         return self.material.opacity
 
     @opacity.setter
-    def opacity(self, val):
-        """
-        Set the material opacity.
-        """
+    def opacity(self, val: float):
         self.material.opacity = val
         self.material.depthTest = val > 0.5
+
+    @property
+    def visible(self) -> bool:
+        """
+        The visibility of the scatter points.
+        """
+        return self.points.visible
+
+    @visible.setter
+    def visible(self, val: bool):
+        self.points.visible = val
 
     @property
     def data(self):
