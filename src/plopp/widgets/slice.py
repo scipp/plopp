@@ -32,6 +32,9 @@ class _BaseSliceWidget(VBar, ipw.ValueWidget):
                 'description': dim,
                 'min': 0,
                 'max': da.sizes[dim] - 1,
+                'value': (da.sizes[dim] - 1) // 2
+                if slider_constr is ipw.IntSlider
+                else None,
                 'continuous_update': True,
                 'readout': False,
                 'layout': {"width": "200px"},
@@ -44,7 +47,7 @@ class _BaseSliceWidget(VBar, ipw.ValueWidget):
                 indent=False,
                 layout={"width": "20px"},
             )
-            label = ipw.Label(value=coord_element_to_string(coord[dim, 0]))
+            label = ipw.Label(value=coord_element_to_string(coord[dim, slider.value]))
             ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
 
             self.controls[dim] = {
