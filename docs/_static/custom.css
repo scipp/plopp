@@ -1,9 +1,9 @@
 html[data-theme="light"] {
     --pst-color-primary: #800080;
-    --pst-color-secondary: #ed4c5c;
+    --pst-color-secondary: #009688;
 }
 
 html[data-theme="dark"] {
     --pst-color-primary: #d899d6;
-    --pst-color-secondary: #f48b95;
+    --pst-color-secondary: #80cbc4;
 }
