@@ -4,6 +4,6 @@ html[data-theme="light"] {
 }
 
 html[data-theme="dark"] {
-    --pst-color-primary: #b848b5;
+    --pst-color-primary: #d899d6;
     --pst-color-secondary: #f48b95;
 }
