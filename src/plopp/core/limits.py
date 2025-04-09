@@ -47,11 +47,15 @@ def find_limits(
     if x.dtype == sc.DType.string:
         x = sc.arange(x.dim, float(len(x)), unit=x.unit)
     if getattr(x, 'masks', None):
-        x = sc.where(
-            merge_masks(x.masks),
-            sc.scalar(np.nan, unit=x.unit),
-            x.data.to(dtype='float64'),
-        )
+        one_mask = merge_masks(x.masks)
+        # If all values are masked, we will not be able to compute limits, so we do not
+        # replace with NaN in that case.
+        if int(one_mask.broadcast(sizes=x.sizes).sum()) < x.size:
+            x = sc.where(
+                one_mask,
+                sc.scalar(np.nan, unit=x.unit),
+                x.data.to(dtype='float64'),
+            )
     v = x.values
     finite_inds = np.isfinite(v)
     if np.sum(finite_inds) == 0:
