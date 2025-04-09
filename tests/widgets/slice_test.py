@@ -34,6 +34,8 @@ def test_slice_label_updates():
     da.coords['xx'] *= 1.1
     da.coords['yy'] *= 3.3
     sw = SliceWidget(da, dims=['yy', 'xx'])
+    sw.controls['xx']['slider'].value = 0
+    sw.controls['yy']['slider'].value = 0
     assert sw.controls['xx']['label'].value == '0.0 [m]'
     sw.controls['xx']['slider'].value = 10
     assert sw.controls['xx']['label'].value == '11.0 [m]'
