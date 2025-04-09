@@ -24,15 +24,17 @@ def test_from_node():
 def test_save_line():
     da = data_array(ndim=2)
     sp = superplot(da, keep='xx')
+    slider = sp.bottom_bar[0]
     tool = sp.right_bar[0]
     assert len(tool._lines) == 0
     tool.save_line()
     assert len(tool._lines) == 1
     line = list(tool._lines.values())[-1]
-    assert sc.identical(line['line']._data, da['yy', 0])
+    assert sc.identical(
+        line['line']._data, da['yy', slider.controls['yy']['slider'].value]
+    )
     assert len(tool.container.children) == 1
 
-    slider = sp.bottom_bar[0]
     slider.controls['yy']['slider'].value = 5
     tool.save_line()
     assert len(tool._lines) == 2
