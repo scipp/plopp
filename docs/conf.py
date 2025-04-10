@@ -163,8 +163,8 @@ html_theme_options = {
     "pygment_light_style": "github-light-high-contrast",
     "pygment_dark_style": "github-dark-high-contrast",
     "logo": {
-        "image_light": "_static/logo.svg",
-        "image_dark": "_static/logo-dark.svg",
+        "image_light": "_static/logo-large.svg",
+        "image_dark": "_static/logo-large-dark.svg",
     },
     "external_links": [
         {"name": "Ess", "url": "https://scipp.github.io/ess"},
@@ -209,7 +209,7 @@ html_favicon = "_static/favicon.ico"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-html_css_files = []
+html_css_files = ['custom.css']
 html_js_files = ["anaconda-icon.js"]
 
 # -- Options for HTMLHelp output ------------------------------------------
