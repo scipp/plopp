@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import uuid
 from typing import Literal
 
 import numpy as np
@@ -98,15 +99,16 @@ def make_line_bbox(
         The scale of the y-axis.
     """
     line_x = data.coords[dim]
-    sel = slice(None)
-    if data.masks:
-        sel = ~merge_masks(data.masks)
-        if set(sel.dims) != set(data.data.dims):
-            sel = sc.broadcast(sel, sizes=data.data.sizes).copy()
-    line_y = data.data[sel]
     if errorbars:
-        stddevs = sc.stddevs(data.data[sel])
-        line_y = sc.concat([line_y - stddevs, line_y + stddevs], dim)
+        stddevs = sc.stddevs(data.data)
+        line_y = sc.DataArray(
+            data=sc.concat(
+                [data.data - stddevs, data.data + stddevs], dim=uuid.uuid4().hex
+            ),
+            masks=data.masks,
+        )
+    else:
+        line_y = data
 
     return BoundingBox(
         **{**axis_bounds(('xmin', 'xmax'), line_x, xscale, pad=True)},

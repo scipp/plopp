@@ -563,3 +563,15 @@ def test_plot_1d_scalar_mask():
         masks={'m': sc.scalar(False)},
     )
     _ = da.plot()
+
+
+def test_plot_1d_all_values_masked():
+    da = data_array(ndim=1)
+    da.masks['m'] = sc.scalar(True)
+    _ = da.plot()
+
+
+def test_plot_1d_all_values_masked_with_errorbars():
+    da = data_array(ndim=1, variances=True)
+    da.masks['m'] = sc.scalar(True)
+    _ = da.plot()

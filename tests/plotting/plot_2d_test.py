@@ -346,3 +346,9 @@ def test_plot_with_scalar_dimension_coord_raises():
     da.coords['xx'] = sc.scalar(333.0, unit='K')
     with pytest.raises(ValueError, match='Input data cannot be plotted'):
         da.plot()
+
+
+def test_plot_2d_all_values_masked():
+    da = data_array(ndim=2)
+    da.masks['m'] = sc.scalar(True)
+    _ = da.plot()
