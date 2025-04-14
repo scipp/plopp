@@ -188,6 +188,7 @@ html_theme_options = {
         },
         {
             "name": "Scipp",
+            # TODO: this should be a link to a docs landing page once we have one
             "url": "https://github.com/scipp",
             "icon": "_static/favicon.ico",
             "type": "local",
