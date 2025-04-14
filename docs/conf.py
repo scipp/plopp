@@ -166,11 +166,7 @@ html_theme_options = {
         "image_light": "_static/logo-large.svg",
         "image_dark": "_static/logo-large-dark.svg",
     },
-    "external_links": [
-        # {"name": "Ess", "url": "https://scipp.github.io/ess"},
-        # {"name": "Scipp", "url": "https://scipp.github.io"},
-        # {"name": "Scippneutron", "url": "https://scipp.github.io/scippneutron"},
-    ],
+    "external_links": [],
     "icon_links": [
         {
             "name": "GitHub",
@@ -193,8 +189,8 @@ html_theme_options = {
         {
             "name": "Scipp",
             "url": "https://github.com/scipp",
-            "icon": "fa-custom fa-codepen",
-            "type": "fontawesome",
+            "icon": "_static/favicon.ico",
+            "type": "local",
         },
     ],
     "footer_start": ["copyright", "sphinx-version"],
