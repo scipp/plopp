@@ -22,7 +22,7 @@ pip install plopp[all]
 ````
 ````{tab-item} conda
 ```sh
-conda install -c conda-forge -c scipp plopp
+conda install -c conda-forge plopp
 ```
 ````
 `````

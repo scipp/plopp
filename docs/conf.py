@@ -157,19 +157,19 @@ html_theme_options = {
     "primary_sidebar_end": ["edit-this-page", "sourcelink"],
     "secondary_sidebar_items": [],
     "navbar_persistent": ["search-button"],
-    "show_nav_level": 1,
+    "show_nav_level": 2,
     # Adjust this to ensure external links are moved to "Move" menu
-    "header_links_before_dropdown": 5,
-    "pygment_light_style": "github-light-high-contrast",
-    "pygment_dark_style": "github-dark-high-contrast",
+    "header_links_before_dropdown": 4,
+    "pygments_light_style": "github-light-high-contrast",
+    "pygments_dark_style": "github-dark-high-contrast",
     "logo": {
         "image_light": "_static/logo-large.svg",
         "image_dark": "_static/logo-large-dark.svg",
     },
     "external_links": [
-        {"name": "Ess", "url": "https://scipp.github.io/ess"},
-        {"name": "Scipp", "url": "https://scipp.github.io"},
-        {"name": "Scippneutron", "url": "https://scipp.github.io/scippneutron"},
+        # {"name": "Ess", "url": "https://scipp.github.io/ess"},
+        # {"name": "Scipp", "url": "https://scipp.github.io"},
+        # {"name": "Scippneutron", "url": "https://scipp.github.io/scippneutron"},
     ],
     "icon_links": [
         {
@@ -186,8 +186,14 @@ html_theme_options = {
         },
         {
             "name": "Conda",
-            "url": "https://anaconda.org/scipp/plopp",
+            "url": "https://anaconda.org/conda-forge/plopp",
             "icon": "fa-custom fa-anaconda",
+            "type": "fontawesome",
+        },
+        {
+            "name": "Scipp",
+            "url": "https://github.com/scipp",
+            "icon": "fa-custom fa-codepen",
             "type": "fontawesome",
         },
     ],
