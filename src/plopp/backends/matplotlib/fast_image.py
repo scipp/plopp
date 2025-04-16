@@ -7,7 +7,6 @@ from typing import Literal
 
 import numpy as np
 import scipp as sc
-from matplotlib.image import AxesImage
 
 from ...core.utils import coord_as_bin_edges, scalar_to_string
 from ...graphics.bbox import BoundingBox, axis_bounds
