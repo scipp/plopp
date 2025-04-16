@@ -2,6 +2,7 @@
 # Copyright (c) 2025 Scipp contributors (https://github.com/scipp)
 
 import uuid
+import warnings
 from typing import Literal
 
 import numpy as np
@@ -66,15 +67,27 @@ class FastImage:
         self._dx = np.diff(self._bin_edge_coords["x"].values[:2])
         self._dy = np.diff(self._bin_edge_coords["y"].values[:2])
 
-        self._image = AxesImage(
-            self._ax,
-            origin="lower",
-            extent=(self._xmin, self._xmax, self._ymin, self._ymax),
-            **({"interpolation": "nearest"} | kwargs),
-        )
-        self._image.set_data(self._data.values)
-        self._ax.add_image(self._image)
+        # Calling imshow sets the aspect ratio to 'equal', which might not be what the
+        # user requested. We need to restore the original aspect ratio after making the
+        # image.
+        original_aspect = self._ax.get_aspect()
 
+        # Because imshow sets the aspect, it may generate warnings when the axes scales
+        # are log.
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                category=UserWarning,
+                message="Attempt to set non-positive .* on a log-scaled axis",
+            )
+            self._image = self._ax.imshow(
+                self._data.values,
+                origin="lower",
+                extent=(self._xmin, self._xmax, self._ymin, self._ymax),
+                **({"interpolation": "nearest"} | kwargs),
+            )
+
+        self._ax.set_aspect(original_aspect)
         self._colormapper.add_artist(self.uid, self)
         self._update_colors()
 
