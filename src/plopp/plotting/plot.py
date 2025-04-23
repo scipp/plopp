@@ -85,6 +85,7 @@ def plot(
     """
 
     common_args = {
+        'aspect': aspect,
         'grid': grid,
         'norm': norm,
         'scale': scale,
@@ -119,12 +120,7 @@ def plot(
     elif ndim == 2:
         if len(nodes) > 1:
             raise_multiple_inputs_for_2d_plot_error(origin='plot')
-        return imagefigure(
-            *nodes,
-            aspect=aspect,
-            cbar=cbar,
-            **common_args,
-        )
+        return imagefigure(*nodes, cbar=cbar, **common_args)
     else:
         raise ValueError(
             'The plot function can only plot 1d and 2d data, got input '
