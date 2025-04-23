@@ -60,7 +60,7 @@ class Line:
         artist_number: int = 0,
         errorbars: bool = True,
         mask_color: str = 'black',
-        mode: str = 'markers',
+        mode: str | None = None,
         marker: str | None = None,
         **kwargs,
     ):
@@ -87,14 +87,17 @@ class Line:
             'color': default_colors[artist_number % len(default_colors)]
         }
         default_marker_style = {
-            'symbol': artist_number % 53
-        }  # Plotly has 52 marker styles
+            'symbol': artist_number % 52  # Plotly has 52 marker styles
+        }
 
         line_shape = None
 
-        if line_data["hist"]:
-            line_shape = 'vh'
-            mode = 'lines'
+        if mode is None:
+            if line_data["hist"]:
+                line_shape = 'vh'
+                mode = 'lines'
+            else:
+                mode = 'markers'
 
         marker_style = default_marker_style if marker is None else marker
         line_style = {**default_line_style, **line_args}
@@ -130,7 +133,7 @@ class Line:
             line_style['width'] *= 5
         else:
             line_style['width'] = 5
-        if line_data["hist"]:
+        if 'lines' in mode:
             line_style['color'] = mask_color
 
         self._mask = go.Scatter(
@@ -149,7 +152,7 @@ class Line:
         # that ends up in the figure is a copy of the one above.
         # Plotly has no concept of zorder, so we need to add the traces in a specific
         # order
-        if line_data["hist"]:
+        if 'lines' in mode:
             self._fig.add_trace(self._mask)
             self._mask = self._fig.data[-1]
             self._fig.add_trace(self._line)
@@ -165,9 +168,8 @@ class Line:
                 self._error = self._fig.data[-1]
             self._fig.add_trace(self._mask)
             self._mask = self._fig.data[-1]
-        self._line._plopp_id = self.uid
-        self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
 
+        self._line._plopp_id = self.uid
         self._mask._plopp_id = self.uid
         if self._error is not None:
             self._error._plopp_id = self.uid
@@ -184,7 +186,6 @@ class Line:
         check_ndim(new_values, ndim=1, origin='Line')
         self._data = new_values
         line_data = make_line_data(data=self._data, dim=self._dim)
-        self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
 
         with self._fig.batch_update():
             self._line.update(

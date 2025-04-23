@@ -81,6 +81,7 @@ class Line:
             'linestyle': 'solid',
             'linewidth': 1.5,
             'color': f'C{artist_number}',
+            'zorder': 2,
         }
         markers = list(Line2D.markers.keys())
         default_plot_style = {
@@ -88,6 +89,7 @@ class Line:
             'linewidth': 1.5,
             'marker': markers[(artist_number + 2) % len(markers)],
             'color': f'C{artist_number}',
+            'zorder': 2,
         }
 
         if line_data["hist"]:
@@ -95,40 +97,35 @@ class Line:
                 line_data['values']['x'],
                 line_data['values']['y'],
                 label=self.label,
-                zorder=10,
                 **{**default_step_style, **line_args},
             )[0]
 
             self._mask = self._ax.step(line_data['mask']['x'], line_data['mask']['y'])[
                 0
             ]
-            self._mask.update_from(self._line)
-            self._mask.set_color(mask_color)
-            self._mask.set_label(None)
-            self._mask.set_linewidth(self._mask.get_linewidth() * 3)
-            self._mask.set_zorder(self._mask.get_zorder() - 1)
-            self._mask.set_visible(line_data['mask']['visible'])
         else:
             self._line = self._ax.plot(
                 line_data['values']['x'],
                 line_data['values']['y'],
                 label=self.label,
-                zorder=10,
                 **{**default_plot_style, **line_args},
             )[0]
-            self._mask = self._ax.plot(
-                line_data['mask']['x'],
-                line_data['mask']['y'],
-                zorder=11,
-                mec=mask_color,
-                mfc="None",
-                mew=3.0,
-                linestyle="none",
-                marker=self._line.get_marker(),
-                visible=line_data['mask']['visible'],
-            )[0]
+            self._mask = self._ax.plot(line_data['mask']['x'], line_data['mask']['y'])[
+                0
+            ]
 
-        self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
+        self._mask.update_from(self._line)
+        self._mask.set_color(mask_color)
+        self._mask.set_label(None)
+        self._mask.set_visible(line_data['mask']['visible'])
+        if self._line.get_marker().lower() != 'none':
+            self._mask.set(
+                mec=mask_color, mfc='None', mew=3.0, zorder=self._line.get_zorder() + 1
+            )
+        if self._line.get_linestyle().lower() != 'none':
+            self._mask.set(
+                lw=self._line.get_linewidth() * 3, zorder=self._line.get_zorder() - 1
+            )
 
         # Add error bars
         if errorbars and (line_data['stddevs'] is not None):
@@ -137,7 +134,7 @@ class Line:
                 line_data['stddevs']['y'],
                 yerr=line_data['stddevs']['e'],
                 color=self._line.get_color(),
-                zorder=10,
+                zorder=self._line.get_zorder(),
                 fmt="none",
             )
 
@@ -153,7 +150,6 @@ class Line:
         check_ndim(new_values, ndim=1, origin='Line')
         self._data = new_values
         line_data = make_line_data(data=self._data, dim=self._dim)
-        self.line_mask = sc.array(dims=['x'], values=~np.isnan(line_data['mask']['y']))
 
         self._line.set_data(line_data['values']['x'], line_data['values']['y'])
         self._mask.set_data(line_data['mask']['x'], line_data['mask']['y'])

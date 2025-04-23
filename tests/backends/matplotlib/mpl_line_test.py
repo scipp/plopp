@@ -169,3 +169,45 @@ def test_line_color_with_errorbars():
     assert line.color == 'C1'
     assert line._line.get_color() == 'C1'
     assert to_hex(line._error.get_children()[0].get_color()) == to_hex('C1')
+
+
+def test_kwarg_zorder():
+    line = Line(canvas=Canvas(), data=data_array(ndim=1), zorder=3)
+    assert line._line.get_zorder() == 3
+
+
+def test_kwarg_zorder_masks():
+    line = Line(canvas=Canvas(), data=data_array(ndim=1, masks=True), zorder=5)
+    assert line._line.get_zorder() == 5
+    assert line._mask.get_zorder() > 5
+
+
+def test_kwarg_zorder_binedges():
+    line = Line(canvas=Canvas(), data=data_array(ndim=1, binedges=True), zorder=7)
+    assert line._line.get_zorder() == 7
+
+
+def test_kwarg_zorder_binedges_masks():
+    line = Line(
+        canvas=Canvas(), data=data_array(ndim=1, binedges=True, masks=True), zorder=9
+    )
+    assert line._line.get_zorder() == 9
+    assert line._mask.get_zorder() < 9
+
+
+def test_kwarg_zorder_errorbars():
+    line = Line(canvas=Canvas(), data=data_array(ndim=1, variances=True), zorder=12)
+    assert line._line.get_zorder() == 12
+    for artist in line._error.get_children():
+        assert artist.get_zorder() == 12
+
+
+def test_kwarg_zorder_binedges_errorbars():
+    line = Line(
+        canvas=Canvas(),
+        data=data_array(ndim=1, binedges=True, variances=True),
+        zorder=14,
+    )
+    assert line._line.get_zorder() == 14
+    for artist in line._error.get_children():
+        assert artist.get_zorder() == 14
