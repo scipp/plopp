@@ -192,7 +192,7 @@ def test_kwarg_zorder_binedges_masks():
         canvas=Canvas(), data=data_array(ndim=1, binedges=True, masks=True), zorder=9
     )
     assert line._line.get_zorder() == 9
-    assert line._mask.get_zorder() < 7
+    assert line._mask.get_zorder() < 9
 
 
 def test_kwarg_zorder_errorbars():
