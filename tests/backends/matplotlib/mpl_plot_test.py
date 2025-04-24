@@ -193,3 +193,12 @@ def test_polar_axes_limits_small_range_fits_to_data():
     fig = pp.plot(da, ax=ax)
     assert fig.canvas.xmin > 0.0
     assert fig.canvas.xmax < 2 * np.pi
+
+
+def test_aspect_ratio():
+    da = data_array(ndim=1)
+    fig = da.plot(aspect='equal')
+    assert fig.canvas.ax.get_aspect() == 1.0
+    da = data_array(ndim=2)
+    fig = da.plot(aspect='equal')
+    assert fig.canvas.ax.get_aspect() == 1.0
