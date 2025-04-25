@@ -148,6 +148,22 @@ class TestCanvasNo3d:
         assert canvas.xscale == 'linear'
         assert canvas.yscale == 'log'
 
+    def test_xrange_order_preserved(self, set_backend, backend, figure, data):
+        da = data()
+        fig = figure(Node(da))
+        fig.canvas.xrange = (52.0, -5.0)
+        fig.view.autoscale()
+        new_range = fig.canvas.xrange
+        assert new_range[0] > new_range[1]
+
+    def test_yrange_order_preserved(self, set_backend, backend, figure, data):
+        da = data()
+        fig = figure(Node(da))
+        fig.canvas.yrange = (61.0, -6.6)
+        fig.view.autoscale()
+        new_range = fig.canvas.yrange
+        assert new_range[0] > new_range[1]
+
 
 CASES1DINTERACTIVE = {
     k: c for k, c in CASES.items() if (c[1] is linefigure and c[0][1] != 'mpl-static')

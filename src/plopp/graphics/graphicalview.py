@@ -25,7 +25,7 @@ def _make_range(
     old: tuple[float, float], new: tuple[float, float]
 ) -> tuple[float | None, float | None]:
     new = (_none_if_not_finite(new[0]), _none_if_not_finite(new[1]))
-    if (None not in old) and (old[0] > old[1]):
+    if (old is not None) and (None not in old) and (old[0] > old[1]):
         new = (new[1], new[0])
     return new
 
