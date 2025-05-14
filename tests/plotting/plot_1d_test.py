@@ -414,6 +414,16 @@ def test_plot_1d_datetime_length_1():
     pp.plot(da)
 
 
+def test_plot_1d_extra_datetime_coord_binedges():
+    da = data_array(ndim=1)
+    dim = da.dim
+    size = da.sizes[dim]
+    da.coords['times'] = (sc.arange('t', 2 * size, unit='s') + sc.epoch(unit='s')).fold(
+        dim='t', sizes={dim: size, 't': 2}
+    )
+    pp.plot(da)
+
+
 def test_plot_1d_data_with_errorbars():
     da = data_array(ndim=1, variances=True)
     p = da.plot()

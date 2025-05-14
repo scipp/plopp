@@ -40,12 +40,12 @@ def test_preprocess_no_warning_if_dtype_cannot_be_sorted():
         dims=['xx'], values=np.random.random((da.sizes['xx'], 3))
     )
     out = preprocess(da)  # no warning should be emitted
-    assert 'vecs' in out.coords
+    assert 'vecs' not in out.coords  # coord doesn't participate in plot
     da.coords['strings'] = sc.array(
         dims=['xx'], values=list('ba' * (da.sizes['xx'] // 2))
     )
     out = preprocess(da)  # no warning should be emitted
-    assert 'strings' in out.coords
+    assert 'strings' not in out.coords  # coord doesn't participate in plot
 
 
 @pytest.mark.parametrize(
@@ -70,3 +70,19 @@ def test_preprocess_raises_for_unsupported_dtype(dtype_and_shape):
         match=f'The input has dtype {dtype} which is not supported by Plopp',
     ):
         preprocess(v)
+
+
+def test_preprocess_drops_coords_that_are_not_plotted_dim_coords():
+    da = data_array(ndim=2)
+    da.coords['xx2'] = 7.5 * da.coords['xx']
+    da.coords['yy2'] = 3.3 * da.coords['yy']
+    out = preprocess(da)
+    assert set(out.coords) == {'xx', 'yy'}
+
+
+def test_preprocess_drops_coords_that_are_not_plotted_custom_coords():
+    da = data_array(ndim=2)
+    da.coords['xx2'] = 7.5 * da.coords['xx']
+    da.coords['yy2'] = 3.3 * da.coords['yy']
+    out = preprocess(da, coords=['yy2', 'xx'])
+    assert set(out.coords) == {'xx', 'yy2'}
