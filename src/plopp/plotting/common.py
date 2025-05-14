@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from typing import Any
 
 import numpy as np
@@ -76,8 +76,30 @@ def to_variable(obj) -> sc.Variable:
     return out
 
 
+def _ensure_data_array_coords(
+    da: sc.DataArray, coords: list[str] | None
+) -> sc.DataArray:
+    if coords is None:
+        coords = list(da.dims)
+    elif missing := set(coords) - set(da.coords.keys()):
+        raise ValueError(f"Specified coords do not exist: {missing}")
+
+    # Remove unused coords
+    da = da.drop_coords(list(set(da.coords) - set(coords)))
+    # Assign dim coords where missing. The above checks ensure that all missing
+    # coords are dim coords, i.e., that `name in out.dims`.
+    da = da.assign_coords(
+        {
+            name: sc.arange(name, da.sizes[name], unit=None)
+            for name in set(coords) - set(da.coords)
+        }
+    )
+    return da
+
+
 def to_data_array(
     obj: Plottable | list,
+    coords: list[str] | None = None,
 ) -> sc.DataArray:
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
@@ -87,6 +109,8 @@ def to_data_array(
     ----------
     obj:
         The input object to be converted.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
     """
     out = _maybe_to_variable(obj)
     if isinstance(out, sc.Variable):
@@ -94,15 +118,13 @@ def to_data_array(
     out = from_compatible_lib(out)
     if not isinstance(out, sc.DataArray):
         raise TypeError(f"Cannot convert input of type {type(obj)} to a DataArray.")
-    out = out.copy(deep=False)
-    for dim, size in out.sizes.items():
-        if dim not in out.coords:
-            out.coords[dim] = sc.arange(dim, size, unit=None)
-        if not out.coords[dim].dims:
+    out = _ensure_data_array_coords(out, coords)
+    for name, coord in out.coords.items():
+        if not coord.dims:
             raise ValueError(
                 "Input data cannot be plotted: it has a scalar coordinate along "
-                f"dimension {dim}. Consider dropping this coordinate before plotting. "
-                f"Use ``data.drop_coords('{dim}').plot()``."
+                f"dimension {name}. Consider dropping this coordinate before plotting. "
+                f"Use ``data.drop_coords('{name}').plot()``."
             )
     for name in out.coords:
         other_dims = [dim for dim in out.coords[name].dims if dim not in out.dims]
@@ -171,7 +193,7 @@ def preprocess(
     obj: Plottable | list,
     name: str | None = None,
     ignore_size: bool = False,
-    coords: list[str] | None = None,
+    coords: Iterable[str] | str | None = None,
 ) -> sc.DataArray:
     """
     Pre-process input data for plotting.
@@ -192,7 +214,12 @@ def preprocess(
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     """
-    out = to_data_array(obj)
+    if isinstance(coords, str):
+        coords = [coords]
+    elif coords is not None:
+        coords = list(coords)
+
+    out = to_data_array(obj, coords)
     check_not_binned(out)
     check_allowed_dtypes(out)
     if name is not None:
