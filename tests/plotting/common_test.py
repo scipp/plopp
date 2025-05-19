@@ -25,6 +25,14 @@ def test_preprocess_use_non_dimension_coords():
     assert out.coords['yy2'].max() == 3.3 * da.coords['yy'].max()
 
 
+def test_preprocess_use_non_dimension_coord_single_str():
+    da = data_array(ndim=1)
+    da.coords['xx2'] = 7.5 * da.coords['xx']
+    out = preprocess(da, coords='xx2')
+    assert set(out.dims) == {'xx2'}
+    assert out.coords['xx2'].max() == 7.5 * da.coords['xx'].max()
+
+
 def test_preprocess_warns_when_coordinate_is_not_sorted():
     da = data_array(ndim=1)
     unsorted = sc.concat([da['xx', 20:], da['xx', :20]], dim='xx')
@@ -86,3 +94,10 @@ def test_preprocess_drops_coords_that_are_not_plotted_custom_coords():
     da.coords['yy2'] = 3.3 * da.coords['yy']
     out = preprocess(da, coords=['yy2', 'xx'])
     assert set(out.coords) == {'xx', 'yy2'}
+
+
+def test_preprocess_drops_coords_that_are_not_plotted_custom_coord_single_str():
+    da = data_array(ndim=1)
+    da.coords['xx2'] = 7.5 * da.coords['xx']
+    out = preprocess(da, coords='xx')
+    assert set(out.coords) == {'xx'}
