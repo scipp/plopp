@@ -228,8 +228,6 @@ def preprocess(
         _check_size(out)
     if coords is not None:
         renamed_dims = {}
-        if isinstance(coords, str):
-            coords = [coords]
         for dim in coords:
             underlying = out.coords[dim].dims[-1]
             if underlying in renamed_dims:
