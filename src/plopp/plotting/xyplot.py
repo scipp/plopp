@@ -23,6 +23,10 @@ def _make_data_array(x: sc.Variable, y: sc.Variable) -> sc.DataArray:
     y:
         The variable to use as the data.
     """
+    if x.ndim != 1 or y.ndim != 1:
+        raise sc.DimensionError(
+            f'Expected 1 dimension, got {x.ndim} for x and {y.ndim} for y.'
+        )
     dim = x.dim
     return sc.DataArray(
         data=sc.array(dims=[dim], values=y.values, unit=y.unit), coords={dim: x}
@@ -51,7 +55,4 @@ def xyplot(
     """
     x = Node(to_variable, x)
     y = Node(to_variable, y)
-    # dim = x().dim
-    # if dim != y().dim:
-    #     raise sc.DimensionError("Dimensions of x and y must match")
     return linefigure(Node(_make_data_array, x=x, y=y), **kwargs)

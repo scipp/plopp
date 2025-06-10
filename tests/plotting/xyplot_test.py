@@ -31,11 +31,10 @@ def test_xyplot_list():
     pp.xyplot(x, y)
 
 
-def test_xyplot_different_dims_raises():
+def test_xyplot_different_dims():
     x = sc.arange('x', 20.0, unit='s')
     y = sc.arange('y', 100.0, 120.0, unit='K')
-    with pytest.raises(sc.DimensionError, match='Dimensions of x and y must match'):
-        pp.xyplot(x, y)
+    pp.xyplot(x, y)
 
 
 def test_xyplot_data_array_raises():
@@ -50,9 +49,9 @@ def test_xyplot_data_array_raises():
 def test_xyplot_2d_variable_raises():
     x = sc.arange('x', 50.0, unit='s')
     y = pp.data.data2d().data
-    with pytest.raises(sc.DimensionError, match='Expected 1 dimensions, got 2'):
+    with pytest.raises(sc.DimensionError, match='Expected 1 dimension'):
         pp.xyplot(x, y)
-    with pytest.raises(sc.DimensionError, match='Expected 1 dimensions, got 2'):
+    with pytest.raises(sc.DimensionError, match='Expected 1 dimension'):
         pp.xyplot(y, x)
 
 
