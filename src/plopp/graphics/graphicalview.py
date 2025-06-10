@@ -59,7 +59,7 @@ class GraphicalView(View):
         title: str | None = None,
         figsize: tuple[float, float] | None = None,
         format: Literal['svg', 'png'] | None = None,
-        legend: bool | tuple[float, float] = False,
+        legend: bool | tuple[float, float] = True,
         camera: Camera | None = None,
         autoscale: bool = True,
         ax: Any = None,
