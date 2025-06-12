@@ -18,6 +18,15 @@ def test_xyplot_variable():
     assert fig.canvas.ylabel == '[K]'
 
 
+def test_xyplot_woth_variances():
+    x = sc.arange('time', 20.0, unit='s')
+    y = sc.arange('time', 100.0, 120.0, unit='K')
+    y.variances = y.values
+    fig = pp.xyplot(x, y)
+    [line] = fig.artists.values()
+    assert line._error is not None
+
+
 def test_xyplot_ndarray():
     N = 50
     x = np.arange(float(N))

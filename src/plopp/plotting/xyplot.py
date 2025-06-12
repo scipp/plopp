@@ -29,7 +29,10 @@ def _make_data_array(x: sc.Variable, y: sc.Variable) -> sc.DataArray:
         )
     dim = x.dim
     return sc.DataArray(
-        data=sc.array(dims=[dim], values=y.values, unit=y.unit), coords={dim: x}
+        data=sc.array(dims=[dim], values=y.values, variances=y.variances, unit=y.unit)
+        if y.dim != dim
+        else y,
+        coords={dim: x},
     )
 
 
