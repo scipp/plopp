@@ -79,22 +79,47 @@ def to_variable(obj) -> sc.Variable:
 def _ensure_data_array_coords(
     da: sc.DataArray, coords: list[str] | None
 ) -> sc.DataArray:
-    if coords is None:
-        coords = list(da.dims)
-    elif missing := set(coords) - set(da.coords.keys()):
-        raise ValueError(f"Specified coords do not exist: {missing}")
+    dims = set(da.dims)
+    to_be_dropped = set(da.coords.keys()) - dims
+    underlying_dims = []
+    if coords is not None:
+        for c in coords:
+            if c not in da.coords:
+                raise ValueError(f"Specified coords do not exist: {c}")
+            underlying = da.coords[c].dims[-1]
+            if c in to_be_dropped:
+                to_be_dropped.remove(c)
+            if underlying in da.coords:
+                to_be_dropped.add(underlying)
+            underlying_dims.append(underlying)
 
-    # Remove unused coords
-    da = da.drop_coords(list(set(da.coords) - set(coords)))
-    # Assign dim coords where missing. The above checks ensure that all missing
-    # coords are dim coords, i.e., that `name in out.dims`.
+    da = da.drop_coords(list(to_be_dropped))
+
+    # Add missing coords
     da = da.assign_coords(
         {
-            name: sc.arange(name, da.sizes[name], unit=None)
-            for name in set(coords) - set(da.coords)
+            dim: sc.arange(dim, da.sizes[dim], unit=None)
+            for dim in da.dims
+            if (dim not in da.coords) and (dim not in underlying_dims)
         }
     )
     return da
+    # if coords is None:
+    #     coords = list(da.dims)
+    # elif missing := set(coords) - set(da.coords.keys()):
+    #     raise ValueError(f"Specified coords do not exist: {missing}")
+
+    # # Remove unused coords
+    # da = da.drop_coords(list(set(da.coords) - set(coords)))
+    # # Assign dim coords where missing. The above checks ensure that all missing
+    # # coords are dim coords, i.e., that `name in out.dims`.
+    # da = da.assign_coords(
+    #     {
+    #         name: sc.arange(name, da.sizes[name], unit=None)
+    #         for name in set(coords) - set(da.coords)
+    #     }
+    # )
+    # return da
 
 
 def to_data_array(

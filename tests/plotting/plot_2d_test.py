@@ -99,6 +99,16 @@ def test_use_non_dimension_coords(linspace):
     assert p.canvas.ymax == 3.3 * da.coords['yy'].max().value
 
 
+@pytest.mark.parametrize('linspace', [True, False])
+def test_single_use_non_dimension_coords(linspace):
+    da = data_array(ndim=2, linspace=linspace)
+    da.coords['xx2'] = da.coords['xx'] ** 2
+    da.coords['yy2'] = da.coords['yy'] ** 2
+    p = pp.plot(da, coords=['xx2'])
+    assert p.canvas.dims['x'] == 'xx2'
+    assert p.canvas.dims['y'] == 'yy'
+
+
 def test_use_two_coords_for_same_underlying_dimension_raises():
     da = data_array(ndim=2)
     da.coords['a'] = da.coords['xx'] * 2
