@@ -81,21 +81,32 @@ def _ensure_data_array_coords(
 ) -> sc.DataArray:
     dims = set(da.dims)
     to_be_dropped = set(da.coords.keys()) - dims
+
+    # `underlying_dims` is the list of dimensions that are behind the `coords` requested
+    # by the user. When a coord is requested, the dimension coord of the associated
+    # underlying dimension should be dropped further below.
     underlying_dims = []
+
     if coords is not None:
-        for c in coords:
+        # Skip dimension coords if they are found in `coords`.
+        for c in set(coords) - dims:
             if c not in da.coords:
                 raise ValueError(f"Specified coords do not exist: {c}")
             underlying = da.coords[c].dims[-1]
-            if c in to_be_dropped:
-                to_be_dropped.remove(c)
+            to_be_dropped.remove(c)
             if underlying in da.coords:
                 to_be_dropped.add(underlying)
+            if underlying in underlying_dims:
+                raise ValueError(
+                    "coords: Cannot use more than one coordinate associated with "
+                    f"the same underlying dimension ({underlying})."
+                )
             underlying_dims.append(underlying)
 
     da = da.drop_coords(list(to_be_dropped))
 
-    # Add missing coords
+    # Add missing coords, if there is no coord for a dimension, add another coord for
+    # the same dimension has not been requested by the user.
     da = da.assign_coords(
         {
             dim: sc.arange(dim, da.sizes[dim], unit=None)
@@ -104,22 +115,6 @@ def _ensure_data_array_coords(
         }
     )
     return da
-    # if coords is None:
-    #     coords = list(da.dims)
-    # elif missing := set(coords) - set(da.coords.keys()):
-    #     raise ValueError(f"Specified coords do not exist: {missing}")
-
-    # # Remove unused coords
-    # da = da.drop_coords(list(set(da.coords) - set(coords)))
-    # # Assign dim coords where missing. The above checks ensure that all missing
-    # # coords are dim coords, i.e., that `name in out.dims`.
-    # da = da.assign_coords(
-    #     {
-    #         name: sc.arange(name, da.sizes[name], unit=None)
-    #         for name in set(coords) - set(da.coords)
-    #     }
-    # )
-    # return da
 
 
 def to_data_array(
@@ -255,11 +250,6 @@ def preprocess(
         renamed_dims = {}
         for dim in coords:
             underlying = out.coords[dim].dims[-1]
-            if underlying in renamed_dims:
-                raise ValueError(
-                    "coords: Cannot use more than one coordinate associated with "
-                    f"the same underlying dimension ({underlying})."
-                )
             renamed_dims[underlying] = dim
         out = out.rename_dims(**renamed_dims)
     for n, coord in out.coords.items():

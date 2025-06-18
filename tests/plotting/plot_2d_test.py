@@ -109,14 +109,35 @@ def test_single_use_non_dimension_coords(linspace):
     assert p.canvas.dims['y'] == 'yy'
 
 
-def test_use_two_coords_for_same_underlying_dimension_raises():
-    da = data_array(ndim=2)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_use_two_coords_for_same_underlying_dimension_raises(linspace):
+    da = data_array(ndim=2, linspace=linspace)
     da.coords['a'] = da.coords['xx'] * 2
+    da.coords['b'] = da.coords['xx'] * 2.5
     msg = "coords: Cannot use more than one coordinate"
     with pytest.raises(ValueError, match=msg):
-        pp.plot(da, coords=['xx', 'a'])
+        pp.plot(da, coords=['a', 'b'])
     with pytest.raises(ValueError, match=msg):
+        pp.plot(da, coords=['b', 'a'])
+
+
+@pytest.mark.parametrize('linspace', [True, False])
+def test_use_dimension_coord_in_coords_arg(linspace):
+    da = data_array(ndim=2, linspace=linspace)
+    p = pp.plot(da, coords=['xx'])
+    assert p.canvas.dims['x'] == 'xx'
+
+
+@pytest.mark.parametrize('linspace', [True, False])
+def test_use_dimension_coord_and_other_coord_for_same_underlying_dimension_raises(
+    linspace,
+):
+    da = data_array(ndim=2, linspace=linspace)
+    da.coords['a'] = da.coords['xx'] * 2
+    with pytest.raises(KeyError):
         pp.plot(da, coords=['a', 'xx'])
+    with pytest.raises(KeyError):
+        pp.plot(da, coords=['xx', 'a'])
 
 
 @pytest.mark.parametrize('ext', ['jpg', 'png', 'pdf', 'svg'])
