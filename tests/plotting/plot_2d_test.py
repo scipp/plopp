@@ -134,9 +134,10 @@ def test_use_dimension_coord_and_other_coord_for_same_underlying_dimension_raise
 ):
     da = data_array(ndim=2, linspace=linspace)
     da.coords['a'] = da.coords['xx'] * 2
-    with pytest.raises(KeyError):
+    msg = "coords: Cannot use more than one coordinate"
+    with pytest.raises(ValueError, match=msg):
         pp.plot(da, coords=['a', 'xx'])
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError, match=msg):
         pp.plot(da, coords=['xx', 'a'])
 
 
