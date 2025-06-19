@@ -76,50 +76,98 @@ def to_variable(obj) -> sc.Variable:
     return out
 
 
-def _ensure_data_array_coords(
-    da: sc.DataArray, coords: list[str] | None
-) -> sc.DataArray:
-    dims = set(da.dims)
-    to_be_dropped = set(da.coords.keys()) - dims
+# def _ensure_data_array_coords(
+#     da: sc.DataArray, coords: list[str] | None
+# ) -> sc.DataArray:
+#     dims = set(da.dims)
+#     to_be_dropped = set(da.coords.keys()) - dims
 
-    # `underlying_dims` is the list of dimensions that are behind the `coords` requested
-    # by the user. When a coord is requested, the dimension coord of the associated
-    # underlying dimension should be dropped further below.
-    underlying_dims = []
+#     # `underlying_dims` is the list of dimensions that are behind the `coords` requested
+#     # by the user. When a coord is requested, the dimension coord of the associated
+#     # underlying dimension should be dropped further below.
+#     underlying_dims = []
 
-    if coords is not None:
-        # Skip dimension coords if they are found in `coords`.
-        for c in set(coords) - dims:
-            if c not in da.coords:
-                raise ValueError(f"Specified coords do not exist: {c}")
-            underlying = da.coords[c].dims[-1]
-            to_be_dropped.remove(c)
-            if underlying in da.coords:
-                to_be_dropped.add(underlying)
-            if underlying in underlying_dims:
-                raise ValueError(
-                    "coords: Cannot use more than one coordinate associated with "
-                    f"the same underlying dimension ({underlying})."
-                )
-            underlying_dims.append(underlying)
+#     if coords is not None:
+#         # Skip dimension coords if they are found in `coords`.
+#         for c in set(coords) - dims:
+#             if c not in da.coords:
+#                 raise ValueError(f"Specified coords do not exist: {c}")
+#             underlying = da.coords[c].dims[-1]
+#             to_be_dropped.remove(c)
+#             if underlying in da.coords:
+#                 to_be_dropped.add(underlying)
+#             if underlying in underlying_dims:
+#                 raise ValueError(
+#                     "coords: Cannot use more than one coordinate associated with "
+#                     f"the same underlying dimension ({underlying})."
+#                 )
+#             underlying_dims.append(underlying)
 
-    da = da.drop_coords(list(to_be_dropped))
+#     da = da.drop_coords(list(to_be_dropped))
 
-    # Add missing coords, if there is no coord for a dimension, add another coord for
-    # the same dimension has not been requested by the user.
-    da = da.assign_coords(
-        {
-            dim: sc.arange(dim, da.sizes[dim], unit=None)
-            for dim in da.dims
-            if (dim not in da.coords) and (dim not in underlying_dims)
-        }
-    )
-    return da
+#     # Add missing coords, if there is no coord for a dimension, add another coord for
+#     # the same dimension has not been requested by the user.
+#     da = da.assign_coords(
+#         {
+#             dim: sc.arange(dim, da.sizes[dim], unit=None)
+#             for dim in da.dims
+#             if (dim not in da.coords) and (dim not in underlying_dims)
+#         }
+#     )
+#     return da
+
+
+# def _ensure_data_array_coords(
+#     da: sc.DataArray, coords: list[str] | None
+# ) -> sc.DataArray:
+#     """
+#     The logic is:
+
+#     - If coords is not None, rename dims with all the entries in the coords.
+#     - After that, drop all coords that are not dimension coords
+#     """
+
+#     dims = set(da.dims)
+#     to_be_dropped = set(da.coords.keys()) - dims
+
+#     # `underlying_dims` is the list of dimensions that are behind the `coords` requested
+#     # by the user. When a coord is requested, the dimension coord of the associated
+#     # underlying dimension should be dropped further below.
+#     underlying_dims = []
+
+#     if coords is not None:
+#         # Skip dimension coords if they are found in `coords`.
+#         for c in set(coords) - dims:
+#             if c not in da.coords:
+#                 raise ValueError(f"Specified coords do not exist: {c}")
+#             underlying = da.coords[c].dims[-1]
+#             to_be_dropped.remove(c)
+#             if underlying in da.coords:
+#                 to_be_dropped.add(underlying)
+#             if underlying in underlying_dims:
+#                 raise ValueError(
+#                     "coords: Cannot use more than one coordinate associated with "
+#                     f"the same underlying dimension ({underlying})."
+#                 )
+#             underlying_dims.append(underlying)
+
+#     da = da.drop_coords(list(to_be_dropped))
+
+#     # Add missing coords, if there is no coord for a dimension, add another coord for
+#     # the same dimension has not been requested by the user.
+#     da = da.assign_coords(
+#         {
+#             dim: sc.arange(dim, da.sizes[dim], unit=None)
+#             for dim in da.dims
+#             if (dim not in da.coords) and (dim not in underlying_dims)
+#         }
+#     )
+#     return da
 
 
 def to_data_array(
     obj: Plottable | list,
-    coords: list[str] | None = None,
+    # coords: list[str] | None = None,
 ) -> sc.DataArray:
     """
     Convert an input to a DataArray, potentially adding fake coordinates if they are
@@ -138,18 +186,18 @@ def to_data_array(
     out = from_compatible_lib(out)
     if not isinstance(out, sc.DataArray):
         raise TypeError(f"Cannot convert input of type {type(obj)} to a DataArray.")
-    out = _ensure_data_array_coords(out, coords)
-    for name, coord in out.coords.items():
-        if not coord.dims:
-            raise ValueError(
-                "Input data cannot be plotted: it has a scalar coordinate along "
-                f"dimension {name}. Consider dropping this coordinate before plotting. "
-                f"Use ``data.drop_coords('{name}').plot()``."
-            )
-    for name in out.coords:
-        other_dims = [dim for dim in out.coords[name].dims if dim not in out.dims]
-        for dim in other_dims:
-            out.coords[name] = out.coords[name].mean(dim)
+    # out = _ensure_data_array_coords(out, coords)
+    # for name, coord in out.coords.items():
+    #     if not coord.dims:
+    #         raise ValueError(
+    #             "Input data cannot be plotted: it has a scalar coordinate along "
+    #             f"dimension {name}. Consider dropping this coordinate before plotting. "
+    #             f"Use ``data.drop_coords('{name}').plot()``."
+    #         )
+    # for name in out.coords:
+    #     other_dims = [dim for dim in out.coords[name].dims if dim not in out.dims]
+    #     for dim in other_dims:
+    #         out.coords[name] = out.coords[name].mean(dim)
     return out
 
 
@@ -209,6 +257,43 @@ def _all_dims_sorted(var, order='ascending'):
     return all(sc.allsorted(var, dim, order=order) for dim in var.dims)
 
 
+def _rename_dims_from_coords(
+    out: sc.DataArray, coords: Iterable[str] | None
+) -> sc.DataArray:
+    # if coords is not None:
+    renamed_dims = {}
+    for dim in coords:
+        underlying = out.coords[dim].dims[-1]
+        renamed_dims[underlying] = dim
+    return out.rename_dims(**renamed_dims)
+
+
+def _add_missing_dimension_coords(out: sc.DataArray) -> sc.DataArray:
+    """
+    Add missing dimension coordinates to the data array.
+    If a dimension does not have a coordinate, it will be added with a range of values.
+    """
+    # for dim in out.dims:
+    #     if dim not in out.coords:
+    #         out.coords[dim] = sc.arange(dim, out.sizes[dim], unit=None)
+    return out.assign_coords(
+        {
+            dim: sc.arange(dim, out.sizes[dim], unit=None)
+            for dim in out.dims
+            if dim not in out.coords
+        }
+    )
+
+
+def _drop_non_dimension_coords(out: sc.DataArray) -> sc.DataArray:
+    """
+    Drop all coordinates that are not dimension coordinates.
+    This is useful to ensure that only the coordinates that are actually used for
+    plotting are kept.
+    """
+    return out.drop_coords([name for name in out.coords if name not in out.dims])
+
+
 def preprocess(
     obj: Plottable | list,
     name: str | None = None,
@@ -239,7 +324,7 @@ def preprocess(
     elif coords is not None:
         coords = list(coords)
 
-    out = to_data_array(obj, coords)
+    out = to_data_array(obj)  # , coords)
     check_not_binned(out)
     check_allowed_dtypes(out)
     if name is not None:
@@ -247,29 +332,28 @@ def preprocess(
     if not ignore_size:
         _check_size(out)
     if coords is not None:
-        renamed_dims = {}
-        for dim in coords:
-            underlying = out.coords[dim].dims[-1]
-            renamed_dims[underlying] = dim
-        out = out.rename_dims(**renamed_dims)
-    for n, coord in out.coords.items():
-        if (coord.ndim == 0) or (n not in out.dims):
-            continue
-        try:
-            if not (
-                _all_dims_sorted(coord, order='ascending')
-                or _all_dims_sorted(coord, order='descending')
-            ):
-                warnings.warn(
-                    'The input contains a coordinate with unsorted values '
-                    f'({n}). The results may be unpredictable. '
-                    'Coordinates can be sorted using '
-                    '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
-                    RuntimeWarning,
-                    stacklevel=2,
-                )
-        except sc.DTypeError:
-            pass
+        out = _rename_dims_from_coords(out, coords)
+    out = _add_missing_dimension_coords(out)
+    out = _drop_non_dimension_coords(out)
+
+    # for n, coord in out.coords.items():
+    #     if (coord.ndim == 0) or (n not in out.dims):
+    #         continue
+    #     try:
+    #         if not (
+    #             _all_dims_sorted(coord, order='ascending')
+    #             or _all_dims_sorted(coord, order='descending')
+    #         ):
+    #             warnings.warn(
+    #                 'The input contains a coordinate with unsorted values '
+    #                 f'({n}). The results may be unpredictable. '
+    #                 'Coordinates can be sorted using '
+    #                 '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
+    #                 RuntimeWarning,
+    #                 stacklevel=2,
+    #             )
+    #     except sc.DTypeError:
+    #         pass
     return out
 
 
