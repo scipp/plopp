@@ -78,15 +78,13 @@ def to_variable(obj) -> sc.Variable:
 
 def to_data_array(obj: Plottable | list) -> sc.DataArray:
     """
-    Convert an input to a DataArray, potentially adding fake coordinates if they are
-    missing.
+    Convert an input to a DataArray.
+    Returns a shallow copy of the input if it is already a DataArray.
 
     Parameters
     ----------
     obj:
         The input object to be converted.
-    coords:
-        If supplied, use these coords instead of the input's dimension coordinates.
     """
     if isinstance(obj, sc.DataArray):
         return obj.copy(deep=False)
@@ -99,7 +97,7 @@ def to_data_array(obj: Plottable | list) -> sc.DataArray:
     return out
 
 
-def _check_size(da: sc.DataArray):
+def _check_size(da: sc.DataArray) -> None:
     """
     Prevent slow figure rendering by raising an error if the data array exceeds a
     default size.
@@ -115,7 +113,7 @@ def _check_size(da: sc.DataArray):
         )
 
 
-def check_not_binned(da: sc.DataArray):
+def check_not_binned(da: sc.DataArray) -> None:
     """
     Plopp cannot plot binned data.
     This function will raise an error if the input data is binned.
@@ -135,7 +133,7 @@ def check_not_binned(da: sc.DataArray):
         )
 
 
-def check_allowed_dtypes(da: sc.DataArray):
+def check_allowed_dtypes(da: sc.DataArray) -> None:
     """
     Currently, Plopp cannot plot data that contains vector and matrix dtypes.
     This function will raise an error if the input data type is not supported.
@@ -151,7 +149,11 @@ def check_allowed_dtypes(da: sc.DataArray):
         )
 
 
-def _all_dims_sorted(var, order='ascending'):
+def _all_dims_sorted(var, order='ascending') -> bool:
+    """
+    Check if all dimensions of a variable are sorted in the specified order.
+    This is used to ensure that the coordinates are sorted before plotting.
+    """
     return all(sc.allsorted(var, dim, order=order) for dim in var.dims)
 
 
