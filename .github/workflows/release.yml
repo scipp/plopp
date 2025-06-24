@@ -5,10 +5,6 @@ on:
     types: [published]
   workflow_dispatch:
 
-defaults:
-  run:
-    shell: bash -l {0}  # required for conda env
-
 jobs:
   build_wheels:
     name: Wheels
