@@ -45,7 +45,7 @@ class LineSaveTool(VBar):
 
         data = self._data_node.request_data()
         node = Node(data)
-        node.name = f'Save node {len(self._lines)}'
+        node.pretty_name = f'Save node {len(self._lines)}'
         line_id = node._id
         node.add_view(self._fig.view)
         self._fig.view.render()
