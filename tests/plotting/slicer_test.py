@@ -127,7 +127,7 @@ class TestSlicer2d:
         sl = Slicer(da, keep=['xx', 'yy'])
         assert sl.slider.value == {'zz': 14}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['zz', 14])
-        sl.slider.controls['zz'].slider.value = 5
+        sl.slider.controls['zz'].value = 5
         assert sl.slider.value == {'zz': 5}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['zz', 5])
 
@@ -150,7 +150,7 @@ class TestSlicer2d:
         # middle)
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
-        sl.slider.controls['z'].slider.value = 6
+        sl.slider.controls['z'].value = 6
         # Colormapper range fits to the values in the new slice
         assert cm.vmin == 5 * 10 * 6
         assert cm.vmax == 5 * 10 * 7 - 1
@@ -167,7 +167,7 @@ class TestSlicer2d:
         # middle)
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
-        sl.slider.controls['z'].slider.value = 6
+        sl.slider.controls['z'].value = 6
         # Colormapper range does not change
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
