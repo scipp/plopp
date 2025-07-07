@@ -77,14 +77,14 @@ class DimSlicer(ipw.VBox):
         self.label.value = coord_element_to_string(self.coord[self.dim, change['new']])
 
     @property
-    def value(self) -> int | tuple[int, int] | None:
+    def value(self) -> int | tuple[int, int]:
         """
         The value of the slider.
         """
         return self.slider.value
 
     @value.setter
-    def value(self, value: int | tuple[int, int] | None):
+    def value(self, value: int | tuple[int, int]):
         self.slider.value = value
 
 
