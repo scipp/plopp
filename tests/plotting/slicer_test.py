@@ -15,8 +15,8 @@ class TestSlicer1d:
         da = data_array(ndim=3)
         sl = Slicer(da, keep=['xx'])
         assert sl.slider.value == {'zz': 14, 'yy': 19}
-        assert sl.slider.controls['yy']['slider'].max == da.sizes['yy'] - 1
-        assert sl.slider.controls['zz']['slider'].max == da.sizes['zz'] - 1
+        assert sl.slider.controls['yy'].slider.max == da.sizes['yy'] - 1
+        assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
         assert sc.identical(sl.slice_nodes[0].request_data(), da['yy', 19]['zz', 14])
 
     def test_update_keep_one_dim(self):
@@ -24,10 +24,10 @@ class TestSlicer1d:
         sl = Slicer(da, keep=['xx'])
         assert sl.slider.value == {'zz': 14, 'yy': 19}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['yy', 19]['zz', 14])
-        sl.slider.controls['yy']['slider'].value = 5
+        sl.slider.controls['yy'].slider.value = 5
         assert sl.slider.value == {'zz': 14, 'yy': 5}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['yy', 5]['zz', 14])
-        sl.slider.controls['zz']['slider'].value = 8
+        sl.slider.controls['zz'].slider.value = 8
         assert sl.slider.value == {'zz': 8, 'yy': 5}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['yy', 5]['zz', 8])
 
@@ -35,7 +35,7 @@ class TestSlicer1d:
         ds = dataset(ndim=2)
         sl = Slicer(ds, keep=['xx'])
         nodes = list(sl.figure.graph_nodes.values())
-        sl.slider.controls['yy']['slider'].value = 5
+        sl.slider.controls['yy'].slider.value = 5
         assert sc.identical(nodes[0].request_data(), ds['a']['yy', 5])
         assert sc.identical(nodes[1].request_data(), ds['b']['yy', 5])
 
@@ -44,7 +44,7 @@ class TestSlicer1d:
         dg = sc.DataGroup(a=da, b=da * 2.5)
         sl = Slicer(dg, keep=['xx'])
         nodes = list(sl.figure.graph_nodes.values())
-        sl.slider.controls['yy']['slider'].value = 5
+        sl.slider.controls['yy'].slider.value = 5
         assert sc.identical(nodes[0].request_data(), dg['a']['yy', 5])
         assert sc.identical(nodes[1].request_data(), dg['b']['yy', 5])
 
@@ -53,7 +53,7 @@ class TestSlicer1d:
         b = data_array(ndim=2) * 2.5
         sl = Slicer({'a': a, 'b': b}, keep=['xx'])
         nodes = list(sl.figure.graph_nodes.values())
-        sl.slider.controls['yy']['slider'].value = 5
+        sl.slider.controls['yy'].slider.value = 5
         assert sc.identical(nodes[0].request_data(), a['yy', 5])
         assert sc.identical(nodes[1].request_data(), b['yy', 5])
 
@@ -119,7 +119,7 @@ class TestSlicer2d:
         da = data_array(ndim=3)
         sl = Slicer(da, keep=['xx', 'yy'])
         assert sl.slider.value == {'zz': 14}
-        assert sl.slider.controls['zz']['slider'].max == da.sizes['zz'] - 1
+        assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
         assert sc.identical(sl.slice_nodes[0].request_data(), da['zz', 14])
 
     def test_update_keep_two_dims(self):
@@ -127,7 +127,7 @@ class TestSlicer2d:
         sl = Slicer(da, keep=['xx', 'yy'])
         assert sl.slider.value == {'zz': 14}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['zz', 14])
-        sl.slider.controls['zz']['slider'].value = 5
+        sl.slider.controls['zz'].slider.value = 5
         assert sl.slider.value == {'zz': 5}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['zz', 5])
 
@@ -150,7 +150,7 @@ class TestSlicer2d:
         # middle)
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
-        sl.slider.controls['z']['slider'].value = 6
+        sl.slider.controls['z'].slider.value = 6
         # Colormapper range fits to the values in the new slice
         assert cm.vmin == 5 * 10 * 6
         assert cm.vmax == 5 * 10 * 7 - 1
@@ -167,7 +167,7 @@ class TestSlicer2d:
         # middle)
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
-        sl.slider.controls['z']['slider'].value = 6
+        sl.slider.controls['z'].slider.value = 6
         # Colormapper range does not change
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
