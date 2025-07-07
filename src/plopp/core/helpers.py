@@ -38,6 +38,6 @@ def widget_node(widget) -> Node:
         ``ipywidgets`` library, or a custom widget.
     """
     n = Node(func=lambda: widget.value)
-    n.name = f'Widget <{type(widget).__name__}: {type(widget.value).__name__}>'
+    n.pretty_name = f'Widget <{type(widget).__name__}: {type(widget.value).__name__}>'
     widget.observe(n.notify_children, names="value")
     return n

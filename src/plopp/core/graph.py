@@ -23,8 +23,8 @@ def _make_graphviz_digraph(*args, **kwargs):
 def _walk_graph(start, nodes, edges, views, labels):
     label = (
         escape(str(start.func)) + '\nid = ' + start.id
-        if start.name is None
-        else escape(start.name)
+        if start.pretty_name is None
+        else escape(start.pretty_name)
     )
     nodes[start.id] = label
     for child in start.children:

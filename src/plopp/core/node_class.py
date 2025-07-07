@@ -64,10 +64,10 @@ class Node:
                 )
             )
             fname = getattr(self.func, "__name__", str(self.func))
-            self.name = f'{fname}({args_string})'
+            self.pretty_name = f'{fname}({args_string})'
         else:
             val_str = f'={func!r}' if isinstance(func, int | float | str) else ""
-            self.name = f'Input <{type(func).__name__}{val_str}>'
+            self.pretty_name = f'Input <{type(func).__name__}{val_str}>'
 
         # Attempt to set children after setting name in case error message is needed
         for parent in chain(self.parents, self.kwparents.values()):
@@ -194,7 +194,7 @@ class Node:
         return self.id == other.id
 
     def __repr__(self) -> str:
-        return f"Node(name={self.name})"
+        return f"Node(name={self.pretty_name})"
 
     def __add__(self, other: Node | Any) -> Node:
         return Node(lambda x, y: x + y, self, other)

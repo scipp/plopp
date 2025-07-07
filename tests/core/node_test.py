@@ -213,24 +213,24 @@ def test_node_converts_raw_data_to_Node():
 
 def test_node_names_from_args():
     n = Node(add, 1, 3)
-    assert n.name == 'add(arg_0, arg_1)'
+    assert n.pretty_name == 'add(arg_0, arg_1)'
 
 
 def test_node_names_from_kwargs():
     n = Node(add, x=1, y=3)
-    assert n.name == 'add(x, y)'
+    assert n.pretty_name == 'add(x, y)'
 
 
 def test_node_names_from_args_and_kwargs():
     n = Node(add, 4, y=35)
-    assert n.name == 'add(arg_0, y)'
+    assert n.pretty_name == 'add(arg_0, y)'
 
 
 def test_node_name_from_raw_input():
-    assert Node(5).name == 'Input <int=5>'
-    assert Node(1.2).name == 'Input <float=1.2>'
-    assert Node('hello').name == "Input <str='hello'>"
-    assert Node([1, 2, 3]).name == 'Input <list>'
+    assert Node(5).pretty_name == 'Input <int=5>'
+    assert Node(1.2).pretty_name == 'Input <float=1.2>'
+    assert Node('hello').pretty_name == "Input <str='hello'>"
+    assert Node([1, 2, 3]).pretty_name == 'Input <list>'
 
 
 def test_input_node_value():
