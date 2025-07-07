@@ -30,12 +30,10 @@ def test_save_line():
     tool.save_line()
     assert len(tool._lines) == 1
     line = list(tool._lines.values())[-1]
-    assert sc.identical(
-        line['line']._data, da['yy', slider.controls['yy']['slider'].value]
-    )
+    assert sc.identical(line['line']._data, da['yy', slider.controls['yy'].value])
     assert len(tool.container.children) == 1
 
-    slider.controls['yy']['slider'].value = 5
+    slider.controls['yy'].value = 5
     tool.save_line()
     assert len(tool._lines) == 2
     line = list(tool._lines.values())[-1]
@@ -50,9 +48,9 @@ def test_remove_line():
     assert len(tool._lines) == 0
     tool.save_line()
     slider = sp.bottom_bar[0]
-    slider.controls['yy']['slider'].value = 5
+    slider.controls['yy'].value = 5
     tool.save_line()
-    slider.controls['yy']['slider'].value = 15
+    slider.controls['yy'].value = 15
     tool.save_line()
     assert len(tool._lines) == 3
     assert len(tool.container.children) == 3

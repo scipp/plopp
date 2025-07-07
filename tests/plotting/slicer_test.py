@@ -24,10 +24,10 @@ class TestSlicer1d:
         sl = Slicer(da, keep=['xx'])
         assert sl.slider.value == {'zz': 14, 'yy': 19}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['yy', 19]['zz', 14])
-        sl.slider.controls['yy'].slider.value = 5
+        sl.slider.controls['yy'].value = 5
         assert sl.slider.value == {'zz': 14, 'yy': 5}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['yy', 5]['zz', 14])
-        sl.slider.controls['zz'].slider.value = 8
+        sl.slider.controls['zz'].value = 8
         assert sl.slider.value == {'zz': 8, 'yy': 5}
         assert sc.identical(sl.slice_nodes[0].request_data(), da['yy', 5]['zz', 8])
 
@@ -35,7 +35,7 @@ class TestSlicer1d:
         ds = dataset(ndim=2)
         sl = Slicer(ds, keep=['xx'])
         nodes = list(sl.figure.graph_nodes.values())
-        sl.slider.controls['yy'].slider.value = 5
+        sl.slider.controls['yy'].value = 5
         assert sc.identical(nodes[0].request_data(), ds['a']['yy', 5])
         assert sc.identical(nodes[1].request_data(), ds['b']['yy', 5])
 
@@ -44,7 +44,7 @@ class TestSlicer1d:
         dg = sc.DataGroup(a=da, b=da * 2.5)
         sl = Slicer(dg, keep=['xx'])
         nodes = list(sl.figure.graph_nodes.values())
-        sl.slider.controls['yy'].slider.value = 5
+        sl.slider.controls['yy'].value = 5
         assert sc.identical(nodes[0].request_data(), dg['a']['yy', 5])
         assert sc.identical(nodes[1].request_data(), dg['b']['yy', 5])
 
@@ -53,7 +53,7 @@ class TestSlicer1d:
         b = data_array(ndim=2) * 2.5
         sl = Slicer({'a': a, 'b': b}, keep=['xx'])
         nodes = list(sl.figure.graph_nodes.values())
-        sl.slider.controls['yy'].slider.value = 5
+        sl.slider.controls['yy'].value = 5
         assert sc.identical(nodes[0].request_data(), a['yy', 5])
         assert sc.identical(nodes[1].request_data(), b['yy', 5])
 

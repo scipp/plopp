@@ -76,6 +76,17 @@ class DimSlicer(ipw.VBox):
         """
         self.label.value = coord_element_to_string(self.coord[self.dim, change['new']])
 
+    @property
+    def value(self) -> int | tuple[int, int] | None:
+        """
+        The value of the slider.
+        """
+        return self.slider.value
+
+    @value.setter
+    def value(self, value: int | tuple[int, int] | None):
+        self.slider.value = value
+
 
 class _BaseSliceWidget(VBar, ipw.ValueWidget):
     def __init__(
