@@ -585,3 +585,9 @@ def test_plot_1d_all_values_masked_with_errorbars():
     da = data_array(ndim=1, variances=True)
     da.masks['m'] = sc.scalar(True)
     _ = da.plot()
+
+
+def test_can_plot_dict_with_non_string_keys():
+    a = data_array(ndim=1)
+    b = 2 * a
+    _ = pp.plot({1: a, 2: b})

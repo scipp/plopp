@@ -285,7 +285,7 @@ def preprocess(
     check_not_binned(out)
     check_allowed_dtypes(out)
     if name is not None:
-        out.name = name
+        out.name = str(name)
     if not ignore_size:
         _check_size(out)
     if coords is not None:
