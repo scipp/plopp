@@ -18,7 +18,7 @@ anyio==4.9.0
     # via
     #   httpx
     #   jupyter-server
-argon2-cffi==23.1.0
+argon2-cffi==25.1.0
     # via jupyter-server
 argon2-cffi-bindings==21.2.0
     # via argon2-cffi
@@ -32,9 +32,9 @@ click==8.2.1
     # via
     #   pip-compile-multi
     #   pip-tools
-copier==9.7.1
+copier==9.8.0
     # via -r dev.in
-dunamai==1.24.1
+dunamai==1.25.0
     # via copier
 fqdn==1.5.1
     # via jsonschema
@@ -71,7 +71,7 @@ jupyter-server==2.16.0
     #   notebook-shim
 jupyter-server-terminals==0.5.3
     # via jupyter-server
-jupyterlab==4.4.3
+jupyterlab==4.4.4
     # via -r dev.in
 jupyterlab-server==2.27.3
     # via jupyterlab
@@ -79,17 +79,17 @@ notebook-shim==0.2.4
     # via jupyterlab
 overrides==7.7.0
     # via jupyter-server
-pip-compile-multi==3.1.0
+pip-compile-multi==3.2.1
     # via -r dev.in
 pip-tools==7.4.1
     # via pip-compile-multi
 plumbum==1.9.0
     # via copier
-prometheus-client==0.22.0
+prometheus-client==0.22.1
     # via jupyter-server
 pycparser==2.22
     # via cffi
-pydantic==2.11.5
+pydantic==2.11.7
     # via copier
 pydantic-core==2.33.2
     # via pydantic
@@ -115,7 +115,7 @@ terminado==0.18.1
     #   jupyter-server-terminals
 toposort==1.10
     # via pip-compile-multi
-types-python-dateutil==2.9.0.20250516
+types-python-dateutil==2.9.0.20250708
     # via arrow
 typing-inspection==0.4.1
     # via pydantic

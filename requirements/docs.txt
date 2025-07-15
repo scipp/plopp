@@ -11,8 +11,6 @@ accessible-pygments==0.0.5
     # via pydata-sphinx-theme
 alabaster==1.0.0
     # via sphinx
-appnope==0.1.4
-    # via ipykernel
 attrs==25.3.0
     # via
     #   jsonschema
@@ -107,7 +105,7 @@ pydata-sphinx-theme==0.16.1
     # via -r docs.in
 pyyaml==6.0.2
     # via myst-parser
-pyzmq==26.4.0
+pyzmq==27.0.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -115,7 +113,7 @@ referencing==0.36.2
     # via
     #   jsonschema
     #   jsonschema-specifications
-rpds-py==0.25.1
+rpds-py==0.26.0
     # via
     #   jsonschema
     #   referencing
