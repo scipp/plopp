@@ -32,30 +32,30 @@ requires-python = ">=3.10"
 # Make sure to list one dependency per line.
 dependencies = [
   "lazy-loader>=0.4",
-  "matplotlib>=3.5",
+  "matplotlib>=3.8",
 ]
 
 dynamic = ["version"]
 
 [project.optional-dependencies]
 scipp = ["scipp>=25.5.0"]
-all = ["scipp>=25.5.0", "ipympl>0.9.4", "pythreejs>=2.4.1", "mpltoolbox>=24.6.0", "ipywidgets>=8.1.7", "graphviz>=0.20.3"]
+all = ["scipp>=25.5.0", "ipympl>0.8.4", "pythreejs>=2.4.1", "mpltoolbox>=24.6.0", "ipywidgets>=8.1.0", "graphviz>=0.20.3"]
 test = [
     "graphviz>=0.20.3",
     "h5py>=3.12",
-    "ipympl>=0.9.4",
-    "ipywidgets>=8.1.7",
+    "ipympl>=0.8.4",
+    "ipywidgets>=8.1.0",
     "mpltoolbox>=24.6.0",
     "pandas>=2.2.2",
-    "plotly>=5.24.1",
+    "plotly>=5.15.0",
     "pooch>=1.5",
     "pyarrow>=10.0.0",
     "pytest>=7.0",
     "pythreejs>=2.4.1",
     "scipp>=25.5.0",
-    "scipy>=1.14.0",
+    "scipy>=1.10.0",
     "xarray>=v2024.05.0",
-    "anywidget>=0.9.11"
+    "anywidget>=0.9.0"
 ]
 
 [project.urls]

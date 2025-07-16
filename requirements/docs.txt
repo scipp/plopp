@@ -29,7 +29,7 @@ beautifulsoup4==4.13.4
     #   pydata-sphinx-theme
 bleach[css]==6.2.0
     # via nbconvert
-debugpy==1.8.14
+debugpy==1.8.15
     # via ipykernel
 defusedxml==0.7.1
     # via nbconvert
