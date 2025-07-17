@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "setuptools>=68",
+  "setuptools>=77",
   "setuptools_scm[toml]>=8.0",
 ]
 build-backend = "setuptools.build_meta"
@@ -9,11 +9,11 @@ build-backend = "setuptools.build_meta"
 name = "plopp"
 description = "Visualization library for Scipp"
 authors = [{ name = "Scipp contributors" }]
-license = { file = "LICENSE" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 readme = "README.md"
 classifiers = [
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
@@ -31,31 +31,31 @@ requires-python = ">=3.10"
 # Run 'tox -e deps' after making changes here. This will update requirement files.
 # Make sure to list one dependency per line.
 dependencies = [
-  "lazy-loader",
-  "matplotlib>=3.5",
+  "lazy-loader>=0.4",
+  "matplotlib>=3.8",
 ]
 
 dynamic = ["version"]
 
 [project.optional-dependencies]
-scipp = ["scipp"]
-all = ["scipp", "ipympl", "pythreejs", "mpltoolbox", "ipywidgets", "graphviz"]
+scipp = ["scipp>=25.5.0"]
+all = ["scipp>=25.5.0", "ipympl>0.8.4", "pythreejs>=2.4.1", "mpltoolbox>=24.6.0", "ipywidgets>=8.1.0", "graphviz>=0.20.3"]
 test = [
-    "graphviz",
-    "h5py",
-    "ipympl",
-    "ipywidgets",
-    "mpltoolbox",
-    "pandas",
-    "plotly",
-    "pooch",
-    "pyarrow",
-    "pytest",
-    "pythreejs",
-    "scipp",
-    "scipy",
-    "xarray",
-    "anywidget"
+    "graphviz>=0.20.3",
+    "h5py>=3.12",
+    "ipympl>=0.8.4",
+    "ipywidgets>=8.1.0",
+    "mpltoolbox>=24.6.0",
+    "pandas>=2.2.2",
+    "plotly>=5.15.0",
+    "pooch>=1.5",
+    "pyarrow>=10.0.0",
+    "pytest>=7.0",
+    "pythreejs>=2.4.1",
+    "scipp>=25.5.0",
+    "scipy>=1.10.0",
+    "xarray>=v2024.05.0",
+    "anywidget>=0.9.0"
 ]
 
 [project.urls]
@@ -84,6 +84,8 @@ filterwarnings = [
   'ignore:There is no current event loop:DeprecationWarning',
   # Should be removed once https://github.com/ipython/ipykernel/pull/1248 is released
   'ignore:Parsing dates involving a day of month without a year:DeprecationWarning',
+  # Should be removed once we lower pin a matplotlib version that respects the deprecation
+  'ignore:.*parameter is deprecated and will be removed in Pillow 13.*:DeprecationWarning',
 ]
 
 [tool.ruff]
