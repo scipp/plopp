@@ -47,4 +47,5 @@ subplots
 tweaking-figures
 custom-interfaces
 graph-node-tips
+animations
 ```
