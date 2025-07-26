@@ -98,7 +98,9 @@ def three_bands(npeaks=200, per_peak=500, spread=30.0):
         data=sc.ones(sizes=xcoord.sizes, unit='counts'),
         coords={'x': xcoord, 'y': ycoord},
     )
-    return table.hist(y=300, x=300) + sc.scalar(1.0, unit='counts')
+    xedges = sc.linspace('x', -50, 350, num=nx + 1, unit='cm')
+    yedges = sc.linspace('y', -50, 350, num=ny + 1, unit='cm')
+    return table.hist(y=yedges, x=xedges) + sc.scalar(1.0, unit='counts')
 
 
 def clusters3d(nclusters=100, npercluster=2000):

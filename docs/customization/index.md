@@ -30,6 +30,12 @@
 
 :::
 
+::::{grid-item-card} Animations
+:link: animations.ipynb
+:img-bottom: ../_static/customization/animation_2d.gif
+
+:::
+
 ::::
 
 ```{toctree}
@@ -41,4 +47,5 @@ subplots
 tweaking-figures
 custom-interfaces
 graph-node-tips
+animations
 ```
