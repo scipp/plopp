@@ -384,3 +384,8 @@ def test_plot_2d_all_values_masked():
     da = data_array(ndim=2)
     da.masks['m'] = sc.scalar(True)
     _ = da.plot()
+
+
+def test_plot_bool_with_no_range():
+    x = sc.zeros(sizes={'x': 10, 'y': 10}, dtype='bool')
+    _ = x.plot()
