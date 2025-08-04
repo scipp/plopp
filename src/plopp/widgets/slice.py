@@ -12,74 +12,121 @@ from ..core.utils import coord_element_to_string
 from .box import VBar
 
 
-class _BaseSliceWidget(VBar, ipw.ValueWidget):
-    def __init__(self, da: sc.DataArray, dims: list[str], slider_constr: ipw.Widget):
-        if isinstance(dims, str):
-            dims = [dims]
-        self._slider_dims = dims
-        self.controls = {}
-        self.view = None
-        children = []
-
-        for dim in self._slider_dims:
-            coord = (
-                da.coords[dim]
-                if dim in da.coords
-                else sc.arange(dim, da.sizes[dim], unit=None)
+class DimSlicer(ipw.VBox):
+    def __init__(
+        self,
+        dim: str,
+        size: int,
+        coord: sc.Variable,
+        slider_constr: type[ipw.Widget],
+        enable_player: bool = False,
+    ):
+        if enable_player and not issubclass(slider_constr, ipw.IntSlider):
+            raise TypeError(
+                "Player can only be enabled for IntSlider, not for IntRangeSlider."
             )
-            widget_args = {
-                'step': 1,
-                'description': dim,
-                'min': 0,
-                'max': da.sizes[dim] - 1,
-                'value': (da.sizes[dim] - 1) // 2
-                if slider_constr is ipw.IntSlider
-                else None,
-                'continuous_update': True,
-                'readout': False,
-                'layout': {"width": "200px"},
-                'style': {'description_width': 'initial'},
-            }
-            slider = slider_constr(**widget_args)
-            continuous_update = ipw.Checkbox(
-                value=True,
-                tooltip="Continuous update",
-                indent=False,
-                layout={"width": "20px"},
+        widget_args = {
+            'step': 1,
+            'description': dim,
+            'min': 0,
+            'max': size - 1,
+            'value': (size - 1) // 2 if slider_constr is ipw.IntSlider else None,
+            'continuous_update': True,
+            'readout': False,
+            'layout': {"width": "200px", "margin": "0px 0px 0px 10px"},
+            'style': {'description_width': 'initial'},
+        }
+        self.slider = slider_constr(**widget_args)
+        self.continuous_update = ipw.Checkbox(
+            value=True,
+            tooltip="Continuous update",
+            indent=False,
+            layout={"width": "20px"},
+        )
+        self.label = ipw.Label(
+            value=coord_element_to_string(coord[dim, self.slider.value])
+        )
+        ipw.jslink(
+            (self.continuous_update, 'value'), (self.slider, 'continuous_update')
+        )
+
+        children = [self.slider, self.continuous_update, self.label]
+        if enable_player:
+            self.player = ipw.Play(
+                value=self.slider.value,
+                min=self.slider.min,
+                max=self.slider.max,
+                step=self.slider.step,
+                interval=100,
+                description='Play',
             )
-            label = ipw.Label(value=coord_element_to_string(coord[dim, slider.value]))
-            ipw.jslink((continuous_update, 'value'), (slider, 'continuous_update'))
+            ipw.jslink((self.player, 'value'), (self.slider, 'value'))
+            children.insert(0, self.player)
 
-            self.controls[dim] = {
-                'continuous': continuous_update,
-                'slider': slider,
-                'label': label,
-                'coord': coord,
-            }
-            slider.observe(self._update_label, names='value')
-            slider.observe(self._on_subwidget_change, names='value')
-            children.append(ipw.HBox([continuous_update, slider, label]))
+        self.dim = dim
+        self.coord = coord
+        self.slider.observe(self._update_label, names='value')
 
-        self._on_subwidget_change()
-        super().__init__(children)
+        super().__init__([ipw.HBox(children)])
 
     def _update_label(self, change: dict[str, Any]):
         """
         Update the readout label with the coordinate value, instead of the integer
         readout index.
         """
-        dim = change['owner'].description
-        coord = self.controls[dim]['coord'][dim, change['new']]
-        self.controls[dim]['label'].value = coord_element_to_string(coord)
+        self.label.value = coord_element_to_string(self.coord[self.dim, change['new']])
+
+    @property
+    def value(self) -> int | tuple[int, int]:
+        """
+        The value of the slider.
+        """
+        return self.slider.value
+
+    @value.setter
+    def value(self, value: int | tuple[int, int]):
+        self.slider.value = value
+
+
+class _BaseSliceWidget(VBar, ipw.ValueWidget):
+    def __init__(
+        self,
+        da: sc.DataArray,
+        dims: list[str],
+        slider_constr: ipw.Widget,
+        enable_player: bool = False,
+    ):
+        if isinstance(dims, str):
+            dims = [dims]
+        self.controls = {}
+        self.view = None
+        children = []
+
+        for dim in dims:
+            coord = (
+                da.coords[dim]
+                if dim in da.coords
+                else sc.arange(dim, da.sizes[dim], unit=None)
+            )
+            self.controls[dim] = DimSlicer(
+                dim=dim,
+                size=da.sizes[dim],
+                coord=coord,
+                slider_constr=slider_constr,
+                enable_player=enable_player,
+            )
+            self.controls[dim].slider.observe(self._on_subwidget_change, names='value')
+            children.append(self.controls[dim])
+
+        self._on_subwidget_change()
+        super().__init__(children)
 
     def _on_subwidget_change(self, _=None):
         """
         Update the value of the widget.
         The value is a dict containing one entry per slider, giving the slider's value.
         """
-        self.value = {
-            dim: self.controls[dim]['slider'].value for dim in self._slider_dims
-        }
+        self.value = {dim: slicer.slider.value for dim, slicer in self.controls.items()}
 
 
 SliceWidget = partial(_BaseSliceWidget, slider_constr=ipw.IntSlider)
@@ -95,6 +142,10 @@ da:
     The input data array.
 dims:
     The dimensions to make sliders for.
+enable_player:
+    Add a play button to animate the slider if True. Defaults to False.
+
+    .. versionadded:: 25.07.0
 """
 
 RangeSliceWidget = partial(_BaseSliceWidget, slider_constr=ipw.IntRangeSlider)

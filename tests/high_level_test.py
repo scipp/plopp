@@ -122,7 +122,7 @@ class TestHighLevelInteractive:
 
         fig = imagefigure(slice_node)
         Box([fig, sl])
-        sl.controls["zz"]["slider"].value = 10
+        sl.controls["zz"].value = 10
 
     def test_3d_image_slicer_with_connected_side_histograms(self):
         da = data_array(ndim=3)
@@ -139,4 +139,4 @@ class TestHighLevelInteractive:
         fx = linefigure(histx)
         fy = linefigure(histy)
         Box([[fx, fy], fig, sl])
-        sl.controls["zz"]["slider"].value = 10
+        sl.controls["zz"].value = 10

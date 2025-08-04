@@ -60,6 +60,7 @@ class Slicer:
         vmin: VariableLike | float = None,
         vmax: VariableLike | float = None,
         cbar: bool = True,
+        enable_player: bool = False,
         **kwargs,
     ):
         nodes = input_to_nodes(
@@ -98,7 +99,9 @@ class Slicer:
         from ..widgets import SliceWidget, slice_dims
 
         self.slider = SliceWidget(
-            nodes[0](), dims=[dim for dim in dims if dim not in keep]
+            nodes[0](),
+            dims=[dim for dim in dims if dim not in keep],
+            enable_player=enable_player,
         )
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
@@ -130,6 +133,7 @@ def slicer(
     vmin: VariableLike | float = None,
     vmax: VariableLike | float = None,
     cbar: bool = True,
+    enable_player: bool = False,
     **kwargs,
 ) -> FigureLike:
     """
@@ -156,6 +160,10 @@ def slicer(
         The maximum value of the y-axis (1d plots) or color range (2d plots).
     cbar:
         Whether to display a colorbar for 2D plots.
+    enable_player:
+        Add a play button to animate the sliders if True. Defaults to False.
+
+        .. versionadded:: 25.07.0
     **kwargs:
         See :py:func:`plopp.plot` for the full list of figure customization arguments.
     """
@@ -167,5 +175,6 @@ def slicer(
         vmax=vmax,
         coords=coords,
         cbar=cbar,
+        enable_player=enable_player,
         **kwargs,
     ).figure

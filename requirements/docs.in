@@ -2,6 +2,7 @@
 -r basetest.in
 autodoc-pydantic
 gitpython
+autodoc-pydantic
 ipykernel
 ipython!=8.7.0  # Breaks syntax highlighting in Jupyter code cells.
 myst-parser

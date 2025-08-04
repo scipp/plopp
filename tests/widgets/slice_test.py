@@ -12,20 +12,20 @@ from plopp.widgets import RangeSliceWidget, SliceWidget, slice_dims
 def test_slice_creation(widget):
     da = data_array(ndim=3)
     sw = widget(da, dims=['yy', 'xx'])
-    assert sw._slider_dims == ['yy', 'xx']
-    assert sw.controls['xx']['slider'].min == 0
-    assert sw.controls['xx']['slider'].max == da.sizes['xx'] - 1
-    assert sw.controls['xx']['slider'].description == 'xx'
-    assert sw.controls['yy']['slider'].min == 0
-    assert sw.controls['yy']['slider'].max == da.sizes['yy'] - 1
-    assert sw.controls['yy']['slider'].description == 'yy'
+    assert set(sw.controls.keys()) == {'yy', 'xx'}
+    assert sw.controls['xx'].slider.min == 0
+    assert sw.controls['xx'].slider.max == da.sizes['xx'] - 1
+    assert sw.controls['xx'].slider.description == 'xx'
+    assert sw.controls['yy'].slider.min == 0
+    assert sw.controls['yy'].slider.max == da.sizes['yy'] - 1
+    assert sw.controls['yy'].slider.description == 'yy'
 
 
 def test_slice_value_property():
     da = data_array(ndim=3)
     sw = SliceWidget(da, dims=['yy', 'xx'])
-    sw.controls['xx']['slider'].value = 10
-    sw.controls['yy']['slider'].value = 15
+    sw.controls['xx'].value = 10
+    sw.controls['yy'].value = 15
     assert sw.value == {'xx': 10, 'yy': 15}
 
 
@@ -34,14 +34,20 @@ def test_slice_label_updates():
     da.coords['xx'] *= 1.1
     da.coords['yy'] *= 3.3
     sw = SliceWidget(da, dims=['yy', 'xx'])
-    sw.controls['xx']['slider'].value = 0
-    sw.controls['yy']['slider'].value = 0
-    assert sw.controls['xx']['label'].value == '0.0 [m]'
-    sw.controls['xx']['slider'].value = 10
-    assert sw.controls['xx']['label'].value == '11.0 [m]'
-    assert sw.controls['yy']['label'].value == '0.0 [m]'
-    sw.controls['yy']['slider'].value = 15
-    assert sw.controls['yy']['label'].value == '49.5 [m]'
+    sw.controls['xx'].value = 0
+    sw.controls['yy'].value = 0
+    assert sw.controls['xx'].label.value == '0.0 [m]'
+    sw.controls['xx'].value = 10
+    assert sw.controls['xx'].label.value == '11.0 [m]'
+    assert sw.controls['yy'].label.value == '0.0 [m]'
+    sw.controls['yy'].value = 15
+    assert sw.controls['yy'].label.value == '49.5 [m]'
+
+
+def test_make_slice_widget_with_player():
+    da = data_array(ndim=3)
+    sw = SliceWidget(da, dims=['zz'], enable_player=True)
+    assert sw.controls['zz'].player is not None
 
 
 def test_slice_dims():
