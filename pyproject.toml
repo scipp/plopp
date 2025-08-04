@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "setuptools>=68",
+  "setuptools>=77",
   "setuptools_scm[toml]>=8.0",
 ]
 build-backend = "setuptools.build_meta"
@@ -9,11 +9,11 @@ build-backend = "setuptools.build_meta"
 name = "plopp"
 description = "Visualization library for Scipp"
 authors = [{ name = "Scipp contributors" }]
-license = { file = "LICENSE" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 readme = "README.md"
 classifiers = [
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",

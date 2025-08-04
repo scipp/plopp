@@ -1,5 +1,6 @@
 -r base.in
 -r basetest.in
+autodoc-pydantic
 gitpython
 ipykernel
 ipython!=8.7.0  # Breaks syntax highlighting in Jupyter code cells.

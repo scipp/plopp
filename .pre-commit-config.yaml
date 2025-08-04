@@ -10,7 +10,6 @@ repos:
       - id: check-merge-conflict
       - id: check-toml
       - id: check-yaml
-        exclude: conda/meta.yaml
       - id: detect-private-key
       - id: trailing-whitespace
         args: [ --markdown-linebreak-ext=md ]
@@ -36,6 +35,8 @@ repos:
       - id: codespell
         additional_dependencies:
           - tomli
+        exclude_types:
+          - svg
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
