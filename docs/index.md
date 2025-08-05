@@ -154,6 +154,10 @@
 
 :::
 
+:::{grid-item-card} Animations
+:link: customization/animations.ipynb
+:img-bottom: _static/customization/animation_2d.gif
+
 ::::
 
 ```{toctree}
