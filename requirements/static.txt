@@ -7,7 +7,7 @@
 #
 cfgv==3.4.0
     # via pre-commit
-distlib==0.3.9
+distlib==0.4.0
     # via virtualenv
 filelock==3.18.0
     # via virtualenv
@@ -21,5 +21,5 @@ pre-commit==4.2.0
     # via -r static.in
 pyyaml==6.0.2
     # via pre-commit
-virtualenv==20.31.2
+virtualenv==20.33.0
     # via pre-commit
