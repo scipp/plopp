@@ -43,11 +43,11 @@ fastjsonschema==2.21.1
     # via nbformat
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.44
+gitpython==3.1.45
     # via -r docs.in
 imagesize==1.4.1
     # via sphinx
-ipykernel==6.29.5
+ipykernel==6.30.0
     # via -r docs.in
 jinja2==3.1.6
     # via
@@ -55,7 +55,7 @@ jinja2==3.1.6
     #   nbconvert
     #   nbsphinx
     #   sphinx
-jsonschema==4.24.0
+jsonschema==4.25.0
     # via nbformat
 jsonschema-specifications==2025.4.1
     # via jsonschema
@@ -119,7 +119,7 @@ python-dotenv==1.1.1
     # via pydantic-settings
 pyyaml==6.0.2
     # via myst-parser
-pyzmq==27.0.0
+pyzmq==27.0.1
     # via
     #   ipykernel
     #   jupyter-client
