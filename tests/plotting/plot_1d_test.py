@@ -591,3 +591,8 @@ def test_can_plot_dict_with_non_string_keys():
     a = data_array(ndim=1)
     b = 2 * a
     _ = pp.plot({1: a, 2: b})
+
+
+def test_plot_bool_with_no_range():
+    x = sc.zeros(sizes={'x': 10}, dtype='bool')
+    _ = x.plot()

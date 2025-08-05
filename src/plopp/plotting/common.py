@@ -133,10 +133,13 @@ def check_not_binned(da: sc.DataArray) -> None:
         )
 
 
-def check_allowed_dtypes(da: sc.DataArray) -> None:
+def to_allowed_dtypes(da: sc.DataArray) -> sc.DataArray:
     """
     Currently, Plopp cannot plot data that contains vector and matrix dtypes.
     This function will raise an error if the input data type is not supported.
+
+    We also convert boolean data to integers, as some operations downstream
+    may not support boolean data types.
 
     Parameters
     ----------
@@ -147,6 +150,9 @@ def check_allowed_dtypes(da: sc.DataArray) -> None:
         raise TypeError(
             f'The input has dtype {da.dtype} which is not supported by Plopp.'
         )
+    if da.dtype == bool:
+        da = da.to(dtype='int32')
+    return da
 
 
 def _all_dims_sorted(var, order='ascending') -> bool:
@@ -283,7 +289,7 @@ def preprocess(
 
     out = to_data_array(obj)
     check_not_binned(out)
-    check_allowed_dtypes(out)
+    out = to_allowed_dtypes(out)
     if name is not None:
         out.name = str(name)
     if not ignore_size:
