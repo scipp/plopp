@@ -21,5 +21,5 @@ pre-commit==4.2.0
     # via -r static.in
 pyyaml==6.0.2
     # via pre-commit
-virtualenv==20.33.0
+virtualenv==20.33.1
     # via pre-commit
