@@ -87,6 +87,36 @@ def test_value_cuts(multiple_nodes):
     assert len(fig.artists) == 1 * len(nodes)
 
 
+@pytest.mark.parametrize('multiple_nodes', [False, True])
+def test_mixing_spatial_and_value_cuts(multiple_nodes):
+    a = scatter()
+    nodes = [Node(a)]
+    if multiple_nodes:
+        b = a.copy()
+        b.coords['x'] += sc.scalar(60, unit='m')
+        nodes.append(Node(b))
+    fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=True)
+    clip = ClippingPlanes(fig)
+
+    # Add a spatial cut
+    clip.add_y_cut.click()
+    npoints = list(fig.artists.values())[-1]._data.shape[0]
+    clip.cut_operation.value = 'AND'
+
+    # Add a value cut
+    clip.add_v_cut.click()
+    # Adding value selection should limit the number of points further
+    assert list(fig.artists.values())[-1]._data.shape[0] < npoints
+
+    clip.delete_cut.click()
+    assert list(fig.artists.values())[-1]._data.shape[0] == npoints
+    # If the tool is not displayed, the tab selected index does not update when a cut
+    # is deleted, so we need to manually set it to the correct value
+    clip.tabs.selected_index = 0
+    clip.delete_cut.click()
+    assert len(fig.artists) == 1 * len(nodes)
+
+
 def test_move_cut():
     da = scatter()
     fig = scatter3dfigure(Node(da), x='x', y='y', z='z', cbar=True)
