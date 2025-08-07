@@ -280,7 +280,7 @@ class ClipValueTool(ipw.HBox):
         )
 
     @debounce(0.3)
-    def _throttled_update(self):
+    def _throttled_update(self, _):
         self._update()
 
 
@@ -336,30 +336,30 @@ class ClippingPlanes(ipw.HBox):
         )
 
         self.add_cut_label = ipw.Label('Add cut:')
-        layout = {'width': '45px', 'padding': '0px 0px 0px 0px'}
+        # layout = {'width': '40px', 'padding': '0px 0px 0px 0px'}
         self.add_x_cut = ipw.Button(
             description='X',
             icon='plus',
             tooltip='Add X cut',
-            layout=layout,
+            **BUTTON_LAYOUT,
         )
         self.add_y_cut = ipw.Button(
             description='Y',
             icon='plus',
             tooltip='Add Y cut',
-            layout=layout,
+            **BUTTON_LAYOUT,
         )
         self.add_z_cut = ipw.Button(
             description='Z',
             icon='plus',
             tooltip='Add Z cut',
-            layout=layout,
+            **BUTTON_LAYOUT,
         )
         self.add_v_cut = ipw.Button(
             description='V',
             icon='plus',
             tooltip='Add Value cut',
-            layout=layout,
+            **BUTTON_LAYOUT,
         )
         self.add_x_cut.on_click(lambda _: self._add_cut('x'))
         self.add_y_cut.on_click(lambda _: self._add_cut('y'))
@@ -375,7 +375,7 @@ class ClippingPlanes(ipw.HBox):
             description='Opacity:',
             tooltip='Set the opacity of the background',
             style={'description_width': 'initial'},
-            layout={'width': '142px', 'padding': '0px 0px 0px 0px'},
+            layout={'width': '160px', 'padding': '0px 0px 0px 0px'},
         )
         self.opacity.observe(self._set_opacity, names='value')
 
@@ -395,7 +395,7 @@ class ClippingPlanes(ipw.HBox):
             value='OR',
             disabled=True,
             tooltip='Operation to combine multiple cuts',
-            layout={'width': '60px', 'padding': '0px 0px 0px 0px'},
+            layout={'width': '78px', 'padding': '0px 0px 0px 0px'},
         )
         self.cut_operation.observe(self.change_operation, names='value')
 
