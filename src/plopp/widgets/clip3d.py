@@ -203,11 +203,7 @@ class ClipValueTool(ipw.HBox):
         A function to update the scene.
     """
 
-    def __init__(
-        self,
-        limits: sc.Variable,
-        update: Callable,
-    ):
+    def __init__(self, limits: sc.Variable, update: Callable):
         self._limits = limits
         self._unit = self._limits.unit
         self.visible = True
@@ -251,27 +247,8 @@ class ClipValueTool(ipw.HBox):
         owner.tooltip = 'Hide cut' if self.visible else 'Show cut'
         self._update()
 
-    def toggle_border(self, value: bool):
-        """ """
+    def toggle_border(self, _):
         return
-
-    # def move(self, value: dict[str, Any]):
-    #     """
-    #     """
-    #     return
-    #     # Early return if relative difference between new and old value is small.
-    #     # This also prevents flickering of an existing cut when a new cut is added.
-    #     if (
-    #         np.abs(np.array(value['new']) - np.array(value['old'])).max()
-    #         < 0.01 * self.slider.step
-    #     ):
-    #         return
-    #     for outline, val in zip(self.outlines, value['new'], strict=True):
-    #         pos = list(outline.position)
-    #         axis = 'xyz'.index(self._direction)
-    #         pos[axis] = val
-    #         outline.position = pos
-    #     self._throttled_update()
 
     @property
     def range(self):
@@ -329,14 +306,13 @@ class ClippingPlanes(ipw.HBox):
 
         self._value_limits = sc.concat(
             [
-                min(n().min() for n in self._original_nodes),
-                max(n().max() for n in self._original_nodes),
+                min(n().data.min() for n in self._original_nodes),
+                max(n().data.max() for n in self._original_nodes),
             ],
             dim="dummy",
         )
 
         self.add_cut_label = ipw.Label('Add cut:')
-        # layout = {'width': '40px', 'padding': '0px 0px 0px 0px'}
         self.add_x_cut = ipw.Button(
             description='X',
             icon='plus',

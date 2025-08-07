@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
-
+import pytest
 import scipp as sc
 
 from plopp import Node
@@ -9,20 +9,27 @@ from plopp.graphics import scatter3dfigure
 from plopp.widgets import ClippingPlanes
 
 
-def test_add_remove_cuts():
-    da = scatter()
-    fig = scatter3dfigure(Node(da), x='x', y='y', z='z', cbar=True)
+@pytest.mark.parametrize('multiple_nodes', [False, True])
+def test_add_remove_cuts(multiple_nodes):
+    a = scatter()
+    nodes = [Node(a)]
+    if multiple_nodes:
+        b = a.copy()
+        b.coords['x'] += sc.scalar(60, unit='m')
+        nodes.append(Node(b))
+
+    fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=True)
     clip = ClippingPlanes(fig)
-    assert len(fig.artists) == 1
+    assert len(fig.artists) == 1 * len(nodes)
     clip.add_x_cut.click()
-    assert len(fig.artists) == 2
+    assert len(fig.artists) == 2 * len(nodes)
     npoints_in_cutx = list(fig.artists.values())[-1]._data.shape[0]
     clip.add_y_cut.click()
-    assert len(fig.artists) == 2
+    assert len(fig.artists) == 2 * len(nodes)
     npoints_in_cutxy = list(fig.artists.values())[-1]._data.shape[0]
     assert npoints_in_cutxy > npoints_in_cutx
     clip.add_z_cut.click()
-    assert len(fig.artists) == 2
+    assert len(fig.artists) == 2 * len(nodes)
     npoints_in_cutxyz = list(fig.artists.values())[-1]._data.shape[0]
     assert npoints_in_cutxyz > npoints_in_cutxy
     clip.delete_cut.click()
@@ -36,7 +43,48 @@ def test_add_remove_cuts():
     clip.tabs.selected_index = 0
     assert list(fig.artists.values())[-1]._data.shape[0] == npoints_in_cutx
     clip.delete_cut.click()
-    assert len(fig.artists) == 1
+    assert len(fig.artists) == 1 * len(nodes)
+
+
+@pytest.mark.parametrize('multiple_nodes', [False, True])
+def test_value_cuts(multiple_nodes):
+    a = scatter()
+    nodes = [Node(a)]
+    if multiple_nodes:
+        b = a.copy()
+        b.coords['x'] += sc.scalar(60, unit='m')
+        nodes.append(Node(b))
+    fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=True)
+    clip = ClippingPlanes(fig)
+    clip.add_v_cut.click()
+    vcut = clip.cuts[-1]
+    npoints = list(fig.artists.values())[-1]._data.shape[0]
+    vcut.slider.value = [vcut.slider.min, vcut.slider.value[1]]
+    clip.update_state()  # Need to manually update state due to debounce mechanism
+    # We should now have more points in the cut than before because the range is wider
+    npoints2 = list(fig.artists.values())[-1]._data.shape[0]
+    assert npoints2 > npoints
+
+    clip.cut_operation.value = 'OR'
+    # Add a second value cut
+    clip.add_v_cut.click()
+    vcut2 = clip.cuts[-1]
+    vcut2.slider.value = [
+        0.5 * (vcut2.slider.value[1] + vcut2.slider.max),
+        vcut2.slider.max,
+    ]
+    clip.update_state()  # Need to manually update state due to debounce mechanism
+    # We should now have more points in the cut than before because the range is wider
+    npoints3 = list(fig.artists.values())[-1]._data.shape[0]
+    assert npoints3 > npoints2
+
+    clip.delete_cut.click()
+    assert list(fig.artists.values())[-1]._data.shape[0] == npoints2
+    # If the tool is not displayed, the tab selected index does not update when a cut
+    # is deleted, so we need to manually set it to the correct value
+    clip.tabs.selected_index = 0
+    clip.delete_cut.click()
+    assert len(fig.artists) == 1 * len(nodes)
 
 
 def test_move_cut():
