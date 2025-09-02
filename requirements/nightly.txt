@@ -141,7 +141,7 @@ pytz==2025.2
     # via pandas
 requests==2.32.4
     # via pooch
-scipp==25.8.0
+scipp==100.0.0.dev0
     # via -r nightly.in
 scipy==1.16.1
     # via -r nightly.in
