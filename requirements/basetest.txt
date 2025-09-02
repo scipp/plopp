@@ -134,7 +134,7 @@ pytz==2025.2
     # via pandas
 requests==2.32.4
     # via pooch
-scipp==25.5.1
+scipp==25.8.0
     # via -r basetest.in
 scipy==1.16.1
     # via -r basetest.in
