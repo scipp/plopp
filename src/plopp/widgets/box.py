@@ -26,12 +26,6 @@ class Bar:
         children.remove(obj)
         self.children = children
 
-    def __add__(self, other):
-        return HBox([self, other])
-
-    def __truediv__(self, other):
-        return VBox([self, other])
-
 
 class VBar(VBox, Bar):
     """
@@ -44,6 +38,12 @@ class VBar(VBox, Bar):
         elif isinstance(ind, slice):
             return VBar(self.children[ind])
 
+    def __add__(self, other):
+        return HBar([self, other])
+
+    def __truediv__(self, other):
+        return VBar([self, other])
+
 
 class HBar(HBox, Bar):
     """
@@ -55,6 +55,12 @@ class HBar(HBox, Bar):
             return self.children[ind]
         elif isinstance(ind, slice):
             return HBar(self.children[ind])
+
+    def __add__(self, other):
+        return HBar([self, other])
+
+    def __truediv__(self, other):
+        return VBar([self, other])
 
 
 class Box(VBar):
