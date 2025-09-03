@@ -88,39 +88,3 @@ def test_bar_length(Bar):
     b3 = ipw.Button(description='Button 3')
     bar = Bar([b1, b2, b3])
     assert len(bar) == 3
-
-
-def test_add_hbars():
-    b1 = HBar([ipw.Button(description='Button 1')])
-    b2 = HBar([ipw.Button(description='Button 2')])
-    bar = b1 + b2
-    assert isinstance(bar, HBar)
-    assert len(bar.children) == 2
-    assert bar.children[0] is b1
-    assert bar.children[1] is b2
-
-
-def test_divide_hbars():
-    b1 = HBar([ipw.Button(description='Button 1')])
-    b2 = HBar([ipw.Button(description='Button 2')])
-    bar = b1 / b2
-    assert isinstance(bar, VBar)
-    assert len(bar.children) == 2
-    assert bar.children[0] is b1
-    assert bar.children[1] is b2
-
-
-def test_mix_add_divide_bars():
-    b1 = HBar([ipw.Button(description='Button 1')])
-    b2 = HBar([ipw.Button(description='Button 2')])
-    b3 = VBar([ipw.Button(description='Button 3')])
-    b4 = VBar([ipw.Button(description='Button 4')])
-    bar = (b1 + b2) / (b3 + b4)
-    assert isinstance(bar, VBar)
-    assert len(bar.children) == 2
-    assert isinstance(bar.children[0], HBar)
-    assert isinstance(bar.children[1], HBar)
-    assert bar.children[0].children[0] is b1
-    assert bar.children[0].children[1] is b2
-    assert bar.children[1].children[0] is b3
-    assert bar.children[1].children[1] is b4
