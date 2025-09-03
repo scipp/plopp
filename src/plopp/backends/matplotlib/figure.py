@@ -62,16 +62,6 @@ class MplBaseFig(BaseFig):
         """
         return self.view.canvas.save(filename, **kwargs)
 
-    def __add__(self, other):
-        from .tiled import hstack
-
-        return hstack(self, other)
-
-    def __truediv__(self, other):
-        from .tiled import vstack
-
-        return vstack(self, other)
-
     def copy(self, ax: Axes | None = None) -> MplBaseFig:
         """
         Create a copy of the figure.
@@ -155,6 +145,16 @@ class InteractiveFigure(MplBaseFig, VBox):
             self.bottom_bar,
         ]
 
+    def __add__(self, other):
+        from ...widgets import HBar
+
+        return HBar([self, other])
+
+    def __truediv__(self, other):
+        from ...widgets import VBar
+
+        return VBar([self, other])
+
 
 class StaticFigure(MplBaseFig):
     """
@@ -186,6 +186,16 @@ class StaticFigure(MplBaseFig):
         Convert the Matplotlib figure to an image widget.
         """
         return self.view.canvas.to_image()
+
+    def __add__(self, other):
+        from .tiled import hstack
+
+        return hstack(self, other)
+
+    def __truediv__(self, other):
+        from .tiled import vstack
+
+        return vstack(self, other)
 
 
 def Figure(*args, **kwargs):
