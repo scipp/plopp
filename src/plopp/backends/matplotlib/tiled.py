@@ -68,6 +68,8 @@ class Tiled:
         nrows: int,
         ncols: int,
         figsize: tuple[float, float] | None = None,
+        hspace: float = 0.05,
+        wspace: float = 0.1,
         **kwargs: Any,
     ) -> None:
         self.nrows = nrows
@@ -81,7 +83,9 @@ class Tiled:
             layout='constrained',
         )
 
-        self.gs = gridspec.GridSpec(nrows, ncols, figure=self.fig, **kwargs)
+        self.gs = gridspec.GridSpec(
+            nrows, ncols, figure=self.fig, wspace=wspace, hspace=hspace, **kwargs
+        )
         self.figures = np.full((nrows, ncols), None)
         self._history = []
 
