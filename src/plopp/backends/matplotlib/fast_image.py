@@ -63,9 +63,10 @@ class FastImage:
         #     if self._data.coords[self._data.dims[i]].dtype == str:
         #         string_labels[k] = self._data.coords[self._data.dims[i]]
 
-        self._raw_coords = {}
-        for i, k in enumerate("yx"):
-            self._raw_coords[k] = self._data.coords[self._data.dims[i]]
+        # self._raw_coords = {}
+        self._raw_coords = {
+            k: self._data.coords[self._data.dims[i]] for i, k in enumerate("yx")
+        }
 
         # self._xmin, self._xmax = self._bin_edge_coords["x"].values[[0, -1]]
         # self._ymin, self._ymax = self._bin_edge_coords["y"].values[[0, -1]]

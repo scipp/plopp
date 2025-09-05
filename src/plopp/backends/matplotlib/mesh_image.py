@@ -104,26 +104,25 @@ class MeshImage:
         # See https://github.com/matplotlib/matplotlib/issues/15600.
         need_grid = self._ax.xaxis.get_gridlines()[0].get_visible()
 
-        to_dim_search = {}
-        string_labels = {}
-        bin_edge_coords = {}
-        self._data_with_bin_edges = sc.DataArray(data=self._data.data)
-        for i, k in enumerate('yx'):
-            to_dim_search[k] = {
-                'dim': self._data.dims[i],
-                'var': self._data.coords[self._data.dims[i]],
-            }
-            bin_edge_coords[k] = coord_as_bin_edges(self._data, self._data.dims[i])
-            self._data_with_bin_edges.coords[self._data.dims[i]] = bin_edge_coords[k]
-            if self._data.coords[self._data.dims[i]].dtype == str:
-                string_labels[k] = self._data.coords[self._data.dims[i]]
+        # to_dim_search = {}
+        self.string_labels = {}
+        self.bin_edge_coords = {}
+        # self._data_with_bin_edges = sc.DataArray(data=self._data.data)
+        to_dim_search = {
+            k: {'dim': self._data.dims[i], 'var': self._data.coords[self._data.dims[i]]}
+            for i, k in enumerate('yx')
+        }
+        # bin_edge_coords[k] = coord_as_bin_edges(self._data, self._data.dims[i])
+        # self._data_with_bin_edges.coords[self._data.dims[i]] = bin_edge_coords[k]
+        # if self._data.coords[self._data.dims[i]].dtype == str:
+        #     string_labels[k] = self._data.coords[self._data.dims[i]]
 
         self._dim_1d, self._dim_2d = _get_dims_of_1d_and_2d_coords(to_dim_search)
         self._mesh = None
 
         x, y, z = _from_data_array_to_pcolormesh(
             data=self._data.data,
-            coords=bin_edge_coords,
+            coords=self.bin_edge_coords,
             dim_1d=self._dim_1d,
             dim_2d=self._dim_2d,
         )
@@ -140,7 +139,7 @@ class MeshImage:
         self._mesh.set_array(None)
         self._update_colors()
 
-        for xy, var in string_labels.items():
+        for xy, var in self.string_labels.items():
             getattr(self._ax, f'set_{xy}ticks')(np.arange(float(var.shape[0])))
             getattr(self._ax, f'set_{xy}ticklabels')(var.values)
 
@@ -148,6 +147,18 @@ class MeshImage:
             self._ax.grid(True)
 
         self._canvas.register_format_coord(self.format_coord)
+
+    def _update_coords(self) -> None:
+        # string_labels = {}
+        # bin_edge_coords = {}
+        self._data_with_bin_edges = sc.DataArray(data=self._data.data)
+        for i, k in enumerate('yx'):
+            self.bin_edge_coords[k] = coord_as_bin_edges(self._data, self._data.dims[i])
+            self._data_with_bin_edges.coords[self._data.dims[i]] = self.bin_edge_coords[
+                k
+            ]
+            if self._data.coords[self._data.dims[i]].dtype == str:
+                self.string_labels[k] = self._data.coords[self._data.dims[i]]
 
     @property
     def data(self):
