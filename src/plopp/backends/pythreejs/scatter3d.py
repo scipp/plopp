@@ -45,11 +45,6 @@ class Scatter3d:
         The opacity of the points.
     pixel_size:
         The size of the pixels in the plot. Deprecated (use size instead).
-    disable_position_update:
-        Whether to check if the coordinates of new data on update have changed. If so,
-        the positions of the points are re-computed. If not, only the colors are
-        updated. This check can be expensive for large data sets, so if you are sure
-        that the coordinates will not change, you can set this to False.
     """
 
     def __init__(
@@ -67,7 +62,6 @@ class Scatter3d:
         artist_number: int = 0,
         opacity: float = 1,
         pixel_size: sc.Variable | float | None = None,
-        disable_position_update: bool = False,
     ):
         check_ndim(data, ndim=1, origin='Scatter3d')
         self.uid = uid if uid is not None else uuid.uuid4().hex
@@ -78,7 +72,6 @@ class Scatter3d:
         self._y = y
         self._z = z
         self._opacity = opacity
-        self._position_update = not disable_position_update
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -167,13 +160,25 @@ class Scatter3d:
         """
         self._update_colors()
 
-    def _update_colors(self):
+    def _update_colors(self) -> None:
         """
         Set the point cloud's rgba colors:
         """
         self.geometry.attributes["color"].array = self._colormapper.rgba(self.data)[
             ..., :3
         ].astype('float32')
+
+    def _update_positions(self) -> None:
+        """
+        Update the point cloud's positions from the data.
+        """
+        self.geometry.attributes["position"].array = np.array(
+            [
+                self._data.coords[self._x].values.astype('float32'),
+                self._data.coords[self._y].values.astype('float32'),
+                self._data.coords[self._z].values.astype('float32'),
+            ]
+        ).T
 
     def update(self, new_values):
         """
@@ -188,19 +193,19 @@ class Scatter3d:
         """
         check_ndim(new_values, ndim=1, origin='Scatter3d')
         need_new_point_cloud = False
-        if self._position_update:
-            # This check is potentially expensive to run on every update, so allow
-            # users to disable it if they are sure that the data is valid.
-            need_new_point_cloud = any(
-                not sc.identical(new_values.coords[dim], self._data.coords[dim])
-                for dim in [self._x, self._y, self._z]
-            )
+        if self._data.shape != new_values.shape:
+            need_new_point_cloud = True
+
         self._data = new_values
 
         if need_new_point_cloud:
             self._make_point_cloud()
+        else:
+            self._update_positions()
+
         if self._colormapper is not None:
             self._update_colors()
+
         if need_new_point_cloud:
             self._add_point_cloud_to_scene()
 
