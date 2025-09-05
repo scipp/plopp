@@ -6,6 +6,7 @@ from typing import Literal
 
 import numpy as np
 import scipp as sc
+from matplotlib.collections import QuadMesh
 
 from ...core.utils import coord_as_bin_edges, merge_masks, repeat, scalar_to_string
 from ...graphics.bbox import BoundingBox, axis_bounds
@@ -99,47 +100,30 @@ class MeshImage:
         self._colormapper = colormapper
         self._ax = self._canvas.ax
         self._data = data
+        self._shading = shading
+        self._rasterized = rasterized
+        self._kwargs = kwargs
         # If the grid is visible on the axes, we need to set that on again after we
         # call pcolormesh, because that turns the grid off automatically.
         # See https://github.com/matplotlib/matplotlib/issues/15600.
         need_grid = self._ax.xaxis.get_gridlines()[0].get_visible()
 
-        # to_dim_search = {}
-        self.string_labels = {}
-        self.bin_edge_coords = {}
-        # self._data_with_bin_edges = sc.DataArray(data=self._data.data)
+        self._string_labels = {}
+        self._bin_edge_coords = {}
+        self._raw_coords = {}
         to_dim_search = {
             k: {'dim': self._data.dims[i], 'var': self._data.coords[self._data.dims[i]]}
             for i, k in enumerate('yx')
         }
-        # bin_edge_coords[k] = coord_as_bin_edges(self._data, self._data.dims[i])
-        # self._data_with_bin_edges.coords[self._data.dims[i]] = bin_edge_coords[k]
-        # if self._data.coords[self._data.dims[i]].dtype == str:
-        #     string_labels[k] = self._data.coords[self._data.dims[i]]
 
+        self._update_coords()
         self._dim_1d, self._dim_2d = _get_dims_of_1d_and_2d_coords(to_dim_search)
-        self._mesh = None
-
-        x, y, z = _from_data_array_to_pcolormesh(
-            data=self._data.data,
-            coords=self.bin_edge_coords,
-            dim_1d=self._dim_1d,
-            dim_2d=self._dim_2d,
-        )
-        self._mesh = self._ax.pcolormesh(
-            x.values,
-            y.values,
-            z.values,
-            shading=shading,
-            rasterized=rasterized,
-            **kwargs,
-        )
-
+        self._mesh = self._make_mesh()
         self._colormapper.add_artist(self.uid, self)
         self._mesh.set_array(None)
         self._update_colors()
 
-        for xy, var in self.string_labels.items():
+        for xy, var in self._string_labels.items():
             getattr(self._ax, f'set_{xy}ticks')(np.arange(float(var.shape[0])))
             getattr(self._ax, f'set_{xy}ticklabels')(var.values)
 
@@ -149,16 +133,33 @@ class MeshImage:
         self._canvas.register_format_coord(self.format_coord)
 
     def _update_coords(self) -> None:
-        # string_labels = {}
-        # bin_edge_coords = {}
         self._data_with_bin_edges = sc.DataArray(data=self._data.data)
         for i, k in enumerate('yx'):
-            self.bin_edge_coords[k] = coord_as_bin_edges(self._data, self._data.dims[i])
-            self._data_with_bin_edges.coords[self._data.dims[i]] = self.bin_edge_coords[
-                k
-            ]
+            self._raw_coords[k] = self._data.coords[self._data.dims[i]]
+            self._bin_edge_coords[k] = coord_as_bin_edges(
+                self._data, self._data.dims[i]
+            )
+            self._data_with_bin_edges.coords[self._data.dims[i]] = (
+                self._bin_edge_coords[k]
+            )
             if self._data.coords[self._data.dims[i]].dtype == str:
                 self.string_labels[k] = self._data.coords[self._data.dims[i]]
+
+    def _make_mesh(self) -> QuadMesh:
+        x, y, z = _from_data_array_to_pcolormesh(
+            data=self._data.data,
+            coords=self._bin_edge_coords,
+            dim_1d=self._dim_1d,
+            dim_2d=self._dim_2d,
+        )
+        return self._ax.pcolormesh(
+            x.values,
+            y.values,
+            z.values,
+            shading=self._shading,
+            rasterized=self._rasterized,
+            **self._kwargs,
+        )
 
     @property
     def data(self):
@@ -210,8 +211,33 @@ class MeshImage:
             New data to update the mesh values from.
         """
         check_ndim(new_values, ndim=2, origin='MeshImage')
+        old_shape = self._data.shape
         self._data = new_values
-        self._data_with_bin_edges.data = new_values.data
+        if self._data.shape != old_shape:
+            # Remove the old mesh and make a new one
+            self._mesh.remove()
+            self._update_coords()
+            self._mesh = self._make_mesh()
+            self._mesh.set_array(None)
+        elif any(
+            not sc.identical(new_values.coords[self._data.dims[i]], self._raw_coords[k])
+            for i, k in enumerate('yx')
+        ):
+            # Update the coordinates of the existing mesh
+            self._update_coords()
+            x, y, _ = _from_data_array_to_pcolormesh(
+                data=self._data.data,
+                coords=self._bin_edge_coords,
+                dim_1d=self._dim_1d,
+                dim_2d=self._dim_2d,
+            )
+            m = QuadMesh(np.stack(np.meshgrid(x.values, y.values), axis=-1))
+            # TODO: There is no public API to update the coordinates of a QuadMesh,
+            # so we have to access the protected member here.
+            self._mesh._coordinates = m._coordinates
+            self._mesh.stale = True  # mark it for re-draw
+        else:
+            self._data_with_bin_edges.data = new_values.data
         self._update_colors()
 
     def format_coord(

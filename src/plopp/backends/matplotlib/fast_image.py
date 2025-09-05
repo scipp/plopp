@@ -52,26 +52,9 @@ class FastImage:
         self._ax = self._canvas.ax
         self._data = data
 
-        # string_labels = {}
-        # self._raw_coords = {}
-        # self._bin_edge_coords = {}
-        # for i, k in enumerate("yx"):
-        #     self._raw_coords[k] = self._data.coords[self._data.dims[i]]
-        #     self._bin_edge_coords[k] = coord_as_bin_edges(
-        #         self._data, self._data.dims[i]
-        #     )
-        #     if self._data.coords[self._data.dims[i]].dtype == str:
-        #         string_labels[k] = self._data.coords[self._data.dims[i]]
-
-        # self._raw_coords = {}
-        self._raw_coords = {
-            k: self._data.coords[self._data.dims[i]] for i, k in enumerate("yx")
-        }
-
-        # self._xmin, self._xmax = self._bin_edge_coords["x"].values[[0, -1]]
-        # self._ymin, self._ymax = self._bin_edge_coords["y"].values[[0, -1]]
-        # self._dx = np.diff(self._bin_edge_coords["x"].values[:2])
-        # self._dy = np.diff(self._bin_edge_coords["y"].values[:2])
+        self._string_labels = {}
+        self._bin_edge_coords = {}
+        self._raw_coords = {}
         self._update_coords()
 
         # Calling imshow sets the aspect ratio to 'equal', which might not be what the
@@ -109,8 +92,8 @@ class FastImage:
 
     def _update_coords(self) -> None:
         self._string_labels = {}
-        self._raw_coords = {}
         self._bin_edge_coords = {}
+        self._raw_coords = {}
         for i, k in enumerate("yx"):
             self._raw_coords[k] = self._data.coords[self._data.dims[i]]
             self._bin_edge_coords[k] = coord_as_bin_edges(
