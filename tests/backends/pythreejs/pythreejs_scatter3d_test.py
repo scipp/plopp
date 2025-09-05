@@ -124,3 +124,15 @@ def test_update_raises_when_data_is_not_1d():
         sc.DimensionError, match='Scatter3d only accepts data with 1 dimension'
     ):
         scat.update(da2d)
+
+
+def test_update_with_different_number_of_points():
+    da = scatter(npoints=500)
+    scat = Scatter3d(canvas=Canvas(), data=da, x='x', y='y', z='z')
+    assert scat.points.geometry.attributes['position'].array.shape[0] == 500
+    assert scat.points.geometry.attributes['color'].array.shape[0] == 500
+    new = scatter(npoints=200)
+    scat.update(new)
+    assert scat.points.geometry.attributes['position'].array.shape[0] == 200
+    assert scat.points.geometry.attributes['color'].array.shape[0] == 200
+    assert sc.identical(scat._data, new)

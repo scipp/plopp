@@ -63,8 +63,6 @@ class Scatter3d:
         opacity: float = 1,
         pixel_size: sc.Variable | float | None = None,
     ):
-        import pythreejs as p3
-
         check_ndim(data, ndim=1, origin='Scatter3d')
         self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
@@ -73,6 +71,7 @@ class Scatter3d:
         self._x = x
         self._y = y
         self._z = z
+        self._opacity = opacity
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -88,14 +87,29 @@ class Scatter3d:
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
 
+        self.points = None
+        self._make_point_cloud()
+
         if self._colormapper is not None:
             self._colormapper.add_artist(self.uid, self)
-            colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
+            self._update_colors()
         else:
             colors = np.broadcast_to(
                 np.array(to_rgb(f'C{artist_number}' if color is None else color)),
                 (self._data.coords[self._x].shape[0], 3),
             ).astype('float32')
+            self.geometry.attributes["color"].array = colors
+
+        self._add_point_cloud_to_scene()
+
+    def _make_point_cloud(self) -> None:
+        """
+        Create the point cloud geometry and material.
+        """
+        import pythreejs as p3
+
+        if self.points is not None:
+            self._canvas.remove(self.points)
 
         self.geometry = p3.BufferGeometry(
             attributes={
@@ -108,7 +122,11 @@ class Scatter3d:
                         ]
                     ).T
                 ),
-                'color': p3.BufferAttribute(array=colors),
+                'color': p3.BufferAttribute(
+                    array=np.zeros(
+                        (self._data.coords[self._x].shape[0], 3), dtype='float32'
+                    )
+                ),
             }
         )
 
@@ -120,9 +138,14 @@ class Scatter3d:
             vertexColors='VertexColors',
             size=2.5 * self._size * pixel_ratio,
             transparent=True,
-            opacity=opacity,
+            opacity=self._opacity,
         )
         self.points = p3.Points(geometry=self.geometry, material=self.material)
+
+    def _add_point_cloud_to_scene(self) -> None:
+        """
+        Add the point cloud to the canvas scene.
+        """
         self._canvas.add(self.points)
 
     def notify_artist(self, message: str) -> None:
@@ -137,7 +160,7 @@ class Scatter3d:
         """
         self._update_colors()
 
-    def _update_colors(self):
+    def _update_colors(self) -> None:
         """
         Set the point cloud's rgba colors:
         """
@@ -145,9 +168,23 @@ class Scatter3d:
             ..., :3
         ].astype('float32')
 
+    def _update_positions(self) -> None:
+        """
+        Update the point cloud's positions from the data.
+        """
+        self.geometry.attributes["position"].array = np.array(
+            [
+                self._data.coords[self._x].values.astype('float32'),
+                self._data.coords[self._y].values.astype('float32'),
+                self._data.coords[self._z].values.astype('float32'),
+            ]
+        ).T
+
     def update(self, new_values):
         """
         Update point cloud array with new values.
+        If the coordinates have changed, the positions of the points are re-computed,
+        only if ``validate_on_update`` is ``True``.
 
         Parameters
         ----------
@@ -155,9 +192,22 @@ class Scatter3d:
             New data to update the point cloud values from.
         """
         check_ndim(new_values, ndim=1, origin='Scatter3d')
+        need_new_point_cloud = False
+        if self._data.shape != new_values.shape:
+            need_new_point_cloud = True
+
         self._data = new_values
+
+        if need_new_point_cloud:
+            self._make_point_cloud()
+        else:
+            self._update_positions()
+
         if self._colormapper is not None:
             self._update_colors()
+
+        if need_new_point_cloud:
+            self._add_point_cloud_to_scene()
 
     @property
     def opacity(self) -> float:
