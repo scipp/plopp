@@ -125,11 +125,11 @@ def scatter3d(
         camera=camera,
         **kwargs,
     )
-    clip_planes = ClippingPlanes(fig)
-    fig.toolbar['cut3d'] = ToggleTool(
-        callback=clip_planes.toggle_visibility,
-        icon='layer-group',
-        tooltip='Hide/show spatial cutting tool',
-    )
-    fig.bottom_bar.add(clip_planes)
+    # clip_planes = ClippingPlanes(fig)
+    # fig.toolbar['cut3d'] = ToggleTool(
+    #     callback=clip_planes.toggle_visibility,
+    #     icon='layer-group',
+    #     tooltip='Hide/show spatial cutting tool',
+    # )
+    # fig.bottom_bar.add(clip_planes)
     return fig
