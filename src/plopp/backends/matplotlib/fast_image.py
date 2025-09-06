@@ -96,6 +96,13 @@ class FastImage:
         self._raw_coords = {}
         for i, k in enumerate("yx"):
             self._raw_coords[k] = self._data.coords[self._data.dims[i]]
+            if (self._raw_coords[k].dtype != str) and (
+                not sc.islinspace(self._raw_coords[k])
+            ):
+                raise ValueError(
+                    f"The coordinate '{self._data.dims[i]}' is not linspace, which is "
+                    "incompatible with FastImage. "
+                )
             self._bin_edge_coords[k] = coord_as_bin_edges(
                 self._data, self._data.dims[i]
             )
