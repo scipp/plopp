@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+
+import time
 import uuid
 from typing import Literal
 
@@ -71,6 +73,7 @@ class Scatter3d:
         self._y = y
         self._z = z
         self._opacity = opacity
+        self._trash = None
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -86,20 +89,18 @@ class Scatter3d:
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
 
-        # self.points = None
         self._make_point_cloud()
 
         if self._colormapper is not None:
             self._colormapper.add_artist(self.uid, self)
-            # self._update_colors()
         else:
             colors = np.broadcast_to(
                 np.array(to_rgb(f'C{artist_number}' if color is None else color)),
                 (self._data.coords[self._x].shape[0], 3),
             ).astype('float32')
             self.geometry.attributes["color"].array = colors
+            self._new_colors = None
 
-        # self._add_point_cloud_to_scene()
         self._canvas.add(self.points)
 
     def _make_point_cloud(self) -> None:
@@ -107,9 +108,6 @@ class Scatter3d:
         Create the point cloud geometry and material.
         """
         import pythreejs as p3
-
-        # if self.points is not None:
-        #     self._canvas.remove(self.points)
 
         self._backup_coords()
 
@@ -131,6 +129,7 @@ class Scatter3d:
                 ),
             }
         )
+        self._new_positions = None
 
         # TODO: a device pixel_ratio should probably be read from a config file
         pixel_ratio = 1.0
@@ -154,12 +153,6 @@ class Scatter3d:
             self._z: self._data.coords[self._z],
         }
 
-    # def _add_point_cloud_to_scene(self) -> None:
-    #     """
-    #     Add the point cloud to the canvas scene.
-    #     """
-    #     self._canvas.add(self.points)
-
     def notify_artist(self, message: str) -> None:
         """
         Receive notification from the colormapper that its state has changed.
@@ -170,18 +163,12 @@ class Scatter3d:
         message:
             The message from the colormapper.
         """
-        self._update_colors()
+        self._new_colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
 
-    def _update_colors(self) -> None:
-        """
-        Set the point cloud's rgba colors:
-        """
-        import time
-
-        print('updating colors', time.time())
-        self.geometry.attributes["color"].array = self._colormapper.rgba(self.data)[
-            ..., :3
-        ].astype('float32')
+        # Second call to finalize: this will be the final call if there is a
+        # colormapper. The first call was made by update() once the positions were
+        # updated.
+        self._finalize_update(2)
 
     def _update_positions(self) -> None:
         """
@@ -193,7 +180,7 @@ class Scatter3d:
         ):
             return
         self._backup_coords()
-        self.geometry.attributes["position"].array = np.stack(
+        return np.stack(
             [
                 self._data.coords[self._x].values.astype('float32'),
                 self._data.coords[self._y].values.astype('float32'),
@@ -212,25 +199,41 @@ class Scatter3d:
             New data to update the point cloud values from.
         """
         check_ndim(new_values, ndim=1, origin='Scatter3d')
-        need_new_point_cloud = self._data.shape != new_values.shape
-
+        old_shape = self._data.shape
         self._data = new_values
 
-        if need_new_point_cloud:
-            old_points = self.points
+        if self._data.shape != old_shape:
+            self._trash = self.points
             self._make_point_cloud()
         else:
-            self._update_positions()
+            self._trash = None
+            self._new_positions = self._update_positions()
 
-        # if self._colormapper is not None:
-        #     self._update_colors()
+        # First call to finalize: this will be the final call if there is no
+        # colormapper. If there is a colormapper, it will call finalize again once it has
+        # updated the colors.
+        self._finalize_update(1)
 
-        if need_new_point_cloud:
-            # We delay adding the points to the scene until after updating the colors
-            # so that we avoid first adding empty points to the scene, and then
-            # performing a color update, which can cause visible flickering.
-            self._canvas.remove(old_points)
-            self._canvas.add(self.points)
+    def _finalize_update(self, count: int) -> None:
+        """
+        Finalize the update of the point cloud.
+        This is called twice if there is a colormapper:
+        once when the positions are updated, and once when the colors are updated.
+        We want to wait for both to be ready before updating the geometry.
+        """
+        if count < (1 + bool(self._colormapper is not None)):
+            return
+        with self._canvas.renderer.hold():
+            if self._new_positions is not None:
+                self.geometry.attributes["position"].array = self._new_positions
+                self._new_positions = None
+            if self._new_colors is not None:
+                self.geometry.attributes["color"].array = self._new_colors
+                self._new_colors = None
+            if self._trash is not None:
+                self._canvas.remove(self._trash)
+                self._trash = None
+                self._canvas.add(self.points)
 
     @property
     def opacity(self) -> float:
