@@ -192,9 +192,7 @@ class Scatter3d:
             New data to update the point cloud values from.
         """
         check_ndim(new_values, ndim=1, origin='Scatter3d')
-        need_new_point_cloud = False
-        if self._data.shape != new_values.shape:
-            need_new_point_cloud = True
+        need_new_point_cloud = self._data.shape != new_values.shape
 
         self._data = new_values
 
