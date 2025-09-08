@@ -12,52 +12,47 @@ from plopp.graphics import imagefigure
 pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
 
 
-def test_update_on_one_mesh_changes_colors_on_second_mesh():
-    da1 = data_array(ndim=2, linspace=False)
-    da2 = 3.0 * data_array(ndim=2, linspace=False)
+@pytest.mark.parametrize('linspace', [True, False])
+def test_update_on_one_image_changes_colors_on_second_image(linspace):
+    da1 = data_array(ndim=2, linspace=linspace)
+    da2 = 3.0 * data_array(ndim=2, linspace=linspace)
     da2.coords['xx'] += sc.scalar(50.0, unit='m')
     a = Node(da1)
     b = Node(da2)
     f = imagefigure(a, b)
-    old_b_colors = f.artists[b.id]._mesh.get_facecolors()
+    old_b_colors = getattr(
+        f.artists[b.id]._image, "get_array" if linspace else "get_facecolors"
+    )()
     a.func = lambda: da1 * 2.1
     a.notify_children('updated a')
     f.view.colormapper.autoscale()  # Autoscale the colorbar limits
     # No change because the update did not change the colorbar limits
-    assert np.allclose(old_b_colors, f.artists[b.id]._mesh.get_facecolors())
+    # colors = f.artists[b.id]._image.get_array() if linspace else
+    assert np.allclose(
+        old_b_colors,
+        getattr(
+            f.artists[b.id]._image, "get_array" if linspace else "get_facecolors"
+        )(),
+    )
     a.func = lambda: da1 * 5.0
     a.notify_children('updated a')
     f.view.colormapper.autoscale()  # Autoscale the colorbar limits
-    assert not np.allclose(old_b_colors, f.artists[b.id]._mesh.get_facecolors())
-
-
-def test_update_on_one_mesh_changes_colors_on_second_image():
-    da1 = data_array(ndim=2, linspace=True)
-    da2 = 3.0 * data_array(ndim=2, linspace=True)
-    da2.coords['xx'] += sc.scalar(50.0, unit='m')
-    a = Node(da1)
-    b = Node(da2)
-    f = imagefigure(a, b)
-    old_b_colors = f.artists[b.id]._image.get_array()
-    a.func = lambda: da1 * 2.1
-    a.notify_children('updated a')
-    f.view.colormapper.autoscale()  # Autoscale the colorbar limits
-    # No change because the update did not change the colorbar limits
-    assert np.allclose(old_b_colors, f.artists[b.id]._image.get_array())
-    a.func = lambda: da1 * 5.0
-    a.notify_children('updated a')
-    f.view.colormapper.autoscale()  # Autoscale the colorbar limits
-    assert not np.allclose(old_b_colors, f.artists[b.id]._image.get_array())
+    assert not np.allclose(
+        old_b_colors,
+        getattr(
+            f.artists[b.id]._image, "get_array" if linspace else "get_facecolors"
+        )(),
+    )
 
 
 def test_kwargs_are_forwarded_to_artist():
     da = data_array(ndim=2, linspace=False)
     fig = imagefigure(Node(da), rasterized=True)
     [artist] = fig.artists.values()
-    assert artist._mesh.get_rasterized()
+    assert artist._image.get_rasterized()
     fig = imagefigure(Node(da), rasterized=False)
     [artist] = fig.artists.values()
-    assert not artist._mesh.get_rasterized()
+    assert not artist._image.get_rasterized()
 
 
 @pytest.mark.parametrize('linspace', [True, False])
