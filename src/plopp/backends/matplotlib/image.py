@@ -148,7 +148,7 @@ class Image:
                 self._bin_edge_coords[k]
             )
             if self._data.coords[self._data.dims[i]].dtype == str:
-                self.string_labels[k] = self._data.coords[self._data.dims[i]]
+                self._string_labels[k] = self._data.coords[self._data.dims[i]]
 
         if self._optimized_mode:
             self._xmin, self._xmax = self._bin_edge_coords["x"].values[[0, -1]]
