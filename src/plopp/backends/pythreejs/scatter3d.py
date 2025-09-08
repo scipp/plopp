@@ -86,12 +86,12 @@ class Scatter3d:
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
 
-        self.points = None
+        # self.points = None
         self._make_point_cloud()
 
         if self._colormapper is not None:
             self._colormapper.add_artist(self.uid, self)
-            self._update_colors()
+            # self._update_colors()
         else:
             colors = np.broadcast_to(
                 np.array(to_rgb(f'C{artist_number}' if color is None else color)),
@@ -99,7 +99,8 @@ class Scatter3d:
             ).astype('float32')
             self.geometry.attributes["color"].array = colors
 
-        self._add_point_cloud_to_scene()
+        # self._add_point_cloud_to_scene()
+        self._canvas.add(self.points)
 
     def _make_point_cloud(self) -> None:
         """
@@ -107,8 +108,8 @@ class Scatter3d:
         """
         import pythreejs as p3
 
-        if self.points is not None:
-            self._canvas.remove(self.points)
+        # if self.points is not None:
+        #     self._canvas.remove(self.points)
 
         self._backup_coords()
 
@@ -153,11 +154,11 @@ class Scatter3d:
             self._z: self._data.coords[self._z],
         }
 
-    def _add_point_cloud_to_scene(self) -> None:
-        """
-        Add the point cloud to the canvas scene.
-        """
-        self._canvas.add(self.points)
+    # def _add_point_cloud_to_scene(self) -> None:
+    #     """
+    #     Add the point cloud to the canvas scene.
+    #     """
+    #     self._canvas.add(self.points)
 
     def notify_artist(self, message: str) -> None:
         """
@@ -175,6 +176,9 @@ class Scatter3d:
         """
         Set the point cloud's rgba colors:
         """
+        import time
+
+        print('updating colors', time.time())
         self.geometry.attributes["color"].array = self._colormapper.rgba(self.data)[
             ..., :3
         ].astype('float32')
@@ -213,15 +217,20 @@ class Scatter3d:
         self._data = new_values
 
         if need_new_point_cloud:
+            old_points = self.points
             self._make_point_cloud()
         else:
             self._update_positions()
 
-        if self._colormapper is not None:
-            self._update_colors()
+        # if self._colormapper is not None:
+        #     self._update_colors()
 
         if need_new_point_cloud:
-            self._add_point_cloud_to_scene()
+            # We delay adding the points to the scene until after updating the colors
+            # so that we avoid first adding empty points to the scene, and then
+            # performing a color update, which can cause visible flickering.
+            self._canvas.remove(old_points)
+            self._canvas.add(self.points)
 
     @property
     def opacity(self) -> float:
