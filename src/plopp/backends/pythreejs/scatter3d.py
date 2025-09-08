@@ -1,7 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
-
-import time
 import uuid
 from typing import Literal
 
@@ -210,8 +208,8 @@ class Scatter3d:
             self._new_positions = self._update_positions()
 
         # First call to finalize: this will be the final call if there is no
-        # colormapper. If there is a colormapper, it will call finalize again once it has
-        # updated the colors.
+        # colormapper. If there is a colormapper, it will call finalize again once it
+        # has updated the colors.
         self._finalize_update(1)
 
     def _finalize_update(self, count: int) -> None:
