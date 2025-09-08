@@ -1,6 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
-
 import uuid
 from typing import Literal
 
@@ -111,6 +110,8 @@ class Scatter3d:
         if self.points is not None:
             self._canvas.remove(self.points)
 
+        self._backup_coords()
+
         self.geometry = p3.BufferGeometry(
             attributes={
                 'position': p3.BufferAttribute(
@@ -142,6 +143,16 @@ class Scatter3d:
         )
         self.points = p3.Points(geometry=self.geometry, material=self.material)
 
+    def _backup_coords(self) -> None:
+        """
+        Backup the current coordinates to be able to detect changes.
+        """
+        self._old_coords = {
+            self._x: self._data.coords[self._x],
+            self._y: self._data.coords[self._y],
+            self._z: self._data.coords[self._z],
+        }
+
     def _add_point_cloud_to_scene(self) -> None:
         """
         Add the point cloud to the canvas scene.
@@ -172,6 +183,12 @@ class Scatter3d:
         """
         Update the point cloud's positions from the data.
         """
+        if all(
+            sc.identical(self._old_coords[dim], self._data.coords[dim])
+            for dim in [self._x, self._y, self._z]
+        ):
+            return
+        self._backup_coords()
         self.geometry.attributes["position"].array = np.array(
             [
                 self._data.coords[self._x].values.astype('float32'),
@@ -183,8 +200,6 @@ class Scatter3d:
     def update(self, new_values):
         """
         Update point cloud array with new values.
-        If the coordinates have changed, the positions of the points are re-computed,
-        only if ``validate_on_update`` is ``True``.
 
         Parameters
         ----------
