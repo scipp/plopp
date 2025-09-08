@@ -189,13 +189,14 @@ class Scatter3d:
         ):
             return
         self._backup_coords()
-        self.geometry.attributes["position"].array = np.array(
+        self.geometry.attributes["position"].array = np.stack(
             [
                 self._data.coords[self._x].values.astype('float32'),
                 self._data.coords[self._y].values.astype('float32'),
                 self._data.coords[self._z].values.astype('float32'),
-            ]
-        ).T
+            ],
+            axis=1,
+        )
 
     def update(self, new_values):
         """
