@@ -75,6 +75,8 @@ class Scatter3d:
         self._opacity = opacity
         self._new_points = None
         self._new_colors = None
+        self._subset = None
+        self._new_subset_colors = None
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -90,13 +92,13 @@ class Scatter3d:
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
 
-        self.points = self._make_point_cloud()
+        self.points = self._make_point_cloud(self._data)
         self._canvas.add(self.points)
 
         if self._colormapper is not None:
             self._colormapper.add_artist(self.uid, self)
 
-    def _make_point_cloud(self) -> None:
+    def _make_point_cloud(self, data: sc.DataArray) -> None:
         """
         Create the point cloud geometry and material.
         """
@@ -109,9 +111,9 @@ class Scatter3d:
                 'position': p3.BufferAttribute(
                     array=np.stack(
                         [
-                            self._data.coords[self._x].values.astype('float32'),
-                            self._data.coords[self._y].values.astype('float32'),
-                            self._data.coords[self._z].values.astype('float32'),
+                            data.coords[self._x].values.astype('float32'),
+                            data.coords[self._y].values.astype('float32'),
+                            data.coords[self._z].values.astype('float32'),
                         ],
                         axis=1,
                     )
@@ -119,7 +121,7 @@ class Scatter3d:
                 'color': p3.BufferAttribute(
                     array=np.broadcast_to(
                         np.array(self._unique_color),
-                        (self._data.coords[self._x].shape[0], 3),
+                        (data.coords[self._x].shape[0], 3),
                     ).astype('float32')
                 ),
             }
@@ -159,6 +161,10 @@ class Scatter3d:
             The message from the colormapper.
         """
         self._new_colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
+        if self._subset is not None:
+            self._new_subset_colors = self._colormapper.rgba(
+                self.data[self._sub_selection]
+            )[..., :3].astype('float32')
         self._finalize_update()
 
     def _update_positions(self) -> None:
@@ -194,7 +200,7 @@ class Scatter3d:
         self._data = new_values
 
         if self._data.shape != old_shape:
-            self._new_points = self._make_point_cloud()
+            self._new_points = self._make_point_cloud(self._data)
         else:
             self._new_points = None
             self._new_positions = self._update_positions()
@@ -223,6 +229,11 @@ class Scatter3d:
             if self._new_colors is not None:
                 self.color = self._new_colors
                 self._new_colors = None
+            if self._new_subset_colors is not None:
+                self._subset.geometry.attributes[
+                    'color'
+                ].array = self._new_subset_colors
+                self._new_subset_colors = None
 
     @property
     def position(self) -> np.ndarray:
@@ -319,3 +330,29 @@ class Scatter3d:
         self._canvas.remove(self.points)
         if self._colormapper is not None:
             self._colormapper.remove_artist(self.uid)
+
+    def highlight_selection(self, params, operation):
+        if not params:
+            if self._subset is not None:
+                self._canvas.remove(self._subset)
+                self._subset = None
+            return
+        old_subset = self._subset
+        selections = []
+        for param in params:
+            xmin, xmax = param.range
+            selections.append(
+                (self._data.coords[param.dim] >= xmin)
+                & (self._data.coords[param.dim] < xmax)
+            )
+        self._sub_selection = operation(selections)
+        subset = self._data[self._sub_selection]
+        self._subset = self._make_point_cloud(subset)
+        self._subset.geometry.attributes['color'].array = self._colormapper.rgba(
+            subset
+        )[..., :3].astype('float32')
+
+        with self._canvas.renderer.hold():
+            if old_subset is not None:
+                self._canvas.remove(old_subset)
+            self._canvas.add(self._subset)

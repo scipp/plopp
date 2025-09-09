@@ -227,8 +227,8 @@ class ClippingPlanes(ipw.HBox):
         self._operation = 'or'
 
         self.tabs = ipw.Tab(layout={'width': '550px'})
-        self._original_nodes = list(self._view.graph_nodes.values())
-        self._nodes = {}
+        # self._original_nodes = list(self._view.graph_nodes.values())
+        # self._nodes = {}
 
         self.add_cut_label = ipw.Label('Add cut:')
         layout = {'width': '45px', 'padding': '0px 0px 0px 0px'}
@@ -359,8 +359,10 @@ class ClippingPlanes(ipw.HBox):
         """
         Set the opacity of the original point clouds in the figure, not the cuts.
         """
-        for n in self._original_nodes:
-            self._view.artists[n.id].opacity = change['new']
+        # for n in self._original_nodes:
+        #     self._view.artists[n.id].opacity = change['new']
+        for artist in self._view.artists.values():
+            artist.opacity = change['new']
 
     def toggle_visibility(self):
         """
@@ -392,14 +394,18 @@ class ClippingPlanes(ipw.HBox):
         debounce mechanism to avoid updating the cloud too often. Only the outlines of
         the cuts are moved in real time, which is cheap.
         """
-        for nodes in self._nodes.values():
-            self._view.remove(nodes['slice'].id)
-            nodes['slice'].remove()
-        self._nodes.clear()
+        # for nodes in self._nodes.values():
+        #     self._view.remove(nodes['slice'].id)
+        #     nodes['slice'].remove()
+        # self._nodes.clear()
 
         visible_cuts = [cut for cut in self.cuts if cut.visible]
-        if not visible_cuts:
-            return
+        # if not visible_cuts:
+        #     return
+
+        for artist in self._view.artists.values():
+            artist.highlight_selection(visible_cuts, OPERATIONS[self._operation])
+        return
 
         for n in self._original_nodes:
             da = n.request_data()
