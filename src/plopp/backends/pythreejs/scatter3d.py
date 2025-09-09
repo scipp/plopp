@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+
 import uuid
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import scipp as sc
@@ -70,8 +71,10 @@ class Scatter3d:
         self._x = x
         self._y = y
         self._z = z
+        self._unique_color = to_rgb(f'C{artist_number}' if color is None else color)
         self._opacity = opacity
-        self._trash = None
+        self._new_points = None
+        self._new_colors = None
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -87,19 +90,11 @@ class Scatter3d:
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
 
-        self._make_point_cloud()
+        self.points = self._make_point_cloud()
+        self._canvas.add(self.points)
 
         if self._colormapper is not None:
             self._colormapper.add_artist(self.uid, self)
-        else:
-            colors = np.broadcast_to(
-                np.array(to_rgb(f'C{artist_number}' if color is None else color)),
-                (self._data.coords[self._x].shape[0], 3),
-            ).astype('float32')
-            self.geometry.attributes["color"].array = colors
-            self._new_colors = None
-
-        self._canvas.add(self.points)
 
     def _make_point_cloud(self) -> None:
         """
@@ -109,21 +104,23 @@ class Scatter3d:
 
         self._backup_coords()
 
-        self.geometry = p3.BufferGeometry(
+        geometry = p3.BufferGeometry(
             attributes={
                 'position': p3.BufferAttribute(
-                    array=np.array(
+                    array=np.stack(
                         [
                             self._data.coords[self._x].values.astype('float32'),
                             self._data.coords[self._y].values.astype('float32'),
                             self._data.coords[self._z].values.astype('float32'),
-                        ]
-                    ).T
+                        ],
+                        axis=1,
+                    )
                 ),
                 'color': p3.BufferAttribute(
-                    array=np.zeros(
-                        (self._data.coords[self._x].shape[0], 3), dtype='float32'
-                    )
+                    array=np.broadcast_to(
+                        np.array(self._unique_color),
+                        (self._data.coords[self._x].shape[0], 3),
+                    ).astype('float32')
                 ),
             }
         )
@@ -133,13 +130,13 @@ class Scatter3d:
         pixel_ratio = 1.0
         # Note that an additional factor of 2.5 (obtained from trial and error) seems to
         # be required to get the sizes right in the scene.
-        self.material = p3.PointsMaterial(
+        material = p3.PointsMaterial(
             vertexColors='VertexColors',
             size=2.5 * self._size * pixel_ratio,
             transparent=True,
             opacity=self._opacity,
         )
-        self.points = p3.Points(geometry=self.geometry, material=self.material)
+        return p3.Points(geometry=geometry, material=material)
 
     def _backup_coords(self) -> None:
         """
@@ -197,10 +194,9 @@ class Scatter3d:
         self._data = new_values
 
         if self._data.shape != old_shape:
-            self._trash = self.points
-            self._make_point_cloud()
+            self._new_points = self._make_point_cloud()
         else:
-            self._trash = None
+            self._new_points = None
             self._new_positions = self._update_positions()
 
         if self._colormapper is None:
@@ -213,17 +209,56 @@ class Scatter3d:
         colormapper, and after the colors are updated in the case of a colormapper.
         We want to wait for both to be ready before updating the geometry.
         """
+        # We use the hold context manager to avoid multiple re-draws of the scene and
+        # thus prevent flickering.
         with self._canvas.renderer.hold():
+            if self._new_points is not None:
+                self._canvas.remove(self.points)
+                self.points = self._new_points
+                self._new_points = None
+                self._canvas.add(self.points)
             if self._new_positions is not None:
-                self.geometry.attributes["position"].array = self._new_positions
+                self.position = self._new_positions
                 self._new_positions = None
             if self._new_colors is not None:
-                self.geometry.attributes["color"].array = self._new_colors
+                self.color = self._new_colors
                 self._new_colors = None
-            if self._trash is not None:
-                self._canvas.remove(self._trash)
-                self._trash = None
-                self._canvas.add(self.points)
+
+    @property
+    def position(self) -> np.ndarray:
+        """
+        The scatter points positions as a (N, 3) numpy array.
+        """
+        return self.geometry.attributes['position'].array
+
+    @position.setter
+    def position(self, val: np.ndarray):
+        self.geometry.attributes['position'].array = val
+
+    @property
+    def color(self) -> np.ndarray:
+        """
+        The scatter points colors as a (N, 3) numpy array.
+        """
+        return self.geometry.attributes['color'].array
+
+    @color.setter
+    def color(self, val: np.ndarray):
+        self.geometry.attributes['color'].array = val
+
+    @property
+    def geometry(self) -> Any:
+        """
+        The scatter points geometry.
+        """
+        return self.points.geometry
+
+    @property
+    def material(self) -> Any:
+        """
+        The scatter points material.
+        """
+        return self.points.material
 
     @property
     def opacity(self) -> float:

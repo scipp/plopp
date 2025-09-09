@@ -8,15 +8,17 @@ import scipp as sc
 from plopp.backends.pythreejs.canvas import Canvas
 from plopp.backends.pythreejs.scatter3d import Scatter3d
 from plopp.data.testing import scatter
+from plopp.graphics import ColorMapper
 
 
-def test_creation():
+@pytest.mark.parametrize("with_cbar", [False, True])
+def test_creation(with_cbar):
     da = scatter()
-    scat = Scatter3d(canvas=Canvas(), data=da, x='x', y='y', z='z')
+    canvas = Canvas()
+    cmapper = ColorMapper(canvas=canvas) if with_cbar else None
+    scat = Scatter3d(canvas=canvas, data=da, x='x', y='y', z='z', colormapper=cmapper)
     assert sc.identical(scat._data, da)
-    assert np.allclose(
-        scat.geometry.attributes['position'].array, da.coords['position'].values
-    )
+    assert np.allclose(scat.position, da.coords['position'].values)
 
 
 def test_update():
@@ -126,13 +128,36 @@ def test_update_raises_when_data_is_not_1d():
         scat.update(da2d)
 
 
-def test_update_with_different_number_of_points():
+@pytest.mark.parametrize("with_cbar", [False, True])
+def test_update_with_new_positions(with_cbar):
+    canvas = Canvas()
+    cmapper = ColorMapper(canvas=canvas) if with_cbar else None
+    da = scatter(npoints=500, seed=10)
+    scat = Scatter3d(canvas=canvas, data=da, x='x', y='y', z='z', colormapper=cmapper)
+    assert scat.position.shape[0] == 500
+    assert scat.color.shape[0] == 500
+    new = scatter(npoints=500, seed=20)
+    new.data = da.data  # Keep the same data values
+    scat.update(new)
+    if with_cbar:
+        scat.notify_artist("")  # To update the colors
+    assert scat.position.shape[0] == 500
+    assert scat.color.shape[0] == 500
+    assert sc.identical(scat._data, new)
+
+
+@pytest.mark.parametrize("with_cbar", [False, True])
+def test_update_with_different_number_of_points(with_cbar):
+    canvas = Canvas()
+    cmapper = ColorMapper(canvas=canvas) if with_cbar else None
     da = scatter(npoints=500)
-    scat = Scatter3d(canvas=Canvas(), data=da, x='x', y='y', z='z')
-    assert scat.points.geometry.attributes['position'].array.shape[0] == 500
-    assert scat.points.geometry.attributes['color'].array.shape[0] == 500
+    scat = Scatter3d(canvas=canvas, data=da, x='x', y='y', z='z', colormapper=cmapper)
+    assert scat.position.shape[0] == 500
+    assert scat.color.shape[0] == 500
     new = scatter(npoints=200)
     scat.update(new)
-    assert scat.points.geometry.attributes['position'].array.shape[0] == 200
-    assert scat.points.geometry.attributes['color'].array.shape[0] == 200
+    if with_cbar:
+        scat.notify_artist("")  # To update the colors
+    assert scat.position.shape[0] == 200
+    assert scat.color.shape[0] == 200
     assert sc.identical(scat._data, new)
