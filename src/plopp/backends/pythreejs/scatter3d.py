@@ -74,6 +74,7 @@ class Scatter3d:
         self._unique_color = to_rgb(f'C{artist_number}' if color is None else color)
         self._opacity = opacity
         self._new_points = None
+        self._new_positions = None
         self._new_colors = None
         self._subset = None
         self._new_subset_colors = None
@@ -104,7 +105,7 @@ class Scatter3d:
         """
         import pythreejs as p3
 
-        self._backup_coords()
+        # self._backup_coords()
 
         geometry = p3.BufferGeometry(
             attributes={
@@ -126,7 +127,7 @@ class Scatter3d:
                 ),
             }
         )
-        self._new_positions = None
+        # self._new_positions = None
 
         # TODO: a device pixel_ratio should probably be read from a config file
         pixel_ratio = 1.0
@@ -176,7 +177,7 @@ class Scatter3d:
             for dim in [self._x, self._y, self._z]
         ):
             return
-        self._backup_coords()
+        # self._backup_coords()
         return np.stack(
             [
                 self._data.coords[self._x].values.astype('float32'),
@@ -199,11 +200,26 @@ class Scatter3d:
         old_shape = self._data.shape
         self._data = new_values
 
+        self._backup_coords()
+
         if self._data.shape != old_shape:
             self._new_points = self._make_point_cloud(self._data)
+            self._new_positions = None
         else:
             self._new_points = None
             self._new_positions = self._update_positions()
+
+        # self._backup_coords()
+
+        if (self._subset is not None) and (
+            (self._new_positions is not None) or (self._new_points is not None)
+        ):
+            print(
+                "update subset in update", self._subset_params, self._subset_operation
+            )
+            self.highlight_selection(
+                self._subset_params, self._subset_operation, update_canvas=False
+            )
 
         if self._colormapper is None:
             self._finalize_update()
@@ -223,9 +239,16 @@ class Scatter3d:
                 self.points = self._new_points
                 self._new_points = None
                 self._canvas.add(self.points)
+                if self._subset is not None:
+                    print("update subset in canvas 1")
+                    self._update_subset_in_canvas()
             if self._new_positions is not None:
                 self.position = self._new_positions
                 self._new_positions = None
+                print("positions changed")
+                if self._subset is not None:
+                    print("update subset in canvas 2")
+                    self._update_subset_in_canvas()
             if self._new_colors is not None:
                 self.color = self._new_colors
                 self._new_colors = None
@@ -331,13 +354,15 @@ class Scatter3d:
         if self._colormapper is not None:
             self._colormapper.remove_artist(self.uid)
 
-    def highlight_selection(self, params, operation):
+    def highlight_selection(self, params, operation, update_canvas=True):
+        self._subset_params = params
+        self._subset_operation = operation
         if not params:
             if self._subset is not None:
                 self._canvas.remove(self._subset)
                 self._subset = None
             return
-        old_subset = self._subset
+        self._old_subset = self._subset
         selections = []
         for param in params:
             xmin, xmax = param.range
@@ -351,8 +376,13 @@ class Scatter3d:
         self._subset.geometry.attributes['color'].array = self._colormapper.rgba(
             subset
         )[..., :3].astype('float32')
+        self._new_subset_colors = None
 
+        if update_canvas:
+            self._update_subset_in_canvas()
+
+    def _update_subset_in_canvas(self):
         with self._canvas.renderer.hold():
-            if old_subset is not None:
-                self._canvas.remove(old_subset)
+            if self._old_subset is not None:
+                self._canvas.remove(self._old_subset)
             self._canvas.add(self._subset)
