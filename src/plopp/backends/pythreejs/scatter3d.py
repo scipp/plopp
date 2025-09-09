@@ -162,11 +162,7 @@ class Scatter3d:
             The message from the colormapper.
         """
         self._new_colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
-
-        # Second call to finalize: this will be the final call if there is a
-        # colormapper. The first call was made by update() once the positions were
-        # updated.
-        self._finalize_update(2)
+        self._finalize_update()
 
     def _update_positions(self) -> None:
         """
@@ -207,20 +203,16 @@ class Scatter3d:
             self._trash = None
             self._new_positions = self._update_positions()
 
-        # First call to finalize: this will be the final call if there is no
-        # colormapper. If there is a colormapper, it will call finalize again once it
-        # has updated the colors.
-        self._finalize_update(1)
+        if self._colormapper is None:
+            self._finalize_update()
 
-    def _finalize_update(self, count: int) -> None:
+    def _finalize_update(self) -> None:
         """
         Finalize the update of the point cloud.
-        This is called twice if there is a colormapper:
-        once when the positions are updated, and once when the colors are updated.
+        This is called either at the end of the position update if there is no
+        colormapper, and after the colors are updated in the case of a colormapper.
         We want to wait for both to be ready before updating the geometry.
         """
-        if count < (1 + bool(self._colormapper is not None)):
-            return
         with self._canvas.renderer.hold():
             if self._new_positions is not None:
                 self.geometry.attributes["position"].array = self._new_positions
