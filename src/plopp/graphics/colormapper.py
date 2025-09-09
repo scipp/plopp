@@ -17,28 +17,51 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
 
 
-def _get_cmap(name: str, nan_color: str | None = None) -> Colormap:
+def _shift_color(color, delta):
+    shifted = color + delta
+    if shifted > 1.0 or shifted < 0.0:
+        return color - delta
+    return shifted
+
+
+def _get_cmap(colormap: str | Colormap, nan_color: str | None = None) -> Colormap:
     """
     Get a colormap object from a colormap name.
+    We also set
 
     Parameters
     ----------
-    name:
+    colormap:
         Name of the colormap. If the name is just a single html color, this will
-        create a colormap with that single color.
+        create a colormap with that single color. If ``cmap`` is already a Colormap,
+        it will be used as is.
     nan_color:
         The color to use for NAN values.
     """
 
+    if isinstance(colormap, Colormap):
+        return colormap
+
     try:
         if hasattr(mpl, 'colormaps'):
-            cmap = copy(mpl.colormaps[name])
+            cmap = copy(mpl.colormaps[colormap])
         else:
-            cmap = mpl.cm.get_cmap(name)
+            cmap = mpl.cm.get_cmap(colormap)
     except (KeyError, ValueError):
-        cmap = LinearSegmentedColormap.from_list('tmp', [name, name])
-    # TODO: we need to set under and over values for the cmap with
-    # `cmap.set_under` and `cmap.set_over`. Ideally these should come from a config?
+        cmap = LinearSegmentedColormap.from_list('tmp', [colormap, colormap])
+
+    # Add under and over values to the cmap
+    delta = 0.15
+    cmap = cmap.copy()
+    over = cmap.get_over()
+    under = cmap.get_under()
+    cmap.set_over(
+        [_shift_color(c, delta * (-1 + 2 * (np.mean(over) > 0.5))) for c in over[:3]]
+    )
+    cmap.set_under(
+        [_shift_color(c, delta * (-1 + 2 * (np.mean(under) > 0.5))) for c in under[:3]]
+    )
+
     if nan_color is not None:
         cmap.set_bad(color=nan_color)
     return cmap
@@ -90,8 +113,8 @@ class ColorMapper:
         self,
         canvas: Any | None = None,
         cbar: bool = True,
-        cmap: str = 'viridis',
-        mask_cmap: str = 'gray',
+        cmap: str | Colormap = 'viridis',
+        mask_cmap: str | Colormap = 'gray',
         norm: Literal['linear', 'log'] = 'linear',
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
