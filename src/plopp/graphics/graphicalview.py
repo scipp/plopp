@@ -220,6 +220,8 @@ class GraphicalView(View):
 
         if self._autoscale:
             self.fit_to_data()
+        elif self.colormapper is not None:
+            self.colormapper.notify_artists()
 
         self.canvas.draw()
 
