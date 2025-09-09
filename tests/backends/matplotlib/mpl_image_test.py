@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import matplotlib as mpl
 import numpy as np
 import pytest
 import scipp as sc
@@ -82,3 +83,9 @@ def test_bbox_binedges(linspace):
     assert bbox.xmax == da.coords['xx'].max().value
     assert bbox.ymin == da.coords['yy'].min().value
     assert bbox.ymax == da.coords['yy'].max().value
+
+
+def test_pass_mpl_cmap_object():
+    da = data_array(ndim=2)
+    cmap = mpl.colormaps['plasma']
+    imagefigure(Node(da), cmap=cmap)

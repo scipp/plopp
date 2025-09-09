@@ -17,7 +17,11 @@ from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
 
 
-def _shift_color(color, delta):
+def _shift_color(color: float, delta: float) -> float:
+    """
+    Shift a color (number from 0 to 1) by delta. If the result is out of bounds,
+    the color is shifted in the opposite direction.
+    """
     shifted = color + delta
     if shifted > 1.0 or shifted < 0.0:
         return color - delta
