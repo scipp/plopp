@@ -10,7 +10,7 @@ import ipywidgets as ipw
 import numpy as np
 import scipp as sc
 
-from ..core import Node, node
+from ..core import Node
 from ..graphics import BaseFig
 from .debounce import debounce
 from .style import BUTTON_LAYOUT
@@ -26,10 +26,6 @@ OPERATIONS = {
     'and': partial(reduce, lambda x, y: sc.logical_and(x, y)),
     'xor': _xor,
 }
-
-
-def select(da: sc.DataArray, s: tuple[str, sc.Variable]) -> sc.DataArray:
-    return da[s]
 
 
 class Clip3dTool(ipw.HBox):
@@ -191,6 +187,16 @@ class ClippingPlanes(ipw.HBox):
     """
     A widget to make clipping planes for spatial cutting (see :class:`Clip3dTool`) to
     make spatial cuts in the X, Y, and Z directions on a three-dimensional scatter plot.
+    The widget provides buttons to add/remove cuts, toggle the visibility of the cuts,
+    and set the operation to combine multiple cuts (OR, AND, XOR). The opacity of the
+    original point clouds is reduced when at least one cut is active, to provide
+    context.
+
+    The selection from all cuts are combined to either create or update a
+    second point cloud which is included in the scene.
+    When the position/range of a cut is changed, only the outlines of
+    the cuts are moved in real time, which is cheap. The actual point cloud gets
+    updated less frequently using a debounce mechanism.
 
     .. versionadded:: 24.04.0
 
@@ -302,8 +308,6 @@ class ClippingPlanes(ipw.HBox):
                 self._select_subset, da=n, cuts=self._cut_info_node
             )
             self._nodes[n.id].add_view(self._view)
-            print("added node", self._nodes[n.id])
-        print("view nodes", self._view.graph_nodes)
         self.update_state()
 
         super().__init__(
@@ -397,10 +401,17 @@ class ClippingPlanes(ipw.HBox):
         self._operation = change['new'].lower()
         self.update_state()
 
-    def _get_visible_cuts(self):
+    def _get_visible_cuts(self) -> list[Clip3dTool]:
+        """
+        Return the list of visible cuts.
+        """
         return [cut for cut in self.cuts if cut.visible]
 
-    def _select_subset(self, da, cuts):
+    def _select_subset(self, da: sc.DataArray, cuts: list[Clip3dTool]) -> sc.DataArray:
+        """
+        Return the subset of the data array selected by the cuts, combined using the
+        selected operation.
+        """
         selections = []
         npoints = 0
         for cut in cuts:
@@ -417,42 +428,7 @@ class ClippingPlanes(ipw.HBox):
 
     def update_state(self):
         """
-        Update the state, combining all the active cuts, using the selected binary
-        operation. The resulting selection is then used to either create or update a
-        second point cloud which is included in the scene.
-        The original point cloud is then set to be semi-transparent.
-        When the position/range of a cut is changed, this function is called via a
-        debounce mechanism to avoid updating the cloud too often. Only the outlines of
-        the cuts are moved in real time, which is cheap.
+        Update the state of the cuts in the figure by triggering the node that
+        provides the list of visible cuts.
         """
         self._cut_info_node.notify_children("")
-        return
-        for nodes in self._nodes.values():
-            self._view.remove(nodes['slice'].id)
-            nodes['slice'].remove()
-        self._nodes.clear()
-
-        visible_cuts = [cut for cut in self.cuts if cut.visible]
-        if not visible_cuts:
-            return
-
-        for n in self._original_nodes:
-            da = n.request_data()
-            selections = []
-            for cut in visible_cuts:
-                xmin, xmax = cut.range
-                selections.append(
-                    (da.coords[cut.dim] >= xmin) & (da.coords[cut.dim] < xmax)
-                )
-            selection = OPERATIONS[self._operation](selections)
-            if selection.sum().value > 0:
-                if n.id not in self._nodes:
-                    select_node = Node(selection)
-                    self._nodes[n.id] = {
-                        'select': select_node,
-                        'slice': Node(lambda da, s: da[s], da=n, s=select_node),
-                    }
-                    self._nodes[n.id]['slice'].add_view(self._view)
-                else:
-                    self._nodes[n.id]['select'].func = lambda: selection  # noqa: B023
-                self._nodes[n.id]['select'].notify_children("")
