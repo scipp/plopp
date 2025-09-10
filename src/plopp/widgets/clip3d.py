@@ -10,7 +10,7 @@ import ipywidgets as ipw
 import numpy as np
 import scipp as sc
 
-from ..core import Node
+from ..core import Node, node
 from ..graphics import BaseFig
 from .debounce import debounce
 from .style import BUTTON_LAYOUT
@@ -228,7 +228,7 @@ class ClippingPlanes(ipw.HBox):
 
         self.tabs = ipw.Tab(layout={'width': '550px'})
         self._original_nodes = list(self._view.graph_nodes.values())
-        self._nodes = {}
+        # self._nodes = {}
 
         self.add_cut_label = ipw.Label('Add cut:')
         layout = {'width': '45px', 'padding': '0px 0px 0px 0px'}
@@ -295,6 +295,17 @@ class ClippingPlanes(ipw.HBox):
         )
         self.delete_cut.on_click(self._remove_cut)
 
+        self._nodes = {}
+        self._cut_info_node = Node(self._get_visible_cuts)
+        for n in self._original_nodes:
+            self._nodes[n.id] = Node(
+                self._select_subset, da=n, cuts=self._cut_info_node
+            )
+            self._nodes[n.id].add_view(self._view)
+            print("added node", self._nodes[n.id])
+        print("view nodes", self._view.graph_nodes)
+        self.update_state()
+
         super().__init__(
             [
                 self.tabs,
@@ -354,6 +365,10 @@ class ClippingPlanes(ipw.HBox):
         self.opacity.disabled = not at_least_one_cut
         opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
+        # if not at_least_one_cut:
+        for n in self._original_nodes:
+            nid = self._nodes[n.id].id
+            self._view.artists[nid].visible = at_least_one_cut
 
     def _set_opacity(self, change: dict[str, Any]):
         """
@@ -382,6 +397,24 @@ class ClippingPlanes(ipw.HBox):
         self._operation = change['new'].lower()
         self.update_state()
 
+    def _get_visible_cuts(self):
+        return [cut for cut in self.cuts if cut.visible]
+
+    def _select_subset(self, da, cuts):
+        selections = []
+        npoints = 0
+        for cut in cuts:
+            xmin, xmax = cut.range
+            selection = (da.coords[cut.dim] >= xmin) & (da.coords[cut.dim] < xmax)
+            npoints += selection.sum().value
+            selections.append(selection)
+        # If no points are selected, return a dummy selection to avoid issues with
+        # empty selections.
+        if npoints == 0:
+            return da[0:1]
+        sel = OPERATIONS[self._operation](selections)
+        return da[sel]
+
     def update_state(self):
         """
         Update the state, combining all the active cuts, using the selected binary
@@ -392,6 +425,8 @@ class ClippingPlanes(ipw.HBox):
         debounce mechanism to avoid updating the cloud too often. Only the outlines of
         the cuts are moved in real time, which is cheap.
         """
+        self._cut_info_node.notify_children("")
+        return
         for nodes in self._nodes.values():
             self._view.remove(nodes['slice'].id)
             nodes['slice'].remove()

@@ -135,6 +135,7 @@ class Scatter3d:
             size=2.5 * self._size * pixel_ratio,
             transparent=True,
             opacity=self._opacity,
+            depthTest=self._opacity > 0.5,
         )
         return p3.Points(geometry=geometry, material=material)
 
@@ -215,14 +216,17 @@ class Scatter3d:
             if self._new_points is not None:
                 self._canvas.remove(self.points)
                 self.points = self._new_points
-                self._new_points = None
-                self._canvas.add(self.points)
             if self._new_positions is not None:
                 self.position = self._new_positions
                 self._new_positions = None
             if self._new_colors is not None:
                 self.color = self._new_colors
                 self._new_colors = None
+            # For some reason, adding the points to the scene before updating the colors
+            # still shows the old colors for a brief moment, even if hold() is active.
+            if self._new_points is not None:
+                self._new_points = None
+                self._canvas.add(self.points)
 
     @property
     def position(self) -> np.ndarray:
@@ -265,10 +269,11 @@ class Scatter3d:
         """
         The scatter points opacity.
         """
-        return self.material.opacity
+        return self._opacity
 
     @opacity.setter
     def opacity(self, val: float):
+        self._opacity = val
         self.material.opacity = val
         self.material.depthTest = val > 0.5
 
