@@ -31,7 +31,9 @@ def _shift_color(color: float, delta: float) -> float:
 def _get_cmap(colormap: str | Colormap, nan_color: str | None = None) -> Colormap:
     """
     Get a colormap object from a colormap name.
-    We also set
+    We also set the 'over', 'under' and 'bad' colors. The 'bad' color is set to
+    ``nan_color`` if it is not None. The 'over' and 'under' colors are set to be
+    slightly lighter or darker than the first and last colors in the colormap.
 
     Parameters
     ----------
@@ -59,6 +61,7 @@ def _get_cmap(colormap: str | Colormap, nan_color: str | None = None) -> Colorma
     cmap = cmap.copy()
     over = cmap.get_over()
     under = cmap.get_under()
+    # Note that we only shift the first 3 RGB values, leaving alpha unchanged.
     cmap.set_over(
         [_shift_color(c, delta * (-1 + 2 * (np.mean(over) > 0.5))) for c in over[:3]]
     )
