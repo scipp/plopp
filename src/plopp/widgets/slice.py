@@ -33,7 +33,6 @@ class DimSlicer(ipw.VBox):
             'continuous_update': True,
             'readout': False,
             'layout': {"width": "200px", "margin": "0px 0px 0px 10px"},
-            'style': {'description_width': 'initial'},
         }
         self.dim_label = ipw.Label(value=dim)
         self.slider = slider_constr(**widget_args)
