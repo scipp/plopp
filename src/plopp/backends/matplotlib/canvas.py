@@ -119,12 +119,12 @@ class Canvas:
         if user_vmin is not None:
             if ymin is not None:
                 raise ValueError('Cannot specify both "user_vmin" and "ymin".')
-            deprecated_argument('user_vmin', 'ymin')
+            deprecated_argument(old='user_vmin', new='ymin')
             ymin = user_vmin
         if user_vmax is not None:
             if ymax is not None:
                 raise ValueError('Cannot specify both "user_vmax" and "ymax".')
-            deprecated_argument('user_vmax', 'ymax')
+            deprecated_argument(old='user_vmax', new='ymax')
             ymax = user_vmax
 
         self.fig = None

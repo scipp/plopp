@@ -33,4 +33,13 @@ def deprecated_argument(old: str, new: str) -> None:
     )
 
 
-__all__ = ['deprecated', 'deprecated_argument']
+def deprecated_attribute(old: str, new: str) -> None:
+    warnings.warn(
+        f'Attribute "{old}" is deprecated and will be removed in a future release. '
+        f'Please use "{new}" instead.',
+        VisibleDeprecationWarning,
+        stacklevel=2,
+    )
+
+
+__all__ = ['deprecated', 'deprecated_argument', 'deprecated_attribute']

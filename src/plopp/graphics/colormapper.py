@@ -15,6 +15,7 @@ from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normal
 from ..backends.matplotlib.utils import fig_to_bytes
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
+from ..utils import deprecated_argument, deprecated_attribute
 
 
 def _shift_color(color: float, delta: float) -> float:
@@ -122,26 +123,46 @@ class ColorMapper:
         cbar: bool = True,
         cmap: str | Colormap = 'viridis',
         mask_cmap: str | Colormap = 'gray',
-        norm: Literal['linear', 'log'] = 'linear',
+        norm: Literal['linear', 'log', None] = None,
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
+        cmin: sc.Variable | float | None = None,
+        cmax: sc.Variable | float | None = None,
+        logc: bool = False,
+        clabel: str | None = None,
         nan_color: str | None = None,
         figsize: tuple[float, float] | None = None,
     ):
+        if vmin is not None:
+            if cmin is not None:
+                raise ValueError('Cannot specify both "vmin" and "cmin".')
+            deprecated_argument(old='vmin', new='cmin')
+            cmin = vmin
+        if vmax is not None:
+            if cmax is not None:
+                raise ValueError('Cannot specify both "vmax" and "cmax".')
+            deprecated_argument(old='vmax', new='cmax')
+            cmax = vmax
+        if norm is not None:
+            if logc:
+                raise ValueError('Cannot specify both "norm" and "logc".')
+            deprecated_argument(old='norm', new='logc')
+            logc = norm == 'log'
+
         self._canvas = canvas
         self.cax = self._canvas.cax if hasattr(self._canvas, 'cax') else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
-        self.user_vmin = vmin
-        self.user_vmax = vmax
-        self._vmin = np.inf
-        self._vmax = -np.inf
-        self.norm = norm
+        self.user_cmin = cmin
+        self.user_cmax = cmax
+        self._cmin = np.inf
+        self._cmax = -np.inf
+        self._logc = logc
         self.set_colors_on_update = True
 
-        # Note that we need to set vmin/vmax for the LogNorm, if not an error is
+        # Note that we need to set cmin/cmax for the LogNorm, if not an error is
         # raised when making the colorbar before any call to update is made.
-        self.normalizer = _get_normalizer(self.norm)
+        self.normalizer = _get_normalizer('log' if self._logc else 'linear')
         self.colorbar = None
         self._unit = None
         self.empty = True
@@ -202,40 +223,42 @@ class ColorMapper:
         artists and adjust the limits.
         """
         limits = [
-            fix_empty_range(find_limits(artist._data, scale=self.norm))
+            fix_empty_range(
+                find_limits(artist._data, scale='log' if self._logc else 'linear')
+            )
             for artist in self.artists.values()
         ]
-        vmin = reduce(min, [v[0] for v in limits])
-        vmax = reduce(max, [v[1] for v in limits])
-        if self.user_vmin is not None:
-            self._vmin = self.user_vmin
+        cmin = reduce(min, [v[0] for v in limits])
+        cmax = reduce(max, [v[1] for v in limits])
+        if self.user_cmin is not None:
+            self._cmin = self.user_cmin
         else:
-            self._vmin = vmin.value
-        if self.user_vmax is not None:
-            self._vmax = self.user_vmax
+            self._cmin = cmin.value
+        if self.user_cmax is not None:
+            self._cmax = self.user_cmax
         else:
-            self._vmax = vmax.value
+            self._cmax = cmax.value
 
-        if self._vmin >= self._vmax:
-            if self.user_vmax is not None:
-                self._vmax = self.user_vmax
-                self._vmin = self.user_vmax - abs(self.user_vmax) * 0.1
+        if self._cmin >= self._cmax:
+            if self.user_cmax is not None:
+                self._cmax = self.user_cmax
+                self._cmin = self.user_cmax - abs(self.user_cmax) * 0.1
             else:
-                self._vmin = self.user_vmin
-                self._vmax = self.user_vmin + abs(self.user_vmin) * 0.1
+                self._cmin = self.user_cmin
+                self._cmax = self.user_cmin + abs(self.user_cmin) * 0.1
 
         self.apply_limits()
 
     def apply_limits(self):
         # Synchronize the underlying normalizer limits to the current state.
-        # Note that the order matters here, as for a normalizer vmin cannot be set above
-        # the current vmax.
-        if self._vmin >= self.normalizer.vmax:
-            self.normalizer.vmax = self._vmax
-            self.normalizer.vmin = self._vmin
+        # Note that the order matters here, as for a normalizer cmin cannot be set above
+        # the current cmax.
+        if self._cmin >= self.normalizer.cmax:
+            self.normalizer.vmax = self._cmax
+            self.normalizer.vmin = self._cmin
         else:
-            self.normalizer.vmin = self._vmin
-            self.normalizer.vmax = self._vmax
+            self.normalizer.vmin = self._cmin
+            self.normalizer.vmax = self._cmax
 
         if self.colorbar is not None:
             self._update_colorbar_widget()
@@ -252,24 +275,54 @@ class ColorMapper:
     def vmin(self) -> float:
         """
         Get or set the minimum value of the colorbar.
+
+        .. deprecated:: 25.10.0
         """
-        return self._vmin
+        deprecated_attribute(old='vmin', new='cmin')
+        return self.cmin
 
     @vmin.setter
     def vmin(self, vmin: sc.Variable | float):
-        self._vmin = maybe_variable_to_number(vmin, unit=self._unit)
-        self.apply_limits()
+        deprecated_attribute(old='vmin', new='cmin')
+        self.cmin = vmin
 
     @property
     def vmax(self) -> float:
         """
         Get or set the maximum value of the colorbar.
+
+        .. deprecated:: 25.10.0
         """
-        return self._vmax
+        deprecated_attribute(old='vmax', new='cmax')
+        return self.cmax
 
     @vmax.setter
     def vmax(self, vmax: sc.Variable | float):
-        self._vmax = maybe_variable_to_number(vmax, unit=self._unit)
+        deprecated_attribute(old='vmax', new='cmax')
+        self.cmax = vmax
+
+    @property
+    def cmin(self) -> float:
+        """
+        Get or set the minimum value of the colorbar.
+        """
+        return self._cmin
+
+    @cmin.setter
+    def cmin(self, cmin: sc.Variable | float):
+        self._cmin = maybe_variable_to_number(cmin, unit=self._unit)
+        self.apply_limits()
+
+    @property
+    def cmax(self) -> float:
+        """
+        Get or set the maximum value of the colorbar.
+        """
+        return self._cmax
+
+    @cmax.setter
+    def cmax(self, cmax: sc.Variable | float):
+        self._cmax = maybe_variable_to_number(cmax, unit=self._unit)
         self.apply_limits()
 
     @property
@@ -288,26 +341,42 @@ class ColorMapper:
             self.user_vmax = maybe_variable_to_number(self.user_vmax, unit=self._unit)
 
     @property
-    def ylabel(self) -> str | None:
+    def clabel(self) -> str | None:
         """
         Get or set the label of the colorbar axis.
         """
         if self.cax is not None:
             return self.cax.get_ylabel()
 
-    @ylabel.setter
-    def ylabel(self, lab: str):
+    @clabel.setter
+    def clabel(self, lab: str):
         if self.cax is not None:
             self.cax.set_ylabel(lab)
+
+    @property
+    def ylabel(self) -> str | None:
+        """
+        Get or set the label of the colorbar axis.
+
+        .. deprecated:: 25.10.0
+        """
+        deprecated_attribute(old='ylabel', new='clabel')
+        return self.clabel
+
+    @ylabel.setter
+    def ylabel(self, lab: str):
+        deprecated_attribute(old='ylabel', new='clabel')
+        self.clabel = lab
 
     def toggle_norm(self):
         """
         Toggle the norm flag, between `linear` and `log`.
         """
-        self.norm = "log" if self.norm == 'linear' else 'linear'
-        self.normalizer = _get_normalizer(self.norm)
-        self._vmin = np.inf
-        self._vmax = -np.inf
+        # self.norm = "log" if self.norm == 'linear' else 'linear'
+        self._logc = not self._logc
+        self.normalizer = _get_normalizer('log' if self._logc else 'linear')
+        self._cmin = np.inf
+        self._cmax = -np.inf
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
         self.autoscale()
