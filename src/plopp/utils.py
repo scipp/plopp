@@ -24,4 +24,13 @@ def deprecated(message: str = '') -> Callable:
     return decorator
 
 
-__all__ = ['deprecated']
+def deprecated_argument(old: str, new: str) -> None:
+    warnings.warn(
+        f'Argument "{old}" is deprecated and will be removed in a future release. '
+        f'Please use "{new}" instead.',
+        VisibleDeprecationWarning,
+        stacklevel=2,
+    )
+
+
+__all__ = ['deprecated', 'deprecated_argument']

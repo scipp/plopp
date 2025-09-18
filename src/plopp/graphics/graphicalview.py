@@ -64,9 +64,26 @@ class GraphicalView(View):
         autoscale: bool = True,
         ax: Any = None,
         cax: Any = None,
+        xmin: sc.Variable | float | None = None,
+        xmax: sc.Variable | float | None = None,
+        ymin: sc.Variable | float | None = None,
+        ymax: sc.Variable | float | None = None,
+        zmin: sc.Variable | float | None = None,
+        zmax: sc.Variable | float | None = None,
+        cmin: sc.Variable | float | None = None,
+        cmax: sc.Variable | float | None = None,
+        logx: bool = False,
+        logy: bool = False,
+        logz: bool = False,
+        logc: bool = False,
+        xlabel: str | None = None,
+        ylabel: str | None = None,
+        zlabel: str | None = None,
+        clabel: str | None = None,
         **kwargs,
     ):
         super().__init__(*nodes)
+
         self._dims = dims
         self._scale = {} if scale is None else scale
         self.artists = {}
@@ -88,6 +105,18 @@ class GraphicalView(View):
             camera=camera,
             ax=ax,
             cax=cax,
+            xmin=xmin,
+            xmax=xmax,
+            ymin=ymin,
+            ymax=ymax,
+            zmin=zmin,
+            zmax=zmax,
+            logx=logx,
+            logy=logy,
+            logz=logz,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            zlabel=zlabel,
         )
 
         if colormapper:
@@ -98,6 +127,10 @@ class GraphicalView(View):
                 norm=norm,
                 vmin=vmin,
                 vmax=vmax,
+                cmin=cmin,
+                cmax=cmax,
+                clabel=clabel,
+                logc=logc,
                 canvas=self.canvas,
                 figsize=getattr(self.canvas, "figsize", None),
             )
@@ -109,8 +142,8 @@ class GraphicalView(View):
         else:
             self.colormapper = None
 
-        if len(self._dims) == 1:
-            self.canvas.yscale = norm
+        # if len(self._dims) == 1:
+        #     self.canvas.yscale = norm
         self.render()
 
     def autoscale(self):

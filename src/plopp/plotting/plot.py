@@ -28,6 +28,18 @@ def plot(
     vmin: Variable | float | None = None,
     vmax: Variable | float | None = None,
     legend: bool | tuple[float, float] = True,
+    xmin: Variable | float | None = None,
+    xmax: Variable | float | None = None,
+    ymin: Variable | float | None = None,
+    ymax: Variable | float | None = None,
+    cmin: Variable | float | None = None,
+    cmax: Variable | float | None = None,
+    logx: bool = False,
+    logy: bool = False,
+    logc: bool = False,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
+    clabel: str | None = None,
     **kwargs,
 ) -> FigureLike:
     """Plot a Scipp object.
@@ -93,6 +105,14 @@ def plot(
         'vmin': vmin,
         'vmax': vmax,
         'figsize': figsize,
+        'xlabel': xlabel,
+        'ylabel': ylabel,
+        'xmin': xmin,
+        'xmax': xmax,
+        'ymin': ymin,
+        'ymax': ymax,
+        'logx': logx,
+        'logy': logy,
         **kwargs,
     }
 
@@ -120,7 +140,15 @@ def plot(
     elif ndim == 2:
         if len(nodes) > 1:
             raise_multiple_inputs_for_2d_plot_error(origin='plot')
-        return imagefigure(*nodes, cbar=cbar, **common_args)
+        return imagefigure(
+            *nodes,
+            cbar=cbar,
+            cmin=cmin,
+            cmax=cmax,
+            clabel=clabel,
+            logc=logc,
+            **common_args,
+        )
     else:
         raise ValueError(
             'The plot function can only plot 1d and 2d data, got input '

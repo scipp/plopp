@@ -12,6 +12,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ...graphics.bbox import BoundingBox
+from ...utils import deprecated_argument
 from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
 
@@ -96,6 +97,14 @@ class Canvas:
         aspect: Literal['auto', 'equal', None] = None,
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
+        xmin: sc.Variable | float | None = None,
+        xmax: sc.Variable | float | None = None,
+        ymin: sc.Variable | float | None = None,
+        ymax: sc.Variable | float | None = None,
+        logx: bool = False,
+        logy: bool = False,
+        xlabel: str | None = None,
+        ylabel: str | None = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -107,12 +116,25 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
+        if user_vmin is not None:
+            if ymin is not None:
+                raise ValueError('Cannot specify both "user_vmin" and "ymin".')
+            deprecated_argument('user_vmin', 'ymin')
+            ymin = user_vmin
+        if user_vmax is not None:
+            if ymax is not None:
+                raise ValueError('Cannot specify both "user_vmax" and "ymax".')
+            deprecated_argument('user_vmax', 'ymax')
+            ymax = user_vmax
+
         self.fig = None
         self.ax = ax
         self.cax = cax
         self.bbox = BoundingBox()
-        self._user_vmin = user_vmin
-        self._user_vmax = user_vmax
+        self._xmin = xmin
+        self._xmax = xmax
+        self._ymin = ymin
+        self._ymax = ymax
         self.units = {}
         self.dims = {}
         self._legend = legend
@@ -142,6 +164,15 @@ class Canvas:
         if title:
             self.ax.set_title(title)
         self._coord_formatters = []
+
+        if logx:
+            self.xscale = 'log'
+        if logy:
+            self.yscale = 'log'
+        if xlabel is not None:
+            self.xlabel = xlabel
+        if ylabel is not None:
+            self.ylabel = ylabel
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
@@ -225,8 +256,10 @@ class Canvas:
         self.ax.format_coord = self.format_coord
         key = 'y' if 'y' in self.units else 'data'
         self.bbox = BoundingBox(
-            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
-            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
+            xmin=maybe_variable_to_number(self._xmin, unit=self.units['x']),
+            xmax=maybe_variable_to_number(self._xmax, unit=self.units['x']),
+            ymin=maybe_variable_to_number(self._ymin, unit=self.units[key]),
+            ymax=maybe_variable_to_number(self._ymax, unit=self.units[key]),
         )
 
     def register_format_coord(self, formatter):
