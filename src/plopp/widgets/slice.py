@@ -27,15 +27,14 @@ class DimSlicer(ipw.VBox):
             )
         widget_args = {
             'step': 1,
-            'description': dim,
             'min': 0,
             'max': size - 1,
             'value': (size - 1) // 2 if slider_constr is ipw.IntSlider else None,
             'continuous_update': True,
             'readout': False,
             'layout': {"width": "200px", "margin": "0px 0px 0px 10px"},
-            'style': {'description_width': 'initial'},
         }
+        self.dim_label = ipw.Label(value=dim)
         self.slider = slider_constr(**widget_args)
         self.continuous_update = ipw.Checkbox(
             value=True,
@@ -50,7 +49,7 @@ class DimSlicer(ipw.VBox):
             (self.continuous_update, 'value'), (self.slider, 'continuous_update')
         )
 
-        children = [self.slider, self.continuous_update, self.label]
+        children = [self.dim_label, self.slider, self.continuous_update, self.label]
         if enable_player:
             self.player = ipw.Play(
                 value=self.slider.value,
