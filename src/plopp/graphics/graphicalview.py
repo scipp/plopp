@@ -191,6 +191,8 @@ class GraphicalView(View):
                 axes_units = {k: coord.unit for k, coord in coords.items()}
                 axes_dtypes = {k: coord.dtype for k, coord in coords.items()}
 
+                data_label = name_with_unit(var=new_values.data, name=self._data_name)
+
                 if set(self._dims) == {'x'}:
                     axes_units['data'] = new_values.unit
                     axes_dtypes['data'] = new_values.dtype
@@ -199,8 +201,16 @@ class GraphicalView(View):
                     axes_units['data'] = new_values.unit
                     axes_dtypes['data'] = new_values.dtype
                     self._data_axis = self.colormapper
+                    if self.colormapper._clabel is None:
+                        # If the private member `_clabel` is None, the user did not
+                        # supply a label, so we set it here based on the data.
+                        self.colormapper.clabel = data_label
                 else:
-                    self._data_axis = self.canvas
+                    # self._data_axis = self.canvas
+                    if self.canvas._ylabel is None:
+                        # If the private member `_ylabel` is None, the user did not
+                        # supply a label, so we set it here based on the data.
+                        self.canvas.ylabel = data_label
 
                 self.canvas.set_axes(
                     dims=self._dims, units=axes_units, dtypes=axes_dtypes
@@ -215,10 +225,10 @@ class GraphicalView(View):
                     if dim in self._scale:
                         setattr(self.canvas, f'{xyz}scale', self._scale[dim])
 
-                if self._data_axis is not None:
-                    self._data_axis.ylabel = name_with_unit(
-                        var=new_values.data, name=self._data_name
-                    )
+                # if self._data_axis is not None:
+                # self._data_axis.ylabel = name_with_unit(
+                #     var=new_values.data, name=self._data_name
+                # )
 
             else:
                 for xy, dim in self._dims.items():
@@ -231,9 +241,15 @@ class GraphicalView(View):
                     )
                     if self._data_name and (new_values.name != self._data_name):
                         self._data_name = None
-                        self._data_axis.ylabel = name_with_unit(
-                            var=sc.scalar(0.0, unit=self.canvas.units['data']), name=''
+                        data_label = name_with_unit(
+                            var=sc.scalar(0.0, unit=self.canvas.units['data']),
+                            name='',
                         )
+                        if self.colormapper is not None:
+                            if self.colormapper._clabel is None:
+                                self.colormapper.clabel = data_label
+                        elif self.canvas._ylabel is None:
+                            self.canvas.ylabel = data_label
 
             if key not in self.artists:
                 self.artists[key] = self._artist_maker(

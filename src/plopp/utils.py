@@ -24,22 +24,4 @@ def deprecated(message: str = '') -> Callable:
     return decorator
 
 
-def deprecated_argument(old: str, new: str) -> None:
-    warnings.warn(
-        f'Argument "{old}" is deprecated and will be removed in a future release. '
-        f'Please use "{new}" instead.',
-        VisibleDeprecationWarning,
-        stacklevel=2,
-    )
-
-
-def deprecated_attribute(old: str, new: str) -> None:
-    warnings.warn(
-        f'Attribute "{old}" is deprecated and will be removed in a future release. '
-        f'Please use "{new}" instead.',
-        VisibleDeprecationWarning,
-        stacklevel=2,
-    )
-
-
-__all__ = ['deprecated', 'deprecated_argument', 'deprecated_attribute']
+__all__ = ['deprecated']

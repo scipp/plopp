@@ -15,7 +15,6 @@ from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normal
 from ..backends.matplotlib.utils import fig_to_bytes
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
-from ..utils import deprecated_argument, deprecated_attribute
 
 
 def _shift_color(color: float, delta: float) -> float:
@@ -136,17 +135,14 @@ class ColorMapper:
         if vmin is not None:
             if cmin is not None:
                 raise ValueError('Cannot specify both "vmin" and "cmin".')
-            deprecated_argument(old='vmin', new='cmin')
             cmin = vmin
         if vmax is not None:
             if cmax is not None:
                 raise ValueError('Cannot specify both "vmax" and "cmax".')
-            deprecated_argument(old='vmax', new='cmax')
             cmax = vmax
         if norm is not None:
             if logc:
                 raise ValueError('Cannot specify both "norm" and "logc".')
-            deprecated_argument(old='norm', new='logc')
             logc = norm == 'log'
 
         self._canvas = canvas
@@ -157,6 +153,7 @@ class ColorMapper:
         self.user_cmax = cmax
         self._cmin = np.inf
         self._cmax = -np.inf
+        self._clabel = clabel
         self._logc = logc
         self.set_colors_on_update = True
 
@@ -178,6 +175,8 @@ class ColorMapper:
                 self.cax = fig.add_axes([0.05, 0.02, 0.2, 0.98])
             self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
             self.cax.yaxis.set_label_coords(-0.9, 0.5)
+            if clabel is not None:
+                self.cax.set_ylabel(clabel)
 
     def add_artist(self, key: str, artist: Any):
         self.artists[key] = artist
@@ -275,30 +274,24 @@ class ColorMapper:
     def vmin(self) -> float:
         """
         Get or set the minimum value of the colorbar.
-
-        .. deprecated:: 25.10.0
+        This is an old property name. Prefer using ``cmin`` instead.
         """
-        deprecated_attribute(old='vmin', new='cmin')
         return self.cmin
 
     @vmin.setter
     def vmin(self, vmin: sc.Variable | float):
-        deprecated_attribute(old='vmin', new='cmin')
         self.cmin = vmin
 
     @property
     def vmax(self) -> float:
         """
         Get or set the maximum value of the colorbar.
-
-        .. deprecated:: 25.10.0
+        This is an old property name. Prefer using ``cmax`` instead.
         """
-        deprecated_attribute(old='vmax', new='cmax')
         return self.cmax
 
     @vmax.setter
     def vmax(self, vmax: sc.Variable | float):
-        deprecated_attribute(old='vmax', new='cmax')
         self.cmax = vmax
 
     @property
@@ -357,15 +350,12 @@ class ColorMapper:
     def ylabel(self) -> str | None:
         """
         Get or set the label of the colorbar axis.
-
-        .. deprecated:: 25.10.0
+        This is an old property name. Prefer using ``clabel`` instead.
         """
-        deprecated_attribute(old='ylabel', new='clabel')
         return self.clabel
 
     @ylabel.setter
     def ylabel(self, lab: str):
-        deprecated_attribute(old='ylabel', new='clabel')
         self.clabel = lab
 
     def toggle_norm(self):
