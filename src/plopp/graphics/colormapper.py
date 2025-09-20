@@ -252,7 +252,7 @@ class ColorMapper:
         # Synchronize the underlying normalizer limits to the current state.
         # Note that the order matters here, as for a normalizer cmin cannot be set above
         # the current cmax.
-        if self._cmin >= self.normalizer.cmax:
+        if self._cmin >= self.normalizer.vmax:
             self.normalizer.vmax = self._cmax
             self.normalizer.vmin = self._cmin
         else:
@@ -328,10 +328,10 @@ class ColorMapper:
     @unit.setter
     def unit(self, unit: str | None):
         self._unit = unit
-        if self.user_vmin is not None:
-            self.user_vmin = maybe_variable_to_number(self.user_vmin, unit=self._unit)
-        if self.user_vmax is not None:
-            self.user_vmax = maybe_variable_to_number(self.user_vmax, unit=self._unit)
+        if self.user_cmin is not None:
+            self.user_cmin = maybe_variable_to_number(self.user_cmin, unit=self._unit)
+        if self.user_cmax is not None:
+            self.user_cmax = maybe_variable_to_number(self.user_cmax, unit=self._unit)
 
     @property
     def clabel(self) -> str | None:

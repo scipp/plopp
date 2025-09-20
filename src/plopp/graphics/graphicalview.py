@@ -217,11 +217,14 @@ class GraphicalView(View):
                 )
 
                 for xyz, dim in self._dims.items():
-                    setattr(
-                        self.canvas,
-                        f'{xyz}label',
-                        name_with_unit(var=coords[xyz], name=dim),
-                    )
+                    if getattr(self.canvas, f'_{xyz}label') is None:
+                        # If the private member `_{xyz}label` is None, the user did not
+                        # supply a label, so we set it here based on the data.
+                        setattr(
+                            self.canvas,
+                            f'{xyz}label',
+                            name_with_unit(var=coords[xyz], name=dim),
+                        )
                     if dim in self._scale:
                         setattr(self.canvas, f'{xyz}scale', self._scale[dim])
 

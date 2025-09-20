@@ -12,7 +12,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ...graphics.bbox import BoundingBox
-from ...utils import deprecated_argument
 from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
 
@@ -119,12 +118,10 @@ class Canvas:
         if user_vmin is not None:
             if ymin is not None:
                 raise ValueError('Cannot specify both "user_vmin" and "ymin".')
-            deprecated_argument(old='user_vmin', new='ymin')
             ymin = user_vmin
         if user_vmax is not None:
             if ymax is not None:
                 raise ValueError('Cannot specify both "user_vmax" and "ymax".')
-            deprecated_argument(old='user_vmax', new='ymax')
             ymax = user_vmax
 
         self.fig = None
