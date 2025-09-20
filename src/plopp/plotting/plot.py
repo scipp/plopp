@@ -22,7 +22,7 @@ def plot(
     grid: bool = False,
     ignore_size: bool = False,
     mask_color: str = 'black',
-    norm: Literal['linear', 'log'] = 'linear',
+    norm: Literal['linear', 'log', None] = None,
     scale: dict[str, str] | None = None,
     title: str | None = None,
     vmin: Variable | float | None = None,

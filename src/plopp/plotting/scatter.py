@@ -40,7 +40,7 @@ def scatter(
     y: str = 'y',
     size: str | float | None = None,
     figsize: tuple[float, float] | None = None,
-    norm: Literal['linear', 'log'] = 'linear',
+    norm: Literal['linear', 'log', None] = None,
     title: str | None = None,
     vmin: sc.Variable | float = None,
     vmax: sc.Variable | float = None,
