@@ -44,13 +44,16 @@ def scatter3d(
     z: str = 'z',
     pos: str | None = None,
     figsize: tuple[int, int] = (600, 400),
-    norm: Literal['linear', 'log', None] = None,
+    logc: bool = False,
     title: str | None = None,
-    vmin: sc.Variable | float = None,
-    vmax: sc.Variable | float = None,
+    cmin: sc.Variable | float = None,
+    cmax: sc.Variable | float = None,
     cbar: bool = False,
     cmap: str = 'viridis',
     camera: Camera | None = None,
+    norm: Literal['linear', 'log', None] = None,
+    vmin: sc.Variable | float = None,
+    vmax: sc.Variable | float = None,
     **kwargs,
 ) -> FigureLike:
     """Make a three-dimensional scatter plot.
@@ -76,20 +79,28 @@ def scatter3d(
         The name of the coordinate that is to be used for the Z positions.
     pos:
         The name of the vector coordinate that is to be used for the positions.
-    norm:
-        Set to ``'log'`` for a logarithmic colorscale.
     figsize:
         The size of the 3d rendering area, in pixels: ``(width, height)``.
+    logc:
+        Set to ``True`` for a logarithmic colorscale.
     title:
         The figure title.
-    vmin:
+    cmin:
         Lower bound for the colorscale.
-    vmax:
+    cmax:
         Upper bound for the colorscale.
     cmap:
         The name of the colormap.
     camera:
         Initial camera configuration (position, target).
+    norm:
+        Set to ``'log'`` for a logarithmic colorscale (legacy, prefer ``logc`` instead).
+    vmin:
+        Lower bound for the colorscale (legacy, prefer ``cmin`` instead).
+    vmax:
+        Upper bound for the colorscale (legacy, prefer ``cmax`` instead).
+    **kwargs:
+        All other kwargs are forwarded the underlying plotting library.
 
     Returns
     -------
@@ -116,13 +127,16 @@ def scatter3d(
         y=y,
         z=z,
         figsize=figsize,
-        norm=norm,
+        logc=logc,
         title=title,
-        vmin=vmin,
-        vmax=vmax,
+        cmin=cmin,
+        cmax=cmax,
         cmap=cmap,
         cbar=cbar,
         camera=camera,
+        norm=norm,
+        vmin=vmin,
+        vmax=vmax,
         **kwargs,
     )
     clip_planes = ClippingPlanes(fig)

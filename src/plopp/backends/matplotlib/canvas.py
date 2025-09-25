@@ -104,6 +104,7 @@ class Canvas:
         logy: bool = False,
         xlabel: str | None = None,
         ylabel: str | None = None,
+        norm: Literal['linear', 'log', None] = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -123,6 +124,10 @@ class Canvas:
             if ymax is not None:
                 raise ValueError('Cannot specify both "user_vmax" and "ymax".')
             ymax = user_vmax
+        if norm is not None:
+            if logy:
+                raise ValueError('Cannot specify both "norm" and "logy".')
+            logy = norm == 'log'
 
         self.fig = None
         self.ax = ax

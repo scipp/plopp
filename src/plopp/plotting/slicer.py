@@ -57,8 +57,8 @@ class Slicer:
         *,
         keep: list[str] | None = None,
         coords: list[str] | None = None,
-        vmin: VariableLike | float = None,
-        vmax: VariableLike | float = None,
+        # vmin: VariableLike | float = None,
+        # vmax: VariableLike | float = None,
         cbar: bool = True,
         enable_player: bool = False,
         **kwargs,
@@ -119,7 +119,8 @@ class Slicer:
                 f'but {ndims} were requested.'
             )
 
-        self.figure = make_figure(*self.slice_nodes, vmin=vmin, vmax=vmax, **kwargs)
+        # self.figure = make_figure(*self.slice_nodes, vmin=vmin, vmax=vmax, **kwargs)
+        self.figure = make_figure(*self.slice_nodes, **kwargs)
         require_interactive_figure(self.figure, 'slicer')
         self.figure.bottom_bar.add(self.slider)
 
@@ -130,8 +131,8 @@ def slicer(
     keep: list[str] | None = None,
     autoscale: bool = True,
     coords: list[str] | None = None,
-    vmin: VariableLike | float = None,
-    vmax: VariableLike | float = None,
+    # vmin: VariableLike | float = None,
+    # vmax: VariableLike | float = None,
     cbar: bool = True,
     enable_player: bool = False,
     **kwargs,
@@ -171,8 +172,8 @@ def slicer(
         obj,
         keep=keep,
         autoscale=autoscale,
-        vmin=vmin,
-        vmax=vmax,
+        # vmin=vmin,
+        # vmax=vmax,
         coords=coords,
         cbar=cbar,
         enable_player=enable_player,

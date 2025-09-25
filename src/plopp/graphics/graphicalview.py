@@ -50,7 +50,7 @@ class GraphicalView(View):
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         cbar: bool = False,
-        norm: Literal['linear', 'log'] = 'linear',
+        norm: Literal['linear', 'log', None] = None,
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
         scale: dict[str, str] | None = None,
@@ -117,6 +117,7 @@ class GraphicalView(View):
             xlabel=xlabel,
             ylabel=ylabel,
             zlabel=zlabel,
+            norm=norm if len(dims) == 1 else None,
         )
 
         if colormapper:
@@ -142,8 +143,6 @@ class GraphicalView(View):
         else:
             self.colormapper = None
 
-        # if len(self._dims) == 1:
-        #     self.canvas.yscale = norm
         self.render()
 
     def autoscale(self):

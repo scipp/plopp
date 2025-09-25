@@ -372,3 +372,17 @@ class ColorMapper:
         self.autoscale()
         if self._canvas is not None:
             self._canvas.draw()
+
+    @property
+    def norm(self) -> Literal['linear', 'log']:
+        """
+        Get or set the colorscale normalization.
+        """
+        return 'log' if self._logc else 'linear'
+
+    @norm.setter
+    def norm(self, norm: Literal['linear', 'log']):
+        if norm not in ['linear', 'log']:
+            raise ValueError('norm must be either "linear" or "log".')
+        if norm != self.norm:
+            self.toggle_norm()

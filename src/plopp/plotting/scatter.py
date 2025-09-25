@@ -40,13 +40,16 @@ def scatter(
     y: str = 'y',
     size: str | float | None = None,
     figsize: tuple[float, float] | None = None,
-    norm: Literal['linear', 'log', None] = None,
+    logc: bool = False,
     title: str | None = None,
-    vmin: sc.Variable | float = None,
-    vmax: sc.Variable | float = None,
+    cmin: sc.Variable | float = None,
+    cmax: sc.Variable | float = None,
     cbar: bool = False,
     cmap: str = 'viridis',
     legend: bool | tuple[float, float] = True,
+    norm: Literal['linear', 'log', None] = None,
+    vmin: sc.Variable | float = None,
+    vmax: sc.Variable | float = None,
     **kwargs,
 ) -> FigureLike:
     """
@@ -68,14 +71,14 @@ def scatter(
         be used for the size of the markers.
     figsize:
         The width and height of the figure, in inches.
-    norm:
-        Set to ``'log'`` for a logarithmic colorscale (only applicable if ``cbar`` is
+    logc:
+        Set to ``True`` for a logarithmic colorscale (only applicable if ``cbar`` is
         ``True``).
     title:
         The figure title.
-    vmin:
+    cmin:
         Lower bound for the colorscale for (only applicable if ``cbar`` is ``True``).
-    vmax:
+    cmax:
         Upper bound for the colorscale for (only applicable if ``cbar`` is ``True``).
     cbar:
         Show colorbar if ``True``. If ``cbar`` is ``True``, the marker will be colored
@@ -85,6 +88,15 @@ def scatter(
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
+    norm:
+        Set to ``'log'`` for a logarithmic colorscale (only applicable if ``cbar`` is
+        ``True``, legacy, prefer ``logc`` instead).
+    vmin:
+        Lower bound for the colorscale for (only applicable if ``cbar`` is ``True``,
+        legacy, prefer ``cmin`` instead).
+    vmax:
+        Upper bound for the colorscale for (only applicable if ``cbar`` is ``True``,
+        legacy, prefer ``cmax`` instead).
     **kwargs:
         All other kwargs are forwarded the underlying plotting library.
     """
@@ -100,12 +112,15 @@ def scatter(
         y=y,
         size=size,
         figsize=figsize,
-        norm=norm,
+        logc=logc,
         title=title,
-        vmin=vmin,
-        vmax=vmax,
+        cmin=cmin,
+        cmax=cmax,
         cmap=cmap,
         cbar=cbar,
         legend=legend,
+        norm=norm,
+        vmin=vmin,
+        vmax=vmax,
         **kwargs,
     )
