@@ -103,13 +103,24 @@ class ColorMapper:
     mask_cmap:
         The name of the colormap for masked data.
     norm:
-        The colorscale normalization.
+        The colorscale normalization. This is an old parameter name.
+        Prefer using ``logc`` instead.
     vmin:
         The minimum value for the colorscale range. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the data unit.
+        This is an old parameter name. Prefer using ``cmin`` instead.
     vmax:
         The maximum value for the colorscale range. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the data unit.
+        This is an old parameter name. Prefer using ``cmax`` instead.
+    cmin:
+        The minimum value for the colorscale range. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the data unit.
+    cmax:
+        The maximum value for the colorscale range. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the data unit.
+    logc:
+        If ``True``, use a logarithmic colorscale.
     nan_color:
         The color used for representing NAN values.
     figsize:

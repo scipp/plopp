@@ -82,6 +82,30 @@ def plot(
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
+    xmin:
+        Lower limit for x-axis.
+    xmax:
+        Upper limit for x-axis.
+    ymin:
+        Lower limit for y-axis.
+    ymax:
+        Upper limit for y-axis.
+    cmin:
+        Lower limit for colorscale (2d plots only).
+    cmax:
+        Upper limit for colorscale (2d plots only).
+    logx:
+        If ``True``, use logarithmic scale for x-axis.
+    logy:
+        If ``True``, use logarithmic scale for y-axis.
+    logc:
+        If ``True``, use logarithmic scale for colorscale (2d plots only).
+    xlabel:
+        Label for x-axis.
+    ylabel:
+        Label for y-axis.
+    clabel:
+        Label for colorscale (2d plots only).
     **kwargs:
         All other kwargs are directly forwarded to Matplotlib, the underlying plotting
         library. The underlying functions called are the following:

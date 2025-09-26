@@ -297,7 +297,7 @@ def test_axis_label_with_transposed_2d_coord():
 
 def test_plot_1d_data_over_2d_data():
     f = data_array(ndim=2).plot()
-    data_array(ndim=1).plot(ax=f.ax)
+    data_array(ndim=2).plot(ax=f.ax)
 
 
 def test_plot_1d_data_over_2d_data_datetime():
@@ -333,7 +333,7 @@ def test_2d_plot_does_not_accept_data_with_other_dimensionality_on_update():
     fig = da.plot()
     # The data has no 'y' coordinate
     with pytest.raises(KeyError, match='Supplied data is incompatible with this view'):
-        fig.update(new=data_array(ndim=1))
+        fig.update(new=data_array(ndim=2))
     # The data has 3 dimensions
     with pytest.raises(
         sc.DimensionError, match='Image only accepts data with 2 dimension'
@@ -389,3 +389,77 @@ def test_plot_2d_all_values_masked():
 def test_plot_bool_with_no_range():
     x = sc.zeros(sizes={'x': 10, 'y': 10}, dtype='bool')
     _ = x.plot()
+
+
+def test_xmin():
+    da = data_array(ndim=2)
+    fig = da.plot(xmin=sc.scalar(2.5, unit='m'))
+    assert fig.canvas.xmin == 2.5
+
+
+def test_xmax():
+    da = data_array(ndim=2)
+    fig = da.plot(xmax=sc.scalar(7.5, unit='m'))
+    assert fig.canvas.xmax == 7.5
+
+
+def test_ymin():
+    da = data_array(ndim=2)
+    fig = da.plot(ymin=sc.scalar(-0.5, unit='m/s'))
+    assert fig.canvas.ymin == -0.5
+
+
+def test_ymax():
+    da = data_array(ndim=2)
+    fig = da.plot(ymax=sc.scalar(0.68, unit='m/s'))
+    assert fig.canvas.ymax == 0.68
+
+
+def test_cmin():
+    da = data_array(ndim=2)
+    fig = da.plot(cmin=sc.scalar(2.5, unit='m/s'))
+    assert fig.view.colormapper.cmin == 2.5
+
+
+def test_cmax():
+    da = data_array(ndim=2)
+    fig = da.plot(cmax=sc.scalar(7.5, unit='m/s'))
+    assert fig.view.colormapper.cmax == 7.5
+
+
+def test_logx():
+    da = data_array(ndim=2)
+    fig = da.plot(logx=True)
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'linear'
+
+
+def test_logy():
+    da = data_array(ndim=2)
+    fig = da.plot(logy=True)
+    assert fig.canvas.yscale == 'log'
+    assert fig.canvas.xscale == 'linear'
+
+
+def test_logc():
+    da = data_array(ndim=2)
+    fig = da.plot(logc=True)
+    assert fig.view.colormapper.norm == 'log'
+
+
+def test_xlabel():
+    da = data_array(ndim=2)
+    fig = da.plot(xlabel='MyXLabel')
+    assert fig.canvas.xlabel == 'MyXLabel'
+
+
+def test_ylabel():
+    da = data_array(ndim=2)
+    fig = da.plot(ylabel='MyYLabel')
+    assert fig.canvas.ylabel == 'MyYLabel'
+
+
+def test_clabel():
+    da = data_array(ndim=2)
+    fig = da.plot(clabel='MyColorLabel')
+    assert fig.colormapper.clabel == 'MyColorLabel'

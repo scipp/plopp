@@ -596,3 +596,53 @@ def test_can_plot_dict_with_non_string_keys():
 def test_plot_bool_with_no_range():
     x = sc.zeros(sizes={'x': 10}, dtype='bool')
     _ = x.plot()
+
+
+def test_xmin():
+    da = data_array(ndim=1)
+    fig = da.plot(xmin=sc.scalar(2.5, unit='m'))
+    assert fig.canvas.xmin == 2.5
+
+
+def test_xmax():
+    da = data_array(ndim=1)
+    fig = da.plot(xmax=sc.scalar(7.5, unit='m'))
+    assert fig.canvas.xmax == 7.5
+
+
+def test_ymin():
+    da = data_array(ndim=1)
+    fig = da.plot(ymin=sc.scalar(-0.5, unit='m/s'))
+    assert fig.canvas.ymin == -0.5
+
+
+def test_ymax():
+    da = data_array(ndim=1)
+    fig = da.plot(ymax=sc.scalar(0.68, unit='m/s'))
+    assert fig.canvas.ymax == 0.68
+
+
+def test_logx():
+    da = data_array(ndim=1)
+    fig = da.plot(logx=True)
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'linear'
+
+
+def test_logy():
+    da = data_array(ndim=1)
+    fig = da.plot(logy=True)
+    assert fig.canvas.yscale == 'log'
+    assert fig.canvas.xscale == 'linear'
+
+
+def test_xlabel():
+    da = data_array(ndim=1)
+    fig = da.plot(xlabel='MyXLabel')
+    assert fig.canvas.xlabel == 'MyXLabel'
+
+
+def test_ylabel():
+    da = data_array(ndim=1)
+    fig = da.plot(ylabel='MyYLabel')
+    assert fig.canvas.ylabel == 'MyYLabel'
