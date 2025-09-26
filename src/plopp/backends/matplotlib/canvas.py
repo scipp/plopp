@@ -137,8 +137,8 @@ class Canvas:
         self._xmax = xmax
         self._ymin = ymin
         self._ymax = ymax
-        # self._xlabel = xlabel
-        # self._ylabel = ylabel
+        self._xlabel = xlabel
+        self._ylabel = ylabel
         self.units = {}
         self.dims = {}
         self._legend = legend
