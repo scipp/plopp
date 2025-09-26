@@ -37,6 +37,15 @@ class Canvas:
         title: str | None = None,
         user_vmin: sc.Variable | float = None,
         user_vmax: sc.Variable | float = None,
+        xmin: sc.Variable | float | None = None,
+        xmax: sc.Variable | float | None = None,
+        ymin: sc.Variable | float | None = None,
+        ymax: sc.Variable | float | None = None,
+        logx: bool = False,
+        logy: bool = False,
+        xlabel: str | None = None,
+        ylabel: str | None = None,
+        norm: Literal['linear', 'log', None] = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -47,6 +56,19 @@ class Canvas:
         # as `layout` for specifying a Plotly layout).
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
+
+        if user_vmin is not None:
+            if ymin is not None:
+                raise ValueError('Cannot specify both "user_vmin" and "ymin".')
+            ymin = user_vmin
+        if user_vmax is not None:
+            if ymax is not None:
+                raise ValueError('Cannot specify both "user_vmax" and "ymax".')
+            ymax = user_vmax
+        if norm is not None:
+            if logy:
+                raise ValueError('Cannot specify both "norm" and "logy".')
+            logy = norm == 'log'
 
         import plotly.graph_objects as go
 
@@ -70,14 +92,27 @@ class Canvas:
             }
         )
         self.figsize = figsize
-        self._user_vmin = user_vmin
-        self._user_vmax = user_vmax
+        self._xmin = xmin
+        self._xmax = xmax
+        self._ymin = ymin
+        self._ymax = ymax
+        # self._xlabel = xlabel
+        # self._ylabel = ylabel
         self.units = {}
         self.dims = {}
         self._own_axes = False
         if title:
             self.title = title
         self.bbox = BoundingBox()
+
+        if logx:
+            self.xscale = 'log'
+        if logy:
+            self.yscale = 'log'
+        if xlabel is not None:
+            self.xlabel = xlabel
+        if ylabel is not None:
+            self.ylabel = ylabel
 
     def to_widget(self):
         return self.fig
@@ -118,8 +153,10 @@ class Canvas:
         self.dtypes = dtypes
         key = 'y' if 'y' in self.units else 'data'
         self.bbox = BoundingBox(
-            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
-            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
+            xmin=maybe_variable_to_number(self._xmin, unit=self.units['x']),
+            xmax=maybe_variable_to_number(self._xmax, unit=self.units['x']),
+            ymin=maybe_variable_to_number(self._ymin, unit=self.units[key]),
+            ymax=maybe_variable_to_number(self._ymax, unit=self.units[key]),
         )
 
     @property
