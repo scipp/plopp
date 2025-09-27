@@ -333,12 +333,18 @@ def test_2d_plot_does_not_accept_data_with_other_dimensionality_on_update():
     fig = da.plot()
     # The data has no 'y' coordinate
     with pytest.raises(KeyError, match='Supplied data is incompatible with this view'):
-        fig.update(new=data_array(ndim=2))
+        fig.update(new=data_array(ndim=1))
     # The data has 3 dimensions
     with pytest.raises(
         sc.DimensionError, match='Image only accepts data with 2 dimension'
     ):
         fig.update(new=data_array(ndim=3))
+    # The data dim has been renamed
+    with pytest.raises(KeyError, match='Supplied data is incompatible with this view'):
+        fig.update(new=data_array(ndim=2).rename_dims(yy='newy'))
+    # The data dim and coord has been renamed
+    with pytest.raises(KeyError, match='Supplied data is incompatible with this view'):
+        fig.update(new=data_array(ndim=2).rename(yy='newy'))
 
 
 def test_figure_has_data_name_on_colorbar_for_one_image():
@@ -397,22 +403,46 @@ def test_xmin():
     assert fig.canvas.xmin == 2.5
 
 
+def test_xmin_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(xmin=4.5)
+    assert fig.canvas.xmin == 4.5
+
+
 def test_xmax():
     da = data_array(ndim=2)
     fig = da.plot(xmax=sc.scalar(7.5, unit='m'))
     assert fig.canvas.xmax == 7.5
 
 
+def test_xmax_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(xmax=8.1)
+    assert fig.canvas.xmax == 8.1
+
+
 def test_ymin():
     da = data_array(ndim=2)
-    fig = da.plot(ymin=sc.scalar(-0.5, unit='m/s'))
+    fig = da.plot(ymin=sc.scalar(-0.5, unit='m'))
     assert fig.canvas.ymin == -0.5
+
+
+def test_ymin_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(ymin=-1.0)
+    assert fig.canvas.ymin == -1.0
 
 
 def test_ymax():
     da = data_array(ndim=2)
-    fig = da.plot(ymax=sc.scalar(0.68, unit='m/s'))
+    fig = da.plot(ymax=sc.scalar(0.68, unit='m'))
     assert fig.canvas.ymax == 0.68
+
+
+def test_ymax_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(ymax=0.75)
+    assert fig.canvas.ymax == 0.75
 
 
 def test_cmin():
@@ -421,10 +451,22 @@ def test_cmin():
     assert fig.view.colormapper.cmin == 2.5
 
 
+def test_cmin_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(cmin=3.3)
+    assert fig.view.colormapper.cmin == 3.3
+
+
 def test_cmax():
     da = data_array(ndim=2)
     fig = da.plot(cmax=sc.scalar(7.5, unit='m/s'))
     assert fig.view.colormapper.cmax == 7.5
+
+
+def test_cmax_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(cmax=8.8)
+    assert fig.view.colormapper.cmax == 8.8
 
 
 def test_logx():
@@ -462,4 +504,4 @@ def test_ylabel():
 def test_clabel():
     da = data_array(ndim=2)
     fig = da.plot(clabel='MyColorLabel')
-    assert fig.colormapper.clabel == 'MyColorLabel'
+    assert fig.view.colormapper.clabel == 'MyColorLabel'

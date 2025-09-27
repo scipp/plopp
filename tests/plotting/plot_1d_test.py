@@ -604,10 +604,22 @@ def test_xmin():
     assert fig.canvas.xmin == 2.5
 
 
+def test_xmin_no_unit():
+    da = data_array(ndim=1)
+    fig = da.plot(xmin=3.3)
+    assert fig.canvas.xmin == 3.3
+
+
 def test_xmax():
     da = data_array(ndim=1)
     fig = da.plot(xmax=sc.scalar(7.5, unit='m'))
     assert fig.canvas.xmax == 7.5
+
+
+def test_xmax_no_unit():
+    da = data_array(ndim=1)
+    fig = da.plot(xmax=8.1)
+    assert fig.canvas.xmax == 8.1
 
 
 def test_ymin():
@@ -616,9 +628,21 @@ def test_ymin():
     assert fig.canvas.ymin == -0.5
 
 
+def test_ymin_no_unit():
+    da = data_array(ndim=1)
+    fig = da.plot(ymin=-0.5)
+    assert fig.canvas.ymin == -0.5
+
+
 def test_ymax():
     da = data_array(ndim=1)
     fig = da.plot(ymax=sc.scalar(0.68, unit='m/s'))
+    assert fig.canvas.ymax == 0.68
+
+
+def test_ymax_no_unit():
+    da = data_array(ndim=1)
+    fig = da.plot(ymax=0.68)
     assert fig.canvas.ymax == 0.68
 
 
