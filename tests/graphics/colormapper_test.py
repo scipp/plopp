@@ -327,6 +327,11 @@ def test_autoscale_vmax_set():
     assert mapper.vmin < mapper.vmax
 
 
+def test_clabel():
+    mapper = ColorMapper(clabel='MyColor')
+    assert mapper.clabel == 'MyColor'
+
+
 CASES = {
     "imagefigure-mpl-static": (
         ('2d', 'mpl-static'),
