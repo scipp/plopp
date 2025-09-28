@@ -4,8 +4,6 @@
 from functools import partial
 from itertools import groupby
 
-from scipp.typing import VariableLike
-
 from ..core import widget_node
 from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
@@ -113,7 +111,6 @@ class Slicer:
                 f'but {ndims} were requested.'
             )
 
-        # self.figure = make_figure(*self.slice_nodes, vmin=vmin, vmax=vmax, **kwargs)
         self.figure = make_figure(*self.slice_nodes, **kwargs)
         require_interactive_figure(self.figure, 'slicer')
         self.figure.bottom_bar.add(self.slider)
