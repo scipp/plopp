@@ -56,6 +56,11 @@ def test_norm():
     assert mapper.norm == 'log'
 
 
+def test_logc():
+    mapper = ColorMapper(logc=True)
+    assert mapper.norm == 'log'
+
+
 def test_autoscale():
     da = data_array(ndim=2, unit='K')
     mapper = ColorMapper()
@@ -126,6 +131,19 @@ def test_correct_normalizer_limits():
     assert mapper.normalizer.vmax == da.max().value
 
 
+def test_cmin_cmax():
+    da = data_array(ndim=2, unit='K') * 100.0
+    cmin = sc.scalar(-0.12, unit='K')
+    cmax = sc.scalar(3.56, unit='K')
+    mapper = ColorMapper(cmin=cmin, cmax=cmax)
+    artist = DummyChild(data=da, colormapper=mapper)
+    mapper.add_artist('data', artist)
+    mapper.unit = 'K'
+    mapper.autoscale()
+    assert mapper.cmin == cmin.value
+    assert mapper.cmax == cmax.value
+
+
 def test_vmin_vmax():
     da = data_array(ndim=2, unit='K') * 100.0
     vmin = sc.scalar(-0.1, unit='K')
@@ -135,10 +153,21 @@ def test_vmin_vmax():
     mapper.add_artist('data', artist)
     mapper.unit = 'K'
     mapper.autoscale()
-    assert mapper.user_vmin == vmin.value
-    assert mapper.user_vmax == vmax.value
     assert mapper.vmin == vmin.value
     assert mapper.vmax == vmax.value
+
+
+def test_cmin_cmax_no_variable():
+    da = data_array(ndim=2, unit='K') * 100.0
+    cmin = -0.12
+    cmax = 3.56
+    mapper = ColorMapper(cmin=cmin, cmax=cmax)
+    artist = DummyChild(data=da, colormapper=mapper)
+    mapper.add_artist('data', artist)
+    mapper.unit = 'K'
+    mapper.autoscale()
+    assert mapper.cmin == cmin
+    assert mapper.cmax == cmax
 
 
 def test_vmin_vmax_no_variable():
@@ -150,8 +179,6 @@ def test_vmin_vmax_no_variable():
     mapper.add_artist('data', artist)
     mapper.unit = 'K'
     mapper.autoscale()
-    assert mapper.user_vmin == vmin
-    assert mapper.user_vmax == vmax
     assert mapper.vmin == vmin
     assert mapper.vmax == vmax
 
