@@ -47,6 +47,10 @@ class Canvas:
         self.xscale = 'linear'
         self.yscale = 'linear'
         self.zscale = 'linear'
+        # TODO: Support setting labels on axes via xlabel, ylabel, zlabel args.
+        self._xlabel = None
+        self._ylabel = None
+        self._zlabel = None
         self.outline = None
         self.axticks = None
         self.figsize = np.asarray(figsize if figsize is not None else (600, 400))

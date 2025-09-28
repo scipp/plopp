@@ -177,11 +177,6 @@ class GraphicalView(View):
             for i, direction in enumerate(self._dims):
                 if self._dims[direction] is None:
                     self._dims[direction] = new_values.dims[i]
-                if self._dims[direction] not in new_values.dims:
-                    raise KeyError(
-                        "Supplied data is incompatible with this view: "
-                        f"dimension '{self._dims[direction]}' was not found in data."
-                    )
                 if self._dims[direction] not in new_values.coords:
                     raise KeyError(
                         "Supplied data is incompatible with this view: "

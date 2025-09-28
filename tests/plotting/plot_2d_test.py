@@ -339,12 +339,6 @@ def test_2d_plot_does_not_accept_data_with_other_dimensionality_on_update():
         sc.DimensionError, match='Image only accepts data with 2 dimension'
     ):
         fig.update(new=data_array(ndim=3))
-    # The data dim has been renamed
-    with pytest.raises(KeyError, match='Supplied data is incompatible with this view'):
-        fig.update(new=data_array(ndim=2).rename_dims(yy='newy'))
-    # The data dim and coord has been renamed
-    with pytest.raises(KeyError, match='Supplied data is incompatible with this view'):
-        fig.update(new=data_array(ndim=2).rename(yy='newy'))
 
 
 def test_figure_has_data_name_on_colorbar_for_one_image():

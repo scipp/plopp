@@ -41,10 +41,6 @@ class Slicer:
         of higher dimensional inputs.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
-    vmin:
-        The minimum value of the y-axis (1d plots) or color range (2d plots).
-    vmax:
-        The maximum value of the y-axis (1d plots) or color range (2d plots).
     cbar:
         Whether to display a colorbar for 2D plots.
     **kwargs:
@@ -57,8 +53,6 @@ class Slicer:
         *,
         keep: list[str] | None = None,
         coords: list[str] | None = None,
-        # vmin: VariableLike | float = None,
-        # vmax: VariableLike | float = None,
         cbar: bool = True,
         enable_player: bool = False,
         **kwargs,
@@ -131,8 +125,6 @@ def slicer(
     keep: list[str] | None = None,
     autoscale: bool = True,
     coords: list[str] | None = None,
-    # vmin: VariableLike | float = None,
-    # vmax: VariableLike | float = None,
     cbar: bool = True,
     enable_player: bool = False,
     **kwargs,
@@ -155,10 +147,6 @@ def slicer(
         every time the data changes if ``True``.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
-    vmin:
-        The minimum value of the y-axis (1d plots) or color range (2d plots).
-    vmax:
-        The maximum value of the y-axis (1d plots) or color range (2d plots).
     cbar:
         Whether to display a colorbar for 2D plots.
     enable_player:
@@ -172,8 +160,6 @@ def slicer(
         obj,
         keep=keep,
         autoscale=autoscale,
-        # vmin=vmin,
-        # vmax=vmax,
         coords=coords,
         cbar=cbar,
         enable_player=enable_player,
