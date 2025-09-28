@@ -226,11 +226,6 @@ class GraphicalView(View):
                     if dim in self._scale:
                         setattr(self.canvas, f'{xyz}scale', self._scale[dim])
 
-                # if self._data_axis is not None:
-                # self._data_axis.ylabel = name_with_unit(
-                #     var=new_values.data, name=self._data_name
-                # )
-
             else:
                 for xy, dim in self._dims.items():
                     new_values.coords[dim] = make_compatible(
