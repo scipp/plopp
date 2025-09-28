@@ -87,8 +87,6 @@ def mesh3d(
         The camera configuration.
     norm:
         The normalization of the colormap (legacy, prefer ``logc`` instead).
-    title:
-        The title of the figure.
     vmin:
         The minimum value of the colormap (legacy, prefer ``cmin`` instead).
     vmax:
