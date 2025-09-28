@@ -297,7 +297,7 @@ def test_axis_label_with_transposed_2d_coord():
 
 def test_plot_1d_data_over_2d_data():
     f = data_array(ndim=2).plot()
-    data_array(ndim=2).plot(ax=f.ax)
+    data_array(ndim=1).plot(ax=f.ax)
 
 
 def test_plot_1d_data_over_2d_data_datetime():
