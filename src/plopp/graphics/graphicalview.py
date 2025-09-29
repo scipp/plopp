@@ -80,6 +80,7 @@ class GraphicalView(View):
         ylabel: str | None = None,
         zlabel: str | None = None,
         clabel: str | None = None,
+        nan_color: str | None = None,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -134,6 +135,7 @@ class GraphicalView(View):
                 logc=logc,
                 canvas=self.canvas,
                 figsize=getattr(self.canvas, "figsize", None),
+                nan_color=nan_color,
             )
             self._kwargs['colormapper'] = self.colormapper
             if self._autoscale:

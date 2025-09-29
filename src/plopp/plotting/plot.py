@@ -22,6 +22,7 @@ def plot(
     grid: bool = False,
     ignore_size: bool = False,
     mask_color: str = 'black',
+    nan_color: str | None = None,
     norm: Literal['linear', 'log', None] = None,
     scale: dict[str, str] | None = None,
     title: str | None = None,
@@ -65,6 +66,8 @@ def plot(
         objects.
     mask_color:
         Color of masks in 1d plots.
+    nan_color:
+        Color to use for NaN values in 2d plots.
     norm:
         Set to ``'log'`` for a logarithmic y-axis (1d plots) or logarithmic colorscale
         (2d plots).
@@ -171,6 +174,7 @@ def plot(
             cmax=cmax,
             clabel=clabel,
             logc=logc,
+            nan_color=nan_color,
             **common_args,
         )
     else:
