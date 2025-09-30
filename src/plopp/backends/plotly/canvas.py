@@ -7,6 +7,7 @@ import scipp as sc
 
 from ...core.utils import maybe_variable_to_number
 from ...graphics.bbox import BoundingBox
+from ...utils import parse_vmin_vmax_norm
 
 
 class Canvas:
@@ -35,8 +36,8 @@ class Canvas:
         self,
         figsize: tuple[float, float] | None = None,
         title: str | None = None,
-        user_vmin: sc.Variable | float = None,
-        user_vmax: sc.Variable | float = None,
+        user_vmin: sc.Variable | float | None = None,
+        user_vmax: sc.Variable | float | None = None,
         xmin: sc.Variable | float | None = None,
         xmax: sc.Variable | float | None = None,
         ymin: sc.Variable | float | None = None,
@@ -57,18 +58,15 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
-        if user_vmin is not None:
-            if ymin is not None:
-                raise ValueError('Cannot specify both "user_vmin" and "ymin".')
-            ymin = user_vmin
-        if user_vmax is not None:
-            if ymax is not None:
-                raise ValueError('Cannot specify both "user_vmax" and "ymax".')
-            ymax = user_vmax
-        if norm is not None:
-            if logy:
-                raise ValueError('Cannot specify both "norm" and "logy".')
-            logy = norm == 'log'
+        ymin, ymax, logy = parse_vmin_vmax_norm(
+            vmin=user_vmin,
+            vmax=user_vmax,
+            norm=norm,
+            ymin=ymin,
+            ymax=ymax,
+            log=logy,
+            y_or_c='y',
+        )
 
         import plotly.graph_objects as go
 

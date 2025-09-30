@@ -22,6 +22,3 @@ def deprecated(message: str = '') -> Callable:
         return wrapper
 
     return decorator
-
-
-__all__ = ['deprecated']

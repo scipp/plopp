@@ -15,6 +15,7 @@ from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normal
 from ..backends.matplotlib.utils import fig_to_bytes
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
+from ..utils import parse_vmin_vmax_norm
 
 
 def _shift_color(color: float, delta: float) -> float:
@@ -102,17 +103,6 @@ class ColorMapper:
         a colormap with that single color will be used.
     mask_cmap:
         The name of the colormap for masked data.
-    norm:
-        The colorscale normalization. This is an old parameter name.
-        Prefer using ``logc`` instead.
-    vmin:
-        The minimum value for the colorscale range. If a number (without a unit) is
-        supplied, it is assumed that the unit is the same as the data unit.
-        This is an old parameter name. Prefer using ``cmin`` instead.
-    vmax:
-        The maximum value for the colorscale range. If a number (without a unit) is
-        supplied, it is assumed that the unit is the same as the data unit.
-        This is an old parameter name. Prefer using ``cmax`` instead.
     cmin:
         The minimum value for the colorscale range. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the data unit.
@@ -125,6 +115,17 @@ class ColorMapper:
         The color used for representing NAN values.
     figsize:
         The size of the figure next to which the colorbar will be displayed.
+    norm:
+        The colorscale normalization. This is an old parameter name.
+        Prefer using ``logc`` instead.
+    vmin:
+        The minimum value for the colorscale range. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the data unit.
+        This is an old parameter name. Prefer using ``cmin`` instead.
+    vmax:
+        The maximum value for the colorscale range. If a number (without a unit) is
+        supplied, it is assumed that the unit is the same as the data unit.
+        This is an old parameter name. Prefer using ``cmax`` instead.
     """
 
     def __init__(
@@ -133,28 +134,25 @@ class ColorMapper:
         cbar: bool = True,
         cmap: str | Colormap = 'viridis',
         mask_cmap: str | Colormap = 'gray',
-        norm: Literal['linear', 'log', None] = None,
-        vmin: sc.Variable | float | None = None,
-        vmax: sc.Variable | float | None = None,
         cmin: sc.Variable | float | None = None,
         cmax: sc.Variable | float | None = None,
         logc: bool = False,
         clabel: str | None = None,
         nan_color: str | None = None,
         figsize: tuple[float, float] | None = None,
+        norm: Literal['linear', 'log', None] = None,
+        vmin: sc.Variable | float | None = None,
+        vmax: sc.Variable | float | None = None,
     ):
-        if vmin is not None:
-            if cmin is not None:
-                raise ValueError('Cannot specify both "vmin" and "cmin".')
-            cmin = vmin
-        if vmax is not None:
-            if cmax is not None:
-                raise ValueError('Cannot specify both "vmax" and "cmax".')
-            cmax = vmax
-        if norm is not None:
-            if logc:
-                raise ValueError('Cannot specify both "norm" and "logc".')
-            logc = norm == 'log'
+        cmin, cmax, logc = parse_vmin_vmax_norm(
+            vmin=vmin,
+            vmax=vmax,
+            norm=norm,
+            ymin=cmin,
+            ymax=cmax,
+            log=logc,
+            y_or_c='c',
+        )
 
         self._canvas = canvas
         self.cax = self._canvas.cax if hasattr(self._canvas, 'cax') else None

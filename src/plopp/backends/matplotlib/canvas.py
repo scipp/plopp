@@ -12,6 +12,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ...graphics.bbox import BoundingBox
+from ...utils import parse_vmin_vmax_norm
 from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
 
@@ -82,6 +83,24 @@ class Canvas:
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
+    xmin:
+        The minimum value for the x axis.
+    xmax:
+        The maximum value for the x axis.
+    ymin:
+        The minimum value for the y axis.
+    ymax:
+        The maximum value for the y axis.
+    logx:
+        If ``True``, use a logarithmic scale for the x axis.
+    logy:
+        If ``True``, use a logarithmic scale for the y axis.
+    xlabel:
+        The label for the x axis.
+    ylabel:
+        The label for the y axis.
+    norm:
+        Set to ``'log'`` for a logarithmic y-axis (legacy, prefer ``logy`` instead).
     """
 
     def __init__(
@@ -91,8 +110,8 @@ class Canvas:
         figsize: tuple[float, float] | None = None,
         title: str | None = None,
         grid: bool = False,
-        user_vmin: sc.Variable | float = None,
-        user_vmax: sc.Variable | float = None,
+        user_vmin: sc.Variable | float | None = None,
+        user_vmax: sc.Variable | float | None = None,
         aspect: Literal['auto', 'equal', None] = None,
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
@@ -116,18 +135,15 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
-        if user_vmin is not None:
-            if ymin is not None:
-                raise ValueError('Cannot specify both "user_vmin" and "ymin".')
-            ymin = user_vmin
-        if user_vmax is not None:
-            if ymax is not None:
-                raise ValueError('Cannot specify both "user_vmax" and "ymax".')
-            ymax = user_vmax
-        if norm is not None:
-            if logy:
-                raise ValueError('Cannot specify both "norm" and "logy".')
-            logy = norm == 'log'
+        ymin, ymax, logy = parse_vmin_vmax_norm(
+            vmin=user_vmin,
+            vmax=user_vmax,
+            norm=norm,
+            ymin=ymin,
+            ymax=ymax,
+            log=logy,
+            y_or_c='y',
+        )
 
         self.fig = None
         self.ax = ax
