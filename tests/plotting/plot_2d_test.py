@@ -81,6 +81,15 @@ def test_kwarg_scale_2d(linspace):
     assert p.canvas.ax.get_yscale() == 'log'
 
 
+@pytest.mark.parametrize('linspace', [True, False])
+def test_norm_and_scale_2d(linspace):
+    da = data_array(ndim=2, linspace=linspace)
+    p = pp.plot(da, scale={'xx': 'log', 'yy': 'log'}, norm='log')
+    assert p.canvas.xscale == 'log'
+    assert p.canvas.yscale == 'log'
+    assert p.view.colormapper.norm == 'log'
+
+
 def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
@@ -480,6 +489,14 @@ def test_logy():
 def test_logc():
     da = data_array(ndim=2)
     fig = da.plot(logc=True)
+    assert fig.view.colormapper.norm == 'log'
+
+
+def test_logx_logy_logc():
+    da = data_array(ndim=2)
+    fig = da.plot(logx=True, logy=True, logc=True)
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'log'
     assert fig.view.colormapper.norm == 'log'
 
 

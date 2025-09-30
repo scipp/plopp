@@ -144,9 +144,9 @@ class ColorMapper:
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
     ):
-        cmin = parse_mutually_exclusive(cmin=cmin, vmin=vmin)
-        cmax = parse_mutually_exclusive(cmax=cmax, vmax=vmax)
-        logc = parse_mutually_exclusive(logc=logc, norm=norm)
+        cmin = parse_mutually_exclusive(vmin=vmin, cmin=cmin)
+        cmax = parse_mutually_exclusive(vmax=vmax, cmax=cmax)
+        logc = parse_mutually_exclusive(norm=norm, logc=logc)
 
         self._canvas = canvas
         self.cax = self._canvas.cax if hasattr(self._canvas, 'cax') else None

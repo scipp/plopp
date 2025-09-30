@@ -44,7 +44,7 @@ def scatter3d(
     z: str = 'z',
     pos: str | None = None,
     figsize: tuple[int, int] = (600, 400),
-    logc: bool = False,
+    logc: bool | None = None,
     title: str | None = None,
     cmin: sc.Variable | float = None,
     cmax: sc.Variable | float = None,

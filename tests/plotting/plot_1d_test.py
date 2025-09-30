@@ -144,6 +144,13 @@ def test_scale():
     assert p.canvas.yscale == 'linear'
 
 
+def test_norm_scale():
+    da = data_array(ndim=1)
+    p = pp.plot(da, scale={'x': "log"}, norm="log")
+    assert p.canvas.xscale == 'log'
+    assert p.canvas.yscale == 'log'
+
+
 def test_kwarg_for_two_lines():
     a = data_array(ndim=1)
     b = 2.0 * a
@@ -658,6 +665,13 @@ def test_logy():
     fig = da.plot(logy=True)
     assert fig.canvas.yscale == 'log'
     assert fig.canvas.xscale == 'linear'
+
+
+def test_logx_logy():
+    da = data_array(ndim=1)
+    fig = da.plot(logx=True, logy=True)
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'log'
 
 
 def test_xlabel():

@@ -42,8 +42,8 @@ class Canvas:
         xmax: sc.Variable | float | None = None,
         ymin: sc.Variable | float | None = None,
         ymax: sc.Variable | float | None = None,
-        logx: bool = False,
-        logy: bool = False,
+        logx: bool | None = None,
+        logy: bool | None = None,
         xlabel: str | None = None,
         ylabel: str | None = None,
         norm: Literal['linear', 'log', None] = None,
@@ -60,7 +60,7 @@ class Canvas:
 
         ymin = parse_mutually_exclusive(vmin=user_vmin, ymin=ymin)
         ymax = parse_mutually_exclusive(vmax=user_vmax, ymax=ymax)
-        logy = parse_mutually_exclusive(norm=norm, log=logy)
+        logy = parse_mutually_exclusive(norm=norm, logy=logy)
 
         import plotly.graph_objects as go
 
@@ -97,6 +97,8 @@ class Canvas:
             self.title = title
         self.bbox = BoundingBox()
 
+        logx = False if logx is None else logx
+        logy = False if logy is None else logy
         if logx:
             self.xscale = 'log'
         if logy:
@@ -284,6 +286,28 @@ class Canvas:
     def yrange(self, value: tuple[float, float]):
         self.fig.layout.yaxis.range = value
 
+    @property
+    def logx(self) -> bool:
+        """
+        Get or set whether the x-axis is in logarithmic scale.
+        """
+        return self.xscale == 'log'
+
+    @logx.setter
+    def logx(self, value: bool):
+        self.xscale = 'log' if value else 'linear'
+
+    @property
+    def logy(self) -> bool:
+        """
+        Get or set whether the y-axis is in logarithmic scale.
+        """
+        return self.yscale == 'log'
+
+    @logy.setter
+    def logy(self, value: bool):
+        self.yscale = 'log' if value else 'linear'
+
     def reset_mode(self):
         """
         Reset the modebar mode to nothing, to disable all zoom/pan tools.
@@ -319,13 +343,13 @@ class Canvas:
         """
         self.fig.write_image('figure.png')
 
-    def logx(self):
+    def toggle_logx(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the horizontal axis.
         """
         self.xscale = 'log' if self.xscale in ('linear', None) else 'linear'
 
-    def logy(self):
+    def toggle_logy(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """

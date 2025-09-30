@@ -137,7 +137,7 @@ class Canvas:
 
         ymin = parse_mutually_exclusive(vmin=user_vmin, ymin=ymin)
         ymax = parse_mutually_exclusive(vmax=user_vmax, ymax=ymax)
-        logy = parse_mutually_exclusive(norm=norm, log=logy)
+        logy = parse_mutually_exclusive(norm=norm, logy=logy)
 
         self.fig = None
         self.ax = ax
@@ -462,6 +462,28 @@ class Canvas:
         self.ax.set_ylim(value)
 
     @property
+    def logx(self) -> bool:
+        """
+        Get or set whether the x-axis is in logarithmic scale.
+        """
+        return self.xscale == 'log'
+
+    @logx.setter
+    def logx(self, value: bool):
+        self.xscale = 'log' if value else 'linear'
+
+    @property
+    def logy(self) -> bool:
+        """
+        Get or set whether the y-axis is in logarithmic scale.
+        """
+        return self.yscale == 'log'
+
+    @logy.setter
+    def logy(self, value: bool):
+        self.yscale = 'log' if value else 'linear'
+
+    @property
     def grid(self) -> bool:
         """
         Get or set the visibility of the grid.
@@ -510,13 +532,13 @@ class Canvas:
         """
         self.fig.canvas.toolbar.save_figure()
 
-    def logx(self):
+    def toggle_logx(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the horizontal axis.
         """
         self.xscale = 'log' if self.xscale == 'linear' else 'linear'
 
-    def logy(self):
+    def toggle_logy(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """
