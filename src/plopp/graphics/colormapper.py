@@ -247,7 +247,7 @@ class ColorMapper:
         if "user" not in self._cmin:
             self._cmin["data"] = reduce(min, [v[0] for v in limits]).value
         else:
-            self._cmin = self._cmin["user"]
+            self._cmin["data"] = self._cmin["user"]
         if "user" not in self._cmax:
             self._cmax["data"] = reduce(max, [v[1] for v in limits]).value
         else:
@@ -381,8 +381,8 @@ class ColorMapper:
         """
         self._logc = not self._logc
         self.normalizer = _get_normalizer('log' if self._logc else 'linear')
-        self._cmin = np.inf
-        self._cmax = -np.inf
+        self._cmin["data"] = np.inf
+        self._cmax["data"] = -np.inf
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
         self.autoscale()
