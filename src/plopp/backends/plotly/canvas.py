@@ -7,7 +7,7 @@ import scipp as sc
 
 from ...core.utils import maybe_variable_to_number
 from ...graphics.bbox import BoundingBox
-from ...utils import parse_vmin_vmax_norm
+from ...utils import parse_mutually_exclusive
 
 
 class Canvas:
@@ -58,15 +58,9 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
-        ymin, ymax, logy = parse_vmin_vmax_norm(
-            vmin=user_vmin,
-            vmax=user_vmax,
-            norm=norm,
-            ymin=ymin,
-            ymax=ymax,
-            log=logy,
-            y_or_c='y',
-        )
+        ymin = parse_mutually_exclusive(vmin=user_vmin, ymin=ymin)
+        ymax = parse_mutually_exclusive(vmax=user_vmax, ymax=ymax)
+        logy = parse_mutually_exclusive(norm=norm, log=logy)
 
         import plotly.graph_objects as go
 

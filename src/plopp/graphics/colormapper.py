@@ -15,7 +15,7 @@ from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normal
 from ..backends.matplotlib.utils import fig_to_bytes
 from ..core.limits import find_limits, fix_empty_range
 from ..core.utils import maybe_variable_to_number, merge_masks
-from ..utils import parse_vmin_vmax_norm
+from ..utils import parse_mutually_exclusive
 
 
 def _shift_color(color: float, delta: float) -> float:
@@ -136,7 +136,7 @@ class ColorMapper:
         mask_cmap: str | Colormap = 'gray',
         cmin: sc.Variable | float | None = None,
         cmax: sc.Variable | float | None = None,
-        logc: bool = False,
+        logc: bool | None = None,
         clabel: str | None = None,
         nan_color: str | None = None,
         figsize: tuple[float, float] | None = None,
@@ -144,22 +144,14 @@ class ColorMapper:
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
     ):
-        cmin, cmax, logc = parse_vmin_vmax_norm(
-            vmin=vmin,
-            vmax=vmax,
-            norm=norm,
-            ymin=cmin,
-            ymax=cmax,
-            log=logc,
-            y_or_c='c',
-        )
+        cmin = parse_mutually_exclusive(cmin=cmin, vmin=vmin)
+        cmax = parse_mutually_exclusive(cmax=cmax, vmax=vmax)
+        logc = parse_mutually_exclusive(logc=logc, norm=norm)
 
         self._canvas = canvas
         self.cax = self._canvas.cax if hasattr(self._canvas, 'cax') else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
-        # self.user_cmin = cmin
-        # self.user_cmax = cmax
 
         # Inside the autoscale, we need to distinguish between a min value that was set
         # by the user and one that was found by looping over all the data.
@@ -171,7 +163,7 @@ class ColorMapper:
         if cmax is not None:
             self._cmax["user"] = cmax
         self._clabel = clabel
-        self._logc = logc
+        self._logc = False if logc is None else logc
         self.set_colors_on_update = True
 
         # Note that we need to set cmin/cmax for the LogNorm, if not an error is
@@ -238,7 +230,7 @@ class ColorMapper:
         Re-compute the global min and max range of values by iterating over all the
         artists and adjust the limits.
         """
-        if "user" in self._cmin and "user" in self._cmax:
+        if ("user" in self._cmin) and ("user" in self._cmax):
             if self._cmin["user"] >= self._cmax["user"]:
                 raise ValueError('User-set limits: cmin must be smaller than cmax.')
             self._cmin["data"] = self._cmin["user"]

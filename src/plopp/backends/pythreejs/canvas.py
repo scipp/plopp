@@ -402,3 +402,21 @@ class Canvas:
 
     def update_legend(self):
         pass
+
+    def has_user_xlabel(self) -> bool:
+        """
+        Return ``True`` if the user has set an x-axis label.
+        """
+        return self._xlabel is not None
+
+    def has_user_ylabel(self) -> bool:
+        """
+        Return ``True`` if the user has set a y-axis label.
+        """
+        return self._ylabel is not None
+
+    def has_user_zlabel(self) -> bool:
+        """
+        Return ``True`` if the user has set a z-axis label.
+        """
+        return self._zlabel is not None
