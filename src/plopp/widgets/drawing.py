@@ -105,7 +105,7 @@ class DrawingTool(ToggleTool):
 
     def update_node(self, artist):
         n = self._draw_nodes[artist.nodeid]
-        n.func = self._get_artist_info(artist=artist, figure=self._figure)
+        n.func = partial(self._get_artist_info, artist=artist, figure=self._figure)
         n.notify_children(artist)
 
     def remove_node(self, artist):
@@ -134,7 +134,7 @@ def _get_points_info(artist, figure):
     Convert the raw (x, y) position of a point to a dict containing the dimensions of
     each axis, and scalar values with units.
     """
-    return lambda: {
+    return {
         'x': {
             'dim': figure.canvas.dims['x'],
             'value': sc.scalar(artist.x, unit=figure.canvas.units['x']),
