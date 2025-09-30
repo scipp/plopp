@@ -146,7 +146,7 @@ def test_scale():
 
 def test_norm_scale():
     da = data_array(ndim=1)
-    p = pp.plot(da, scale={'x': "log"}, norm="log")
+    p = pp.plot(da, scale={'xx': "log"}, norm="log")
     assert p.canvas.xscale == 'log'
     assert p.canvas.yscale == 'log'
 
