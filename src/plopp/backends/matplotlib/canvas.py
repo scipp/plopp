@@ -527,3 +527,15 @@ class Canvas:
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
+
+    def has_user_xlabel(self) -> bool:
+        """
+        Return ``True`` if the user has set an x-axis label.
+        """
+        return self._xlabel is not None
+
+    def has_user_ylabel(self) -> bool:
+        """
+        Return ``True`` if the user has set a y-axis label.
+        """
+        return self._ylabel is not None

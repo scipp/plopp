@@ -200,16 +200,10 @@ class GraphicalView(View):
                     self.colormapper.unit = new_values.unit
                     axes_units['data'] = new_values.unit
                     axes_dtypes['data'] = new_values.dtype
-                    self._data_axis = self.colormapper
-                    if self.colormapper._clabel is None:
-                        # If the private member `_clabel` is None, the user did not
-                        # supply a label, so we set it here based on the data.
+                    if not self.colormapper.has_user_clabel():
                         self.colormapper.clabel = data_label
                 else:
-                    # self._data_axis = self.canvas
-                    if self.canvas._ylabel is None:
-                        # If the private member `_ylabel` is None, the user did not
-                        # supply a label, so we set it here based on the data.
+                    if not self.canvas.has_user_ylabel():
                         self.canvas.ylabel = data_label
 
                 self.canvas.set_axes(
@@ -244,9 +238,9 @@ class GraphicalView(View):
                             name='',
                         )
                         if self.colormapper is not None:
-                            if self.colormapper._clabel is None:
+                            if not self.colormapper.has_user_clabel():
                                 self.colormapper.clabel = data_label
-                        elif self.canvas._ylabel is None:
+                        elif not self.canvas.has_user_ylabel():
                             self.canvas.ylabel = data_label
 
             if key not in self.artists:

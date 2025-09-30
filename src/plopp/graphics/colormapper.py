@@ -184,8 +184,8 @@ class ColorMapper:
                 self.cax = fig.add_axes([0.05, 0.02, 0.2, 0.98])
             self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
             self.cax.yaxis.set_label_coords(-0.9, 0.5)
-            if clabel is not None:
-                self.cax.set_ylabel(clabel)
+            if self._clabel is not None:
+                self.cax.set_ylabel(self._clabel)
 
     def add_artist(self, key: str, artist: Any):
         self.artists[key] = artist
@@ -371,7 +371,6 @@ class ColorMapper:
         """
         Toggle the norm flag, between `linear` and `log`.
         """
-        # self.norm = "log" if self.norm == 'linear' else 'linear'
         self._logc = not self._logc
         self.normalizer = _get_normalizer('log' if self._logc else 'linear')
         self._cmin = np.inf
@@ -395,3 +394,9 @@ class ColorMapper:
             raise ValueError('norm must be either "linear" or "log".')
         if norm != self.norm:
             self.toggle_norm()
+
+    def has_user_clabel(self) -> bool:
+        """
+        Return ``True`` if the user has set a colorbar label.
+        """
+        return self._clabel is not None
