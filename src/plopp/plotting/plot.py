@@ -23,11 +23,7 @@ def plot(
     ignore_size: bool = False,
     mask_color: str = 'black',
     nan_color: str | None = None,
-    norm: Literal['linear', 'log', None] = None,
-    scale: dict[str, str] | None = None,
     title: str | None = None,
-    vmin: Variable | float | None = None,
-    vmax: Variable | float | None = None,
     legend: bool | tuple[float, float] = True,
     xmin: Variable | float | None = None,
     xmax: Variable | float | None = None,
@@ -41,6 +37,10 @@ def plot(
     xlabel: str | None = None,
     ylabel: str | None = None,
     clabel: str | None = None,
+    norm: Literal['linear', 'log', None] = None,
+    vmin: Variable | float | None = None,
+    vmax: Variable | float | None = None,
+    scale: dict[str, str] | None = None,
     **kwargs,
 ) -> FigureLike:
     """Plot a Scipp object.
@@ -68,20 +68,8 @@ def plot(
         Color of masks in 1d plots.
     nan_color:
         Color to use for NaN values in 2d plots.
-    norm:
-        Set to ``'log'`` for a logarithmic y-axis (1d plots) or logarithmic colorscale
-        (2d plots).
-    scale:
-        Change axis scaling between ``log`` and ``linear``. For example, specify
-        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
     title:
         The figure title.
-    vmin:
-        Lower bound for data to be displayed (y-axis for 1d plots, colorscale for
-        2d plots).
-    vmax:
-        Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
-        2d plots).
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
@@ -109,6 +97,19 @@ def plot(
         Label for y-axis.
     clabel:
         Label for colorscale (2d plots only).
+    norm:
+        Set to ``'log'`` for a logarithmic y-axis (1d plots) or logarithmic colorscale
+        (2d plots). Legacy, prefer ``logy`` and ``logc`` instead.
+    vmin:
+        Lower bound for data to be displayed (y-axis for 1d plots, colorscale for
+        2d plots). Legacy, prefer ``ymin`` and ``cmin`` instead.
+    vmax:
+        Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
+        2d plots). Legacy, prefer ``ymax`` and ``cmax`` instead.
+    scale:
+        Change axis scaling between ``log`` and ``linear``. For example, specify
+        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
+        Legacy, prefer ``logx`` and ``logy`` instead.
     **kwargs:
         All other kwargs are directly forwarded to Matplotlib, the underlying plotting
         library. The underlying functions called are the following:

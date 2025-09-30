@@ -211,14 +211,17 @@ class GraphicalView(View):
                 )
 
                 for xyz, dim in self._dims.items():
-                    if getattr(self.canvas, f'_{xyz}label') is None:
-                        # If the private member `_{xyz}label` is None, the user did not
-                        # supply a label, so we set it here based on the data.
+                    if not getattr(self.canvas, f'has_user_{xyz}label'):
                         setattr(
                             self.canvas,
                             f'{xyz}label',
                             name_with_unit(var=coords[xyz], name=dim),
                         )
+                    # Note that setting the scale is handled here as well as in the
+                    # canvas for historical purposes. We kept the scale argument for
+                    # backward compatibility, but it is now also possible to set the
+                    # axes scales with logx, logy, logz in the constructor of the
+                    # canvas.
                     if dim in self._scale:
                         setattr(self.canvas, f'{xyz}scale', self._scale[dim])
 
