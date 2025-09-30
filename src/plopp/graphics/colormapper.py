@@ -158,10 +158,14 @@ class ColorMapper:
         self.cax = self._canvas.cax if hasattr(self._canvas, 'cax') else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
-        self.user_cmin = cmin
-        self.user_cmax = cmax
-        self._cmin = np.inf
-        self._cmax = -np.inf
+        # self.user_cmin = cmin
+        # self.user_cmax = cmax
+        self._cmin = {"data": np.inf}
+        self._cmax = {"data": -np.inf}
+        if cmin is not None:
+            self._cmin["user"] = cmin
+        if cmax is not None:
+            self._cmax["user"] = cmax
         self._clabel = clabel
         self._logc = logc
         self.set_colors_on_update = True
@@ -230,30 +234,34 @@ class ColorMapper:
         Re-compute the global min and max range of values by iterating over all the
         artists and adjust the limits.
         """
+        if "user" in self._cmin and "user" in self._cmax:
+            if self._cmin["user"] >= self._cmax["user"]:
+                raise ValueError('User-set limits: cmin must be smaller than cmax.')
+            self._cmin["data"] = self._cmin["user"]
+            self._cmax["data"] = self._cmax["user"]
+            self.apply_limits()
+            return
+
         limits = [
             fix_empty_range(
                 find_limits(artist._data, scale='log' if self._logc else 'linear')
             )
             for artist in self.artists.values()
         ]
-        cmin = reduce(min, [v[0] for v in limits])
-        cmax = reduce(max, [v[1] for v in limits])
-        if self.user_cmin is not None:
-            self._cmin = self.user_cmin
+        if "user" not in self._cmin:
+            self._cmin["data"] = reduce(min, [v[0] for v in limits])
         else:
-            self._cmin = cmin.value
-        if self.user_cmax is not None:
-            self._cmax = self.user_cmax
+            self._cmin = self._cmin["user"]
+        if "user" not in self._cmax:
+            self._cmax["data"] = reduce(max, [v[1] for v in limits])
         else:
-            self._cmax = cmax.value
+            self._cmax["data"] = self._cmax["user"]
 
-        if self._cmin >= self._cmax:
-            if self.user_cmax is not None:
-                self._cmax = self.user_cmax
-                self._cmin = self.user_cmax - abs(self.user_cmax) * 0.1
+        if self._cmin["data"] >= self._cmax["data"]:
+            if "user" in self._cmax:
+                self._cmin["data"] = self._cmax["data"] - abs(self._cmax["data"]) * 0.1
             else:
-                self._cmin = self.user_cmin
-                self._cmax = self.user_cmin + abs(self.user_cmin) * 0.1
+                self._cmax["data"] = self._cmin["data"] + abs(self._cmin["data"]) * 0.1
 
         self.apply_limits()
 
@@ -261,12 +269,12 @@ class ColorMapper:
         # Synchronize the underlying normalizer limits to the current state.
         # Note that the order matters here, as for a normalizer cmin cannot be set above
         # the current cmax.
-        if self._cmin >= self.normalizer.vmax:
-            self.normalizer.vmax = self._cmax
-            self.normalizer.vmin = self._cmin
+        if self._cmin["data"] >= self.normalizer.vmax:
+            self.normalizer.vmax = self._cmax["data"]
+            self.normalizer.vmin = self._cmin["data"]
         else:
-            self.normalizer.vmin = self._cmin
-            self.normalizer.vmax = self._cmax
+            self.normalizer.vmin = self._cmin["data"]
+            self.normalizer.vmax = self._cmax["data"]
 
         if self.colorbar is not None:
             self._update_colorbar_widget()
@@ -288,8 +296,8 @@ class ColorMapper:
         return self.cmin
 
     @vmin.setter
-    def vmin(self, vmin: sc.Variable | float):
-        self.cmin = vmin
+    def vmin(self, value: sc.Variable | float):
+        self.cmin = value
 
     @property
     def vmax(self) -> float:
@@ -300,19 +308,19 @@ class ColorMapper:
         return self.cmax
 
     @vmax.setter
-    def vmax(self, vmax: sc.Variable | float):
-        self.cmax = vmax
+    def vmax(self, value: sc.Variable | float):
+        self.cmax = value
 
     @property
     def cmin(self) -> float:
         """
         Get or set the minimum value of the colorbar.
         """
-        return self._cmin
+        return self._cmin.get("user", self._cmin["data"])
 
     @cmin.setter
-    def cmin(self, cmin: sc.Variable | float):
-        self._cmin = maybe_variable_to_number(cmin, unit=self._unit)
+    def cmin(self, value: sc.Variable | float):
+        self._cmin["user"] = maybe_variable_to_number(value, unit=self._unit)
         self.apply_limits()
 
     @property
@@ -320,11 +328,11 @@ class ColorMapper:
         """
         Get or set the maximum value of the colorbar.
         """
-        return self._cmax
+        return self._cmax.get("user", self._cmax["data"])
 
     @cmax.setter
-    def cmax(self, cmax: sc.Variable | float):
-        self._cmax = maybe_variable_to_number(cmax, unit=self._unit)
+    def cmax(self, value: sc.Variable | float):
+        self._cmax["user"] = maybe_variable_to_number(value, unit=self._unit)
         self.apply_limits()
 
     @property
@@ -337,10 +345,14 @@ class ColorMapper:
     @unit.setter
     def unit(self, unit: str | None):
         self._unit = unit
-        if self.user_cmin is not None:
-            self.user_cmin = maybe_variable_to_number(self.user_cmin, unit=self._unit)
-        if self.user_cmax is not None:
-            self.user_cmax = maybe_variable_to_number(self.user_cmax, unit=self._unit)
+        if "user" in self._cmin:
+            self._cmin["user"] = maybe_variable_to_number(
+                self._cmin["user"], unit=self._unit
+            )
+        if "user" in self._cmax:
+            self._cmax["user"] = maybe_variable_to_number(
+                self._cmax["user"], unit=self._unit
+            )
 
     @property
     def clabel(self) -> str | None:
@@ -389,10 +401,10 @@ class ColorMapper:
         return 'log' if self._logc else 'linear'
 
     @norm.setter
-    def norm(self, norm: Literal['linear', 'log']):
-        if norm not in ['linear', 'log']:
+    def norm(self, value: Literal['linear', 'log']):
+        if value not in ['linear', 'log']:
             raise ValueError('norm must be either "linear" or "log".')
-        if norm != self.norm:
+        if value != self.norm:
             self.toggle_norm()
 
     def has_user_clabel(self) -> bool:
