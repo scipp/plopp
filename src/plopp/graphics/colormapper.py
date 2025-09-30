@@ -160,6 +160,10 @@ class ColorMapper:
         self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
         # self.user_cmin = cmin
         # self.user_cmax = cmax
+
+        # Inside the autoscale, we need to distinguish between a min value that was set
+        # by the user and one that was found by looping over all the data.
+        # So we basically always need to keep a backup of the user-set value.
         self._cmin = {"data": np.inf}
         self._cmax = {"data": -np.inf}
         if cmin is not None:
@@ -249,11 +253,11 @@ class ColorMapper:
             for artist in self.artists.values()
         ]
         if "user" not in self._cmin:
-            self._cmin["data"] = reduce(min, [v[0] for v in limits])
+            self._cmin["data"] = reduce(min, [v[0] for v in limits]).value
         else:
             self._cmin = self._cmin["user"]
         if "user" not in self._cmax:
-            self._cmax["data"] = reduce(max, [v[1] for v in limits])
+            self._cmax["data"] = reduce(max, [v[1] for v in limits]).value
         else:
             self._cmax["data"] = self._cmax["user"]
 
