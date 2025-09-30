@@ -211,7 +211,7 @@ class GraphicalView(View):
                 )
 
                 for xyz, dim in self._dims.items():
-                    if not getattr(self.canvas, f'has_user_{xyz}label'):
+                    if not getattr(self.canvas, f'has_user_{xyz}label')():
                         setattr(
                             self.canvas,
                             f'{xyz}label',
