@@ -90,13 +90,13 @@ def scatter(
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
     norm:
         Set to ``'log'`` for a logarithmic colorscale (only applicable if ``cbar`` is
-        ``True``, legacy, prefer ``logc`` instead).
+        ``True``). Legacy, prefer ``logc`` instead.
     vmin:
-        Lower bound for the colorscale for (only applicable if ``cbar`` is ``True``,
-        legacy, prefer ``cmin`` instead).
+        Lower bound for the colorscale for (only applicable if ``cbar`` is ``True``).
+        Legacy, prefer ``cmin`` instead.
     vmax:
-        Upper bound for the colorscale for (only applicable if ``cbar`` is ``True``,
-        legacy, prefer ``cmax`` instead).
+        Upper bound for the colorscale for (only applicable if ``cbar`` is ``True``).
+        Legacy, prefer ``cmax`` instead.
     **kwargs:
         All other kwargs are forwarded the underlying plotting library.
     """
