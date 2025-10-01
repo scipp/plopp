@@ -13,6 +13,7 @@ from .common import (
     raise_multiple_inputs_for_2d_plot_error,
     require_interactive_figure,
 )
+from .signature import with_plotting_params
 
 
 class Slicer:
@@ -116,6 +117,7 @@ class Slicer:
         self.figure.bottom_bar.add(self.slider)
 
 
+@with_plotting_params()
 def slicer(
     obj: PlottableMulti,
     *,
@@ -139,19 +141,12 @@ def slicer(
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
-    autoscale:
-        Automatically adjust range of the y-axis (1d plots) or color scale (2d plots)
-        every time the data changes if ``True``.
-    coords:
-        If supplied, use these coords instead of the input's dimension coordinates.
-    cbar:
-        Whether to display a colorbar for 2D plots.
     enable_player:
         Add a play button to animate the sliders if True. Defaults to False.
 
         .. versionadded:: 25.07.0
     **kwargs:
-        See :py:func:`plopp.plot` for the full list of figure customization arguments.
+        All other kwargs are forwarded the underlying plotting library.
     """
     return Slicer(
         obj,
