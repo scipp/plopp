@@ -55,6 +55,7 @@ def xyplot(
         Must be one-dimensional.
     y:
         The variable to use as the data for the vertical axis. Must be one-dimensional.
+    <DOCSTRING_PLACEHOLDER>
     """
     x = Node(to_variable, x)
     y = Node(to_variable, y)

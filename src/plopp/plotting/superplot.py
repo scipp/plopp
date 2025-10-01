@@ -26,6 +26,7 @@ def superplot(
         The single dimension to be kept, all remaining dimensions will be sliced.
         This should be a single string. If no dim is provided, the last/inner dim will
         be kept.
+    <DOCSTRING_PLACEHOLDER>
 
     Returns
     -------

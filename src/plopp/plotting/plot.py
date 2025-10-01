@@ -34,6 +34,7 @@ def plot(
     ----------
     obj:
         The object to be plotted.
+    <DOCSTRING_PLACEHOLDER>
 
     Returns
     -------

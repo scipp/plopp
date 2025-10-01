@@ -60,6 +60,7 @@ def mesh3d(
         single solid color.
     edgecolor:
         The color of the edges. If None, no edges are drawn.
+    <DOCSTRING_PLACEHOLDER>
     """
     from ..graphics import mesh3dfigure
 

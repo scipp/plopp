@@ -74,6 +74,7 @@ def inspector(
     orientation:
         Display the two panels side-by-side ('horizontal') or one below the other
         ('vertical').
+    <DOCSTRING_PLACEHOLDER>
 
     Returns
     -------

@@ -145,6 +145,7 @@ def slicer(
         Add a play button to animate the sliders if True. Defaults to False.
 
         .. versionadded:: 25.07.0
+    <DOCSTRING_PLACEHOLDER>
     """
     return Slicer(
         obj,

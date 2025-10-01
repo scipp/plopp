@@ -222,7 +222,7 @@ _DOCSTRING_LIBRARY = {
         "If ``True``, skip the check that prevents the rendering of very large data "
         "objects."
     ),
-    "mask_color": "Color of masks in 1d plots.",
+    "mask_color": "Color to use for masked data.",
     "nan_color": "Color to use for NaN values in 2d plots.",
     "title": "The figure title.",
     "legend": (
@@ -270,7 +270,11 @@ def _with_plotting_params(args):
             arg_doc = _DOCSTRING_LIBRARY.get(name, None)
             if arg_doc is not None:
                 arg_strings.append(f"    {name}:\n        {arg_doc}")
-        out.__doc__ = doc + "\n" + "\n".join(arg_strings)
+        common_docstring = "\n".join(arg_strings)
+        if "    <DOCSTRING_PLACEHOLDER>" in doc:
+            out.__doc__ = doc.replace("    <DOCSTRING_PLACEHOLDER>", common_docstring)
+        else:
+            out.__doc__ = doc + "\n" + common_docstring
         return out
 
     return deco
