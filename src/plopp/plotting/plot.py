@@ -8,10 +8,10 @@ from scipp import Variable
 from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
 from .common import input_to_nodes, preprocess, raise_multiple_inputs_for_2d_plot_error
-from .signature import with_plotting_params
+from .signature import with_2d_plot_params
 
 
-@with_plotting_params()
+@with_2d_plot_params()
 def plot(
     obj: PlottableMulti,
     *,
@@ -35,38 +35,13 @@ def plot(
     obj:
         The object to be plotted.
     **kwargs:
-        All other kwargs are directly forwarded to Matplotlib, the underlying plotting
-        library. The underlying functions called are the following:
-
-        - 1d data with a non bin-edge coordinate: ``plot``
-        - 1d data with a bin-edge coordinate: ``step``
-        - 2d data: ``pcolormesh``
+        All other kwargs are forwarded the underlying plotting library.
 
     Returns
     -------
     :
         A figure.
     """
-
-    # common_args = {
-    #     'aspect': aspect,
-    #     'grid': grid,
-    #     'norm': norm,
-    #     'scale': scale,
-    #     'title': title,
-    #     'vmin': vmin,
-    #     'vmax': vmax,
-    #     'figsize': figsize,
-    #     'xlabel': xlabel,
-    #     'ylabel': ylabel,
-    #     'xmin': xmin,
-    #     'xmax': xmax,
-    #     'ymin': ymin,
-    #     'ymax': ymax,
-    #     'logx': logx,
-    #     'logy': logy,
-    #     **kwargs,
-    # }
 
     nodes = input_to_nodes(
         obj, processor=partial(preprocess, ignore_size=ignore_size, coords=coords)

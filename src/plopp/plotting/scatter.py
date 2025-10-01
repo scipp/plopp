@@ -8,7 +8,7 @@ import scipp as sc
 
 from ..core.typing import FigureLike, PlottableMulti
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
-from .signature import with_plotting_params
+from .signature import with_2d_plot_params
 
 
 def _preprocess_scatter(
@@ -33,7 +33,7 @@ def _preprocess_scatter(
     return out
 
 
-@with_plotting_params()
+@with_2d_plot_params()
 def scatter(
     obj: PlottableMulti,
     *,

@@ -9,6 +9,7 @@ from ..core import Node
 from ..core.typing import FigureLike
 from ..graphics import linefigure
 from .common import to_variable
+from .signature import with_1d_plot_params
 
 
 def _make_data_array(x: sc.Variable, y: sc.Variable) -> sc.DataArray:
@@ -36,6 +37,7 @@ def _make_data_array(x: sc.Variable, y: sc.Variable) -> sc.DataArray:
     )
 
 
+@with_1d_plot_params()
 def xyplot(
     x: sc.Variable | ndarray | list | Node,
     y: sc.Variable | ndarray | list | Node,
@@ -54,7 +56,7 @@ def xyplot(
     y:
         The variable to use as the data for the vertical axis. Must be one-dimensional.
     **kwargs:
-        See :py:func:`plopp.plot`.
+        All other kwargs are forwarded the underlying plotting library.
     """
     x = Node(to_variable, x)
     y = Node(to_variable, y)

@@ -51,206 +51,248 @@ def add_signature_params(
     return func
 
 
-PLOT_COMMON_ARGS = [
-    inspect.Parameter(
-        "aspect",
-        inspect.Parameter.KEYWORD_ONLY,
-        annotation=Literal['auto', 'equal', None],
-        default=None,
-    ),
-    inspect.Parameter(
-        "cbar", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True
-    ),
-    inspect.Parameter(
-        "coords",
-        inspect.Parameter.KEYWORD_ONLY,
-        annotation=list[str] | None,
-        default=None,
-    ),
-    inspect.Parameter(
-        "errorbars", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True
-    ),
-    inspect.Parameter(
+BASE_ARGS = {
+    "figsize": inspect.Parameter(
         "figsize",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=tuple[float, float] | None,
         default=None,
     ),
-    inspect.Parameter(
-        "grid", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=False
-    ),
-    inspect.Parameter(
-        "ignore_size", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=False
-    ),
-    inspect.Parameter(
-        "mask_color", inspect.Parameter.KEYWORD_ONLY, annotation=str, default='black'
-    ),
-    inspect.Parameter(
-        "nan_color", inspect.Parameter.KEYWORD_ONLY, annotation=str | None, default=None
-    ),
-    inspect.Parameter(
+    "title": inspect.Parameter(
         "title", inspect.Parameter.KEYWORD_ONLY, annotation=str | None, default=None
     ),
-    inspect.Parameter(
+    "mask_color": inspect.Parameter(
+        "mask_color", inspect.Parameter.KEYWORD_ONLY, annotation=str, default='black'
+    ),
+}
+
+CANVAS_ARGS = {
+    "aspect": inspect.Parameter(
+        "aspect",
+        inspect.Parameter.KEYWORD_ONLY,
+        annotation=Literal['auto', 'equal', None],
+        default=None,
+    ),
+    "coords": inspect.Parameter(
+        "coords",
+        inspect.Parameter.KEYWORD_ONLY,
+        annotation=list[str] | None,
+        default=None,
+    ),
+    "errorbars": inspect.Parameter(
+        "errorbars", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True
+    ),
+    "grid": inspect.Parameter(
+        "grid", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=False
+    ),
+    "ignore_size": inspect.Parameter(
+        "ignore_size", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=False
+    ),
+    "nan_color": inspect.Parameter(
+        "nan_color", inspect.Parameter.KEYWORD_ONLY, annotation=str | None, default=None
+    ),
+    "legend": inspect.Parameter(
         "legend",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=bool | tuple[float, float],
         default=True,
     ),
-    inspect.Parameter(
+    "xmin": inspect.Parameter(
         "xmin",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=sc.Variable | float | None,
         default=None,
     ),
-    inspect.Parameter(
+    "xmax": inspect.Parameter(
         "xmax",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=sc.Variable | float | None,
         default=None,
     ),
-    inspect.Parameter(
+    "ymin": inspect.Parameter(
         "ymin",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=sc.Variable | float | None,
         default=None,
     ),
-    inspect.Parameter(
+    "ymax": inspect.Parameter(
         "ymax",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=sc.Variable | float | None,
         default=None,
     ),
-    inspect.Parameter(
-        "cmin",
-        inspect.Parameter.KEYWORD_ONLY,
-        annotation=sc.Variable | float | None,
-        default=None,
-    ),
-    inspect.Parameter(
-        "cmax",
-        inspect.Parameter.KEYWORD_ONLY,
-        annotation=sc.Variable | float | None,
-        default=None,
-    ),
-    inspect.Parameter(
+    "logx": inspect.Parameter(
         "logx", inspect.Parameter.KEYWORD_ONLY, annotation=bool | None, default=None
     ),
-    inspect.Parameter(
+    "logy": inspect.Parameter(
         "logy", inspect.Parameter.KEYWORD_ONLY, annotation=bool | None, default=None
     ),
-    inspect.Parameter(
-        "logc", inspect.Parameter.KEYWORD_ONLY, annotation=bool | None, default=None
-    ),
-    inspect.Parameter(
+    "xlabel": inspect.Parameter(
         "xlabel", inspect.Parameter.KEYWORD_ONLY, annotation=str | None, default=None
     ),
-    inspect.Parameter(
+    "ylabel": inspect.Parameter(
         "ylabel", inspect.Parameter.KEYWORD_ONLY, annotation=str | None, default=None
     ),
-    inspect.Parameter(
-        "clabel", inspect.Parameter.KEYWORD_ONLY, annotation=str | None, default=None
-    ),
-    inspect.Parameter(
+    "norm": inspect.Parameter(
         "norm",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=Literal['linear', 'log', None],
         default=None,
     ),
-    inspect.Parameter(
+    "vmin": inspect.Parameter(
         "vmin",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=sc.Variable | float | None,
         default=None,
     ),
-    inspect.Parameter(
+    "vmax": inspect.Parameter(
         "vmax",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=sc.Variable | float | None,
         default=None,
     ),
-    inspect.Parameter(
+    "scale": inspect.Parameter(
         "scale",
         inspect.Parameter.KEYWORD_ONLY,
         annotation=dict[str, str] | None,
         default=None,
     ),
-]
+}
 
-PLOT_COMMON_DOCSTRING = """aspect:
-        Aspect ratio for the axes.
-    cbar:
-        Show colorbar in 2d plots if ``True``.
-    coords:
-        If supplied, use these coords instead of the input's dimension coordinates.
-    errorbars:
-        Show errorbars in 1d plots if ``True``.
-    figsize:
-        The width and height of the figure, in inches.
-    grid:
-        Show grid if ``True``.
-    ignore_size:
-        If ``True``, skip the check that prevents the rendering of very large data
-        objects.
-    mask_color:
-        Color of masks in 1d plots.
-    nan_color:
-        Color to use for NaN values in 2d plots.
-    title:
-        The figure title.
-    legend:
-        Show legend if ``True``. If ``legend`` is a tuple, it should contain the
-        ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
-    xmin:
-        Lower limit for x-axis.
-    xmax:
-        Upper limit for x-axis.
-    ymin:
-        Lower limit for y-axis.
-    ymax:
-        Upper limit for y-axis.
-    cmin:
-        Lower limit for colorscale (2d plots only).
-    cmax:
-        Upper limit for colorscale (2d plots only).
-    logx:
-        If ``True``, use logarithmic scale for x-axis.
-    logy:
-        If ``True``, use logarithmic scale for y-axis.
-    logc:
-        If ``True``, use logarithmic scale for colorscale (2d plots only).
-    xlabel:
-        Label for x-axis.
-    ylabel:
-        Label for y-axis.
-    clabel:
-        Label for colorscale (2d plots only).
-    norm:
-        Set to ``'log'`` for a logarithmic y-axis (1d plots) or logarithmic colorscale
-        (2d plots). Legacy, prefer ``logy`` and ``logc`` instead.
-    vmin:
-        Lower bound for data to be displayed (y-axis for 1d plots, colorscale for
-        2d plots). Legacy, prefer ``ymin`` and ``cmin`` instead.
-    vmax:
-        Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
-        2d plots). Legacy, prefer ``ymax`` and ``cmax`` instead.
-    scale:
-        Change axis scaling between ``log`` and ``linear``. For example, specify
-        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
-        Legacy, prefer ``logx`` and ``logy`` instead.
-"""
+COLOR_ARGS = {
+    "cbar": inspect.Parameter(
+        "cbar", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True
+    ),
+    "nan_color": inspect.Parameter(
+        "nan_color", inspect.Parameter.KEYWORD_ONLY, annotation=str | None, default=None
+    ),
+    "cmin": inspect.Parameter(
+        "cmin",
+        inspect.Parameter.KEYWORD_ONLY,
+        annotation=sc.Variable | float | None,
+        default=None,
+    ),
+    "cmax": inspect.Parameter(
+        "cmax",
+        inspect.Parameter.KEYWORD_ONLY,
+        annotation=sc.Variable | float | None,
+        default=None,
+    ),
+    "logc": inspect.Parameter(
+        "logc", inspect.Parameter.KEYWORD_ONLY, annotation=bool | None, default=None
+    ),
+    "clabel": inspect.Parameter(
+        "clabel", inspect.Parameter.KEYWORD_ONLY, annotation=str | None, default=None
+    ),
+    "norm": inspect.Parameter(
+        "norm",
+        inspect.Parameter.KEYWORD_ONLY,
+        annotation=Literal['linear', 'log', None],
+        default=None,
+    ),
+    "vmin": inspect.Parameter(
+        "vmin",
+        inspect.Parameter.KEYWORD_ONLY,
+        annotation=sc.Variable | float | None,
+        default=None,
+    ),
+    "vmax": inspect.Parameter(
+        "vmax",
+        inspect.Parameter.KEYWORD_ONLY,
+        annotation=sc.Variable | float | None,
+        default=None,
+    ),
+}
+
+THREE_D_ARGS = {
+    "camera": inspect.Parameter(
+        "camera", inspect.Parameter.KEYWORD_ONLY, annotation=object | None, default=None
+    ),
+}
+
+PLOT_ARGS_1D = BASE_ARGS | CANVAS_ARGS
+PLOT_ARGS_2D = BASE_ARGS | CANVAS_ARGS | COLOR_ARGS
+PLOT_ARGS_3D = BASE_ARGS | COLOR_ARGS | THREE_D_ARGS
+
+DOCSTRING_LIBRARY = {
+    "aspect": "Aspect ratio for the axes.",
+    "cbar": "Show colorbar in 2d plots if ``True``.",
+    "coords": (
+        "If supplied, use these coords instead of the input's dimension coordinates."
+    ),
+    "errorbars": "Show errorbars in 1d plots if ``True``.",
+    "figsize": "The width and height of the figure, in inches.",
+    "grid": "Show grid if ``True``.",
+    "ignore_size": (
+        "If ``True``, skip the check that prevents the rendering of very large data "
+        "objects."
+    ),
+    "mask_color": "Color of masks in 1d plots.",
+    "nan_color": "Color to use for NaN values in 2d plots.",
+    "title": "The figure title.",
+    "legend": (
+        "Show legend if ``True``. If ``legend`` is a tuple, it should contain the "
+        "``(x, y)`` coordinates of the legend's anchor point in axes coordinates."
+    ),
+    "xmin": "Lower limit for x-axis.",
+    "xmax": "Upper limit for x-axis.",
+    "ymin": "Lower limit for y-axis.",
+    "ymax": "Upper limit for y-axis.",
+    "logx": "If ``True``, use logarithmic scale for x-axis.",
+    "logy": "If ``True``, use logarithmic scale for y-axis.",
+    "logc": "If ``True``, use logarithmic scale for colorscale (2d plots only).",
+    "xlabel": "Label for x-axis.",
+    "ylabel": "Label for y-axis.",
+    "clabel": "Label for colorscale (2d plots only).",
+    "norm": (
+        "Set to ``'log'`` for a logarithmic y-axis (1d plots) or logarithmic "
+        "colorscale (2d plots). Legacy, prefer ``logy`` and ``logc`` instead."
+    ),
+    "vmin": (
+        "Lower bound for data to be displayed (y-axis for 1d plots, colorscale for "
+        "2d plots). Legacy, prefer ``ymin`` and ``cmin`` instead."
+    ),
+    "vmax": (
+        "Upper bound for data to be displayed (y-axis for 1d plots, colorscale for "
+        "2d plots). Legacy, prefer ``ymax`` and ``cmax`` instead."
+    ),
+    "scale": (
+        "Change axis scaling between ``log`` and ``linear``. For example, specify "
+        "``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension. "
+        "Legacy, prefer ``logx`` and ``logy`` instead."
+    ),
+    "camera": "Initial camera configuration (position, target).",
+}
 
 
-def with_plotting_params():
+def _with_plotting_params(args):
     def deco(func):
-        out = add_signature_params(func, PLOT_COMMON_ARGS, before_var_kw=True)
+        out = add_signature_params(func, args.values(), before_var_kw=True)
         doc = func.__doc__ or ''
-        if "**kwargs:" in doc:
+        arg_strings = []
+        for name in out.__signature__.parameters.keys():
+            arg_doc = DOCSTRING_LIBRARY.get(name, None)
+            if arg_doc is not None:
+                arg_strings.append(f"    {name}:\n        {arg_doc}")
+        common_docstring = "\n".join(arg_strings)
+        if "    **kwargs:" in doc:
             out.__doc__ = doc.replace(
-                "**kwargs:", PLOT_COMMON_DOCSTRING + "    **kwargs:"
+                "    **kwargs:", common_docstring + "\n    **kwargs:"
             )
         else:
-            out.__doc__ = doc + "\n" + PLOT_COMMON_DOCSTRING
+            out.__doc__ = doc + "\n" + common_docstring
         return out
 
     return deco
+
+
+def with_1d_plot_params():
+    return _with_plotting_params(PLOT_ARGS_1D)
+
+
+def with_2d_plot_params():
+    return _with_plotting_params(PLOT_ARGS_2D)
+
+
+def with_3d_plot_params():
+    return _with_plotting_params(PLOT_ARGS_3D)

@@ -10,6 +10,7 @@ from ..core.typing import Plottable
 from ..core.utils import coord_as_bin_edges
 from ..graphics import imagefigure, linefigure
 from .common import preprocess, require_interactive_figure
+from .signature import with_2d_plot_params
 
 
 def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
@@ -34,6 +35,7 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
     return da[y['dim'], y['value']][x['dim'], x['value']]
 
 
+@with_2d_plot_params()
 def inspector(
     obj: Plottable,
     dim: str | None = None,

@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-
 from ..core.typing import FigureLike, Plottable
+from .signature import with_1d_plot_params
 from .slicer import Slicer
 
 
+@with_1d_plot_params()
 def superplot(
     obj: Plottable,
     keep: str | None = None,
@@ -26,7 +27,7 @@ def superplot(
         This should be a single string. If no dim is provided, the last/inner dim will
         be kept.
     **kwargs:
-        See :py:func:`plopp.plot` for the full list of line customization arguments.
+        All other kwargs are forwarded the underlying plotting library.
 
     Returns
     -------

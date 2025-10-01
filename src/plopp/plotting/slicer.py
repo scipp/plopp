@@ -13,7 +13,7 @@ from .common import (
     raise_multiple_inputs_for_2d_plot_error,
     require_interactive_figure,
 )
-from .signature import with_plotting_params
+from .signature import with_2d_plot_params
 
 
 class Slicer:
@@ -43,7 +43,7 @@ class Slicer:
     cbar:
         Whether to display a colorbar for 2D plots.
     **kwargs:
-        The additional arguments are forwarded to the underlying 1D or 2D figures.
+        All other kwargs are forwarded the underlying plotting library.
     """
 
     def __init__(
@@ -117,7 +117,7 @@ class Slicer:
         self.figure.bottom_bar.add(self.slider)
 
 
-@with_plotting_params()
+@with_2d_plot_params()
 def slicer(
     obj: PlottableMulti,
     *,

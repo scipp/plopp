@@ -3,13 +3,12 @@
 
 import uuid
 from functools import partial
-from typing import Literal
 
 import scipp as sc
 
 from ..core.typing import FigureLike, PlottableMulti
-from ..graphics import Camera
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
+from .signature import with_3d_plot_params
 
 
 def _preprocess_scatter(
@@ -36,6 +35,7 @@ def _preprocess_scatter(
     return out
 
 
+@with_3d_plot_params()
 def scatter3d(
     obj: PlottableMulti,
     *,
@@ -43,17 +43,6 @@ def scatter3d(
     y: str = 'y',
     z: str = 'z',
     pos: str | None = None,
-    figsize: tuple[int, int] = (600, 400),
-    logc: bool | None = None,
-    title: str | None = None,
-    cmin: sc.Variable | float = None,
-    cmax: sc.Variable | float = None,
-    cbar: bool = False,
-    cmap: str = 'viridis',
-    camera: Camera | None = None,
-    norm: Literal['linear', 'log', None] = None,
-    vmin: sc.Variable | float = None,
-    vmax: sc.Variable | float = None,
     **kwargs,
 ) -> FigureLike:
     """Make a three-dimensional scatter plot.
@@ -79,26 +68,6 @@ def scatter3d(
         The name of the coordinate that is to be used for the Z positions.
     pos:
         The name of the vector coordinate that is to be used for the positions.
-    figsize:
-        The size of the 3d rendering area, in pixels: ``(width, height)``.
-    logc:
-        Set to ``True`` for a logarithmic colorscale.
-    title:
-        The figure title.
-    cmin:
-        Lower bound for the colorscale.
-    cmax:
-        Upper bound for the colorscale.
-    cmap:
-        The name of the colormap.
-    camera:
-        Initial camera configuration (position, target).
-    norm:
-        Set to ``'log'`` for a logarithmic colorscale (legacy, prefer ``logc`` instead).
-    vmin:
-        Lower bound for the colorscale (legacy, prefer ``cmin`` instead).
-    vmax:
-        Upper bound for the colorscale (legacy, prefer ``cmax`` instead).
     **kwargs:
         All other kwargs are forwarded the underlying plotting library.
 
@@ -121,24 +90,7 @@ def scatter3d(
         obj, processor=partial(_preprocess_scatter, x=x, y=y, z=z, pos=pos)
     )
 
-    fig = scatter3dfigure(
-        *nodes,
-        x=x,
-        y=y,
-        z=z,
-        figsize=figsize,
-        logc=logc,
-        title=title,
-        cmin=cmin,
-        cmax=cmax,
-        cmap=cmap,
-        cbar=cbar,
-        camera=camera,
-        norm=norm,
-        vmin=vmin,
-        vmax=vmax,
-        **kwargs,
-    )
+    fig = scatter3dfigure(*nodes, x=x, y=y, z=z, **kwargs)
     clip_planes = ClippingPlanes(fig)
     fig.toolbar['cut3d'] = ToggleTool(
         callback=clip_planes.toggle_visibility,
