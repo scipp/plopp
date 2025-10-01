@@ -8,7 +8,7 @@ from typing import Literal
 import scipp as sc
 
 
-def add_signature_params(
+def _add_signature_params(
     func, extra_params: Sequence[inspect.Parameter], *, before_var_kw=True
 ) -> Callable:
     """
@@ -51,7 +51,7 @@ def add_signature_params(
     return func
 
 
-BASE_ARGS = {
+_BASE_ARGS = {
     "figsize": inspect.Parameter(
         "figsize",
         inspect.Parameter.KEYWORD_ONLY,
@@ -66,7 +66,7 @@ BASE_ARGS = {
     ),
 }
 
-CANVAS_ARGS = {
+_CANVAS_ARGS = {
     "aspect": inspect.Parameter(
         "aspect",
         inspect.Parameter.KEYWORD_ONLY,
@@ -87,9 +87,6 @@ CANVAS_ARGS = {
     ),
     "ignore_size": inspect.Parameter(
         "ignore_size", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=False
-    ),
-    "nan_color": inspect.Parameter(
-        "nan_color", inspect.Parameter.KEYWORD_ONLY, annotation=str | None, default=None
     ),
     "legend": inspect.Parameter(
         "legend",
@@ -159,7 +156,7 @@ CANVAS_ARGS = {
     ),
 }
 
-COLOR_ARGS = {
+_COLOR_ARGS = {
     "cbar": inspect.Parameter(
         "cbar", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True
     ),
@@ -204,17 +201,17 @@ COLOR_ARGS = {
     ),
 }
 
-THREE_D_ARGS = {
+_THREE_D_ARGS = {
     "camera": inspect.Parameter(
         "camera", inspect.Parameter.KEYWORD_ONLY, annotation=object | None, default=None
     ),
 }
 
-PLOT_ARGS_1D = BASE_ARGS | CANVAS_ARGS
-PLOT_ARGS_2D = BASE_ARGS | CANVAS_ARGS | COLOR_ARGS
-PLOT_ARGS_3D = BASE_ARGS | COLOR_ARGS | THREE_D_ARGS
+_PLOT_ARGS_1D = _BASE_ARGS | _CANVAS_ARGS
+_PLOT_ARGS_2D = _BASE_ARGS | _CANVAS_ARGS | _COLOR_ARGS
+_PLOT_ARGS_3D = _BASE_ARGS | _COLOR_ARGS | _THREE_D_ARGS
 
-DOCSTRING_LIBRARY = {
+_DOCSTRING_LIBRARY = {
     "aspect": "Aspect ratio for the axes.",
     "cbar": "Show colorbar in 2d plots if ``True``.",
     "coords": (
@@ -267,11 +264,11 @@ DOCSTRING_LIBRARY = {
 
 def _with_plotting_params(args):
     def deco(func):
-        out = add_signature_params(func, args.values(), before_var_kw=True)
+        out = _add_signature_params(func, args.values(), before_var_kw=True)
         doc = func.__doc__ or ''
         arg_strings = []
         for name in out.__signature__.parameters.keys():
-            arg_doc = DOCSTRING_LIBRARY.get(name, None)
+            arg_doc = _DOCSTRING_LIBRARY.get(name, None)
             if arg_doc is not None:
                 arg_strings.append(f"    {name}:\n        {arg_doc}")
         common_docstring = "\n".join(arg_strings)
@@ -287,12 +284,12 @@ def _with_plotting_params(args):
 
 
 def with_1d_plot_params():
-    return _with_plotting_params(PLOT_ARGS_1D)
+    return _with_plotting_params(_PLOT_ARGS_1D)
 
 
 def with_2d_plot_params():
-    return _with_plotting_params(PLOT_ARGS_2D)
+    return _with_plotting_params(_PLOT_ARGS_2D)
 
 
 def with_3d_plot_params():
-    return _with_plotting_params(PLOT_ARGS_3D)
+    return _with_plotting_params(_PLOT_ARGS_3D)
