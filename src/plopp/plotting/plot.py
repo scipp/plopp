@@ -34,8 +34,6 @@ def plot(
     ----------
     obj:
         The object to be plotted.
-    **kwargs:
-        All other kwargs are forwarded the underlying plotting library.
 
     Returns
     -------

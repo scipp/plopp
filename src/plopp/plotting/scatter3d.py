@@ -68,8 +68,6 @@ def scatter3d(
         The name of the coordinate that is to be used for the Z positions.
     pos:
         The name of the vector coordinate that is to be used for the positions.
-    **kwargs:
-        All other kwargs are forwarded the underlying plotting library.
 
     Returns
     -------

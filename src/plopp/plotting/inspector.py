@@ -74,10 +74,6 @@ def inspector(
     orientation:
         Display the two panels side-by-side ('horizontal') or one below the other
         ('vertical').
-    cbar:
-        Show a colorbar on the image.
-    **kwargs:
-        See :py:func:`plopp.plot` for the full list of figure customization arguments.
 
     Returns
     -------

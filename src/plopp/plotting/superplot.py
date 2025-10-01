@@ -26,8 +26,6 @@ def superplot(
         The single dimension to be kept, all remaining dimensions will be sliced.
         This should be a single string. If no dim is provided, the last/inner dim will
         be kept.
-    **kwargs:
-        All other kwargs are forwarded the underlying plotting library.
 
     Returns
     -------

@@ -59,8 +59,6 @@ def scatter(
         The size of the marker. If a float is supplied, all markers will have the same
         size. If a string is supplied, it will be the name of the coordinate that is to
         be used for the size of the markers.
-    **kwargs:
-        All other kwargs are forwarded the underlying plotting library.
     """
     from ..graphics import scatterfigure
 

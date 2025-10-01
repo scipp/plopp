@@ -60,8 +60,6 @@ def mesh3d(
         single solid color.
     edgecolor:
         The color of the edges. If None, no edges are drawn.
-    **kwargs:
-        All other kwargs are forwarded the underlying plotting library.
     """
     from ..graphics import mesh3dfigure
 

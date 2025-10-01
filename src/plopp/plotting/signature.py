@@ -8,9 +8,7 @@ from typing import Literal
 import scipp as sc
 
 
-def _add_signature_params(
-    func, extra_params: Sequence[inspect.Parameter], *, before_var_kw=True
-) -> Callable:
+def _add_signature_params(func, extra_params: Sequence[inspect.Parameter]) -> Callable:
     """
     Return `func` with extra parameters injected into its __signature__.
 
@@ -20,9 +18,6 @@ def _add_signature_params(
         The function whose signature to extend.
     extra_params : list of inspect.Parameter
         Parameters to add.
-    before_var_kw : bool, default True
-        If True, insert new parameters before any **kwargs.
-        If False, append them at the end.
     """
     sig = inspect.signature(func)
     params = list(sig.parameters.values())
@@ -34,18 +29,14 @@ def _add_signature_params(
     if not filtered_extra:  # nothing to add
         return func
 
-    if before_var_kw:
-        try:
-            idx = next(
-                i
-                for i, p in enumerate(params)
-                if p.kind == inspect.Parameter.VAR_KEYWORD
-            )
-        except StopIteration:
-            idx = len(params)
-        new_params = params[:idx] + filtered_extra + params[idx:]
-    else:
-        new_params = params + filtered_extra
+    # Add parameters before the **kwargs
+    try:
+        idx = next(
+            i for i, p in enumerate(params) if p.kind == inspect.Parameter.VAR_KEYWORD
+        )
+    except StopIteration:
+        idx = len(params)
+    new_params = params[:idx] + filtered_extra + params[idx:]
 
     func.__signature__ = sig.replace(parameters=new_params)
     return func
@@ -266,25 +257,20 @@ _DOCSTRING_LIBRARY = {
         "Legacy, prefer ``logx`` and ``logy`` instead."
     ),
     "camera": "Initial camera configuration (position, target).",
+    "**kwargs": "All other kwargs are forwarded to the underlying plotting library.",
 }
 
 
 def _with_plotting_params(args):
     def deco(func):
-        out = _add_signature_params(func, args.values(), before_var_kw=True)
+        out = _add_signature_params(func, args.values())
         doc = func.__doc__ or ''
         arg_strings = []
-        for name in out.__signature__.parameters.keys():
+        for name in [*out.__signature__.parameters.keys(), '**kwargs']:
             arg_doc = _DOCSTRING_LIBRARY.get(name, None)
             if arg_doc is not None:
                 arg_strings.append(f"    {name}:\n        {arg_doc}")
-        common_docstring = "\n".join(arg_strings)
-        if "    **kwargs:" in doc:
-            out.__doc__ = doc.replace(
-                "    **kwargs:", common_docstring + "\n    **kwargs:"
-            )
-        else:
-            out.__doc__ = doc + "\n" + common_docstring
+        out.__doc__ = doc + "\n" + "\n".join(arg_strings)
         return out
 
     return deco

@@ -145,8 +145,6 @@ def slicer(
         Add a play button to animate the sliders if True. Defaults to False.
 
         .. versionadded:: 25.07.0
-    **kwargs:
-        All other kwargs are forwarded the underlying plotting library.
     """
     return Slicer(
         obj,

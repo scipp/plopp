@@ -55,8 +55,6 @@ def xyplot(
         Must be one-dimensional.
     y:
         The variable to use as the data for the vertical axis. Must be one-dimensional.
-    **kwargs:
-        All other kwargs are forwarded the underlying plotting library.
     """
     x = Node(to_variable, x)
     y = Node(to_variable, y)
