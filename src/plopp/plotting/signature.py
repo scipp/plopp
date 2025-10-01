@@ -52,6 +52,9 @@ def _add_signature_params(
 
 
 _BASE_ARGS = {
+    "autoscale": inspect.Parameter(
+        "autoscale", inspect.Parameter.KEYWORD_ONLY, annotation=bool, default=True
+    ),
     "figsize": inspect.Parameter(
         "figsize",
         inspect.Parameter.KEYWORD_ONLY,
@@ -213,6 +216,10 @@ _PLOT_ARGS_3D = _BASE_ARGS | _COLOR_ARGS | _THREE_D_ARGS
 
 _DOCSTRING_LIBRARY = {
     "aspect": "Aspect ratio for the axes.",
+    "autoscale": (
+        "Automatically adjust range of the axes and/or color scale every time the data "
+        "changes if ``True``."
+    ),
     "cbar": "Show colorbar in 2d plots if ``True``.",
     "coords": (
         "If supplied, use these coords instead of the input's dimension coordinates."
