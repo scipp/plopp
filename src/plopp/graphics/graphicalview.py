@@ -50,7 +50,7 @@ class GraphicalView(View):
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
         cbar: bool = False,
-        norm: Literal['linear', 'log'] = 'linear',
+        norm: Literal['linear', 'log', None] = None,
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
         scale: dict[str, str] | None = None,
@@ -64,9 +64,27 @@ class GraphicalView(View):
         autoscale: bool = True,
         ax: Any = None,
         cax: Any = None,
+        xmin: sc.Variable | float | None = None,
+        xmax: sc.Variable | float | None = None,
+        ymin: sc.Variable | float | None = None,
+        ymax: sc.Variable | float | None = None,
+        zmin: sc.Variable | float | None = None,
+        zmax: sc.Variable | float | None = None,
+        cmin: sc.Variable | float | None = None,
+        cmax: sc.Variable | float | None = None,
+        logx: bool | None = None,
+        logy: bool | None = None,
+        logz: bool | None = None,
+        logc: bool | None = None,
+        xlabel: str | None = None,
+        ylabel: str | None = None,
+        zlabel: str | None = None,
+        clabel: str | None = None,
+        nan_color: str | None = None,
         **kwargs,
     ):
         super().__init__(*nodes)
+
         self._dims = dims
         self._scale = {} if scale is None else scale
         self.artists = {}
@@ -88,6 +106,19 @@ class GraphicalView(View):
             camera=camera,
             ax=ax,
             cax=cax,
+            xmin=xmin,
+            xmax=xmax,
+            ymin=ymin,
+            ymax=ymax,
+            zmin=zmin,
+            zmax=zmax,
+            logx=logx,
+            logy=logy,
+            logz=logz,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            zlabel=zlabel,
+            norm=norm if len(dims) == 1 else None,
         )
 
         if colormapper:
@@ -98,8 +129,13 @@ class GraphicalView(View):
                 norm=norm,
                 vmin=vmin,
                 vmax=vmax,
+                cmin=cmin,
+                cmax=cmax,
+                clabel=clabel,
+                logc=logc,
                 canvas=self.canvas,
                 figsize=getattr(self.canvas, "figsize", None),
+                nan_color=nan_color,
             )
             self._kwargs['colormapper'] = self.colormapper
             if self._autoscale:
@@ -109,8 +145,6 @@ class GraphicalView(View):
         else:
             self.colormapper = None
 
-        if len(self._dims) == 1:
-            self.canvas.yscale = norm
         self.render()
 
     def autoscale(self):
@@ -145,18 +179,19 @@ class GraphicalView(View):
             for i, direction in enumerate(self._dims):
                 if self._dims[direction] is None:
                     self._dims[direction] = new_values.dims[i]
-                try:
-                    coords[direction] = new_values.coords[self._dims[direction]]
-                except KeyError as e:
+                if self._dims[direction] not in new_values.coords:
                     raise KeyError(
                         "Supplied data is incompatible with this view: "
                         f"coordinate '{self._dims[direction]}' was not found in data."
-                    ) from e
+                    )
+                coords[direction] = new_values.coords[self._dims[direction]]
 
             if self.canvas.empty:
                 self._data_name = new_values.name
                 axes_units = {k: coord.unit for k, coord in coords.items()}
                 axes_dtypes = {k: coord.dtype for k, coord in coords.items()}
+
+                data_label = name_with_unit(var=new_values.data, name=self._data_name)
 
                 if set(self._dims) == {'x'}:
                     axes_units['data'] = new_values.unit
@@ -165,27 +200,30 @@ class GraphicalView(View):
                     self.colormapper.unit = new_values.unit
                     axes_units['data'] = new_values.unit
                     axes_dtypes['data'] = new_values.dtype
-                    self._data_axis = self.colormapper
+                    if not self.colormapper.has_user_clabel():
+                        self.colormapper.clabel = data_label
                 else:
-                    self._data_axis = self.canvas
+                    if not self.canvas.has_user_ylabel():
+                        self.canvas.ylabel = data_label
 
                 self.canvas.set_axes(
                     dims=self._dims, units=axes_units, dtypes=axes_dtypes
                 )
 
                 for xyz, dim in self._dims.items():
-                    setattr(
-                        self.canvas,
-                        f'{xyz}label',
-                        name_with_unit(var=coords[xyz], name=dim),
-                    )
+                    if not getattr(self.canvas, f'has_user_{xyz}label')():
+                        setattr(
+                            self.canvas,
+                            f'{xyz}label',
+                            name_with_unit(var=coords[xyz], name=dim),
+                        )
+                    # Note that setting the scale is handled here as well as in the
+                    # canvas for historical purposes. We kept the scale argument for
+                    # backward compatibility, but it is now also possible to set the
+                    # axes scales with logx, logy, logz in the constructor of the
+                    # canvas.
                     if dim in self._scale:
                         setattr(self.canvas, f'{xyz}scale', self._scale[dim])
-
-                if self._data_axis is not None:
-                    self._data_axis.ylabel = name_with_unit(
-                        var=new_values.data, name=self._data_name
-                    )
 
             else:
                 for xy, dim in self._dims.items():
@@ -198,9 +236,15 @@ class GraphicalView(View):
                     )
                     if self._data_name and (new_values.name != self._data_name):
                         self._data_name = None
-                        self._data_axis.ylabel = name_with_unit(
-                            var=sc.scalar(0.0, unit=self.canvas.units['data']), name=''
+                        data_label = name_with_unit(
+                            var=sc.scalar(0.0, unit=self.canvas.units['data']),
+                            name='',
                         )
+                        if self.colormapper is not None:
+                            if not self.colormapper.has_user_clabel():
+                                self.colormapper.clabel = data_label
+                        elif not self.canvas.has_user_ylabel():
+                            self.canvas.ylabel = data_label
 
             if key not in self.artists:
                 self.artists[key] = self._artist_maker(

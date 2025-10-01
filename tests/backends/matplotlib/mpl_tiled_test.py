@@ -202,8 +202,8 @@ def test_tiled_keeps_figure_props():
     da2 = data_array(ndim=1) * 3.3
     p1 = da1.plot()
     p2 = da2.plot()
-    p1.canvas.logy()
-    p2.canvas.logx()
+    p1.canvas.yscale = "log"
+    p2.canvas.xscale = "log"
     tiled = p1 + p2
     assert tiled[0, 0].canvas.xscale == 'linear'
     assert tiled[0, 0].canvas.yscale == 'log'

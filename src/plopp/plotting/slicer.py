@@ -4,8 +4,6 @@
 from functools import partial
 from itertools import groupby
 
-from scipp.typing import VariableLike
-
 from ..core import widget_node
 from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
@@ -41,10 +39,6 @@ class Slicer:
         of higher dimensional inputs.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
-    vmin:
-        The minimum value of the y-axis (1d plots) or color range (2d plots).
-    vmax:
-        The maximum value of the y-axis (1d plots) or color range (2d plots).
     cbar:
         Whether to display a colorbar for 2D plots.
     **kwargs:
@@ -57,8 +51,6 @@ class Slicer:
         *,
         keep: list[str] | None = None,
         coords: list[str] | None = None,
-        vmin: VariableLike | float = None,
-        vmax: VariableLike | float = None,
         cbar: bool = True,
         enable_player: bool = False,
         **kwargs,
@@ -119,7 +111,7 @@ class Slicer:
                 f'but {ndims} were requested.'
             )
 
-        self.figure = make_figure(*self.slice_nodes, vmin=vmin, vmax=vmax, **kwargs)
+        self.figure = make_figure(*self.slice_nodes, **kwargs)
         require_interactive_figure(self.figure, 'slicer')
         self.figure.bottom_bar.add(self.slider)
 
@@ -130,8 +122,6 @@ def slicer(
     keep: list[str] | None = None,
     autoscale: bool = True,
     coords: list[str] | None = None,
-    vmin: VariableLike | float = None,
-    vmax: VariableLike | float = None,
     cbar: bool = True,
     enable_player: bool = False,
     **kwargs,
@@ -154,10 +144,6 @@ def slicer(
         every time the data changes if ``True``.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
-    vmin:
-        The minimum value of the y-axis (1d plots) or color range (2d plots).
-    vmax:
-        The maximum value of the y-axis (1d plots) or color range (2d plots).
     cbar:
         Whether to display a colorbar for 2D plots.
     enable_player:
@@ -171,8 +157,6 @@ def slicer(
         obj,
         keep=keep,
         autoscale=autoscale,
-        vmin=vmin,
-        vmax=vmax,
         coords=coords,
         cbar=cbar,
         enable_player=enable_player,

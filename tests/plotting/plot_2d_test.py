@@ -81,6 +81,15 @@ def test_kwarg_scale_2d(linspace):
     assert p.canvas.ax.get_yscale() == 'log'
 
 
+@pytest.mark.parametrize('linspace', [True, False])
+def test_norm_and_scale_2d(linspace):
+    da = data_array(ndim=2, linspace=linspace)
+    p = pp.plot(da, scale={'xx': 'log', 'yy': 'log'}, norm='log')
+    assert p.canvas.xscale == 'log'
+    assert p.canvas.yscale == 'log'
+    assert p.view.colormapper.norm == 'log'
+
+
 def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
@@ -389,3 +398,121 @@ def test_plot_2d_all_values_masked():
 def test_plot_bool_with_no_range():
     x = sc.zeros(sizes={'x': 10, 'y': 10}, dtype='bool')
     _ = x.plot()
+
+
+def test_xmin():
+    da = data_array(ndim=2)
+    fig = da.plot(xmin=sc.scalar(2.5, unit='m'))
+    assert fig.canvas.xmin == 2.5
+
+
+def test_xmin_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(xmin=4.5)
+    assert fig.canvas.xmin == 4.5
+
+
+def test_xmax():
+    da = data_array(ndim=2)
+    fig = da.plot(xmax=sc.scalar(7.5, unit='m'))
+    assert fig.canvas.xmax == 7.5
+
+
+def test_xmax_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(xmax=8.1)
+    assert fig.canvas.xmax == 8.1
+
+
+def test_ymin():
+    da = data_array(ndim=2)
+    fig = da.plot(ymin=sc.scalar(-0.5, unit='m'))
+    assert fig.canvas.ymin == -0.5
+
+
+def test_ymin_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(ymin=-1.0)
+    assert fig.canvas.ymin == -1.0
+
+
+def test_ymax():
+    da = data_array(ndim=2)
+    fig = da.plot(ymax=sc.scalar(0.68, unit='m'))
+    assert fig.canvas.ymax == 0.68
+
+
+def test_ymax_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(ymax=0.75)
+    assert fig.canvas.ymax == 0.75
+
+
+def test_cmin():
+    da = data_array(ndim=2)
+    fig = da.plot(cmin=sc.scalar(2.5, unit='m/s'))
+    assert fig.view.colormapper.cmin == 2.5
+
+
+def test_cmin_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(cmin=3.3)
+    assert fig.view.colormapper.cmin == 3.3
+
+
+def test_cmax():
+    da = data_array(ndim=2)
+    fig = da.plot(cmax=sc.scalar(7.5, unit='m/s'))
+    assert fig.view.colormapper.cmax == 7.5
+
+
+def test_cmax_no_unit():
+    da = data_array(ndim=2)
+    fig = da.plot(cmax=8.8)
+    assert fig.view.colormapper.cmax == 8.8
+
+
+def test_logx():
+    da = data_array(ndim=2)
+    fig = da.plot(logx=True)
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'linear'
+
+
+def test_logy():
+    da = data_array(ndim=2)
+    fig = da.plot(logy=True)
+    assert fig.canvas.yscale == 'log'
+    assert fig.canvas.xscale == 'linear'
+
+
+def test_logc():
+    da = data_array(ndim=2)
+    fig = da.plot(logc=True)
+    assert fig.view.colormapper.norm == 'log'
+
+
+def test_logx_logy_logc():
+    da = data_array(ndim=2)
+    fig = da.plot(logx=True, logy=True, logc=True)
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'log'
+    assert fig.view.colormapper.norm == 'log'
+
+
+def test_xlabel():
+    da = data_array(ndim=2)
+    fig = da.plot(xlabel='MyXLabel')
+    assert fig.canvas.xlabel == 'MyXLabel'
+
+
+def test_ylabel():
+    da = data_array(ndim=2)
+    fig = da.plot(ylabel='MyYLabel')
+    assert fig.canvas.ylabel == 'MyYLabel'
+
+
+def test_clabel():
+    da = data_array(ndim=2)
+    fig = da.plot(clabel='MyColorLabel')
+    assert fig.view.colormapper.clabel == 'MyColorLabel'

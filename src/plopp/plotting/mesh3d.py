@@ -44,12 +44,15 @@ def mesh3d(
     vertexcolors: Plottable | None = None,
     edgecolor: str | None = None,
     figsize: tuple[int, int] = (600, 400),
-    norm: Literal['linear', 'log'] = 'linear',
+    logc: bool | None = None,
     title: str | None = None,
-    vmin: sc.Variable | float = None,
-    vmax: sc.Variable | float = None,
+    cmin: sc.Variable | float = None,
+    cmax: sc.Variable | float = None,
     cmap: str = 'viridis',
     camera: Camera | None = None,
+    norm: Literal['linear', 'log'] = 'linear',
+    vmin: sc.Variable | float = None,
+    vmax: sc.Variable | float = None,
     **kwargs,
 ) -> FigureLike:
     """
@@ -70,18 +73,26 @@ def mesh3d(
         The color of the edges. If None, no edges are drawn.
     figsize:
         The size of the figure.
-    norm:
-        The normalization of the colormap.
+    logc:
+        Set to ``True`` for a logarithmic colorscale.
     title:
         The title of the figure.
-    vmin:
-        The minimum value of the colormap.
-    vmax:
-        The maximum value of the colormap.
+    cmin:
+        Lower bound for the colorscale.
+    cmax:
+        Upper bound for the colorscale.
     cmap:
         The colormap to use.
     camera:
         The camera configuration.
+    norm:
+        The normalization of the colormap (legacy, prefer ``logc`` instead).
+    vmin:
+        The minimum value of the colormap (legacy, prefer ``cmin`` instead).
+    vmax:
+        The maximum value of the colormap (legacy, prefer ``cmax`` instead).
+    **kwargs:
+        Additional keyword arguments are passed to the underlying plotting library.
     """
     from ..graphics import mesh3dfigure
 
@@ -97,12 +108,15 @@ def mesh3d(
         vertexcolors=vertexcolors,
         edgecolor=edgecolor,
         figsize=figsize,
-        norm=norm,
+        logc=logc,
         title=title,
-        vmin=vmin,
-        vmax=vmax,
+        cmin=cmin,
+        cmax=cmax,
         cmap=cmap,
         camera=camera,
+        norm=norm,
+        vmin=vmin,
+        vmax=vmax,
         **kwargs,
     )
     return fig
