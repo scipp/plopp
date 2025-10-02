@@ -4,7 +4,7 @@
 from functools import partial
 from typing import Literal
 
-from scipp import Variable
+import scipp as sc
 
 from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
@@ -15,32 +15,33 @@ def plot(
     obj: PlottableMulti,
     *,
     aspect: Literal['auto', 'equal', None] = None,
+    autoscale: bool = True,
     cbar: bool = True,
+    clabel: str | None = None,
+    cmax: sc.Variable | float | None = None,
+    cmin: sc.Variable | float | None = None,
     coords: list[str] | None = None,
     errorbars: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     ignore_size: bool = False,
-    mask_color: str = 'black',
-    nan_color: str | None = None,
-    title: str | None = None,
     legend: bool | tuple[float, float] = True,
-    xmin: Variable | float | None = None,
-    xmax: Variable | float | None = None,
-    ymin: Variable | float | None = None,
-    ymax: Variable | float | None = None,
-    cmin: Variable | float | None = None,
-    cmax: Variable | float | None = None,
+    logc: bool | None = None,
     logx: bool | None = None,
     logy: bool | None = None,
-    logc: bool | None = None,
-    xlabel: str | None = None,
-    ylabel: str | None = None,
-    clabel: str | None = None,
+    mask_color: str = 'black',
+    nan_color: str | None = None,
     norm: Literal['linear', 'log', None] = None,
-    vmin: Variable | float | None = None,
-    vmax: Variable | float | None = None,
     scale: dict[str, str] | None = None,
+    title: str | None = None,
+    vmax: sc.Variable | float | None = None,
+    vmin: sc.Variable | float | None = None,
+    xlabel: str | None = None,
+    xmax: sc.Variable | float | None = None,
+    xmin: sc.Variable | float | None = None,
+    ylabel: str | None = None,
+    ymax: sc.Variable | float | None = None,
+    ymin: sc.Variable | float | None = None,
     **kwargs,
 ) -> FigureLike:
     """Plot a Scipp object.
@@ -51,8 +52,16 @@ def plot(
         The object to be plotted.
     aspect:
         Aspect ratio for the axes.
+    autoscale:
+        Automatically scale the axes/colormap if ``True``.
     cbar:
         Show colorbar in 2d plots if ``True``.
+    clabel:
+        Label for colorscale (2d plots only).
+    cmax:
+        Upper limit for colorscale (2d plots only).
+    cmin:
+        Lower limit for colorscale (2d plots only).
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     errorbars:
@@ -64,59 +73,48 @@ def plot(
     ignore_size:
         If ``True``, skip the check that prevents the rendering of very large data
         objects.
-    mask_color:
-        Color of masks in 1d plots.
-    nan_color:
-        Color to use for NaN values in 2d plots.
-    title:
-        The figure title.
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
-    xmin:
-        Lower limit for x-axis.
-    xmax:
-        Upper limit for x-axis.
-    ymin:
-        Lower limit for y-axis.
-    ymax:
-        Upper limit for y-axis.
-    cmin:
-        Lower limit for colorscale (2d plots only).
-    cmax:
-        Upper limit for colorscale (2d plots only).
+    logc:
+        If ``True``, use logarithmic scale for colorscale (2d plots only).
     logx:
         If ``True``, use logarithmic scale for x-axis.
     logy:
         If ``True``, use logarithmic scale for y-axis.
-    logc:
-        If ``True``, use logarithmic scale for colorscale (2d plots only).
-    xlabel:
-        Label for x-axis.
-    ylabel:
-        Label for y-axis.
-    clabel:
-        Label for colorscale (2d plots only).
+    mask_color:
+        Color of masks in 1d plots.
+    nan_color:
+        Color to use for NaN values in 2d plots.
     norm:
         Set to ``'log'`` for a logarithmic y-axis (1d plots) or logarithmic colorscale
         (2d plots). Legacy, prefer ``logy`` and ``logc`` instead.
-    vmin:
-        Lower bound for data to be displayed (y-axis for 1d plots, colorscale for
-        2d plots). Legacy, prefer ``ymin`` and ``cmin`` instead.
-    vmax:
-        Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
-        2d plots). Legacy, prefer ``ymax`` and ``cmax`` instead.
     scale:
         Change axis scaling between ``log`` and ``linear``. For example, specify
         ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
         Legacy, prefer ``logx`` and ``logy`` instead.
+    title:
+        The figure title.
+    vmax:
+        Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
+        2d plots). Legacy, prefer ``ymax`` and ``cmax`` instead.
+    vmin:
+        Lower bound for data to be displayed (y-axis for 1d plots, colorscale for
+        2d plots). Legacy, prefer ``ymin`` and ``cmin`` instead.
+    xlabel:
+        Label for x-axis.
+    xmax:
+        Upper limit for x-axis.
+    xmin:
+        Lower limit for x-axis.
+    ylabel:
+        Label for y-axis.
+    ymax:
+        Upper limit for y-axis.
+    ymin:
+        Lower limit for y-axis.
     **kwargs:
-        All other kwargs are directly forwarded to Matplotlib, the underlying plotting
-        library. The underlying functions called are the following:
-
-        - 1d data with a non bin-edge coordinate: ``plot``
-        - 1d data with a bin-edge coordinate: ``step``
-        - 2d data: ``pcolormesh``
+        All other kwargs are forwarded to the underlying plotting library.
 
     Returns
     -------
@@ -126,21 +124,22 @@ def plot(
 
     common_args = {
         'aspect': aspect,
+        'autoscale': autoscale,
+        'figsize': figsize,
         'grid': grid,
+        'logx': logx,
+        'logy': logy,
         'norm': norm,
         'scale': scale,
         'title': title,
-        'vmin': vmin,
         'vmax': vmax,
-        'figsize': figsize,
+        'vmin': vmin,
         'xlabel': xlabel,
-        'ylabel': ylabel,
-        'xmin': xmin,
         'xmax': xmax,
-        'ymin': ymin,
+        'xmin': xmin,
+        'ylabel': ylabel,
         'ymax': ymax,
-        'logx': logx,
-        'logy': logy,
+        'ymin': ymin,
         **kwargs,
     }
 
