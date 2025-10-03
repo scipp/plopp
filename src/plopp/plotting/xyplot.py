@@ -45,7 +45,6 @@ def xyplot(
     errorbars: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
-    ignore_size: bool = False,
     legend: bool | tuple[float, float] = True,
     logx: bool | None = None,
     logy: bool | None = None,
@@ -84,8 +83,6 @@ def xyplot(
         The width and height of the figure, in inches.
     grid:
         Show grid if ``True``.
-    ignore_size:
-        If ``True``, skip the check that prevents the rendering of very large data.
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
@@ -129,7 +126,6 @@ def xyplot(
         errorbars=errorbars,
         figsize=figsize,
         grid=grid,
-        ignore_size=ignore_size,
         legend=legend,
         logx=logx,
         logy=logy,
