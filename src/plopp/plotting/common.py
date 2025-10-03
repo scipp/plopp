@@ -3,7 +3,7 @@
 
 import warnings
 from collections.abc import Callable, Iterable
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import scipp as sc
@@ -344,3 +344,71 @@ def raise_multiple_inputs_for_2d_plot_error(origin):
         'want to plot two images onto the same axes, use the lower-level '
         'plopp.imagefigure function.'
     )
+
+
+def categorize_args(
+    aspect: Literal['auto', 'equal', None] = None,
+    autoscale: bool = True,
+    cbar: bool = True,
+    clabel: str | None = None,
+    cmap: str = 'viridis',
+    cmax: sc.Variable | float | None = None,
+    cmin: sc.Variable | float | None = None,
+    errorbars: bool = True,
+    figsize: tuple[float, float] | None = None,
+    grid: bool = False,
+    legend: bool | tuple[float, float] = True,
+    logc: bool | None = None,
+    logx: bool | None = None,
+    logy: bool | None = None,
+    mask_cmap: str = 'gray',
+    mask_color: str = 'black',
+    nan_color: str | None = None,
+    norm: Literal['linear', 'log', None] = None,
+    scale: dict[str, str] | None = None,
+    title: str | None = None,
+    vmax: sc.Variable | float | None = None,
+    vmin: sc.Variable | float | None = None,
+    xlabel: str | None = None,
+    xmax: sc.Variable | float | None = None,
+    xmin: sc.Variable | float | None = None,
+    ylabel: str | None = None,
+    ymax: sc.Variable | float | None = None,
+    ymin: sc.Variable | float | None = None,
+    **kwargs,
+) -> dict:
+    common_args = {
+        'aspect': aspect,
+        'autoscale': autoscale,
+        'figsize': figsize,
+        'grid': grid,
+        'logx': logx,
+        'logy': logy,
+        'mask_color': mask_color,
+        'norm': norm,
+        'scale': scale,
+        'title': title,
+        'vmax': vmax,
+        'vmin': vmin,
+        'xlabel': xlabel,
+        'xmax': xmax,
+        'xmin': xmin,
+        'ylabel': ylabel,
+        'ymax': ymax,
+        'ymin': ymin,
+        **kwargs,
+    }
+    return {
+        "1d": {'errorbars': errorbars, 'legend': legend, **common_args},
+        "2d": {
+            'cbar': cbar,
+            'cmap': cmap,
+            'cmin': cmin,
+            'cmax': cmax,
+            'clabel': clabel,
+            'logc': logc,
+            'nan_color': nan_color,
+            'mask_cmap': mask_cmap,
+            **common_args,
+        },
+    }

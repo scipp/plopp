@@ -117,11 +117,11 @@ def test_scatter_does_not_accept_data_with_other_dimensionality_on_update():
     with pytest.raises(
         sc.DimensionError, match='Scatter only accepts data with 1 dimension'
     ):
-        fig.update(new=data_array(ndim=2, dim_list="xyzab"))
+        fig.update(new=da.fold(dim=da.dim, sizes={'a': 2, 'b': -1}))
     with pytest.raises(
         sc.DimensionError, match='Scatter only accepts data with 1 dimension'
     ):
-        fig.update(new=data_array(ndim=3, dim_list="xyzab"))
+        fig.update(new=da.fold(dim=da.dim, sizes={'a': 2, 'b': 2, 'c': -1}))
 
 
 def test_xmin():

@@ -11,12 +11,12 @@ from ..core import widget_node
 from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
 from .common import (
+    categorize_args,
     input_to_nodes,
     preprocess,
     raise_multiple_inputs_for_2d_plot_error,
     require_interactive_figure,
 )
-from .plot import categorize_args
 
 
 class Slicer:
