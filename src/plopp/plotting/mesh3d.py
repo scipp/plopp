@@ -45,7 +45,6 @@ def mesh3d(
     vertexcolors: Plottable | None = None,
     autoscale: bool = True,
     camera: Camera | None = None,
-    cbar: bool = False,
     clabel: str | None = None,
     cmap: str = 'viridis',
     cmax: sc.Variable | float = None,
@@ -78,9 +77,6 @@ def mesh3d(
         Automatically scale the colormap on updates if ``True``.
     camera:
         Initial camera configuration (position, target).
-    cbar:
-        Show colorbar if ``True``. If ``cbar`` is ``True``, the marker will be colored
-        using the data values in the supplied data array.
     clabel:
         Label for colorscale (only applicable if ``cbar`` is ``True``).
     cmap:
@@ -128,7 +124,6 @@ def mesh3d(
         vertexcolors=vertexcolors,
         autoscale=autoscale,
         camera=camera,
-        cbar=cbar,
         clabel=clabel,
         cmax=cmax,
         cmin=cmin,
