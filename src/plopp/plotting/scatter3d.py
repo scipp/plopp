@@ -43,17 +43,20 @@ def scatter3d(
     y: str = 'y',
     z: str = 'z',
     pos: str | None = None,
+    autoscale: bool = True,
+    camera: Camera | None = None,
+    cbar: bool = False,
+    clabel: str | None = None,
+    cmap: str = 'viridis',
+    cmax: sc.Variable | float = None,
+    cmin: sc.Variable | float = None,
     figsize: tuple[int, int] = (600, 400),
     logc: bool | None = None,
-    title: str | None = None,
-    cmin: sc.Variable | float = None,
-    cmax: sc.Variable | float = None,
-    cbar: bool = False,
-    cmap: str = 'viridis',
-    camera: Camera | None = None,
+    nan_color: str | None = None,
     norm: Literal['linear', 'log', None] = None,
-    vmin: sc.Variable | float = None,
+    title: str | None = None,
     vmax: sc.Variable | float = None,
+    vmin: sc.Variable | float = None,
     **kwargs,
 ) -> FigureLike:
     """Make a three-dimensional scatter plot.
@@ -79,26 +82,41 @@ def scatter3d(
         The name of the coordinate that is to be used for the Z positions.
     pos:
         The name of the vector coordinate that is to be used for the positions.
+    autoscale:
+        Automatically scale the colormap on updates if ``True``.
+    camera:
+        Initial camera configuration (position, target).
+    cbar:
+        Show colorbar if ``True``. If ``cbar`` is ``True``, the marker will be colored
+        using the data values in the supplied data array.
+    clabel:
+        Label for colorscale (only applicable if ``cbar`` is ``True``).
+    cmap:
+        The colormap to be used for the colorscale (only applicable if ``cbar`` is
+        ``True``).
+    cmax:
+        Upper limit for the colorscale (only applicable if ``cbar`` is ``True``).
+    cmin:
+        Lower limit for the colorscale (only applicable if ``cbar`` is ``True``).
     figsize:
         The size of the 3d rendering area, in pixels: ``(width, height)``.
     logc:
-        Set to ``True`` for a logarithmic colorscale.
+        Set to ``True`` for a logarithmic colorscale (only applicable if ``cbar`` is
+        ``True``).
+    nan_color:
+        Color to use for NaN values in color mapping (only applicable if ``cbar`` is
+        ``True``).
+    norm:
+        Set to ``'log'`` for a logarithmic colorscale (only applicable if ``cbar`` is
+        ``True``). Legacy, prefer ``logc`` instead.
     title:
         The figure title.
-    cmin:
-        Lower bound for the colorscale.
-    cmax:
-        Upper bound for the colorscale.
-    cmap:
-        The name of the colormap.
-    camera:
-        Initial camera configuration (position, target).
-    norm:
-        Set to ``'log'`` for a logarithmic colorscale (legacy, prefer ``logc`` instead).
     vmin:
-        Lower bound for the colorscale (legacy, prefer ``cmin`` instead).
+        Lower bound for the colorscale for (only applicable if ``cbar`` is ``True``).
+        Legacy, prefer ``cmin`` instead.
     vmax:
-        Upper bound for the colorscale (legacy, prefer ``cmax`` instead).
+        Upper bound for the colorscale for (only applicable if ``cbar`` is ``True``).
+        Legacy, prefer ``cmax`` instead.
     **kwargs:
         All other kwargs are forwarded the underlying plotting library.
 
@@ -126,17 +144,20 @@ def scatter3d(
         x=x,
         y=y,
         z=z,
+        autoscale=autoscale,
+        camera=camera,
+        cbar=cbar,
+        clabel=clabel,
+        cmax=cmax,
+        cmin=cmin,
+        cmap=cmap,
         figsize=figsize,
         logc=logc,
-        title=title,
-        cmin=cmin,
-        cmax=cmax,
-        cmap=cmap,
-        cbar=cbar,
-        camera=camera,
+        nan_color=nan_color,
         norm=norm,
-        vmin=vmin,
+        title=title,
         vmax=vmax,
+        vmin=vmin,
         **kwargs,
     )
     clip_planes = ClippingPlanes(fig)

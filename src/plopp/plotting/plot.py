@@ -11,6 +11,76 @@ from ..graphics import imagefigure, linefigure
 from .common import input_to_nodes, preprocess, raise_multiple_inputs_for_2d_plot_error
 
 
+def categorize_args(
+    aspect: Literal['auto', 'equal', None] = None,
+    autoscale: bool = True,
+    cbar: bool = True,
+    clabel: str | None = None,
+    cmap: str = 'viridis',
+    cmax: sc.Variable | float | None = None,
+    cmin: sc.Variable | float | None = None,
+    errorbars: bool = True,
+    figsize: tuple[float, float] | None = None,
+    grid: bool = False,
+    legend: bool | tuple[float, float] = True,
+    logc: bool | None = None,
+    logx: bool | None = None,
+    logy: bool | None = None,
+    mask_color: str = 'black',
+    nan_color: str | None = None,
+    norm: Literal['linear', 'log', None] = None,
+    scale: dict[str, str] | None = None,
+    title: str | None = None,
+    vmax: sc.Variable | float | None = None,
+    vmin: sc.Variable | float | None = None,
+    xlabel: str | None = None,
+    xmax: sc.Variable | float | None = None,
+    xmin: sc.Variable | float | None = None,
+    ylabel: str | None = None,
+    ymax: sc.Variable | float | None = None,
+    ymin: sc.Variable | float | None = None,
+    **kwargs,
+) -> dict:
+    common_args = {
+        'aspect': aspect,
+        'autoscale': autoscale,
+        'figsize': figsize,
+        'grid': grid,
+        'logx': logx,
+        'logy': logy,
+        'norm': norm,
+        'scale': scale,
+        'title': title,
+        'vmax': vmax,
+        'vmin': vmin,
+        'xlabel': xlabel,
+        'xmax': xmax,
+        'xmin': xmin,
+        'ylabel': ylabel,
+        'ymax': ymax,
+        'ymin': ymin,
+        **kwargs,
+    }
+    return {
+        "1d": {
+            'errorbars': errorbars,
+            'mask_color': mask_color,
+            'legend': legend,
+            **common_args,
+        },
+        "2d": {
+            'cbar': cbar,
+            'cmap': cmap,
+            'cmin': cmin,
+            'cmax': cmax,
+            'clabel': clabel,
+            'logc': logc,
+            'nan_color': nan_color,
+            **common_args,
+        },
+    }
+
+
 def plot(
     obj: PlottableMulti,
     *,
@@ -18,6 +88,7 @@ def plot(
     autoscale: bool = True,
     cbar: bool = True,
     clabel: str | None = None,
+    cmap: str = 'viridis',
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
     coords: list[str] | None = None,
@@ -53,11 +124,13 @@ def plot(
     aspect:
         Aspect ratio for the axes.
     autoscale:
-        Automatically scale the axes/colormap if ``True``.
+        Automatically scale the axes/colormap on updates if ``True``.
     cbar:
         Show colorbar in 2d plots if ``True``.
     clabel:
         Label for colorscale (2d plots only).
+    cmap:
+        The colormap to be used for the colorscale (2d plots only).
     cmax:
         Upper limit for colorscale (2d plots only).
     cmin:
@@ -71,8 +144,7 @@ def plot(
     grid:
         Show grid if ``True``.
     ignore_size:
-        If ``True``, skip the check that prevents the rendering of very large data
-        objects.
+        If ``True``, skip the check that prevents the rendering of very large data.
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
@@ -122,26 +194,36 @@ def plot(
         A figure.
     """
 
-    common_args = {
-        'aspect': aspect,
-        'autoscale': autoscale,
-        'figsize': figsize,
-        'grid': grid,
-        'logx': logx,
-        'logy': logy,
-        'norm': norm,
-        'scale': scale,
-        'title': title,
-        'vmax': vmax,
-        'vmin': vmin,
-        'xlabel': xlabel,
-        'xmax': xmax,
-        'xmin': xmin,
-        'ylabel': ylabel,
-        'ymax': ymax,
-        'ymin': ymin,
+    args = categorize_args(
+        aspect=aspect,
+        autoscale=autoscale,
+        cbar=cbar,
+        clabel=clabel,
+        cmap=cmap,
+        cmax=cmax,
+        cmin=cmin,
+        errorbars=errorbars,
+        figsize=figsize,
+        grid=grid,
+        legend=legend,
+        logc=logc,
+        logx=logx,
+        logy=logy,
+        mask_color=mask_color,
+        nan_color=nan_color,
+        norm=norm,
+        scale=scale,
+        title=title,
+        vmax=vmax,
+        vmin=vmin,
+        xlabel=xlabel,
+        xmax=xmax,
+        xmin=xmin,
+        ylabel=ylabel,
+        ymax=ymax,
+        ymin=ymin,
         **kwargs,
-    }
+    )
 
     nodes = input_to_nodes(
         obj, processor=partial(preprocess, ignore_size=ignore_size, coords=coords)
@@ -157,26 +239,11 @@ def plot(
         )
     ndim = ndims.pop()
     if ndim == 1:
-        return linefigure(
-            *nodes,
-            errorbars=errorbars,
-            mask_color=mask_color,
-            legend=legend,
-            **common_args,
-        )
+        return linefigure(*nodes, **args['1d'])
     elif ndim == 2:
         if len(nodes) > 1:
             raise_multiple_inputs_for_2d_plot_error(origin='plot')
-        return imagefigure(
-            *nodes,
-            cbar=cbar,
-            cmin=cmin,
-            cmax=cmax,
-            clabel=clabel,
-            logc=logc,
-            nan_color=nan_color,
-            **common_args,
-        )
+        return imagefigure(*nodes, **args['2d'])
     else:
         raise ValueError(
             'The plot function can only plot 1d and 2d data, got input '

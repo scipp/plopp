@@ -97,7 +97,7 @@ def to_data_array(obj: Plottable | list) -> sc.DataArray:
     return out
 
 
-def _check_size(da: sc.DataArray) -> None:
+def check_size(da: sc.DataArray) -> None:
     """
     Prevent slow figure rendering by raising an error if the data array exceeds a
     default size.
@@ -293,7 +293,7 @@ def preprocess(
     if name is not None:
         out.name = str(name)
     if not ignore_size:
-        _check_size(out)
+        check_size(out)
     if coords is not None:
         out = _rename_dims_from_coords(out, coords)
     out = _add_missing_dimension_coords(out)

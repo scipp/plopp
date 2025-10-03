@@ -16,6 +16,7 @@ from .common import (
     raise_multiple_inputs_for_2d_plot_error,
     require_interactive_figure,
 )
+from .plot import categorize_args
 
 
 class Slicer:
@@ -35,15 +36,16 @@ class Slicer:
     ----------
     obj:
         The input data.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
+    enable_player:
+        If ``True``, add a play button to the sliders to automatically step through
+        the slices.
     keep:
         The dimensions to be kept, all remaining dimensions will be sliced. This should
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
-    coords:
-        If supplied, use these coords instead of the input's dimension coordinates.
-    cbar:
-        Whether to display a colorbar for 2D plots.
     **kwargs:
         The additional arguments are forwarded to the underlying 1D or 2D figures.
     """
@@ -52,14 +54,14 @@ class Slicer:
         self,
         obj: PlottableMulti,
         *,
-        keep: list[str] | None = None,
         coords: list[str] | None = None,
-        cbar: bool = True,
         enable_player: bool = False,
+        keep: list[str] | None = None,
         **kwargs,
     ):
         nodes = input_to_nodes(
-            obj, processor=partial(preprocess, ignore_size=True, coords=coords)
+            obj,
+            processor=partial(preprocess, ignore_size=True, coords=coords),
         )
 
         dims = nodes[0]().dims
@@ -101,31 +103,35 @@ class Slicer:
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
 
+        args = categorize_args(**kwargs)
+
         ndims = len(keep)
         if ndims == 1:
-            make_figure = linefigure
+            make_figure = partial(linefigure, **args['1d'])
         elif ndims == 2:
             if len(self.slice_nodes) > 1:
                 raise_multiple_inputs_for_2d_plot_error(origin='slicer')
-            make_figure = partial(imagefigure, cbar=cbar)
+            make_figure = partial(imagefigure, **args['2d'])
         else:
             raise ValueError(
                 f'Slicer plot: the number of dims to be kept must be 1 or 2, '
                 f'but {ndims} were requested.'
             )
 
-        self.figure = make_figure(*self.slice_nodes, **kwargs)
+        self.figure = make_figure(*self.slice_nodes)
         require_interactive_figure(self.figure, 'slicer')
         self.figure.bottom_bar.add(self.slider)
 
 
 def slicer(
     obj: PlottableMulti,
+    keep: list[str] | None = None,
     *,
     aspect: Literal['auto', 'equal', None] = None,
     autoscale: bool = True,
     cbar: bool = True,
     clabel: str | None = None,
+    cmap: str = 'viridis',
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
     coords: list[str] | None = None,
@@ -133,8 +139,6 @@ def slicer(
     errorbars: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
-    ignore_size: bool = False,
-    keep: list[str] | None = None,
     legend: bool | tuple[float, float] = True,
     logc: bool | None = None,
     logx: bool | None = None,
@@ -162,79 +166,86 @@ def slicer(
     ----------
     obj:
         The object to be plotted.
+    keep:
+        The single dimension to be kept, all remaining dimensions will be sliced.
+        This should be a single string. If no dim is provided, the last/inner dim will
+        be kept.
     aspect:
-        Aspect ratio for 2D plots.
+        Aspect ratio for the axes.
     autoscale:
-        Automatically adjust range of the y-axis (1d plots) or color scale (2d plots)
-        every time the data changes if ``True``.
+        Automatically scale the axes/colormap on updates if ``True``.
     cbar:
-        Whether to display a colorbar for 2D plots.
+        Show colorbar in 2d plots if ``True``.
     clabel:
-        Label for the colorbar.
+        Label for colorscale (2d plots only).
+    cmap:
+        The colormap to be used for the colorscale (2d plots only).
     cmax:
-        Maximum value for the colorbar.
+        Upper limit for colorscale (2d plots only).
     cmin:
-        Minimum value for the colorbar.
+        Lower limit for colorscale (2d plots only).
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     enable_player:
-        Add a play button to animate the sliders if True. Defaults to False.
+        If ``True``, add a play button to the sliders to automatically step through
+        the slices.
     errorbars:
-        Show errorbars if ``True``.
+        Show errorbars in 1d plots if ``True``.
     figsize:
-        The size of the figure (width, height) in inches.
+        The width and height of the figure, in inches.
     grid:
         Show grid if ``True``.
-    ignore_size:
-        Ignore size checks when combining data.
-    keep:
-        The dimensions to be kept, all remaining dimensions will be sliced. This should
-        be a list of dims. If no dims are provided, the last dim will be kept in the
-        case of a 2-dimensional input, while the last two dims will be kept in the case
-        of higher dimensional inputs.
     legend:
-        Show legend if ``True``, or at specified position if tuple.
+        Show legend if ``True``. If ``legend`` is a tuple, it should contain the
+        ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
     logc:
-        Use log scale for coloraxis if ``True``.
+        If ``True``, use logarithmic scale for colorscale (2d plots only).
     logx:
-        Use log scale for x-axis if ``True``.
+        If ``True``, use logarithmic scale for x-axis.
     logy:
-        Use log scale for y-axis if ``True``.
+        If ``True``, use logarithmic scale for y-axis.
     mask_color:
-        Color to use for masked data.
+        Color of masks in 1d plots.
     nan_color:
-        Color to use for NaN values.
+        Color to use for NaN values in 2d plots.
     norm:
-        Normalization for coloraxis.
+        Set to ``'log'`` for a logarithmic y-axis (1d plots) or logarithmic colorscale
+        (2d plots). Legacy, prefer ``logy`` and ``logc`` instead.
     scale:
-        Dictionary of axis scale settings.
+        Change axis scaling between ``log`` and ``linear``. For example, specify
+        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
+        Legacy, prefer ``logx`` and ``logy`` instead.
     title:
-        Title for the plot.
+        The figure title.
     vmax:
-        Maximum value for the y-axis (1D plots).
+        Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
+        2d plots). Legacy, prefer ``ymax`` and ``cmax`` instead.
     vmin:
-        Minimum value for the y-axis (1D plots).
+        Lower bound for data to be displayed (y-axis for 1d plots, colorscale for
+        2d plots). Legacy, prefer ``ymin`` and ``cmin`` instead.
     xlabel:
-        Label for the x-axis.
+        Label for x-axis.
     xmax:
-        Maximum value for the x-axis.
+        Upper limit for x-axis.
     xmin:
-        Minimum value for the x-axis.
+        Lower limit for x-axis.
     ylabel:
-        Label for the y-axis.
+        Label for y-axis.
     ymax:
-        Maximum value for the y-axis.
+        Upper limit for y-axis.
     ymin:
-        Minimum value for the y-axis.
+        Lower limit for y-axis.
     **kwargs:
         Additional arguments forwarded to the underlying plotting library.
     """
     return Slicer(
         obj,
+        keep=keep,
         aspect=aspect,
         autoscale=autoscale,
         cbar=cbar,
         clabel=clabel,
+        cmap=cmap,
         cmax=cmax,
         cmin=cmin,
         coords=coords,
@@ -242,8 +253,6 @@ def slicer(
         errorbars=errorbars,
         figsize=figsize,
         grid=grid,
-        ignore_size=ignore_size,
-        keep=keep,
         legend=legend,
         logc=logc,
         logx=logx,

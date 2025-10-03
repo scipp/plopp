@@ -39,6 +39,7 @@ def _preprocess_mesh(
 
 
 def mesh3d(
+    *,
     vertices: Plottable,
     faces: Plottable,
     vertexcolors: Plottable | None = None,
