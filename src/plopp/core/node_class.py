@@ -191,9 +191,10 @@ class Node:
         """
         self._data = None
         if self.is_leaf():
-            # Special case: leaf nodes have no children nor views, so we simply call the
-            # `self.func` (via request_data) to ensure side effects are executed.
+            # Special case: leaf nodes have no children nor views, so we always request
+            # data from parents and call ``self.func``.
             self.request_data()
+            return
         self.notify_views(message)
         for child in self.children:
             child.notify_children(message)
