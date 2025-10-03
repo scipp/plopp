@@ -216,7 +216,7 @@ def slicer(
         (2d plots). Legacy, prefer ``logy`` and ``logc`` instead.
     scale:
         Change axis scaling between ``log`` and ``linear``. For example, specify
-        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
+        ``scale={'time': 'log'}`` if you want log-scale for the ``time`` dimension.
         Legacy, prefer ``logx`` and ``logy`` instead.
     title:
         The figure title.
