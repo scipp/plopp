@@ -26,6 +26,7 @@ def categorize_args(
     logc: bool | None = None,
     logx: bool | None = None,
     logy: bool | None = None,
+    mask_cmap: str = 'gray',
     mask_color: str = 'black',
     nan_color: str | None = None,
     norm: Literal['linear', 'log', None] = None,
@@ -48,6 +49,7 @@ def categorize_args(
         'grid': grid,
         'logx': logx,
         'logy': logy,
+        'mask_color': mask_color,
         'norm': norm,
         'scale': scale,
         'title': title,
@@ -62,12 +64,7 @@ def categorize_args(
         **kwargs,
     }
     return {
-        "1d": {
-            'errorbars': errorbars,
-            'mask_color': mask_color,
-            'legend': legend,
-            **common_args,
-        },
+        "1d": {'errorbars': errorbars, 'legend': legend, **common_args},
         "2d": {
             'cbar': cbar,
             'cmap': cmap,
@@ -76,6 +73,7 @@ def categorize_args(
             'clabel': clabel,
             'logc': logc,
             'nan_color': nan_color,
+            'mask_cmap': mask_cmap,
             **common_args,
         },
     }
@@ -100,7 +98,8 @@ def plot(
     logc: bool | None = None,
     logx: bool | None = None,
     logy: bool | None = None,
-    mask_color: str = 'black',
+    mask_cmap: str = 'gray',
+    mask_color: str | None = None,
     nan_color: str | None = None,
     norm: Literal['linear', 'log', None] = None,
     scale: dict[str, str] | None = None,
@@ -154,8 +153,10 @@ def plot(
         If ``True``, use logarithmic scale for x-axis.
     logy:
         If ``True``, use logarithmic scale for y-axis.
+    mask_cmap:
+        Colormap to use for masks in 2d plots.
     mask_color:
-        Color of masks in 1d plots.
+        Color of masks.
     nan_color:
         Color to use for NaN values in 2d plots.
     norm:
@@ -209,6 +210,7 @@ def plot(
         logc=logc,
         logx=logx,
         logy=logy,
+        mask_cmap=mask_cmap,
         mask_color=mask_color,
         nan_color=nan_color,
         norm=norm,

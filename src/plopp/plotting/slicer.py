@@ -143,7 +143,8 @@ def slicer(
     logc: bool | None = None,
     logx: bool | None = None,
     logy: bool | None = None,
-    mask_color: str = 'black',
+    mask_cmap: str = 'gray',
+    mask_color: str | None = None,
     nan_color: str | None = None,
     norm: Literal['linear', 'log', None] = None,
     scale: dict[str, str] | None = None,
@@ -204,8 +205,10 @@ def slicer(
         If ``True``, use logarithmic scale for x-axis.
     logy:
         If ``True``, use logarithmic scale for y-axis.
+    mask_cmap:
+        Colormap to use for masks in 2d plots.
     mask_color:
-        Color of masks in 1d plots.
+        Color of masks.
     nan_color:
         Color to use for NaN values in 2d plots.
     norm:

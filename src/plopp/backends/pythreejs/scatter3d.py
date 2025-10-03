@@ -45,6 +45,8 @@ class Scatter3d:
         The opacity of the points.
     pixel_size:
         The size of the pixels in the plot. Deprecated (use size instead).
+    mask_color:
+        The color of the masked points. TODO: not yet implemented.
     """
 
     def __init__(
@@ -62,6 +64,7 @@ class Scatter3d:
         artist_number: int = 0,
         opacity: float = 1,
         pixel_size: sc.Variable | float | None = None,
+        mask_color: str | None = None,
     ):
         import pythreejs as p3
 

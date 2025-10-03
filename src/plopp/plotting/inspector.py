@@ -44,13 +44,13 @@ def inspector(
     clabel: str | None = None,
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
-    coords: list[str] | None = None,
     errorbars: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
     logc: bool | None = None,
     logy: bool | None = None,
+    mask_cmap: str = 'gray',
     mask_color: str = 'black',
     nan_color: str | None = None,
     norm: Literal['linear', 'log', None] = None,
@@ -100,8 +100,6 @@ def inspector(
         Upper limit for colorscale (2d figure).
     cmin:
         Lower limit for colorscale (2d figure).
-    coords:
-        If supplied, use these coords instead of the input's dimension coordinates.
     errorbars:
         Show errorbars if ``True`` (1d figure).
     figsize:
@@ -116,8 +114,10 @@ def inspector(
         If ``True``, use logarithmic scale for colorscale (2d figure).
     logy:
         If ``True``, use logarithmic scale for y-axis (1d figure).
+    mask_cmap:
+        Colormap to use for masks in 2d figure.
     mask_color:
-        Color of masks in 1d figure.
+        Color of masks (overrides ``mask_cmap``).
     nan_color:
         Color to use for NaN values in 2d figure.
     norm:
@@ -187,7 +187,6 @@ def inspector(
         clabel=clabel,
         cmax=cmax,
         cmin=cmin,
-        coords=coords,
         figsize=figsize,
         grid=grid,
         logc=logc,

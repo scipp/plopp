@@ -49,6 +49,7 @@ class GraphicalView(View):
         colormapper: bool = False,
         cmap: str = 'viridis',
         mask_cmap: str = 'gray',
+        mask_color: str | None = None,
         cbar: bool = False,
         norm: Literal['linear', 'log', None] = None,
         vmin: sc.Variable | float | None = None,
@@ -126,6 +127,7 @@ class GraphicalView(View):
                 cmap=cmap,
                 cbar=cbar,
                 mask_cmap=mask_cmap,
+                mask_color=mask_color,
                 norm=norm,
                 vmin=vmin,
                 vmax=vmax,
@@ -144,6 +146,9 @@ class GraphicalView(View):
                 self.colormapper.set_colors_on_update = False
         else:
             self.colormapper = None
+            # If there is not colormapper, we need to forward the mask_color to the
+            # artist maker.
+            self._kwargs['mask_color'] = mask_color
 
         self.render()
 
