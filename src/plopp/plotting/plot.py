@@ -163,15 +163,15 @@ def plot(
         (2d plots). Legacy, prefer ``logy`` and ``logc`` instead.
     scale:
         Change axis scaling between ``log`` and ``linear``. For example, specify
-        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
+        ``scale={'time': 'log'}`` if you want log-scale for the ``time`` dimension.
         Legacy, prefer ``logx`` and ``logy`` instead.
     title:
         The figure title.
     vmax:
-        Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
+        Upper limit for data to be displayed (y-axis for 1d plots, colorscale for
         2d plots). Legacy, prefer ``ymax`` and ``cmax`` instead.
     vmin:
-        Lower bound for data to be displayed (y-axis for 1d plots, colorscale for
+        Lower limit for data to be displayed (y-axis for 1d plots, colorscale for
         2d plots). Legacy, prefer ``ymin`` and ``cmin`` instead.
     xlabel:
         Label for x-axis.

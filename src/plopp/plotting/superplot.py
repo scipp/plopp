@@ -79,14 +79,14 @@ def superplot(
         Set to ``'log'`` for a logarithmic y-axis. Legacy, prefer ``logy`` instead.
     scale:
         Change axis scaling between ``log`` and ``linear``. For example, specify
-        ``scale={'tof': 'log'}`` if you want log-scale for the ``tof`` dimension.
+        ``scale={'time': 'log'}`` if you want log-scale for the ``time`` dimension.
         Legacy, prefer ``logx`` instead.
     title:
         The figure title.
     vmax:
-        Upper bound for data to be displayed (y-axis). Legacy, prefer ``ymax`` instead.
+        Upper limit for data to be displayed (y-axis). Legacy, prefer ``ymax`` instead.
     vmin:
-        Lower bound for data to be displayed (y-axis). Legacy, prefer ``ymin`` instead.
+        Lower limit for data to be displayed (y-axis). Legacy, prefer ``ymin`` instead.
     xlabel:
         Label for x-axis.
     xmax:
