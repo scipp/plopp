@@ -77,7 +77,7 @@ def xyplot(
     aspect:
         Aspect ratio for the axes.
     autoscale:
-        Automatically scale the axes/colormap on updates if ``True``.
+        Automatically scale the axes on updates if ``True``.
     errorbars:
         Show errorbars in 1d plots if ``True``.
     figsize:

@@ -163,7 +163,7 @@ def scatter(
     nodes = input_to_nodes(
         obj,
         processor=partial(
-            _preprocess_scatter, x=x, y=y, size=size, ignore_size=ignore_size
+            _preprocess_scatter, x=x, y=y, pos=pos, size=size, ignore_size=ignore_size
         ),
     )
 

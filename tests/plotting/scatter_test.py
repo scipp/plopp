@@ -25,6 +25,11 @@ def test_scatter_other_coords():
     pp.scatter(a, x='x2', y='z')
 
 
+def test_scatter_pos():
+    a = scatter_data()
+    pp.scatter(a, pos='position')
+
+
 def test_scatter_two_inputs():
     a = scatter_data()
     b = scatter_data(seed=2) * 10.0
