@@ -132,10 +132,10 @@ def inspector(
     title:
         The figure title.
     vmax:
-        Upper bound for data to be displayed (y-axis for 1d figure, colorscale for
+        Upper limit for data to be displayed (y-axis for 1d figure, colorscale for
         2d figure). Legacy, prefer ``ymax`` and ``cmax`` instead.
     vmin:
-        Lower bound for data to be displayed (y-axis for 1d figure, colorscale for
+        Lower limit for data to be displayed (y-axis for 1d figure, colorscale for
         2d figure). Legacy, prefer ``ymin`` and ``cmin`` instead.
     xlabel:
         Label for x-axis (2d figure).

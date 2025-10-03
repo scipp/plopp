@@ -218,10 +218,10 @@ def slicer(
     title:
         The figure title.
     vmax:
-        Upper bound for data to be displayed (y-axis for 1d plots, colorscale for
+        Upper limit for data to be displayed (y-axis for 1d plots, colorscale for
         2d plots). Legacy, prefer ``ymax`` and ``cmax`` instead.
     vmin:
-        Lower bound for data to be displayed (y-axis for 1d plots, colorscale for
+        Lower limit for data to be displayed (y-axis for 1d plots, colorscale for
         2d plots). Legacy, prefer ``ymin`` and ``cmin`` instead.
     xlabel:
         Label for x-axis.

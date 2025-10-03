@@ -106,10 +106,10 @@ def mesh3d(
     title:
         The figure title.
     vmin:
-        Lower bound for the colorscale for (only applicable if ``cbar`` is ``True``).
+        Lower limit for the colorscale for (only applicable if ``cbar`` is ``True``).
         Legacy, prefer ``cmin`` instead.
     vmax:
-        Upper bound for the colorscale for (only applicable if ``cbar`` is ``True``).
+        Upper limit for the colorscale for (only applicable if ``cbar`` is ``True``).
         Legacy, prefer ``cmax`` instead.
     **kwargs:
         All other kwargs are forwarded the underlying plotting library.
