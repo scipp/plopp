@@ -26,6 +26,18 @@ class Node:
     A node can be constructed from a callable ``func``, or a raw object. In the case
     of a raw object, a node wrapping the object will be created.
 
+    Nodes can have views attached to them, which are instances of :class:`View`. Views
+    can be notified when the node's data changes. When this happens, the view typically
+    requests data from its parent nodes, who in-turn request data from their parents,
+    traversing the graph from bottom to top.
+
+    Caching is used to avoid traversing the graph multiple times when data is
+    requested multiple times without any changes to the graph.
+
+    Leaf nodes are nodes that have neither children nor views. When such nodes are
+    notified of changes, they will call their ``func`` to ensure any side effects are
+    executed.
+
     Parameters
     ----------
     func:
@@ -160,6 +172,12 @@ class Node:
         _no_replace_append(self.views, view, 'view')
         view.graph_nodes[self.id] = self
 
+    def is_leaf(self) -> bool:
+        """
+        Whether the node is a leaf node (i.e. has neither children nor views).
+        """
+        return (not self.children) and (not self.views)
+
     def notify_children(self, message: Any) -> None:
         """
         Notify all of the node's children with ``message``.
@@ -172,6 +190,11 @@ class Node:
             The message to pass to the children.
         """
         self._data = None
+        if self.is_leaf():
+            # Special case: leaf nodes have no children nor views, so we always request
+            # data from parents and call ``self.func``.
+            self.request_data()
+            return
         self.notify_views(message)
         for child in self.children:
             child.notify_children(message)
