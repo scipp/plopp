@@ -134,6 +134,7 @@ class ColorMapper:
         cbar: bool = True,
         cmap: str | Colormap = 'viridis',
         mask_cmap: str | Colormap = 'gray',
+        mask_color: str | None = None,
         cmin: sc.Variable | float | None = None,
         cmax: sc.Variable | float | None = None,
         logc: bool | None = None,
@@ -151,7 +152,9 @@ class ColorMapper:
         self._canvas = canvas
         self.cax = self._canvas.cax if hasattr(self._canvas, 'cax') else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
-        self.mask_cmap = _get_cmap(mask_cmap, nan_color=nan_color)
+        self.mask_cmap = _get_cmap(
+            mask_cmap if mask_color is None else mask_color, nan_color=nan_color
+        )
 
         # Inside the autoscale, we need to distinguish between a min value that was set
         # by the user and one that was found by looping over all the data.

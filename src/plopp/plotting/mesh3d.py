@@ -39,20 +39,24 @@ def _preprocess_mesh(
 
 
 def mesh3d(
+    *,
     vertices: Plottable,
     faces: Plottable,
     vertexcolors: Plottable | None = None,
+    autoscale: bool = True,
+    camera: Camera | None = None,
+    clabel: str | None = None,
+    cmap: str = 'viridis',
+    cmax: sc.Variable | float = None,
+    cmin: sc.Variable | float = None,
     edgecolor: str | None = None,
     figsize: tuple[int, int] = (600, 400),
     logc: bool | None = None,
+    nan_color: str | None = None,
+    norm: Literal['linear', 'log', None] = None,
     title: str | None = None,
-    cmin: sc.Variable | float = None,
-    cmax: sc.Variable | float = None,
-    cmap: str = 'viridis',
-    camera: Camera | None = None,
-    norm: Literal['linear', 'log'] = 'linear',
-    vmin: sc.Variable | float = None,
     vmax: sc.Variable | float = None,
+    vmin: sc.Variable | float = None,
     **kwargs,
 ) -> FigureLike:
     """
@@ -69,30 +73,42 @@ def mesh3d(
     vertexcolors:
         The colors of the vertices of the mesh. If ``None``, the mesh will have a
         single solid color.
+    autoscale:
+        Automatically scale the colormap on updates if ``True``.
+    camera:
+        Initial camera configuration (position, target).
+    clabel:
+        Label for colorscale (only applicable if ``cbar`` is ``True``).
+    cmap:
+        The colormap to be used for the colorscale (only applicable if ``cbar`` is
+        ``True``).
+    cmax:
+        Upper limit for the colorscale (only applicable if ``cbar`` is ``True``).
+    cmin:
+        Lower limit for the colorscale (only applicable if ``cbar`` is ``True``).
     edgecolor:
         The color of the edges. If None, no edges are drawn.
     figsize:
-        The size of the figure.
+        The size of the 3d rendering area, in pixels: ``(width, height)``.
     logc:
-        Set to ``True`` for a logarithmic colorscale.
-    title:
-        The title of the figure.
-    cmin:
-        Lower bound for the colorscale.
-    cmax:
-        Upper bound for the colorscale.
-    cmap:
-        The colormap to use.
-    camera:
-        The camera configuration.
+        Set to ``True`` for a logarithmic colorscale (only applicable if ``cbar`` is
+        ``True``).
+    nan_color:
+        Color to use for NaN values in color mapping (only applicable if ``cbar`` is
+        ``True``).
     norm:
-        The normalization of the colormap (legacy, prefer ``logc`` instead).
+        Set to ``'log'`` for a logarithmic colorscale (only applicable if ``cbar`` is
+        ``True``). Legacy, prefer ``logc`` instead.
+    title:
+        The figure title.
     vmin:
-        The minimum value of the colormap (legacy, prefer ``cmin`` instead).
+        Lower limit for the colorscale for (only applicable if ``cbar`` is ``True``).
+        Legacy, prefer ``cmin`` instead.
     vmax:
-        The maximum value of the colormap (legacy, prefer ``cmax`` instead).
+        Upper limit for the colorscale for (only applicable if ``cbar`` is ``True``).
+        Legacy, prefer ``cmax`` instead.
     **kwargs:
-        Additional keyword arguments are passed to the underlying plotting library.
+        All other kwargs are forwarded the underlying plotting library.
     """
     from ..graphics import mesh3dfigure
 
@@ -106,17 +122,20 @@ def mesh3d(
     fig = mesh3dfigure(
         input_node,
         vertexcolors=vertexcolors,
+        autoscale=autoscale,
+        camera=camera,
+        clabel=clabel,
+        cmax=cmax,
+        cmin=cmin,
+        cmap=cmap,
         edgecolor=edgecolor,
         figsize=figsize,
         logc=logc,
-        title=title,
-        cmin=cmin,
-        cmax=cmax,
-        cmap=cmap,
-        camera=camera,
+        nan_color=nan_color,
         norm=norm,
-        vmin=vmin,
+        title=title,
         vmax=vmax,
+        vmin=vmin,
         **kwargs,
     )
     return fig

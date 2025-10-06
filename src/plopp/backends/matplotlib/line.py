@@ -50,7 +50,7 @@ class Line:
         uid: str | None = None,
         artist_number: int = 0,
         errorbars: bool = True,
-        mask_color: str = 'black',
+        mask_color: str | None = None,
         **kwargs,
     ):
         check_ndim(data, ndim=1, origin='Line')
@@ -69,6 +69,8 @@ class Line:
         self._dim = self._data.dim
         self._unit = self._data.unit
         self._coord = self._data.coords[self._dim]
+        if mask_color is None:
+            mask_color = 'black'
 
         aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
         for key, alias in aliases.items():
