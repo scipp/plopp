@@ -57,6 +57,7 @@ class Mesh3d:
         opacity: float = 1,
         edgecolor: str | None = None,
         artist_number: int = 0,
+        **ignored,
     ):
         import pythreejs as p3
 
