@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import numpy as np
@@ -67,36 +68,36 @@ class Tiled:
         self,
         nrows: int,
         ncols: int,
-        figsize: tuple[float, float] | None = None,
-        hspace: float = 0.05,
-        wspace: float = 0.1,
-        **kwargs: Any,
+        # figsize: tuple[float, float] | None = None,
+        # hspace: float = 0.05,
+        # wspace: float = 0.1,
+        # **kwargs: Any,
     ) -> None:
         self.nrows = nrows
         self.ncols = ncols
-        self.fig = make_figure(
-            figsize=(
-                (min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
-                if figsize is None
-                else figsize
-            ),
-            layout='constrained',
-        )
+        # self.fig = make_figure(
+        #     figsize=(
+        #         (min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
+        #         if figsize is None
+        #         else figsize
+        #     ),
+        #     layout='constrained',
+        # )
 
-        self.gs = gridspec.GridSpec(
-            nrows, ncols, figure=self.fig, wspace=wspace, hspace=hspace, **kwargs
-        )
+        # self.gs = gridspec.GridSpec(
+        #     nrows, ncols, figure=self.fig, wspace=wspace, hspace=hspace, **kwargs
+        # )
         self.figures = np.full((nrows, ncols), None)
-        self._history = []
+        # self._history = []
 
     def __setitem__(
         self,
         inds: int | slice | tuple[int, int] | tuple[slice, slice],
         fig: FigureLike,
     ) -> None:
-        new_fig = fig.copy(ax=self.fig.add_subplot(self.gs[inds]))
-        self.figures[inds] = new_fig
-        self._history.append((inds, new_fig))
+        # new_fig = fig.copy(ax=self.fig.add_subplot(self.gs[inds]))
+        self.figures[inds] = fig
+        # self._history.append((inds, new_fig))
 
     def __getitem__(
         self, inds: int | slice | tuple[int, int] | tuple[slice, slice]
@@ -111,10 +112,51 @@ class Tiled:
             return self.fig.canvas._repr_mimebundle_(include=include, exclude=exclude)
         else:
             out = {'text/plain': f'TiledFigure(nrows={self.nrows}, ncols={self.ncols})'}
-            npoints = sum(
-                len(line.get_xdata()) for ax in self.fig.get_axes() for line in ax.lines
-            )
-            out.update(get_repr_maker(npoints=npoints)(self.fig))
+            # npoints = sum(
+            #     len(line.get_xdata()) for ax in self.fig.get_axes() for line in ax.lines
+            # )
+            # out.update(get_repr_maker(npoints=npoints)(self.fig))
+            # def _repr_mimebundle_(self, include=None, exclude=None):
+            gap = 10
+            pieces = []
+            # for svg in [f._repr_image_svg_xml() for g in self.graphs]:
+            for row in range(self.nrows):
+                parsed = []
+                for col in range(self.ncols):
+                    svg = self.figures[row, col]._repr_image_svg_xml()
+                    # extract width, height, and inner <g> content
+                    m = re.search(
+                        r'width="([\d.]+)pt".*?height="([\d.]+)pt"', svg, re.S
+                    )
+                    w, h = float(m.group(1)), float(m.group(2))
+                    inner = re.search(r'<svg[^>]*>(.*)</svg>', svg, re.S).group(1)
+                    parsed.append((w, h, inner))
+
+                    # horizontal shift
+                    total_width = max(w for w, _, _ in parsed)
+                    total_height = sum(h for _, h, _ in parsed) + gap * (
+                        len(parsed) - 1
+                    )
+
+                offset_x = 0
+                offset_y = row * gap
+                for _, h, inner in parsed:
+                    pieces.append(
+                        f'<g transform="translate({offset_x},{offset_y})">{inner}</g>'
+                    )
+                    offset_y += h + gap
+
+            # TODO: for some reason, combining the svgs seems to scale them down. This
+            # then means that the computed bounding box is too large. For now, we
+            # apply a fudge factor of 0.75 to the width and height. It is unclear where
+            # exactly this comes from.
+            combined = f'''
+            <svg xmlns="http://www.w3.org/2000/svg"
+                width="{total_width * 0.75}pt" height="{total_height * 0.75}pt">
+            {''.join(pieces)}
+            </svg>
+            '''
+            return {"image/svg+xml": combined}
             return out
 
     def save(self, filename: str, **kwargs: Any) -> None:
