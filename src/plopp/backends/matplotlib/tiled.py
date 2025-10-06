@@ -13,6 +13,26 @@ from ...core.typing import FigureLike
 from .figure import get_repr_maker
 from .utils import is_interactive_backend, make_figure
 
+# from matplotlib.lines import Line2D
+
+
+def clone_line(line):
+    props = line.properties()
+    new_line = line.__class__(line.get_xdata(), line.get_ydata())
+    # copy over relevant properties
+    for key in [
+        "color",
+        "linestyle",
+        "linewidth",
+        "marker",
+        "markersize",
+        "markerfacecolor",
+        "markeredgecolor",
+    ]:
+        getattr(new_line, f"set_{key}")(props[key])
+    # ax.add_line(new_line)
+    return new_line
+
 
 class Tiled:
     """
@@ -68,13 +88,14 @@ class Tiled:
         self,
         nrows: int,
         ncols: int,
-        # figsize: tuple[float, float] | None = None,
+        figsize: tuple[float, float] | None = None,
         # hspace: float = 0.05,
         # wspace: float = 0.1,
         # **kwargs: Any,
     ) -> None:
         self.nrows = nrows
         self.ncols = ncols
+        self.figsize = figsize
         # self.fig = make_figure(
         #     figsize=(
         #         (min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
@@ -87,8 +108,9 @@ class Tiled:
         # self.gs = gridspec.GridSpec(
         #     nrows, ncols, figure=self.fig, wspace=wspace, hspace=hspace, **kwargs
         # )
-        self.figures = np.full((nrows, ncols), None)
+        # self.figures = np.full((nrows, ncols), None)
         # self._history = []
+        self.figures = {}
 
     def __setitem__(
         self,
@@ -110,54 +132,48 @@ class Tiled:
         """
         if is_interactive_backend():
             return self.fig.canvas._repr_mimebundle_(include=include, exclude=exclude)
-        else:
-            out = {'text/plain': f'TiledFigure(nrows={self.nrows}, ncols={self.ncols})'}
-            # npoints = sum(
-            #     len(line.get_xdata()) for ax in self.fig.get_axes() for line in ax.lines
-            # )
-            # out.update(get_repr_maker(npoints=npoints)(self.fig))
-            # def _repr_mimebundle_(self, include=None, exclude=None):
-            gap = 10
-            pieces = []
-            # for svg in [f._repr_image_svg_xml() for g in self.graphs]:
-            for row in range(self.nrows):
-                parsed = []
-                for col in range(self.ncols):
-                    svg = self.figures[row, col]._repr_image_svg_xml()
-                    # extract width, height, and inner <g> content
-                    m = re.search(
-                        r'width="([\d.]+)pt".*?height="([\d.]+)pt"', svg, re.S
-                    )
-                    w, h = float(m.group(1)), float(m.group(2))
-                    inner = re.search(r'<svg[^>]*>(.*)</svg>', svg, re.S).group(1)
-                    parsed.append((w, h, inner))
 
-                    # horizontal shift
-                    total_width = max(w for w, _, _ in parsed)
-                    total_height = sum(h for _, h, _ in parsed) + gap * (
-                        len(parsed) - 1
-                    )
+        out = {'text/plain': f'TiledFigure(nrows={self.nrows}, ncols={self.ncols})'}
 
-                offset_x = 0
-                offset_y = row * gap
-                for _, h, inner in parsed:
-                    pieces.append(
-                        f'<g transform="translate({offset_x},{offset_y})">{inner}</g>'
-                    )
-                    offset_y += h + gap
+        fig = make_figure(
+            figsize=(
+                (6.0 * self.ncols, 4.0 * self.nrows)
+                if self.figsize is None
+                else self.figsize
+            ),
+            layout='constrained',
+        )
 
-            # TODO: for some reason, combining the svgs seems to scale them down. This
-            # then means that the computed bounding box is too large. For now, we
-            # apply a fudge factor of 0.75 to the width and height. It is unclear where
-            # exactly this comes from.
-            combined = f'''
-            <svg xmlns="http://www.w3.org/2000/svg"
-                width="{total_width * 0.75}pt" height="{total_height * 0.75}pt">
-            {''.join(pieces)}
-            </svg>
-            '''
-            return {"image/svg+xml": combined}
-            return out
+        gs = gridspec.GridSpec(self.nrows, self.ncols)
+        for key, val in self.figures.items():
+            ax = fig.add_subplot(gs[key])
+            for line in val.ax.lines:
+                ax.add_line(clone_line(line))
+            ax.set_xlim(val.ax.get_xlim())
+            ax.set_ylim(val.ax.get_ylim())
+            ax.set_title(val.ax.get_title())
+            ax.set_xlabel(val.ax.get_xlabel())
+            ax.set_ylabel(val.ax.get_ylabel())
+            if val.ax.get_yscale() == 'log':
+                ax.set_yscale('log')
+            if val.ax.get_xscale() == 'log':
+                ax.set_xscale('log')
+            # Copy over legend if present
+            legend = val.ax.get_legend()
+            if legend is not None:
+                handles, labels = ax.get_legend_handles_labels()
+                for handle, label in zip(*legend.get_legend_handles_labels()):
+                    # Check if label already exists (e.g. when plotting multiple lines)
+                    if not any(re.fullmatch(label, l) for l in labels):
+                        handles.append(clone_line(handle))
+                        labels.append(label)
+                ax.legend(handles, labels, loc=legend._loc)
+
+        # get_repr_maker(npoints=npoints)(self.fig))
+        out.update(get_repr_maker()(fig))
+
+        # out["image/svg+xml"] = combined
+        return out
 
     def save(self, filename: str, **kwargs: Any) -> None:
         """
