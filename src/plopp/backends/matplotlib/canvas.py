@@ -2,12 +2,14 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
+from collections.abc import Callable
 from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 from matplotlib import dates as mdates
+from matplotlib.backend_bases import Event
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
@@ -105,6 +107,7 @@ class Canvas:
 
     def __init__(
         self,
+        autoscale: Callable,
         ax: plt.Axes = None,
         cax: plt.Axes = None,
         figsize: tuple[float, float] | None = None,
@@ -139,6 +142,8 @@ class Canvas:
         ymax = parse_mutually_exclusive(vmax=user_vmax, ymax=ymax)
         logy = parse_mutually_exclusive(norm=norm, logy=logy)
 
+        self._autoscale = autoscale
+        self._toggle_logc = None
         self.fig = None
         self.ax = ax
         self.cax = cax
@@ -187,6 +192,36 @@ class Canvas:
             self.xlabel = xlabel
         if ylabel is not None:
             self.ylabel = ylabel
+
+        self.fig.canvas.mpl_connect('button_press_event', self._toggle_scale)
+
+    def _toggle_scale(self, event: Event) -> None:
+        # print(event, event.x, event.y, event.dblclick, event.inaxes)
+        # Only toggle scale if the user double-clicks outside the axes area.
+        print(event, event.inaxes is self.cax)
+        if not event.dblclick:
+            return
+        if event.inaxes is self.cax:
+            print("toggle color scale", self._toggle_logc)
+            if self._toggle_logc is not None:
+                print("calling toggle log c")
+                self._toggle_logc()
+            return
+        if event.inaxes is not None:
+            return
+        renderer = self.fig.canvas.get_renderer()
+        viewport = self.ax.patch.get_window_extent(renderer)
+        xmin = viewport.bounds[0]
+        ymin = viewport.bounds[1]
+        # Only toggle if the click is close to the left or bottom axes.
+        if (event.x > xmin) and (event.y > ymin):
+            return
+        if event.x > event.y:
+            self.toggle_logx()
+        else:
+            self.toggle_logy()
+        self._autoscale()  # Call the autoscale function of the owning view
+        self.draw()
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")

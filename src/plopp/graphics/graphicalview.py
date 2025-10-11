@@ -98,6 +98,7 @@ class GraphicalView(View):
         self._autoscale = autoscale
 
         self.canvas = canvas_maker(
+            autoscale=self.autoscale,
             cbar=cbar,
             aspect=aspect,
             grid=grid,
@@ -139,6 +140,8 @@ class GraphicalView(View):
                 figsize=getattr(self.canvas, "figsize", None),
                 nan_color=nan_color,
             )
+            self.canvas._toggle_loc = self.colormapper.toggle_norm
+            print("colormapper created", self.canvas._toggle_loc)
             self._kwargs['colormapper'] = self.colormapper
             if self._autoscale:
                 # Do not set colors on update, as this is done during the autoscale.
