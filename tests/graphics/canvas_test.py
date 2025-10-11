@@ -130,21 +130,21 @@ CASESNO3D = {k: c for k, c in CASES.items() if c[0][0] != "3d"}
     "backend,figure,data", CASESNO3D.values(), ids=CASESNO3D.keys()
 )
 class TestCanvasNo3d:
-    def test_logx(self, set_backend, backend, figure, data):
+    def test_toggle_logx(self, set_backend, backend, figure, data):
         da = data()
         canvas = figure(Node(da)).canvas
         assert canvas.xscale == 'linear'
         assert canvas.yscale == 'linear'
-        canvas.logx()
+        canvas.toggle_logx()
         assert canvas.xscale == 'log'
         assert canvas.yscale == 'linear'
 
-    def test_logy(self, set_backend, backend, figure, data):
+    def test_toggle_logy(self, set_backend, backend, figure, data):
         da = data()
         canvas = figure(Node(da)).canvas
         assert canvas.xscale == 'linear'
         assert canvas.yscale == 'linear'
-        canvas.logy()
+        canvas.toggle_logy()
         assert canvas.xscale == 'linear'
         assert canvas.yscale == 'log'
 

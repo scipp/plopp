@@ -12,6 +12,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ...graphics.bbox import BoundingBox
+from ...utils import parse_mutually_exclusive
 from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
 
@@ -82,6 +83,24 @@ class Canvas:
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
+    xmin:
+        The minimum value for the x axis.
+    xmax:
+        The maximum value for the x axis.
+    ymin:
+        The minimum value for the y axis.
+    ymax:
+        The maximum value for the y axis.
+    logx:
+        If ``True``, use a logarithmic scale for the x axis.
+    logy:
+        If ``True``, use a logarithmic scale for the y axis.
+    xlabel:
+        The label for the x axis.
+    ylabel:
+        The label for the y axis.
+    norm:
+        Set to ``'log'`` for a logarithmic y-axis (legacy, prefer ``logy`` instead).
     """
 
     def __init__(
@@ -91,11 +110,20 @@ class Canvas:
         figsize: tuple[float, float] | None = None,
         title: str | None = None,
         grid: bool = False,
-        user_vmin: sc.Variable | float = None,
-        user_vmax: sc.Variable | float = None,
+        user_vmin: sc.Variable | float | None = None,
+        user_vmax: sc.Variable | float | None = None,
         aspect: Literal['auto', 'equal', None] = None,
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
+        xmin: sc.Variable | float | None = None,
+        xmax: sc.Variable | float | None = None,
+        ymin: sc.Variable | float | None = None,
+        ymax: sc.Variable | float | None = None,
+        logx: bool = False,
+        logy: bool = False,
+        xlabel: str | None = None,
+        ylabel: str | None = None,
+        norm: Literal['linear', 'log', None] = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -107,12 +135,20 @@ class Canvas:
         # Instead, we forward all the kwargs from the figure to both the canvas and the
         # artist, and filter out the artist kwargs with `**ignored`.
 
+        ymin = parse_mutually_exclusive(vmin=user_vmin, ymin=ymin)
+        ymax = parse_mutually_exclusive(vmax=user_vmax, ymax=ymax)
+        logy = parse_mutually_exclusive(norm=norm, logy=logy)
+
         self.fig = None
         self.ax = ax
         self.cax = cax
         self.bbox = BoundingBox()
-        self._user_vmin = user_vmin
-        self._user_vmax = user_vmax
+        self._xmin = xmin
+        self._xmax = xmax
+        self._ymin = ymin
+        self._ymax = ymax
+        self._xlabel = xlabel
+        self._ylabel = ylabel
         self.units = {}
         self.dims = {}
         self._legend = legend
@@ -142,6 +178,15 @@ class Canvas:
         if title:
             self.ax.set_title(title)
         self._coord_formatters = []
+
+        if logx:
+            self.xscale = 'log'
+        if logy:
+            self.yscale = 'log'
+        if xlabel is not None:
+            self.xlabel = xlabel
+        if ylabel is not None:
+            self.ylabel = ylabel
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
@@ -225,8 +270,10 @@ class Canvas:
         self.ax.format_coord = self.format_coord
         key = 'y' if 'y' in self.units else 'data'
         self.bbox = BoundingBox(
-            ymin=maybe_variable_to_number(self._user_vmin, unit=self.units[key]),
-            ymax=maybe_variable_to_number(self._user_vmax, unit=self.units[key]),
+            xmin=maybe_variable_to_number(self._xmin, unit=self.units['x']),
+            xmax=maybe_variable_to_number(self._xmax, unit=self.units['x']),
+            ymin=maybe_variable_to_number(self._ymin, unit=self.units[key]),
+            ymax=maybe_variable_to_number(self._ymax, unit=self.units[key]),
         )
 
     def register_format_coord(self, formatter):
@@ -415,6 +462,28 @@ class Canvas:
         self.ax.set_ylim(value)
 
     @property
+    def logx(self) -> bool:
+        """
+        Get or set whether the x-axis is in logarithmic scale.
+        """
+        return self.xscale == 'log'
+
+    @logx.setter
+    def logx(self, value: bool):
+        self.xscale = 'log' if value else 'linear'
+
+    @property
+    def logy(self) -> bool:
+        """
+        Get or set whether the y-axis is in logarithmic scale.
+        """
+        return self.yscale == 'log'
+
+    @logy.setter
+    def logy(self, value: bool):
+        self.yscale = 'log' if value else 'linear'
+
+    @property
     def grid(self) -> bool:
         """
         Get or set the visibility of the grid.
@@ -463,14 +532,26 @@ class Canvas:
         """
         self.fig.canvas.toolbar.save_figure()
 
-    def logx(self):
+    def toggle_logx(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the horizontal axis.
         """
         self.xscale = 'log' if self.xscale == 'linear' else 'linear'
 
-    def logy(self):
+    def toggle_logy(self):
         """
         Toggle the scale between ``linear`` and ``log`` along the vertical axis.
         """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
+
+    def has_user_xlabel(self) -> bool:
+        """
+        Return ``True`` if the user has set an x-axis label.
+        """
+        return self._xlabel is not None
+
+    def has_user_ylabel(self) -> bool:
+        """
+        Return ``True`` if the user has set a y-axis label.
+        """
+        return self._ylabel is not None

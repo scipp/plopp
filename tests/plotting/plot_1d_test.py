@@ -144,6 +144,13 @@ def test_scale():
     assert p.canvas.yscale == 'linear'
 
 
+def test_norm_scale():
+    da = data_array(ndim=1)
+    p = pp.plot(da, scale={'xx': "log"}, norm="log")
+    assert p.canvas.xscale == 'log'
+    assert p.canvas.yscale == 'log'
+
+
 def test_kwarg_for_two_lines():
     a = data_array(ndim=1)
     b = 2.0 * a
@@ -596,3 +603,84 @@ def test_can_plot_dict_with_non_string_keys():
 def test_plot_bool_with_no_range():
     x = sc.zeros(sizes={'x': 10}, dtype='bool')
     _ = x.plot()
+
+
+def test_xmin():
+    da = data_array(ndim=1)
+    fig = da.plot(xmin=sc.scalar(2.5, unit='m'))
+    assert fig.canvas.xmin == 2.5
+
+
+def test_xmin_no_unit():
+    da = data_array(ndim=1)
+    fig = da.plot(xmin=3.3)
+    assert fig.canvas.xmin == 3.3
+
+
+def test_xmax():
+    da = data_array(ndim=1)
+    fig = da.plot(xmax=sc.scalar(7.5, unit='m'))
+    assert fig.canvas.xmax == 7.5
+
+
+def test_xmax_no_unit():
+    da = data_array(ndim=1)
+    fig = da.plot(xmax=8.1)
+    assert fig.canvas.xmax == 8.1
+
+
+def test_ymin():
+    da = data_array(ndim=1)
+    fig = da.plot(ymin=sc.scalar(-0.5, unit='m/s'))
+    assert fig.canvas.ymin == -0.5
+
+
+def test_ymin_no_unit():
+    da = data_array(ndim=1)
+    fig = da.plot(ymin=-0.5)
+    assert fig.canvas.ymin == -0.5
+
+
+def test_ymax():
+    da = data_array(ndim=1)
+    fig = da.plot(ymax=sc.scalar(0.68, unit='m/s'))
+    assert fig.canvas.ymax == 0.68
+
+
+def test_ymax_no_unit():
+    da = data_array(ndim=1)
+    fig = da.plot(ymax=0.68)
+    assert fig.canvas.ymax == 0.68
+
+
+def test_logx():
+    da = data_array(ndim=1)
+    fig = da.plot(logx=True)
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'linear'
+
+
+def test_logy():
+    da = data_array(ndim=1)
+    fig = da.plot(logy=True)
+    assert fig.canvas.yscale == 'log'
+    assert fig.canvas.xscale == 'linear'
+
+
+def test_logx_logy():
+    da = data_array(ndim=1)
+    fig = da.plot(logx=True, logy=True)
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'log'
+
+
+def test_xlabel():
+    da = data_array(ndim=1)
+    fig = da.plot(xlabel='MyXLabel')
+    assert fig.canvas.xlabel == 'MyXLabel'
+
+
+def test_ylabel():
+    da = data_array(ndim=1)
+    fig = da.plot(ylabel='MyYLabel')
+    assert fig.canvas.ylabel == 'MyYLabel'
