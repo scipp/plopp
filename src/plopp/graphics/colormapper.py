@@ -398,12 +398,13 @@ class ColorMapper:
                     if x <= 0:
                         return ''
                     exponent = int(np.round(np.log10(x)))
-                    mantissa = x / (10 ** exponent)
+                    mantissa = x / (10**exponent)
                     # For powers of 10, show as "10^N" without math mode
                     if abs(mantissa - 1.0) < 0.05:
                         return f'1e{exponent:+d}'
                     # For other values, use exponential notation
                     return f'{x:.1e}'
+
                 self.cax.yaxis.set_major_formatter(FuncFormatter(log_formatter))
             else:
                 # Reset to default formatter for linear scale

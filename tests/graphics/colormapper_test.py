@@ -430,7 +430,9 @@ def test_logc_tight_layout_does_not_raise_parse_error():
         except ValueError as e:
             # Check if this is the mathtext parsing error we're trying to fix
             error_str = str(e)
-            if 'ParseException' in error_str and ('$' in error_str or 'mathdefault' in error_str):
+            if 'ParseException' in error_str and (
+                '$' in error_str or 'mathdefault' in error_str
+            ):
                 pytest.fail(
                     f"tight_layout() raised mathtext parsing error with logc=True: {e}"
                 )
