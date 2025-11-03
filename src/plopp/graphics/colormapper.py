@@ -11,6 +11,7 @@ import numpy as np
 import scipp as sc
 from matplotlib.colorbar import ColorbarBase
 from matplotlib.colors import Colormap, LinearSegmentedColormap, LogNorm, Normalize
+from matplotlib.ticker import FuncFormatter
 
 from ..backends.matplotlib.utils import fig_to_bytes
 from ..core.limits import find_limits, fix_empty_range
@@ -186,6 +187,7 @@ class ColorMapper:
                 fig = plt.Figure(figsize=(height_inches * 0.2, height_inches))
                 self.cax = fig.add_axes([0.05, 0.02, 0.2, 0.98])
             self.colorbar = ColorbarBase(self.cax, cmap=self.cmap, norm=self.normalizer)
+            self._update_colorbar_formatter()
             self.cax.yaxis.set_label_coords(-0.9, 0.5)
             if self._clabel is not None:
                 self.cax.set_ylabel(self._clabel)
@@ -276,6 +278,9 @@ class ColorMapper:
             self.normalizer.vmax = self._cmax["data"]
 
         if self.colorbar is not None:
+            # Re-apply the formatter after updating normalizer limits,
+            # as matplotlib may have reset it when the normalizer changed
+            self._update_colorbar_formatter()
             self._update_colorbar_widget()
         self.notify_artists()
 
@@ -378,6 +383,32 @@ class ColorMapper:
     def ylabel(self, lab: str):
         self.clabel = lab
 
+    def _update_colorbar_formatter(self):
+        """
+        Update the colorbar tick formatter based on the current normalization.
+        For log scale, use a plain text formatter to avoid mathtext parsing errors
+        during tight_layout() calculations.
+        """
+        if self.colorbar is not None and self.cax is not None:
+            if self._logc:
+                # Use a custom formatter that produces plain text labels,
+                # avoiding mathtext notation that can cause parsing errors
+                # during tight_layout() when matplotlib measures text extent
+                def log_formatter(x, pos):
+                    if x <= 0:
+                        return ''
+                    exponent = int(np.round(np.log10(x)))
+                    mantissa = x / (10 ** exponent)
+                    # For powers of 10, show as "10^N" without math mode
+                    if abs(mantissa - 1.0) < 0.05:
+                        return f'1e{exponent:+d}'
+                    # For other values, use exponential notation
+                    return f'{x:.1e}'
+                self.cax.yaxis.set_major_formatter(FuncFormatter(log_formatter))
+            else:
+                # Reset to default formatter for linear scale
+                self.cax.yaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+
     def toggle_norm(self):
         """
         Toggle the norm flag, between `linear` and `log`.
@@ -388,6 +419,7 @@ class ColorMapper:
         self._cmax["data"] = -np.inf
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
+            self._update_colorbar_formatter()
         self.autoscale()
         if self._canvas is not None:
             self._canvas.draw()
