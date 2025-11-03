@@ -398,3 +398,41 @@ class TestColormapperInteractiveCases:
         assert fig.view.colormapper.norm == 'linear'
         fig.toolbar['lognorm'].value = True
         assert fig.view.colormapper.norm == 'log'
+
+
+def test_logc_tight_layout_does_not_raise_parse_error():
+    r"""
+    Test that calling tight_layout() on a figure with logc colorbar does not raise
+    a ValueError from matplotlib's mathtext parser. This reproduces the issue
+    where LogNorm tick labels like "$\mathdefault{10^{-33}}$" cause parsing errors.
+    """
+    import warnings
+
+    # Create data - the specific range from the user's report
+    da = sc.DataArray(
+        data=sc.array(dims=['y', 'x'], values=np.arange(1, 801).reshape(20, 40)),
+    )
+    mapper = ColorMapper(cbar=True, logc=True)
+    artist = DummyChild(data=da, colormapper=mapper)
+    mapper.add_artist('data', artist)
+
+    mapper.autoscale()
+
+    # Call tight_layout() on the colorbar figure
+    # This is what causes the error in the user's report
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        try:
+            # Draw the figure first to ensure rendering is done
+            mapper.cax.get_figure().canvas.draw()
+            # Now call tight_layout which can trigger the mathtext parsing issue
+            mapper.cax.get_figure().tight_layout()
+        except ValueError as e:
+            # Check if this is the mathtext parsing error we're trying to fix
+            error_str = str(e)
+            if 'ParseException' in error_str and ('$' in error_str or 'mathdefault' in error_str):
+                pytest.fail(
+                    f"tight_layout() raised mathtext parsing error with logc=True: {e}"
+                )
+            # Re-raise if it's a different ValueError
+            raise
