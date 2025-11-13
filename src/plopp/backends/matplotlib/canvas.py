@@ -206,7 +206,7 @@ class Canvas:
             try:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
-                    self.fig.tight_layout()
+                    self.fig.set_layout_engine('tight')
             except RuntimeError:
                 pass
             # The Matplotlib canvas tries to fill the entire width of the output cell,
