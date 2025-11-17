@@ -44,6 +44,7 @@ test = [
     "h5py>=3.12",
     "ipympl>=0.8.4",
     "ipywidgets>=8.1.0",
+    "ipykernel<7",  # Concurrency bug, see https://github.com/scipp/plopp/issues/499.
     "mpltoolbox>=24.6.0",
     "pandas>=2.2.2",
     "plotly>=5.15.0",
