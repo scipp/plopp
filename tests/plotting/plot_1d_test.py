@@ -684,3 +684,30 @@ def test_ylabel():
     da = data_array(ndim=1)
     fig = da.plot(ylabel='MyYLabel')
     assert fig.canvas.ylabel == 'MyYLabel'
+
+
+def test_plot_multiple_inputs_int_keys():
+    a = data_array(ndim=1)
+    b = 2.0 * a
+    fig = pp.plot({0: a, 1: b})
+    assert len(fig.view.artists) == 2
+
+
+def test_plot_multiple_inputs_type_keys():
+    a = data_array(ndim=1)
+    b = 2.0 * a
+    fig = pp.plot({str: a, int: b})
+    assert len(fig.view.artists) == 2
+
+
+def test_plot_multiple_inputs_custom_type_keys():
+    a = data_array(ndim=1)
+    b = 2.0 * a
+
+    from typing import NewType
+
+    A = NewType("A", str)
+    B = NewType("B", int)
+
+    fig = pp.plot({A: a, B: b})
+    assert len(fig.view.artists) == 2
