@@ -319,7 +319,7 @@ def input_to_nodes(obj: PlottableMulti, processor: Callable) -> list[Node]:
         to_nodes = obj.items()
     else:
         to_nodes = [(getattr(obj, "name", None), obj)]
-    nodes = [Node(processor, inp, name=name) for name, inp in to_nodes]
+    nodes = [Node(processor, inp, name=str(name)) for name, inp in to_nodes]
     for node in nodes:
         if hasattr(processor, 'func'):
             node.pretty_name = processor.func.__name__
