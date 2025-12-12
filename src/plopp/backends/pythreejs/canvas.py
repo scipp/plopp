@@ -40,7 +40,7 @@ class Canvas:
         camera: Camera | None = None,
         **ignored,
     ):
-        import pythreejs as p3
+        import anythreejs as p3
 
         self.dims = {}
         self.units = {}
