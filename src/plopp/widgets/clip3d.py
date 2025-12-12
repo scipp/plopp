@@ -79,7 +79,7 @@ class Clip3dTool(ipw.HBox):
         width = (self._limits[w_axis][1] - self._limits[w_axis][0]).value
         height = (self._limits[h_axis][1] - self._limits[h_axis][0]).value
 
-        import pythreejs as p3
+        import anythreejs as p3
 
         self.outlines = [
             p3.LineSegments(

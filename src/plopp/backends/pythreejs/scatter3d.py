@@ -66,7 +66,7 @@ class Scatter3d:
         pixel_size: sc.Variable | float | None = None,
         mask_color: str | None = None,
     ):
-        import pythreejs as p3
+        import anythreejs as p3
 
         check_ndim(data, ndim=1, origin='Scatter3d')
         self.uid = uid if uid is not None else uuid.uuid4().hex

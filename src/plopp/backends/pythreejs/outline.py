@@ -2,8 +2,8 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 
+import anythreejs as p3
 import numpy as np
-import pythreejs as p3
 from matplotlib import ticker
 from scipp import Variable
 
