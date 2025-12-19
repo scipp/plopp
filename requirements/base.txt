@@ -32,7 +32,7 @@ pyparsing==3.2.5
     # via matplotlib
 python-dateutil==2.9.0.post0
     # via matplotlib
-scipp==25.11.0
+scipp==25.12.0
     # via -r base.in
 six==1.17.0
     # via python-dateutil
