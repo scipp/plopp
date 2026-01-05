@@ -90,7 +90,7 @@ filterwarnings = [
   "ignore:'parseString' deprecated:DeprecationWarning",
   "ignore:'resetCache' deprecated:DeprecationWarning",
   "ignore:'enablePackrat' deprecated:DeprecationWarning",
-  "ignore:'parseAll' deprecated:DeprecationWarning",
+  "ignore:'parseAll' argument is deprecated:DeprecationWarning",
 ]
 
 [tool.ruff]
