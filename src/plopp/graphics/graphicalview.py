@@ -98,7 +98,6 @@ class GraphicalView(View):
         self._autoscale = autoscale
 
         self.canvas = canvas_maker(
-            autoscale=self.autoscale,
             cbar=cbar,
             aspect=aspect,
             grid=grid,
@@ -123,6 +122,9 @@ class GraphicalView(View):
             norm=norm if len(dims) == 1 else None,
         )
 
+        # Register as a listener for scale toggle events
+        self.canvas.on_scale_toggled(self._on_scale_toggled)
+
         if colormapper:
             self.colormapper = ColorMapper(
                 cmap=cmap,
@@ -140,8 +142,14 @@ class GraphicalView(View):
                 figsize=getattr(self.canvas, "figsize", None),
                 nan_color=nan_color,
             )
-            self.canvas._toggle_loc = self.colormapper.toggle_norm
-            print("colormapper created", self.canvas._toggle_loc)
+
+            # Register colormapper for colorscale toggles
+            self.canvas.on_scale_toggled(
+                lambda event_type: self.colormapper.toggle_norm()
+                if event_type == 'colorscale'
+                else None
+            )
+
             self._kwargs['colormapper'] = self.colormapper
             if self._autoscale:
                 # Do not set colors on update, as this is done during the autoscale.
@@ -317,3 +325,9 @@ class GraphicalView(View):
         self.canvas.update_legend()
         self.fit_to_data()
         self.canvas.draw()
+
+    def _on_scale_toggled(self, event_type: str) -> None:
+        """Handle scale toggle events."""
+        if event_type in ('xscale', 'yscale'):
+            self.autoscale()
+            self.canvas.draw()

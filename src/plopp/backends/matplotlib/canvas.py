@@ -107,7 +107,6 @@ class Canvas:
 
     def __init__(
         self,
-        autoscale: Callable,
         ax: plt.Axes = None,
         cax: plt.Axes = None,
         figsize: tuple[float, float] | None = None,
@@ -142,8 +141,6 @@ class Canvas:
         ymax = parse_mutually_exclusive(vmax=user_vmax, ymax=ymax)
         logy = parse_mutually_exclusive(norm=norm, logy=logy)
 
-        self._autoscale = autoscale
-        self._toggle_logc = None
         self.fig = None
         self.ax = ax
         self.cax = cax
@@ -157,6 +154,7 @@ class Canvas:
         self.units = {}
         self.dims = {}
         self._legend = legend
+        self._scale_toggle_listeners = []
 
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
@@ -195,33 +193,39 @@ class Canvas:
 
         self.fig.canvas.mpl_connect('button_press_event', self._toggle_scale)
 
+    def on_scale_toggled(self, callback: Callable) -> None:
+        """Register a listener for scale toggle events."""
+        self._scale_toggle_listeners.append(callback)
+
     def _toggle_scale(self, event: Event) -> None:
-        # print(event, event.x, event.y, event.dblclick, event.inaxes)
         # Only toggle scale if the user double-clicks outside the axes area.
-        print(event, event.inaxes is self.cax)
         if not event.dblclick:
             return
-        if event.inaxes is self.cax:
-            print("toggle color scale", self._toggle_logc)
-            if self._toggle_logc is not None:
-                print("calling toggle log c")
-                self._toggle_logc()
-            return
-        if event.inaxes is not None:
-            return
-        renderer = self.fig.canvas.get_renderer()
-        viewport = self.ax.patch.get_window_extent(renderer)
-        xmin = viewport.bounds[0]
-        ymin = viewport.bounds[1]
-        # Only toggle if the click is close to the left or bottom axes.
-        if (event.x > xmin) and (event.y > ymin):
-            return
-        if event.x > event.y:
-            self.toggle_logx()
-        else:
-            self.toggle_logy()
-        self._autoscale()  # Call the autoscale function of the owning view
-        self.draw()
+
+        # Determine what was toggled
+        toggled = None
+        if (self.cax is not None) and (event.inaxes is self.cax):
+            toggled = 'colorscale'
+        elif event.inaxes is None:
+            renderer = self.fig.canvas.get_renderer()
+            viewport = self.ax.patch.get_window_extent(renderer)
+            xmin = viewport.bounds[0]
+            ymin = viewport.bounds[1]
+
+            if (event.x > xmin) and (event.y > ymin):
+                return
+
+            if event.x > event.y:
+                self.toggle_logx()
+                toggled = 'xscale'
+            else:
+                self.toggle_logy()
+                toggled = 'yscale'
+
+        # Notify listeners
+        if toggled:
+            for callback in self._scale_toggle_listeners:
+                callback(toggled)
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
