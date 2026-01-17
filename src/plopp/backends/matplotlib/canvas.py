@@ -191,13 +191,18 @@ class Canvas:
         if ylabel is not None:
             self.ylabel = ylabel
 
-        self.fig.canvas.mpl_connect('button_press_event', self._toggle_scale)
+        if self.is_widget():
+            self.fig.canvas.mpl_connect('button_press_event', self._toggle_scale)
 
     def on_scale_toggled(self, callback: Callable) -> None:
         """Register a listener for scale toggle events."""
         self._scale_toggle_listeners.append(callback)
 
     def _toggle_scale(self, event: Event) -> None:
+        """
+        Toggle the scale of the axes or colorbar when the user double-clicks close to
+        the left or bottom axes. This is only active for interactive backends.
+        """
         # Only toggle scale if the user double-clicks outside the axes area.
         if not event.dblclick:
             return
