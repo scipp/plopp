@@ -48,7 +48,7 @@ def scatter(
     pos: str | None = None,
     aspect: Literal['auto', 'equal', None] = None,
     autoscale: bool = True,
-    cbar: bool = True,
+    cbar: bool = False,
     clabel: str | None = None,
     cmap: str = 'viridis',
     cmax: sc.Variable | float | None = None,
