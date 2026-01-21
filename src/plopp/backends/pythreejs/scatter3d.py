@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Literal
+from typing import Any, Literal
 
 import numpy as np
 import scipp as sc
@@ -66,8 +66,6 @@ class Scatter3d:
         pixel_size: sc.Variable | float | None = None,
         mask_color: str | None = None,
     ):
-        import pythreejs as p3
-
         check_ndim(data, ndim=1, origin='Scatter3d')
         self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
@@ -76,6 +74,10 @@ class Scatter3d:
         self._x = x
         self._y = y
         self._z = z
+        self._unique_color = to_rgb(f'C{artist_number}' if color is None else color)
+        self._opacity = opacity
+        self._new_points = None
+        self._new_colors = None
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -91,42 +93,64 @@ class Scatter3d:
                     dtype=float, unit=self._data.coords[x].unit
                 ).value
 
+        self.points = self._make_point_cloud()
+        self._canvas.add(self.points)
+
         if self._colormapper is not None:
             self._colormapper.add_artist(self.uid, self)
-            colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
-        else:
-            colors = np.broadcast_to(
-                np.array(to_rgb(f'C{artist_number}' if color is None else color)),
-                (self._data.coords[self._x].shape[0], 3),
-            ).astype('float32')
 
-        self.geometry = p3.BufferGeometry(
+    def _make_point_cloud(self) -> None:
+        """
+        Create the point cloud geometry and material.
+        """
+        import pythreejs as p3
+
+        self._backup_coords()
+
+        geometry = p3.BufferGeometry(
             attributes={
                 'position': p3.BufferAttribute(
-                    array=np.array(
+                    array=np.stack(
                         [
                             self._data.coords[self._x].values.astype('float32'),
                             self._data.coords[self._y].values.astype('float32'),
                             self._data.coords[self._z].values.astype('float32'),
-                        ]
-                    ).T
+                        ],
+                        axis=1,
+                    )
                 ),
-                'color': p3.BufferAttribute(array=colors),
+                'color': p3.BufferAttribute(
+                    array=np.broadcast_to(
+                        np.array(self._unique_color),
+                        (self._data.coords[self._x].shape[0], 3),
+                    ).astype('float32')
+                ),
             }
         )
+        self._new_positions = None
 
         # TODO: a device pixel_ratio should probably be read from a config file
         pixel_ratio = 1.0
         # Note that an additional factor of 2.5 (obtained from trial and error) seems to
         # be required to get the sizes right in the scene.
-        self.material = p3.PointsMaterial(
+        material = p3.PointsMaterial(
             vertexColors='VertexColors',
             size=2.5 * self._size * pixel_ratio,
             transparent=True,
-            opacity=opacity,
+            opacity=self._opacity,
+            depthTest=self._opacity > 0.5,
         )
-        self.points = p3.Points(geometry=self.geometry, material=self.material)
-        self._canvas.add(self.points)
+        return p3.Points(geometry=geometry, material=material)
+
+    def _backup_coords(self) -> None:
+        """
+        Backup the current coordinates to be able to detect changes.
+        """
+        self._old_coords = {
+            self._x: self._data.coords[self._x],
+            self._y: self._data.coords[self._y],
+            self._z: self._data.coords[self._z],
+        }
 
     def notify_artist(self, message: str) -> None:
         """
@@ -138,15 +162,27 @@ class Scatter3d:
         message:
             The message from the colormapper.
         """
-        self._update_colors()
+        self._new_colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
+        self._finalize_update()
 
-    def _update_colors(self):
+    def _update_positions(self) -> None:
         """
-        Set the point cloud's rgba colors:
+        Update the point cloud's positions from the data.
         """
-        self.geometry.attributes["color"].array = self._colormapper.rgba(self.data)[
-            ..., :3
-        ].astype('float32')
+        if all(
+            sc.identical(self._old_coords[dim], self._data.coords[dim])
+            for dim in [self._x, self._y, self._z]
+        ):
+            return
+        self._backup_coords()
+        return np.stack(
+            [
+                self._data.coords[self._x].values.astype('float32'),
+                self._data.coords[self._y].values.astype('float32'),
+                self._data.coords[self._z].values.astype('float32'),
+            ],
+            axis=1,
+        )
 
     def update(self, new_values):
         """
@@ -158,19 +194,89 @@ class Scatter3d:
             New data to update the point cloud values from.
         """
         check_ndim(new_values, ndim=1, origin='Scatter3d')
+        old_shape = self._data.shape
         self._data = new_values
-        if self._colormapper is not None:
-            self._update_colors()
+
+        if self._data.shape != old_shape:
+            self._new_points = self._make_point_cloud()
+        else:
+            self._new_points = None
+            self._new_positions = self._update_positions()
+
+        if self._colormapper is None:
+            self._finalize_update()
+
+    def _finalize_update(self) -> None:
+        """
+        Finalize the update of the point cloud.
+        This is called either at the end of the position update if there is no
+        colormapper, and after the colors are updated in the case of a colormapper.
+        We want to wait for both to be ready before updating the geometry.
+        """
+        # We use the hold context manager to avoid multiple re-draws of the scene and
+        # thus prevent flickering.
+        with self._canvas.renderer.hold():
+            if self._new_points is not None:
+                self._canvas.remove(self.points)
+                self.points = self._new_points
+            if self._new_positions is not None:
+                self.position = self._new_positions
+                self._new_positions = None
+            if self._new_colors is not None:
+                self.color = self._new_colors
+                self._new_colors = None
+            # For some reason, adding the points to the scene before updating the colors
+            # still shows the old colors for a brief moment, even if hold() is active.
+            if self._new_points is not None:
+                self._new_points = None
+                self._canvas.add(self.points)
+
+    @property
+    def position(self) -> np.ndarray:
+        """
+        The scatter points positions as a (N, 3) numpy array.
+        """
+        return self.geometry.attributes['position'].array
+
+    @position.setter
+    def position(self, val: np.ndarray):
+        self.geometry.attributes['position'].array = val
+
+    @property
+    def color(self) -> np.ndarray:
+        """
+        The scatter points colors as a (N, 3) numpy array.
+        """
+        return self.geometry.attributes['color'].array
+
+    @color.setter
+    def color(self, val: np.ndarray):
+        self.geometry.attributes['color'].array = val
+
+    @property
+    def geometry(self) -> Any:
+        """
+        The scatter points geometry.
+        """
+        return self.points.geometry
+
+    @property
+    def material(self) -> Any:
+        """
+        The scatter points material.
+        """
+        return self.points.material
 
     @property
     def opacity(self) -> float:
         """
         The scatter points opacity.
         """
-        return self.material.opacity
+        return self._opacity
 
     @opacity.setter
     def opacity(self, val: float):
+        self._opacity = val
         self.material.opacity = val
         self.material.depthTest = val > 0.5
 
