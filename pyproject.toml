@@ -38,7 +38,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 scipp = ["scipp>=25.5.0"]
-all = ["scipp>=25.5.0", "ipympl>0.8.4", "pythreejs>=2.4.1", "mpltoolbox>=24.6.0", "ipywidgets>=8.1.0", "graphviz>=0.20.3"]
+all = ["scipp>=25.5.0", "ipympl>0.8.4", "anythreejs>=0.0.1", "mpltoolbox>=24.6.0", "ipywidgets>=8.1.0", "graphviz>=0.20.3"]
 test = [
     "graphviz>=0.20.3",
     "h5py>=3.12",
@@ -51,7 +51,7 @@ test = [
     "pooch>=1.5",
     "pyarrow>=13.0.0",
     "pytest>=7.0",
-    "pythreejs>=2.4.1",
+    "anythreejs>=0.0.1",
     "scipp>=25.5.0",
     "scipy>=1.10.0",
     "xarray>=v2024.05.0",

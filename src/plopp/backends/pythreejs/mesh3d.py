@@ -59,7 +59,7 @@ class Mesh3d:
         artist_number: int = 0,
         **ignored,
     ):
-        import pythreejs as p3
+        import anythreejs as p3
 
         self.uid = uid if uid is not None else uuid.uuid4().hex
         self._data = data
