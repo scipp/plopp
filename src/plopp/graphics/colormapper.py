@@ -55,7 +55,12 @@ def _get_cmap(colormap: str | Colormap, nan_color: str | None = None) -> Colorma
         else:
             cmap = mpl.cm.get_cmap(colormap)
     except (KeyError, ValueError):
+        # Case where we have just a single color
         cmap = LinearSegmentedColormap.from_list('tmp', [colormap, colormap])
+        cmap.set_over(colormap)
+        cmap.set_under(colormap)
+        cmap.set_bad(colormap)
+        return cmap
 
     # Add under and over values to the cmap
     delta = 0.15
@@ -152,9 +157,9 @@ class ColorMapper:
         self._canvas = canvas
         self.cax = self._canvas.cax if hasattr(self._canvas, 'cax') else None
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
-        self.mask_cmap = _get_cmap(
-            mask_cmap if mask_color is None else mask_color, nan_color=nan_color
-        )
+        self.mask_cmap = _get_cmap(mask_cmap if mask_color is None else mask_color)
+        if mask_color is None:
+            self.mask_cmap.set_bad(self.cmap.get_over())
 
         # Inside the autoscale, we need to distinguish between a min value that was set
         # by the user and one that was found by looping over all the data.
