@@ -159,6 +159,11 @@ class ColorMapper:
         self.cmap = _get_cmap(cmap, nan_color=nan_color)
         self.mask_cmap = _get_cmap(mask_cmap if mask_color is None else mask_color)
         if mask_color is None:
+            # If no single color was used for masks, it means a colormap was used
+            # instead. However, `nan_color` was not passed to get_cmap for the masks
+            # (it only applied to non-masked data), so we still need to set the 'bad'
+            # color here. We choose to set it to the 'over' color for a lack of a
+            # better idea.
             self.mask_cmap.set_bad(self.cmap.get_over())
 
         # Inside the autoscale, we need to distinguish between a min value that was set
