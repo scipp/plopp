@@ -49,7 +49,6 @@ def inspector(
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
     logc: bool | None = None,
-    logy: bool | None = None,
     mask_cmap: str = 'gray',
     mask_color: str = 'black',
     nan_color: str | None = None,
@@ -60,6 +59,8 @@ def inspector(
     vmax: sc.Variable | float | None = None,
     vmin: sc.Variable | float | None = None,
     xlabel: str | None = None,
+    xmax: sc.Variable | float | None = None,
+    xmin: sc.Variable | float | None = None,
     ylabel: str | None = None,
     ymax: sc.Variable | float | None = None,
     ymin: sc.Variable | float | None = None,
@@ -118,8 +119,6 @@ def inspector(
         (1d figure).
     logc:
         If ``True``, use logarithmic scale for colorscale.
-    logy:
-        If ``True``, use logarithmic scale for y-axis.
     mask_cmap:
         Colormap to use for masks.
     mask_color:
@@ -144,16 +143,16 @@ def inspector(
         Legacy, prefer ``cmin`` instead.
     xlabel:
         Label for x-axis.
-    xmin:
-        Lower limit for x-axis.
     xmax:
-        Upper limit for x-axis.
+        Upper limit for x-axis (1d figure)
+    xmin:
+        Lower limit for x-axis (1d figure)
     ylabel:
         Label for y-axis.
     ymax:
-        Upper limit for y-axis.
+        Upper limit for y-axis (1d figure).
     ymin:
-        Lower limit for y-axis.
+        Lower limit for y-axis (1d figure).
     **kwargs:
         Additional arguments forwarded to the underlying plotting library.
 
@@ -169,6 +168,10 @@ def inspector(
         grid=grid,
         legend=legend,
         mask_color=mask_color,
+        xmax=xmax,
+        xmin=xmin,
+        ymax=ymax,
+        ymin=ymin,
     )
     require_interactive_figure(f1d, 'inspector')
 
@@ -202,8 +205,6 @@ def inspector(
         vmin=vmin,
         xlabel=xlabel,
         ylabel=ylabel,
-        ymax=ymax,
-        ymin=ymin,
         **kwargs,
     )
 
