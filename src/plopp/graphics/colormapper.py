@@ -164,7 +164,7 @@ class ColorMapper:
             # (it only applied to non-masked data), so we still need to set the 'bad'
             # color here. We choose to set it to the 'over' color for a lack of a
             # better idea.
-            self.mask_cmap.set_bad(self.cmap.get_over())
+            self.mask_cmap.set_bad(self.mask_cmap.get_over())
 
         # Inside the autoscale, we need to distinguish between a min value that was set
         # by the user and one that was found by looping over all the data.
