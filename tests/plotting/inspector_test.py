@@ -95,7 +95,7 @@ def test_operation():
 @pytest.mark.usefixtures('_use_ipympl')
 def test_kwargs_propagation():
     da = pp.data.data3d()
-    ip = pp.inspector(da, xmin=2, xmax=8, ymin=-0.25, ymax=0.75)
+    ip = pp.inspector(da, xmin=2, xmax=8, ymin=-0.25, ymax=0.75, norm="log")
     fig2d = ip[0][0]
     fig1d = ip[0][1]
     # Activate the inspector tool
@@ -108,3 +108,7 @@ def test_kwargs_propagation():
     assert fig1d.canvas.yrange == (-0.25, 0.75)
     assert fig2d.canvas.xrange != (2, 8)
     assert fig2d.canvas.yrange != (-0.25, 0.75)
+
+    # Log norm is applied to the 2D figure
+    assert fig1d.canvas.yscale == "linear"
+    assert fig2d.view.colormapper.norm == "log"
