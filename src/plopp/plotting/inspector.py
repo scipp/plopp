@@ -79,6 +79,12 @@ def inspector(
     - Drag existing point to move it
     - Middle-click to delete point
 
+    Notes
+    -----
+
+    Almost all the arguments for plot customization apply to the two-dimensional image
+    (unless specified).
+
     Parameters
     ----------
     obj:
@@ -93,13 +99,13 @@ def inspector(
     autoscale:
         Automatically scale the axes/colormap on updates if ``True``.
     cbar:
-        Show colorbar if ``True`` (2d figure).
+        Show colorbar if ``True``.
     clabel:
-        Label for colorscale (2d figure).
+        Label for colorscale.
     cmax:
-        Upper limit for colorscale (2d figure).
+        Upper limit for colorscale.
     cmin:
-        Lower limit for colorscale (2d figure).
+        Lower limit for colorscale.
     errorbars:
         Show errorbars if ``True`` (1d figure).
     figsize:
@@ -111,18 +117,17 @@ def inspector(
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates
         (1d figure).
     logc:
-        If ``True``, use logarithmic scale for colorscale (2d figure).
+        If ``True``, use logarithmic scale for colorscale.
     logy:
-        If ``True``, use logarithmic scale for y-axis (1d figure).
+        If ``True``, use logarithmic scale for y-axis.
     mask_cmap:
-        Colormap to use for masks in 2d figure.
+        Colormap to use for masks.
     mask_color:
         Color of masks (overrides ``mask_cmap``).
     nan_color:
-        Color to use for NaN values in 2d figure.
+        Color to use for NaN values.
     norm:
-        Set to ``'log'`` for a logarithmic y-axis (1d figure) or logarithmic colorscale
-        (2d figure). Legacy, prefer ``logy`` and ``logc`` instead.
+        Set to ``'log'`` for a logarithmic colorscale. Legacy, prefer ``logc`` instead.
     operation:
         The operation to apply along the third (undisplayed) dimension specified by
         ``dim``.
@@ -132,19 +137,23 @@ def inspector(
     title:
         The figure title.
     vmax:
-        Upper limit for data to be displayed (y-axis for 1d figure, colorscale for
-        2d figure). Legacy, prefer ``ymax`` and ``cmax`` instead.
+        Upper limit for data colorscale to be displayed.
+        Legacy, prefer ``cmax`` instead.
     vmin:
-        Lower limit for data to be displayed (y-axis for 1d figure, colorscale for
-        2d figure). Legacy, prefer ``ymin`` and ``cmin`` instead.
+        Lower limit for data colorscale to be displayed.
+        Legacy, prefer ``cmin`` instead.
     xlabel:
-        Label for x-axis (2d figure).
+        Label for x-axis.
+    xmin:
+        Lower limit for x-axis.
+    xmax:
+        Upper limit for x-axis.
     ylabel:
-        Label for y-axis (2d figure).
+        Label for y-axis.
     ymax:
-        Upper limit for y-axis (1d figure).
+        Upper limit for y-axis.
     ymin:
-        Lower limit for y-axis (1d figure).
+        Lower limit for y-axis.
     **kwargs:
         Additional arguments forwarded to the underlying plotting library.
 
@@ -159,13 +168,7 @@ def inspector(
         errorbars=errorbars,
         grid=grid,
         legend=legend,
-        logy=logy,
         mask_color=mask_color,
-        norm=norm,
-        vmax=vmax,
-        vmin=vmin,
-        ymax=ymax,
-        ymin=ymin,
     )
     require_interactive_figure(f1d, 'inspector')
 
@@ -190,6 +193,7 @@ def inspector(
         figsize=figsize,
         grid=grid,
         logc=logc,
+        mask_cmap=mask_cmap,
         mask_color=mask_color,
         nan_color=nan_color,
         norm=norm,
