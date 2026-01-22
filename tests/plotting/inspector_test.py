@@ -90,3 +90,21 @@ def test_operation():
     ip_mean = pp.inspector(da, operation='mean')
     assert ip_sum[0][0].view.colormapper.vmax > ip_mean[0][0].view.colormapper.vmax
     assert ip_sum[0][0].view.colormapper.vmin < ip_mean[0][0].view.colormapper.vmin
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_kwargs_propagation():
+    da = pp.data.data3d()
+    ip = pp.inspector(da, xmin=2, xmax=8, ymin=-0.25, ymax=0.75)
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    # Activate the inspector tool
+    fig2d.toolbar['inspect'].value = True
+    assert not fig1d.canvas.dims
+    fig2d.toolbar['inspect']._tool.click(10, 10)
+
+    # Controlling limits get sent to the 1D figure
+    assert fig1d.canvas.xrange == (2, 8)
+    assert fig1d.canvas.yrange == (-0.25, 0.75)
+    assert fig2d.canvas.xrange != (2, 8)
+    assert fig2d.canvas.yrange != (-0.25, 0.75)
