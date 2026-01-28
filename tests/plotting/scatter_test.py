@@ -79,7 +79,7 @@ def test_scatter_with_size_and_cbar():
 
 def test_scatter_with_s_kwarg_raises():
     a = scatter_data()
-    with pytest.raises(ValueError, match="Use 'size' instead of 's' for scatter plot."):
+    with pytest.raises(ValueError, match="Use 'size' instead of 's' for scatter plot"):
         pp.scatter(a, s=10)
 
 

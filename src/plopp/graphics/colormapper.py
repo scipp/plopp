@@ -146,7 +146,7 @@ class ColorMapper:
         clabel: str | None = None,
         nan_color: str | None = None,
         figsize: tuple[float, float] | None = None,
-        norm: Literal['linear', 'log', None] = None,
+        norm: Literal['linear', 'log'] | None = None,
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
     ):

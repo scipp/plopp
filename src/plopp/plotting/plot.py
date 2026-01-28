@@ -19,7 +19,7 @@ from .common import (
 def plot(
     obj: PlottableMulti,
     *,
-    aspect: Literal['auto', 'equal', None] = None,
+    aspect: Literal['auto', 'equal'] | None = None,
     autoscale: bool = True,
     cbar: bool = True,
     clabel: str | None = None,
@@ -38,7 +38,7 @@ def plot(
     mask_cmap: str = 'gray',
     mask_color: str | None = None,
     nan_color: str | None = None,
-    norm: Literal['linear', 'log', None] = None,
+    norm: Literal['linear', 'log'] | None = None,
     scale: dict[str, str] | None = None,
     title: str | None = None,
     vmax: sc.Variable | float | None = None,

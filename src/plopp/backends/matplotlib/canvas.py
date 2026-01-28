@@ -112,7 +112,7 @@ class Canvas:
         grid: bool = False,
         user_vmin: sc.Variable | float | None = None,
         user_vmax: sc.Variable | float | None = None,
-        aspect: Literal['auto', 'equal', None] = None,
+        aspect: Literal['auto', 'equal'] | None = None,
         cbar: bool = False,
         legend: bool | tuple[float, float] = True,
         xmin: sc.Variable | float | None = None,
@@ -123,7 +123,7 @@ class Canvas:
         logy: bool = False,
         xlabel: str | None = None,
         ylabel: str | None = None,
-        norm: Literal['linear', 'log', None] = None,
+        norm: Literal['linear', 'log'] | None = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -515,7 +515,7 @@ class Canvas:
         """
         self.fig.canvas.toolbar.pan()
 
-    def panzoom(self, value: Literal['pan', 'zoom', None]):
+    def panzoom(self, value: Literal['pan', 'zoom'] | None):
         """
         Activate or deactivate the pan or zoom tool, depending on the input value.
         """
