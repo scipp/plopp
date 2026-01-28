@@ -46,7 +46,7 @@ class Canvas:
         logy: bool | None = None,
         xlabel: str | None = None,
         ylabel: str | None = None,
-        norm: Literal['linear', 'log', None] = None,
+        norm: Literal['linear', 'log'] | None = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -326,7 +326,7 @@ class Canvas:
         """
         self.fig.update_layout(dragmode='pan')
 
-    def panzoom(self, value: Literal['pan', 'zoom', None]):
+    def panzoom(self, value: Literal['pan', 'zoom'] | None):
         """
         Activate or deactivate the pan or zoom tool, depending on the input value.
         """

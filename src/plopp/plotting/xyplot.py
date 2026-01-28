@@ -40,7 +40,7 @@ def _make_data_array(x: sc.Variable, y: sc.Variable) -> sc.DataArray:
 def xyplot(
     x: sc.Variable | ndarray | list | Node,
     y: sc.Variable | ndarray | list | Node,
-    aspect: Literal['auto', 'equal', None] = None,
+    aspect: Literal['auto', 'equal'] | None = None,
     autoscale: bool = True,
     errorbars: bool = True,
     figsize: tuple[float, float] | None = None,
@@ -48,7 +48,7 @@ def xyplot(
     legend: bool | tuple[float, float] = True,
     logx: bool | None = None,
     logy: bool | None = None,
-    norm: Literal['linear', 'log', None] = None,
+    norm: Literal['linear', 'log'] | None = None,
     scale: dict[str, str] | None = None,
     title: str | None = None,
     vmax: sc.Variable | float | None = None,

@@ -347,7 +347,7 @@ def raise_multiple_inputs_for_2d_plot_error(origin):
 
 
 def categorize_args(
-    aspect: Literal['auto', 'equal', None] = None,
+    aspect: Literal['auto', 'equal'] | None = None,
     autoscale: bool = True,
     cbar: bool = True,
     clabel: str | None = None,
@@ -364,7 +364,7 @@ def categorize_args(
     mask_cmap: str = 'gray',
     mask_color: str = 'black',
     nan_color: str | None = None,
-    norm: Literal['linear', 'log', None] = None,
+    norm: Literal['linear', 'log'] | None = None,
     scale: dict[str, str] | None = None,
     title: str | None = None,
     vmax: sc.Variable | float | None = None,

@@ -351,7 +351,9 @@ CASES = {
 }
 
 
-@pytest.mark.parametrize("backend,figure,data", CASES.values(), ids=CASES.keys())
+@pytest.mark.parametrize(
+    ("backend", "figure", "data"), CASES.values(), ids=CASES.keys()
+)
 class TestColormapperAllCases:
     def test_colorbar_label_has_name_with_one_artist(
         self, set_backend, backend, figure, data
@@ -376,7 +378,9 @@ CASESINTERACTIVE = {k: c for k, c in CASES.items() if c[0][1] != 'mpl-static'}
 
 
 @pytest.mark.parametrize(
-    "backend,figure,data", CASESINTERACTIVE.values(), ids=CASESINTERACTIVE.keys()
+    ("backend", "figure", "data"),
+    CASESINTERACTIVE.values(),
+    ids=CASESINTERACTIVE.keys(),
 )
 class TestColormapperInteractiveCases:
     def test_toolbar_log_norm_button_state_agrees_with_kwarg(

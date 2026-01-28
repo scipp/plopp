@@ -81,7 +81,7 @@ CASES = {
 }
 
 
-@pytest.mark.parametrize("backend,func,data", CASES.values(), ids=CASES.keys())
+@pytest.mark.parametrize(("backend", "func", "data"), CASES.values(), ids=CASES.keys())
 class TestArtists:
     def test_visible(self, set_backend, backend, func, data):
         fig = func(**data)

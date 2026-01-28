@@ -48,7 +48,9 @@ SCATTERCASES = {
 ALLCASES = {**PLOTCASES, **SCATTERCASES}
 
 
-@pytest.mark.parametrize("backend,figure,data", ALLCASES.values(), ids=ALLCASES.keys())
+@pytest.mark.parametrize(
+    ("backend", "figure", "data"), ALLCASES.values(), ids=ALLCASES.keys()
+)
 class TestFiguresAllCases:
     def test_empty(self, set_backend, backend, figure, data):
         fig = figure()

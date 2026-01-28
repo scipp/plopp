@@ -53,7 +53,7 @@ def scatter3d(
     figsize: tuple[int, int] = (600, 400),
     logc: bool | None = None,
     nan_color: str | None = None,
-    norm: Literal['linear', 'log', None] = None,
+    norm: Literal['linear', 'log'] | None = None,
     title: str | None = None,
     vmax: sc.Variable | float = None,
     vmin: sc.Variable | float = None,
