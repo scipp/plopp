@@ -31,7 +31,7 @@ def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
 
 def _coord_to_centers(da: sc.DataArray, dim: str) -> sc.Variable:
     coord = da.coords[dim]
-    if da.coords.is_edges(dim, dim=dim) and coord.sizes[dim] == da.sizes[dim] + 1:
+    if da.coords.is_edges(dim, dim=dim):
         return sc.midpoints(coord, dim=dim)
     return coord
 
