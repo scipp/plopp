@@ -20,7 +20,7 @@ def _make_da() -> sc.DataArray:
 
 def test_slice_polygon_sum_full_selection():
     import plopp as pp
-    from plopp.plotting.inspector import _slice_polygon
+    from plopp.plotting.inspector_polygon import _slice_polygon
 
     _ = pp.inspector
     da = _make_da()
@@ -42,7 +42,7 @@ def test_slice_polygon_sum_full_selection():
 
 def test_slice_polygon_min_empty_selection_is_nan():
     import plopp as pp
-    from plopp.plotting.inspector import _slice_polygon
+    from plopp.plotting.inspector_polygon import _slice_polygon
 
     _ = pp.inspector
     da = _make_da()
@@ -63,7 +63,7 @@ def test_slice_polygon_min_empty_selection_is_nan():
 
 def test_slice_polygon_max_empty_selection_is_nan():
     import plopp as pp
-    from plopp.plotting.inspector import _slice_polygon
+    from plopp.plotting.inspector_polygon import _slice_polygon
 
     _ = pp.inspector
     da = _make_da()
@@ -84,7 +84,7 @@ def test_slice_polygon_max_empty_selection_is_nan():
 
 def test_slice_polygon_mean_empty_selection_is_nan():
     import plopp as pp
-    from plopp.plotting.inspector import _slice_polygon
+    from plopp.plotting.inspector_polygon import _slice_polygon
 
     _ = pp.inspector
     da = _make_da()

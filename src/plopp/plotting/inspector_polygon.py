@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2025 Scipp contributors (https://github.com/scipp)
 
-
+from functools import partial
 from typing import Literal
 
 import scipp as sc
@@ -29,13 +29,61 @@ def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
     return out
 
 
-def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
-    x = xy['x']
-    y = xy['y']
-    return da[y['dim'], y['value']][x['dim'], x['value']]
+def _coord_to_centers(da: sc.DataArray, dim: str) -> sc.Variable:
+    coord = da.coords[dim]
+    if da.coords.is_edges(dim, dim=dim) and coord.sizes[dim] == da.sizes[dim] + 1:
+        return sc.midpoints(coord, dim=dim)
+    return coord
 
 
-def inspector(
+def _polygon_mask(
+    da: sc.DataArray, poly: dict[str, dict[str, sc.Variable]]
+) -> sc.Variable:
+    import numpy as np
+    from matplotlib.path import Path
+
+    xdim = poly['x']['dim']
+    ydim = poly['y']['dim']
+    x = _coord_to_centers(da, xdim)
+    y = _coord_to_centers(da, ydim)
+    vx = poly['x']['value'].to(unit=x.unit).values
+    vy = poly['y']['value'].to(unit=y.unit).values
+    verts = np.column_stack([vx, vy])
+    path = Path(verts)
+    xx, yy = np.meshgrid(x.values, y.values, indexing='xy')
+    points = np.column_stack([xx.ravel(), yy.ravel()])
+    inside = path.contains_points(points).reshape(yy.shape)
+    return sc.array(dims=[ydim, xdim], values=inside)
+
+
+def _slice_polygon(
+    da: sc.DataArray, poly: dict[str, dict[str, sc.Variable]], op: str
+) -> sc.DataArray:
+    mask = _polygon_mask(da, poly)
+    masked = da.copy(deep=False)
+    masked.masks['polygon'] = sc.logical_not(mask)
+    has_points = bool(sc.any(mask).value)
+    reduce_op = {
+        'sum': sc.nansum,
+        'mean': sc.nanmean,
+        'min': sc.nanmin,
+        'max': sc.nanmax,
+    }[op]
+    out = reduce_op(masked, dim=[poly['x']['dim'], poly['y']['dim']])
+    if (not has_points) and op in {'min', 'max'}:
+        out.data = sc.full(
+            dims=out.dims,
+            shape=out.shape,
+            value=float('nan'),
+            unit=out.unit,
+            dtype=sc.DType.float64,
+        )
+    if out.name:
+        out.name = f'{op} of {out.name}'
+    return out
+
+
+def inspector_polygon(
     obj: Plottable,
     dim: str | None = None,
     *,
@@ -71,15 +119,14 @@ def inspector(
     Inspector takes in a three-dimensional input and applies a reduction operation
     (``'sum'`` by default) along one of the dimensions specified by ``dim``.
     It displays the result as a two-dimensional image.
-    In addition, an 'inspection' tool is available in the toolbar which allows to place
-    markers on the image which perform slicing at that position to retain only the third
-    dimension and displays the resulting one-dimensional slice on the right hand side
-    figure.
+    In addition, an 'inspection' tool is available in the toolbar which allows drawing
+    polygon regions on the image. The resulting one-dimensional slice on the right hand
+    side figure is obtained by reducing over all points within the polygon.
 
     Controls:
-    - Click to make new point
-    - Drag existing point to move it
-    - Middle-click to delete point
+    - Click to add polygon vertices
+    - Click the first vertex to close the polygon
+    - Right-click a polygon edge to delete it (when the tool is inactive)
 
     Notes
     -----
@@ -174,7 +221,7 @@ def inspector(
         ymax=ymax,
         ymin=ymin,
     )
-    require_interactive_figure(f1d, 'inspector')
+    require_interactive_figure(f1d, 'inspector_polygon')
 
     in_node = Node(preprocess, obj, ignore_size=True)
     data = in_node()
@@ -209,16 +256,19 @@ def inspector(
         **kwargs,
     )
 
-    from ..widgets import Box, PointsTool
+    from ..widgets import Box, PolygonTool
+    from ..widgets.drawing import _get_polygon_info
 
-    pts = PointsTool(
+    polys = PolygonTool(
         figure=f2d,
         input_node=bin_edges_node,
-        func=_slice_xy,
+        func=partial(_slice_polygon, op=operation),
         destination=f1d,
-        tooltip="Activate inspector tool",
+        get_vertices_info=_get_polygon_info,
+        tooltip="Activate polygon inspector tool",
+        icon='draw-polygon',
     )
-    f2d.toolbar['inspect'] = pts
+    f2d.toolbar['inspect'] = polys
     out = [f2d, f1d]
     if orientation == 'horizontal':
         out = [out]
