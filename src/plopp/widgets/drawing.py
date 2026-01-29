@@ -291,7 +291,7 @@ def _get_polygon_info(verts, figure):
     Convert the raw polygon vertices to a dict containing the dimensions of
     each axis, and arrays with units.
     """
-    xs, ys = zip(*verts, strict=False)
+    xs, ys = zip(*verts, strict=True)
     return {
         'x': {
             'dim': figure.canvas.dims['x'],
