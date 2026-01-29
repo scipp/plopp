@@ -27,6 +27,7 @@ __getattr__, __dir__, __all__ = lazy.attach(
         ],
         'plotting': [
             'inspector',
+            'inspector_polygon',
             'mesh3d',
             'plot',
             'scatter',

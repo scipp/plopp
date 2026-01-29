@@ -136,6 +136,139 @@ class DrawingTool(ToggleTool):
             self._tool.stop()
 
 
+class PolygonTool(ToggleTool):
+    """
+    Tool to draw polygons on a figure and use them to generate derived data.
+
+    Parameters
+    ----------
+    figure:
+        The figure where the tool will draw polygons.
+    input_node:
+        The node that provides the raw data which is shown in ``figure``.
+    func:
+        The function to be used to make a node whose parents will be the
+        ``input_node`` and a node yielding the polygon vertices.
+    destination:
+        Where the output from the ``func`` node will be then sent on. This can
+        either be a figure, or another graph node.
+    get_vertices_info:
+        A function that converts polygon vertices to a dict usable by ``func``.
+    value:
+        Activate the tool upon creation if ``True``.
+
+    **kwargs:
+        Additional arguments are forwarded to the ``ToggleTool`` constructor.
+    """
+
+    def __init__(
+        self,
+        figure: FigureLike,
+        input_node: Node,
+        func: Callable,
+        destination: FigureLike | Node,
+        get_vertices_info: Callable,
+        value: bool = False,
+        **kwargs,
+    ):
+        super().__init__(callback=self.start_stop, value=value, **kwargs)
+
+        self._figure = figure
+        self._input_node = input_node
+        self._func = func
+        self._destination = destination
+        self._destination_is_fig = is_figure(self._destination)
+        self._get_vertices_info = get_vertices_info
+        self._selector = None
+        self._polygons = {}
+        self._patch_to_nodeid = {}
+        self._draw_nodes = {}
+        self._output_nodes = {}
+        self._pick_cid = None
+
+    def _ensure_selector(self):
+        if self._selector is not None:
+            return
+        from matplotlib.widgets import PolygonSelector
+
+        self._selector = PolygonSelector(
+            self._figure.ax,
+            onselect=self._on_select,
+            useblit=False,
+            props={"linewidth": 1.5, "linestyle": "-", "alpha": 0.8},
+        )
+        self._pick_cid = self._figure.canvas.fig.canvas.mpl_connect(
+            "pick_event", self._on_pick
+        )
+
+    def _on_select(self, verts):
+        if len(verts) < 3:
+            return
+        info = self._get_vertices_info(verts=verts, figure=self._figure)
+        draw_node = Node(info)
+        draw_node.pretty_name = f'Polygon draw node {len(self._draw_nodes)}'
+        nodeid = draw_node.id
+        self._draw_nodes[nodeid] = draw_node
+        output_node = node(self._func)(self._input_node, draw_node)
+        output_node.pretty_name = f'Polygon output node {len(self._output_nodes)}'
+        self._output_nodes[nodeid] = output_node
+        if self._destination_is_fig:
+            output_node.add_view(self._destination.view)
+            self._destination.update({output_node.id: output_node()})
+        elif isinstance(self._destination, Node):
+            self._destination.add_parents(output_node)
+            self._destination.notify_children(verts)
+
+        from matplotlib.patches import Polygon
+
+        patch = Polygon(
+            verts, closed=True, fill=False, linewidth=1.5, zorder=4, picker=True
+        )
+        if self._destination_is_fig:
+            patch.set_edgecolor(self._destination.artists[output_node.id].color)
+        self._figure.ax.add_patch(patch)
+        self._polygons[nodeid] = patch
+        self._patch_to_nodeid[patch] = nodeid
+        self._figure.canvas.draw()
+
+        if self._selector is not None:
+            self._selector.clear()
+
+    def _on_pick(self, event):
+        if event.mouseevent.button != 3:
+            return
+        if self.value:
+            return
+        nodeid = self._patch_to_nodeid.get(event.artist)
+        if nodeid is None:
+            return
+        self.remove(nodeid)
+
+    def remove(self, nodeid):
+        patch = self._polygons.pop(nodeid)
+        self._patch_to_nodeid.pop(patch, None)
+        if self._destination_is_fig:
+            artist = self._destination.artists.pop(self._output_nodes[nodeid].id)
+            artist.remove()
+            self._destination.canvas.draw()
+        patch.remove()
+        output_node = self._output_nodes.pop(nodeid)
+        output_node.remove()
+        draw_node = self._draw_nodes.pop(nodeid)
+        draw_node.remove()
+        self._figure.canvas.draw()
+
+    def start_stop(self):
+        """
+        Toggle start or stop of the tool.
+        """
+        if self.value:
+            self._ensure_selector()
+            self._selector.set_active(True)
+        elif self._selector is not None:
+            self._selector.set_active(False)
+
+
 def _get_points_info(artist, figure):
     """
     Convert the raw (x, y) position of a point to a dict containing the dimensions of
@@ -149,6 +282,32 @@ def _get_points_info(artist, figure):
         'y': {
             'dim': figure.canvas.dims['y'],
             'value': sc.scalar(artist.y, unit=figure.canvas.units['y']),
+        },
+    }
+
+
+def _get_polygon_info(verts, figure):
+    """
+    Convert the raw polygon vertices to a dict containing the dimensions of
+    each axis, and arrays with units.
+    """
+    xs, ys = zip(*verts, strict=False)
+    return {
+        'x': {
+            'dim': figure.canvas.dims['x'],
+            'value': sc.array(
+                dims=['vertex'],
+                values=xs,
+                unit=figure.canvas.units['x'],
+            ),
+        },
+        'y': {
+            'dim': figure.canvas.dims['y'],
+            'value': sc.array(
+                dims=['vertex'],
+                values=ys,
+                unit=figure.canvas.units['y'],
+            ),
         },
     }
 
