@@ -43,6 +43,7 @@ def test_scatter_multi_input_has_correct_axes_labels():
     b.coords['x'] += sc.scalar(50.0, unit='m')
 
     fig = pp.scatter({'a': a, 'b': b})
+    assert fig.canvas.xlabel == 'x [m]'
     assert fig.canvas.ylabel == 'y [m]'
 
 
