@@ -4,6 +4,7 @@
 
 from typing import Literal
 
+import numpy as np
 import scipp as sc
 
 from ..core import Node
@@ -35,6 +36,73 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
     return da[y['dim'], y['value']][x['dim'], x['value']]
 
 
+def _coord_to_centers(da: sc.DataArray, dim: str) -> sc.Variable:
+    coord = da.coords[dim]
+    if da.coords.is_edges(dim, dim=dim):
+        return sc.midpoints(coord, dim=dim)
+    return coord
+
+
+def _slice_variable_by_mask(v, mask):
+    if set(mask.dims) - set(v.dims):
+        v = sc.broadcast(v, sizes=mask.sizes)
+
+    v = v.transpose((*mask.dims, *(d for d in v.dims if d not in mask.dims)))
+
+    values = v.values
+    mvalues = mask.values
+
+    return sc.array(
+        dims=['points', *(d for d in v.dims if d not in mask.dims)],
+        values=values[mvalues].reshape(
+            -1, *(s for d, s in v.sizes.items() if d not in mask.dims)
+        ),
+        unit=v.unit,
+    )
+
+
+def _slice_dataarray_by_mask(da, mask):
+    return sc.DataArray(
+        data=_slice_variable_by_mask(da.data, mask),
+        coords={
+            name: (
+                _slice_variable_by_mask(coord, mask)
+                if set(coord.dims) & set(mask.dims)
+                else coord
+            )
+            for name, coord in da.coords.items()
+            if not any(da.coords.is_edges(name, dim=dim) for dim in coord.dims)
+        },
+        masks={
+            name: (
+                _slice_variable_by_mask(m, mask) if set(m.dims) & set(mask.dims) else m
+            )
+            for name, m in da.masks.items()
+        },
+    )
+
+
+def _slice_inside_polygon(
+    da: sc.DataArray, poly: dict[str, dict[str, sc.Variable]]
+) -> sc.DataArray:
+    from matplotlib.path import Path
+
+    xdim = poly['x']['dim']
+    ydim = poly['y']['dim']
+    x = _coord_to_centers(da, xdim)
+    y = _coord_to_centers(da, ydim)
+    vx = poly['x']['value'].to(unit=x.unit).values
+    vy = poly['y']['value'].to(unit=y.unit).values
+    verts = np.column_stack([vx, vy])
+    path = Path(verts)
+    xx, yy = np.meshgrid(x.values, y.values, indexing='xy')
+    points = np.column_stack([xx.ravel(), yy.ravel()])
+    inside = sc.array(
+        dims=[ydim, xdim], values=path.contains_points(points).reshape(yy.shape)
+    )
+    return _slice_dataarray_by_mask(da, inside).sum('points')
+
+
 def inspector(
     obj: Plottable,
     dim: str | None = None,
@@ -52,6 +120,7 @@ def inspector(
     logc: bool | None = None,
     mask_cmap: str = 'gray',
     mask_color: str = 'black',
+    mode: Literal['point', 'polygon'] = 'point',
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
     operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
@@ -208,17 +277,28 @@ def inspector(
         ylabel=ylabel,
         **kwargs,
     )
+    from ..widgets import Box, PointsTool, PolygonTool
 
-    from ..widgets import Box, PointsTool
+    if mode == 'point':
+        tool = PointsTool(
+            figure=f2d,
+            input_node=bin_edges_node,
+            func=_slice_xy,
+            destination=f1d,
+            tooltip="Activate inspector tool",
+        )
+    elif mode == 'polygon':
+        tool = PolygonTool(
+            figure=f2d,
+            input_node=bin_edges_node,
+            func=_slice_inside_polygon,
+            destination=f1d,
+            tooltip="Activate polygon inspector tool",
+        )
+    else:
+        raise ValueError(f'Mode "{mode}" is unknown.')
 
-    pts = PointsTool(
-        figure=f2d,
-        input_node=bin_edges_node,
-        func=_slice_xy,
-        destination=f1d,
-        tooltip="Activate inspector tool",
-    )
-    f2d.toolbar['inspect'] = pts
+    f2d.toolbar['inspect'] = tool
     out = [f2d, f1d]
     if orientation == 'horizontal':
         out = [out]
