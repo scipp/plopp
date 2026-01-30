@@ -43,7 +43,7 @@ def test_scatter_multi_input_ylabel_drops_name():
     b.coords['x'] += sc.scalar(50.0, unit='m')
 
     fig = pp.scatter({'a': a, 'b': b})
-    assert fig.canvas.ylabel == '[K]'
+    assert fig.canvas.ylabel == 'y [m]'
 
 
 def test_scatter_multi_input_non_xy_dims_ylabel_drops_name():
@@ -63,7 +63,7 @@ def test_scatter_multi_input_non_xy_dims_ylabel_drops_name():
     )
 
     fig = pp.scatter({'a': a, 'b': b}, x='u', y='v')
-    assert fig.canvas.ylabel == '[K]'
+    assert fig.canvas.ylabel == 'v [m]'
 
 
 def test_scatter_two_inputs_color():
