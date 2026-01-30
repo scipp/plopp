@@ -37,7 +37,7 @@ def test_scatter_two_inputs():
     pp.scatter({'a': a, 'b': b})
 
 
-def test_scatter_multi_input_ylabel_drops_name():
+def test_scatter_multi_input_has_correct_axes_labels():
     a = pp.data.scatter()
     b = pp.data.scatter(seed=2) * 10.0
     b.coords['x'] += sc.scalar(50.0, unit='m')
