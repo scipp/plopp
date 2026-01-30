@@ -46,15 +46,12 @@ def _coord_to_centers(da: sc.DataArray, dim: str) -> sc.Variable:
 def _slice_variable_by_mask(v, mask):
     if set(mask.dims) - set(v.dims):
         v = sc.broadcast(v, sizes=mask.sizes)
-
+    # Order of dims before slicing: *mask dims, *all dims not sliced by the mask.
     v = v.transpose((*mask.dims, *(d for d in v.dims if d not in mask.dims)))
-
-    values = v.values
-    mvalues = mask.values
-
     return sc.array(
+        # Order of dims after slicing: points, *all dims not sliced by the mask.
         dims=['points', *(d for d in v.dims if d not in mask.dims)],
-        values=values[mvalues].reshape(
+        values=v.values[mask.values].reshape(
             -1, *(s for d, s in v.sizes.items() if d not in mask.dims)
         ),
         unit=v.unit,
@@ -66,12 +63,14 @@ def _slice_dataarray_by_mask(da, mask):
         data=_slice_variable_by_mask(da.data, mask),
         coords={
             name: (
-                _slice_variable_by_mask(coord, mask)
-                if set(coord.dims) & set(mask.dims)
-                else coord
+                _slice_variable_by_mask(coord, mask) if shares_dim_with_mask else coord
             )
             for name, coord in da.coords.items()
-            if not any(da.coords.is_edges(name, dim=dim) for dim in coord.dims)
+            # Drop bin edge coords in the "plot dimensions".
+            if (
+                not (shares_dim_with_mask := (set(coord.dims) & set(mask.dims)))
+                or not any(da.coords.is_edges(name, dim=dim) for dim in coord.dims)
+            )
         },
         masks={
             name: (
@@ -140,15 +139,22 @@ def inspector(
     Inspector takes in a three-dimensional input and applies a reduction operation
     (``'sum'`` by default) along one of the dimensions specified by ``dim``.
     It displays the result as a two-dimensional image.
-    In addition, an 'inspection' tool is available in the toolbar which allows to place
-    markers on the image which perform slicing at that position to retain only the third
-    dimension and displays the resulting one-dimensional slice on the right hand side
-    figure.
+    In addition, an 'inspection' tool is available in the toolbar. In ``mode='point'``
+    it allows placing point markers on the image to slice at that position, retaining
+    only the third dimension and displaying the resulting one-dimensional slice in the
+    right-hand side figure. In ``mode='polygon'`` it allows drawing a polygon to compute
+    the total intensity inside the polygon as a function of the third dimension.
 
-    Controls:
-    - Click to make new point
-    - Drag existing point to move it
+    Controls (point mode):
+    - Left-click to make new points
+    - Left-click and hold on point to move point
     - Middle-click to delete point
+
+    Controls (polygon mode):
+    - Left-click to make new polygons
+    - Left-click and hold on polygon vertex to move vertex
+    - Right-click and hold to drag/move the entire polygon
+    - Middle-click to delete polygon
 
     Notes
     -----
@@ -193,6 +199,9 @@ def inspector(
         Colormap to use for masks.
     mask_color:
         Color of masks (overrides ``mask_cmap``).
+    mode:
+        Select ``'point'`` for point inspection or ``'polygon'`` for polygon selection
+        with total intensity inside the polygon plotted as a function of ``dim``.
     nan_color:
         Color to use for NaN values.
     norm:

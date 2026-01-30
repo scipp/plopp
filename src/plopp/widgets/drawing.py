@@ -234,12 +234,18 @@ PolygonTool = partial(
     icon='draw-polygon',
 )
 """
-Tool to add point markers onto a figure.
+Tool to draw polygon selections on a figure.
+
+Controls:
+  - Left-click to make new polygons
+  - Left-click and hold on polygon vertex to move vertex
+  - Right-click and hold to drag/move the entire polygon
+  - Middle-click to delete polygon
 
 Parameters
 ----------
 figure:
-    The figure where the tool will draw things (points, lines, shapes...).
+    The figure where the tool will draw the polygon.
 input_node:
     The node that provides the raw data which is shown in ``figure``.
 func:
