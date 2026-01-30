@@ -47,7 +47,7 @@ def test_scatter_multi_input_has_correct_axes_labels():
     assert fig.canvas.ylabel == 'y [m]'
 
 
-def test_scatter_multi_input_non_xy_dims_ylabel_drops_name():
+def test_scatter_multi_input_non_xy_dims_has_correct_axes_labels():
     a = sc.DataArray(
         data=sc.linspace('point', 0.0, 4.0, 5, unit='K'),
         coords={
