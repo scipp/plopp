@@ -64,6 +64,7 @@ def test_scatter_multi_input_non_xy_dims_has_correct_axes_labels():
     )
 
     fig = pp.scatter({'a': a, 'b': b}, x='u', y='v')
+    assert fig.canvas.xlabel == 'u [m]'
     assert fig.canvas.ylabel == 'v [m]'
 
 
