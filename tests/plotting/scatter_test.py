@@ -37,6 +37,37 @@ def test_scatter_two_inputs():
     pp.scatter({'a': a, 'b': b})
 
 
+def test_scatter_multi_input_has_correct_axes_labels():
+    a = pp.data.scatter()
+    b = pp.data.scatter(seed=2) * 10.0
+    b.coords['x'] += sc.scalar(50.0, unit='m')
+
+    fig = pp.scatter({'a': a, 'b': b})
+    assert fig.canvas.xlabel == 'x [m]'
+    assert fig.canvas.ylabel == 'y [m]'
+
+
+def test_scatter_multi_input_non_xy_dims_has_correct_axes_labels():
+    a = sc.DataArray(
+        data=sc.linspace('point', 0.0, 4.0, 5, unit='K'),
+        coords={
+            'u': sc.linspace('point', 0.0, 4.0, 5, unit='m'),
+            'v': sc.linspace('point', -2.0, 2.0, 5, unit='m'),
+        },
+    )
+    b = sc.DataArray(
+        data=sc.linspace('point', 1.0, 5.0, 5, unit='K'),
+        coords={
+            'u': sc.linspace('point', 10.0, 14.0, 5, unit='m'),
+            'v': sc.linspace('point', -2.0, 2.0, 5, unit='m'),
+        },
+    )
+
+    fig = pp.scatter({'a': a, 'b': b}, x='u', y='v')
+    assert fig.canvas.xlabel == 'u [m]'
+    assert fig.canvas.ylabel == 'v [m]'
+
+
 def test_scatter_two_inputs_color():
     a = scatter_data()
     b = scatter_data(seed=2) * 10.0
