@@ -42,44 +42,6 @@ def _coord_to_centers(da: sc.DataArray, dim: str) -> sc.Variable:
     return coord
 
 
-def _slice_variable_by_mask(v, mask):
-    if set(mask.dims) - set(v.dims):
-        v = sc.broadcast(v, sizes=mask.sizes)
-    # Order of dims before slicing: *mask dims, *all dims not sliced by the mask.
-    v = v.transpose((*mask.dims, *(d for d in v.dims if d not in mask.dims)))
-    return sc.array(
-        # Order of dims after slicing: points, *all dims not sliced by the mask.
-        dims=['points', *(d for d in v.dims if d not in mask.dims)],
-        values=v.values[mask.values].reshape(
-            -1, *(s for d, s in v.sizes.items() if d not in mask.dims)
-        ),
-        unit=v.unit,
-    )
-
-
-def _slice_dataarray_by_mask(da, mask):
-    return sc.DataArray(
-        data=_slice_variable_by_mask(da.data, mask),
-        coords={
-            name: (
-                _slice_variable_by_mask(coord, mask) if shares_dim_with_mask else coord
-            )
-            for name, coord in da.coords.items()
-            # Drop bin edge coords in the "plot dimensions".
-            if (
-                not (shares_dim_with_mask := (set(coord.dims) & set(mask.dims)))
-                or not any(da.coords.is_edges(name, dim=dim) for dim in coord.dims)
-            )
-        },
-        masks={
-            name: (
-                _slice_variable_by_mask(m, mask) if set(m.dims) & set(mask.dims) else m
-            )
-            for name, m in da.masks.items()
-        },
-    )
-
-
 def _slice_inside_polygon(
     da: sc.DataArray, poly: dict[str, dict[str, sc.Variable]]
 ) -> sc.DataArray:
@@ -93,12 +55,13 @@ def _slice_inside_polygon(
     vy = poly['y']['value'].to(unit=y.unit).values
     verts = np.column_stack([vx, vy])
     path = Path(verts)
-    xx, yy = np.meshgrid(x.values, y.values, indexing='xy')
-    points = np.column_stack([xx.ravel(), yy.ravel()])
+    xx = sc.broadcast(x, sizes={**x.sizes, **y.sizes})
+    yy = sc.broadcast(y, sizes={**x.sizes, **y.sizes})
+    points = np.column_stack([xx.values.ravel(), yy.values.ravel()])
     inside = sc.array(
-        dims=[ydim, xdim], values=path.contains_points(points).reshape(yy.shape)
+        dims=yy.dims, values=path.contains_points(points).reshape(yy.shape)
     )
-    return _slice_dataarray_by_mask(da, inside).sum('points')
+    return da.assign_masks(__inside_polygon=~inside).sum({*x.dims, *y.dims})
 
 
 def inspector(
