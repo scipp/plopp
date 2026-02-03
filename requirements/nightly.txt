@@ -168,7 +168,7 @@ pyzmq==27.1.0
     #   jupyter-client
 requests==2.32.5
     # via pooch
-scipp==26.1.1
+scipp==26.2.0
     # via -r nightly.in
 scipy==1.16.3
     # via -r nightly.in
