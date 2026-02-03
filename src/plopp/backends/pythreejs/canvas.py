@@ -47,6 +47,10 @@ class Canvas:
         self.xscale = 'linear'
         self.yscale = 'linear'
         self.zscale = 'linear'
+        # TODO: Support setting labels on axes via xlabel, ylabel, zlabel args.
+        self._xlabel = None
+        self._ylabel = None
+        self._zlabel = None
         self.outline = None
         self.axticks = None
         self.figsize = np.asarray(figsize if figsize is not None else (600, 400))
@@ -398,3 +402,21 @@ class Canvas:
 
     def update_legend(self):
         pass
+
+    def has_user_xlabel(self) -> bool:
+        """
+        Return ``True`` if the user has set an x-axis label.
+        """
+        return self._xlabel is not None
+
+    def has_user_ylabel(self) -> bool:
+        """
+        Return ``True`` if the user has set a y-axis label.
+        """
+        return self._ylabel is not None
+
+    def has_user_zlabel(self) -> bool:
+        """
+        Return ``True`` if the user has set a z-axis label.
+        """
+        return self._zlabel is not None

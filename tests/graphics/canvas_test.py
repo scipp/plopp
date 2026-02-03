@@ -41,7 +41,9 @@ CASES = {
 }
 
 
-@pytest.mark.parametrize("backend,figure,data", CASES.values(), ids=CASES.keys())
+@pytest.mark.parametrize(
+    ("backend", "figure", "data"), CASES.values(), ids=CASES.keys()
+)
 class TestCanvasAllCases:
     def test_empty(self, set_backend, backend, figure, data):
         canvas = figure().canvas
@@ -127,24 +129,24 @@ CASESNO3D = {k: c for k, c in CASES.items() if c[0][0] != "3d"}
 
 
 @pytest.mark.parametrize(
-    "backend,figure,data", CASESNO3D.values(), ids=CASESNO3D.keys()
+    ("backend", "figure", "data"), CASESNO3D.values(), ids=CASESNO3D.keys()
 )
 class TestCanvasNo3d:
-    def test_logx(self, set_backend, backend, figure, data):
+    def test_toggle_logx(self, set_backend, backend, figure, data):
         da = data()
         canvas = figure(Node(da)).canvas
         assert canvas.xscale == 'linear'
         assert canvas.yscale == 'linear'
-        canvas.logx()
+        canvas.toggle_logx()
         assert canvas.xscale == 'log'
         assert canvas.yscale == 'linear'
 
-    def test_logy(self, set_backend, backend, figure, data):
+    def test_toggle_logy(self, set_backend, backend, figure, data):
         da = data()
         canvas = figure(Node(da)).canvas
         assert canvas.xscale == 'linear'
         assert canvas.yscale == 'linear'
-        canvas.logy()
+        canvas.toggle_logy()
         assert canvas.xscale == 'linear'
         assert canvas.yscale == 'log'
 
@@ -171,7 +173,9 @@ CASES1DINTERACTIVE = {
 
 
 @pytest.mark.parametrize(
-    "backend,figure,data", CASES1DINTERACTIVE.values(), ids=CASES1DINTERACTIVE.keys()
+    ("backend", "figure", "data"),
+    CASES1DINTERACTIVE.values(),
+    ids=CASES1DINTERACTIVE.keys(),
 )
 class TestCanvasInteractive1d:
     def test_logx_1d_toolbar_button_state_agrees_with_kwarg(

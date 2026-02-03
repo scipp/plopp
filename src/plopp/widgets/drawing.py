@@ -76,6 +76,7 @@ class DrawingTool(ToggleTool):
         self._destination = destination
         self._destination_is_fig = is_figure(self._destination)
         self._get_artist_info = get_artist_info
+        self._get_artist_info_is_callable = None
         self._tool.on_create(self.make_node)
         self._tool.on_remove(self.remove_node)
         if continuous_update:
@@ -85,7 +86,10 @@ class DrawingTool(ToggleTool):
             self._tool.on_drag_release(self.update_node)
 
     def make_node(self, artist):
-        draw_node = Node(self._get_artist_info(artist=artist, figure=self._figure))
+        info = self._get_artist_info(artist=artist, figure=self._figure)
+        if self._get_artist_info_is_callable is None:
+            self._get_artist_info_is_callable = callable(info)
+        draw_node = Node(info)
         draw_node.pretty_name = f'Draw node {len(self._draw_nodes)}'
         nodeid = draw_node.id
         self._draw_nodes[nodeid] = draw_node
@@ -105,7 +109,10 @@ class DrawingTool(ToggleTool):
 
     def update_node(self, artist):
         n = self._draw_nodes[artist.nodeid]
-        n.func = self._get_artist_info(artist=artist, figure=self._figure)
+        if self._get_artist_info_is_callable:
+            n.func = self._get_artist_info(artist=artist, figure=self._figure)
+        else:
+            n.func = partial(self._get_artist_info, artist=artist, figure=self._figure)
         n.notify_children(artist)
 
     def remove_node(self, artist):
@@ -134,7 +141,7 @@ def _get_points_info(artist, figure):
     Convert the raw (x, y) position of a point to a dict containing the dimensions of
     each axis, and scalar values with units.
     """
-    return lambda: {
+    return {
         'x': {
             'dim': figure.canvas.dims['x'],
             'value': sc.scalar(artist.x, unit=figure.canvas.units['x']),

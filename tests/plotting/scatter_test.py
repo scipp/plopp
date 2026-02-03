@@ -25,11 +25,47 @@ def test_scatter_other_coords():
     pp.scatter(a, x='x2', y='z')
 
 
+def test_scatter_pos():
+    a = scatter_data()
+    pp.scatter(a, pos='position')
+
+
 def test_scatter_two_inputs():
     a = scatter_data()
     b = scatter_data(seed=2) * 10.0
     b.coords['x'] += sc.scalar(50.0, unit='m')
     pp.scatter({'a': a, 'b': b})
+
+
+def test_scatter_multi_input_has_correct_axes_labels():
+    a = pp.data.scatter()
+    b = pp.data.scatter(seed=2) * 10.0
+    b.coords['x'] += sc.scalar(50.0, unit='m')
+
+    fig = pp.scatter({'a': a, 'b': b})
+    assert fig.canvas.xlabel == 'x [m]'
+    assert fig.canvas.ylabel == 'y [m]'
+
+
+def test_scatter_multi_input_non_xy_dims_has_correct_axes_labels():
+    a = sc.DataArray(
+        data=sc.linspace('point', 0.0, 4.0, 5, unit='K'),
+        coords={
+            'u': sc.linspace('point', 0.0, 4.0, 5, unit='m'),
+            'v': sc.linspace('point', -2.0, 2.0, 5, unit='m'),
+        },
+    )
+    b = sc.DataArray(
+        data=sc.linspace('point', 1.0, 5.0, 5, unit='K'),
+        coords={
+            'u': sc.linspace('point', 10.0, 14.0, 5, unit='m'),
+            'v': sc.linspace('point', -2.0, 2.0, 5, unit='m'),
+        },
+    )
+
+    fig = pp.scatter({'a': a, 'b': b}, x='u', y='v')
+    assert fig.canvas.xlabel == 'u [m]'
+    assert fig.canvas.ylabel == 'v [m]'
 
 
 def test_scatter_two_inputs_color():
@@ -74,7 +110,7 @@ def test_scatter_with_size_and_cbar():
 
 def test_scatter_with_s_kwarg_raises():
     a = scatter_data()
-    with pytest.raises(ValueError, match="Use 'size' instead of 's' for scatter plot."):
+    with pytest.raises(ValueError, match="Use 'size' instead of 's' for scatter plot"):
         pp.scatter(a, s=10)
 
 
@@ -112,8 +148,118 @@ def test_scatter_does_not_accept_data_with_other_dimensionality_on_update():
     with pytest.raises(
         sc.DimensionError, match='Scatter only accepts data with 1 dimension'
     ):
-        fig.update(new=data_array(ndim=2, dim_list="xyzab"))
+        fig.update(new=da.fold(dim=da.dim, sizes={'a': 2, 'b': -1}))
     with pytest.raises(
         sc.DimensionError, match='Scatter only accepts data with 1 dimension'
     ):
-        fig.update(new=data_array(ndim=3, dim_list="xyzab"))
+        fig.update(new=da.fold(dim=da.dim, sizes={'a': 2, 'b': 2, 'c': -1}))
+
+
+def test_xmin():
+    da = scatter_data()
+    fig = pp.scatter(da, xmin=sc.scalar(2.5, unit='m'))
+    assert fig.canvas.xmin == 2.5
+
+
+def test_xmin_no_unit():
+    da = scatter_data()
+    fig = pp.scatter(da, xmin=2.5)
+    assert fig.canvas.xmin == 2.5
+
+
+def test_xmax():
+    da = scatter_data()
+    fig = pp.scatter(da, xmax=sc.scalar(7.5, unit='m'))
+    assert fig.canvas.xmax == 7.5
+
+
+def test_xmax_no_unit():
+    da = scatter_data()
+    fig = pp.scatter(da, xmax=8.1)
+    assert fig.canvas.xmax == 8.1
+
+
+def test_ymin():
+    da = scatter_data()
+    fig = pp.scatter(da, ymin=sc.scalar(-0.5, unit='m'))
+    assert fig.canvas.ymin == -0.5
+
+
+def test_ymin_no_unit():
+    da = scatter_data()
+    fig = pp.scatter(da, ymin=-0.6)
+    assert fig.canvas.ymin == -0.6
+
+
+def test_ymax():
+    da = scatter_data()
+    fig = pp.scatter(da, ymax=sc.scalar(0.68, unit='m'))
+    assert fig.canvas.ymax == 0.68
+
+
+def test_ymax_no_unit():
+    da = scatter_data()
+    fig = pp.scatter(da, ymax=5.69)
+    assert fig.canvas.ymax == 5.69
+
+
+def test_cmin():
+    da = scatter_data()
+    fig = pp.scatter(da, cbar=True, cmin=sc.scalar(2.5, unit='K'))
+    assert fig.view.colormapper.cmin == 2.5
+
+
+def test_cmin_no_unit():
+    da = scatter_data()
+    fig = pp.scatter(da, cbar=True, cmin=3.3)
+    assert fig.view.colormapper.cmin == 3.3
+
+
+def test_cmax():
+    da = scatter_data()
+    fig = pp.scatter(da, cbar=True, cmax=sc.scalar(7.5, unit='K'))
+    assert fig.view.colormapper.cmax == 7.5
+
+
+def test_cmax_no_unit():
+    da = scatter_data()
+    fig = pp.scatter(da, cbar=True, cmax=8.1)
+    assert fig.view.colormapper.cmax == 8.1
+
+
+def test_logx():
+    da = scatter_data()
+    fig = pp.scatter(da, logx=True)
+    assert fig.canvas.xscale == 'log'
+    assert fig.canvas.yscale == 'linear'
+
+
+def test_logy():
+    da = scatter_data()
+    fig = pp.scatter(da, logy=True)
+    assert fig.canvas.yscale == 'log'
+    assert fig.canvas.xscale == 'linear'
+
+
+def test_logc():
+    da = scatter_data()
+    fig = pp.scatter(da, cbar=True, logc=True)
+    assert fig.view.colormapper.norm == 'log'
+
+
+def test_xlabel():
+    da = scatter_data()
+    fig = pp.scatter(da, xlabel='MyXLabel')
+    assert fig.canvas.xlabel == 'MyXLabel'
+
+
+def test_ylabel():
+    da = scatter_data()
+    fig = pp.scatter(da, ylabel='MyYLabel')
+    assert fig.canvas.ylabel == 'MyYLabel'
+
+
+def test_clabel():
+    da = scatter_data()
+    fig = pp.scatter(da, cbar=True, clabel='MyColorLabel')
+    assert fig.view.colormapper.clabel == 'MyColorLabel'

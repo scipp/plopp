@@ -15,10 +15,10 @@ def test_slice_creation(widget):
     assert set(sw.controls.keys()) == {'yy', 'xx'}
     assert sw.controls['xx'].slider.min == 0
     assert sw.controls['xx'].slider.max == da.sizes['xx'] - 1
-    assert sw.controls['xx'].slider.description == 'xx'
+    assert sw.controls['xx'].dim_label.value == 'xx'
     assert sw.controls['yy'].slider.min == 0
     assert sw.controls['yy'].slider.max == da.sizes['yy'] - 1
-    assert sw.controls['yy'].slider.description == 'yy'
+    assert sw.controls['yy'].dim_label.value == 'yy'
 
 
 def test_slice_value_property():

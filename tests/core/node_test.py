@@ -248,6 +248,26 @@ def test_is_input_node():
     assert not b.is_input_node
 
 
+def test_is_leaf():
+    a = Node(5)
+    b = Node(lambda x: x - 2, x=a)
+    c = Node(lambda x: x + 2, x=a)
+    d = Node(lambda x, y: x * y * 3, x=a, y=b)
+    assert not a.is_leaf()
+    assert not b.is_leaf()
+    assert c.is_leaf()
+    assert d.is_leaf()
+
+
+def test_leaf_node_calls_function_on_notify():
+    log = []
+    a = Node(lambda: "Hi from a")
+    b = Node(lambda x: log.append('b, ' + x), x=a)
+    assert b.is_leaf()
+    a.notify_children(message='')
+    assert log == ['b, Hi from a']
+
+
 def test_node_operator_add():
     a = Node(5)
     b = Node(2)
@@ -374,9 +394,9 @@ def test_add_multiple_kwparents():
 
 def test_adding_same_child_twice_raises():
     a = Node(lambda: 5)
-    with pytest.raises(ValueError, match="Node .* is already a child in"):
+    with pytest.raises(ValueError, match=r"Node .* is already a child in"):
         Node(lambda x, y: x * y - 2, a, a)
-    with pytest.raises(ValueError, match="Node .* is already a child in"):
+    with pytest.raises(ValueError, match=r"Node .* is already a child in"):
         Node(lambda x, y: x * y - 2, x=a, y=a)
 
 
@@ -384,26 +404,26 @@ def test_adding_same_parent_twice_raises():
     a = Node(lambda: 5)
     b = Node(lambda x, y: x * y - 2)
     b.add_parents(a)
-    with pytest.raises(ValueError, match="Node .* is already a parent in"):
+    with pytest.raises(ValueError, match=r"Node .* is already a parent in"):
         b.add_parents(a)
 
 
 def test_adding_same_parent_twice_at_once_raises():
     a = Node(lambda: 5)
     b = Node(lambda x, y: x * y - 2)
-    with pytest.raises(ValueError, match="Node .* is already a parent in"):
+    with pytest.raises(ValueError, match=r"Node .* is already a parent in"):
         b.add_parents(a, a)
 
 
 def test_adding_same_kwparent_twice_raises():
     a = Node(lambda: 5)
     b = Node(lambda x, y: x * y - 2)
-    with pytest.raises(ValueError, match="Node .* is already a child in"):
+    with pytest.raises(ValueError, match=r"Node .* is already a child in"):
         b.add_kwparents(x=a, y=a)
 
 
 def test_adding_same_view_twice_raises():
     a = Node(lambda: 15.0)
     av = SimpleView(a)
-    with pytest.raises(ValueError, match="View .* is already a view in"):
+    with pytest.raises(ValueError, match=r"View .* is already a view in"):
         a.add_view(av)
