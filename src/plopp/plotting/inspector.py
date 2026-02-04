@@ -262,7 +262,7 @@ def inspector(
         tool = PolygonTool(
             figure=f2d,
             input_node=bin_edges_node,
-            func=_slice_inside_polygon,
+            func=_mask_outside_polygon,
             destination=f1d,
             tooltip="Activate polygon inspector tool",
         )
