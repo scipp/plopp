@@ -54,7 +54,7 @@ class ToggleTool(ipw.ToggleButton):
 
 class PlusMinusTool(ipw.HBox):
     def __init__(self, plus, minus):
-        layout = {'width': '16px', 'padding': '0px'}
+        layout = {'width': '1.23em', 'padding': '0px'}
         self.callback = {'plus': plus.pop('callback'), 'minus': minus.pop('callback')}
         self._plus = ipw.Button(icon='plus', **{**{'layout': layout}, **plus})
         self._minus = ipw.Button(icon='minus', **{**{'layout': layout}, **minus})
@@ -230,10 +230,10 @@ class ColorTool(ipw.HBox):
     """
 
     def __init__(self, text: str, color: str):
-        layout = ipw.Layout(display="flex", justify_content="flex-end", width='150px')
+        layout = ipw.Layout(display="flex", justify_content="flex-end", width='11.4em')
         self.text = ipw.Label(value=text, layout=layout)
         self.color = ipw.ColorPicker(
-            concise=True, value=color, description='', layout={'width': "30px"}
+            concise=True, value=color, description='', layout={'width': "2.3em"}
         )
         self.button = ipw.Button(icon='times', **BUTTON_LAYOUT)
         super().__init__([self.text, self.color, self.button])

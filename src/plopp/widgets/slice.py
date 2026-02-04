@@ -32,7 +32,7 @@ class DimSlicer(ipw.VBox):
             'value': (size - 1) // 2 if slider_constr is ipw.IntSlider else None,
             'continuous_update': True,
             'readout': False,
-            'layout': {"width": "200px", "margin": "0px 0px 0px 10px"},
+            'layout': {"width": "15.2em", "margin": "0px 0px 0px 10px"},
         }
         self.dim_label = ipw.Label(value=dim)
         self.slider = slider_constr(**widget_args)
@@ -40,7 +40,7 @@ class DimSlicer(ipw.VBox):
             value=True,
             tooltip="Continuous update",
             indent=False,
-            layout={"width": "20px"},
+            layout={"width": "1.52em"},
         )
         self.label = ipw.Label(
             value=coord_element_to_string(coord[dim, self.slider.value])

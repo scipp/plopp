@@ -3,7 +3,7 @@
 
 from .box import Box, HBar, VBar
 from .checkboxes import Checkboxes
-from .clip3d import Clip3dTool, ClippingPlanes
+from .clip3d import Clip3dTool, ClippingManager
 from .drawing import DrawingTool, PointsTool, PolygonTool
 from .linesave import LineSaveTool
 from .slice import RangeSliceWidget, SliceWidget, slice_dims
@@ -15,7 +15,7 @@ __all__ = [
     "ButtonTool",
     "Checkboxes",
     "Clip3dTool",
-    "ClippingPlanes",
+    "ClippingManager",
     "ColorTool",
     "DrawingTool",
     "HBar",
