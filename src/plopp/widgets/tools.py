@@ -168,6 +168,9 @@ LogNormTool = partial(
 )
 """Toggle normalization scale tool."""
 
+GridTool = partial(ToggleTool, icon='th', tooltip='Toggle grid visibility')
+"""Toggle grid visibility tool."""
+
 SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
 """Save figure to png tool."""
 

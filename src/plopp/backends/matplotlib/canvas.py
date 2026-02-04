@@ -544,6 +544,12 @@ class Canvas:
         """
         self.yscale = 'log' if self.yscale == 'linear' else 'linear'
 
+    def toggle_grid(self):
+        """
+        Toggle the visibility of the grid.
+        """
+        self.grid = not self.grid
+
     def has_user_xlabel(self) -> bool:
         """
         Return ``True`` if the user has set an x-axis label.
