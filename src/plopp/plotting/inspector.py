@@ -42,7 +42,7 @@ def _coord_to_centers(da: sc.DataArray, dim: str) -> sc.Variable:
     return coord
 
 
-def _slice_inside_polygon(
+def _mask_outside_polygon(
     da: sc.DataArray, poly: dict[str, dict[str, sc.Variable]]
 ) -> sc.DataArray:
     from matplotlib.path import Path
