@@ -34,6 +34,7 @@ class DimSlicer(ipw.VBox):
             'readout': False,
             'layout': {"width": "15.2em", "margin": "0px 0px 0px 10px"},
         }
+        self._is_bin_edges = coord.sizes[dim] > size
         self.dim_label = ipw.Label(value=dim)
         self.slider = slider_constr(**widget_args)
         self.continuous_update = ipw.Checkbox(
@@ -42,9 +43,7 @@ class DimSlicer(ipw.VBox):
             indent=False,
             layout={"width": "1.52em"},
         )
-        self.label = ipw.Label(
-            value=coord_element_to_string(coord[dim, self.slider.value])
-        )
+        self.label = ipw.Label()
         ipw.jslink(
             (self.continuous_update, 'value'), (self.slider, 'continuous_update')
         )
@@ -64,6 +63,7 @@ class DimSlicer(ipw.VBox):
 
         self.dim = dim
         self.coord = coord
+        self._update_label({"new": self.slider.value})
         self.slider.observe(self._update_label, names='value')
 
         super().__init__([ipw.HBox(children)])
@@ -73,7 +73,13 @@ class DimSlicer(ipw.VBox):
         Update the readout label with the coordinate value, instead of the integer
         readout index.
         """
-        self.label.value = coord_element_to_string(self.coord[self.dim, change['new']])
+        inds = change["new"]
+        if self._is_bin_edges:
+            if isinstance(inds, tuple):
+                inds = (inds[0], inds[1] + 1)
+            else:
+                inds = (inds, inds + 1)
+        self.label.value = coord_element_to_string(self.coord[self.dim, inds])
 
     @property
     def value(self) -> int | tuple[int, int]:
@@ -180,6 +186,6 @@ def slice_dims(data_array: sc.DataArray, slices: dict[str, slice]) -> sc.DataArr
     out = data_array
     for dim, sl in slices.items():
         if isinstance(sl, tuple):
-            sl = slice(*sl)
+            sl = slice(sl[0], sl[1] + 1)
         out = out[dim, sl]
     return out
