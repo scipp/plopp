@@ -190,10 +190,10 @@ class Clip3dTool(ipw.HBox):
 class ClipValueTool(ipw.HBox):
     """
     A tool that provides a slider to extract a points in a three-dimensional
-    scatter plot based on a value selection criterion, and add it to the scene as an
+    scatter plot based on a value selection criterion, and adds it to the scene as an
     opaque cut. The slider controls the range of the selection.
 
-    .. versionadded:: 25.08.0
+    .. versionadded:: 26.2.0
 
     Parameters
     ----------
@@ -261,10 +261,11 @@ class ClipValueTool(ipw.HBox):
         self._update()
 
 
-class ClippingPlanes(ipw.HBox):
+class ClippingManager(ipw.HBox):
     """
     A widget to make clipping planes for spatial cutting (see :class:`Clip3dTool`) to
     make spatial cuts in the X, Y, and Z directions on a three-dimensional scatter plot.
+    The widget also allows to make value-based cuts using :class:`ClipValueTool`.
 
     .. versionadded:: 24.04.0
 
