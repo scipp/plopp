@@ -46,7 +46,7 @@ class Clip3dTool(ipw.HBox):
     ----------
     limits:
         The spatial extent of the points in the 3d figure in the XYZ directions.
-    direction:
+    kind:
         The direction normal to the slice.
     update:
         A function to update the scene.
@@ -59,23 +59,23 @@ class Clip3dTool(ipw.HBox):
     def __init__(
         self,
         limits: tuple[sc.Variable, sc.Variable, sc.Variable],
-        direction: Literal['x', 'y', 'z'],
+        kind: Literal['x', 'y', 'z'],
         update: Callable,
         color: str = 'red',
         linewidth: float = 1.5,
         border_visible: bool = True,
     ):
         self._limits = limits
-        self._direction = direction
-        axis = 'xyz'.index(self._direction)
+        self.kind = kind
+        axis = 'xyz'.index(self.kind)
         self.dim = self._limits[axis].dim
         self._unit = self._limits[axis].unit
         self.visible = True
         self._update = update
         self._border_visible = border_visible
 
-        w_axis = 2 if self._direction == 'x' else 0
-        h_axis = 2 if self._direction == 'y' else 1
+        w_axis = 2 if self.kind == 'x' else 0
+        h_axis = 2 if self.kind == 'y' else 1
         width = (self._limits[w_axis][1] - self._limits[w_axis][0]).value
         height = (self._limits[h_axis][1] - self._limits[h_axis][0]).value
 
@@ -95,10 +95,10 @@ class Clip3dTool(ipw.HBox):
                 material=p3.LineBasicMaterial(color=color, linewidth=linewidth),
             ),
         ]
-        if self._direction == 'x':
+        if self.kind == 'x':
             for outline in self.outlines:
                 outline.rotateY(0.5 * np.pi)
-        if self._direction == 'y':
+        if self.kind == 'y':
             for outline in self.outlines:
                 outline.rotateX(0.5 * np.pi)
 
@@ -112,15 +112,15 @@ class Clip3dTool(ipw.HBox):
             max=vmax,
             value=[center[axis] - delta, center[axis] + delta],
             step=dx * 0.01,
-            description=direction.upper(),
+            description=self.kind.upper(),
             style={'description_width': 'initial'},
-            layout={'width': '470px', 'padding': '0px'},
+            layout={'width': '35.6em', 'padding': '0px'},
         )
 
         self.cut_visible = ipw.Button(
             icon='eye-slash',
             tooltip='Hide cut',
-            layout={'width': '16px', 'padding': '0px'},
+            layout={'width': '1.23em', 'padding': '0px'},
         )
 
         for outline, val in zip(self.outlines, self.slider.value, strict=True):
@@ -158,20 +158,20 @@ class Clip3dTool(ipw.HBox):
         # the cut, the border visibility is in sync with the parent button.
         self._border_visible = value
 
-    def move(self, value: dict[str, Any]):
+    def move(self, change: dict[str, Any]):
         """
         Move the outline of the cut according to new position given by the slider.
         """
         # Early return if relative difference between new and old value is small.
         # This also prevents flickering of an existing cut when a new cut is added.
         if (
-            np.abs(np.array(value['new']) - np.array(value['old'])).max()
+            np.abs(np.array(change['new']) - np.array(change['old'])).max()
             < 0.01 * self.slider.step
         ):
             return
-        for outline, val in zip(self.outlines, value['new'], strict=True):
+        for outline, val in zip(self.outlines, change['new'], strict=True):
             pos = list(outline.position)
-            axis = 'xyz'.index(self._direction)
+            axis = 'xyz'.index(self.kind)
             pos[axis] = val
             outline.position = pos
         self._throttled_update()
@@ -182,15 +182,114 @@ class Clip3dTool(ipw.HBox):
             self.slider.value[1], unit=self._unit
         )
 
+    def make_selection(self, da: sc.DataArray) -> sc.Variable:
+        """
+        Make a selection variable based on the current slider range.
+        """
+        xmin, xmax = self.range
+        return (da.coords[self.dim] >= xmin) & (da.coords[self.dim] < xmax)
+
     @debounce(0.3)
     def _throttled_update(self):
         self._update()
 
 
-class ClippingPlanes(ipw.HBox):
+class ClipValueTool(ipw.HBox):
+    """
+    A tool that provides a slider to extract a points in a three-dimensional
+    scatter plot based on a value selection criterion, and adds it to the scene as an
+    opaque cut. The slider controls the range of the selection.
+
+    .. versionadded:: 26.2.0
+
+    Parameters
+    ----------
+    limits:
+        The range of values in the original data.
+    update:
+        A function to update the scene.
+    """
+
+    def __init__(self, limits: sc.Variable, update: Callable):
+        self._limits = limits
+        self._unit = self._limits.unit
+        self.visible = True
+        self._update = update
+        self.kind = 'v'
+
+        center = self._limits.mean().value
+        vmin = self._limits[0].value
+        vmax = self._limits[1].value
+        dx = vmax - vmin
+        delta = 0.05 * dx
+        self.slider = ipw.FloatRangeSlider(
+            min=vmin,
+            max=vmax,
+            value=[center - delta, center + delta],
+            step=dx * 0.01,
+            description="Values",
+            style={'description_width': 'initial'},
+            layout={'width': '35.6em', 'padding': '0px'},
+        )
+
+        self.cut_visible = ipw.Button(
+            icon='eye-slash',
+            tooltip='Hide cut',
+            layout={'width': '1.23em', 'padding': '0px'},
+        )
+
+        self.unit_label = ipw.Label(f'[{self._unit}]')
+        self.cut_visible.on_click(self.toggle)
+        self.slider.observe(self.move, names='value')
+
+        super().__init__([self.slider, ipw.Label(f'[{self._unit}]'), self.cut_visible])
+
+    def toggle(self, owner: ipw.Button):
+        """
+        Toggle the visibility of the cut on and off.
+        """
+        self.visible = not self.visible
+        self.slider.disabled = not self.visible
+        owner.icon = 'eye-slash' if self.visible else 'eye'
+        owner.tooltip = 'Hide cut' if self.visible else 'Show cut'
+        self._update()
+
+    def toggle_border(self, _):
+        return
+
+    @property
+    def range(self):
+        return sc.scalar(self.slider.value[0], unit=self._unit), sc.scalar(
+            self.slider.value[1], unit=self._unit
+        )
+
+    def make_selection(self, da: sc.DataArray) -> sc.Variable:
+        """
+        Make a selection variable based on the current slider range.
+        """
+        xmin, xmax = self.range
+        return (da.data >= xmin) & (da.data < xmax)
+
+    def move(self, change: dict[str, Any]):
+        # Early return if relative difference between new and old value is small.
+        # This also prevents flickering of an existing cut when a new cut is added.
+        if (
+            np.abs(np.array(change['new']) - np.array(change['old'])).max()
+            < 0.01 * self.slider.step
+        ):
+            return
+        self._throttled_update()
+
+    @debounce(0.3)
+    def _throttled_update(self):
+        self._update()
+
+
+class ClippingManager(ipw.HBox):
     """
     A widget to make clipping planes for spatial cutting (see :class:`Clip3dTool`) to
     make spatial cuts in the X, Y, and Z directions on a three-dimensional scatter plot.
+    The widget also allows to make value-based cuts using :class:`ClipValueTool`.
 
     .. versionadded:: 24.04.0
 
@@ -226,33 +325,47 @@ class ClippingPlanes(ipw.HBox):
         self.cuts = []
         self._operation = 'or'
 
-        self.tabs = ipw.Tab(layout={'width': '550px'})
+        self.tabs = ipw.Tab(layout={'width': '41.6em'})
         self._original_nodes = list(self._view.graph_nodes.values())
         self._nodes = {}
 
+        self._value_limits = sc.concat(
+            [
+                min(n().data.min() for n in self._original_nodes),
+                max(n().data.max() for n in self._original_nodes),
+            ],
+            dim="dummy",
+        )
+
         self.add_cut_label = ipw.Label('Add cut:')
-        layout = {'width': '45px', 'padding': '0px 0px 0px 0px'}
         self.add_x_cut = ipw.Button(
             description='X',
             icon='plus',
             tooltip='Add X cut',
-            layout=layout,
+            **BUTTON_LAYOUT,
         )
         self.add_y_cut = ipw.Button(
             description='Y',
             icon='plus',
             tooltip='Add Y cut',
-            layout=layout,
+            **BUTTON_LAYOUT,
         )
         self.add_z_cut = ipw.Button(
             description='Z',
             icon='plus',
             tooltip='Add Z cut',
-            layout=layout,
+            **BUTTON_LAYOUT,
+        )
+        self.add_v_cut = ipw.Button(
+            description='V',
+            icon='plus',
+            tooltip='Add Value cut',
+            **BUTTON_LAYOUT,
         )
         self.add_x_cut.on_click(lambda _: self._add_cut('x'))
         self.add_y_cut.on_click(lambda _: self._add_cut('y'))
         self.add_z_cut.on_click(lambda _: self._add_cut('z'))
+        self.add_v_cut.on_click(lambda _: self._add_cut('v'))
 
         self.opacity = ipw.BoundedFloatText(
             min=0,
@@ -263,7 +376,7 @@ class ClippingPlanes(ipw.HBox):
             description='Opacity:',
             tooltip='Set the opacity of the background',
             style={'description_width': 'initial'},
-            layout={'width': '142px', 'padding': '0px 0px 0px 0px'},
+            layout={'width': '12.1em', 'padding': '0px 0px 0px 0px'},
         )
         self.opacity.observe(self._set_opacity, names='value')
 
@@ -283,7 +396,7 @@ class ClippingPlanes(ipw.HBox):
             value='OR',
             disabled=True,
             tooltip='Operation to combine multiple cuts',
-            layout={'width': '60px', 'padding': '0px 0px 0px 0px'},
+            layout={'width': '5.9em', 'padding': '0px 0px 0px 0px'},
         )
         self.cut_operation.observe(self.change_operation, names='value')
 
@@ -300,7 +413,14 @@ class ClippingPlanes(ipw.HBox):
                 self.tabs,
                 ipw.VBox(
                     [
-                        ipw.HBox([self.add_x_cut, self.add_y_cut, self.add_z_cut]),
+                        ipw.HBox(
+                            [
+                                self.add_x_cut,
+                                self.add_y_cut,
+                                self.add_z_cut,
+                                self.add_v_cut,
+                            ]
+                        ),
                         self.opacity,
                         ipw.HBox(
                             [
@@ -316,17 +436,20 @@ class ClippingPlanes(ipw.HBox):
 
         self.layout.display = 'none'
 
-    def _add_cut(self, direction: Literal['x', 'y', 'z']):
+    def _add_cut(self, kind: Literal['x', 'y', 'z', 'v']):
         """
-        Add a cut in the specified direction.
+        Add a cut of the specified kind.
         """
-        cut = Clip3dTool(
-            direction=direction,
-            limits=self._limits,
-            update=self.update_state,
-            border_visible=self.cut_borders_visibility.value,
-        )
-        self._view.canvas.add(cut.outlines)
+        if kind == 'v':
+            cut = ClipValueTool(limits=self._value_limits, update=self.update_state)
+        else:
+            cut = Clip3dTool(
+                kind=kind,
+                limits=self._limits,
+                update=self.update_state,
+                border_visible=self.cut_borders_visibility.value,
+            )
+            self._view.canvas.add(cut.outlines)
         self.cuts.append(cut)
         self.tabs.children = [*self.tabs.children, cut]
         self.tabs.selected_index = len(self.cuts) - 1
@@ -335,7 +458,8 @@ class ClippingPlanes(ipw.HBox):
 
     def _remove_cut(self, _):
         cut = self.cuts.pop(self.tabs.selected_index)
-        self._view.canvas.remove(cut.outlines)
+        if cut.kind != 'v':
+            self._view.canvas.remove(cut.outlines)
         self.tabs.children = self.cuts
         self.update_state()
         self.update_controls()
@@ -350,7 +474,7 @@ class ClippingPlanes(ipw.HBox):
         self.delete_cut.disabled = not at_least_one_cut
         self.cut_borders_visibility.disabled = not at_least_one_cut
         self.cut_operation.disabled = not at_least_one_cut
-        self.tabs.titles = [cut._direction.upper() for cut in self.cuts]
+        self.tabs.titles = [cut.kind.upper() for cut in self.cuts]
         self.opacity.disabled = not at_least_one_cut
         opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
@@ -403,12 +527,7 @@ class ClippingPlanes(ipw.HBox):
 
         for n in self._original_nodes:
             da = n.request_data()
-            selections = []
-            for cut in visible_cuts:
-                xmin, xmax = cut.range
-                selections.append(
-                    (da.coords[cut.dim] >= xmin) & (da.coords[cut.dim] < xmax)
-                )
+            selections = [cut.make_selection(da) for cut in visible_cuts]
             selection = OPERATIONS[self._operation](selections)
             if selection.sum().value > 0:
                 if n.id not in self._nodes:

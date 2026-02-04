@@ -126,7 +126,7 @@ def scatter3d(
         A three-dimensional interactive scatter plot.
     """
     from ..graphics import scatter3dfigure
-    from ..widgets import ClippingPlanes, ToggleTool
+    from ..widgets import ClippingManager, ToggleTool
 
     if 'ax' in kwargs:
         raise ValueError(
@@ -160,11 +160,11 @@ def scatter3d(
         vmin=vmin,
         **kwargs,
     )
-    clip_planes = ClippingPlanes(fig)
+    clip_manager = ClippingManager(fig)
     fig.toolbar['cut3d'] = ToggleTool(
-        callback=clip_planes.toggle_visibility,
+        callback=clip_manager.toggle_visibility,
         icon='layer-group',
         tooltip='Hide/show spatial cutting tool',
     )
-    fig.bottom_bar.add(clip_planes)
+    fig.bottom_bar.add(clip_manager)
     return fig
