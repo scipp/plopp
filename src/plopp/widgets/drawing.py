@@ -189,3 +189,73 @@ value:
 **kwargs:
     Additional arguments are forwarded to the ``ToggleTool`` constructor.
 """
+
+
+def _get_polygon_info(artist, figure):
+    """
+    Convert the raw polygon vertices to a dict containing the dimensions of
+    each axis, and arrays with units.
+    """
+    xs, ys = artist.x, artist.y
+    return {
+        'x': {
+            'dim': figure.canvas.dims['x'],
+            'value': sc.array(
+                dims=['vertex'],
+                values=xs,
+                unit=figure.canvas.units['x'],
+            ),
+        },
+        'y': {
+            'dim': figure.canvas.dims['y'],
+            'value': sc.array(
+                dims=['vertex'],
+                values=ys,
+                unit=figure.canvas.units['y'],
+            ),
+        },
+    }
+
+
+def _make_polygons(**kwargs):
+    """
+    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
+    hard dependency.
+    """
+    from mpltoolbox import Polygons
+
+    return Polygons(**kwargs)
+
+
+PolygonTool = partial(
+    DrawingTool,
+    tool=partial(_make_polygons, mec='w'),
+    get_artist_info=_get_polygon_info,
+    icon='draw-polygon',
+)
+"""
+Tool to draw polygon selections on a figure.
+
+Controls:
+  - Left-click to make new polygons
+  - Left-click and hold on polygon vertex to move vertex
+  - Right-click and hold to drag/move the entire polygon
+  - Middle-click to delete polygon
+
+Parameters
+----------
+figure:
+    The figure where the tool will draw the polygon.
+input_node:
+    The node that provides the raw data which is shown in ``figure``.
+func:
+    The function to be used to make a node whose parents will be the ``input_node``
+    and a node yielding the current state of the tool (current position, size).
+destination:
+    Where the output from the ``func`` node will be then sent on. This can either
+    be a figure, or another graph node.
+value:
+    Activate the tool upon creation if ``True``.
+**kwargs:
+    Additional arguments are forwarded to the ``ToggleTool`` constructor.
+"""

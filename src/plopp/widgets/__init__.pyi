@@ -4,7 +4,7 @@
 from .box import Box, HBar, VBar
 from .checkboxes import Checkboxes
 from .clip3d import Clip3dTool, ClippingManager
-from .drawing import DrawingTool, PointsTool
+from .drawing import DrawingTool, PointsTool, PolygonTool
 from .linesave import LineSaveTool
 from .slice import RangeSliceWidget, SliceWidget, slice_dims
 from .toolbar import Toolbar, make_toolbar_canvas2d, make_toolbar_canvas3d
@@ -21,6 +21,7 @@ __all__ = [
     "HBar",
     "LineSaveTool",
     "PointsTool",
+    "PolygonTool",
     "RangeSliceWidget",
     "SliceWidget",
     "ToggleTool",

@@ -3,6 +3,7 @@
 
 from typing import Literal
 
+import numpy as np
 import scipp as sc
 
 from ..core import Node
@@ -34,6 +35,35 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
     return da[y['dim'], y['value']][x['dim'], x['value']]
 
 
+def _coord_to_centers(da: sc.DataArray, dim: str) -> sc.Variable:
+    coord = da.coords[dim]
+    if da.coords.is_edges(dim, dim=dim):
+        return sc.midpoints(coord, dim=dim)
+    return coord
+
+
+def _mask_outside_polygon(
+    da: sc.DataArray, poly: dict[str, dict[str, sc.Variable]]
+) -> sc.DataArray:
+    from matplotlib.path import Path
+
+    xdim = poly['x']['dim']
+    ydim = poly['y']['dim']
+    x = _coord_to_centers(da, xdim)
+    y = _coord_to_centers(da, ydim)
+    vx = poly['x']['value'].to(unit=x.unit).values
+    vy = poly['y']['value'].to(unit=y.unit).values
+    verts = np.column_stack([vx, vy])
+    path = Path(verts)
+    xx = sc.broadcast(x, sizes={**x.sizes, **y.sizes})
+    yy = sc.broadcast(y, sizes={**x.sizes, **y.sizes})
+    points = np.column_stack([xx.values.ravel(), yy.values.ravel()])
+    inside = sc.array(
+        dims=yy.dims, values=path.contains_points(points).reshape(yy.shape)
+    )
+    return da.assign_masks(__inside_polygon=~inside).sum({*x.dims, *y.dims})
+
+
 def inspector(
     obj: Plottable,
     dim: str | None = None,
@@ -51,6 +81,7 @@ def inspector(
     logc: bool | None = None,
     mask_cmap: str = 'gray',
     mask_color: str = 'black',
+    mode: Literal['point', 'polygon'] = 'point',
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
     operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
@@ -70,15 +101,22 @@ def inspector(
     Inspector takes in a three-dimensional input and applies a reduction operation
     (``'sum'`` by default) along one of the dimensions specified by ``dim``.
     It displays the result as a two-dimensional image.
-    In addition, an 'inspection' tool is available in the toolbar which allows to place
-    markers on the image which perform slicing at that position to retain only the third
-    dimension and displays the resulting one-dimensional slice on the right hand side
-    figure.
+    In addition, an 'inspection' tool is available in the toolbar. In ``mode='point'``
+    it allows placing point markers on the image to slice at that position, retaining
+    only the third dimension and displaying the resulting one-dimensional slice in the
+    right-hand side figure. In ``mode='polygon'`` it allows drawing a polygon to compute
+    the total intensity inside the polygon as a function of the third dimension.
 
-    Controls:
-    - Click to make new point
-    - Drag existing point to move it
+    Controls (point mode):
+    - Left-click to make new points
+    - Left-click and hold on point to move point
     - Middle-click to delete point
+
+    Controls (polygon mode):
+    - Left-click to make new polygons
+    - Left-click and hold on polygon vertex to move vertex
+    - Right-click and hold to drag/move the entire polygon
+    - Middle-click to delete polygon
 
     Notes
     -----
@@ -123,6 +161,9 @@ def inspector(
         Colormap to use for masks.
     mask_color:
         Color of masks (overrides ``mask_cmap``).
+    mode:
+        Select ``'point'`` for point inspection or ``'polygon'`` for polygon selection
+        with total intensity inside the polygon plotted as a function of ``dim``.
     nan_color:
         Color to use for NaN values.
     norm:
@@ -207,17 +248,28 @@ def inspector(
         ylabel=ylabel,
         **kwargs,
     )
+    from ..widgets import Box, PointsTool, PolygonTool
 
-    from ..widgets import Box, PointsTool
+    if mode == 'point':
+        tool = PointsTool(
+            figure=f2d,
+            input_node=bin_edges_node,
+            func=_slice_xy,
+            destination=f1d,
+            tooltip="Activate inspector tool",
+        )
+    elif mode == 'polygon':
+        tool = PolygonTool(
+            figure=f2d,
+            input_node=bin_edges_node,
+            func=_mask_outside_polygon,
+            destination=f1d,
+            tooltip="Activate polygon inspector tool",
+        )
+    else:
+        raise ValueError(f'Mode "{mode}" is unknown.')
 
-    pts = PointsTool(
-        figure=f2d,
-        input_node=bin_edges_node,
-        func=_slice_xy,
-        destination=f1d,
-        tooltip="Activate inspector tool",
-    )
-    f2d.toolbar['inspect'] = pts
+    f2d.toolbar['inspect'] = tool
     out = [f2d, f1d]
     if orientation == 'horizontal':
         out = [out]
