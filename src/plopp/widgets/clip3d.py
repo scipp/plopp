@@ -46,7 +46,7 @@ class Clip3dTool(ipw.HBox):
     ----------
     limits:
         The spatial extent of the points in the 3d figure in the XYZ directions.
-    direction:
+    kind:
         The direction normal to the slice.
     update:
         A function to update the scene.
@@ -59,23 +59,23 @@ class Clip3dTool(ipw.HBox):
     def __init__(
         self,
         limits: tuple[sc.Variable, sc.Variable, sc.Variable],
-        direction: Literal['x', 'y', 'z'],
+        kind: Literal['x', 'y', 'z'],
         update: Callable,
         color: str = 'red',
         linewidth: float = 1.5,
         border_visible: bool = True,
     ):
         self._limits = limits
-        self.direction = direction
-        axis = 'xyz'.index(self.direction)
+        self.kind = kind
+        axis = 'xyz'.index(self.kind)
         self.dim = self._limits[axis].dim
         self._unit = self._limits[axis].unit
         self.visible = True
         self._update = update
         self._border_visible = border_visible
 
-        w_axis = 2 if self.direction == 'x' else 0
-        h_axis = 2 if self.direction == 'y' else 1
+        w_axis = 2 if self.kind == 'x' else 0
+        h_axis = 2 if self.kind == 'y' else 1
         width = (self._limits[w_axis][1] - self._limits[w_axis][0]).value
         height = (self._limits[h_axis][1] - self._limits[h_axis][0]).value
 
@@ -95,10 +95,10 @@ class Clip3dTool(ipw.HBox):
                 material=p3.LineBasicMaterial(color=color, linewidth=linewidth),
             ),
         ]
-        if self.direction == 'x':
+        if self.kind == 'x':
             for outline in self.outlines:
                 outline.rotateY(0.5 * np.pi)
-        if self.direction == 'y':
+        if self.kind == 'y':
             for outline in self.outlines:
                 outline.rotateX(0.5 * np.pi)
 
@@ -112,7 +112,7 @@ class Clip3dTool(ipw.HBox):
             max=vmax,
             value=[center[axis] - delta, center[axis] + delta],
             step=dx * 0.01,
-            description=direction.upper(),
+            description=self.kind.upper(),
             style={'description_width': 'initial'},
             layout={'width': '35.6em', 'padding': '0px'},
         )
@@ -171,7 +171,7 @@ class Clip3dTool(ipw.HBox):
             return
         for outline, val in zip(self.outlines, change['new'], strict=True):
             pos = list(outline.position)
-            axis = 'xyz'.index(self.direction)
+            axis = 'xyz'.index(self.kind)
             pos[axis] = val
             outline.position = pos
         self._throttled_update()
@@ -205,7 +205,7 @@ class ClipValueTool(ipw.HBox):
     Parameters
     ----------
     limits:
-        The spatial extent of the points in the 3d figure in the XYZ directions.
+        The range of values in the original data.
     update:
         A function to update the scene.
     """
@@ -215,7 +215,7 @@ class ClipValueTool(ipw.HBox):
         self._unit = self._limits.unit
         self.visible = True
         self._update = update
-        self.direction = 'v'
+        self.kind = 'v'
 
         center = self._limits.mean().value
         vmin = self._limits[0].value
@@ -436,15 +436,15 @@ class ClippingManager(ipw.HBox):
 
         self.layout.display = 'none'
 
-    def _add_cut(self, direction: Literal['x', 'y', 'z', 'v']):
+    def _add_cut(self, kind: Literal['x', 'y', 'z', 'v']):
         """
-        Add a cut in the specified direction.
+        Add a cut of the specified kind.
         """
-        if direction == 'v':
+        if kind == 'v':
             cut = ClipValueTool(limits=self._value_limits, update=self.update_state)
         else:
             cut = Clip3dTool(
-                direction=direction,
+                kind=kind,
                 limits=self._limits,
                 update=self.update_state,
                 border_visible=self.cut_borders_visibility.value,
@@ -458,7 +458,7 @@ class ClippingManager(ipw.HBox):
 
     def _remove_cut(self, _):
         cut = self.cuts.pop(self.tabs.selected_index)
-        if cut.direction != 'v':
+        if cut.kind != 'v':
             self._view.canvas.remove(cut.outlines)
         self.tabs.children = self.cuts
         self.update_state()
@@ -474,7 +474,7 @@ class ClippingManager(ipw.HBox):
         self.delete_cut.disabled = not at_least_one_cut
         self.cut_borders_visibility.disabled = not at_least_one_cut
         self.cut_operation.disabled = not at_least_one_cut
-        self.tabs.titles = [cut.direction.upper() for cut in self.cuts]
+        self.tabs.titles = [cut.kind.upper() for cut in self.cuts]
         self.opacity.disabled = not at_least_one_cut
         opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
