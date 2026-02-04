@@ -66,16 +66,16 @@ class Clip3dTool(ipw.HBox):
         border_visible: bool = True,
     ):
         self._limits = limits
-        self._direction = direction
-        axis = 'xyz'.index(self._direction)
+        self.direction = direction
+        axis = 'xyz'.index(self.direction)
         self.dim = self._limits[axis].dim
         self._unit = self._limits[axis].unit
         self.visible = True
         self._update = update
         self._border_visible = border_visible
 
-        w_axis = 2 if self._direction == 'x' else 0
-        h_axis = 2 if self._direction == 'y' else 1
+        w_axis = 2 if self.direction == 'x' else 0
+        h_axis = 2 if self.direction == 'y' else 1
         width = (self._limits[w_axis][1] - self._limits[w_axis][0]).value
         height = (self._limits[h_axis][1] - self._limits[h_axis][0]).value
 
@@ -95,10 +95,10 @@ class Clip3dTool(ipw.HBox):
                 material=p3.LineBasicMaterial(color=color, linewidth=linewidth),
             ),
         ]
-        if self._direction == 'x':
+        if self.direction == 'x':
             for outline in self.outlines:
                 outline.rotateY(0.5 * np.pi)
-        if self._direction == 'y':
+        if self.direction == 'y':
             for outline in self.outlines:
                 outline.rotateX(0.5 * np.pi)
 
@@ -158,20 +158,20 @@ class Clip3dTool(ipw.HBox):
         # the cut, the border visibility is in sync with the parent button.
         self._border_visible = value
 
-    def move(self, value: dict[str, Any]):
+    def move(self, change: dict[str, Any]):
         """
         Move the outline of the cut according to new position given by the slider.
         """
         # Early return if relative difference between new and old value is small.
         # This also prevents flickering of an existing cut when a new cut is added.
         if (
-            np.abs(np.array(value['new']) - np.array(value['old'])).max()
+            np.abs(np.array(change['new']) - np.array(change['old'])).max()
             < 0.01 * self.slider.step
         ):
             return
-        for outline, val in zip(self.outlines, value['new'], strict=True):
+        for outline, val in zip(self.outlines, change['new'], strict=True):
             pos = list(outline.position)
-            axis = 'xyz'.index(self._direction)
+            axis = 'xyz'.index(self.direction)
             pos[axis] = val
             outline.position = pos
         self._throttled_update()
@@ -181,6 +181,13 @@ class Clip3dTool(ipw.HBox):
         return sc.scalar(self.slider.value[0], unit=self._unit), sc.scalar(
             self.slider.value[1], unit=self._unit
         )
+
+    def make_selection(self, da: sc.DataArray) -> sc.Variable:
+        """
+        Make a selection variable based on the current slider range.
+        """
+        xmin, xmax = self.range
+        return (da.coords[self.dim] >= xmin) & (da.coords[self.dim] < xmax)
 
     @debounce(0.3)
     def _throttled_update(self):
@@ -208,7 +215,7 @@ class ClipValueTool(ipw.HBox):
         self._unit = self._limits.unit
         self.visible = True
         self._update = update
-        self._direction = 'v'
+        self.direction = 'v'
 
         center = self._limits.mean().value
         vmin = self._limits[0].value
@@ -233,7 +240,7 @@ class ClipValueTool(ipw.HBox):
 
         self.unit_label = ipw.Label(f'[{self._unit}]')
         self.cut_visible.on_click(self.toggle)
-        self.slider.observe(self._throttled_update, names='value')
+        self.slider.observe(self.move, names='value')
 
         super().__init__([self.slider, ipw.Label(f'[{self._unit}]'), self.cut_visible])
 
@@ -256,8 +263,25 @@ class ClipValueTool(ipw.HBox):
             self.slider.value[1], unit=self._unit
         )
 
+    def make_selection(self, da: sc.DataArray) -> sc.Variable:
+        """
+        Make a selection variable based on the current slider range.
+        """
+        xmin, xmax = self.range
+        return (da.data >= xmin) & (da.data < xmax)
+
+    def move(self, change: dict[str, Any]):
+        # Early return if relative difference between new and old value is small.
+        # This also prevents flickering of an existing cut when a new cut is added.
+        if (
+            np.abs(np.array(change['new']) - np.array(change['old'])).max()
+            < 0.01 * self.slider.step
+        ):
+            return
+        self._throttled_update()
+
     @debounce(0.3)
-    def _throttled_update(self, _):
+    def _throttled_update(self):
         self._update()
 
 
@@ -417,10 +441,7 @@ class ClippingManager(ipw.HBox):
         Add a cut in the specified direction.
         """
         if direction == 'v':
-            cut = ClipValueTool(
-                limits=self._value_limits,
-                update=self.update_state,
-            )
+            cut = ClipValueTool(limits=self._value_limits, update=self.update_state)
         else:
             cut = Clip3dTool(
                 direction=direction,
@@ -437,7 +458,7 @@ class ClippingManager(ipw.HBox):
 
     def _remove_cut(self, _):
         cut = self.cuts.pop(self.tabs.selected_index)
-        if cut._direction != 'v':
+        if cut.direction != 'v':
             self._view.canvas.remove(cut.outlines)
         self.tabs.children = self.cuts
         self.update_state()
@@ -453,7 +474,7 @@ class ClippingManager(ipw.HBox):
         self.delete_cut.disabled = not at_least_one_cut
         self.cut_borders_visibility.disabled = not at_least_one_cut
         self.cut_operation.disabled = not at_least_one_cut
-        self.tabs.titles = [cut._direction.upper() for cut in self.cuts]
+        self.tabs.titles = [cut.direction.upper() for cut in self.cuts]
         self.opacity.disabled = not at_least_one_cut
         opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
@@ -506,15 +527,7 @@ class ClippingManager(ipw.HBox):
 
         for n in self._original_nodes:
             da = n.request_data()
-            selections = []
-            for cut in visible_cuts:
-                xmin, xmax = cut.range
-                if cut._direction == 'v':
-                    selections.append((da.data >= xmin) & (da.data < xmax))
-                else:
-                    selections.append(
-                        (da.coords[cut.dim] >= xmin) & (da.coords[cut.dim] < xmax)
-                    )
+            selections = [cut.make_selection(da) for cut in visible_cuts]
             selection = OPERATIONS[self._operation](selections)
             if selection.sum().value > 0:
                 if n.id not in self._nodes:
