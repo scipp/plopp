@@ -79,7 +79,8 @@
    widgets.drawing.PointsTool
 
    widgets.clip3d.Clip3dTool
-   widgets.clip3d.ClippingPlanes
+   widgets.clip3d.ClipValueTool
+   widgets.clip3d.ClippingManager
 ```
 
 ## Backends
