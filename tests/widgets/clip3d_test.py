@@ -6,7 +6,7 @@ import scipp as sc
 from plopp import Node
 from plopp.data.testing import data_array, scatter
 from plopp.graphics import scatter3dfigure
-from plopp.widgets import ClippingPlanes
+from plopp.widgets import ClippingManager
 
 
 @pytest.mark.parametrize('multiple_nodes', [False, True])
@@ -19,7 +19,7 @@ def test_add_remove_cuts(multiple_nodes):
         nodes.append(Node(b))
 
     fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=True)
-    clip = ClippingPlanes(fig)
+    clip = ClippingManager(fig)
     assert len(fig.artists) == 1 * len(nodes)
     clip.add_x_cut.click()
     assert len(fig.artists) == 2 * len(nodes)
@@ -55,7 +55,7 @@ def test_value_cuts(multiple_nodes):
         b.coords['x'] += sc.scalar(60, unit='m')
         nodes.append(Node(b))
     fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=True)
-    clip = ClippingPlanes(fig)
+    clip = ClippingManager(fig)
     clip.add_v_cut.click()
     vcut = clip.cuts[-1]
     npoints = list(fig.artists.values())[-1]._data.shape[0]
@@ -96,7 +96,7 @@ def test_mixing_spatial_and_value_cuts(multiple_nodes):
         b.coords['x'] += sc.scalar(60, unit='m')
         nodes.append(Node(b))
     fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=True)
-    clip = ClippingPlanes(fig)
+    clip = ClippingManager(fig)
 
     # Add a spatial cut
     clip.add_y_cut.click()
@@ -120,7 +120,7 @@ def test_mixing_spatial_and_value_cuts(multiple_nodes):
 def test_move_cut():
     da = scatter()
     fig = scatter3dfigure(Node(da), x='x', y='y', z='z', cbar=True)
-    clip = ClippingPlanes(fig)
+    clip = ClippingManager(fig)
     clip.add_x_cut.click()
     xcut = clip.cuts[-1]
     assert xcut.outlines[0].position[0] == xcut.slider.value[0]
@@ -139,7 +139,7 @@ def test_operation_or():
     dim = 'pix'
     da = data_array(ndim=3).flatten(to=dim)
     fig = scatter3dfigure(Node(da), x='xx', y='yy', z='zz', cbar=True)
-    clip = ClippingPlanes(fig)
+    clip = ClippingManager(fig)
     clip.cut_operation.value = 'OR'
 
     clip.add_x_cut.click()
@@ -177,7 +177,7 @@ def test_operation_and():
     dim = 'pix'
     da = data_array(ndim=3).flatten(to=dim)
     fig = scatter3dfigure(Node(da), x='xx', y='yy', z='zz', cbar=True)
-    clip = ClippingPlanes(fig)
+    clip = ClippingManager(fig)
     clip.cut_operation.value = 'AND'
 
     clip.add_x_cut.click()
@@ -212,7 +212,7 @@ def test_operation_xor():
     dim = 'pix'
     da = data_array(ndim=3).flatten(to=dim)
     fig = scatter3dfigure(Node(da), x='xx', y='yy', z='zz', cbar=True)
-    clip = ClippingPlanes(fig)
+    clip = ClippingManager(fig)
     clip.cut_operation.value = 'XOR'
 
     clip.add_x_cut.click()
