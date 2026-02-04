@@ -114,13 +114,13 @@ class Clip3dTool(ipw.HBox):
             step=dx * 0.01,
             description=direction.upper(),
             style={'description_width': 'initial'},
-            layout={'width': '470px', 'padding': '0px'},
+            layout={'width': '35.6em', 'padding': '0px'},
         )
 
         self.cut_visible = ipw.Button(
             icon='eye-slash',
             tooltip='Hide cut',
-            layout={'width': '16px', 'padding': '0px'},
+            layout={'width': '1.23em', 'padding': '0px'},
         )
 
         for outline, val in zip(self.outlines, self.slider.value, strict=True):
@@ -222,13 +222,13 @@ class ClipValueTool(ipw.HBox):
             step=dx * 0.01,
             description="Values",
             style={'description_width': 'initial'},
-            layout={'width': '470px', 'padding': '0px'},
+            layout={'width': '35.6em', 'padding': '0px'},
         )
 
         self.cut_visible = ipw.Button(
             icon='eye-slash',
             tooltip='Hide cut',
-            layout={'width': '16px', 'padding': '0px'},
+            layout={'width': '1.23em', 'padding': '0px'},
         )
 
         self.unit_label = ipw.Label(f'[{self._unit}]')
@@ -301,7 +301,7 @@ class ClippingManager(ipw.HBox):
         self.cuts = []
         self._operation = 'or'
 
-        self.tabs = ipw.Tab(layout={'width': '550px'})
+        self.tabs = ipw.Tab(layout={'width': '41.6em'})
         self._original_nodes = list(self._view.graph_nodes.values())
         self._nodes = {}
 
@@ -352,7 +352,7 @@ class ClippingManager(ipw.HBox):
             description='Opacity:',
             tooltip='Set the opacity of the background',
             style={'description_width': 'initial'},
-            layout={'width': '160px', 'padding': '0px 0px 0px 0px'},
+            layout={'width': '12.1em', 'padding': '0px 0px 0px 0px'},
         )
         self.opacity.observe(self._set_opacity, names='value')
 
@@ -372,7 +372,7 @@ class ClippingManager(ipw.HBox):
             value='OR',
             disabled=True,
             tooltip='Operation to combine multiple cuts',
-            layout={'width': '78px', 'padding': '0px 0px 0px 0px'},
+            layout={'width': '5.9em', 'padding': '0px 0px 0px 0px'},
         )
         self.cut_operation.observe(self.change_operation, names='value')
 

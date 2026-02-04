@@ -35,7 +35,7 @@ class LineSaveTool(VBar):
         self.button = ipw.Button(description='Save line')
         self.button.on_click(self.save_line)
         self.container = VBar()
-        super().__init__([self.button, self.container], layout={'width': '350px'})
+        super().__init__([self.button, self.container], layout={'width': '26.5em'})
 
     def _update_container(self):
         self.container.children = [line['tool'] for line in self._lines.values()]
