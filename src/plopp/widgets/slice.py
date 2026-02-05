@@ -186,6 +186,8 @@ def slice_dims(data_array: sc.DataArray, slices: dict[str, slice]) -> sc.DataArr
     out = data_array
     for dim, sl in slices.items():
         if isinstance(sl, tuple):
+            # Include the stop index in the slice, as we expect both slider handles to
+            # be inclusive.
             sl = slice(sl[0], sl[1] + 1)
         out = out[dim, sl]
     return out

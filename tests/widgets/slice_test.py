@@ -60,5 +60,8 @@ def test_slice_dims():
 def test_range_slice_dims():
     da = data_array(ndim=3)
     slices = {'xx': (8, 9), 'yy': (7, 10)}
-    expected = da['xx', slice(*slices['xx'])]['yy', slice(*slices['yy'])]
+    # Note that we want to include the stop index in the slice
+    expected = da['xx', slices['xx'][0] : slices['xx'][1] + 1][
+        'yy', slices['yy'][0] : slices['yy'][1] + 1
+    ]
     assert identical(slice_dims().func(da, slices=slices), expected)
