@@ -41,7 +41,17 @@ def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
 def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
     x = xy['x']
     y = xy['y']
-    return da[y['dim'], y['value']][x['dim'], x['value']]
+    try:
+        # If there is a 2D coordinate in the data, we need to slice the other dimension
+        # first. The assumption here is that there would only be one multi-dimensional
+        # coordinate in a given DataArray (which is very likely the case).
+        if da.coords[y['dim']].ndim > 1:
+            return da[x['dim'], x['value']][y['dim'], y['value']]
+        else:
+            return da[y['dim'], y['value']][x['dim'], x['value']]
+    except IndexError:
+        # If the index is out of bounds, return an empty DataArray
+        return sc.full_like(da[y['dim'], 0][x['dim'], 0], value=np.nan)
 
 
 def _mask_outside_polygon(da: sc.DataArray, poly: dict) -> sc.DataArray:
