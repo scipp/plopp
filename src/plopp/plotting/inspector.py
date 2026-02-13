@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from functools import partial
 from typing import Literal
 
 import numpy as np
 import scipp as sc
+from matplotlib.path import Path
 
 from ..core import Node
 from ..core.typing import Plottable
@@ -54,39 +56,19 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
         return sc.full_like(da[y['dim'], 0][x['dim'], 0], value=np.nan)
 
 
-def _mask_outside_polygon(da: sc.DataArray, poly: dict) -> sc.DataArray:
-    from matplotlib.path import Path
-
-    xdim = poly['x']['dim']
-    ydim = poly['y']['dim']
-    x = da.coords[xdim]
-    y = da.coords[ydim]
-    vx = poly['x']['value'].to(unit=x.unit).values
-    vy = poly['y']['value'].to(unit=y.unit).values
+def _mask_outside_polygon(
+    da: sc.DataArray, poly: dict, points: np.ndarray, sizes: dict[str, int]
+) -> sc.DataArray:
+    vx = poly['x']['value'].values
+    vy = poly['y']['value'].values
     verts = np.column_stack([vx, vy])
     path = Path(verts)
-    xx = sc.broadcast(x, sizes={**x.sizes, **y.sizes})
-    yy = sc.broadcast(y, sizes={**x.sizes, **y.sizes})
-    points = np.column_stack([xx.values.ravel(), yy.values.ravel()])
+    dims = sizes.keys()
     inside = sc.array(
-        dims=yy.dims, values=path.contains_points(points).reshape(yy.shape)
+        dims=dims,
+        values=path.contains_points(points).reshape(tuple(sizes.values())),
     )
-    return da.assign_masks(__inside_polygon=~inside).sum({*x.dims, *y.dims})
-
-
-def _slice_rectangle(da: sc.DataArray, rect: dict) -> sc.DataArray:
-    """
-    Function that slices the data according to the
-    rectangle size/position, and sums along the
-    vertical dimension.
-    """
-    x = rect['x']
-    y = rect['y']
-    ymin = min(y['bottom'], y['top'])
-    ymax = max(y['bottom'], y['top'])
-    xmin = min(x['left'], x['right'])
-    xmax = max(x['left'], x['right'])
-    return da[y['dim'], ymin:ymax][x['dim'], xmin:xmax].sum([x['dim'], y['dim']])
+    return da.assign_masks(__inside_polygon=~inside).sum(dims)
 
 
 def inspector(
@@ -237,6 +219,11 @@ def inspector(
         A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
 
+    if mode not in ['point', 'polygon', 'rectangle']:
+        raise ValueError(
+            f'Invalid mode: {mode}. Allowed modes are "point", "polygon", "rectangle".'
+        )
+
     f1d = linefigure(
         autoscale=autoscale,
         errorbars=errorbars,
@@ -285,33 +272,32 @@ def inspector(
     )
     from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 
-    match mode:
-        case 'point':
-            tool = PointsTool(
-                figure=f2d,
-                input_node=bin_edges_node,
-                func=_slice_xy,
-                destination=f1d,
-                tooltip="Activate inspector tool",
-            )
-        case 'polygon':
-            tool = PolygonTool(
-                figure=f2d,
-                input_node=bin_centers_node,
-                func=_mask_outside_polygon,
-                destination=f1d,
-                tooltip="Activate polygon inspector tool",
-            )
-        case 'rectangle':
-            tool = RectangleTool(
-                figure=f2d,
-                input_node=bin_edges_node,
-                func=_slice_rectangle,
-                destination=f1d,
-                tooltip="Activate rectangle inspector tool",
-            )
-        case _:
-            raise ValueError(f'Mode "{mode}" is unknown.')
+    if mode == 'point':
+        tool = PointsTool(
+            figure=f2d,
+            input_node=bin_edges_node,
+            func=_slice_xy,
+            destination=f1d,
+            tooltip="Activate inspector tool",
+        )
+    else:
+        da = bin_centers_node()
+        xdim = f2d.canvas.dims['x']
+        ydim = f2d.canvas.dims['y']
+        x = da.coords[xdim]
+        y = da.coords[ydim]
+        sizes = {**x.sizes, **y.sizes}
+        xx = sc.broadcast(x, sizes=sizes)
+        yy = sc.broadcast(y, sizes=sizes)
+        points = np.column_stack([xx.values.ravel(), yy.values.ravel()])
+        tools = {'polygon': PolygonTool, 'rectangle': RectangleTool}
+        tool = tools[mode](
+            figure=f2d,
+            input_node=bin_centers_node,
+            func=partial(_mask_outside_polygon, points=points, sizes=sizes),
+            destination=f1d,
+            tooltip=f"Activate {mode} inspector tool",
+        )
 
     f2d.toolbar['inspect'] = tool
     out = [f2d, f1d]

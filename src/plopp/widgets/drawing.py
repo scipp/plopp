@@ -194,21 +194,24 @@ value:
 def _get_rect_info(artist, figure):
     """
     Convert the raw rectangle info to a dict containing the dimensions of
-    each axis, and values with units.
+    each axis, and positions of the vertices with units.
     """
+    x, y = artist.xy
     return {
         'x': {
             'dim': figure.canvas.dims['x'],
-            'left': sc.scalar(artist.xy[0], unit=figure.canvas.units['x']),
-            'right': sc.scalar(
-                artist.xy[0] + artist.width, unit=figure.canvas.units['x']
+            'value': sc.array(
+                dims=['vertex'],
+                values=[x, x + artist.width, x + artist.width, x, x],
+                unit=figure.canvas.units['x'],
             ),
         },
         'y': {
             'dim': figure.canvas.dims['y'],
-            'bottom': sc.scalar(artist.xy[1], unit=figure.canvas.units['y']),
-            'top': sc.scalar(
-                artist.xy[1] + artist.height, unit=figure.canvas.units['y']
+            'value': sc.array(
+                dims=['vertex'],
+                values=[y, y, y + artist.height, y + artist.height, y],
+                unit=figure.canvas.units['y'],
             ),
         },
     }
@@ -235,15 +238,14 @@ RectangleTool = partial(
 def _get_polygon_info(artist, figure):
     """
     Convert the raw polygon vertices to a dict containing the dimensions of
-    each axis, and arrays with units.
+    each axis, and positions of the vertices with units.
     """
-    xs, ys = artist.x, artist.y
     return {
         'x': {
             'dim': figure.canvas.dims['x'],
             'value': sc.array(
                 dims=['vertex'],
-                values=xs,
+                values=artist.x,
                 unit=figure.canvas.units['x'],
             ),
         },
@@ -251,7 +253,7 @@ def _get_polygon_info(artist, figure):
             'dim': figure.canvas.dims['y'],
             'value': sc.array(
                 dims=['vertex'],
-                values=ys,
+                values=artist.y,
                 unit=figure.canvas.units['y'],
             ),
         },
