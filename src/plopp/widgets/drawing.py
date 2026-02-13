@@ -191,6 +191,47 @@ value:
 """
 
 
+def _get_rect_info(artist, figure):
+    """
+    Convert the raw rectangle info to a dict containing the dimensions of
+    each axis, and values with units.
+    """
+    return {
+        'x': {
+            'dim': figure.canvas.dims['x'],
+            'left': sc.scalar(artist.xy[0], unit=figure.canvas.units['x']),
+            'right': sc.scalar(
+                artist.xy[0] + artist.width, unit=figure.canvas.units['x']
+            ),
+        },
+        'y': {
+            'dim': figure.canvas.dims['y'],
+            'bottom': sc.scalar(artist.xy[1], unit=figure.canvas.units['y']),
+            'top': sc.scalar(
+                artist.xy[1] + artist.height, unit=figure.canvas.units['y']
+            ),
+        },
+    }
+
+
+def _make_rectangles(**kwargs):
+    """
+    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
+    hard dependency.
+    """
+    from mpltoolbox import Rectangles
+
+    return Rectangles(**kwargs)
+
+
+RectangleTool = partial(
+    DrawingTool,
+    tool=_make_rectangles,
+    get_artist_info=_get_rect_info,
+    icon='vector-square',
+)
+
+
 def _get_polygon_info(artist, figure):
     """
     Convert the raw polygon vertices to a dict containing the dimensions of

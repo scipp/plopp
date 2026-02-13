@@ -22,6 +22,15 @@ def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
     return da
 
 
+def _to_bin_centers(da: sc.DataArray, dim: str) -> sc.DataArray:
+    """
+    Convert dimension coords to bin centers.
+    """
+    for d in set(da.dims) - {dim}:
+        da.coords[d] = sc.midpoints(da.coords[d], dim=d)
+    return da
+
+
 def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
     out = getattr(sc, op)(da, dim=dim)
     if out.name:
@@ -35,22 +44,13 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
     return da[y['dim'], y['value']][x['dim'], x['value']]
 
 
-def _coord_to_centers(da: sc.DataArray, dim: str) -> sc.Variable:
-    coord = da.coords[dim]
-    if da.coords.is_edges(dim, dim=dim):
-        return sc.midpoints(coord, dim=dim)
-    return coord
-
-
-def _mask_outside_polygon(
-    da: sc.DataArray, poly: dict[str, dict[str, sc.Variable]]
-) -> sc.DataArray:
+def _mask_outside_polygon(da: sc.DataArray, poly: dict) -> sc.DataArray:
     from matplotlib.path import Path
 
     xdim = poly['x']['dim']
     ydim = poly['y']['dim']
-    x = _coord_to_centers(da, xdim)
-    y = _coord_to_centers(da, ydim)
+    x = da.coords[xdim]
+    y = da.coords[ydim]
     vx = poly['x']['value'].to(unit=x.unit).values
     vy = poly['y']['value'].to(unit=y.unit).values
     verts = np.column_stack([vx, vy])
@@ -62,6 +62,21 @@ def _mask_outside_polygon(
         dims=yy.dims, values=path.contains_points(points).reshape(yy.shape)
     )
     return da.assign_masks(__inside_polygon=~inside).sum({*x.dims, *y.dims})
+
+
+def _slice_rectangle(da: sc.DataArray, rect: dict) -> sc.DataArray:
+    """
+    Function that slices the data according to the
+    rectangle size/position, and sums along the
+    vertical dimension.
+    """
+    x = rect['x']
+    y = rect['y']
+    ymin = min(y['bottom'], y['top'])
+    ymax = max(y['bottom'], y['top'])
+    xmin = min(x['left'], x['right'])
+    xmax = max(x['left'], x['right'])
+    return da[y['dim'], ymin:ymax][x['dim'], xmin:xmax].sum([x['dim'], y['dim']])
 
 
 def inspector(
@@ -81,7 +96,7 @@ def inspector(
     logc: bool | None = None,
     mask_cmap: str = 'gray',
     mask_color: str = 'black',
-    mode: Literal['point', 'polygon'] = 'point',
+    mode: Literal['point', 'polygon', 'rectangle'] = 'point',
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
     operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
@@ -106,11 +121,19 @@ def inspector(
     only the third dimension and displaying the resulting one-dimensional slice in the
     right-hand side figure. In ``mode='polygon'`` it allows drawing a polygon to compute
     the total intensity inside the polygon as a function of the third dimension.
+    In ``mode='rectangle'`` it allows drawing a rectangle to compute the total intensity
+    inside the rectangle as a function of the third dimension.
 
     Controls (point mode):
     - Left-click to make new points
     - Left-click and hold on point to move point
     - Middle-click to delete point
+
+    Controls (rectangle mode):
+    - Left-click to make new rectangles
+    - Left-click and hold on rectangle vertices to resize rectangle
+    - Right-click and hold to drag/move the entire rectangle
+    - Middle-click to delete rectangle
 
     Controls (polygon mode):
     - Left-click to make new polygons
@@ -162,8 +185,9 @@ def inspector(
     mask_color:
         Color of masks (overrides ``mask_cmap``).
     mode:
-        Select ``'point'`` for point inspection or ``'polygon'`` for polygon selection
-        with total intensity inside the polygon plotted as a function of ``dim``.
+        Select ``'point'`` for point inspection, ``'polygon'`` for polygon selection,
+        or ``'rectangle'`` for rectangle selection with total intensity inside the
+        shape plotted as a function of ``dim``.
     nan_color:
         Color to use for NaN values.
     norm:
@@ -226,6 +250,7 @@ def inspector(
     if dim is None:
         dim = data.dims[-1]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
+    bin_centers_node = Node(_to_bin_centers, bin_edges_node, dim=dim)
     op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
     f2d = imagefigure(
         op_node,
@@ -248,26 +273,35 @@ def inspector(
         ylabel=ylabel,
         **kwargs,
     )
-    from ..widgets import Box, PointsTool, PolygonTool
+    from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 
-    if mode == 'point':
-        tool = PointsTool(
-            figure=f2d,
-            input_node=bin_edges_node,
-            func=_slice_xy,
-            destination=f1d,
-            tooltip="Activate inspector tool",
-        )
-    elif mode == 'polygon':
-        tool = PolygonTool(
-            figure=f2d,
-            input_node=bin_edges_node,
-            func=_mask_outside_polygon,
-            destination=f1d,
-            tooltip="Activate polygon inspector tool",
-        )
-    else:
-        raise ValueError(f'Mode "{mode}" is unknown.')
+    match mode:
+        case 'point':
+            tool = PointsTool(
+                figure=f2d,
+                input_node=bin_edges_node,
+                func=_slice_xy,
+                destination=f1d,
+                tooltip="Activate inspector tool",
+            )
+        case 'polygon':
+            tool = PolygonTool(
+                figure=f2d,
+                input_node=bin_centers_node,
+                func=_mask_outside_polygon,
+                destination=f1d,
+                tooltip="Activate polygon inspector tool",
+            )
+        case 'rectangle':
+            tool = RectangleTool(
+                figure=f2d,
+                input_node=bin_edges_node,
+                func=_slice_rectangle,
+                destination=f1d,
+                tooltip="Activate rectangle inspector tool",
+            )
+        case _:
+            raise ValueError(f'Mode "{mode}" is unknown.')
 
     f2d.toolbar['inspect'] = tool
     out = [f2d, f1d]

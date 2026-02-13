@@ -63,6 +63,26 @@ def test_line_creation():
     assert len(fig1d.artists) == 2
 
 
+@pytest.mark.usefixtures('_use_ipympl')
+def test_line_removal():
+    da = pp.data.data3d()
+    ip = pp.inspector(da)
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    fig2d.toolbar['inspect'].value = True
+    assert not fig1d.canvas.dims
+    assert len(fig1d.artists) == 0
+    fig2d.toolbar['inspect']._tool.click(10, 10)
+    assert fig1d.canvas.dims == {'x': da.dims[-1]}
+    assert len(fig1d.artists) == 1
+    fig2d.toolbar['inspect']._tool.click(20, 15)
+    assert len(fig1d.artists) == 2
+    fig2d.toolbar['inspect']._tool.remove(1)
+    assert len(fig1d.artists) == 1
+    fig2d.toolbar['inspect']._tool.remove(0)
+    assert len(fig1d.artists) == 0
+
+
 def _finalize_polygon(tool, points):
     """
     Click the polygon vertices and force creation without needing a close gesture.
@@ -106,26 +126,6 @@ def _polygon_vertices(da, xdim, ydim, x_index, y_indices):
         (x0 + x_margin, y1 + y_margin_end),
         (x0 - x_margin, y1 + y_margin_end),
     ]
-
-
-@pytest.mark.usefixtures('_use_ipympl')
-def test_line_removal():
-    da = pp.data.data3d()
-    ip = pp.inspector(da)
-    fig2d = ip[0][0]
-    fig1d = ip[0][1]
-    fig2d.toolbar['inspect'].value = True
-    assert not fig1d.canvas.dims
-    assert len(fig1d.artists) == 0
-    fig2d.toolbar['inspect']._tool.click(10, 10)
-    assert fig1d.canvas.dims == {'x': da.dims[-1]}
-    assert len(fig1d.artists) == 1
-    fig2d.toolbar['inspect']._tool.click(20, 15)
-    assert len(fig1d.artists) == 2
-    fig2d.toolbar['inspect']._tool.remove(1)
-    assert len(fig1d.artists) == 1
-    fig2d.toolbar['inspect']._tool.remove(0)
-    assert len(fig1d.artists) == 0
 
 
 def _polygon_case(
