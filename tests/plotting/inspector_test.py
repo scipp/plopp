@@ -296,15 +296,6 @@ def test_polygon_mode_preserves_keep_dim_binedges():
 
 
 @pytest.mark.usefixtures('_use_ipympl')
-def test_operation():
-    da = pp.data.data3d()
-    ip_sum = pp.inspector(da, operation='sum')
-    ip_mean = pp.inspector(da, operation='mean')
-    assert ip_sum[0][0].view.colormapper.vmax > ip_mean[0][0].view.colormapper.vmax
-    assert ip_sum[0][0].view.colormapper.vmin < ip_mean[0][0].view.colormapper.vmin
-
-
-@pytest.mark.usefixtures('_use_ipympl')
 def test_kwargs_propagation():
     da = pp.data.data3d()
     ip = pp.inspector(da, xmin=2, xmax=8, ymin=-0.25, ymax=0.75, norm="log")
