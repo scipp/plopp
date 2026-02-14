@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+from functools import partial
 from typing import Literal
 
 import numpy as np
 import scipp as sc
+from matplotlib.path import Path
 
 from ..core import Node
 from ..core.typing import Plottable
@@ -22,46 +24,44 @@ def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
     return da
 
 
-def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
-    out = getattr(sc, op)(da, dim=dim)
-    if out.name:
-        out.name = f'{op} of {out.name}'
-    return out
+def _to_bin_centers(da: sc.DataArray, dim: str) -> sc.DataArray:
+    """
+    Convert dimension coords to bin centers.
+    """
+    for d in set(da.dims) - {dim}:
+        da.coords[d] = sc.midpoints(da.coords[d], dim=d)
+    return da
 
 
 def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
     x = xy['x']
     y = xy['y']
-    return da[y['dim'], y['value']][x['dim'], x['value']]
-
-
-def _coord_to_centers(da: sc.DataArray, dim: str) -> sc.Variable:
-    coord = da.coords[dim]
-    if da.coords.is_edges(dim, dim=dim):
-        return sc.midpoints(coord, dim=dim)
-    return coord
+    try:
+        # If there is a 2D coordinate in the data, we need to slice the other dimension
+        # first. The assumption here is that there would only be one multi-dimensional
+        # coordinate in a given DataArray (which is very likely the case).
+        if da.coords[y['dim']].ndim > 1:
+            return da[x['dim'], x['value']][y['dim'], y['value']]
+        else:
+            return da[y['dim'], y['value']][x['dim'], x['value']]
+    except IndexError:
+        # If the index is out of bounds, return an empty DataArray
+        return sc.full_like(da[y['dim'], 0][x['dim'], 0], value=np.nan)
 
 
 def _mask_outside_polygon(
-    da: sc.DataArray, poly: dict[str, dict[str, sc.Variable]]
+    da: sc.DataArray, poly: dict, points: np.ndarray, sizes: dict[str, int]
 ) -> sc.DataArray:
-    from matplotlib.path import Path
-
-    xdim = poly['x']['dim']
-    ydim = poly['y']['dim']
-    x = _coord_to_centers(da, xdim)
-    y = _coord_to_centers(da, ydim)
-    vx = poly['x']['value'].to(unit=x.unit).values
-    vy = poly['y']['value'].to(unit=y.unit).values
+    vx = poly['x']['value'].values
+    vy = poly['y']['value'].values
     verts = np.column_stack([vx, vy])
     path = Path(verts)
-    xx = sc.broadcast(x, sizes={**x.sizes, **y.sizes})
-    yy = sc.broadcast(y, sizes={**x.sizes, **y.sizes})
-    points = np.column_stack([xx.values.ravel(), yy.values.ravel()])
+    dims = sizes.keys()
     inside = sc.array(
-        dims=yy.dims, values=path.contains_points(points).reshape(yy.shape)
+        dims=dims,
+        values=path.contains_points(points).reshape(tuple(sizes.values())),
     )
-    return da.assign_masks(__inside_polygon=~inside).sum({*x.dims, *y.dims})
+    return da.assign_masks(__inside_polygon=~inside).sum(dims)
 
 
 def inspector(
@@ -81,10 +81,9 @@ def inspector(
     logc: bool | None = None,
     mask_cmap: str = 'gray',
     mask_color: str = 'black',
-    mode: Literal['point', 'polygon'] = 'point',
+    mode: Literal['point', 'polygon', 'rectangle'] = 'point',
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
-    operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
     orientation: Literal['horizontal', 'vertical'] = 'horizontal',
     title: str | None = None,
     vmax: sc.Variable | float | None = None,
@@ -98,19 +97,27 @@ def inspector(
     **kwargs,
 ):
     """
-    Inspector takes in a three-dimensional input and applies a reduction operation
-    (``'sum'`` by default) along one of the dimensions specified by ``dim``.
+    Inspector takes in a three-dimensional input and applies a sum along one of the
+    dimensions specified by ``dim``.
     It displays the result as a two-dimensional image.
     In addition, an 'inspection' tool is available in the toolbar. In ``mode='point'``
     it allows placing point markers on the image to slice at that position, retaining
     only the third dimension and displaying the resulting one-dimensional slice in the
     right-hand side figure. In ``mode='polygon'`` it allows drawing a polygon to compute
     the total intensity inside the polygon as a function of the third dimension.
+    In ``mode='rectangle'`` it allows drawing a rectangle to compute the total intensity
+    inside the rectangle as a function of the third dimension.
 
     Controls (point mode):
     - Left-click to make new points
     - Left-click and hold on point to move point
     - Middle-click to delete point
+
+    Controls (rectangle mode):
+    - Left-click to make new rectangles
+    - Left-click and hold on rectangle vertices to resize rectangle
+    - Right-click and hold to drag/move the entire rectangle
+    - Middle-click to delete rectangle
 
     Controls (polygon mode):
     - Left-click to make new polygons
@@ -162,15 +169,13 @@ def inspector(
     mask_color:
         Color of masks (overrides ``mask_cmap``).
     mode:
-        Select ``'point'`` for point inspection or ``'polygon'`` for polygon selection
-        with total intensity inside the polygon plotted as a function of ``dim``.
+        Select ``'point'`` for point inspection, ``'polygon'`` for polygon selection,
+        or ``'rectangle'`` for rectangle selection with total intensity inside the
+        shape plotted as a function of ``dim``.
     nan_color:
         Color to use for NaN values.
     norm:
         Set to ``'log'`` for a logarithmic colorscale. Legacy, prefer ``logc`` instead.
-    operation:
-        The operation to apply along the third (undisplayed) dimension specified by
-        ``dim``.
     orientation:
         Display the two panels side-by-side ('horizontal') or one below the other
         ('vertical').
@@ -203,6 +208,11 @@ def inspector(
         A :class:`Box` which will contain two :class:`Figure` and one slider widget.
     """
 
+    if mode not in ['point', 'polygon', 'rectangle']:
+        raise ValueError(
+            f'Invalid mode: {mode}. Allowed modes are "point", "polygon", "rectangle".'
+        )
+
     f1d = linefigure(
         autoscale=autoscale,
         errorbars=errorbars,
@@ -226,7 +236,8 @@ def inspector(
     if dim is None:
         dim = data.dims[-1]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
-    op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
+    bin_centers_node = Node(_to_bin_centers, bin_edges_node, dim=dim)
+    op_node = Node(sc.sum, bin_edges_node, dim=dim)
     f2d = imagefigure(
         op_node,
         aspect=aspect,
@@ -248,7 +259,7 @@ def inspector(
         ylabel=ylabel,
         **kwargs,
     )
-    from ..widgets import Box, PointsTool, PolygonTool
+    from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 
     if mode == 'point':
         tool = PointsTool(
@@ -258,16 +269,24 @@ def inspector(
             destination=f1d,
             tooltip="Activate inspector tool",
         )
-    elif mode == 'polygon':
-        tool = PolygonTool(
-            figure=f2d,
-            input_node=bin_edges_node,
-            func=_mask_outside_polygon,
-            destination=f1d,
-            tooltip="Activate polygon inspector tool",
-        )
     else:
-        raise ValueError(f'Mode "{mode}" is unknown.')
+        da = bin_centers_node()
+        xdim = f2d.canvas.dims['x']
+        ydim = f2d.canvas.dims['y']
+        x = da.coords[xdim]
+        y = da.coords[ydim]
+        sizes = {**x.sizes, **y.sizes}
+        xx = sc.broadcast(x, sizes=sizes)
+        yy = sc.broadcast(y, sizes=sizes)
+        points = np.column_stack([xx.values.ravel(), yy.values.ravel()])
+        tools = {'polygon': PolygonTool, 'rectangle': RectangleTool}
+        tool = tools[mode](
+            figure=f2d,
+            input_node=bin_centers_node,
+            func=partial(_mask_outside_polygon, points=points, sizes=sizes),
+            destination=f1d,
+            tooltip=f"Activate {mode} inspector tool",
+        )
 
     f2d.toolbar['inspect'] = tool
     out = [f2d, f1d]
