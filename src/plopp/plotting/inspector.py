@@ -46,7 +46,7 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
             return da[y['dim'], y['value']][x['dim'], x['value']]
     except IndexError:
         # If the index is out of bounds, return an empty DataArray
-        return sc.full_like(da[y['dim'], 0][x['dim'], 0], value=np.nan)
+        return sc.full_like(da[y['dim'], 0][x['dim'], 0], value=np.nan, dtype=float)
 
 
 def _mask_outside_polygon(

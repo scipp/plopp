@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+import numpy as np
 import pytest
 import scipp as sc
 
@@ -106,6 +107,47 @@ def test_kwargs_propagation():
 
 
 @pytest.mark.usefixtures('_use_ipympl')
+def test_point_mode_line_data():
+    da = pp.data.data3d()
+    ip = pp.inspector(da, dim='z')
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    # Activate the inspector tool
+    fig2d.toolbar['inspect'].value = True
+    fig2d.toolbar['inspect']._tool.click(16.1, 4.2)
+    line = next(iter(fig1d.artists.values()))
+    expected = da['x', 16]['y', 4].drop_coords(['x', 'y'])
+    assert sc.identical(line._data.drop_coords(['x', 'y']), expected)
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_point_mode_line_data_with_binedges():
+    da = pp.data.data3d(binedges=True)
+    ip = pp.inspector(da, dim='z')
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    # Activate the inspector tool
+    fig2d.toolbar['inspect'].value = True
+    fig2d.toolbar['inspect']._tool.click(33.5, 7.6)
+    line = next(iter(fig1d.artists.values()))
+    expected = da['x', 33]['y', 7].drop_coords(['x', 'y'])
+    assert sc.identical(line._data.drop_coords(['x', 'y']), expected)
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_point_mode_line_data_outside_range():
+    da = pp.data.data3d()
+    ip = pp.inspector(da, dim='z')
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    # Activate the inspector tool
+    fig2d.toolbar['inspect'].value = True
+    fig2d.toolbar['inspect']._tool.click(100, 100)
+    line = next(iter(fig1d.artists.values()))
+    assert all(np.isnan(line._data.values))
+
+
+@pytest.mark.usefixtures('_use_ipympl')
 def test_polygon_mode_triangle():
     da = sc.DataArray(
         data=sc.array(
@@ -116,6 +158,7 @@ def test_polygon_mode_triangle():
                 [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
                 [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
             ],
+            dtype=float,
         ),
         coords={
             "xx": sc.array(
@@ -213,6 +256,7 @@ def test_polygon_mode_triangle_with_mask_in_third_dimension():
                 [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
                 [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
             ],
+            dtype=float,
         ),
         coords={
             "xx": sc.array(
@@ -263,6 +307,7 @@ def test_polygon_mode_preserves_keep_dim_binedges():
                 [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
                 [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
             ],
+            dtype=float,
         ),
         coords={
             "xx": sc.array(
@@ -300,3 +345,139 @@ def test_polygon_mode_preserves_keep_dim_binedges():
     line = next(iter(fig1d.artists.values()))
     assert sc.identical(line._data, expected)
     assert line._data.coords.is_edges("zz", dim="zz")
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_polygon_mode_contains_nothing():
+    da = sc.DataArray(
+        data=sc.array(
+            dims=["xx", "yy", "zz"],
+            values=[
+                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
+                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
+                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
+            ],
+            dtype=float,
+        ),
+        coords={
+            "xx": sc.array(
+                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
+            ),
+            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
+            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
+        },
+    )
+
+    ip = pp.inspector(da, mode='polygon', dim='zz')
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    fig2d.toolbar['inspect'].value = True
+    tool = fig2d.toolbar['inspect']._tool
+
+    # This triangle should select the bottom left corner of the data.
+    # Closing the polygon by repeating the first point.
+    x = [-100, -1, -100, -100]
+    y = [-1, -1, 350, -1]
+    for xi, yi in zip(x, y, strict=True):
+        tool.click(x=xi, y=yi)
+
+    expected = sc.DataArray(
+        data=sc.zeros(sizes={'zz': 3}),
+        coords={"zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m')},
+    )
+    line = next(iter(fig1d.artists.values()))
+    assert sc.identical(line._data, expected)
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_rectangle_mode():
+    da = sc.DataArray(
+        data=sc.array(
+            dims=["xx", "yy", "zz"],
+            values=[
+                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
+                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
+                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
+            ],
+            dtype=float,
+        ),
+        coords={
+            "xx": sc.array(
+                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
+            ),
+            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
+            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
+        },
+    )
+
+    ip = pp.inspector(da, mode='rectangle', dim='zz')
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    fig2d.toolbar['inspect'].value = True
+    tool = fig2d.toolbar['inspect']._tool
+
+    # This rectangle should select the bottom left corner of the data.
+    # Closing the rectangle by repeating the first point.
+    x = [-1, 21]
+    y = [-1, 310]
+    for xi, yi in zip(x, y, strict=True):
+        tool.click(x=xi, y=yi)
+
+    mask = sc.array(
+        dims=['xx', 'yy'],
+        values=[
+            [False, False, True],
+            [False, False, True],
+            [False, False, True],
+            [True, True, True],
+        ],
+    )
+
+    expected = da.assign_masks(m=mask).sum(["xx", "yy"])
+    line = next(iter(fig1d.artists.values()))
+    assert sc.identical(line._data, expected)
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_rectangle_mode_contains_nothing():
+    da = sc.DataArray(
+        data=sc.array(
+            dims=["xx", "yy", "zz"],
+            values=[
+                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
+                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
+                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
+            ],
+            dtype=float,
+        ),
+        coords={
+            "xx": sc.array(
+                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
+            ),
+            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
+            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
+        },
+    )
+
+    ip = pp.inspector(da, mode='rectangle', dim='zz')
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    fig2d.toolbar['inspect'].value = True
+    tool = fig2d.toolbar['inspect']._tool
+
+    # This rectangle should select the bottom left corner of the data.
+    # Closing the rectangle by repeating the first point.
+    x = [-100, -1]
+    y = [-1, -1]
+    for xi, yi in zip(x, y, strict=True):
+        tool.click(x=xi, y=yi)
+
+    expected = sc.DataArray(
+        data=sc.zeros(sizes={'zz': 3}),
+        coords={"zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m')},
+    )
+    line = next(iter(fig1d.artists.values()))
+    assert sc.identical(line._data, expected)

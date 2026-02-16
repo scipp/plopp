@@ -107,6 +107,9 @@ def axis_bounds(
     pad:
         Whether to pad the limits.
     """
-    values = fix_empty_range(find_limits(x, scale=scale, pad=pad))
+    try:
+        values = fix_empty_range(find_limits(x, scale=scale, pad=pad))
+    except ValueError:
+        return dict.fromkeys(keys, None)
     bounds = dict(zip(keys, (val.value for val in values), strict=True))
     return bounds
