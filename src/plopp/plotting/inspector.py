@@ -33,6 +33,13 @@ def _to_bin_centers(da: sc.DataArray, dim: str) -> sc.DataArray:
     return da
 
 
+def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
+    out = getattr(sc, op)(da, dim=dim)
+    if out.name:
+        out.name = f'{op} of {out.name}'
+    return out
+
+
 def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
     x = xy['x']
     y = xy['y']
@@ -50,7 +57,7 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
 
 
 def _mask_outside_polygon(
-    da: sc.DataArray, poly: dict, points: np.ndarray, sizes: dict[str, int]
+    da: sc.DataArray, poly: dict, points: np.ndarray, sizes: dict[str, int], op: str
 ) -> sc.DataArray:
     vx = poly['x']['value'].values
     vy = poly['y']['value'].values
@@ -61,7 +68,7 @@ def _mask_outside_polygon(
         dims=dims,
         values=path.contains_points(points).reshape(tuple(sizes.values())),
     )
-    return da.assign_masks(__inside_polygon=~inside).sum(dims)
+    return getattr(da.assign_masks({str(da.masks.keys()): ~inside}), op)(dims)
 
 
 def inspector(
@@ -84,6 +91,7 @@ def inspector(
     mode: Literal['point', 'polygon', 'rectangle'] = 'point',
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
+    operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
     orientation: Literal['horizontal', 'vertical'] = 'horizontal',
     title: str | None = None,
     vmax: sc.Variable | float | None = None,
@@ -97,8 +105,8 @@ def inspector(
     **kwargs,
 ):
     """
-    Inspector takes in a three-dimensional input and applies a sum along one of the
-    dimensions specified by ``dim``.
+    Inspector takes in a three-dimensional input and applies a reduction operation
+    (``'sum'`` by default) along one of the dimensions specified by ``dim``.
     It displays the result as a two-dimensional image.
     In addition, an 'inspection' tool is available in the toolbar. In ``mode='point'``
     it allows placing point markers on the image to slice at that position, retaining
@@ -176,6 +184,9 @@ def inspector(
         Color to use for NaN values.
     norm:
         Set to ``'log'`` for a logarithmic colorscale. Legacy, prefer ``logc`` instead.
+    operation:
+        The operation to apply along the third (undisplayed) dimension specified by
+        ``dim``.
     orientation:
         Display the two panels side-by-side ('horizontal') or one below the other
         ('vertical').
@@ -237,7 +248,7 @@ def inspector(
         dim = data.dims[-1]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     bin_centers_node = Node(_to_bin_centers, bin_edges_node, dim=dim)
-    op_node = Node(sc.sum, bin_edges_node, dim=dim)
+    op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
     f2d = imagefigure(
         op_node,
         aspect=aspect,
@@ -283,7 +294,9 @@ def inspector(
         tool = tools[mode](
             figure=f2d,
             input_node=bin_centers_node,
-            func=partial(_mask_outside_polygon, points=points, sizes=sizes),
+            func=partial(
+                _mask_outside_polygon, points=points, sizes=sizes, op=operation
+            ),
             destination=f1d,
             tooltip=f"Activate {mode} inspector tool",
         )
