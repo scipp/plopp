@@ -63,8 +63,8 @@ class FastImage:
 
         self._xmin, self._xmax = self._bin_edge_coords["x"].values[[0, -1]]
         self._ymin, self._ymax = self._bin_edge_coords["y"].values[[0, -1]]
-        self._dx = np.diff(self._bin_edge_coords["x"].values[:2])
-        self._dy = np.diff(self._bin_edge_coords["y"].values[:2])
+        self._dx = np.diff(self._bin_edge_coords["x"].values[:2])[0]
+        self._dy = np.diff(self._bin_edge_coords["y"].values[:2])[0]
 
         # Calling imshow sets the aspect ratio to 'equal', which might not be what the
         # user requested. We need to restore the original aspect ratio after making the
