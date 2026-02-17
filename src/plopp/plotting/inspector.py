@@ -57,7 +57,12 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
 
 
 def _mask_outside_polygon(
-    da: sc.DataArray, poly: dict, points: np.ndarray, sizes: dict[str, int], op: str
+    da: sc.DataArray,
+    poly: dict,
+    points: np.ndarray,
+    sizes: dict[str, int],
+    op: str,
+    non_nan: sc.Variable,
 ) -> sc.DataArray:
     vx = poly['x']['value'].values
     vy = poly['y']['value'].values
@@ -68,7 +73,21 @@ def _mask_outside_polygon(
         dims=dims,
         values=path.contains_points(points).reshape(tuple(sizes.values())),
     )
-    return getattr(da.assign_masks({str(da.masks.keys()): ~inside}), op)(dims)
+    masked = da.assign_masks({str(da.masks.keys()): ~inside})
+    # If the operation is a mean, there is currently a bug in the implementation
+    # in scipp where doing a mean over a subset of the array's dimensions gives the
+    # wrong result: https://github.com/scipp/scipp/issues/3841
+    # Instead, we manually compute the mean
+    if 'mean' not in op:
+        return getattr(masked, op)(dims)
+    if 'nan' in op:
+        numerator = masked.nansum(dims)
+        denominator = (inside & non_nan).sum()
+    else:
+        numerator = masked.sum(dims)
+        denominator = inside.sum()
+    denominator.unit = ""
+    return numerator / denominator
 
 
 def inspector(
@@ -91,7 +110,9 @@ def inspector(
     mode: Literal['point', 'polygon', 'rectangle'] = 'point',
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
-    operation: Literal['sum', 'mean', 'min', 'max'] = 'sum',
+    operation: Literal[
+        'sum', 'mean', 'min', 'max', 'nansum', 'nanmean', 'nanmin', 'nanmax'
+    ] = 'sum',
     orientation: Literal['horizontal', 'vertical'] = 'horizontal',
     title: str | None = None,
     vmax: sc.Variable | float | None = None,
@@ -186,7 +207,8 @@ def inspector(
         Set to ``'log'`` for a logarithmic colorscale. Legacy, prefer ``logc`` instead.
     operation:
         The operation to apply along the third (undisplayed) dimension specified by
-        ``dim``.
+        ``dim``. The same operation is also applied to the data within the selected
+        region in the case of ``polygon`` and ``rectangle`` modes.
     orientation:
         Display the two panels side-by-side ('horizontal') or one below the other
         ('vertical').
@@ -290,12 +312,17 @@ def inspector(
         xx = sc.broadcast(x, sizes=sizes)
         yy = sc.broadcast(y, sizes=sizes)
         points = np.column_stack([xx.values.ravel(), yy.values.ravel()])
+        non_nan = ~sc.isnan(da.data)
         tools = {'polygon': PolygonTool, 'rectangle': RectangleTool}
         tool = tools[mode](
             figure=f2d,
             input_node=bin_centers_node,
             func=partial(
-                _mask_outside_polygon, points=points, sizes=sizes, op=operation
+                _mask_outside_polygon,
+                points=points,
+                sizes=sizes,
+                op=operation,
+                non_nan=non_nan,
             ),
             destination=f1d,
             tooltip=f"Activate {mode} inspector tool",
