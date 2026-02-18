@@ -4,7 +4,6 @@
 from functools import partial
 
 import pytest
-import scipp as sc
 
 import plopp as pp
 from plopp.data import examples
