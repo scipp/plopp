@@ -21,6 +21,7 @@ def _make_pooch():
         registry={
             'nyc_taxi_data.h5': 'md5:fc0867ec061e4ac0cbe5975a665a0eea',
             'teapot.h5': 'md5:012994ffc56f520589b921c2ce655c19',
+            'air_temperature.h5': 'md5:453e919f14e58043753b756ce569a33d',
         },
     )
 
@@ -63,6 +64,14 @@ def teapot() -> str:
     >> faces = scene.meshes[None].faces
     """
     return get_path('teapot.h5')
+
+
+def air_temperature() -> str:
+    """
+    North American air temperature dataset from Xarray.
+    See https://docs.xarray.dev/en/latest/user-guide/plotting.html
+    """
+    return get_path('air_temperature.h5')
 
 
 def three_bands(
