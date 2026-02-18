@@ -45,8 +45,11 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
     y = xy['y']
     try:
         # If there is a 2D coordinate in the data, we need to slice the other dimension
-        # first. The assumption here is that there would only be one multi-dimensional
-        # coordinate in a given DataArray (which is very likely the case).
+        # first, as trying to slice a 2D coordinate using label-based indexing raises an
+        # error in Scipp. After slicing the other dimension, the 2D coordinate will be
+        # 1D and can be sliced normally using label-based indexing.
+        # We assume here that there would only be one multi-dimensional coordinate in a
+        # given DataArray (which is very likely the case).
         if da.coords[y['dim']].ndim > 1:
             return da[x['dim'], x['value']][y['dim'], y['value']]
         else:
