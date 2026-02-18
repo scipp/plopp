@@ -7,7 +7,7 @@ from typing import Literal
 
 import scipp as sc
 
-from ..core import widget_node
+from ..core import Node, widget_node
 from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
 from .common import (
@@ -17,6 +17,12 @@ from .common import (
     raise_multiple_inputs_for_2d_plot_error,
     require_interactive_figure,
 )
+
+
+def _maybe_reduce_dim(da, dim, op):
+    if dim in da.dims:
+        return op(da, dim=dim)
+    return da
 
 
 class Slicer:
@@ -95,13 +101,19 @@ class Slicer:
 
         from ..widgets import CombinedSliceWidget, slice_dims
 
+        other_dims = [dim for dim in dims if dim not in keep]
+
         self.slider = CombinedSliceWidget(
             nodes[0](),
-            dims=[dim for dim in dims if dim not in keep],
+            dims=other_dims,
             enable_player=enable_player,
         )
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
+        self.reduce_nodes = [
+            Node(partial(_maybe_reduce_dim, dim=other_dims, op=sc.sum), node)
+            for node in nodes
+        ]
 
         args = categorize_args(**kwargs)
 
@@ -118,7 +130,7 @@ class Slicer:
                 f'but {ndims} were requested.'
             )
 
-        self.figure = make_figure(*self.slice_nodes)
+        self.figure = make_figure(*self.reduce_nodes)
         require_interactive_figure(self.figure, 'slicer')
         self.figure.bottom_bar.add(self.slider)
 
