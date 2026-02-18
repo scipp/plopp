@@ -19,9 +19,10 @@ from .common import (
 )
 
 
-def _maybe_reduce_dim(da, dim, op):
-    if dim in da.dims:
-        return op(da, dim=dim)
+def _maybe_reduce_dim(da, dims, op):
+    to_be_reduced = set(dims) & set(da.dims)
+    if to_be_reduced:
+        return op(da, dim=to_be_reduced)
     return da
 
 
@@ -111,8 +112,8 @@ class Slicer:
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
         self.reduce_nodes = [
-            Node(partial(_maybe_reduce_dim, dim=other_dims, op=sc.sum), node)
-            for node in nodes
+            Node(partial(_maybe_reduce_dim, dims=other_dims, op=sc.sum), node)
+            for node in self.slice_nodes
         ]
 
         args = categorize_args(**kwargs)
