@@ -18,12 +18,12 @@ from .common import (
     require_interactive_figure,
 )
 
-
-def _maybe_reduce_dim(da, dims, op):
-    to_be_reduced = set(dims) & set(da.dims)
-    if to_be_reduced:
-        return op(da, dim=to_be_reduced)
-    return da
+# def _maybe_reduce_dim(da, dims, op):
+#     to_be_reduced = set(dims) & set(da.dims)
+#     if to_be_reduced:
+#         print(f"Reducing dimensions {to_be_reduced} using {op.__name__}")
+#         return op(da, dim=to_be_reduced)
+#     return da
 
 
 class Slicer:
@@ -112,8 +112,7 @@ class Slicer:
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
         self.reduce_nodes = [
-            Node(partial(_maybe_reduce_dim, dims=other_dims, op=sc.sum), node)
-            for node in self.slice_nodes
+            Node(sc.sum, node, dim=other_dims) for node in self.slice_nodes
         ]
 
         args = categorize_args(**kwargs)
