@@ -1,0 +1,25 @@
+Results of doctest builder run on 2026-02-18 13:47:44
+=====================================================
+
+Document: generated/plopp.backends.matplotlib.tiled.Tiled
+---------------------------------------------------------
+1 items passed all tests:
+  19 tests in default
+19 tests in 1 items.
+19 passed and 0 failed.
+Test passed.
+
+Document: generated/plopp.graphics.tiled
+----------------------------------------
+1 items passed all tests:
+  19 tests in default
+19 tests in 1 items.
+19 passed and 0 failed.
+Test passed.
+
+Doctest summary
+===============
+   38 tests
+    0 failures in tests
+    0 failures in setup code
+    0 failures in cleanup code
