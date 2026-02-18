@@ -6,7 +6,7 @@ from .checkboxes import Checkboxes
 from .clip3d import Clip3dTool, ClippingManager
 from .drawing import DrawingTool, PointsTool, PolygonTool, RectangleTool
 from .linesave import LineSaveTool
-from .slice import RangeSliceWidget, SliceWidget, slice_dims
+from .slice import CombinedSliceWidget, RangeSliceWidget, SliceWidget, slice_dims
 from .toolbar import Toolbar, make_toolbar_canvas2d, make_toolbar_canvas3d
 from .tools import ButtonTool, ColorTool, ToggleTool
 
@@ -17,6 +17,7 @@ __all__ = [
     "Clip3dTool",
     "ClippingManager",
     "ColorTool",
+    "CombinedSliceWidget",
     "DrawingTool",
     "HBar",
     "LineSaveTool",

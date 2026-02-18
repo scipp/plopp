@@ -12,7 +12,7 @@ from ..core.utils import coord_element_to_string
 from .box import VBar
 
 
-class DimSlicer(ipw.VBox):
+class DimSlicer(ipw.HBox):
     def __init__(
         self,
         dim: str,
@@ -66,7 +66,7 @@ class DimSlicer(ipw.VBox):
         self._update_label({"new": self.slider.value})
         self.slider.observe(self._update_label, names='value')
 
-        super().__init__([ipw.HBox(children)])
+        super().__init__(children)
 
     def _update_label(self, change: dict[str, Any]):
         """
@@ -93,12 +93,77 @@ class DimSlicer(ipw.VBox):
         self.slider.value = value
 
 
+class CombinedSlicer(ipw.HBox):
+    def __init__(
+        self,
+        dim: str,
+        size: int,
+        coord: sc.Variable,
+        width: str = "25em",
+        **ignored,
+    ):
+
+        self.int_slicer = DimSlicer(
+            dim=dim, size=size, coord=coord, slider_constr=ipw.IntSlider
+        )
+        self.int_slicer.slider.value = self.int_slicer.slider.min
+        self.int_slicer.slider.layout = {"width": width}
+
+        self.range_slicer = DimSlicer(
+            dim=dim, size=size, coord=coord, slider_constr=ipw.IntRangeSlider
+        )
+        self.range_slicer.slider.value = 0, size
+        self.range_slicer.slider.layout = {"width": width}
+
+        self.int_slicer.slider.observe(self.move_range, names='value')
+
+        self.slider_toggler = ipw.ToggleButtons(
+            options=["o-o", "-o-"],
+            tooltips=['Range slider', 'Single handle slider'],
+            style={"button_width": "3.2em"},
+        )
+
+        self.slider_toggler.observe(self.toggle_slider_mode, names='value')
+
+        # children = [self.slider_toggler, self.range_slicer]
+
+        super().__init__([self.slider_toggler, self.range_slicer])
+
+    def move_range(self, change):
+        self.range_slicer.slider.value = (change["new"], change["new"])
+
+    def toggle_slider_mode(self, change):
+        if change["new"] == "o-o":
+            self.children = [self.slider_toggler, self.range_slicer]
+        else:
+            self.int_slicer.slider.value = int(
+                0.5 * sum(self.range_slicer.slider.value)
+            )
+            self.children = [self.slider_toggler, self.int_slicer]
+
+    @property
+    def slider(self) -> ipw.Widget:
+        return self.range_slicer.slider
+
+    @property
+    def value(self) -> int | tuple[int, int]:
+        """
+        The value of the slider.
+        """
+        return self.slider.value
+
+    @value.setter
+    def value(self, value: int | tuple[int, int]):
+        self.slider.value = value
+
+
 class _BaseSliceWidget(VBar, ipw.ValueWidget):
     def __init__(
         self,
         da: sc.DataArray,
         dims: list[str],
         slider_constr: ipw.Widget,
+        slicer_constr: type[DimSlicer] | type[CombinedSlicer],
         enable_player: bool = False,
     ):
         if isinstance(dims, str):
@@ -113,7 +178,7 @@ class _BaseSliceWidget(VBar, ipw.ValueWidget):
                 if dim in da.coords
                 else sc.arange(dim, da.sizes[dim], unit=None)
             )
-            self.controls[dim] = DimSlicer(
+            self.controls[dim] = slicer_constr(
                 dim=dim,
                 size=da.sizes[dim],
                 coord=coord,
@@ -131,10 +196,12 @@ class _BaseSliceWidget(VBar, ipw.ValueWidget):
         Update the value of the widget.
         The value is a dict containing one entry per slider, giving the slider's value.
         """
-        self.value = {dim: slicer.slider.value for dim, slicer in self.controls.items()}
+        self.value = {dim: slicer.value for dim, slicer in self.controls.items()}
 
 
-SliceWidget = partial(_BaseSliceWidget, slider_constr=ipw.IntSlider)
+SliceWidget = partial(
+    _BaseSliceWidget, slider_constr=ipw.IntSlider, slicer_constr=DimSlicer
+)
 """
 Widgets containing a slider for each of the requested dimensions.
 The widget uses the input data array to determine the range each slider should have.
@@ -153,14 +220,36 @@ enable_player:
     .. versionadded:: 25.07.0
 """
 
-RangeSliceWidget = partial(_BaseSliceWidget, slider_constr=ipw.IntRangeSlider)
+RangeSliceWidget = partial(
+    _BaseSliceWidget, slider_constr=ipw.IntRangeSlider, slicer_constr=DimSlicer
+)
 """
-Widgets containing a slider for each of the requested dimensions.
+Widgets containing a range slider for each of the requested dimensions.
 The widget uses the input data array to determine the range each slider should have.
 Each slider also comes with a checkbox to toggle on and off the slider's continuous
 update.
 
 .. versionadded:: 24.04.0
+
+Parameters
+----------
+da:
+    The input data array.
+dims:
+    The dimensions to make sliders for.
+"""
+
+CombinedSliceWidget = partial(
+    _BaseSliceWidget, slider_constr=None, slicer_constr=CombinedSlicer
+)
+"""
+Widgets containing a combined slider (able to toggle between normal slider and range
+slider) for each of the requested dimensions.
+The widget uses the input data array to determine the range each slider should have.
+Each slider also comes with a checkbox to toggle on and off the slider's continuous
+update.
+
+.. versionadded:: 26.03.0
 
 Parameters
 ----------

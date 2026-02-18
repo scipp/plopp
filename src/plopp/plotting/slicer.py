@@ -93,9 +93,9 @@ class Slicer:
                 f"were not found in the input's dimensions {dims}."
             )
 
-        from ..widgets import SliceWidget, slice_dims
+        from ..widgets import CombinedSliceWidget, slice_dims
 
-        self.slider = SliceWidget(
+        self.slider = CombinedSliceWidget(
             nodes[0](),
             dims=[dim for dim in dims if dim not in keep],
             enable_player=enable_player,
