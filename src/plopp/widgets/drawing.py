@@ -191,18 +191,18 @@ value:
 """
 
 
-def _get_polygon_info(artist, figure):
+def _get_rect_info(artist, figure):
     """
-    Convert the raw polygon vertices to a dict containing the dimensions of
-    each axis, and arrays with units.
+    Convert the raw rectangle info to a dict containing the dimensions of
+    each axis, and positions of the vertices with units.
     """
-    xs, ys = artist.x, artist.y
+    x, y = artist.xy
     return {
         'x': {
             'dim': figure.canvas.dims['x'],
             'value': sc.array(
                 dims=['vertex'],
-                values=xs,
+                values=[x, x + artist.width, x + artist.width, x, x],
                 unit=figure.canvas.units['x'],
             ),
         },
@@ -210,7 +210,50 @@ def _get_polygon_info(artist, figure):
             'dim': figure.canvas.dims['y'],
             'value': sc.array(
                 dims=['vertex'],
-                values=ys,
+                values=[y, y, y + artist.height, y + artist.height, y],
+                unit=figure.canvas.units['y'],
+            ),
+        },
+    }
+
+
+def _make_rectangles(**kwargs):
+    """
+    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
+    hard dependency.
+    """
+    from mpltoolbox import Rectangles
+
+    return Rectangles(**kwargs)
+
+
+RectangleTool = partial(
+    DrawingTool,
+    tool=_make_rectangles,
+    get_artist_info=_get_rect_info,
+    icon='vector-square',
+)
+
+
+def _get_polygon_info(artist, figure):
+    """
+    Convert the raw polygon vertices to a dict containing the dimensions of
+    each axis, and positions of the vertices with units.
+    """
+    return {
+        'x': {
+            'dim': figure.canvas.dims['x'],
+            'value': sc.array(
+                dims=['vertex'],
+                values=artist.x,
+                unit=figure.canvas.units['x'],
+            ),
+        },
+        'y': {
+            'dim': figure.canvas.dims['y'],
+            'value': sc.array(
+                dims=['vertex'],
+                values=artist.y,
                 unit=figure.canvas.units['y'],
             ),
         },

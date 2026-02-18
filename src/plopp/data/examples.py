@@ -21,6 +21,7 @@ def _make_pooch():
         registry={
             'nyc_taxi_data.h5': 'md5:fc0867ec061e4ac0cbe5975a665a0eea',
             'teapot.h5': 'md5:012994ffc56f520589b921c2ce655c19',
+            'air_temperature.h5': 'md5:453e919f14e58043753b756ce569a33d',
         },
     )
 
@@ -65,7 +66,20 @@ def teapot() -> str:
     return get_path('teapot.h5')
 
 
-def three_bands(npeaks=200, per_peak=500, spread=30.0):
+def air_temperature() -> str:
+    """
+    North American air temperature dataset from Xarray.
+    See https://docs.xarray.dev/en/latest/user-guide/plotting.html
+    """
+    return get_path('air_temperature.h5')
+
+
+def three_bands(
+    npeaks: int = 200,
+    per_peak: int = 500,
+    spread: float = 30.0,
+    seed: int | None = None,
+) -> sc.DataArray:
     """
     Generate a 2D dataset with three bands of peaks.
 
@@ -77,10 +91,12 @@ def three_bands(npeaks=200, per_peak=500, spread=30.0):
         Number of points per peak.
     spread:
         Standard deviation (spread or 'width') of the peaks.
+    seed:
+        Random seed for reproducibility.
     """
     ny = 300
     nx = 300
-    rng = np.random.default_rng()
+    rng = np.random.default_rng(seed)
     shape = (npeaks, per_peak)
     x = np.empty(shape)
     y = np.empty(shape)
@@ -103,7 +119,9 @@ def three_bands(npeaks=200, per_peak=500, spread=30.0):
     return table.hist(y=yedges, x=xedges) + sc.scalar(1.0, unit='counts')
 
 
-def clusters3d(nclusters=100, npercluster=2000):
+def clusters3d(
+    nclusters: int = 100, npercluster: int = 2000, seed: int | None = None
+) -> sc.DataArray:
     """
     Generate a 3D dataset with clusters of points.
 
@@ -113,17 +131,20 @@ def clusters3d(nclusters=100, npercluster=2000):
         Number of clusters.
     npercluster:
         Number of points per cluster.
+    seed:
+        Random seed for reproducibility.
     """
     position = np.zeros((nclusters, npercluster, 3))
     values = np.zeros((nclusters, npercluster))
+    rng = np.random.default_rng(seed)
 
     for n in range(nclusters):
-        center = 200.0 * (np.random.random(3) - 0.5)
-        r = 10.0 * np.random.normal(size=[npercluster, 3])
+        center = 200.0 * (rng.random(3) - 0.5)
+        r = 10.0 * rng.normal(size=[npercluster, 3])
         position[n, :] = r + center
         values[n, :] = 1 / np.linalg.norm(r, axis=1) ** 2
 
-    return sc.DataArray(
+    out = sc.DataArray(
         data=sc.array(dims=['row'], values=values.flatten()),
         coords={
             'position': sc.vectors(
@@ -132,4 +153,7 @@ def clusters3d(nclusters=100, npercluster=2000):
                 values=position.reshape(nclusters * npercluster, 3),
             )
         },
+    )
+    return out.assign_coords(
+        {c: getattr(out.coords['position'].fields, c).copy() for c in 'xyz'}
     )
