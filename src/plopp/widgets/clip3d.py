@@ -268,7 +268,7 @@ class ClipValueTool(ipw.HBox):
         Make a selection variable based on the current slider range.
         """
         xmin, xmax = self.range
-        return (da.data >= xmin) & (da.data < xmax)
+        return (da.data >= xmin) & (da.data <= xmax)
 
     def move(self, change: dict[str, Any]):
         # Early return if relative difference between new and old value is small.
