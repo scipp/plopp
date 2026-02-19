@@ -19,7 +19,8 @@ def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
     """
     Convert dimension coords to bin edges.
     """
-    for d in set(da.dims) - {dim}:
+    print(dim)
+    for d in set(da.dims) - set(dim):
         da.coords[d] = coord_as_bin_edges(da, d)
     return da
 
@@ -28,7 +29,7 @@ def _to_bin_centers(da: sc.DataArray, dim: str) -> sc.DataArray:
     """
     Convert dimension coords to bin centers.
     """
-    for d in set(da.dims) - {dim}:
+    for d in set(da.dims) - set(dim):
         da.coords[d] = sc.midpoints(da.coords[d], dim=d)
     return da
 
@@ -249,32 +250,74 @@ def inspector(
             f'Invalid mode: {mode}. Allowed modes are "point", "polygon", "rectangle".'
         )
 
-    f1d = linefigure(
-        autoscale=autoscale,
-        errorbars=errorbars,
-        grid=grid,
-        legend=legend,
-        mask_color=mask_color,
-        xmax=xmax,
-        xmin=xmin,
-        ymax=ymax,
-        ymin=ymin,
-    )
-    require_interactive_figure(f1d, 'inspector')
-
     in_node = Node(preprocess, obj, ignore_size=True)
     data = in_node()
-    if data.ndim != 3:
-        raise ValueError(
-            'The inspector plot currently only works with '
-            f'three-dimensional data, found {data.ndim} dims.'
-        )
+    data_dims = data.dims
+
     if dim is None:
-        dim = data.dims[-1]
+        dim = data_dims[-(len(data_dims) - 2) :]
+    if isinstance(dim, str):
+        dim = [dim]
+
+    dummy = data
+    for d in set(data_dims) - set(dim):
+        dummy = dummy[d, 0]
+    dummy = dummy.copy()
+    dummy.data = sc.full_like(dummy.data, value=np.nan, dtype=float)
+
+    if len(data_dims) == 3:
+        secondary_fig = linefigure(
+            Node(dummy),
+            autoscale=autoscale,
+            errorbars=errorbars,
+            grid=grid,
+            legend=legend,
+            mask_color=mask_color,
+            xmax=xmax,
+            xmin=xmin,
+            ymax=ymax,
+            ymin=ymin,
+        )
+    elif len(data_dims) == 4:
+        secondary_fig = imagefigure(
+            Node(dummy),
+            aspect=aspect,
+            autoscale=autoscale,
+            cbar=cbar,
+            clabel=clabel,
+            cmax=cmax,
+            cmin=cmin,
+            # errorbars=errorbars,
+            # figsize=figsize,
+            grid=grid,
+            logc=logc,
+            mask_cmap=mask_cmap,
+            mask_color=mask_color,
+            nan_color=nan_color,
+            norm=norm,
+            # title=title,
+            vmax=vmax,
+            vmin=vmin,
+            # xlabel=xlabel,
+            # ylabel=ylabel,
+        )
+    require_interactive_figure(secondary_fig, 'inspector')
+
+    # in_node = Node(preprocess, obj, ignore_size=True)
+    # data = in_node()
+    # if data.ndim != 3:
+    #     raise ValueError(
+    #         'The inspector plot currently only works with '
+    #         f'three-dimensional data, found {data.ndim} dims.'
+    #     )
+    if dim is None:
+        dim = data_dims[-(len(data_dims) - 2) :]
+    if isinstance(dim, str):
+        dim = [dim]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     bin_centers_node = Node(_to_bin_centers, bin_edges_node, dim=dim)
     op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
-    f2d = imagefigure(
+    main_fig = imagefigure(
         op_node,
         aspect=aspect,
         cbar=cbar,
@@ -299,16 +342,16 @@ def inspector(
 
     if mode == 'point':
         tool = PointsTool(
-            figure=f2d,
+            figure=main_fig,
             input_node=bin_edges_node,
             func=_slice_xy,
-            destination=f1d,
+            destination=secondary_fig,
             tooltip="Activate inspector tool",
         )
     else:
         da = bin_centers_node()
-        xdim = f2d.canvas.dims['x']
-        ydim = f2d.canvas.dims['y']
+        xdim = main_fig.canvas.dims['x']
+        ydim = main_fig.canvas.dims['y']
         x = da.coords[xdim]
         y = da.coords[ydim]
         sizes = {**x.sizes, **y.sizes}
@@ -318,7 +361,7 @@ def inspector(
         non_nan = ~sc.isnan(da.data)
         tools = {'polygon': PolygonTool, 'rectangle': RectangleTool}
         tool = tools[mode](
-            figure=f2d,
+            figure=main_fig,
             input_node=bin_centers_node,
             func=partial(
                 _mask_outside_polygon,
@@ -327,12 +370,12 @@ def inspector(
                 op=operation,
                 non_nan=non_nan,
             ),
-            destination=f1d,
+            destination=secondary_fig,
             tooltip=f"Activate {mode} inspector tool",
         )
 
-    f2d.toolbar['inspect'] = tool
-    out = [f2d, f1d]
+    main_fig.toolbar['inspect'] = tool
+    out = [main_fig, secondary_fig]
     if orientation == 'horizontal':
         out = [out]
     return Box(out)
