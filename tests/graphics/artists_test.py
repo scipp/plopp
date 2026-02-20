@@ -4,7 +4,6 @@
 from functools import partial
 
 import pytest
-import scipp as sc
 
 import plopp as pp
 from plopp.data import examples
@@ -71,12 +70,12 @@ CASES = {
     "mesh3d-pythreejs": (
         ('3d', 'pythreejs'),
         pp.mesh3d,
-        dict(sc.io.load_hdf5(examples.teapot())),
+        dict(examples.teapot()),
     ),
     "mesh3d-pythreejs-edges": (
         ('3d', 'pythreejs'),
         partial(pp.mesh3d, edgecolor='blue'),
-        dict(sc.io.load_hdf5(examples.teapot())),
+        dict(examples.teapot()),
     ),
 }
 

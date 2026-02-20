@@ -39,7 +39,7 @@ def get_path(name: str) -> str:
     return _pooch.fetch(name)
 
 
-def nyc_taxi() -> str:
+def nyc_taxi() -> sc.DataArray:
     """
     Return the path to the NYC taxi dataset from 2015 histogrammed in latitude,
     longitude, and hour-of-the-dat, stored in scipp's HDF5 format.
@@ -50,10 +50,10 @@ def nyc_taxi() -> str:
     ---------
     This data has been manipulated!
     """
-    return get_path('nyc_taxi_data.h5')
+    return sc.io.load_hdf5(get_path('nyc_taxi_data.h5'))
 
 
-def teapot() -> str:
+def teapot() -> sc.DataArray:
     """
     Values extracted from the Utah teapot:
     https://graphics.cs.utah.edu/courses/cs6620/fall2013/?prj=5
@@ -63,15 +63,15 @@ def teapot() -> str:
     >> vertices = scene.vertices
     >> faces = scene.meshes[None].faces
     """
-    return get_path('teapot.h5')
+    return sc.io.load_hdf5(get_path('teapot.h5'))
 
 
-def air_temperature() -> str:
+def air_temperature() -> sc.DataArray:
     """
     North American air temperature dataset from Xarray.
     See https://docs.xarray.dev/en/latest/user-guide/plotting.html
     """
-    return get_path('air_temperature.h5')
+    return sc.io.load_hdf5(get_path('air_temperature.h5'))
 
 
 def three_bands(
