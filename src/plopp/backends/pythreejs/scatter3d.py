@@ -58,11 +58,11 @@ class Scatter3d:
         z: str,
         data: sc.DataArray,
         uid: str | None = None,
-        size: sc.Variable | float = 1,
+        size: sc.Variable | float = 1.0,
         color: str | None = None,
         colormapper: ColorMapper | None = None,
         artist_number: int = 0,
-        opacity: float = 1,
+        opacity: float = 1.0,
         pixel_size: sc.Variable | float | None = None,
         mask_color: str | None = None,
     ):

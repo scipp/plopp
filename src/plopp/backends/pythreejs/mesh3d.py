@@ -54,7 +54,7 @@ class Mesh3d:
         uid: str | None = None,
         color: str | None = None,
         colormapper: ColorMapper | None = None,
-        opacity: float = 1,
+        opacity: float = 1.0,
         edgecolor: str | None = None,
         artist_number: int = 0,
         **ignored,
