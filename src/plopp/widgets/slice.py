@@ -5,10 +5,11 @@ from functools import partial
 from typing import Any
 
 import ipywidgets as ipw
+import numpy as np
 import scipp as sc
 
 from ..core import node
-from ..core.utils import coord_element_to_string
+from ..core.utils import value_to_string
 from .box import VBar
 
 
@@ -43,12 +44,19 @@ class DimSlicer(ipw.HBox):
             indent=False,
             layout={"width": "1.52em"},
         )
-        self.label = ipw.Label()
+        self.label = ipw.Text(continuous_update=False, layout={"width": "10em"})
+        self.unit = ipw.Label("" if coord.unit is None else f" [{coord.unit}]")
         ipw.jslink(
             (self.continuous_update, 'value'), (self.slider, 'continuous_update')
         )
 
-        children = [self.dim_label, self.slider, self.continuous_update, self.label]
+        children = [
+            self.dim_label,
+            self.slider,
+            self.continuous_update,
+            self.label,
+            self.unit,
+        ]
         if enable_player:
             self.player = ipw.Play(
                 value=self.slider.value,
@@ -65,6 +73,7 @@ class DimSlicer(ipw.HBox):
         self.coord = coord
         self._update_label({"new": self.slider.value})
         self.slider.observe(self._update_label, names='value')
+        self.label.observe(self._move_slider_to_label, names='value')
 
         super().__init__(children)
 
@@ -79,7 +88,28 @@ class DimSlicer(ipw.HBox):
                 inds = (inds[0], inds[1] + 1)
             else:
                 inds = (inds, inds + 1)
-        self.label.value = coord_element_to_string(self.coord[self.dim, inds])
+        # self.label.value = coord_element_to_string(self.coord[self.dim, inds])
+        self.label._lock = True
+        self.label.value = ' : '.join(
+            [value_to_string(v) for v in self.coord[self.dim, inds].values]
+        )
+        self.label._lock = False
+
+    def _move_slider_to_label(self, change: dict[str, Any]):
+        """
+        Move the slider to the position corresponding to the coordinate value in the
+        label, if possible.
+        """
+        if getattr(self.label, '_lock', False):
+            return
+        # Find the index of the coordinate value closest to the one in the label.
+        vmin, vmax = change["new"].split(':')
+        vmin, vmax = float(vmin), float(vmax)
+        imin = np.argmin(np.abs(self.coord.values - vmin))
+        imax = np.argmin(np.abs(self.coord.values - vmax))
+        # self.label._lock = True
+        self.slider.value = (imin, imax)
+        # self.label._lock = False
 
     @property
     def value(self) -> int | tuple[int, int]:
