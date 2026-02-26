@@ -18,12 +18,30 @@ from .common import (
     require_interactive_figure,
 )
 
-# def _maybe_reduce_dim(da, dims, op):
-#     to_be_reduced = set(dims) & set(da.dims)
-#     if to_be_reduced:
-#         print(f"Reducing dimensions {to_be_reduced} using {op.__name__}")
-#         return op(da, dim=to_be_reduced)
-#     return da
+
+def _maybe_reduce_dim(da, dims, op):
+    to_be_reduced = set(dims) & set(da.dims)
+    if not to_be_reduced:
+        return da
+    # If the operation is a mean, there is currently a bug in the implementation
+    # in scipp where doing a mean over a subset of the array's dimensions gives the
+    # wrong result: https://github.com/scipp/scipp/issues/3841
+    # Instead, we manually compute the mean
+    if 'mean' not in op:
+        return getattr(da, op)(dims)
+
+    kept_dims = set(da.dims) - to_be_reduced
+    sliced = da
+    for dim in kept_dims:
+        sliced = sliced[dim, 0]
+
+    denominator = sliced.size
+    if 'nan' in op:
+        numerator = da.nansum(dims)
+        denominator = denominator - sc.isnan(sliced.data).sum()
+    else:
+        numerator = da.sum(dims)
+    return numerator / denominator
 
 
 class Slicer:
@@ -31,13 +49,8 @@ class Slicer:
     Class that slices out dimensions from the data and displays the resulting data as
     either a 1D line or a 2D image.
 
-    Note:
-
-    This class primarily exists to facilitate unit testing. When running unit tests, we
-    are not in a Jupyter notebook, and the generated figures are not widgets that can
-    be placed in the `Box` widget container at the end of the `slicer` function.
-    We therefore place most of the code for creating a Slicer in this class, which is
-    under unit test coverage. The thin `slicer` wrapper is not covered by unit tests.
+    This class exists so that it can be re-used by other plotting functions that want
+    to offer slicing functionality, such as the :func:`superplot` function.
 
     Parameters
     ----------
@@ -53,6 +66,9 @@ class Slicer:
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
+    operation:
+        The reduction operation to be applied to the sliced dimensions. This is ``sum``
+        by default.
     **kwargs:
         The additional arguments are forwarded to the underlying 1D or 2D figures.
     """
@@ -64,6 +80,10 @@ class Slicer:
         coords: list[str] | None = None,
         enable_player: bool = False,
         keep: list[str] | None = None,
+        slider_mode: Literal['single', 'range', 'combined'] = 'combined',
+        operation: Literal[
+            'sum', 'mean', 'max', 'min', 'nansum', 'nanmean', 'nanmax', 'nanmin'
+        ] = 'sum',
         **kwargs,
     ):
         nodes = input_to_nodes(
@@ -100,11 +120,29 @@ class Slicer:
                 f"were not found in the input's dimensions {dims}."
             )
 
-        from ..widgets import CombinedSliceWidget, slice_dims
+        from ..widgets import (
+            CombinedSliceWidget,
+            RangeSliceWidget,
+            SliceWidget,
+            slice_dims,
+        )
 
         other_dims = [dim for dim in dims if dim not in keep]
 
-        self.slider = CombinedSliceWidget(
+        match slider_mode:
+            case 'single':
+                slicer_constr = SliceWidget
+            case 'range':
+                slicer_constr = RangeSliceWidget
+            case 'combined':
+                slicer_constr = CombinedSliceWidget
+            case _:
+                raise ValueError(
+                    f"Invalid slider_mode: {slider_mode}. Expected one of 'single', "
+                    f"'range', or 'combined'."
+                )
+
+        self.slider = slicer_constr(
             nodes[0](),
             dims=other_dims,
             enable_player=enable_player,
@@ -112,7 +150,8 @@ class Slicer:
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
         self.reduce_nodes = [
-            Node(sc.sum, node, dim=other_dims) for node in self.slice_nodes
+            Node(_maybe_reduce_dim, da=node, dims=other_dims, op=operation)
+            for node in self.slice_nodes
         ]
 
         args = categorize_args(**kwargs)
@@ -273,6 +312,7 @@ def slicer(
         logx=logx,
         logy=logy,
         mask_color=mask_color,
+        mask_cmap=mask_cmap,
         nan_color=nan_color,
         norm=norm,
         scale=scale,

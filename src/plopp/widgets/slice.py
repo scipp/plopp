@@ -30,10 +30,12 @@ class DimSlicer(ipw.HBox):
             'step': 1,
             'min': 0,
             'max': size - 1,
-            'value': (size - 1) // 2 if slider_constr is ipw.IntSlider else None,
+            'value': (size - 1) // 2
+            if slider_constr is ipw.IntSlider
+            else (0, size - 1),
             'continuous_update': True,
             'readout': False,
-            'layout': {"width": "15.2em", "margin": "0px 0px 0px 10px"},
+            'layout': {"width": "25em", "margin": "0px 0px 0px 10px"},
         }
         self._is_bin_edges = coord.sizes[dim] > size
         self.dim_label = ipw.Label(value=dim)
@@ -90,9 +92,12 @@ class DimSlicer(ipw.HBox):
                 inds = (inds, inds + 1)
         # self.label.value = coord_element_to_string(self.coord[self.dim, inds])
         self.label._lock = True
-        self.label.value = ' : '.join(
-            [value_to_string(v) for v in self.coord[self.dim, inds].values]
-        )
+        if isinstance(inds, tuple):
+            self.label.value = ' : '.join(
+                [value_to_string(v) for v in self.coord[self.dim, inds].values]
+            )
+        else:
+            self.label.value = value_to_string(self.coord[self.dim, inds].value)
         self.label._lock = False
 
     def _move_slider_to_label(self, change: dict[str, Any]):
@@ -132,7 +137,6 @@ class CombinedSlicer(ipw.HBox):
         width: str = "25em",
         **ignored,
     ):
-
         self.int_slicer = DimSlicer(
             dim=dim, size=size, coord=coord, slider_constr=ipw.IntSlider
         )
@@ -142,7 +146,10 @@ class CombinedSlicer(ipw.HBox):
         self.range_slicer = DimSlicer(
             dim=dim, size=size, coord=coord, slider_constr=ipw.IntRangeSlider
         )
-        self.range_slicer.slider.value = 0, size
+        self.range_slicer.slider.value = (
+            0,
+            size - 1,
+        )  # + int(self.range_slicer._is_bin_edges)
         self.range_slicer.slider.layout = {"width": width}
 
         self.int_slicer.slider.observe(self.move_range, names='value')
