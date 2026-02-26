@@ -98,6 +98,9 @@ class DimSlicer(ipw.HBox):
             )
         else:
             self.label.value = value_to_string(self.coord[self.dim, inds].value)
+        # We assume here that if the _update_label function was called, it means
+        # that the bounds are valid and we this reset the color of the text input.
+        self.label.style.background = "none"
         self.label._lock = False
 
     def _move_slider_to_label(self, change: dict[str, Any]):
@@ -105,16 +108,29 @@ class DimSlicer(ipw.HBox):
         Move the slider to the position corresponding to the coordinate value in the
         label, if possible.
         """
-        if getattr(self.label, '_lock', False):
+        if self.label._lock:
             return
+        bad_color = "#F88379"
         # Find the index of the coordinate value closest to the one in the label.
-        vmin, vmax = change["new"].split(':')
-        vmin, vmax = float(vmin), float(vmax)
-        imin = np.argmin(np.abs(self.coord.values - vmin))
-        imax = np.argmin(np.abs(self.coord.values - vmax))
-        # self.label._lock = True
-        self.slider.value = (imin, imax)
-        # self.label._lock = False
+        if ':' not in change["new"]:
+            value = float(change["new"])
+            if value < self.coord.values[0] or value > self.coord.values[-1]:
+                self.label.style.background = bad_color
+                return
+            self.slider.value = np.argmin(np.abs(self.coord.values - value))
+        else:
+            vmin, vmax = tuple(float(x) for x in change["new"].split(':'))
+            if (
+                (vmin > vmax)
+                or (vmin < self.coord.values[0])
+                or (vmax > self.coord.values[-1])
+            ):
+                self.label.style.background = bad_color
+                return
+            self.slider.value = tuple(
+                np.argmin(np.abs(self.coord.values - float(x)))
+                for x in change["new"].split(':')
+            )
 
     @property
     def value(self) -> int | tuple[int, int]:

@@ -86,6 +86,11 @@ class Slicer:
         ] = 'sum',
         **kwargs,
     ):
+        if enable_player and slider_mode != 'single':
+            raise ValueError(
+                'The play button cannot be used with range sliders. Please set '
+                'slider_mode to "single" to use the play button.'
+            )
         nodes = input_to_nodes(
             obj,
             processor=partial(preprocess, ignore_size=True, coords=coords),
@@ -198,7 +203,11 @@ def slicer(
     mask_color: str | None = None,
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
+    operation: Literal[
+        'sum', 'mean', 'max', 'min', 'nansum', 'nanmean', 'nanmax', 'nanmin'
+    ] = 'sum',
     scale: dict[str, str] | None = None,
+    slider_mode: Literal['single', 'range', 'combined'] = 'combined',
     title: str | None = None,
     vmax: sc.Variable | float | None = None,
     vmin: sc.Variable | float | None = None,
@@ -265,10 +274,19 @@ def slicer(
     norm:
         Set to ``'log'`` for a logarithmic y-axis (1d plots) or logarithmic colorscale
         (2d plots). Legacy, prefer ``logy`` and ``logc`` instead.
+    operation:
+        The reduction operation to be applied to the sliced dimensions. This is ``sum``
+        by default.
     scale:
         Change axis scaling between ``log`` and ``linear``. For example, specify
         ``scale={'time': 'log'}`` if you want log-scale for the ``time`` dimension.
         Legacy, prefer ``logx`` and ``logy`` instead.
+    slider_mode:
+        The type of slider to use for slicing. Can be either ``'single'`` for sliders
+        that select a single index along the sliced dimension, ``'range'`` for sliders
+        that select a range of indices along the sliced dimension, or ``'combined'`` for
+        sliders that allow both single index selection and range selection.
+        Defaults to ``'combined'``.
     title:
         The figure title.
     vmax:
@@ -315,7 +333,9 @@ def slicer(
         mask_cmap=mask_cmap,
         nan_color=nan_color,
         norm=norm,
+        operation=operation,
         scale=scale,
+        slider_mode=slider_mode,
         title=title,
         vmax=vmax,
         vmin=vmin,
