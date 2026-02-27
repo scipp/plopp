@@ -69,6 +69,24 @@ class BoundWidget(ipw.HBox, ipw.ValueWidget):
             self._widget.value = str(change["new"])
         self._lock = False
 
+    @property
+    def min(self) -> float | None:
+        return getattr(self._widget, "min", None)
+
+    @min.setter
+    def min(self, value: float):
+        if self._is_float:
+            self._widget.min = value
+
+    @property
+    def max(self) -> float | None:
+        return getattr(self._widget, "max", None)
+
+    @max.setter
+    def max(self, value: float):
+        if self._is_float:
+            self._widget.max = value
+
     # def _on_subwidget_change(self, _=None):
     #     """ """
     #     if self._is_float:
@@ -157,7 +175,8 @@ class BoundsSingleWidget(ipw.HBox, ipw.ValueWidget):
 
 
 class BoundsRangeWidget(ipw.HBox, ipw.ValueWidget):
-    value = Tuple(Any(), Any()).tag(sync=True)
+    # value = Tuple(Any(), Any()).tag(sync=True)
+    value = Any().tag(sync=True)
 
     def __init__(
         self,
@@ -200,6 +219,12 @@ class BoundsRangeWidget(ipw.HBox, ipw.ValueWidget):
         if self._lock:
             return
 
+        # print(
+        #     "min w", self._min_widget.min, self._min_widget.max, self._min_widget.value
+        # )
+        # print(
+        #     "max w", self._max_widget.min, self._max_widget.max, self._max_widget.value
+        # )
         if self._max_widget._is_float:
             self._max_widget.min = self._min_widget.value
         if self._min_widget._is_float:
@@ -382,7 +407,7 @@ class DimSlicer(ipw.HBox):
         Move the slider to the position corresponding to the coordinate value in the
         label, if possible.
         """
-        print("move slider to label", change["new"])
+        # print("move slider to label", change["new"])
         if self._bounds_lock:
             return
         # # Find the index of the coordinate value closest to the one in the label.
