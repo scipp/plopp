@@ -9,7 +9,6 @@ import numpy as np
 import scipp as sc
 
 from ..core import node
-from ..core.utils import value_to_string
 from .box import VBar
 
 
@@ -73,8 +72,8 @@ class DimSlicer(ipw.HBox):
                 value=self.coord_max,
                 layout={"width": "6em"},
             )
-            # ipw.jsdlink((self.bound_min, 'max'), (self.bound_max, 'value'))
-            # ipw.jsdlink((self.bound_max, 'min'), (self.bound_min, 'value'))
+            ipw.link((self.bound_min, 'max'), (self.bound_max, 'value'))
+            ipw.link((self.bound_max, 'min'), (self.bound_min, 'value'))
         else:
             self.bound_max = None
 
@@ -107,8 +106,6 @@ class DimSlicer(ipw.HBox):
             ipw.jslink((self.player, 'value'), (self.slider, 'value'))
             children.insert(0, self.player)
 
-        # self.dim = dim
-        # self.coord = coord
         self._bounds_lock = False
         self._update_label({"new": self.slider.value})
         self.slider.observe(self._update_label, names='value')
@@ -123,36 +120,21 @@ class DimSlicer(ipw.HBox):
         Update the readout label with the coordinate value, instead of the integer
         readout index.
         """
-        # print("update label", self._kind, change["new"])
         inds = change["new"]
         if self._is_bin_edges:
             if isinstance(inds, tuple):
                 inds = (inds[0], inds[1] + 1)
             else:
                 inds = (inds, inds + 1)
-        # self.label.value = coord_element_to_string(self.coord[self.dim, inds])
         self._bounds_lock = True
-        # if self.bound_max is not None:
         if isinstance(inds, tuple):
-            # self.bound_max._lock = True
-            # self.label.value = ' : '.join(
-            #     [value_to_string(v) for v in self.coord[self.dim, inds].values]
-            # )
-            print("update bounds", self.coord[self.dim, inds].values, inds)
-            print([round(v, 3) for v in self.coord[self.dim, inds].values])
             new_bounds = tuple(round(v, 3) for v in self.coord[self.dim, inds].values)
-
-            # ipw.jslink((self.bound_min, 'max'), (self.bound_max, 'value'))
-            # ipw.jslink((self.bound_max, 'min'), (self.bound_min, 'value'))
-            print("current bounds", self.bound_min.value, self.bound_max.value)
-
             if new_bounds[0] > self.bound_max.value:
                 self.bound_max.value = new_bounds[1]
                 self.bound_min.value = new_bounds[0]
             else:
                 self.bound_min.value = new_bounds[0]
                 self.bound_max.value = new_bounds[1]
-            # self.bound_max._lock = False
         else:
             self.bound_min.value = round(self.coord[self.dim, inds].value, 3)
         self._bounds_lock = False
@@ -166,7 +148,6 @@ class DimSlicer(ipw.HBox):
             return
         # Find the index of the coordinate value closest to the one in the label.
         if self.bound_max is None:
-            # value = float(change["new"])
             self.slider.value = np.argmin(np.abs(self.coord.values - change["new"]))
         else:
             vmin, vmax = self.bound_min.value, self.bound_max.value
