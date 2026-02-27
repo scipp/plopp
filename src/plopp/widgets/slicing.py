@@ -171,8 +171,15 @@ class BoundsRangeWidget(ipw.HBox, ipw.ValueWidget):
         self._max_widget = BoundWidget(coord=coord, value=coord.values[-1])
         # ipw.link((self._min_widget, 'max'), (self._max_widget, 'value'))
         # ipw.link((self._max_widget, 'min'), (self._min_widget, 'value'))
-        self._min_widget.observe(self._on_min_change, names='value')
-        self._max_widget.observe(self._on_max_change, names='value')
+        # self._min_widget.observe(self._on_min_change, names='value')
+        # self._max_widget.observe(self._on_max_change, names='value')
+
+        # observe user edits
+        self._min_widget.observe(self._on_child_change, names="value")
+        self._max_widget.observe(self._on_child_change, names="value")
+        # observe external value changes
+        self.observe(self._on_value_change, names="value")
+
         super().__init__([self._min_widget, ipw.Label(value=":"), self._max_widget])
 
         self.value = self._min_widget.value, self._max_widget.value
@@ -181,17 +188,22 @@ class BoundsRangeWidget(ipw.HBox, ipw.ValueWidget):
     #     self._min_widget.observe(callback, **kwargs)
     #     self._max_widget.observe(callback, **kwargs)
 
-    def _on_min_change(self, change: dict):
-        if self._max_widget._is_float:
-            self._max_widget.min = change["new"]
+    # def _on_min_change(self, change: dict):
+    #     if self._max_widget._is_float:
+    #         self._max_widget.min = change["new"]
 
-    def _on_max_change(self, change: dict):
-        if self._min_widget._is_float:
-            self._min_widget.max = change["new"]
+    # def _on_max_change(self, change: dict):
+    #     if self._min_widget._is_float:
+    #         self._min_widget.max = change["new"]
 
     def _on_child_change(self, _):
         if self._lock:
             return
+
+        if self._max_widget._is_float:
+            self._max_widget.min = self._min_widget.value
+        if self._min_widget._is_float:
+            self._min_widget.max = self._max_widget.value
 
         self._lock = True
         self.value = self._min_widget.value, self._max_widget.value
