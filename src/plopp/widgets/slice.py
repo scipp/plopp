@@ -20,6 +20,7 @@ class DimSlicer(ipw.HBox):
         size: int,
         coord: sc.Variable,
         slider_constr: type[ipw.Widget],
+        value: int | tuple[int, int] | None = None,
         enable_player: bool = False,
     ):
         self._kind = "single" if issubclass(slider_constr, ipw.IntSlider) else "range"
@@ -34,17 +35,19 @@ class DimSlicer(ipw.HBox):
         self.coord_min = self.coord.values[0]
         self.coord_max = self.coord.values[-1]
 
-        widget_args = {
-            'step': 1,
-            'min': 0,
-            'max': size - 1,
-            'value': (size - 1) // 2 if self._kind == "single" else (0, size - 1),
-            'continuous_update': True,
-            'readout': False,
-            'layout': {"width": "25em", "margin": "0px 0px 0px 10px"},
-        }
+        if value is None:
+            value = (size - 1) // 2 if self._kind == "single" else (0, size - 1)
+
         self.dim_label = ipw.Label(value=dim)
-        self.slider = slider_constr(**widget_args)
+        self.slider = slider_constr(
+            step=1,
+            min=0,
+            max=size - 1,
+            value=value,
+            continuous_update=True,
+            readout=False,
+            layout={"width": "25em", "margin": "0px 0px 0px 10px"},
+        )
         self.continuous_update = ipw.Checkbox(
             value=True,
             tooltip="Continuous update",
@@ -70,8 +73,8 @@ class DimSlicer(ipw.HBox):
                 value=self.coord_max,
                 layout={"width": "6em"},
             )
-            ipw.jslink((self.bound_min, 'max'), (self.bound_max, 'value'))
-            ipw.jslink((self.bound_max, 'min'), (self.bound_min, 'value'))
+            # ipw.jsdlink((self.bound_min, 'max'), (self.bound_max, 'value'))
+            # ipw.jsdlink((self.bound_max, 'min'), (self.bound_min, 'value'))
         else:
             self.bound_max = None
 
@@ -120,6 +123,7 @@ class DimSlicer(ipw.HBox):
         Update the readout label with the coordinate value, instead of the integer
         readout index.
         """
+        # print("update label", self._kind, change["new"])
         inds = change["new"]
         if self._is_bin_edges:
             if isinstance(inds, tuple):
@@ -134,9 +138,20 @@ class DimSlicer(ipw.HBox):
             # self.label.value = ' : '.join(
             #     [value_to_string(v) for v in self.coord[self.dim, inds].values]
             # )
-            self.bound_min.value, self.bound_max.value = [
-                round(v, 3) for v in self.coord[self.dim, inds].values
-            ]
+            print("update bounds", self.coord[self.dim, inds].values, inds)
+            print([round(v, 3) for v in self.coord[self.dim, inds].values])
+            new_bounds = tuple(round(v, 3) for v in self.coord[self.dim, inds].values)
+
+            # ipw.jslink((self.bound_min, 'max'), (self.bound_max, 'value'))
+            # ipw.jslink((self.bound_max, 'min'), (self.bound_min, 'value'))
+            print("current bounds", self.bound_min.value, self.bound_max.value)
+
+            if new_bounds[0] > self.bound_max.value:
+                self.bound_max.value = new_bounds[1]
+                self.bound_min.value = new_bounds[0]
+            else:
+                self.bound_min.value = new_bounds[0]
+                self.bound_max.value = new_bounds[1]
             # self.bound_max._lock = False
         else:
             self.bound_min.value = round(self.coord[self.dim, inds].value, 3)
@@ -188,15 +203,13 @@ class CombinedSlicer(ipw.HBox):
         **ignored,
     ):
         self.int_slicer = DimSlicer(
-            dim=dim, size=size, coord=coord, slider_constr=ipw.IntSlider
+            dim=dim, size=size, coord=coord, slider_constr=ipw.IntSlider, value=0
         )
-        self.int_slicer.slider.value = self.int_slicer.slider.min
         self.int_slicer.slider.layout = {"width": width}
 
         self.range_slicer = DimSlicer(
             dim=dim, size=size, coord=coord, slider_constr=ipw.IntRangeSlider
         )
-        # self.range_slicer.slider.value = (0, size - 1)
         self.range_slicer.slider.layout = {"width": width}
 
         self.int_slicer.slider.observe(self.move_range, names='value')
