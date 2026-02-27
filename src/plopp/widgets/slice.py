@@ -22,22 +22,27 @@ class DimSlicer(ipw.HBox):
         slider_constr: type[ipw.Widget],
         enable_player: bool = False,
     ):
-        if enable_player and not issubclass(slider_constr, ipw.IntSlider):
+        self._kind = "single" if issubclass(slider_constr, ipw.IntSlider) else "range"
+        if enable_player and (self._kind != "single"):
             raise TypeError(
                 "Player can only be enabled for IntSlider, not for IntRangeSlider."
             )
+
+        self.dim = dim
+        self.coord = coord
+        self._is_bin_edges = self.coord.sizes[dim] > size
+        self.coord_min = self.coord.values[0]
+        self.coord_max = self.coord.values[-1]
+
         widget_args = {
             'step': 1,
             'min': 0,
             'max': size - 1,
-            'value': (size - 1) // 2
-            if slider_constr is ipw.IntSlider
-            else (0, size - 1),
+            'value': (size - 1) // 2 if self._kind == "single" else (0, size - 1),
             'continuous_update': True,
             'readout': False,
             'layout': {"width": "25em", "margin": "0px 0px 0px 10px"},
         }
-        self._is_bin_edges = coord.sizes[dim] > size
         self.dim_label = ipw.Label(value=dim)
         self.slider = slider_constr(**widget_args)
         self.continuous_update = ipw.Checkbox(
@@ -46,8 +51,33 @@ class DimSlicer(ipw.HBox):
             indent=False,
             layout={"width": "1.52em"},
         )
-        self.label = ipw.Text(continuous_update=False, layout={"width": "10em"})
-        self.unit = ipw.Label("" if coord.unit is None else f" [{coord.unit}]")
+
+        step = (self.coord_max - self.coord_min) / 999
+        self.bound_min = ipw.BoundedFloatText(
+            continuous_update=False,
+            min=self.coord_min,
+            max=self.coord_max,
+            step=step,
+            value=self.coord_min,
+            layout={"width": "6em"},
+        )
+        if self._is_bin_edges or (self._kind == "range"):
+            self.bound_max = ipw.BoundedFloatText(
+                continuous_update=False,
+                min=self.coord_min,
+                max=self.coord_max,
+                step=step,
+                value=self.coord_max,
+                layout={"width": "6em"},
+            )
+            ipw.jslink((self.bound_min, 'max'), (self.bound_max, 'value'))
+            ipw.jslink((self.bound_max, 'min'), (self.bound_min, 'value'))
+        else:
+            self.bound_max = None
+
+        self.unit = ipw.Label(
+            "" if self.coord.unit is None else f" [{self.coord.unit}]"
+        )
         ipw.jslink(
             (self.continuous_update, 'value'), (self.slider, 'continuous_update')
         )
@@ -56,9 +86,12 @@ class DimSlicer(ipw.HBox):
             self.dim_label,
             self.slider,
             self.continuous_update,
-            self.label,
-            self.unit,
+            self.bound_min,
         ]
+        if self.bound_max is not None:
+            children.append(ipw.Label(value=":"))
+            children.append(self.bound_max)
+        children.append(self.unit)
         if enable_player:
             self.player = ipw.Play(
                 value=self.slider.value,
@@ -71,11 +104,14 @@ class DimSlicer(ipw.HBox):
             ipw.jslink((self.player, 'value'), (self.slider, 'value'))
             children.insert(0, self.player)
 
-        self.dim = dim
-        self.coord = coord
+        # self.dim = dim
+        # self.coord = coord
+        self._bounds_lock = False
         self._update_label({"new": self.slider.value})
         self.slider.observe(self._update_label, names='value')
-        self.label.observe(self._move_slider_to_label, names='value')
+        self.bound_min.observe(self._move_slider_to_label, names='value')
+        if self.bound_max is not None:
+            self.bound_max.observe(self._move_slider_to_label, names='value')
 
         super().__init__(children)
 
@@ -91,46 +127,44 @@ class DimSlicer(ipw.HBox):
             else:
                 inds = (inds, inds + 1)
         # self.label.value = coord_element_to_string(self.coord[self.dim, inds])
-        self.label._lock = True
+        self._bounds_lock = True
+        # if self.bound_max is not None:
         if isinstance(inds, tuple):
-            self.label.value = ' : '.join(
-                [value_to_string(v) for v in self.coord[self.dim, inds].values]
-            )
+            # self.bound_max._lock = True
+            # self.label.value = ' : '.join(
+            #     [value_to_string(v) for v in self.coord[self.dim, inds].values]
+            # )
+            self.bound_min.value, self.bound_max.value = [
+                round(v, 3) for v in self.coord[self.dim, inds].values
+            ]
+            # self.bound_max._lock = False
         else:
-            self.label.value = value_to_string(self.coord[self.dim, inds].value)
-        # We assume here that if the _update_label function was called, it means
-        # that the bounds are valid and we this reset the color of the text input.
-        self.label.style.background = "none"
-        self.label._lock = False
+            self.bound_min.value = round(self.coord[self.dim, inds].value, 3)
+        self._bounds_lock = False
 
     def _move_slider_to_label(self, change: dict[str, Any]):
         """
         Move the slider to the position corresponding to the coordinate value in the
         label, if possible.
         """
-        if self.label._lock:
+        if self._bounds_lock:
             return
-        bad_color = "#F88379"
         # Find the index of the coordinate value closest to the one in the label.
-        if ':' not in change["new"]:
-            value = float(change["new"])
-            if value < self.coord.values[0] or value > self.coord.values[-1]:
-                self.label.style.background = bad_color
-                return
-            self.slider.value = np.argmin(np.abs(self.coord.values - value))
+        if self.bound_max is None:
+            # value = float(change["new"])
+            self.slider.value = np.argmin(np.abs(self.coord.values - change["new"]))
         else:
-            vmin, vmax = tuple(float(x) for x in change["new"].split(':'))
-            if (
-                (vmin > vmax)
-                or (vmin < self.coord.values[0])
-                or (vmax > self.coord.values[-1])
-            ):
-                self.label.style.background = bad_color
-                return
-            self.slider.value = tuple(
-                np.argmin(np.abs(self.coord.values - float(x)))
-                for x in change["new"].split(':')
+            vmin, vmax = self.bound_min.value, self.bound_max.value
+            bounds = tuple(
+                np.argmin(np.abs(self.coord.values - x)) for x in (vmin, vmax)
             )
+            if self._kind == "range":
+                self.slider.value = bounds
+            else:
+                # Here it means that the user has entered a range in the label,
+                # but the slider is a single slider. We move the slider to the middle
+                # of the range.
+                self.slider.value = int(0.5 * sum(bounds))
 
     @property
     def value(self) -> int | tuple[int, int]:
@@ -162,10 +196,7 @@ class CombinedSlicer(ipw.HBox):
         self.range_slicer = DimSlicer(
             dim=dim, size=size, coord=coord, slider_constr=ipw.IntRangeSlider
         )
-        self.range_slicer.slider.value = (
-            0,
-            size - 1,
-        )  # + int(self.range_slicer._is_bin_edges)
+        # self.range_slicer.slider.value = (0, size - 1)
         self.range_slicer.slider.layout = {"width": width}
 
         self.int_slicer.slider.observe(self.move_range, names='value')
@@ -175,10 +206,7 @@ class CombinedSlicer(ipw.HBox):
             tooltips=['Range slider', 'Single handle slider'],
             style={"button_width": "3.2em"},
         )
-
         self.slider_toggler.observe(self.toggle_slider_mode, names='value')
-
-        # children = [self.slider_toggler, self.range_slicer]
 
         super().__init__([self.slider_toggler, self.range_slicer])
 

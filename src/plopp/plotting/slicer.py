@@ -49,8 +49,9 @@ class Slicer:
     Class that slices out dimensions from the data and displays the resulting data as
     either a 1D line or a 2D image.
 
-    This class exists so that it can be re-used by other plotting functions that want
-    to offer slicing functionality, such as the :func:`superplot` function.
+    This class exists both for simplifying unit tests and for re-use by other plotting
+    functions that want to offer slicing functionality,
+    such as the :func:`superplot` function.
 
     Parameters
     ----------
