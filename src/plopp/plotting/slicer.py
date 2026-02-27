@@ -67,6 +67,8 @@ class Slicer:
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
+    mode:
+        The mode of the slicer. This can be 'single', 'range', or 'combined'.
     operation:
         The reduction operation to be applied to the sliced dimensions. This is ``sum``
         by default.
@@ -81,16 +83,16 @@ class Slicer:
         coords: list[str] | None = None,
         enable_player: bool = False,
         keep: list[str] | None = None,
-        slider_mode: Literal['single', 'range', 'combined'] = 'combined',
+        mode: Literal['single', 'range', 'combined'] = 'combined',
         operation: Literal[
             'sum', 'mean', 'max', 'min', 'nansum', 'nanmean', 'nanmax', 'nanmin'
         ] = 'sum',
         **kwargs,
     ):
-        if enable_player and slider_mode != 'single':
+        if enable_player and mode != 'single':
             raise ValueError(
                 'The play button cannot be used with range sliders. Please set '
-                'slider_mode to "single" to use the play button.'
+                'mode to "single" to use the play button.'
             )
         nodes = input_to_nodes(
             obj,
@@ -135,7 +137,7 @@ class Slicer:
 
         other_dims = [dim for dim in dims if dim not in keep]
 
-        match slider_mode:
+        match mode:
             case 'single':
                 slicer_constr = SliceWidget
             case 'range':
@@ -144,7 +146,7 @@ class Slicer:
                 slicer_constr = CombinedSliceWidget
             case _:
                 raise ValueError(
-                    f"Invalid slider_mode: {slider_mode}. Expected one of 'single', "
+                    f"Invalid mode: {mode}. Expected one of 'single', "
                     f"'range', or 'combined'."
                 )
 
@@ -208,7 +210,7 @@ def slicer(
         'sum', 'mean', 'max', 'min', 'nansum', 'nanmean', 'nanmax', 'nanmin'
     ] = 'sum',
     scale: dict[str, str] | None = None,
-    slider_mode: Literal['single', 'range', 'combined'] = 'combined',
+    mode: Literal['single', 'range', 'combined'] = 'combined',
     title: str | None = None,
     vmax: sc.Variable | float | None = None,
     vmin: sc.Variable | float | None = None,
@@ -270,6 +272,12 @@ def slicer(
         Colormap to use for masks in 2d plots.
     mask_color:
         Color of masks.
+    mode:
+        The type of slider to use for slicing. Can be either ``'single'`` for sliders
+        that select a single index along the sliced dimension, ``'range'`` for sliders
+        that select a range of indices along the sliced dimension, or ``'combined'`` for
+        sliders that allow both single index selection and range selection.
+        Defaults to ``'combined'``.
     nan_color:
         Color to use for NaN values in 2d plots.
     norm:
@@ -282,12 +290,6 @@ def slicer(
         Change axis scaling between ``log`` and ``linear``. For example, specify
         ``scale={'time': 'log'}`` if you want log-scale for the ``time`` dimension.
         Legacy, prefer ``logx`` and ``logy`` instead.
-    slider_mode:
-        The type of slider to use for slicing. Can be either ``'single'`` for sliders
-        that select a single index along the sliced dimension, ``'range'`` for sliders
-        that select a range of indices along the sliced dimension, or ``'combined'`` for
-        sliders that allow both single index selection and range selection.
-        Defaults to ``'combined'``.
     title:
         The figure title.
     vmax:
@@ -332,11 +334,11 @@ def slicer(
         logy=logy,
         mask_color=mask_color,
         mask_cmap=mask_cmap,
+        mode=mode,
         nan_color=nan_color,
         norm=norm,
         operation=operation,
         scale=scale,
-        slider_mode=slider_mode,
         title=title,
         vmax=vmax,
         vmin=vmin,

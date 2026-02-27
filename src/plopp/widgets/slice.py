@@ -21,6 +21,7 @@ class DimSlicer(ipw.HBox):
         slider_constr: type[ipw.Widget],
         value: int | tuple[int, int] | None = None,
         enable_player: bool = False,
+        width: str = "25em",
     ):
         self._kind = "single" if issubclass(slider_constr, ipw.IntSlider) else "range"
         if enable_player and (self._kind != "single"):
@@ -37,7 +38,7 @@ class DimSlicer(ipw.HBox):
         if value is None:
             value = (size - 1) // 2 if self._kind == "single" else (0, size - 1)
 
-        self.dim_label = ipw.Label(value=dim)
+        self.dim_label = ipw.Label(value=dim, layout={"margin": "0px 0px 0px 10px"})
         self.slider = slider_constr(
             step=1,
             min=0,
@@ -45,7 +46,7 @@ class DimSlicer(ipw.HBox):
             value=value,
             continuous_update=True,
             readout=False,
-            layout={"width": "25em", "margin": "0px 0px 0px 10px"},
+            layout={"width": width, "margin": "0px 10px 0px 10px"},
         )
         self.continuous_update = ipw.Checkbox(
             value=True,
@@ -184,14 +185,17 @@ class CombinedSlicer(ipw.HBox):
         **ignored,
     ):
         self.int_slicer = DimSlicer(
-            dim=dim, size=size, coord=coord, slider_constr=ipw.IntSlider, value=0
+            dim=dim,
+            size=size,
+            coord=coord,
+            slider_constr=ipw.IntSlider,
+            value=0,
+            width=width,
         )
-        self.int_slicer.slider.layout = {"width": width}
 
         self.range_slicer = DimSlicer(
             dim=dim, size=size, coord=coord, slider_constr=ipw.IntRangeSlider
         )
-        self.range_slicer.slider.layout = {"width": width}
 
         self.int_slicer.slider.observe(self.move_range, names='value')
 
@@ -240,6 +244,7 @@ class _BaseSliceWidget(VBar, ipw.ValueWidget):
         slider_constr: ipw.Widget,
         slicer_constr: type[DimSlicer] | type[CombinedSlicer],
         enable_player: bool = False,
+        width: str = "25em",
     ):
         if isinstance(dims, str):
             dims = [dims]
@@ -259,6 +264,7 @@ class _BaseSliceWidget(VBar, ipw.ValueWidget):
                 coord=coord,
                 slider_constr=slider_constr,
                 enable_player=enable_player,
+                width=width,
             )
             self.controls[dim].slider.observe(self._on_subwidget_change, names='value')
             children.append(self.controls[dim])
@@ -291,12 +297,17 @@ dims:
     The dimensions to make sliders for.
 enable_player:
     Add a play button to animate the slider if True. Defaults to False.
+width:
+    The width of the sliders. Defaults to "25em".
 
     .. versionadded:: 25.07.0
 """
 
 RangeSliceWidget = partial(
-    _BaseSliceWidget, slider_constr=ipw.IntRangeSlider, slicer_constr=DimSlicer
+    _BaseSliceWidget,
+    slider_constr=ipw.IntRangeSlider,
+    slicer_constr=DimSlicer,
+    enable_player=False,
 )
 """
 Widgets containing a range slider for each of the requested dimensions.
@@ -312,10 +323,15 @@ da:
     The input data array.
 dims:
     The dimensions to make sliders for.
+width:
+    The width of the sliders. Defaults to "25em".
 """
 
 CombinedSliceWidget = partial(
-    _BaseSliceWidget, slider_constr=None, slicer_constr=CombinedSlicer
+    _BaseSliceWidget,
+    slider_constr=None,
+    slicer_constr=CombinedSlicer,
+    enable_player=False,
 )
 """
 Widgets containing a combined slider (able to toggle between normal slider and range
@@ -332,6 +348,8 @@ da:
     The input data array.
 dims:
     The dimensions to make sliders for.
+width:
+    The width of the sliders. Defaults to "25em".
 """
 
 
