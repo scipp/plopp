@@ -222,35 +222,43 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
 
     def __init__(
         self,
-        value: float | str,
-        min: float | None = None,
-        max: float | None = None,
+        coord: sc.Variable,
+        index: int,
+        # value: float | str,
+        # min: float | None = None,
+        # max: float | None = None,
         continuous_update: bool = False,
         **kwargs,
     ):
         self._lock = False
+        self._coord = coord.values
         self._widget = ipw.Text(continuous_update=continuous_update, value="", **kwargs)
-        self.min = min
-        self.max = max
+        self.min = 0
+        self.max = len(self._coord) - 1
         # observe user edits
         self._widget.observe(self._on_child_change, names="value")
         # observe external value changes
         self.observe(self._on_value_change, names="value")
 
         super().__init__([self._widget])
-        self.value = value
+        self.value = self._coord[index]
+
+    def _find_closest_index(self, value: float) -> int:
+        return np.argmin(np.abs(self._coord - value))
 
     def _on_child_change(self, change):
         if self._lock:
             return
 
-        new = [min(max(float(x), self.min), self.max) for x in change["new"].split(":")]
+        new = [self._find_closest_index(float(x)) for x in change["new"].split(":")]
+        # new = self._find_closest_index()
+        new = [min(max(x, self.min), self.max) for x in new]
         # new = " : ".join(
         #     f"{min(max(float(x), self.min), self.max):.3E}"
         #     for x in change["new"].split(":")
         # )
         self._lock = True
-        self._widget.value = " : ".join(f"{x:.3E}" for x in new)
+        self._widget.value = " : ".join(f"{self._coord[x]:.3E}" for x in new)
         self.value = new[0]
         self._lock = False
 
@@ -263,13 +271,13 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
         # else:
         #     val = float(change["new"])
 
-        print("CHANGE NEW")
-        print(change["new"])
-        print(list(float(x) for x in change["new"]))
+        # print("CHANGE NEW")
+        # print(change["new"])
+        # print(list(float(x) for x in change["new"]))
 
-        new = [min(max(float(x), self.min), self.max) for x in change["new"]]
+        new = [min(max(x, self.min), self.max) for x in change["new"]]
         self._lock = True
-        self._widget.value = " : ".join(f"{x:.3E}" for x in new)
+        self._widget.value = " : ".join(f"{self._coord[x]:.3E}" for x in new)
         self._lock = False
 
 
@@ -280,7 +288,7 @@ class BoundsSingleWidget(ipw.HBox):
         index: int,
         # value: float,
     ):
-        self._coord = coord
+        # self._coord = coord
         coord_min, coord_max = self._coord.values[0], self._coord.values[-1]
         # self._child_lock = False
         # self._value_lock = False
@@ -290,7 +298,7 @@ class BoundsSingleWidget(ipw.HBox):
             # min=coord_min,
             # max=coord_max,
             # value=self._coord.values[index],
-            coord=self._coord,
+            coord=coord,
             index=index,
             layout={"width": "7em"},
         )
@@ -320,13 +328,15 @@ class BoundsSingleWidget(ipw.HBox):
 class BoundsSingleBinEdgesWidget(ipw.HBox):
     def __init__(self, coord: sc.Variable, index: int):
         # ind = coord.size
-        self._coord = coord
-        coord_min, coord_max = self._coord.values[0], self._coord.values[-1]
+        # self._coord = coord
+        # coord_min, coord_max = self._coord.values[0], self._coord.values[-1]
         self._widget = BoundedBinEdgeText(
             continuous_update=False,
-            min=coord_min,
-            max=coord_max,
-            value=tuple(self._coord.values[i] for i in (index, index + 1)),
+            coord=coord,
+            index=index,
+            # min=coord_min,
+            # max=coord_max,
+            # value=tuple(self._coord.values[i] for i in (index, index + 1)),
             layout={"width": "12em"},
         )
         super().__init__([self._widget])
@@ -345,8 +355,8 @@ class BoundsSingleBinEdgesWidget(ipw.HBox):
     def set_observe_callback(self, callback: callable, **kwargs):
         self._widget.observe(callback, **kwargs)
 
-    def get_closest_indices(self) -> tuple[int]:
-        return (np.argmin(np.abs(self._coord.values - self.value)),)
+    # def get_closest_indices(self) -> tuple[int]:
+    #     return (np.argmin(np.abs(self._coord.values - self.value)),)
 
 
 # TODO
