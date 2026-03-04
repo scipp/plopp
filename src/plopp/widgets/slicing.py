@@ -173,6 +173,10 @@ class BoundsSingleWidget(ipw.HBox):
     def value(self, value: tuple[float]):
         self._widget.value = value[0]
 
+    @property
+    def string_value(self) -> str:
+        return str(self._widget._widget.value)
+
     def set_observe_callback(self, callback: callable, **kwargs):
         self._widget.observe(callback, **kwargs)
 
@@ -193,6 +197,10 @@ class BoundsSingleBinEdgesWidget(ipw.HBox):
     @value.setter
     def value(self, value: tuple[float]):
         self._widget.value = value
+
+    @property
+    def string_value(self) -> str:
+        return str(self._widget._widget.value)
 
     def set_observe_callback(self, callback: callable, **kwargs):
         self._widget.observe(callback, **kwargs)
@@ -242,6 +250,10 @@ class BoundsRangeWidget(ipw.HBox):
         else:
             self._min_widget.value = value[0]
             self._max_widget.value = value[1]
+
+    @property
+    def string_value(self) -> str:
+        return f"{self._min_widget._widget.value} : {self._max_widget._widget.value}"
 
 
 class DimSlicer(ipw.HBox):
