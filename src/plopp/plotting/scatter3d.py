@@ -54,6 +54,7 @@ def scatter3d(
     logc: bool | None = None,
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
+    opacity: float = 1.0,
     title: str | None = None,
     vmax: sc.Variable | float = None,
     vmin: sc.Variable | float = None,
@@ -109,6 +110,8 @@ def scatter3d(
     norm:
         Set to ``'log'`` for a logarithmic colorscale (only applicable if ``cbar`` is
         ``True``). Legacy, prefer ``logc`` instead.
+    opacity:
+        The opacity (sometimes known as alpha) of the scatter points.
     title:
         The figure title.
     vmin:
@@ -155,6 +158,7 @@ def scatter3d(
         logc=logc,
         nan_color=nan_color,
         norm=norm,
+        opacity=opacity,
         title=title,
         vmax=vmax,
         vmin=vmin,
