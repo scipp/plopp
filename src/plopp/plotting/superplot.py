@@ -113,7 +113,7 @@ def superplot(
     slicer = Slicer(
         obj,
         keep=keep,
-        slider_mode='single',
+        mode='single',
         aspect=aspect,
         autoscale=autoscale,
         coords=coords,
