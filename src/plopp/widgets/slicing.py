@@ -294,9 +294,7 @@ class DimSlicer(ipw.HBox):
         else:
             self.bounds = BoundsSingleWidget(coord=self.coord, index=value)
 
-        self.unit = ipw.Label(
-            "" if self.coord.unit is None else f" [{self.coord.unit}]"
-        )
+        self.unit = ipw.Label("" if self.coord.unit is None else f"[{self.coord.unit}]")
         ipw.jslink(
             (self.continuous_update, 'value'), (self.slider, 'continuous_update')
         )
@@ -413,6 +411,10 @@ class CombinedSlicer(ipw.HBox):
     @property
     def slider(self) -> ipw.Widget:
         return self.range_slicer.slider
+
+    @property
+    def dim_label(self) -> ipw.Label:
+        return self.range_slicer.dim_label
 
     @property
     def value(self) -> int | tuple[int, int]:
