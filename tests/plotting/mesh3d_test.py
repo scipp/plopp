@@ -2,26 +2,21 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
-import pytest
-import scipp as sc
 
 import plopp as pp
 from plopp.data import examples
 
 
-@pytest.fixture
-def teapot_data():
-    return sc.io.load_hdf5(examples.teapot())
-
-
-def test_mesh3d_default(teapot_data):
+def test_mesh3d_default():
+    teapot_data = examples.teapot()
     pp.mesh3d(
         vertices=teapot_data["vertices"],
         faces=teapot_data["faces"],
     )
 
 
-def test_mesh3d_solid_color(teapot_data):
+def test_mesh3d_solid_color():
+    teapot_data = examples.teapot()
     fig = pp.mesh3d(
         vertices=teapot_data["vertices"], faces=teapot_data["faces"], color='red'
     )
@@ -29,7 +24,8 @@ def test_mesh3d_solid_color(teapot_data):
     assert np.array_equal(mesh.geometry.attributes["color"].array[0, :], (1, 0, 0))
 
 
-def test_mesh3d_vertexcolors(teapot_data):
+def test_mesh3d_vertexcolors():
+    teapot_data = examples.teapot()
     z = teapot_data["vertices"].fields.z
     fig = pp.mesh3d(
         vertices=teapot_data["vertices"],
@@ -44,7 +40,8 @@ def test_mesh3d_vertexcolors(teapot_data):
     assert not np.array_equal(colors[imin, :], colors[imax, :])
 
 
-def test_mesh3d_edgecolor(teapot_data):
+def test_mesh3d_edgecolor():
+    teapot_data = examples.teapot()
     fig = pp.mesh3d(
         vertices=teapot_data["vertices"],
         faces=teapot_data["faces"],
@@ -55,7 +52,8 @@ def test_mesh3d_edgecolor(teapot_data):
     assert mesh.edges.material.color == 'blue'
 
 
-def test_mesh3d_cmap(teapot_data):
+def test_mesh3d_cmap():
+    teapot_data = examples.teapot()
     fig = pp.mesh3d(
         vertices=teapot_data["vertices"],
         faces=teapot_data["faces"],
