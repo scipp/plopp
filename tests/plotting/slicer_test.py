@@ -183,25 +183,19 @@ class TestSlicer1d:
         ):
             Slicer(da, keep=[], mode='single')
 
-    def test_bounds_text_boxes(self):
-        da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx'], mode='range')
-        assert sl.slider.value == {'zz': (0, 29), 'yy': (0, 39)}
-        sl.slider.controls['yy'].bound_min.value = 12
-        assert sl.slider.value == {'zz': (0, 29), 'yy': (12, 39)}
-        sl.slider.controls['yy'].bound_max.value = 20
-        assert sl.slider.value == {'zz': (0, 29), 'yy': (12, 20)}
-        # Check that entered value snaps to nearest integer
-        sl.slider.controls['yy'].bound_min.value = 13.3
-        assert sl.slider.value == {'zz': (0, 29), 'yy': (13, 20)}
-        sl.slider.controls['yy'].bound_max.value = 18.7
-        assert sl.slider.value == {'zz': (0, 29), 'yy': (13, 19)}
-
 
 @pytest.mark.usefixtures("_parametrize_interactive_2d_backends")
 class TestSlicer2d:
-    def test_creation_keep_two_dims_single_mode(self):
-        da = data_array(ndim=3)
+    @pytest.mark.parametrize("binedges", [False, True])
+    @pytest.mark.parametrize("datetime", [False, True])
+    def test_creation_keep_two_dims_single_mode(self, binedges, datetime):
+        da = data_array(ndim=3, binedges=binedges)
+        if datetime:
+            da.coords['zz'] = sc.arange(
+                'zz',
+                sc.datetime('2022-02-20T04:32:00'),
+                sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"]}'),
+            )
         sl = Slicer(da, keep=['xx', 'yy'], mode='single')
         assert sl.slider.value == {'zz': 14}
         assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
@@ -216,8 +210,16 @@ class TestSlicer2d:
         assert sl.slider.value == {'zz': 5}
         assert_identical(sl.slice_nodes[0].request_data(), da['zz', 5])
 
-    def test_creation_keep_two_dims_range_mode(self):
-        da = data_array(ndim=3)
+    @pytest.mark.parametrize("binedges", [False, True])
+    @pytest.mark.parametrize("datetime", [False, True])
+    def test_creation_keep_two_dims_range_mode(self, binedges, datetime):
+        da = data_array(ndim=3, binedges=binedges)
+        if datetime:
+            da.coords['zz'] = sc.arange(
+                'zz',
+                sc.datetime('2022-02-20T04:32:00'),
+                sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"]}'),
+            )
         sl = Slicer(da, keep=['xx', 'yy'], mode='range')
         assert sl.slider.value == {'zz': (0, 29)}
         assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
@@ -240,8 +242,16 @@ class TestSlicer2d:
             da['zz', 5:16].sum('zz'),
         )
 
-    def test_creation_keep_two_dims_combined_mode(self):
-        da = data_array(ndim=3)
+    @pytest.mark.parametrize("binedges", [False, True])
+    @pytest.mark.parametrize("datetime", [False, True])
+    def test_creation_keep_two_dims_combined_mode(self, binedges, datetime):
+        da = data_array(ndim=3, binedges=binedges)
+        if datetime:
+            da.coords['zz'] = sc.arange(
+                'zz',
+                sc.datetime('2022-02-20T04:32:00'),
+                sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"]}'),
+            )
         sl = Slicer(da, keep=['xx', 'yy'], mode='combined')
         assert sl.slider.value == {'zz': (0, 29)}
         assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
@@ -312,17 +322,3 @@ class TestSlicer2d:
         # Colormapper range does not change
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
-
-    def test_bounds_text_boxes(self):
-        da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx', 'yy'], mode='range')
-        assert sl.slider.value == {'zz': (0, 29)}
-        sl.slider.controls['zz'].bound_min.value = 12
-        assert sl.slider.value == {'zz': (12, 29)}
-        sl.slider.controls['zz'].bound_max.value = 20
-        assert sl.slider.value == {'zz': (12, 20)}
-        # Check that entered value snaps to nearest integer
-        sl.slider.controls['zz'].bound_min.value = 13.3
-        assert sl.slider.value == {'zz': (13, 20)}
-        sl.slider.controls['zz'].bound_max.value = 18.7
-        assert sl.slider.value == {'zz': (13, 19)}
