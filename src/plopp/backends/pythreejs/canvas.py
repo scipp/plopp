@@ -8,7 +8,6 @@ from typing import Any
 
 import ipywidgets as ipw
 import numpy as np
-import pythreejs as p3
 import scipp as sc
 
 from ...graphics import Camera
@@ -42,7 +41,7 @@ class Canvas:
         perspective: bool = True,
         **ignored,
     ):
-        # import pythreejs as p3
+        import pythreejs as p3
 
         self.dims = {}
         self.units = {}
