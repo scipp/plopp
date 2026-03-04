@@ -5,6 +5,7 @@ from functools import partial
 from itertools import groupby
 from typing import Literal
 
+import numpy as np
 import scipp as sc
 
 from ..core import Node, widget_node
@@ -21,8 +22,16 @@ from .common import (
 
 def _maybe_reduce_dim(da, dims, op):
     to_be_reduced = set(dims) & set(da.dims)
+
+    # Small optimization: squeezing is much faster than reducing
+    to_be_squeezed = {dim for dim in to_be_reduced if da.sizes[dim] == 1}
+    if to_be_squeezed:
+        da = da.squeeze()
+        to_be_reduced -= to_be_squeezed
+
     if not to_be_reduced:
         return da
+
     # If the operation is a mean, there is currently a bug in the implementation
     # in scipp where doing a mean over a subset of the array's dimensions gives the
     # wrong result: https://github.com/scipp/scipp/issues/3841
@@ -30,17 +39,18 @@ def _maybe_reduce_dim(da, dims, op):
     if 'mean' not in op:
         return getattr(da, op)(dims)
 
-    kept_dims = set(da.dims) - to_be_reduced
-    sliced = da
-    for dim in kept_dims:
-        sliced = sliced[dim, 0]
+    # kept_dims = set(da.dims) - to_be_reduced
+    # sliced = da
+    # for dim in kept_dims:
+    #     sliced = sliced[dim, 0]
 
-    denominator = sliced.size
+    # denominator = sliced.size
     if 'nan' in op:
         numerator = da.nansum(dims)
-        denominator = denominator - sc.isnan(sliced.data).sum()
+        denominator = (~sc.isnan(da)).to(dtype=int).sum(dims)
     else:
         numerator = da.sum(dims)
+        denominator = np.prod([da.sizes[dim] for dim in dims if dim in to_be_reduced])
     return numerator / denominator
 
 
