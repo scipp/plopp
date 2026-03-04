@@ -159,6 +159,10 @@ def _format_float(x: float, prec=3) -> float:
 # #         widget.value = str(value)
 
 
+# def _make_(x: int, scale_factor: float = 1.0) -> str:
+#     return f"{x * scale_factor}ch"
+
+
 class BoundedText(ipw.HBox, ipw.ValueWidget):
     value = Any().tag(sync=True)
 
@@ -170,13 +174,32 @@ class BoundedText(ipw.HBox, ipw.ValueWidget):
         # min: float | None = None,
         # max: float | None = None,
         continuous_update: bool = False,
+        layout=None,
         **kwargs,
     ):
         self._lock = False
         self._coord = coord.values
+        if self._coord.dtype not in (sc.DType.datetime64, sc.DType.string):
+            self._underlying = self._coord
+            self._fmt = ".3E"
+            if layout is None:
+                layout = {"width": "11.5ch"}
+        else:
+            if self._coord.dtype == sc.DType.datetime64:
+                self._underlying = coord.to(unit="ns").values.astype(int)
+            else:
+                self._underlying = self._coord
+            self._fmt = ""
+            if layout is None:
+                layout = {"width": f"{len(str(self._coord[-1])) * 1.02}ch"}
+
         # self._index = index
         # coord_min, coord_max = self._coord.values[0], self._coord.values[-1]
-        self._widget = ipw.Text(continuous_update=continuous_update, value="", **kwargs)
+        # if layout is None:
+        #     layout = {"width": "7em"}
+        self._widget = ipw.Text(
+            continuous_update=continuous_update, value="", layout=layout, **kwargs
+        )
         self.min = 0  # self._coord[0]
         self.max = len(self._coord)  # [-1]
         # observe user edits
@@ -188,22 +211,33 @@ class BoundedText(ipw.HBox, ipw.ValueWidget):
         # self.value = self._coord[index]
         self.value = index
 
-    def _find_closest_index(self, value: float) -> int:
-        return np.argmin(np.abs(self._coord - value))
+    def _find_closest_index(self, value: str) -> int:
+        try:
+            v = float(value)
+        except ValueError:
+            v = sc.datetime(value).to(unit="ns").value.astype(int)
+        return np.argmin(np.abs(self._underlying - v))
 
     def _on_child_change(self, change):
         if self._lock:
             return
 
         # print("RECEIVED VALUE:", change["new"])
-        new = self._find_closest_index(float(change["new"]))
+        new = self._find_closest_index(change["new"])
+        if new is None:
+            # Could not find a matching index (probably in the case of strings)
+            return
         # print("closest index found:", new)
         new = min(max(new, self.min), self.max)
         # print("clamped index:", new)
         # Find closest value in allowed values in coord
         # new = self._find_closest_index(new)
         self._lock = True
-        self._widget.value = f"{self._coord[new]:.3E}"
+        self._widget.value = f"{self._coord[new]:{self._fmt}}"
+        # if self._is_numeric:
+        #     self._widget.value = f"{self._coord[new]:{self._fmt}}"
+        # else:
+        #     self._widget.value = str(self._coord[new])
         self.value = new
         self._lock = False
 
@@ -214,7 +248,7 @@ class BoundedText(ipw.HBox, ipw.ValueWidget):
         new = min(max(change["new"], self.min), self.max)
         # new = self._find_closest_value(new)
         self._lock = True
-        self._widget.value = f"{self._coord[new]:.3E}"
+        self._widget.value = f"{self._coord[new]:{self._fmt}}"
         self._lock = False
 
 
@@ -229,11 +263,25 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
         # min: float | None = None,
         # max: float | None = None,
         continuous_update: bool = False,
+        layout=None,
         **kwargs,
     ):
         self._lock = False
         self._coord = coord.values
-        self._widget = ipw.Text(continuous_update=continuous_update, value="", **kwargs)
+        if self._coord.dtype not in (sc.DType.datetime64, sc.DType.string):
+            self._fmt = ".3E"
+            if layout is None:
+                # 10 + 10 characters for the two bounds, plus 3 for " : " = 23
+                layout = {"width": "22.5ch"}
+        else:
+            self._fmt = ""
+            if layout is None:
+                # n_em = len(f"{self._coord[-2]} : {self._coord[-1]}") * 7 // 10
+                layout = {"width": f"{0.92 * (len(str(self._coord[-1])) * 2 + 3)}ch"}
+
+        self._widget = ipw.Text(
+            continuous_update=continuous_update, value="", layout=layout, **kwargs
+        )
         self.min = 0
         self.max = len(self._coord) - 1
         # observe user edits
@@ -270,7 +318,7 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
         if len(new) == 1:
             new = [new[0], new[0] + 1]
         self._lock = True
-        self._widget.value = " : ".join(f"{self._coord[x]:.3E}" for x in new)
+        self._widget.value = " : ".join(f"{self._coord[x]:{self._fmt}}" for x in new)
         self.value = new
         self._lock = False
 
@@ -289,7 +337,7 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
 
         new = [min(max(x, self.min), self.max) for x in change["new"]]
         self._lock = True
-        self._widget.value = " : ".join(f"{self._coord[x]:.3E}" for x in new)
+        self._widget.value = " : ".join(f"{self._coord[x]:{self._fmt}}" for x in new)
         self._lock = False
 
 
@@ -312,7 +360,7 @@ class BoundsSingleWidget(ipw.HBox):
             # value=self._coord.values[index],
             coord=coord,
             index=index,
-            layout={"width": "7em"},
+            # layout={"width": "7em"},
         )
 
         # observe user edits
@@ -349,7 +397,7 @@ class BoundsSingleBinEdgesWidget(ipw.HBox):
             # min=coord_min,
             # max=coord_max,
             # value=tuple(self._coord.values[i] for i in (index, index + 1)),
-            layout={"width": "12em"},
+            # layout={"width": "12em"},
         )
         super().__init__([self._widget])
 
@@ -412,7 +460,7 @@ class BoundsRangeWidget(ipw.HBox):
             # value=self._coord.values[index[0]],
             coord=coord,
             index=index[0],
-            layout={"width": "7em"},
+            # layout={"width": "7em"},
         )
         # self._min_widget.is_lower_bound = True
 
@@ -424,7 +472,7 @@ class BoundsRangeWidget(ipw.HBox):
             # value=self._coord.values[index[1]],
             coord=coord,
             index=index[1],
-            layout={"width": "7em"},
+            # layout={"width": "7em"},
         )
         # print(
         #     "min val",

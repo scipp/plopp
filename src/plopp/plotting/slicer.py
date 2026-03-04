@@ -32,19 +32,13 @@ def _maybe_reduce_dim(da, dims, op):
     if not to_be_reduced:
         return da
 
+    if 'mean' not in op:
+        return getattr(da, op)(dims)
+
     # If the operation is a mean, there is currently a bug in the implementation
     # in scipp where doing a mean over a subset of the array's dimensions gives the
     # wrong result: https://github.com/scipp/scipp/issues/3841
     # Instead, we manually compute the mean
-    if 'mean' not in op:
-        return getattr(da, op)(dims)
-
-    # kept_dims = set(da.dims) - to_be_reduced
-    # sliced = da
-    # for dim in kept_dims:
-    #     sliced = sliced[dim, 0]
-
-    # denominator = sliced.size
     if 'nan' in op:
         numerator = da.nansum(dims)
         denominator = (~sc.isnan(da)).to(dtype=int).sum(dims)
