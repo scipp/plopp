@@ -204,7 +204,6 @@ class BoundsRangeWidget(ipw.HBox):
         coord: sc.Variable,
         index: tuple[int, int],
     ):
-
         self._min_widget = BoundedText(
             continuous_update=False,
             coord=coord,
