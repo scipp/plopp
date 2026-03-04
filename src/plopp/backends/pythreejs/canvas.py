@@ -310,14 +310,6 @@ class Canvas:
         """
         self.axes_3d.visible = not self.axes_3d.visible
 
-    def toggle_perspective(self):
-        self.remove(self.camera)
-        self.camera = p3.OrthographicCamera(
-            far=self.camera.far, near=self.camera.far * 1e-5
-        )
-        self.add(self.camera)
-        self.draw()
-
     def add(self, obj: Any):
         """
         Add an object to the ``scene``.
