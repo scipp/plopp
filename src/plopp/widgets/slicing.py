@@ -3,164 +3,21 @@
 
 from functools import partial
 
-# from typing import Any
 import ipywidgets as ipw
 import numpy as np
 import scipp as sc
-from traitlets import Any, Tuple
+from traitlets import Any
 
 from ..core import node
 from .box import VBar
 
 
-def _format_float(x: float, prec=3) -> float:
+def _find_closest_index(coord, value: str) -> int:
     try:
-        return round(x, prec)
-    except TypeError:
-        return x
-
-
-# class BoundWidget(ipw.HBox, ipw.ValueWidget):
-#     value = Any().tag(sync=True)
-
-#     def __init__(self, coord: sc.Variable, value: float):
-#         self._coord = coord
-#         # self._child_lock = False
-#         # self._value_lock = False
-#         coord_min, coord_max = self._coord.values[0], self._coord.values[-1]
-#         if self._coord.dtype != sc.DType.datetime64:
-#             self._widget = ipw.BoundedFloatText(
-#                 continuous_update=False,
-#                 min=coord_min,
-#                 max=coord_max,
-#                 step=(coord_max - coord_min) / 999,
-#                 value=value,
-#                 layout={"width": "6em"},
-#             )
-#             self._is_float = True
-#         else:
-#             self._widget = ipw.Text(
-#                 continuous_update=False, value=str(value), layout={"width": "10em"}
-#             )
-#             self._is_float = False
-
-#         # observe user edits
-#         self._widget.observe(self._on_child_change, names="value")
-#         # observe external value changes
-#         self.observe(self._on_value_change, names="value")
-
-#         super().__init__([self._widget])
-#         self.value = self._widget.value
-
-#     def _on_child_change(self, change):
-#         # print(
-#         #     "BOUND, on_child_change: value_lock",
-#         #     self._value_lock,
-#         #     "child_lock",
-#         #     self._child_lock,
-#         # )
-#         # if self._child_lock:
-#         #     return
-#         if self._widget.value == change["new"]:
-#             return
-
-#         self._value_lock = True
-#         self.value = float(self._widget.value)
-#         self._value_lock = False
-
-#     # def _on_value_change(self, change):
-#     #     if self._lock:
-#     #         return
-
-#     #     self._lock = True
-#     #     if self._is_float:
-#     #         self._widget.value = round(change["new"], 3)
-#     #     else:
-#     #         self._widget.value = str(change["new"])
-#     #     self._lock = False
-
-#     def _on_value_change(self, change):
-#         # if self._is_float:
-#         #     new = round(change["new"], 3)
-#         # else:
-#         #     new = str(change["new"])
-
-#         # if new != self._widget.value:
-#         #     self._widget.value = new
-#         print(
-#             "BOUND, on_VALUE_change: value_lock",
-#             self._value_lock,
-#             "child_lock",
-#             self._child_lock,
-#         )
-
-#         if self._value_lock:
-#             return
-
-#         self._child_lock = True
-#         if self._is_float:
-#             self._widget.value = round(change["new"], 3)
-#         else:
-#             self._widget.value = str(change["new"])
-#         self._child_lock = False
-
-#     @property
-#     def min(self) -> float | None:
-#         return getattr(self._widget, "min", None)
-
-#     @min.setter
-#     def min(self, value: float):
-#         if self._is_float:
-#             self._widget.min = value
-
-#     @property
-#     def max(self) -> float | None:
-#         return getattr(self._widget, "max", None)
-
-#     @max.setter
-#     def max(self, value: float):
-#         if self._is_float:
-#             self._widget.max = value
-
-#     # def _on_subwidget_change(self, _=None):
-#     #     """ """
-#     #     if self._is_float:
-#     #         self.value = round(value, 3)
-#     #     else:
-#     #         self._widget.value = str(value)
-#     #     self.value = {dim: slicer.value for dim, slicer in self.controls.items()}
-
-#     # @property
-#     # def value(self) -> float:
-#     #     return float(self._widget.value)
-
-#     # @value.setter
-#     # def value(self, value: float):
-#     #     if self._is_float:
-#     #         self._widget.value = round(value, 3)
-#     #     else:
-#     #         self._widget.value = str(value)
-
-#     def get_closest_index(self) -> int:
-#         """
-#         Get the index of the coordinate value closest to the one in the widget.
-#         """
-#         # if self._is_float:
-#         #     value = self.value
-#         # else:
-#         #     value = sc.scalar(self._widget.value, dtype=self._coord.dtype)
-#         return np.argmin(np.abs(self._coord.values - self.value))
-
-
-# # def _set_bound_widget_value(widget: ipw.Widget, value: float):
-# #     if isinstance(widget, ipw.BoundedFloatText):
-# #         widget.value = value
-# #     elif isinstance(widget, ipw.Text):
-# #         widget.value = str(value)
-
-
-# def _make_(x: int, scale_factor: float = 1.0) -> str:
-#     return f"{x * scale_factor}ch"
+        v = float(value)
+    except ValueError:
+        v = sc.datetime(value).to(unit="ns").value.astype(int)
+    return np.argmin(np.abs(coord - v))
 
 
 class BoundedText(ipw.HBox, ipw.ValueWidget):
@@ -170,9 +27,6 @@ class BoundedText(ipw.HBox, ipw.ValueWidget):
         self,
         coord: sc.Variable,
         index: int,
-        # value: float | str,
-        # min: float | None = None,
-        # max: float | None = None,
         continuous_update: bool = False,
         layout=None,
         **kwargs,
@@ -193,51 +47,27 @@ class BoundedText(ipw.HBox, ipw.ValueWidget):
             if layout is None:
                 layout = {"width": f"{len(str(self._coord[-1])) * 1.02}ch"}
 
-        # self._index = index
-        # coord_min, coord_max = self._coord.values[0], self._coord.values[-1]
-        # if layout is None:
-        #     layout = {"width": "7em"}
         self._widget = ipw.Text(
             continuous_update=continuous_update, value="", layout=layout, **kwargs
         )
-        self.min = 0  # self._coord[0]
-        self.max = len(self._coord)  # [-1]
+        self.min = 0
+        self.max = len(self._coord)
         # observe user edits
         self._widget.observe(self._on_child_change, names="value")
         # observe external value changes
         self.observe(self._on_value_change, names="value")
 
         super().__init__([self._widget])
-        # self.value = self._coord[index]
         self.value = index
-
-    def _find_closest_index(self, value: str) -> int:
-        try:
-            v = float(value)
-        except ValueError:
-            v = sc.datetime(value).to(unit="ns").value.astype(int)
-        return np.argmin(np.abs(self._underlying - v))
 
     def _on_child_change(self, change):
         if self._lock:
             return
 
-        # print("RECEIVED VALUE:", change["new"])
-        new = self._find_closest_index(change["new"])
-        if new is None:
-            # Could not find a matching index (probably in the case of strings)
-            return
-        # print("closest index found:", new)
+        new = _find_closest_index(coord=self._underlying, value=change["new"])
         new = min(max(new, self.min), self.max)
-        # print("clamped index:", new)
-        # Find closest value in allowed values in coord
-        # new = self._find_closest_index(new)
         self._lock = True
         self._widget.value = f"{self._coord[new]:{self._fmt}}"
-        # if self._is_numeric:
-        #     self._widget.value = f"{self._coord[new]:{self._fmt}}"
-        # else:
-        #     self._widget.value = str(self._coord[new])
         self.value = new
         self._lock = False
 
@@ -246,7 +76,6 @@ class BoundedText(ipw.HBox, ipw.ValueWidget):
             return
 
         new = min(max(change["new"], self.min), self.max)
-        # new = self._find_closest_value(new)
         self._lock = True
         self._widget.value = f"{self._coord[new]:{self._fmt}}"
         self._lock = False
@@ -259,9 +88,6 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
         self,
         coord: sc.Variable,
         index: int,
-        # value: float | str,
-        # min: float | None = None,
-        # max: float | None = None,
         continuous_update: bool = False,
         layout=None,
         **kwargs,
@@ -271,12 +97,10 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
         if self._coord.dtype not in (sc.DType.datetime64, sc.DType.string):
             self._fmt = ".3E"
             if layout is None:
-                # 10 + 10 characters for the two bounds, plus 3 for " : " = 23
                 layout = {"width": "22.5ch"}
         else:
             self._fmt = ""
             if layout is None:
-                # n_em = len(f"{self._coord[-2]} : {self._coord[-1]}") * 7 // 10
                 layout = {"width": f"{0.92 * (len(str(self._coord[-1])) * 2 + 3)}ch"}
 
         self._widget = ipw.Text(
@@ -292,14 +116,14 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
         super().__init__([self._widget])
         self.value = index, index + 1
 
-    def _find_closest_index(self, value: float) -> int:
-        return np.argmin(np.abs(self._coord - value))
-
     def _on_child_change(self, change):
         if self._lock:
             return
 
-        new = [self._find_closest_index(float(x)) for x in change["new"].split(":")]
+        new = [
+            _find_closest_index(coord=self._coord, value=x)
+            for x in change["new"].split(":")
+        ]
 
         if (":" in change["new"]) and (":" in change["old"]):
             old2 = float(change["old"].split(":")[1])
@@ -309,12 +133,7 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
             else:
                 new = new[1], new[1] + 1
 
-        # new = self._find_closest_index()
         new = [min(max(x, self.min), self.max) for x in new]
-        # new = " : ".join(
-        #     f"{min(max(float(x), self.min), self.max):.3E}"
-        #     for x in change["new"].split(":")
-        # )
         if len(new) == 1:
             new = [new[0], new[0] + 1]
         self._lock = True
@@ -325,15 +144,6 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
     def _on_value_change(self, change):
         if self._lock:
             return
-
-        # if ":" in change["new"]:
-        #     val = float(change["new"].split(":")[0])
-        # else:
-        #     val = float(change["new"])
-
-        # print("CHANGE NEW")
-        # print(change["new"])
-        # print(list(float(x) for x in change["new"]))
 
         new = [min(max(x, self.min), self.max) for x in change["new"]]
         self._lock = True
@@ -346,27 +156,12 @@ class BoundsSingleWidget(ipw.HBox):
         self,
         coord: sc.Variable,
         index: int,
-        # value: float,
     ):
-        # self._coord = coord
-        # coord_min, coord_max = self._coord.values[0], self._coord.values[-1]
-        # self._child_lock = False
-        # self._value_lock = False
-        # step = (coord_max - coord_min) / 999
         self._widget = BoundedText(
             continuous_update=False,
-            # min=coord_min,
-            # max=coord_max,
-            # value=self._coord.values[index],
             coord=coord,
             index=index,
-            # layout={"width": "7em"},
         )
-
-        # observe user edits
-        # self._widget.observe(self._on_child_change, names="value")
-        # observe external value changes
-        # self.observe(self._on_value_change, names="value")
 
         super().__init__([self._widget])
 
@@ -381,31 +176,18 @@ class BoundsSingleWidget(ipw.HBox):
     def set_observe_callback(self, callback: callable, **kwargs):
         self._widget.observe(callback, **kwargs)
 
-    # def get_closest_indices(self) -> tuple[int]:
-    #     return (np.argmin(np.abs(self._coord.values - self.value)),)
-
 
 class BoundsSingleBinEdgesWidget(ipw.HBox):
     def __init__(self, coord: sc.Variable, index: int):
-        # ind = coord.size
-        # self._coord = coord
-        # coord_min, coord_max = self._coord.values[0], self._coord.values[-1]
         self._widget = BoundedBinEdgeText(
             continuous_update=False,
             coord=coord,
             index=index,
-            # min=coord_min,
-            # max=coord_max,
-            # value=tuple(self._coord.values[i] for i in (index, index + 1)),
-            # layout={"width": "12em"},
         )
         super().__init__([self._widget])
 
     @property
     def value(self) -> float:
-        # if ":" in self._widget.value:
-        #     return float(self._widget.value.split(":")[0])
-        # return float(self._widget.value)
         return self._widget.value
 
     @value.setter
@@ -415,141 +197,39 @@ class BoundsSingleBinEdgesWidget(ipw.HBox):
     def set_observe_callback(self, callback: callable, **kwargs):
         self._widget.observe(callback, **kwargs)
 
-    # def get_closest_indices(self) -> tuple[int]:
-    #     return (np.argmin(np.abs(self._coord.values - self.value)),)
-
-
-# TODO
-# make a class BoundsRangeWidgetDatetime
-
-
-# New plan:
-# - 2 bound widgets for range slider
-# - 1 bound widget for single value midpoints
-# - 1 new widget with Text for single value with bin edges: separate edges of current bin with :
-# - make corresponding widgets for datetime which use Text
-
 
 class BoundsRangeWidget(ipw.HBox):
-    # value = Tuple(Any(), Any()).tag(sync=True)
-    # value = Any().tag(sync=True)
-
     def __init__(
         self,
         coord: sc.Variable,
         index: tuple[int, int],
-        # value_min: float,
-        # value_max: float,
     ):
-        # coord_min, coord_max = coord.values[0], coord.values[-1]
-        # self._child_lock = False
-        # self._value_lock = False
-
-        # self._min_widget = BoundWidget(coord=coord, value=coord.values[0])
-        # self._max_widget = BoundWidget(coord=coord, value=coord.values[-1])
-
-        # self._coord = coord
-        # coord_min, coord_max = self._coord.values[0], self._coord.values[-1]
-        # step = (coord_max - coord_min) / 999
 
         self._min_widget = BoundedText(
             continuous_update=False,
-            # min=coord_min,
-            # max=coord_max,
-            # # step=step,
-            # value=self._coord.values[index[0]],
             coord=coord,
             index=index[0],
-            # layout={"width": "7em"},
         )
-        # self._min_widget.is_lower_bound = True
 
         self._max_widget = BoundedText(
             continuous_update=False,
-            # min=coord_min,
-            # max=coord_max,
-            # # step=step,
-            # value=self._coord.values[index[1]],
             coord=coord,
             index=index[1],
-            # layout={"width": "7em"},
         )
-        # print(
-        #     "min val",
-        #     self._min_widget.value,
-        #     _round_float(self._coord.values[index[0]]),
-        # )
-        # print(
-        #     "max val",
-        #     self._max_widget.value,
-        #     _round_float(self._coord.values[index[1]]),
-        # )
-        # self._max_widget.is_lower_bound = False
-
-        # ipw.link((self._min_widget, 'max'), (self._max_widget, 'value'))
-        # ipw.link((self._max_widget, 'min'), (self._min_widget, 'value'))
         self._min_widget.observe(self._on_min_change, names='value')
         self._max_widget.observe(self._on_max_change, names='value')
 
-        # observe user edits
-        # self._min_widget.observe(self._on_child_change, names="value")
-        # self._max_widget.observe(self._on_child_change, names="value")
-        # observe external value changes
-        # self.observe(self._on_value_change, names="value")
-
         super().__init__([self._min_widget, ipw.Label(value=":"), self._max_widget])
-
-        # self.value = self._min_widget.value, self._max_widget.value
 
     def set_observe_callback(self, callback: callable, **kwargs):
         self._min_widget.observe(callback, **kwargs)
         self._max_widget.observe(callback, **kwargs)
 
     def _on_min_change(self, change: dict):
-        # if self._max_widget._is_float:
         self._max_widget.min = change["new"]
 
     def _on_max_change(self, change: dict):
-        # if self._min_widget._is_float:
         self._min_widget.max = change["new"]
-
-    # def _on_child_change(self, _):
-    #     # # if self._max_widget._is_float:
-    #     # self._max_widget.min = self._min_widget.value
-    #     # # if self._min_widget._is_float:
-    #     # self._min_widget.max = self._max_widget.value
-
-    #     if self._widget.value == change["new"]:
-    #         return
-
-    #     if self._child_lock:
-    #         return
-
-    #     print("bounds ON_CHILD_CHANGE", self._min_widget.value, self._max_widget.value)
-    #     self._value_lock = True
-    #     self.value = self._min_widget.value, self._max_widget.value
-    #     self._value_lock = False
-
-    # def _on_value_change(self, change):
-    #     print(
-    #         "bounds on_value_change",
-    #         self._min_widget.value,
-    #         self._max_widget.value,
-    #         'value_lock',
-    #         self._value_lock,
-    #     )
-    #     if self._value_lock:
-    #         return
-
-    #     self._child_lock = True
-    #     # self._widget.value = change["new"][0]
-    #     if change["new"][0] > self._max_widget.value:
-    #         self._max_widget.value = change["new"][1]
-    #         self._min_widget.value = change["new"][0]
-    #     else:
-    #         self._min_widget.value = change["new"][0]
-    #         self._max_widget.value = change["new"][1]
-    #     self._child_lock = False
 
     @property
     def value(self) -> tuple[float, float]:
@@ -557,16 +237,12 @@ class BoundsRangeWidget(ipw.HBox):
 
     @value.setter
     def value(self, value: tuple[float, float]):
-        # new_bounds = tuple(_round_float(v) for v in self.coord[self.dim, inds].values)
         if value[0] > float(self._max_widget.value):
             self._max_widget.value = value[1]
             self._min_widget.value = value[0]
         else:
             self._min_widget.value = value[0]
             self._max_widget.value = value[1]
-
-    # def get_closest_indices(self) -> tuple[int, int]:
-    #     return tuple(np.argmin(np.abs(self._coord.values - x)) for x in self.value)
 
 
 class DimSlicer(ipw.HBox):
@@ -612,34 +288,12 @@ class DimSlicer(ipw.HBox):
             layout={"width": "1.52em"},
         )
 
-        # if self._is_bin_edges or (self._kind == "range"):
-        #     self.bounds = BoundsRangeWidget(coord=self.coord, index=value)
-        # else:
-        #     self.bounds = BoundsSingleWidget(coord=self.coord, index=value)
         if self._kind == "range":
             self.bounds = BoundsRangeWidget(coord=self.coord, index=value)
         elif self._is_bin_edges:
             self.bounds = BoundsSingleBinEdgesWidget(coord=self.coord, index=value)
         else:
             self.bounds = BoundsSingleWidget(coord=self.coord, index=value)
-
-        # self.bound_min = _make_bound_widget(
-        #     coord=self.coord,
-        #     coord_min=self.coord_min,
-        #     coord_max=self.coord_max,
-        #     value=self.coord_min,
-        # )
-        # if self._is_bin_edges or (self._kind == "range"):
-        #     self.bound_max = _make_bound_widget(
-        #         coord=self.coord,
-        #         coord_min=self.coord_min,
-        #         coord_max=self.coord_max,
-        #         value=self.coord_max,
-        #     )
-        #     ipw.link((self.bound_min, 'max'), (self.bound_max, 'value'))
-        #     ipw.link((self.bound_max, 'min'), (self.bound_min, 'value'))
-        # else:
-        #     self.bound_max = None
 
         self.unit = ipw.Label(
             "" if self.coord.unit is None else f" [{self.coord.unit}]"
@@ -648,15 +302,7 @@ class DimSlicer(ipw.HBox):
             (self.continuous_update, 'value'), (self.slider, 'continuous_update')
         )
 
-        children = [
-            self.dim_label,
-            self.slider,
-            self.continuous_update,
-            self.bounds,
-        ]
-        # if self.bound_max is not None:
-        #     children.append(ipw.Label(value=":"))
-        #     children.append(self.bound_max)
+        children = [self.dim_label, self.slider, self.continuous_update, self.bounds]
         children.append(self.unit)
         if enable_player:
             self.player = ipw.Play(
@@ -682,7 +328,6 @@ class DimSlicer(ipw.HBox):
         Update the readout label with the coordinate value, instead of the integer
         readout index.
         """
-        # print("updating label", change)
         inds = change["new"]
         if self._is_bin_edges:
             if isinstance(inds, tuple):
@@ -690,25 +335,6 @@ class DimSlicer(ipw.HBox):
             else:
                 inds = (inds, inds + 1)
         self._bounds_lock = True
-        # if isinstance(inds, tuple):
-        #     new_bounds = tuple(
-        #         _round_float(v) for v in self.coord[self.dim, inds].values
-        #     )
-        #     if new_bounds[0] > float(self.bound_max.value):
-        #         self.bound_max.value = str(new_bounds[1])
-        #         self.bound_min.value = str(new_bounds[0])
-        #     else:
-        #         self.bound_min.value = str(new_bounds[0])
-        #         self.bound_max.value = str(new_bounds[1])
-        # else:
-        #     self.bound_min.value = str(_round_float(self.coord[self.dim, inds].value))
-        # if isinstance(inds, tuple):
-        #     new_bounds = self.coord[self.dim, inds].values
-
-        # else:
-        #     new_bounds = self.coord[self.dim, inds].value
-        # print("updating bounds", inds, self.bounds.value)
-        # self.bounds.value = np.atleast_1d(self.coord[self.dim, inds].values).tolist()
         self.bounds.value = np.atleast_1d(inds).tolist()
         self._bounds_lock = False
 
@@ -717,18 +343,8 @@ class DimSlicer(ipw.HBox):
         Move the slider to the position corresponding to the coordinate value in the
         label, if possible.
         """
-        # print("move slider to label", change["new"])
         if self._bounds_lock:
             return
-        # # Find the index of the coordinate value closest to the one in the label.
-        # if self.bound_max is None:
-        #     self.slider.value = np.argmin(np.abs(self.coord.values - change["new"]))
-        # else:
-        #     # vmin, vmax = self.bound_min.value, self.bound_max.value
-        #     # bounds = tuple(
-        #     #     np.argmin(np.abs(self.coord.values - x)) for x in (vmin, vmax)
-        #     # )
-        # inds = self.bounds.get_closest_indices()
         inds = self.bounds.value
         if len(inds) == 1:
             self.slider.value = inds[0]
@@ -737,13 +353,6 @@ class DimSlicer(ipw.HBox):
                 self.slider.value = inds
             else:
                 self.slider.value = inds[0]
-                # # Here it means that the user has entered a range in the label,
-                # # but the slider is a single slider. We move the slider to the value
-                # # requested by the bound that was changed.
-                # if change["owner"].is_lower_bound:
-                #     self.slider.value = inds[0]
-                # else:
-                #     self.slider.value = inds[1]
 
     @property
     def value(self) -> int | tuple[int, int]:
