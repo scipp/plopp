@@ -54,6 +54,7 @@ def scatter3d(
     logc: bool | None = None,
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
+    perspective: bool = True,
     title: str | None = None,
     vmax: sc.Variable | float = None,
     vmin: sc.Variable | float = None,
@@ -109,6 +110,9 @@ def scatter3d(
     norm:
         Set to ``'log'`` for a logarithmic colorscale (only applicable if ``cbar`` is
         ``True``). Legacy, prefer ``logc`` instead.
+    perspective:
+        Set to ``True`` for a perspective camera. ``False`` will give an orthographic
+        (flat) camera.
     title:
         The figure title.
     vmin:
@@ -155,6 +159,7 @@ def scatter3d(
         logc=logc,
         nan_color=nan_color,
         norm=norm,
+        perspective=perspective,
         title=title,
         vmax=vmax,
         vmin=vmin,

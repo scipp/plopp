@@ -8,6 +8,7 @@ from typing import Any
 
 import ipywidgets as ipw
 import numpy as np
+import pythreejs as p3
 import scipp as sc
 
 from ...graphics import Camera
@@ -38,9 +39,10 @@ class Canvas:
         figsize: tuple[int, int] | None = None,
         title: str | None = None,
         camera: Camera | None = None,
+        perspective: bool = True,
         **ignored,
     ):
-        import pythreejs as p3
+        # import pythreejs as p3
 
         self.dims = {}
         self.units = {}
@@ -58,7 +60,8 @@ class Canvas:
         self._title = self._make_title()
         width, height = self.figsize
         self._user_camera = Camera() if camera is None else camera
-        self.camera = p3.PerspectiveCamera(aspect=width / height)
+        # camera_maker = p3.PerspectiveCamera if perspective else p3.OrthographicCamera
+        # self.camera = camera_maker(aspect=width / height)
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
         self.bbox = BoundingBox()
@@ -141,6 +144,7 @@ class Canvas:
 
         center = [var.mean().value for var in limits]
         distance_fudge_factor = 1.2
+        # TODO: if orthographic camera
         box_size = np.array([(limits[i][1] - limits[i][0]).value for i in range(3)])
         self.camera.position = self._user_camera.get(
             'position', list(np.array(center) + distance_fudge_factor * box_size)
@@ -253,6 +257,14 @@ class Canvas:
         Toggle the visibility of the RGB helper axes.
         """
         self.axes_3d.visible = not self.axes_3d.visible
+
+    def toggle_perspective(self):
+        self.remove(self.camera)
+        self.camera = p3.OrthographicCamera(
+            far=self.camera.far, near=self.camera.far * 1e-5
+        )
+        self.add(self.camera)
+        self.draw()
 
     def add(self, obj: Any):
         """
