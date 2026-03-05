@@ -103,6 +103,7 @@ def inspector(
     clabel: str | None = None,
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
+    continuous_update: bool = True,
     errorbars: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
@@ -184,6 +185,10 @@ def inspector(
         Upper limit for colorscale.
     cmin:
         Lower limit for colorscale.
+    continuous_update:
+        If ``True``, update the data selected by the markers, rectangles, or polygons
+        continuously as they are being moved or resized. If ``False``, only update the
+        data when the user releases the mouse button after moving/resizing.
     errorbars:
         Show errorbars if ``True`` (1d figure).
     figsize:
@@ -304,6 +309,7 @@ def inspector(
             func=_slice_xy,
             destination=f1d,
             tooltip="Activate inspector tool",
+            continuous_update=continuous_update,
         )
     else:
         da = bin_centers_node()
@@ -329,6 +335,7 @@ def inspector(
             ),
             destination=f1d,
             tooltip=f"Activate {mode} inspector tool",
+            continuous_update=continuous_update,
         )
 
     f2d.toolbar['inspect'] = tool

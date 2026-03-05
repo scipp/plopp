@@ -55,6 +55,7 @@ def scatter3d(
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
     opacity: float = 1.0,
+    perspective: bool = True,
     title: str | None = None,
     vmax: sc.Variable | float = None,
     vmin: sc.Variable | float = None,
@@ -112,6 +113,9 @@ def scatter3d(
         ``True``). Legacy, prefer ``logc`` instead.
     opacity:
         The opacity (sometimes known as alpha) of the scatter points.
+    perspective:
+        Set to ``True`` for a perspective camera. ``False`` will give an orthographic
+        (flat) camera.
     title:
         The figure title.
     vmin:
@@ -159,6 +163,7 @@ def scatter3d(
         nan_color=nan_color,
         norm=norm,
         opacity=opacity,
+        perspective=perspective,
         title=title,
         vmax=vmax,
         vmin=vmin,
