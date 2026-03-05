@@ -5,9 +5,10 @@ from functools import partial
 from itertools import groupby
 from typing import Literal
 
+import numpy as np
 import scipp as sc
 
-from ..core import widget_node
+from ..core import Node, widget_node
 from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
 from .common import (
@@ -19,18 +20,42 @@ from .common import (
 )
 
 
+def _maybe_reduce_dim(da, dims, op):
+    to_be_reduced = set(dims) & set(da.dims)
+
+    # Small optimization: squeezing is much faster than reducing
+    to_be_squeezed = {dim for dim in to_be_reduced if da.sizes[dim] == 1}
+    if to_be_squeezed:
+        da = da.squeeze()
+        to_be_reduced -= to_be_squeezed
+
+    if not to_be_reduced:
+        return da
+
+    if 'mean' not in op:
+        return getattr(da, op)(to_be_reduced)
+
+    # If the operation is a mean, there is currently a bug in the implementation
+    # in scipp where doing a mean over a subset of the array's dimensions gives the
+    # wrong result: https://github.com/scipp/scipp/issues/3841
+    # Instead, we manually compute the mean
+    if 'nan' in op:
+        numerator = da.nansum(to_be_reduced)
+        denominator = (~sc.isnan(da)).to(dtype=int).sum(to_be_reduced)
+    else:
+        numerator = da.sum(to_be_reduced)
+        denominator = np.prod([da.sizes[dim] for dim in to_be_reduced])
+    return numerator / denominator
+
+
 class Slicer:
     """
     Class that slices out dimensions from the data and displays the resulting data as
     either a 1D line or a 2D image.
 
-    Note:
-
-    This class primarily exists to facilitate unit testing. When running unit tests, we
-    are not in a Jupyter notebook, and the generated figures are not widgets that can
-    be placed in the `Box` widget container at the end of the `slicer` function.
-    We therefore place most of the code for creating a Slicer in this class, which is
-    under unit test coverage. The thin `slicer` wrapper is not covered by unit tests.
+    This class exists both for simplifying unit tests and for reuse by other plotting
+    functions that want to offer slicing functionality,
+    such as the :func:`superplot` function.
 
     Parameters
     ----------
@@ -46,6 +71,11 @@ class Slicer:
         be a list of dims. If no dims are provided, the last dim will be kept in the
         case of a 2-dimensional input, while the last two dims will be kept in the case
         of higher dimensional inputs.
+    mode:
+        The mode of the slicer. This can be 'single', 'range', or 'combined'.
+    operation:
+        The reduction operation to be applied to the sliced dimensions. This is ``sum``
+        by default.
     **kwargs:
         The additional arguments are forwarded to the underlying 1D or 2D figures.
     """
@@ -57,8 +87,17 @@ class Slicer:
         coords: list[str] | None = None,
         enable_player: bool = False,
         keep: list[str] | None = None,
+        mode: Literal['single', 'range', 'combined'] = 'combined',
+        operation: Literal[
+            'sum', 'mean', 'max', 'min', 'nansum', 'nanmean', 'nanmax', 'nanmin'
+        ] = 'sum',
         **kwargs,
     ):
+        if enable_player and mode != 'single':
+            raise ValueError(
+                'The play button cannot be used with range sliders. Please set '
+                'mode to "single" to use the play button.'
+            )
         nodes = input_to_nodes(
             obj,
             processor=partial(preprocess, ignore_size=True, coords=coords),
@@ -93,15 +132,39 @@ class Slicer:
                 f"were not found in the input's dimensions {dims}."
             )
 
-        from ..widgets import SliceWidget, slice_dims
+        from ..widgets import (
+            CombinedSliceWidget,
+            RangeSliceWidget,
+            SliceWidget,
+            slice_dims,
+        )
 
-        self.slider = SliceWidget(
+        other_dims = [dim for dim in dims if dim not in keep]
+
+        match mode:
+            case 'single':
+                slicer_constr = SliceWidget
+            case 'range':
+                slicer_constr = RangeSliceWidget
+            case 'combined':
+                slicer_constr = CombinedSliceWidget
+            case _:
+                raise ValueError(
+                    f"Invalid mode: {mode}. Expected one of 'single', "
+                    f"'range', or 'combined'."
+                )
+
+        self.slider = slicer_constr(
             nodes[0](),
-            dims=[dim for dim in dims if dim not in keep],
+            dims=other_dims,
             enable_player=enable_player,
         )
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
+        self.reduce_nodes = [
+            Node(_maybe_reduce_dim, da=node, dims=other_dims, op=operation)
+            for node in self.slice_nodes
+        ]
 
         args = categorize_args(**kwargs)
 
@@ -118,7 +181,7 @@ class Slicer:
                 f'but {ndims} were requested.'
             )
 
-        self.figure = make_figure(*self.slice_nodes)
+        self.figure = make_figure(*self.reduce_nodes)
         require_interactive_figure(self.figure, 'slicer')
         self.figure.bottom_bar.add(self.slider)
 
@@ -147,7 +210,11 @@ def slicer(
     mask_color: str | None = None,
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
+    operation: Literal[
+        'sum', 'mean', 'max', 'min', 'nansum', 'nanmean', 'nanmax', 'nanmin'
+    ] = 'sum',
     scale: dict[str, str] | None = None,
+    mode: Literal['single', 'range', 'combined'] = 'combined',
     title: str | None = None,
     vmax: sc.Variable | float | None = None,
     vmin: sc.Variable | float | None = None,
@@ -209,11 +276,20 @@ def slicer(
         Colormap to use for masks in 2d plots.
     mask_color:
         Color of masks.
+    mode:
+        The type of slider to use for slicing. Can be either ``'single'`` for sliders
+        that select a single index along the sliced dimension, ``'range'`` for sliders
+        that select a range of indices along the sliced dimension, or ``'combined'`` for
+        sliders that allow both single index selection and range selection.
+        Defaults to ``'combined'``.
     nan_color:
         Color to use for NaN values in 2d plots.
     norm:
         Set to ``'log'`` for a logarithmic y-axis (1d plots) or logarithmic colorscale
         (2d plots). Legacy, prefer ``logy`` and ``logc`` instead.
+    operation:
+        The reduction operation to be applied to the sliced dimensions. This is ``sum``
+        by default.
     scale:
         Change axis scaling between ``log`` and ``linear``. For example, specify
         ``scale={'time': 'log'}`` if you want log-scale for the ``time`` dimension.
@@ -261,8 +337,11 @@ def slicer(
         logx=logx,
         logy=logy,
         mask_color=mask_color,
+        mask_cmap=mask_cmap,
+        mode=mode,
         nan_color=nan_color,
         norm=norm,
+        operation=operation,
         scale=scale,
         title=title,
         vmax=vmax,
