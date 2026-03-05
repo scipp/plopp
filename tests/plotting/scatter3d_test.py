@@ -161,3 +161,8 @@ def test_figure_has_only_unit_on_colorbar_for_multiple_sets_of_scatter_points():
     assert str(b.unit) in ylabel
     assert a.name not in ylabel
     assert b.name not in ylabel
+
+
+def test_scatter3d_no_perspective():
+    da = scatter()
+    pp.scatter3d(da, perspective=False)
