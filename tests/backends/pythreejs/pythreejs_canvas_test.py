@@ -37,16 +37,18 @@ def test_figsize():
     assert canvas.renderer.height == 450
 
 
-def test_camera_home():
-    canvas = _make_figure().canvas
+@pytest.mark.parametrize('perspective', [True, False])
+def test_camera_home(perspective):
+    canvas = _make_figure(perspective=perspective).canvas
     original = copy(canvas.camera.position)
     canvas.camera.position = [10, 20, 30]
     canvas.home()
     assert canvas.camera.position == original
 
 
-def test_camera_x():
-    canvas = _make_figure().canvas
+@pytest.mark.parametrize('perspective', [True, False])
+def test_camera_x(perspective):
+    canvas = _make_figure(perspective=perspective).canvas
     center = copy(canvas.camera_backup["center"])
     canvas.camera.position = [10, 20, 30]
     canvas.camera_x_normal()
@@ -59,8 +61,9 @@ def test_camera_x():
     assert canvas.camera.position[2] == center[2]
 
 
-def test_camera_y():
-    canvas = _make_figure().canvas
+@pytest.mark.parametrize('perspective', [True, False])
+def test_camera_y(perspective):
+    canvas = _make_figure(perspective=perspective).canvas
     center = copy(canvas.camera_backup["center"])
     canvas.camera.position = [10, 20, 30]
     canvas.camera_y_normal()
@@ -73,8 +76,9 @@ def test_camera_y():
     assert canvas.camera.position[2] == center[2]
 
 
-def test_camera_z():
-    canvas = _make_figure().canvas
+@pytest.mark.parametrize('perspective', [True, False])
+def test_camera_z(perspective):
+    canvas = _make_figure(perspective=perspective).canvas
     center = copy(canvas.camera_backup["center"])
     canvas.camera.position = [10, 20, 30]
     canvas.camera_z_normal()

@@ -38,6 +38,7 @@ class Canvas:
         figsize: tuple[int, int] | None = None,
         title: str | None = None,
         camera: Camera | None = None,
+        perspective: bool = True,
         **ignored,
     ):
         import pythreejs as p3
@@ -58,7 +59,11 @@ class Canvas:
         self._title = self._make_title()
         width, height = self.figsize
         self._user_camera = Camera() if camera is None else camera
-        self.camera = p3.PerspectiveCamera(aspect=width / height)
+        self._perspective = perspective
+        if self._perspective:
+            self.camera = p3.PerspectiveCamera(aspect=width / height)
+        else:
+            self.camera = p3.OrthographicCamera()
         self.camera_backup = {}
         self.axes_3d = p3.AxesHelper()
         self.bbox = BoundingBox()
@@ -82,7 +87,9 @@ class Canvas:
         self.renderer.layout = ipw.Layout(max_width='100%', overflow='auto')
         return self.renderer
 
-    def set_axes(self, dims, units, dtypes):
+    def set_axes(
+        self, dims: dict[str, int], units: dict[str, str], dtypes: dict[str, Any]
+    ) -> None:
         """
         Set the axes dimensions and units.
 
@@ -99,7 +106,87 @@ class Canvas:
         self.dims = dims
         self.dtypes = dtypes
 
-    def draw(self):
+    def _backup_camera_settings(
+        self,
+        center: list[float],
+        look_at: tuple[float, float, float],
+        view_distance: float,
+    ) -> None:
+        # Save camera settings
+        self.camera_backup["reset"] = copy(self.camera.position)
+        self.camera_backup["look_at"] = copy(look_at)
+        self.camera_backup["center"] = tuple(copy(center))
+        self.camera_backup["x_normal"] = [
+            center[0] - view_distance,
+            center[1],
+            center[2],
+        ]
+        self.camera_backup["y_normal"] = [
+            center[0],
+            center[1] - view_distance,
+            center[2],
+        ]
+        self.camera_backup["z_normal"] = [
+            center[0],
+            center[1],
+            center[2] - view_distance,
+        ]
+
+    def _update_perspective_camera(
+        self,
+        limits: tuple[sc.Variable, sc.Variable, sc.Variable],
+        center: list[float],
+        look_at: tuple[float, float, float],
+    ) -> None:
+        distance_fudge_factor = 1.2
+        box_size = np.array([(limits[i][1] - limits[i][0]).value for i in range(3)])
+        self.camera.position = self._user_camera.get(
+            'position', list(np.array(center) + distance_fudge_factor * box_size)
+        )
+        camera_dist = np.linalg.norm(np.array(self.camera.position) - np.array(center))
+        box_mean_size = np.linalg.norm(box_size)
+        self.camera.near = self._user_camera.get('near', 0.01 * box_mean_size)
+        camera_to_origin = np.linalg.norm(
+            np.array(self.camera.position) - np.array([0, 0, 0])
+        )
+        center_to_origin = np.linalg.norm(np.array(center) - np.array([0, 0, 0]))
+        self.camera.far = self._user_camera.get(
+            'far',
+            5 * max(box_mean_size, camera_dist, camera_to_origin, center_to_origin),
+        )
+        self.camera.lookAt(look_at)
+
+        self._backup_camera_settings(
+            center, look_at, view_distance=distance_fudge_factor * box_mean_size
+        )
+
+    def _update_orthographic_camera(
+        self,
+        limits: tuple[sc.Variable, sc.Variable, sc.Variable],
+        center: list[float],
+        look_at: tuple[float, float, float],
+    ) -> None:
+        distance_fudge_factor = 0.05
+        xyz_min = min(lim.values.min() for lim in limits)
+        xyz_max = max(lim.values.max() for lim in limits)
+        d_xyz = xyz_max - xyz_min
+        xyz_min -= d_xyz * distance_fudge_factor
+        xyz_max += d_xyz * distance_fudge_factor
+        self.camera.left = xyz_min
+        self.camera.right = xyz_max
+        self.camera.top = xyz_max
+        self.camera.bottom = xyz_min
+
+        view_distance = xyz_min + 2 * d_xyz
+
+        self.camera.position = self._user_camera.get('position', [0, 0, -view_distance])
+        self.camera.near = self._user_camera.get('near', 0.001 * d_xyz)
+        self.camera.far = self._user_camera.get('far', 1000 * d_xyz)
+        self.camera.lookAt(self._user_camera.get('look_at', look_at))
+
+        self._backup_camera_settings(center, look_at, view_distance=view_distance)
+
+    def draw(self) -> None:
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
@@ -140,45 +227,14 @@ class Canvas:
             )
 
         center = [var.mean().value for var in limits]
-        distance_fudge_factor = 1.2
-        box_size = np.array([(limits[i][1] - limits[i][0]).value for i in range(3)])
-        self.camera.position = self._user_camera.get(
-            'position', list(np.array(center) + distance_fudge_factor * box_size)
-        )
-        camera_dist = np.linalg.norm(np.array(self.camera.position) - np.array(center))
-        box_mean_size = np.linalg.norm(box_size)
-        self.camera.near = self._user_camera.get('near', 0.01 * box_mean_size)
-        camera_to_origin = np.linalg.norm(
-            np.array(self.camera.position) - np.array([0, 0, 0])
-        )
-        center_to_origin = np.linalg.norm(np.array(center) - np.array([0, 0, 0]))
-        self.camera.far = self._user_camera.get(
-            'far',
-            5 * max(box_mean_size, camera_dist, camera_to_origin, center_to_origin),
-        )
         camera_lookat = tuple(self._user_camera.get('look_at', center))
-        self.controls.target = camera_lookat
-        self.camera.lookAt(camera_lookat)
 
-        # Save camera settings
-        self.camera_backup["reset"] = copy(self.camera.position)
-        self.camera_backup["look_at"] = copy(camera_lookat)
-        self.camera_backup["center"] = tuple(copy(center))
-        self.camera_backup["x_normal"] = [
-            center[0] - distance_fudge_factor * box_mean_size,
-            center[1],
-            center[2],
-        ]
-        self.camera_backup["y_normal"] = [
-            center[0],
-            center[1] - distance_fudge_factor * box_mean_size,
-            center[2],
-        ]
-        self.camera_backup["z_normal"] = [
-            center[0],
-            center[1],
-            center[2] - distance_fudge_factor * box_mean_size,
-        ]
+        if self._perspective:
+            self._update_perspective_camera(limits, center, camera_lookat)
+        else:
+            self._update_orthographic_camera(limits, center, camera_lookat)
+
+        self.controls.target = camera_lookat
         self.axes_3d.scale = [self.camera.far] * 3
 
     @property
