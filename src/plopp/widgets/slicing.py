@@ -95,10 +95,15 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
         self._lock = False
         self._coord = coord.values
         if self._coord.dtype not in (sc.DType.datetime64, sc.DType.string):
+            self._underlying = self._coord
             self._fmt = ".3E"
             if layout is None:
                 layout = {"width": "22.5ch"}
         else:
+            if self._coord.dtype == sc.DType.datetime64:
+                self._underlying = coord.to(unit="ns").values.astype(int)
+            else:
+                self._underlying = self._coord
             self._fmt = ""
             if layout is None:
                 layout = {"width": f"{0.92 * (len(str(self._coord[-1])) * 2 + 3)}ch"}
@@ -121,13 +126,13 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
             return
 
         new = [
-            _find_closest_index(coord=self._coord, value=x)
-            for x in change["new"].split(":")
+            _find_closest_index(coord=self._underlying, value=x)
+            for x in change["new"].split(" : ")
         ]
 
-        if (":" in change["new"]) and (":" in change["old"]):
-            old2 = float(change["old"].split(":")[1])
-            new2 = float(change["new"].split(":")[1])
+        if (" : " in change["new"]) and (" : " in change["old"]):
+            old2 = change["old"].split(" : ")[1]
+            new2 = change["new"].split(" : ")[1]
             if old2 == new2:
                 new = new[0], new[0] + 1
             else:
