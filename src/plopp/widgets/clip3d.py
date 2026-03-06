@@ -14,6 +14,7 @@ from ..core import Node
 from ..graphics import BaseFig
 from .debounce import debounce
 from .style import BUTTON_LAYOUT
+from .utils import RUNNING_IN_VSCODE
 
 
 def _xor(x: list[sc.Variable]) -> sc.Variable:
@@ -383,7 +384,7 @@ class ClippingManager(ipw.HBox):
         self.cut_borders_visibility = ipw.ToggleButton(
             value=True,
             disabled=True,
-            icon='border-style',
+            icon='square-o' if RUNNING_IN_VSCODE else 'border-style',
             tooltip='Toggle visibility of the borders of the cuts',
             **BUTTON_LAYOUT,
         )

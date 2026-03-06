@@ -3,22 +3,13 @@
 
 import os
 
-
-def likely_running_in_vscode() -> bool:
-    """
-    Determine if the code is likely running in a VS Code environment.
-
-    Returns
-    -------
-    bool
-        True if running in VS Code, False otherwise.
-    """
-    # Common in VS Code terminals / extension-launched processes
-    if os.environ.get("VSCODE_PID"):
-        return True
-    if os.environ.get("TERM_PROGRAM") == "vscode":
-        return True
-    # Sometimes present in remote scenarios
-    if "VSCODE_IPC_HOOK_CLI" in os.environ:
-        return True
-    return False
+# Determine if the code is likely running in a VS Code environment:
+RUNNING_IN_VSCODE = False
+# Common in VS Code terminals / extension-launched processes
+if os.environ.get("VSCODE_PID"):
+    RUNNING_IN_VSCODE = True
+if os.environ.get("TERM_PROGRAM") == "vscode":
+    RUNNING_IN_VSCODE = True
+# Sometimes present in remote scenarios
+if "VSCODE_IPC_HOOK_CLI" in os.environ:
+    RUNNING_IN_VSCODE = True

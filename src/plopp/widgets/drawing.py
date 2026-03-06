@@ -11,9 +11,7 @@ from ..core import Node, node
 from ..core.typing import FigureLike
 from ..graphics import BaseFig
 from .tools import ToggleTool
-from .utils import likely_running_in_vscode
-
-IS_VS_CODE = likely_running_in_vscode()
+from .utils import RUNNING_IN_VSCODE
 
 
 def is_figure(x):
@@ -234,7 +232,7 @@ RectangleTool = partial(
     DrawingTool,
     tool=_make_rectangles,
     get_artist_info=_get_rect_info,
-    icon='object-ungroup' if IS_VS_CODE else 'vector-square',
+    icon='object-ungroup' if RUNNING_IN_VSCODE else 'vector-square',
 )
 
 
@@ -277,7 +275,7 @@ PolygonTool = partial(
     DrawingTool,
     tool=partial(_make_polygons, mec='w'),
     get_artist_info=_get_polygon_info,
-    icon='object-ungroup' if IS_VS_CODE else 'vector-polygon',
+    icon='object-ungroup' if RUNNING_IN_VSCODE else 'vector-polygon',
 )
 """
 Tool to draw polygon selections on a figure.
