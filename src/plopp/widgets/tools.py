@@ -152,9 +152,7 @@ class MultiToggleTool(ipw.VBox):
 HomeTool = partial(ButtonTool, icon='home')
 """Return home tool."""
 
-AutoscaleTool = partial(
-    ButtonTool, icon='arrows-alt-v', tooltip='Autoscale colorbar range'
-)
+AutoscaleTool = partial(ButtonTool, icon='arrows-v', tooltip='Autoscale colorbar range')
 """Autoscale the colorbar to fit the data."""
 
 LogxTool = partial(ToggleTool, description='logx', tooltip='Toggle X axis scale')
@@ -182,7 +180,7 @@ OutlineTool = partial(
 AxesTool = partial(
     ToggleTool,
     value=True,
-    icon='ruler-combined',
+    icon='arrows-alt',
     style={'font_weight': 'bold'},
     tooltip='Toggle visibility of XYZ axes',
 )
