@@ -3,6 +3,7 @@
 
 from typing import Literal
 
+import plotly.graph_objects as go
 import scipp as sc
 
 from ...core.utils import maybe_variable_to_number
@@ -61,8 +62,6 @@ class Canvas:
         ymin = parse_mutually_exclusive(vmin=user_vmin, ymin=ymin)
         ymax = parse_mutually_exclusive(vmax=user_vmax, ymax=ymax)
         logy = parse_mutually_exclusive(norm=norm, logy=logy)
-
-        import plotly.graph_objects as go
 
         self.fig = go.FigureWidget(
             layout={

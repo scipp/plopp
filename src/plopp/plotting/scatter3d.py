@@ -8,7 +8,8 @@ from typing import Literal
 import scipp as sc
 
 from ..core.typing import FigureLike, PlottableMulti
-from ..graphics import Camera
+from ..graphics import Camera, scatter3dfigure
+from ..widgets import ClippingManager, ToggleTool
 from .common import check_not_binned, from_compatible_lib, input_to_nodes
 
 
@@ -132,9 +133,6 @@ def scatter3d(
     :
         A three-dimensional interactive scatter plot.
     """
-    from ..graphics import scatter3dfigure
-    from ..widgets import ClippingManager, ToggleTool
-
     if 'ax' in kwargs:
         raise ValueError(
             'Keyword "ax" detected. Embedding 3D scatter plots inside Matplotlib axes '

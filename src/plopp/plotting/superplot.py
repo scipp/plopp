@@ -6,6 +6,7 @@ from typing import Literal
 import scipp as sc
 
 from ..core.typing import FigureLike, Plottable
+from ..widgets import LineSaveTool
 from .slicer import Slicer
 
 
@@ -108,8 +109,6 @@ def superplot(
         A :class:`widgets.Box` which will contain a :class:`graphics.FigLine`, slider
         widgets and a tool to save/delete lines.
     """
-    from ..widgets import LineSaveTool
-
     slicer = Slicer(
         obj,
         keep=keep,
