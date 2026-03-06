@@ -6,6 +6,7 @@ from functools import partial
 from typing import Any
 
 import scipp as sc
+from mpltoolbox import Points, Polygons, Rectangles
 
 from ..core import Node, node
 from ..core.typing import FigureLike
@@ -154,12 +155,6 @@ def _get_points_info(artist, figure):
 
 
 def _make_points(**kwargs):
-    """
-    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
-    hard dependency.
-    """
-    from mpltoolbox import Points
-
     return Points(**kwargs)
 
 
@@ -218,12 +213,6 @@ def _get_rect_info(artist, figure):
 
 
 def _make_rectangles(**kwargs):
-    """
-    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
-    hard dependency.
-    """
-    from mpltoolbox import Rectangles
-
     return Rectangles(**kwargs)
 
 
@@ -261,12 +250,6 @@ def _get_polygon_info(artist, figure):
 
 
 def _make_polygons(**kwargs):
-    """
-    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
-    hard dependency.
-    """
-    from mpltoolbox import Polygons
-
     return Polygons(**kwargs)
 
 

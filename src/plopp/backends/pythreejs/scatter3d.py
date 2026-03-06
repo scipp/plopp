@@ -5,6 +5,7 @@ import uuid
 from typing import Literal
 
 import numpy as np
+import pythreejs as p3
 import scipp as sc
 from matplotlib.colors import to_rgb
 
@@ -66,8 +67,6 @@ class Scatter3d:
         pixel_size: sc.Variable | float | None = None,
         mask_color: str | None = None,
     ):
-        import pythreejs as p3
-
         check_ndim(data, ndim=1, origin='Scatter3d')
         self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas

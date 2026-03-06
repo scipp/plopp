@@ -7,7 +7,7 @@ import scipp as sc
 
 from ..core import Node
 from ..core.typing import FigureLike, Plottable
-from ..graphics import Camera
+from ..graphics import Camera, mesh3dfigure
 from .common import _maybe_to_variable
 
 
@@ -110,8 +110,6 @@ def mesh3d(
     **kwargs:
         All other kwargs are forwarded the underlying plotting library.
     """
-    from ..graphics import mesh3dfigure
-
     input_node = Node(
         _preprocess_mesh,
         vertices=vertices,
