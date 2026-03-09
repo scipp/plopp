@@ -5,11 +5,12 @@ import numpy as np
 import pytest
 import scipp as sc
 
+pytest.importorskip("plotly")
+
+
 from plopp.backends.plotly.canvas import Canvas
 from plopp.backends.plotly.line import Line
 from plopp.data.testing import data_array
-
-pytest.importorskip("plotly")
 
 
 def test_line_creation():
