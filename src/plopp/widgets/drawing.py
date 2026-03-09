@@ -275,7 +275,7 @@ PolygonTool = partial(
     DrawingTool,
     tool=partial(_make_polygons, mec='w'),
     get_artist_info=_get_polygon_info,
-    icon='object-ungroup' if RUNNING_IN_VSCODE else 'vector-polygon',
+    icon='object-ungroup' if RUNNING_IN_VSCODE else 'draw-polygon',
 )
 """
 Tool to draw polygon selections on a figure.
