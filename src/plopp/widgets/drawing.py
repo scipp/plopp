@@ -155,13 +155,9 @@ def _get_points_info(artist, figure):
     }
 
 
-def _make_points(**kwargs):
-    return Points(**kwargs)
-
-
 PointsTool = partial(
     DrawingTool,
-    tool=partial(_make_points, mec='w'),
+    tool=partial(Points, mec='w'),
     get_artist_info=_get_points_info,
     icon='crosshairs',
 )
@@ -213,13 +209,9 @@ def _get_rect_info(artist, figure):
     }
 
 
-def _make_rectangles(**kwargs):
-    return Rectangles(**kwargs)
-
-
 RectangleTool = partial(
     DrawingTool,
-    tool=_make_rectangles,
+    tool=Rectangles,
     get_artist_info=_get_rect_info,
     icon='object-ungroup' if RUNNING_IN_VSCODE else 'vector-square',
 )
@@ -250,13 +242,9 @@ def _get_polygon_info(artist, figure):
     }
 
 
-def _make_polygons(**kwargs):
-    return Polygons(**kwargs)
-
-
 PolygonTool = partial(
     DrawingTool,
-    tool=partial(_make_polygons, mec='w'),
+    tool=partial(Polygons, mec='w'),
     get_artist_info=_get_polygon_info,
     icon='object-ungroup' if RUNNING_IN_VSCODE else 'draw-polygon',
 )
