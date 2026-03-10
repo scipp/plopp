@@ -4,7 +4,6 @@
 import warnings
 from typing import Literal
 
-import ipywidgets
 import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
@@ -196,9 +195,13 @@ class Canvas:
         """
         Convert the underlying Matplotlib figure to an image widget from ``ipywidgets``.
         """
-        return ipywidgets.Image(value=fig_to_bytes(self.fig), format='png')
+        from ipywidgets import Image
+
+        return Image(value=fig_to_bytes(self.fig), format='png')
 
     def to_widget(self):
+        from ipywidgets import VBox
+
         if self.is_widget() and not is_sphinx_build():
             try:
                 with warnings.catch_warnings():
@@ -209,7 +212,7 @@ class Canvas:
             # The Matplotlib canvas tries to fill the entire width of the output cell,
             # which can add unnecessary whitespace between it and other widgets. To
             # prevent this, we wrap the canvas in a VBox, which seems to help.
-            return ipywidgets.VBox([self.fig.canvas])
+            return VBox([self.fig.canvas])
         return self.to_image()
 
     def draw(self):

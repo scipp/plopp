@@ -5,7 +5,6 @@ from copy import copy
 from functools import reduce
 from typing import Any, Literal
 
-import ipywidgets as ipw
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
@@ -211,6 +210,8 @@ class ColorMapper:
         """
         Convert the colorbar into a widget for use with other ``ipywidgets``.
         """
+        import ipywidgets as ipw
+
         self.widget = ipw.HTML()
         self._update_colorbar_widget()
         return self.widget

@@ -6,7 +6,6 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure as MplFigure
 
 from ...graphics import BaseFig
-from ...widgets import HBar, VBar, make_toolbar_canvas2d
 from .canvas import Canvas
 from .utils import fig_to_bytes, is_interactive_backend
 
@@ -132,6 +131,8 @@ class InteractiveFigure(MplBaseFig, VBox):
     """
 
     def __init__(self, View, *args, **kwargs):
+        from ...widgets import HBar, VBar, make_toolbar_canvas2d
+
         self.__init_figure__(View, *args, **kwargs)
         self.interactive = True
         self.toolbar = make_toolbar_canvas2d(view=self.view)
@@ -146,6 +147,8 @@ class InteractiveFigure(MplBaseFig, VBox):
         return super().__repr__()
 
     def _make_children(self):
+        from ...widgets import HBar
+
         return [
             self.top_bar,
             HBar([self.left_bar, self.view.canvas.to_widget(), self.right_bar]),
