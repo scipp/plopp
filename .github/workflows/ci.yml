@@ -38,14 +38,13 @@ jobs:
     strategy:
       matrix:
         os: ['ubuntu-24.04']
-        python:
-          - version: '${{needs.formatting.outputs.min_python}}'
-            tox-env: '${{needs.formatting.outputs.min_tox_env}}'
+        python: ['${{needs.formatting.outputs.min_python}}']
+        tox-env: ['${{needs.formatting.outputs.min_tox_env}}', 'package-test', 'minimal', 'noplotly']
     uses: ./.github/workflows/test.yml
     with:
       os-variant: ${{ matrix.os }}
-      python-version: ${{ matrix.python.version }}
-      tox-env: ${{ matrix.python.tox-env }}
+      python-version: ${{ matrix.python }}
+      tox-env: ${{ matrix.tox-env }}
     secrets: inherit
 
   docs:
