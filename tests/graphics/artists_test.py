@@ -2,6 +2,7 @@
 # Copyright (c) 2025 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
+from importlib import util
 
 import pytest
 
@@ -32,17 +33,6 @@ CASES = {
     ),
     "line-mpl-errorbars-interactive": (
         ('2d', 'mpl-interactive'),
-        pp.plot,
-        {'obj': pp.data.data1d(variances=True)},
-    ),
-    "line-plotly": (('2d', 'plotly'), pp.plot, {'obj': pp.data.data1d()}),
-    "line-plotly-masks": (
-        ('2d', 'plotly'),
-        pp.plot,
-        {'obj': pp.data.data1d(masks=True)},
-    ),
-    "line-plotly-errorbars": (
-        ('2d', 'plotly'),
         pp.plot,
         {'obj': pp.data.data1d(variances=True)},
     ),
@@ -78,6 +68,23 @@ CASES = {
         dict(examples.teapot()),
     ),
 }
+
+if util.find_spec('plotly') is not None:
+    CASES.update(
+        {
+            "line-plotly": (('2d', 'plotly'), pp.plot, {'obj': pp.data.data1d()}),
+            "line-plotly-masks": (
+                ('2d', 'plotly'),
+                pp.plot,
+                {'obj': pp.data.data1d(masks=True)},
+            ),
+            "line-plotly-errorbars": (
+                ('2d', 'plotly'),
+                pp.plot,
+                {'obj': pp.data.data1d(variances=True)},
+            ),
+        }
+    )
 
 
 @pytest.mark.parametrize(("backend", "func", "data"), CASES.values(), ids=CASES.keys())

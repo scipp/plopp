@@ -25,14 +25,13 @@ jobs:
     strategy:
       matrix:
         os: ['macos-latest', 'windows-latest']
-        python:
-          - version: '${{needs.pytox.outputs.min_python}}'
-            tox-env: '${{needs.pytox.outputs.min_tox_env}}'
+        python: ['${{needs.pytox.outputs.min_python}}']
+        tox-env: ['${{needs.pytox.outputs.min_tox_env}}', 'package-test', 'minimal', 'noplotly']
     uses: ./.github/workflows/test.yml
     with:
       os-variant: ${{ matrix.os }}
-      python-version: ${{ matrix.python.version }}
-      tox-env: ${{ matrix.python.tox-env }}
+      python-version: ${{ matrix.python }}
+      tox-env: ${{ matrix.tox-env }}
 
   docs:
     needs: tests

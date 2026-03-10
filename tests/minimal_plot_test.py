@@ -10,3 +10,12 @@ def test_plot_data_array_1d():
 
 def test_plot_data_array_2d():
     pp.plot(pp.data.data_array(ndim=2))
+
+
+def test_scatter_2d():
+    pp.scatter(pp.data.scatter())
+
+
+def test_xyplot():
+    da = pp.data.data_array(ndim=1)
+    pp.xyplot(da.coords['x'], da.data)

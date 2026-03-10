@@ -2,6 +2,7 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
+from importlib import util
 
 import pytest
 
@@ -12,7 +13,6 @@ from plopp.graphics import imagefigure, linefigure, scatter3dfigure, scatterfigu
 CASES = {
     "linefigure-mpl-static": (('2d', 'mpl-static'), linefigure, data1d),
     "linefigure-mpl-interactive": (('2d', 'mpl-interactive'), linefigure, data1d),
-    "linefigure-plotly": (('2d', 'plotly'), linefigure, data1d),
     "imagefigure-mpl-static": (
         ('2d', 'mpl-static'),
         partial(imagefigure, cbar=True),
@@ -39,6 +39,13 @@ CASES = {
         scatter,
     ),
 }
+
+if util.find_spec('plotly') is not None:
+    CASES.update(
+        {
+            "linefigure-plotly": (('2d', 'plotly'), linefigure, data1d),
+        }
+    )
 
 
 @pytest.mark.parametrize(
