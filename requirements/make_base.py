@@ -49,6 +49,10 @@ with open("../pyproject.toml", "rb") as toml_file:
 
 write_dependencies("base", dependencies)
 write_dependencies("basetest", test_dependencies)
+write_dependencies(
+    "noplotly",
+    [dep for dep in test_dependencies if not dep.lower().startswith("plotly")],
+)
 
 
 def as_nightly(repo: str) -> str:

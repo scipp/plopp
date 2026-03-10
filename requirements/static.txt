@@ -5,21 +5,27 @@
 #
 #    requirements upgrade
 #
-cfgv==3.4.0
+cfgv==3.5.0
     # via pre-commit
 distlib==0.4.0
     # via virtualenv
-filelock==3.20.0
-    # via virtualenv
-identify==2.6.15
+filelock==3.25.0
+    # via
+    #   python-discovery
+    #   virtualenv
+identify==2.6.17
     # via pre-commit
-nodeenv==1.9.1
+nodeenv==1.10.0
     # via pre-commit
-platformdirs==4.5.0
-    # via virtualenv
-pre-commit==4.4.0
+platformdirs==4.9.4
+    # via
+    #   python-discovery
+    #   virtualenv
+pre-commit==4.5.1
     # via -r static.in
+python-discovery==1.1.1
+    # via virtualenv
 pyyaml==6.0.3
     # via pre-commit
-virtualenv==20.35.4
+virtualenv==21.1.0
     # via pre-commit
