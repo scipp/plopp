@@ -481,3 +481,12 @@ def test_rectangle_mode_contains_nothing():
     )
     line = next(iter(fig1d.artists.values()))
     assert sc.identical(line._data, expected)
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_creation_with_non_dimension_coord():
+    da = pp.data.data3d()
+    da = da.assign_coords(
+        x_alt=da.coords['x'] * 1.1, y_alt=da.coords['y'] * 1.1
+    ).drop_coords(['x', 'y'])
+    pp.inspector(da, coords=['x_alt', 'y_alt'])
