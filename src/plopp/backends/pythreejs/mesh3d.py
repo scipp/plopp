@@ -5,6 +5,7 @@ import uuid
 from typing import Literal
 
 import numpy as np
+import pythreejs as p3
 import scipp as sc
 from matplotlib.colors import to_rgb
 
@@ -59,8 +60,6 @@ class Mesh3d:
         artist_number: int = 0,
         **ignored,
     ):
-        import pythreejs as p3
-
         self.uid = uid if uid is not None else uuid.uuid4().hex
         self._data = data
         self._canvas = canvas

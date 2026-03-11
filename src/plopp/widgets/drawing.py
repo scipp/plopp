@@ -5,6 +5,7 @@ from collections.abc import Callable
 from functools import partial
 from typing import Any
 
+import mpltoolbox as tbx
 import scipp as sc
 
 from ..core import Node, node
@@ -154,19 +155,9 @@ def _get_points_info(artist, figure):
     }
 
 
-def _make_points(**kwargs):
-    """
-    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
-    hard dependency.
-    """
-    from mpltoolbox import Points
-
-    return Points(**kwargs)
-
-
 PointsTool = partial(
     DrawingTool,
-    tool=partial(_make_points, mec='w'),
+    tool=partial(tbx.Points, mec='w'),
     get_artist_info=_get_points_info,
     icon='crosshairs',
 )
@@ -218,19 +209,9 @@ def _get_rect_info(artist, figure):
     }
 
 
-def _make_rectangles(**kwargs):
-    """
-    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
-    hard dependency.
-    """
-    from mpltoolbox import Rectangles
-
-    return Rectangles(**kwargs)
-
-
 RectangleTool = partial(
     DrawingTool,
-    tool=_make_rectangles,
+    tool=tbx.Rectangles,
     get_artist_info=_get_rect_info,
     icon='object-ungroup' if RUNNING_IN_VSCODE else 'vector-square',
 )
@@ -261,19 +242,9 @@ def _get_polygon_info(artist, figure):
     }
 
 
-def _make_polygons(**kwargs):
-    """
-    Intermediate function needed for giving to `partial` to avoid making mpltoolbox a
-    hard dependency.
-    """
-    from mpltoolbox import Polygons
-
-    return Polygons(**kwargs)
-
-
 PolygonTool = partial(
     DrawingTool,
-    tool=partial(_make_polygons, mec='w'),
+    tool=partial(tbx.Polygons, mec='w'),
     get_artist_info=_get_polygon_info,
     icon='object-ungroup' if RUNNING_IN_VSCODE else 'draw-polygon',
 )

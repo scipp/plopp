@@ -11,6 +11,7 @@ import scipp as sc
 from ..core import Node, widget_node
 from ..core.typing import FigureLike, PlottableMulti
 from ..graphics import imagefigure, linefigure
+from ..widgets import CombinedSliceWidget, RangeSliceWidget, SliceWidget, slice_dims
 from .common import (
     categorize_args,
     input_to_nodes,
@@ -131,13 +132,6 @@ class Slicer:
                 f"Slicer plot: one or more of the requested dims to be kept {keep} "
                 f"were not found in the input's dimensions {dims}."
             )
-
-        from ..widgets import (
-            CombinedSliceWidget,
-            RangeSliceWidget,
-            SliceWidget,
-            slice_dims,
-        )
 
         other_dims = [dim for dim in dims if dim not in keep]
 

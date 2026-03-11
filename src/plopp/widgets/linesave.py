@@ -10,6 +10,7 @@ from matplotlib.colors import to_hex
 from ..core import Node, View
 from ..core.utils import coord_element_to_string
 from .box import VBar
+from .tools import ColorTool
 
 
 class LineSaveTool(VBar):
@@ -41,8 +42,6 @@ class LineSaveTool(VBar):
         self.container.children = [line['tool'] for line in self._lines.values()]
 
     def save_line(self, change: dict[str, Any] | None = None):
-        from ..widgets import ColorTool
-
         data = self._data_node.request_data()
         node = Node(data)
         node.pretty_name = f'Save node {len(self._lines)}'

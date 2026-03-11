@@ -8,10 +8,12 @@ from typing import Any
 
 import ipywidgets as ipw
 import numpy as np
+import pythreejs as p3
 import scipp as sc
 
 from ...graphics import Camera
 from ...graphics.bbox import BoundingBox
+from .outline import Outline
 
 
 class Canvas:
@@ -41,8 +43,6 @@ class Canvas:
         perspective: bool = True,
         **ignored,
     ):
-        import pythreejs as p3
-
         self.dims = {}
         self.units = {}
         self.xscale = 'linear'
@@ -190,8 +190,6 @@ class Canvas:
         """
         Create an outline box with ticklabels, given a range in the XYZ directions.
         """
-        from .outline import Outline
-
         # If `None` is found in the limits, it means we are waiting first for a call
         # to autoscale on the parent view.
         if self.empty or (None in self.bbox.asdict().values()):

@@ -8,6 +8,7 @@ from typing import Literal
 import scipp as sc
 
 from ..core.typing import FigureLike, PlottableMulti
+from ..graphics import scatterfigure
 from .common import check_not_binned, check_size, from_compatible_lib, input_to_nodes
 
 
@@ -158,8 +159,6 @@ def scatter(
     **kwargs:
         All other kwargs are forwarded the underlying plotting library.
     """
-    from ..graphics import scatterfigure
-
     nodes = input_to_nodes(
         obj,
         processor=partial(

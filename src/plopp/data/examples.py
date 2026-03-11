@@ -4,6 +4,7 @@
 from functools import lru_cache
 
 import numpy as np
+import pooch
 import scipp as sc
 
 _version = '1'
@@ -11,8 +12,6 @@ _version = '1'
 
 @lru_cache(maxsize=1)
 def _make_pooch():
-    import pooch
-
     return pooch.create(
         path=pooch.os_cache('plopp'),
         env='PLOPP_DATA_DIR',
