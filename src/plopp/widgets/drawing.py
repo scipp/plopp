@@ -5,8 +5,8 @@ from collections.abc import Callable
 from functools import partial
 from typing import Any
 
-import scipp as sc
 import mpltoolbox as tbx
+import scipp as sc
 
 from ..core import Node, node
 from ..core.typing import FigureLike
