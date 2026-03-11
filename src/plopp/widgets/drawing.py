@@ -6,7 +6,7 @@ from functools import partial
 from typing import Any
 
 import scipp as sc
-from mpltoolbox import Points, Polygons, Rectangles
+import mpltoolbox as tbx
 
 from ..core import Node, node
 from ..core.typing import FigureLike
@@ -157,7 +157,7 @@ def _get_points_info(artist, figure):
 
 PointsTool = partial(
     DrawingTool,
-    tool=partial(Points, mec='w'),
+    tool=partial(tbx.Points, mec='w'),
     get_artist_info=_get_points_info,
     icon='crosshairs',
 )
@@ -211,7 +211,7 @@ def _get_rect_info(artist, figure):
 
 RectangleTool = partial(
     DrawingTool,
-    tool=Rectangles,
+    tool=tbx.Rectangles,
     get_artist_info=_get_rect_info,
     icon='object-ungroup' if RUNNING_IN_VSCODE else 'vector-square',
 )
@@ -244,7 +244,7 @@ def _get_polygon_info(artist, figure):
 
 PolygonTool = partial(
     DrawingTool,
-    tool=partial(Polygons, mec='w'),
+    tool=partial(tbx.Polygons, mec='w'),
     get_artist_info=_get_polygon_info,
     icon='object-ungroup' if RUNNING_IN_VSCODE else 'draw-polygon',
 )
