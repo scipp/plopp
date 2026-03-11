@@ -105,6 +105,7 @@ def inspector(
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
     continuous_update: bool = True,
+    coords: list[str] | None = None,
     errorbars: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
@@ -190,6 +191,8 @@ def inspector(
         If ``True``, update the data selected by the markers, rectangles, or polygons
         continuously as they are being moved or resized. If ``False``, only update the
         data when the user releases the mouse button after moving/resizing.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
     errorbars:
         Show errorbars if ``True`` (1d figure).
     figsize:
@@ -268,7 +271,7 @@ def inspector(
     )
     require_interactive_figure(f1d, 'inspector')
 
-    in_node = Node(preprocess, obj, ignore_size=True)
+    in_node = Node(preprocess, obj, ignore_size=True, coords=coords)
     data = in_node()
     if data.ndim != 3:
         raise ValueError(

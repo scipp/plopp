@@ -183,6 +183,11 @@ class TestSlicer1d:
         ):
             Slicer(da, keep=[], mode='single')
 
+    def test_create_with_non_dimension_coord(self):
+        da = data_array(ndim=3)
+        da = da.assign_coords(x_alt=da.coords['xx'] * 2).drop_coords('xx')
+        Slicer(da, keep=['x_alt'], mode='single', coords=['x_alt'])
+
 
 @pytest.mark.usefixtures("_parametrize_interactive_2d_backends")
 class TestSlicer2d:
@@ -322,3 +327,10 @@ class TestSlicer2d:
         # Colormapper range does not change
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
+
+    def test_create_with_non_dimension_coord(self):
+        da = data_array(ndim=3)
+        da = da.assign_coords(
+            x_alt=da.coords['xx'] * 1.1, y_alt=da.coords['yy'] * 1.1
+        ).drop_coords(['xx', 'yy'])
+        Slicer(da, keep=['y_alt', 'x_alt'], mode='single', coords=['x_alt', 'y_alt'])
