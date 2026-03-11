@@ -4,6 +4,7 @@
 from functools import lru_cache
 
 import numpy as np
+import pooch
 import scipp as sc
 
 _version = '1'
@@ -11,12 +12,10 @@ _version = '1'
 
 @lru_cache(maxsize=1)
 def _make_pooch():
-    import pooch
-
     return pooch.create(
         path=pooch.os_cache('plopp'),
         env='PLOPP_DATA_DIR',
-        base_url='https://public.esss.dk/groups/scipp/plopp/{version}/',
+        base_url='https://github.com/scipp/plopp-datafiles/raw/refs/heads/main/{version}/',
         version=_version,
         registry={
             'nyc_taxi_data.h5': 'md5:fc0867ec061e4ac0cbe5975a665a0eea',

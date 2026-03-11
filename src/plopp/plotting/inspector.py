@@ -12,6 +12,7 @@ from ..core import Node
 from ..core.typing import Plottable
 from ..core.utils import coord_as_bin_edges
 from ..graphics import imagefigure, linefigure
+from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 from .common import preprocess, require_interactive_figure
 
 
@@ -303,8 +304,6 @@ def inspector(
         ylabel=ylabel,
         **kwargs,
     )
-    from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
-
     if mode == 'point':
         tool = PointsTool(
             figure=f2d,

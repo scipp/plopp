@@ -8,6 +8,7 @@ from typing import Any, Literal
 
 import ipywidgets as ipw
 import numpy as np
+import pythreejs as p3
 import scipp as sc
 
 from ..core import Node
@@ -79,8 +80,6 @@ class Clip3dTool(ipw.HBox):
         h_axis = 2 if self.kind == 'y' else 1
         width = (self._limits[w_axis][1] - self._limits[w_axis][0]).value
         height = (self._limits[h_axis][1] - self._limits[h_axis][0]).value
-
-        import pythreejs as p3
 
         self.outlines = [
             p3.LineSegments(
