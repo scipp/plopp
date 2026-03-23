@@ -14,7 +14,7 @@ asttokens==3.0.1
     # via stack-data
 certifi==2026.2.25
     # via requests
-charset-normalizer==3.4.5
+charset-normalizer==3.4.6
     # via requests
 comm==0.2.3
     # via
@@ -30,7 +30,7 @@ decorator==5.2.1
     # via ipython
 executing==2.2.1
     # via stack-data
-fonttools==4.61.1
+fonttools==4.62.1
     # via matplotlib
 graphviz==0.21
     # via -r nightly.in
@@ -70,7 +70,7 @@ jupyter-core==5.9.1
     #   jupyter-client
 jupyterlab-widgets==3.0.16
     # via ipywidgets
-kiwisolver==1.4.10rc0
+kiwisolver==1.5.0
     # via matplotlib
 lazy-loader==0.5
     # via -r nightly.in
@@ -85,7 +85,7 @@ matplotlib-inline==0.2.1
     #   ipython
 mpltoolbox==26.2.0
     # via -r nightly.in
-narwhals==2.17.0
+narwhals==2.18.0
     # via plotly
 nest-asyncio==1.6.0
     # via ipykernel
@@ -174,7 +174,7 @@ six==1.17.0
     # via python-dateutil
 stack-data==0.6.3
     # via ipython
-tornado==6.5.4
+tornado==6.5.5
     # via
     #   ipykernel
     #   jupyter-client
