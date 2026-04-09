@@ -60,6 +60,42 @@ def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
         return sc.full_like(da[y['dim'], 0][x['dim'], 0], value=np.nan, dtype=float)
 
 
+def _slice_rectangular_region(da: sc.DataArray, rect: dict, op: str) -> sc.DataArray:
+    x = rect['x']
+    y = rect['y']
+    xmin, xmax = x['value'].min(), x['value'].max()
+    ymin, ymax = y['value'].min(), y['value'].max()
+    try:
+        # If there is a 2D coordinate in the data, we need to slice the other dimension
+        # first, as trying to slice a 2D coordinate using label-based indexing raises an
+        # error in Scipp. After slicing the other dimension, the 2D coordinate will be
+        # 1D and can be sliced normally using label-based indexing.
+        # We assume here that there would only be one multi-dimensional coordinate in a
+        # given DataArray (which is very likely the case).
+        if da.coords[y['dim']].ndim > 1:
+            out = da[x['dim'], xmin:xmax][y['dim'], ymin:ymax]
+        else:
+            out = da[y['dim'], ymin:ymax][x['dim'], xmin:xmax]
+        # If the operation is a mean, there is currently a bug in the implementation
+        # in scipp where doing a mean over a subset of the array's dimensions gives the
+        # wrong result: https://github.com/scipp/scipp/issues/3841
+        # Instead, we manually compute the mean
+        dims = (x['dim'], y['dim'])
+        if 'mean' not in op:
+            return getattr(out, op)(dims)
+        if 'nan' in op:
+            numerator = out.nansum(dims)
+            denominator = (~sc.isnan(out.data)).sum()
+        else:
+            numerator = out.sum(dims)
+            denominator = out.size
+        denominator.unit = ""
+        return numerator / denominator
+    except IndexError:
+        # If the index is out of bounds, return an empty DataArray
+        return sc.full_like(da[y['dim'], 0][x['dim'], 0], value=np.nan, dtype=float)
+
+
 def _mask_outside_polygon(
     da: sc.DataArray,
     poly: dict,
@@ -304,41 +340,50 @@ def inspector(
         ylabel=ylabel,
         **kwargs,
     )
-    if mode == 'point':
-        tool = PointsTool(
-            figure=f2d,
-            input_node=bin_edges_node,
-            func=_slice_xy,
-            destination=f1d,
-            tooltip="Activate inspector tool",
-            continuous_update=continuous_update,
-        )
-    else:
-        da = bin_centers_node()
-        xdim = f2d.canvas.dims['x']
-        ydim = f2d.canvas.dims['y']
-        x = da.coords[xdim]
-        y = da.coords[ydim]
-        sizes = {**x.sizes, **y.sizes}
-        xx = sc.broadcast(x, sizes=sizes)
-        yy = sc.broadcast(y, sizes=sizes)
-        points = np.column_stack([xx.values.ravel(), yy.values.ravel()])
-        non_nan = ~sc.isnan(da.data)
-        tools = {'polygon': PolygonTool, 'rectangle': RectangleTool}
-        tool = tools[mode](
-            figure=f2d,
-            input_node=bin_centers_node,
-            func=partial(
-                _mask_outside_polygon,
-                points=points,
-                sizes=sizes,
-                op=operation,
-                non_nan=non_nan,
-            ),
-            destination=f1d,
-            tooltip=f"Activate {mode} inspector tool",
-            continuous_update=continuous_update,
-        )
+    match mode:
+        case 'point':
+            tool = PointsTool(
+                figure=f2d,
+                input_node=bin_edges_node,
+                func=_slice_xy,
+                destination=f1d,
+                tooltip="Activate inspector tool",
+                continuous_update=continuous_update,
+            )
+        case 'rectangle':
+            tool = RectangleTool(
+                figure=f2d,
+                input_node=bin_edges_node,
+                func=partial(_slice_rectangular_region, op=operation),
+                destination=f1d,
+                tooltip="Activate rectangle inspector tool",
+                continuous_update=continuous_update,
+            )
+        case 'polygon':
+            da = bin_centers_node()
+            xdim = f2d.canvas.dims['x']
+            ydim = f2d.canvas.dims['y']
+            x = da.coords[xdim]
+            y = da.coords[ydim]
+            sizes = {**x.sizes, **y.sizes}
+            xx = sc.broadcast(x, sizes=sizes)
+            yy = sc.broadcast(y, sizes=sizes)
+            points = np.column_stack([xx.values.ravel(), yy.values.ravel()])
+            non_nan = ~sc.isnan(da.data)
+            tool = PolygonTool(
+                figure=f2d,
+                input_node=bin_centers_node,
+                func=partial(
+                    _mask_outside_polygon,
+                    points=points,
+                    sizes=sizes,
+                    op=operation,
+                    non_nan=non_nan,
+                ),
+                destination=f1d,
+                tooltip="Activate polygon inspector tool",
+                continuous_update=continuous_update,
+            )
 
     f2d.toolbar['inspect'] = tool
     out = [f2d, f1d]
