@@ -11,7 +11,7 @@ from matplotlib.path import Path
 from ..core import Node
 from ..core.typing import Plottable
 from ..core.utils import coord_as_bin_edges
-from ..graphics import imagefigure, linefigure
+from ..graphics import linefigure
 from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 from .common import preprocess, require_interactive_figure
 from .slicer import Slicer
