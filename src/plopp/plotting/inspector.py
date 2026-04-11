@@ -35,13 +35,6 @@ def _to_bin_centers(da: sc.DataArray, dim: str) -> sc.DataArray:
     return da
 
 
-def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
-    out = getattr(sc, op)(da, dim=dim)
-    if out.name:
-        out.name = f'{op} of {out.name}'
-    return out
-
-
 def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
     x = xy['x']
     y = xy['y']
@@ -335,6 +328,7 @@ def inspector(
         mask_color=mask_color,
         nan_color=nan_color,
         norm=norm,
+        operation=operation,
         title=title,
         vmax=vmax,
         vmin=vmin,
