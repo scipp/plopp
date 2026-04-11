@@ -14,6 +14,7 @@ from ..core.utils import coord_as_bin_edges
 from ..graphics import imagefigure, linefigure
 from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 from .common import preprocess, require_interactive_figure
+from .slicer import Slicer
 
 
 def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
@@ -318,9 +319,10 @@ def inspector(
         dim = data.dims[-1]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     bin_centers_node = Node(_to_bin_centers, bin_edges_node, dim=dim)
-    op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
-    f2d = imagefigure(
-        op_node,
+
+    f2d = Slicer(
+        bin_edges_node,
+        keep=set(data.dims) - {dim},
         aspect=aspect,
         cbar=cbar,
         clabel=clabel,
@@ -339,7 +341,8 @@ def inspector(
         xlabel=xlabel,
         ylabel=ylabel,
         **kwargs,
-    )
+    ).figure
+
     match mode:
         case 'point':
             tool = PointsTool(
