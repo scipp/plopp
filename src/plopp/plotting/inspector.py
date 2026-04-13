@@ -11,7 +11,7 @@ from matplotlib.path import Path
 from ..core import Node
 from ..core.typing import Plottable
 from ..core.utils import coord_as_bin_edges
-from ..graphics import linefigure
+from ..graphics import imagefigure, linefigure
 from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 from .common import preprocess, require_interactive_figure
 from .slicer import Slicer
@@ -33,6 +33,13 @@ def _to_bin_centers(da: sc.DataArray, dim: str) -> sc.DataArray:
     for d in set(da.dims) - {dim}:
         da.coords[d] = sc.midpoints(da.coords[d], dim=d)
     return da
+
+
+def _apply_op(da: sc.DataArray, op: str, dim: str) -> sc.DataArray:
+    out = getattr(sc, op)(da, dim=dim)
+    if out.name:
+        out.name = f'{op} of {out.name}'
+    return out
 
 
 def _slice_xy(da: sc.DataArray, xy: dict[str, dict[str, int]]) -> sc.DataArray:
@@ -159,6 +166,7 @@ def inspector(
     ylabel: str | None = None,
     ymax: sc.Variable | float | None = None,
     ymin: sc.Variable | float | None = None,
+    with_slider: bool = True,
     **kwargs,
 ):
     """
@@ -325,9 +333,7 @@ def inspector(
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     bin_centers_node = Node(_to_bin_centers, bin_edges_node, dim=dim)
 
-    slicer = Slicer(
-        bin_edges_node,
-        keep=set(data.dims) - {dim},
+    f2d_args = dict(
         aspect=aspect,
         cbar=cbar,
         clabel=clabel,
@@ -340,7 +346,6 @@ def inspector(
         mask_color=mask_color,
         nan_color=nan_color,
         norm=norm,
-        operation=operation,
         title=title,
         vmax=vmax,
         vmin=vmin,
@@ -349,7 +354,31 @@ def inspector(
         **kwargs,
     )
 
-    f2d = slicer.figure
+    if with_slider:
+        slicer = Slicer(
+            bin_edges_node, keep=set(data.dims) - {dim}, operation=operation, **f2d_args
+        )
+        f2d = slicer.figure
+        span = f1d.ax.axvspan(
+            data.coords[dim].min().value,
+            data.coords[dim].max().value,
+            color='gray',
+            alpha=0.2,
+            zorder=-np.inf,
+        )
+        bin_edge_data = bin_edges_node()
+
+        def update_span(change: dict) -> None:
+            start, end = change['owner'].controls[dim].value
+            start = bin_edge_data.coords[dim][dim, start].value
+            end = bin_edge_data.coords[dim][dim, end + 1].value
+            span.set_bounds(start, 0, end - start, 1)
+            f1d.canvas.draw()
+
+        slicer.slider.observe(update_span, names='value')
+    else:
+        op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
+        f2d = imagefigure(op_node, **f2d_args)
 
     match mode:
         case 'point':
@@ -396,22 +425,22 @@ def inspector(
                 continuous_update=continuous_update,
             )
 
-    span = f1d.ax.axvspan(
-        data.coords[dim].min().value,
-        data.coords[dim].max().value,
-        color='gray',
-        alpha=0.2,
-        zorder=-np.inf,
-    )
+    # span = f1d.ax.axvspan(
+    #     data.coords[dim].min().value,
+    #     data.coords[dim].max().value,
+    #     color='gray',
+    #     alpha=0.2,
+    #     zorder=-np.inf,
+    # )
 
-    def update_span(change: dict) -> None:
-        start, end = change['owner'].controls[dim].value
-        start = data.coords[dim][dim, start].value
-        end = data.coords[dim][dim, end + 1].value
-        span.set_bounds(start, 0, end - start, 1)
-        f1d.canvas.draw()
+    # def update_span(change: dict) -> None:
+    #     start, end = change['owner'].controls[dim].value
+    #     start = data.coords[dim][dim, start].value
+    #     end = data.coords[dim][dim, end + 1].value
+    #     span.set_bounds(start, 0, end - start, 1)
+    #     f1d.canvas.draw()
 
-    slicer.slider.observe(update_span, names='value')
+    # slicer.slider.observe(update_span, names='value')
 
     f2d.toolbar['inspect'] = tool
     out = [f2d, f1d]
