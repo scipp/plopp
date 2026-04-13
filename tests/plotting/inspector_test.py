@@ -420,8 +420,8 @@ def test_rectangle_mode():
 
     # This rectangle should select the bottom left corner of the data.
     # Closing the rectangle by repeating the first point.
-    x = [-1, 21]
-    y = [-1, 310]
+    x = [-1, 19]
+    y = [-1, 290]
     for xi, yi in zip(x, y, strict=True):
         tool.click(x=xi, y=yi)
 
