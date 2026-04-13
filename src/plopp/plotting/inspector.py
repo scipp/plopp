@@ -294,6 +294,9 @@ def inspector(
         Upper limit for y-axis (1d figure).
     ymin:
         Lower limit for y-axis (1d figure).
+    with_slider:
+        Show slider under 2d image for selecting data range if ``True``. A currently
+        selected range indicator will also be displayed on the 1d profile figure.
     **kwargs:
         Additional arguments forwarded to the underlying plotting library.
 
@@ -366,12 +369,12 @@ def inspector(
             alpha=0.2,
             zorder=-np.inf,
         )
-        bin_edge_data = bin_edges_node()
+        bin_edge_coord = coord_as_bin_edges(data, dim)
 
         def update_span(change: dict) -> None:
             start, end = change['owner'].controls[dim].value
-            start = bin_edge_data.coords[dim][dim, start].value
-            end = bin_edge_data.coords[dim][dim, end + 1].value
+            start = bin_edge_coord[dim, start].value
+            end = bin_edge_coord[dim, end + 1].value
             span.set_bounds(start, 0, end - start, 1)
             f1d.canvas.draw()
 
