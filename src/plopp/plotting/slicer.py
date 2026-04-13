@@ -83,26 +83,19 @@ class Slicer:
 
     def __init__(
         self,
-        obj: PlottableMulti,
-        *,
-        coords: list[str] | None = None,
+        *nodes,
         enable_player: bool = False,
         keep: list[str] | None = None,
         mode: Literal['single', 'range', 'combined'] = 'combined',
         operation: Literal[
             'sum', 'mean', 'max', 'min', 'nansum', 'nanmean', 'nanmax', 'nanmin'
         ] = 'sum',
-        **kwargs,
     ):
         if enable_player and mode != 'single':
             raise ValueError(
                 'The play button cannot be used with range sliders. Please set '
                 'mode to "single" to use the play button.'
             )
-        nodes = input_to_nodes(
-            obj,
-            processor=partial(preprocess, ignore_size=True, coords=coords),
-        )
 
         dims = nodes[0]().dims
         if keep is None:
@@ -155,29 +148,56 @@ class Slicer:
         )
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
-        self.reduce_nodes = [
+        self.output = [
             Node(_maybe_reduce_dim, da=node, dims=other_dims, op=operation)
             for node in self.slice_nodes
         ]
 
-        # args = categorize_args(**kwargs)
 
-        # ndims = len(keep)
-        # if ndims == 1:
-        #     make_figure = partial(linefigure, **args['1d'])
-        # elif ndims == 2:
-        #     if len(self.slice_nodes) > 1:
-        #         raise_multiple_inputs_for_2d_plot_error(origin='slicer')
-        #     make_figure = partial(imagefigure, **args['2d'])
-        # else:
-        #     raise ValueError(
-        #         f'Slicer plot: the number of dims to be kept must be 1 or 2, '
-        #         f'but {ndims} were requested.'
-        #     )
+class SlicerPlot:
+    def __init__(
+        self,
+        obj: PlottableMulti,
+        coords: list[str] | None = None,
+        enable_player: bool = False,
+        keep: list[str] | None = None,
+        mode: Literal['single', 'range', 'combined'] = 'combined',
+        operation: Literal[
+            'sum', 'mean', 'max', 'min', 'nansum', 'nanmean', 'nanmax', 'nanmin'
+        ] = 'sum',
+        **kwargs,
+    ):
+        nodes = input_to_nodes(
+            obj,
+            processor=partial(preprocess, ignore_size=True, coords=coords),
+        )
 
-        # self.figure = make_figure(*self.reduce_nodes)
-        # require_interactive_figure(self.figure, 'slicer')
-        # self.figure.bottom_bar.add(self.slider)
+        self.slicer = Slicer(
+            *nodes,
+            keep=keep,
+            enable_player=enable_player,
+            mode=mode,
+            operation=operation,
+        )
+
+        args = categorize_args(**kwargs)
+
+        ndims = len(keep)
+        if ndims == 1:
+            make_figure = partial(linefigure, **args['1d'])
+        elif ndims == 2:
+            if len(self.slicer.slice_nodes) > 1:
+                raise_multiple_inputs_for_2d_plot_error(origin='slicer')
+            make_figure = partial(imagefigure, **args['2d'])
+        else:
+            raise ValueError(
+                f'Slicer plot: the number of dims to be kept must be 1 or 2, '
+                f'but {ndims} were requested.'
+            )
+
+        self.figure = make_figure(*self.slicer.output)
+        require_interactive_figure(self.figure, 'slicer')
+        self.figure.bottom_bar.add(self.slicer.slider)
 
 
 def slicer(
@@ -311,8 +331,8 @@ def slicer(
     **kwargs:
         Additional arguments forwarded to the underlying plotting library.
     """
-    sl = Slicer(
-        obj,
+    return SlicerPlot(
+        obj=obj,
         keep=keep,
         aspect=aspect,
         autoscale=autoscale,
@@ -347,24 +367,4 @@ def slicer(
         ymax=ymax,
         ymin=ymin,
         **kwargs,
-    )
-
-    args = categorize_args(**kwargs)
-
-    ndims = len(keep)
-    if ndims == 1:
-        make_figure = partial(linefigure, **args['1d'])
-    elif ndims == 2:
-        if len(sl.slice_nodes) > 1:
-            raise_multiple_inputs_for_2d_plot_error(origin='slicer')
-        make_figure = partial(imagefigure, **args['2d'])
-    else:
-        raise ValueError(
-            f'Slicer plot: the number of dims to be kept must be 1 or 2, '
-            f'but {ndims} were requested.'
-        )
-
-    figure = make_figure(*sl.reduce_nodes)
-    require_interactive_figure(figure, 'slicer')
-    figure.bottom_bar.add(sl.slider)
-    return figure
+    ).figure

@@ -7,7 +7,7 @@ import scipp as sc
 
 from ..core.typing import FigureLike, Plottable
 from ..widgets import LineSaveTool
-from .slicer import Slicer
+from .slicer import SlicerPlot
 
 
 def superplot(
@@ -109,7 +109,7 @@ def superplot(
         A :class:`widgets.Box` which will contain a :class:`graphics.FigLine`, slider
         widgets and a tool to save/delete lines.
     """
-    slicer = Slicer(
+    sp = SlicerPlot(
         obj,
         keep=keep,
         mode='single',
@@ -137,11 +137,11 @@ def superplot(
         ymin=ymin,
         **kwargs,
     )
-    slicer.figure.right_bar.add(
+    sp.figure.right_bar.add(
         LineSaveTool(
-            data_node=slicer.slice_nodes[0],
-            slider_node=slicer.slider_node,
-            fig=slicer.figure,
+            data_node=sp.slicer.slice_nodes[0],
+            slider_node=sp.slicer.slider_node,
+            fig=sp.figure,
         )
     )
-    return slicer.figure
+    return sp.figure
