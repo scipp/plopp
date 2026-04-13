@@ -428,23 +428,6 @@ def inspector(
                 continuous_update=continuous_update,
             )
 
-    # span = f1d.ax.axvspan(
-    #     data.coords[dim].min().value,
-    #     data.coords[dim].max().value,
-    #     color='gray',
-    #     alpha=0.2,
-    #     zorder=-np.inf,
-    # )
-
-    # def update_span(change: dict) -> None:
-    #     start, end = change['owner'].controls[dim].value
-    #     start = data.coords[dim][dim, start].value
-    #     end = data.coords[dim][dim, end + 1].value
-    #     span.set_bounds(start, 0, end - start, 1)
-    #     f1d.canvas.draw()
-
-    # slicer.slider.observe(update_span, names='value')
-
     f2d.toolbar['inspect'] = tool
     out = [f2d, f1d]
     if orientation == 'horizontal':
