@@ -202,6 +202,13 @@ def inspector(
     Almost all the arguments for plot customization apply to the two-dimensional image
     (unless specified).
 
+    In rectangle mode, if one of the edges of the rectangle lies exactly on a bin edge
+    between two data points, the selected region does not include the data on the
+    outside of the rectangle, even though the edge is touching the rectangle.
+
+    In polygon mode, only data whose bin centers are inside the polygon are included in
+    the selected region.
+
     Parameters
     ----------
     obj:
