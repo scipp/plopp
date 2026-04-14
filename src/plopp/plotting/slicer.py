@@ -49,6 +49,12 @@ def _maybe_reduce_dim(da, dims, op):
     return numerator / denominator
 
 
+def _guess_keep_if_none(keep: list[str] | None, dims: list[str]) -> list[str]:
+    if keep is None:
+        return dims[-(2 if len(dims) > 2 else 1) :]
+    return keep
+
+
 class Slicer:
     """
     Class that slices out dimensions from the data and displays the resulting data as
@@ -97,10 +103,10 @@ class Slicer:
                 'mode to "single" to use the play button.'
             )
 
-        dims = nodes[0]().dims
-        if keep is None:
-            keep = dims[-(2 if len(dims) > 2 else 1) :]
+        nodes = [Node(n) if not isinstance(n, Node) else n for n in nodes]
 
+        dims = nodes[0]().dims
+        keep = _guess_keep_if_none(keep, dims)
         if isinstance(keep, str):
             keep = [keep]
 
@@ -148,10 +154,17 @@ class Slicer:
         )
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
-        self.output = [
+        self.reduce_nodes = [
             Node(_maybe_reduce_dim, da=node, dims=other_dims, op=operation)
             for node in self.slice_nodes
         ]
+
+    @property
+    def output(self) -> list[Node]:
+        """
+        Alias for reduce_nodes whose name is more like an implementation detail.
+        """
+        return self.reduce_nodes
 
 
 class SlicerPlot:
@@ -171,6 +184,8 @@ class SlicerPlot:
             obj,
             processor=partial(preprocess, ignore_size=True, coords=coords),
         )
+
+        keep = _guess_keep_if_none(keep, nodes[0]().dims)
 
         self.slicer = Slicer(
             *nodes,

@@ -7,7 +7,7 @@ from scipp.testing import assert_allclose, assert_identical
 
 from plopp import Node
 from plopp.data.testing import data_array, dataset
-from plopp.plotting.slicer import Slicer
+from plopp.plotting.slicer import Slicer, SlicerPlot
 
 
 @pytest.mark.usefixtures("_parametrize_interactive_1d_backends")
@@ -102,29 +102,39 @@ class TestSlicer1d:
         assert sl.slider.value == {'zz': (11, 11), 'yy': (4, 4)}
         assert_identical(sl.slice_nodes[0].request_data(), da['yy', 4:5]['zz', 11:12])
 
+    def test_no_keep(self):
+        da = data_array(ndim=2)
+        sl = Slicer(da)
+        assert 'yy' in sl.slider.controls
+
+    def test_no_keep_with_figure(self):
+        da = data_array(ndim=2)
+        sl = SlicerPlot(da)
+        assert 'yy' in sl.slicer.slider.controls
+
     def test_with_dataset(self):
         ds = dataset(ndim=2)
-        sl = Slicer(ds, keep=['xx'], mode='single')
-        nodes = list(sl.figure.graph_nodes.values())
-        sl.slider.controls['yy'].value = 5
+        sp = SlicerPlot(ds, keep=['xx'], mode='single')
+        nodes = list(sp.figure.graph_nodes.values())
+        sp.slicer.slider.controls['yy'].value = 5
         assert_identical(nodes[0].request_data(), ds['a']['yy', 5])
         assert_identical(nodes[1].request_data(), ds['b']['yy', 5])
 
     def test_with_data_group(self):
         da = data_array(ndim=2)
         dg = sc.DataGroup(a=da, b=da * 2.5)
-        sl = Slicer(dg, keep=['xx'], mode='single')
-        nodes = list(sl.figure.graph_nodes.values())
-        sl.slider.controls['yy'].value = 5
+        sp = SlicerPlot(dg, keep=['xx'], mode='single')
+        nodes = list(sp.figure.graph_nodes.values())
+        sp.slicer.slider.controls['yy'].value = 5
         assert_identical(nodes[0].request_data(), dg['a']['yy', 5])
         assert_identical(nodes[1].request_data(), dg['b']['yy', 5])
 
     def test_with_dict_of_data_arrays(self):
         a = data_array(ndim=2)
         b = data_array(ndim=2) * 2.5
-        sl = Slicer({'a': a, 'b': b}, keep=['xx'], mode='single')
-        nodes = list(sl.figure.graph_nodes.values())
-        sl.slider.controls['yy'].value = 5
+        sp = SlicerPlot({'a': a, 'b': b}, keep=['xx'], mode='single')
+        nodes = list(sp.figure.graph_nodes.values())
+        sp.slicer.slider.controls['yy'].value = 5
         assert_identical(nodes[0].request_data(), a['yy', 5])
         assert_identical(nodes[1].request_data(), b['yy', 5])
 
@@ -132,12 +142,12 @@ class TestSlicer1d:
         a = data_array(ndim=2)
         b = data_array(ndim=2) * 2.5
         b.coords['xx'] *= 1.5
-        Slicer({'a': a, 'b': b}, keep=['xx'], mode='single')
+        SlicerPlot({'a': a, 'b': b}, keep=['xx'], mode='single')
 
     def test_with_data_arrays_different_shape_along_keep_dim(self):
         a = data_array(ndim=2)
         b = data_array(ndim=2) * 2.5
-        Slicer({'a': a, 'b': b['xx', :10]}, keep=['xx'], mode='single')
+        SlicerPlot({'a': a, 'b': b['xx', :10]}, keep=['xx'], mode='single')
 
     def test_with_data_arrays_different_shape_along_non_keep_dim_raises(self):
         a = data_array(ndim=2)
@@ -145,23 +155,23 @@ class TestSlicer1d:
         with pytest.raises(
             ValueError, match='Slicer plot: all inputs must have the same sizes'
         ):
-            Slicer({'a': a, 'b': b['yy', :10]}, keep=['xx'], mode='single')
+            SlicerPlot({'a': a, 'b': b['yy', :10]}, keep=['xx'], mode='single')
 
     def test_raises_ValueError_when_given_binned_data(self):
         da = sc.data.table_xyz(100).bin(x=10, y=20)
         with pytest.raises(ValueError, match='Cannot plot binned data'):
-            Slicer(da, keep=['xx'], mode='single')
+            SlicerPlot(da, keep=['xx'], mode='single')
 
     def test_from_node_1d(self):
         da = data_array(ndim=2)
-        Slicer(Node(da), mode='single')
+        SlicerPlot(Node(da), mode='single')
 
     def test_mixing_raw_data_and_nodes(self):
         a = data_array(ndim=2)
         b = 6.7 * a
-        Slicer({'a': Node(a), 'b': Node(b)}, mode='single')
-        Slicer({'a': a, 'b': Node(b)}, mode='single')
-        Slicer({'a': Node(a), 'b': b}, mode='single')
+        SlicerPlot({'a': Node(a), 'b': Node(b)}, mode='single')
+        SlicerPlot({'a': a, 'b': Node(b)}, mode='single')
+        SlicerPlot({'a': Node(a), 'b': b}, mode='single')
 
     def test_raises_when_requested_keep_dims_do_not_exist(self):
         da = data_array(ndim=3)
@@ -169,7 +179,7 @@ class TestSlicer1d:
             ValueError,
             match='Slicer plot: one or more of the requested dims to be kept',
         ):
-            Slicer(da, keep=['time'], mode='single')
+            SlicerPlot(da, keep=['time'], mode='single')
 
     def test_raises_when_number_of_keep_dims_requested_is_bad(self):
         da = data_array(ndim=4)
@@ -177,16 +187,16 @@ class TestSlicer1d:
             ValueError,
             match='Slicer plot: the number of dims to be kept must be 1 or 2',
         ):
-            Slicer(da, keep=['xx', 'yy', 'zz'], mode='single')
+            SlicerPlot(da, keep=['xx', 'yy', 'zz'], mode='single')
         with pytest.raises(
             ValueError, match='Slicer plot: the list of dims to be kept cannot be empty'
         ):
-            Slicer(da, keep=[], mode='single')
+            SlicerPlot(da, keep=[], mode='single')
 
     def test_create_with_non_dimension_coord(self):
         da = data_array(ndim=3)
         da = da.assign_coords(x_alt=da.coords['xx'] * 2).drop_coords('xx')
-        Slicer(da, keep=['x_alt'], mode='single', coords=['x_alt'])
+        SlicerPlot(da, keep=['x_alt'], mode='single', coords=['x_alt'])
 
 
 @pytest.mark.usefixtures("_parametrize_interactive_2d_backends")
@@ -287,6 +297,16 @@ class TestSlicer2d:
         assert sl.slider.value == {'zz': (10, 10)}
         assert_identical(sl.slice_nodes[0].request_data(), da['zz', 10:11])
 
+    def test_no_keep(self):
+        da = data_array(ndim=3)
+        sl = Slicer(da)
+        assert 'zz' in sl.slider.controls
+
+    def test_no_keep_with_figure(self):
+        da = data_array(ndim=3)
+        sl = SlicerPlot(da)
+        assert 'zz' in sl.slicer.slider.controls
+
     def test_from_node_2d(self):
         da = data_array(ndim=3)
         Slicer(Node(da), mode='single')
@@ -300,13 +320,13 @@ class TestSlicer2d:
         # `autoscale=True` should be the default, but there is no guarantee that it will
         # not change in the future, so we explicitly set it here to make the test
         # robust.
-        sl = Slicer(da, keep=['y', 'x'], autoscale=True, mode='single')
+        sl = SlicerPlot(da, keep=['y', 'x'], autoscale=True, mode='single')
         cm = sl.figure.view.colormapper
         # Colormapper fits to the values in the initial slice (slider value in the
         # middle)
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
-        sl.slider.controls['z'].value = 6
+        sl.slicer.slider.controls['z'].value = 6
         # Colormapper range fits to the values in the new slice
         assert cm.vmin == 5 * 10 * 6
         assert cm.vmax == 5 * 10 * 7 - 1
@@ -317,13 +337,13 @@ class TestSlicer2d:
                 dim='x', sizes={'z': 20, 'y': 10, 'x': 5}
             )
         )
-        sl = Slicer(da, keep=['y', 'x'], autoscale=False, mode='single')
+        sl = SlicerPlot(da, keep=['y', 'x'], autoscale=False, mode='single')
         cm = sl.figure.view.colormapper
         # Colormapper fits to the values in the initial slice (slider value in the
         # middle)
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
-        sl.slider.controls['z'].value = 6
+        sl.slicer.slider.controls['z'].value = 6
         # Colormapper range does not change
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
@@ -333,4 +353,6 @@ class TestSlicer2d:
         da = da.assign_coords(
             x_alt=da.coords['xx'] * 1.1, y_alt=da.coords['yy'] * 1.1
         ).drop_coords(['xx', 'yy'])
-        Slicer(da, keep=['y_alt', 'x_alt'], mode='single', coords=['x_alt', 'y_alt'])
+        SlicerPlot(
+            da, keep=['y_alt', 'x_alt'], mode='single', coords=['x_alt', 'y_alt']
+        )
