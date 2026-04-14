@@ -51,7 +51,9 @@ def _maybe_reduce_dim(da, dims, op):
 
 def _guess_keep_if_none(keep: list[str] | None, dims: list[str]) -> list[str]:
     if keep is None:
-        return dims[-(2 if len(dims) > 2 else 1) :]
+        keep = dims[-(2 if len(dims) > 2 else 1) :]
+    if isinstance(keep, str):
+        keep = [keep]
     return keep
 
 
@@ -107,8 +109,6 @@ class Slicer:
 
         dims = nodes[0]().dims
         keep = _guess_keep_if_none(keep, dims)
-        if isinstance(keep, str):
-            keep = [keep]
 
         # Ensure all dims in keep have the same size
         sizes = [
