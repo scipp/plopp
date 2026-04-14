@@ -14,6 +14,7 @@ from ..core.utils import coord_as_bin_edges
 from ..graphics import imagefigure, linefigure
 from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 from .common import preprocess, require_interactive_figure
+from .slicer import Slicer
 
 
 def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
@@ -165,6 +166,7 @@ def inspector(
     ylabel: str | None = None,
     ymax: sc.Variable | float | None = None,
     ymin: sc.Variable | float | None = None,
+    with_slider: bool = True,
     **kwargs,
 ):
     """
@@ -292,6 +294,9 @@ def inspector(
         Upper limit for y-axis (1d figure).
     ymin:
         Lower limit for y-axis (1d figure).
+    with_slider:
+        Show slider under 2d image for selecting data range if ``True``. A currently
+        selected range indicator will also be displayed on the 1d profile figure.
     **kwargs:
         Additional arguments forwarded to the underlying plotting library.
 
@@ -330,9 +335,8 @@ def inspector(
         dim = data.dims[-1]
     bin_edges_node = Node(_to_bin_edges, in_node, dim=dim)
     bin_centers_node = Node(_to_bin_centers, bin_edges_node, dim=dim)
-    op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
-    f2d = imagefigure(
-        op_node,
+
+    f2d_args = dict(
         aspect=aspect,
         cbar=cbar,
         clabel=clabel,
@@ -352,6 +356,33 @@ def inspector(
         ylabel=ylabel,
         **kwargs,
     )
+
+    if with_slider:
+        slicer = Slicer(
+            bin_edges_node, keep=set(data.dims) - {dim}, operation=operation, **f2d_args
+        )
+        f2d = slicer.figure
+        span = f1d.ax.axvspan(
+            data.coords[dim].min().value,
+            data.coords[dim].max().value,
+            color='gray',
+            alpha=0.2,
+            zorder=-np.inf,
+        )
+        bin_edge_coord = coord_as_bin_edges(data, dim)
+
+        def update_span(change: dict) -> None:
+            start, end = change['owner'].controls[dim].value
+            start = bin_edge_coord[dim, start].value
+            end = bin_edge_coord[dim, end + 1].value
+            span.set_bounds(start, 0, end - start, 1)
+            f1d.canvas.draw()
+
+        slicer.slider.observe(update_span, names='value')
+    else:
+        op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
+        f2d = imagefigure(op_node, **f2d_args)
+
     match mode:
         case 'point':
             tool = PointsTool(
