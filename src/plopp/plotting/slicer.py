@@ -91,7 +91,8 @@ class Slicer:
 
     def __init__(
         self,
-        *nodes,
+        obj: PlottableMulti,
+        coords: list[str] | None = None,
         enable_player: bool = False,
         keep: list[str] | None = None,
         mode: Literal['single', 'range', 'combined'] = 'combined',
@@ -105,14 +106,16 @@ class Slicer:
                 'mode to "single" to use the play button.'
             )
 
-        nodes = [Node(n) if not isinstance(n, Node) else n for n in nodes]
-
-        dims = nodes[0]().dims
-        keep = _guess_keep_if_none(keep, dims)
+        nodes = input_to_nodes(
+            obj, processor=partial(preprocess, ignore_size=True, coords=coords)
+        )
+        data_prototype = nodes[0]()
+        dims = data_prototype.dims
+        self.keep = _guess_keep_if_none(keep, dims)
 
         # Ensure all dims in keep have the same size
         sizes = [
-            {dim: shape for dim, shape in node().sizes.items() if dim not in keep}
+            {dim: shape for dim, shape in node().sizes.items() if dim not in self.keep}
             for node in nodes
         ]
         g = groupby(sizes)
@@ -122,18 +125,17 @@ class Slicer:
                 f'the following sizes were found: {sizes}'
             )
 
-        if len(keep) == 0:
+        if len(self.keep) == 0:
             raise ValueError(
                 'Slicer plot: the list of dims to be kept cannot be empty.'
             )
-        if not all(dim in dims for dim in keep):
+        if not all(dim in dims for dim in self.keep):
             raise ValueError(
-                f"Slicer plot: one or more of the requested dims to be kept {keep} "
+                f"Slicer plot: one or more of the requested dims to be kept {self.keep} "
                 f"were not found in the input's dimensions {dims}."
             )
 
-        other_dims = [dim for dim in dims if dim not in keep]
-
+        other_dims = [dim for dim in dims if dim not in self.keep]
         match mode:
             case 'single':
                 slicer_constr = SliceWidget
@@ -148,9 +150,7 @@ class Slicer:
                 )
 
         self.slider = slicer_constr(
-            nodes[0](),
-            dims=other_dims,
-            enable_player=enable_player,
+            data_prototype, dims=other_dims, enable_player=enable_player
         )
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
@@ -162,7 +162,8 @@ class Slicer:
     @property
     def output(self) -> list[Node]:
         """
-        Alias for reduce_nodes whose name is more like an implementation detail.
+        Alias for ``reduce_nodes`` whose name is more like an implementation detail.
+        We keep the ``reduce_nodes`` attribute for retro-compatibility.
         """
         return self.reduce_nodes
 
@@ -180,16 +181,11 @@ class SlicerPlot:
         ] = 'sum',
         **kwargs,
     ):
-        nodes = input_to_nodes(
-            obj,
-            processor=partial(preprocess, ignore_size=True, coords=coords),
-        )
-
-        keep = _guess_keep_if_none(keep, nodes[0]().dims)
 
         self.slicer = Slicer(
-            *nodes,
+            obj,
             keep=keep,
+            coords=coords,
             enable_player=enable_player,
             mode=mode,
             operation=operation,
@@ -197,7 +193,7 @@ class SlicerPlot:
 
         args = categorize_args(**kwargs)
 
-        ndims = len(keep)
+        ndims = len(self.slicer.keep)
         if ndims == 1:
             make_figure = partial(linefigure, **args['1d'])
         elif ndims == 2:
