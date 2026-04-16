@@ -48,14 +48,6 @@ def _maybe_reduce_dim(da, dims, op):
     return numerator / denominator
 
 
-def _guess_keep_if_none(keep: list[str] | None, dims: list[str]) -> list[str]:
-    if keep is None:
-        keep = dims[-(2 if len(dims) > 2 else 1) :]
-    if isinstance(keep, str):
-        keep = [keep]
-    return keep
-
-
 class Slicer:
     """
     Class that slices out dimensions from the data and displays the resulting data as
@@ -118,7 +110,11 @@ class Slicer:
                 f'following dimensions were found: {[da.dims for da in dg.values()]}'
             )
 
-        self.keep = _guess_keep_if_none(keep, dg.dims)
+        self.keep = keep
+        if self.keep is None:
+            self.keep = dg.dims[-min(dg.ndim - 1, 2) :]
+        if isinstance(self.keep, str):
+            self.keep = [self.keep]
 
         if len(self.keep) == 0:
             raise ValueError(
