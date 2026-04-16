@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
-from itertools import groupby
 from typing import Literal
 
 import numpy as np
@@ -127,8 +126,8 @@ class Slicer:
             )
         if not set(self.keep).issubset(dg_dims):
             raise ValueError(
-                f"Slicer plot: one or more of the requested dims to be kept {self.keep} "
-                f"were not found in the input's dimensions {dg.dims}."
+                "Slicer plot: one or more of the requested dims to be kept "
+                f"{self.keep} were not found in the input's dimensions {dg.dims}."
             )
 
         other_dims = [dim for dim in dg.dims if dim not in self.keep]
@@ -189,7 +188,6 @@ class SlicerPlot:
         ] = 'sum',
         **kwargs,
     ):
-
         self.slicer = Slicer(
             obj,
             keep=keep,
