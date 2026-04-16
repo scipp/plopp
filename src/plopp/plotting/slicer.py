@@ -188,7 +188,6 @@ class SlicerPlot:
         ] = 'sum',
         **kwargs,
     ):
-
         self.slicer = Slicer(
             obj,
             keep=keep,
