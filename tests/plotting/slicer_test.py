@@ -178,10 +178,17 @@ class TestSlicer1d:
     def test_with_data_arrays_different_shape_along_non_keep_dim_raises(self):
         a = data_array(ndim=2)
         b = data_array(ndim=2) * 2.5
-        with pytest.raises(
-            ValueError, match='Slicer plot: all inputs must have the same sizes'
-        ):
+        with pytest.raises(ValueError, match="Slicer plot: cannot slice dim 'yy'"):
             SlicerPlot({'a': a, 'b': b['yy', :10]}, keep=['xx'], mode='single')
+
+    def test_with_data_arrays_same_shape_different_coords_along_non_keep_dim_raises(
+        self,
+    ):
+        a = data_array(ndim=2)
+        b = data_array(ndim=2) * 2.5
+        b.coords['yy'] *= 1.5
+        with pytest.raises(ValueError, match="Slicer plot: cannot slice dim 'yy'"):
+            SlicerPlot({'a': a, 'b': b}, keep=['xx'], mode='single')
 
     def test_raises_ValueError_when_given_binned_data(self):
         da = sc.data.table_xyz(100).bin(x=10, y=20)

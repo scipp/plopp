@@ -119,8 +119,6 @@ class Slicer:
                 f'following dimensions were found: {[da.dims for da in dg.values()]}'
             )
 
-        # data_prototype = nodes[0]()
-        # dims = data_prototype.dims
         self.keep = _guess_keep_if_none(keep, dg.dims)
 
         if len(self.keep) == 0:
@@ -134,14 +132,17 @@ class Slicer:
             )
 
         other_dims = [dim for dim in dg.dims if dim not in self.keep]
+        data_arrays = list(dg.values())
         # Ensure all dims in other_dims (dims to be sliced) have the same coordinates
-        for dim in other_dims:
-            g = groupby(da.coords[dim] for da in dg.values())
-            if not (next(g, True) and not next(g, False)):
-                raise ValueError(
-                    f"Slicer plot: cannot slice dim '{dim}' because all inputs do not "
-                    "have the same coordinates for this dim."
-                )
+        if len(dg) > 1:
+            for dim in other_dims:
+                template = data_arrays[0]
+                for da in data_arrays[1:]:
+                    if not sc.identical(da.coords[dim], template.coords[dim]):
+                        raise ValueError(
+                            f"Slicer plot: cannot slice dim '{dim}' because all inputs "
+                            "do not have the same coordinates for this dim."
+                        )
 
         match mode:
             case 'single':
@@ -157,7 +158,7 @@ class Slicer:
                 )
 
         self.slider = slicer_constr(
-            next(iter(dg.values())), dims=other_dims, enable_player=enable_player
+            data_arrays[0], dims=other_dims, enable_player=enable_player
         )
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
