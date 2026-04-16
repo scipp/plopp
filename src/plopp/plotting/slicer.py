@@ -109,33 +109,40 @@ class Slicer:
         nodes = input_to_nodes(
             obj, processor=partial(preprocess, ignore_size=True, coords=coords)
         )
-        data_prototype = nodes[0]()
-        dims = data_prototype.dims
-        self.keep = _guess_keep_if_none(keep, dims)
 
-        # Ensure all dims in keep have the same size
-        sizes = [
-            {dim: shape for dim, shape in node().sizes.items() if dim not in self.keep}
-            for node in nodes
-        ]
-        g = groupby(sizes)
-        if not (next(g, True) and not next(g, False)):
+        # Ensure all inputs have the same dims
+        dg = sc.DataGroup({str(i): node() for i, node in enumerate(nodes)})
+        dg_dims = set(dg.dims)
+        if not all(set(da.dims) == dg_dims for da in dg.values()):
             raise ValueError(
-                'Slicer plot: all inputs must have the same sizes, but '
-                f'the following sizes were found: {sizes}'
+                'Slicer plot: all inputs must have the same dimensions, but the '
+                f'following dimensions were found: {[da.dims for da in dg.values()]}'
             )
+
+        # data_prototype = nodes[0]()
+        # dims = data_prototype.dims
+        self.keep = _guess_keep_if_none(keep, dg.dims)
 
         if len(self.keep) == 0:
             raise ValueError(
                 'Slicer plot: the list of dims to be kept cannot be empty.'
             )
-        if not all(dim in dims for dim in self.keep):
+        if not set(self.keep).issubset(dg_dims):
             raise ValueError(
                 f"Slicer plot: one or more of the requested dims to be kept {self.keep} "
-                f"were not found in the input's dimensions {dims}."
+                f"were not found in the input's dimensions {dg.dims}."
             )
 
-        other_dims = [dim for dim in dims if dim not in self.keep]
+        other_dims = [dim for dim in dg.dims if dim not in self.keep]
+        # Ensure all dims in other_dims (dims to be sliced) have the same coordinates
+        for dim in other_dims:
+            g = groupby(da.coords[dim] for da in dg.values())
+            if not (next(g, True) and not next(g, False)):
+                raise ValueError(
+                    f"Slicer plot: cannot slice dim '{dim}' because all inputs do not "
+                    "have the same coordinates for this dim."
+                )
+
         match mode:
             case 'single':
                 slicer_constr = SliceWidget
@@ -150,7 +157,7 @@ class Slicer:
                 )
 
         self.slider = slicer_constr(
-            data_prototype, dims=other_dims, enable_player=enable_player
+            next(iter(dg.values())), dims=other_dims, enable_player=enable_player
         )
         self.slider_node = widget_node(self.slider)
         self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
