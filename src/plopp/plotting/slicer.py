@@ -61,8 +61,6 @@ class Slicer:
     ----------
     obj:
         The input data.
-    coords:
-        If supplied, use these coords instead of the input's dimension coordinates.
     enable_player:
         If ``True``, add a play button to the sliders to automatically step through
         the slices.
@@ -80,9 +78,8 @@ class Slicer:
 
     def __init__(
         self,
-        obj: PlottableMulti,
+        obj: PlottableMulti | list[Node] | tuple[Node, ...],
         *,
-        coords: list[str] | None = None,
         enable_player: bool = False,
         keep: list[str] | None = None,
         mode: Literal['single', 'range', 'combined'] = 'combined',
@@ -95,10 +92,10 @@ class Slicer:
                 'The play button cannot be used with range sliders. Please set '
                 'mode to "single" to use the play button.'
             )
-
-        nodes = input_to_nodes(
-            obj, processor=partial(preprocess, ignore_size=True, coords=coords)
-        )
+        if isinstance(obj, list | tuple) and ({type(x) for x in obj} == {Node}):
+            nodes = obj
+        else:
+            nodes = input_to_nodes(obj, processor=lambda x, name: x)
 
         # Ensure all inputs have the same dims
         dg = sc.DataGroup({str(i): node() for i, node in enumerate(nodes)})
@@ -162,11 +159,13 @@ class Slicer:
         ]
 
     @property
-    def output(self) -> list[Node]:
+    def output(self) -> list[Node] | Node:
         """
         Alias for ``reduce_nodes`` whose name is more like an implementation detail.
         We keep the ``reduce_nodes`` attribute for retro-compatibility.
         """
+        if len(self.reduce_nodes) == 1:
+            return self.reduce_nodes[0]
         return self.reduce_nodes
 
 
@@ -212,10 +211,13 @@ class SlicerPlot:
         ] = 'sum',
         **kwargs,
     ):
+        nodes = input_to_nodes(
+            obj, processor=partial(preprocess, ignore_size=True, coords=coords)
+        )
+
         self.slicer = Slicer(
-            obj,
+            nodes,
             keep=keep,
-            coords=coords,
             enable_player=enable_player,
             mode=mode,
             operation=operation,
@@ -236,7 +238,7 @@ class SlicerPlot:
                 f'but {ndims} were requested.'
             )
 
-        self.figure = make_figure(*self.slicer.output)
+        self.figure = make_figure(*self.slicer.reduce_nodes)
         require_interactive_figure(self.figure, 'slicer')
         self.figure.bottom_bar.add(self.slicer.slider)
 
