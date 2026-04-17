@@ -109,8 +109,8 @@ class TestSlicer1d:
 
     def test_no_keep_with_figure(self):
         da = data_array(ndim=2)
-        sl = SlicerPlot(da)
-        assert 'yy' in sl.slicer.slider.controls
+        sp = SlicerPlot(da)
+        assert 'yy' in sp.slicer.slider.controls
 
     def test_with_dataset(self):
         ds = dataset(ndim=2)
@@ -337,8 +337,8 @@ class TestSlicer2d:
 
     def test_no_keep_with_figure(self):
         da = data_array(ndim=3)
-        sl = SlicerPlot(da)
-        assert 'zz' in sl.slicer.slider.controls
+        sp = SlicerPlot(da)
+        assert 'zz' in sp.slicer.slider.controls
 
     def test_from_node_2d(self):
         da = data_array(ndim=3)
@@ -353,13 +353,13 @@ class TestSlicer2d:
         # `autoscale=True` should be the default, but there is no guarantee that it will
         # not change in the future, so we explicitly set it here to make the test
         # robust.
-        sl = SlicerPlot(da, keep=['y', 'x'], autoscale=True, mode='single')
-        cm = sl.figure.view.colormapper
+        sp = SlicerPlot(da, keep=['y', 'x'], autoscale=True, mode='single')
+        cm = sp.figure.view.colormapper
         # Colormapper fits to the values in the initial slice (slider value in the
         # middle)
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
-        sl.slicer.slider.controls['z'].value = 6
+        sp.slicer.slider.controls['z'].value = 6
         # Colormapper range fits to the values in the new slice
         assert cm.vmin == 5 * 10 * 6
         assert cm.vmax == 5 * 10 * 7 - 1
@@ -370,13 +370,13 @@ class TestSlicer2d:
                 dim='x', sizes={'z': 20, 'y': 10, 'x': 5}
             )
         )
-        sl = SlicerPlot(da, keep=['y', 'x'], autoscale=False, mode='single')
-        cm = sl.figure.view.colormapper
+        sp = SlicerPlot(da, keep=['y', 'x'], autoscale=False, mode='single')
+        cm = sp.figure.view.colormapper
         # Colormapper fits to the values in the initial slice (slider value in the
         # middle)
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
-        sl.slicer.slider.controls['z'].value = 6
+        sp.slicer.slider.controls['z'].value = 6
         # Colormapper range does not change
         assert cm.vmin == 5 * 10 * 9
         assert cm.vmax == 5 * 10 * 10 - 1
