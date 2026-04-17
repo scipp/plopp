@@ -14,7 +14,7 @@ from ..core.utils import coord_as_bin_edges
 from ..graphics import imagefigure, linefigure
 from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 from .common import preprocess, require_interactive_figure
-from .slicer import Slicer
+from .slicer import SlicerPlot
 
 
 def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
@@ -358,10 +358,10 @@ def inspector(
     )
 
     if with_slider:
-        slicer = Slicer(
+        slicer_plot = SlicerPlot(
             bin_edges_node, keep=set(data.dims) - {dim}, operation=operation, **f2d_args
         )
-        f2d = slicer.figure
+        f2d = slicer_plot.figure
         span = f1d.ax.axvspan(
             data.coords[dim].min().value,
             data.coords[dim].max().value,
@@ -378,7 +378,7 @@ def inspector(
             span.set_bounds(start, 0, end - start, 1)
             f1d.canvas.draw()
 
-        slicer.slider.observe(update_span, names='value')
+        slicer_plot.slicer.slider.observe(update_span, names='value')
     else:
         op_node = Node(_apply_op, da=bin_edges_node, op=operation, dim=dim)
         f2d = imagefigure(op_node, **f2d_args)

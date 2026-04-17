@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
-from itertools import groupby
 from typing import Literal
 
 import numpy as np
@@ -51,12 +50,130 @@ def _maybe_reduce_dim(da, dims, op):
 
 class Slicer:
     """
-    Class that slices out dimensions from the data and displays the resulting data as
-    either a 1D line or a 2D image.
+    Class that slices out dimensions from the input data and exposes the result in
+    'output' nodes.
 
     This class exists both for simplifying unit tests and for reuse by other plotting
     functions that want to offer slicing functionality,
     such as the :func:`superplot` function.
+
+    Parameters
+    ----------
+    obj:
+        The input data.
+    enable_player:
+        If ``True``, add a play button to the sliders to automatically step through
+        the slices.
+    keep:
+        The dimensions to be kept, all remaining dimensions will be sliced. This should
+        be a list of dims. If no dims are provided, the last dim will be kept in the
+        case of a 2-dimensional input, while the last two dims will be kept in the case
+        of higher dimensional inputs.
+    mode:
+        The mode of the slicer. This can be 'single', 'range', or 'combined'.
+    operation:
+        The reduction operation to be applied to the sliced dimensions. This is ``sum``
+        by default.
+    """
+
+    def __init__(
+        self,
+        obj: PlottableMulti | list[Node] | tuple[Node, ...],
+        *,
+        enable_player: bool = False,
+        keep: list[str] | None = None,
+        mode: Literal['single', 'range', 'combined'] = 'combined',
+        operation: Literal[
+            'sum', 'mean', 'max', 'min', 'nansum', 'nanmean', 'nanmax', 'nanmin'
+        ] = 'sum',
+    ):
+        if enable_player and mode != 'single':
+            raise ValueError(
+                'The play button cannot be used with range sliders. Please set '
+                'mode to "single" to use the play button.'
+            )
+        if isinstance(obj, list | tuple) and ({type(x) for x in obj} == {Node}):
+            nodes = obj
+        else:
+            nodes = input_to_nodes(obj, processor=lambda x, name: x)
+
+        # Ensure all inputs have the same dims
+        dg = sc.DataGroup({str(i): node() for i, node in enumerate(nodes)})
+        dg_dims = set(dg.dims)
+        if not all(set(da.dims) == dg_dims for da in dg.values()):
+            raise ValueError(
+                'Slicer plot: all inputs must have the same dimensions, but the '
+                f'following dimensions were found: {[da.dims for da in dg.values()]}'
+            )
+
+        self.keep = keep
+        if self.keep is None:
+            self.keep = dg.dims[-min(dg.ndim - 1, 2) :]
+        if isinstance(self.keep, str):
+            self.keep = [self.keep]
+
+        if len(self.keep) == 0:
+            raise ValueError(
+                'Slicer plot: the list of dims to be kept cannot be empty.'
+            )
+        if not set(self.keep).issubset(dg_dims):
+            raise ValueError(
+                "Slicer plot: one or more of the requested dims to be kept "
+                f"{self.keep} were not found in the input's dimensions {dg.dims}."
+            )
+
+        other_dims = [dim for dim in dg.dims if dim not in self.keep]
+        data_arrays = list(dg.values())
+        # Ensure all dims in other_dims (dims to be sliced) have the same coordinates
+        if len(dg) > 1:
+            for dim in other_dims:
+                template = data_arrays[0]
+                for da in data_arrays[1:]:
+                    if not sc.identical(da.coords[dim], template.coords[dim]):
+                        raise ValueError(
+                            f"Slicer plot: cannot slice dim '{dim}' because all inputs "
+                            "do not have the same coordinates for this dim."
+                        )
+
+        match mode:
+            case 'single':
+                slicer_constr = SliceWidget
+            case 'range':
+                slicer_constr = RangeSliceWidget
+            case 'combined':
+                slicer_constr = CombinedSliceWidget
+            case _:
+                raise ValueError(
+                    f"Invalid mode: {mode}. Expected one of 'single', "
+                    f"'range', or 'combined'."
+                )
+
+        self.slider = slicer_constr(
+            data_arrays[0], dims=other_dims, enable_player=enable_player
+        )
+        self.slider_node = widget_node(self.slider)
+        self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
+        self.reduce_nodes = [
+            Node(_maybe_reduce_dim, da=node, dims=other_dims, op=operation)
+            for node in self.slice_nodes
+        ]
+
+    @property
+    def output(self) -> list[Node] | Node:
+        """
+        Alias for ``reduce_nodes`` whose name is more like an implementation detail.
+        We keep the ``reduce_nodes`` attribute for retro-compatibility.
+        """
+        if len(self.reduce_nodes) == 1:
+            return self.reduce_nodes[0]
+        return self.reduce_nodes
+
+
+class SlicerPlot:
+    """
+    Initialize a SlicerPlot, which contains both a Slicer that slices extra
+    dimensions of the input data, and a figure that displays the result as
+    either a 1D line or a 2D image.
 
     Parameters
     ----------
@@ -94,79 +211,25 @@ class Slicer:
         ] = 'sum',
         **kwargs,
     ):
-        if enable_player and mode != 'single':
-            raise ValueError(
-                'The play button cannot be used with range sliders. Please set '
-                'mode to "single" to use the play button.'
-            )
         nodes = input_to_nodes(
-            obj,
-            processor=partial(preprocess, ignore_size=True, coords=coords),
+            obj, processor=partial(preprocess, ignore_size=True, coords=coords)
         )
 
-        dims = nodes[0]().dims
-        if keep is None:
-            keep = dims[-(2 if len(dims) > 2 else 1) :]
-
-        if isinstance(keep, str):
-            keep = [keep]
-
-        # Ensure all dims in keep have the same size
-        sizes = [
-            {dim: shape for dim, shape in node().sizes.items() if dim not in keep}
-            for node in nodes
-        ]
-        g = groupby(sizes)
-        if not (next(g, True) and not next(g, False)):
-            raise ValueError(
-                'Slicer plot: all inputs must have the same sizes, but '
-                f'the following sizes were found: {sizes}'
-            )
-
-        if len(keep) == 0:
-            raise ValueError(
-                'Slicer plot: the list of dims to be kept cannot be empty.'
-            )
-        if not all(dim in dims for dim in keep):
-            raise ValueError(
-                f"Slicer plot: one or more of the requested dims to be kept {keep} "
-                f"were not found in the input's dimensions {dims}."
-            )
-
-        other_dims = [dim for dim in dims if dim not in keep]
-
-        match mode:
-            case 'single':
-                slicer_constr = SliceWidget
-            case 'range':
-                slicer_constr = RangeSliceWidget
-            case 'combined':
-                slicer_constr = CombinedSliceWidget
-            case _:
-                raise ValueError(
-                    f"Invalid mode: {mode}. Expected one of 'single', "
-                    f"'range', or 'combined'."
-                )
-
-        self.slider = slicer_constr(
-            nodes[0](),
-            dims=other_dims,
+        self.slicer = Slicer(
+            nodes,
+            keep=keep,
             enable_player=enable_player,
+            mode=mode,
+            operation=operation,
         )
-        self.slider_node = widget_node(self.slider)
-        self.slice_nodes = [slice_dims(node, self.slider_node) for node in nodes]
-        self.reduce_nodes = [
-            Node(_maybe_reduce_dim, da=node, dims=other_dims, op=operation)
-            for node in self.slice_nodes
-        ]
 
         args = categorize_args(**kwargs)
 
-        ndims = len(keep)
+        ndims = len(self.slicer.keep)
         if ndims == 1:
             make_figure = partial(linefigure, **args['1d'])
         elif ndims == 2:
-            if len(self.slice_nodes) > 1:
+            if len(self.slicer.slice_nodes) > 1:
                 raise_multiple_inputs_for_2d_plot_error(origin='slicer')
             make_figure = partial(imagefigure, **args['2d'])
         else:
@@ -175,9 +238,9 @@ class Slicer:
                 f'but {ndims} were requested.'
             )
 
-        self.figure = make_figure(*self.reduce_nodes)
+        self.figure = make_figure(*self.slicer.reduce_nodes)
         require_interactive_figure(self.figure, 'slicer')
-        self.figure.bottom_bar.add(self.slider)
+        self.figure.bottom_bar.add(self.slicer.slider)
 
 
 def slicer(
@@ -311,8 +374,8 @@ def slicer(
     **kwargs:
         Additional arguments forwarded to the underlying plotting library.
     """
-    return Slicer(
-        obj,
+    return SlicerPlot(
+        obj=obj,
         keep=keep,
         aspect=aspect,
         autoscale=autoscale,
