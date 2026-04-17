@@ -50,8 +50,8 @@ def _maybe_reduce_dim(da, dims, op):
 
 class Slicer:
     """
-    Class that slices out dimensions from the data and displays the resulting data as
-    either a 1D line or a 2D image.
+    Class that slices out dimensions from the input data and exposes the result in
+    'output' nodes.
 
     This class exists both for simplifying unit tests and for reuse by other plotting
     functions that want to offer slicing functionality,
@@ -76,13 +76,12 @@ class Slicer:
     operation:
         The reduction operation to be applied to the sliced dimensions. This is ``sum``
         by default.
-    **kwargs:
-        The additional arguments are forwarded to the underlying 1D or 2D figures.
     """
 
     def __init__(
         self,
         obj: PlottableMulti,
+        *,
         coords: list[str] | None = None,
         enable_player: bool = False,
         keep: list[str] | None = None,
@@ -172,9 +171,38 @@ class Slicer:
 
 
 class SlicerPlot:
+    """
+    Initialize a SlicerPlot, which contains both a Slicer that slices extra
+    dimensions of the input data, and a figure that displays the result as
+    either a 1D line or a 2D image.
+
+    Parameters
+    ----------
+    obj:
+        The input data.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
+    enable_player:
+        If ``True``, add a play button to the sliders to automatically step through
+        the slices.
+    keep:
+        The dimensions to be kept, all remaining dimensions will be sliced. This should
+        be a list of dims. If no dims are provided, the last dim will be kept in the
+        case of a 2-dimensional input, while the last two dims will be kept in the case
+        of higher dimensional inputs.
+    mode:
+        The mode of the slicer. This can be 'single', 'range', or 'combined'.
+    operation:
+        The reduction operation to be applied to the sliced dimensions. This is ``sum``
+        by default.
+    **kwargs:
+        The additional arguments are forwarded to the underlying 1D or 2D figures.
+    """
+
     def __init__(
         self,
         obj: PlottableMulti,
+        *,
         coords: list[str] | None = None,
         enable_player: bool = False,
         keep: list[str] | None = None,
