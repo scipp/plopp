@@ -1,16 +1,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2025 Scipp contributors (https://github.com/scipp)
 
-from .inspector_plot import inspector
-from .main_plot import plot
-from .mesh3d_plot import mesh3d
-from .scatter3d_plot import scatter3d
-from .scatter_plot import scatter
-from .slicer_plot import slicer
-from .super_plot import superplot
-from .xy_plot import xyplot
+from ._inspector import inspector
+from ._mesh3d import mesh3d
+from ._plot import plot
+from ._scatter import scatter
+from ._scatter3d import scatter3d
+from ._slicer import DimensionSlicer, slicer
+from ._superplot import superplot
+from ._xyplot import xyplot
 
 __all__ = [
+    'DimensionSlicer',
     'inspector',
     'mesh3d',
     'plot',

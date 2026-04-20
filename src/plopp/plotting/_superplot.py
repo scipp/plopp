@@ -7,7 +7,7 @@ import scipp as sc
 
 from ..core.typing import FigureLike, Plottable
 from ..widgets import LineSaveTool
-from .slicer_plot import SlicerPlot
+from ._slicer import SlicerPlot
 
 
 def superplot(
