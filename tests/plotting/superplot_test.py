@@ -3,9 +3,8 @@
 import pytest
 import scipp as sc
 
-from plopp import Node
+from plopp import Node, superplot
 from plopp.data.testing import data_array
-from plopp.plotting.super_plot import superplot
 
 pytestmark = pytest.mark.usefixtures("_parametrize_interactive_1d_backends")
 
