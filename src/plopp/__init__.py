@@ -26,6 +26,7 @@ __getattr__, __dir__, __all__ = lazy.attach(
             'tiled',
         ],
         'plotting': [
+            'DimensionSlicer',
             'inspector',
             'mesh3d',
             'plot',
