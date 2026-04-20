@@ -7,7 +7,7 @@ from scipp.testing import assert_allclose, assert_identical
 
 from plopp import Node
 from plopp.data.testing import data_array, dataset
-from plopp.plotting.slicer import Slicer, SlicerPlot
+from plopp.plotting.slicer_plot import Slicer, SlicerPlot
 
 
 @pytest.mark.usefixtures("_parametrize_interactive_1d_backends")

@@ -14,7 +14,7 @@ from ..core.utils import coord_as_bin_edges
 from ..graphics import imagefigure, linefigure
 from ..widgets import Box, PointsTool, PolygonTool, RectangleTool
 from .common import preprocess, require_interactive_figure
-from .slicer import SlicerPlot
+from .slicer_plot import SlicerPlot
 
 
 def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
