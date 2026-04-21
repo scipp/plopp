@@ -11,11 +11,11 @@ jobs:
     runs-on: 'ubuntu-24.04'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # history required so setuptools_scm can determine version
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version-file: '.github/workflows/python-version-ci'
 
@@ -26,7 +26,7 @@ jobs:
         run: python -m build
 
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist
           path: dist
@@ -40,8 +40,8 @@ jobs:
       id-token: write
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - uses: actions/download-artifact@v4
-      - uses: pypa/gh-action-pypi-publish@v1.12.4
+      - uses: actions/download-artifact@v8
+      - uses: pypa/gh-action-pypi-publish@v1.14.0
 
   docs:
     needs: [upload_pypi]
@@ -57,7 +57,7 @@ jobs:
     permissions:
       contents: write  # This is needed so that the action can upload the asset
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
     - name: Zip documentation
       run: |
         mv docs_html documentation-${{ github.ref_name }}
