@@ -41,6 +41,9 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
       - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
       - uses: pypa/gh-action-pypi-publish@v1.14.0
 
   docs:
@@ -58,6 +61,9 @@ jobs:
       contents: write  # This is needed so that the action can upload the asset
     steps:
     - uses: actions/download-artifact@v8
+      with:
+          name: docs_html
+          path: docs_html
     - name: Zip documentation
       run: |
         mv docs_html documentation-${{ github.ref_name }}
