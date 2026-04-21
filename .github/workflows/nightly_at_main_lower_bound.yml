@@ -12,7 +12,7 @@ jobs:
     outputs:
       min_python: ${{ steps.vars.outputs.min_python }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Get Python version for other CI jobs
         id: vars
         run: echo "min_python=$(< .github/workflows/python-version-ci)" >> "$GITHUB_OUTPUT"
@@ -30,8 +30,8 @@ jobs:
         ESS_PROTECTED_FILESTORE_USERNAME: ${{ secrets.ESS_PROTECTED_FILESTORE_USERNAME }}
         ESS_PROTECTED_FILESTORE_PASSWORD: ${{ secrets.ESS_PROTECTED_FILESTORE_PASSWORD }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v7
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v8
         with:
           python-version: ${{ matrix.python.version }}
       - run: uv run --extra=test --resolution=lowest-direct pytest

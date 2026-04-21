@@ -15,13 +15,13 @@ jobs:
       min_python: ${{ steps.vars.outputs.min_python }}
       min_tox_env: ${{ steps.vars.outputs.min_tox_env }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Get Python version for other CI jobs
         id: vars
         run: |
           echo "min_python=$(< .github/workflows/python-version-ci)" >> "$GITHUB_OUTPUT"
           echo "min_tox_env=py$(sed 's/\.//g' < .github/workflows/python-version-ci)" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version-file: '.github/workflows/python-version-ci'
       - uses: pre-commit/action@v3.0.1

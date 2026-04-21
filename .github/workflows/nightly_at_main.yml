@@ -12,7 +12,7 @@ jobs:
     outputs:
       min_python: ${{ steps.vars.outputs.min_python }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Get Python version for other CI jobs
         id: vars
         run: echo "min_python=$(< .github/workflows/python-version-ci)" >> "$GITHUB_OUTPUT"

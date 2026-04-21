@@ -13,7 +13,7 @@ jobs:
       min_python: ${{ steps.vars.outputs.min_python }}
       release_tag: ${{ steps.release.outputs.release_tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0  # history required so we can determine latest release tag
       - name: Get last release tag from git

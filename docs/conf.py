@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
-# Copyright (c) 2025 Scipp contributors (https://github.com/scipp)
+# Copyright (c) 2026 Scipp contributors (https://github.com/scipp)
 
 import doctest
 import os
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 # General information about the project.
 project = 'Plopp'
-copyright = '2025 Scipp contributors'
+copyright = '2026 Scipp contributors'
 author = 'Scipp contributors'
 
 html_show_sourcelink = True

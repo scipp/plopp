@@ -13,7 +13,7 @@ jobs:
       min_python: ${{ steps.vars.outputs.min_python }}
       min_tox_env: ${{ steps.vars.outputs.min_tox_env }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Get Python version for other CI jobs
         id: vars
         run: |
