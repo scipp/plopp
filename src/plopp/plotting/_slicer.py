@@ -48,7 +48,7 @@ def _maybe_reduce_dim(da, dims, op):
     return numerator / denominator
 
 
-class Slicer:
+class DimensionSlicer:
     """
     Class that slices out dimensions from the input data and exposes the result in
     'output' nodes.
@@ -215,7 +215,7 @@ class SlicerPlot:
             obj, processor=partial(preprocess, ignore_size=True, coords=coords)
         )
 
-        self.slicer = Slicer(
+        self.slicer = DimensionSlicer(
             nodes,
             keep=keep,
             enable_player=enable_player,

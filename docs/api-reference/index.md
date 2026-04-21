@@ -54,6 +54,8 @@
 .. autosummary::
    :toctree: ../generated
 
+   plotting._slicer.DimensionSlicer
+
    widgets.Box
    widgets.Checkboxes
    widgets.HBar

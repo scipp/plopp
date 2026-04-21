@@ -7,14 +7,14 @@ from scipp.testing import assert_allclose, assert_identical
 
 from plopp import Node
 from plopp.data.testing import data_array, dataset
-from plopp.plotting.slicer import Slicer, SlicerPlot
+from plopp.plotting._slicer import DimensionSlicer, SlicerPlot
 
 
 @pytest.mark.usefixtures("_parametrize_interactive_1d_backends")
 class TestSlicer1d:
     def test_creation_keep_one_dim_single_mode(self):
         da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx'], mode='single')
+        sl = DimensionSlicer(da, keep=['xx'], mode='single')
         assert sl.slider.value == {'zz': 14, 'yy': 19}
         assert sl.slider.controls['yy'].slider.max == da.sizes['yy'] - 1
         assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
@@ -22,7 +22,7 @@ class TestSlicer1d:
 
     def test_update_keep_one_dim_single_mode(self):
         da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx'], mode='single')
+        sl = DimensionSlicer(da, keep=['xx'], mode='single')
         assert sl.slider.value == {'zz': 14, 'yy': 19}
         assert_identical(sl.slice_nodes[0](), da['yy', 19]['zz', 14])
         sl.slider.controls['yy'].value = 5
@@ -34,7 +34,7 @@ class TestSlicer1d:
 
     def test_creation_keep_one_dim_range_mode(self):
         da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx'], mode='range')
+        sl = DimensionSlicer(da, keep=['xx'], mode='range')
         assert sl.slider.value == {'zz': (0, 29), 'yy': (0, 39)}
         assert sl.slider.controls['yy'].slider.max == da.sizes['yy'] - 1
         assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
@@ -46,7 +46,7 @@ class TestSlicer1d:
 
     def test_update_keep_one_dim_range_mode(self):
         da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx'], mode='range')
+        sl = DimensionSlicer(da, keep=['xx'], mode='range')
         assert sl.slider.value == {'zz': (0, 29), 'yy': (0, 39)}
         assert_identical(sl.slice_nodes[0](), da['yy', 0:40]['zz', 0:30])
         sl.slider.controls['yy'].value = (5, 15)
@@ -66,7 +66,7 @@ class TestSlicer1d:
 
     def test_creation_keep_one_dim_combined_mode(self):
         da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx'], mode='combined')
+        sl = DimensionSlicer(da, keep=['xx'], mode='combined')
         assert sl.slider.value == {'zz': (0, 29), 'yy': (0, 39)}
         assert sl.slider.controls['yy'].slider.max == da.sizes['yy'] - 1
         assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
@@ -83,7 +83,7 @@ class TestSlicer1d:
 
     def test_update_keep_one_dim_combined_mode(self):
         da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx'], mode='combined')
+        sl = DimensionSlicer(da, keep=['xx'], mode='combined')
         assert sl.slider.value == {'zz': (0, 29), 'yy': (0, 39)}
         assert_identical(sl.slice_nodes[0](), da['yy', 0:40]['zz', 0:30])
         sl.slider.controls['yy'].value = (5, 15)
@@ -104,7 +104,7 @@ class TestSlicer1d:
 
     def test_no_keep(self):
         da = data_array(ndim=2)
-        sl = Slicer(da)
+        sl = DimensionSlicer(da)
         assert 'yy' in sl.slider.controls
 
     def test_no_keep_with_figure(self):
@@ -114,7 +114,7 @@ class TestSlicer1d:
 
     def test_with_dataset(self):
         ds = dataset(ndim=2)
-        sl = Slicer(ds, keep=['xx'], mode='single')
+        sl = DimensionSlicer(ds, keep=['xx'], mode='single')
         nodes = sl.output
         sl.slider.controls['yy'].value = 5
         assert_identical(nodes[0](), ds['a']['yy', 5])
@@ -131,7 +131,7 @@ class TestSlicer1d:
     def test_with_data_group(self):
         da = data_array(ndim=2)
         dg = sc.DataGroup(a=da, b=da * 2.5)
-        sl = Slicer(dg, keep=['xx'], mode='single')
+        sl = DimensionSlicer(dg, keep=['xx'], mode='single')
         nodes = sl.output
         sl.slider.controls['yy'].value = 5
         assert_identical(nodes[0](), dg['a']['yy', 5])
@@ -149,7 +149,7 @@ class TestSlicer1d:
     def test_with_dict_of_data_arrays(self):
         a = data_array(ndim=2)
         b = data_array(ndim=2) * 2.5
-        sl = Slicer({'a': a, 'b': b}, keep=['xx'], mode='single')
+        sl = DimensionSlicer({'a': a, 'b': b}, keep=['xx'], mode='single')
         nodes = sl.output
         sl.slider.controls['yy'].value = 5
         assert_identical(nodes[0](), a['yy', 5])
@@ -244,14 +244,14 @@ class TestSlicer2d:
                 sc.datetime('2022-02-20T04:32:00'),
                 sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"]}'),
             )
-        sl = Slicer(da, keep=['xx', 'yy'], mode='single')
+        sl = DimensionSlicer(da, keep=['xx', 'yy'], mode='single')
         assert sl.slider.value == {'zz': 14}
         assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
         assert_identical(sl.slice_nodes[0](), da['zz', 14])
 
     def test_update_keep_two_dims_single_mode(self):
         da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx', 'yy'], mode='single')
+        sl = DimensionSlicer(da, keep=['xx', 'yy'], mode='single')
         assert sl.slider.value == {'zz': 14}
         assert_identical(sl.slice_nodes[0](), da['zz', 14])
         sl.slider.controls['zz'].value = 5
@@ -268,7 +268,7 @@ class TestSlicer2d:
                 sc.datetime('2022-02-20T04:32:00'),
                 sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"]}'),
             )
-        sl = Slicer(da, keep=['xx', 'yy'], mode='range')
+        sl = DimensionSlicer(da, keep=['xx', 'yy'], mode='range')
         assert sl.slider.value == {'zz': (0, 29)}
         assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
         assert_identical(sl.slice_nodes[0](), da['zz', 0:30])
@@ -279,7 +279,7 @@ class TestSlicer2d:
 
     def test_update_keep_two_dims_range_mode(self):
         da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx', 'yy'], mode='range')
+        sl = DimensionSlicer(da, keep=['xx', 'yy'], mode='range')
         assert sl.slider.value == {'zz': (0, 29)}
         assert_identical(sl.slice_nodes[0](), da['zz', 0:30])
         sl.slider.controls['zz'].value = (5, 15)
@@ -300,7 +300,7 @@ class TestSlicer2d:
                 sc.datetime('2022-02-20T04:32:00'),
                 sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"]}'),
             )
-        sl = Slicer(da, keep=['xx', 'yy'], mode='combined')
+        sl = DimensionSlicer(da, keep=['xx', 'yy'], mode='combined')
         assert sl.slider.value == {'zz': (0, 29)}
         assert sl.slider.controls['zz'].slider.max == da.sizes['zz'] - 1
         assert_identical(sl.slice_nodes[0](), da['zz', 0:30])
@@ -315,7 +315,7 @@ class TestSlicer2d:
 
     def test_update_keep_two_dims_combined_mode(self):
         da = data_array(ndim=3)
-        sl = Slicer(da, keep=['xx', 'yy'], mode='combined')
+        sl = DimensionSlicer(da, keep=['xx', 'yy'], mode='combined')
         assert sl.slider.value == {'zz': (0, 29)}
         assert_identical(sl.slice_nodes[0](), da['zz', 0:30])
         sl.slider.controls['zz'].value = (5, 15)
@@ -332,7 +332,7 @@ class TestSlicer2d:
 
     def test_no_keep(self):
         da = data_array(ndim=3)
-        sl = Slicer(da)
+        sl = DimensionSlicer(da)
         assert 'zz' in sl.slider.controls
 
     def test_no_keep_with_figure(self):
@@ -342,7 +342,7 @@ class TestSlicer2d:
 
     def test_from_node_2d(self):
         da = data_array(ndim=3)
-        Slicer(Node(da), mode='single')
+        DimensionSlicer(Node(da), mode='single')
 
     def test_update_triggers_autoscale(self):
         da = sc.DataArray(
