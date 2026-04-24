@@ -139,7 +139,6 @@ class Canvas:
         ymax = parse_mutually_exclusive(vmax=user_vmax, ymax=ymax)
         logy = parse_mutually_exclusive(norm=norm, logy=logy)
 
-        self.fig = None
         self.ax = ax
         self.cax = cax
         self.bbox = BoundingBox()

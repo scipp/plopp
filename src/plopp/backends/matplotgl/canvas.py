@@ -140,7 +140,7 @@ class Canvas:
         ymax = parse_mutually_exclusive(vmax=user_vmax, ymax=ymax)
         logy = parse_mutually_exclusive(norm=norm, logy=logy)
 
-        self.fig = None
+        # self.fig = None
         self.ax = ax
         self.cax = cax
         self.bbox = BoundingBox()
@@ -155,7 +155,7 @@ class Canvas:
         self._legend = legend
 
         if self.ax is None:
-            self.fig, self.ax = plt.subplots()
+            self.fig, self.ax = plt.subplots(toolbar=False, figsize=figsize)
         else:
             self.fig = self.ax.get_figure()
         # if aspect is not None:
@@ -475,38 +475,38 @@ class Canvas:
     def grid(self, visible: bool):
         self.ax.grid(visible)
 
-    def reset_mode(self):
-        """
-        Reset the Matplotlib toolbar mode to nothing, to disable all Zoom/Pan tools.
-        """
-        if self.fig.canvas.toolbar.mode == 'zoom rect':
-            self.zoom()
-        elif self.fig.canvas.toolbar.mode == 'pan/zoom':
-            self.pan()
+    # def reset_mode(self):
+    #     """
+    #     Reset the Matplotlib toolbar mode to nothing, to disable all Zoom/Pan tools.
+    #     """
+    #     if self.fig.canvas.toolbar.mode == 'zoom rect':
+    #         self.zoom()
+    #     elif self.fig.canvas.toolbar.mode == 'pan/zoom':
+    #         self.pan()
 
-    def zoom(self):
-        """
-        Activate the underlying Matplotlib zoom tool.
-        """
-        self.fig.toggle_zoom()
-        # self.fig.canvas.toolbar.zoom()
+    # def zoom(self):
+    #     """
+    #     Activate the underlying Matplotlib zoom tool.
+    #     """
+    #     self.fig.toggle_zoom()
+    #     # self.fig.canvas.toolbar.zoom()
 
-    def pan(self):
-        """
-        Activate the underlying Matplotlib pan tool.
-        """
-        self.fig.canvas.toolbar.pan()
+    # def pan(self):
+    #     """
+    #     Activate the underlying Matplotlib pan tool.
+    #     """
+    #     self.fig.toggle_pan()
 
     def panzoom(self, value: Literal['pan', 'zoom'] | None):
         """
         Activate or deactivate the pan or zoom tool, depending on the input value.
         """
         if value == 'zoom':
-            self.zoom()
+            self.fig.toggle_zoom()
         elif value == 'pan':
-            self.pan()
+            self.fig.toggle_pan()
         elif value is None:
-            self.reset_mode()
+            self.fig.reset_panzoom()
 
     def download_figure(self):
         """
