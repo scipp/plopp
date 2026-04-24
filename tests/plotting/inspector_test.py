@@ -490,3 +490,51 @@ def test_creation_with_non_dimension_coord():
         x_alt=da.coords['x'] * 1.1, y_alt=da.coords['y'] * 1.1
     ).drop_coords(['x', 'y'])
     pp.inspector(da, coords=['x_alt', 'y_alt'])
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+@pytest.mark.parametrize(
+    "operation", ["sum", "mean", "min", "max", "nansum", "nanmean", "nanmin", "nanmax"]
+)
+@pytest.mark.parametrize("mode", ["point", "polygon", "rectangle"])
+def test_different_operations(operation, mode):
+    da = sc.DataArray(
+        data=sc.array(
+            dims=["xx", "yy", "zz"],
+            values=[
+                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
+                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
+                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
+                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
+            ],
+            dtype=float,
+        ),
+        coords={
+            "xx": sc.array(
+                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
+            ),
+            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
+            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
+        },
+    ).transpose(['zz', 'yy', 'xx'])
+
+    ip = pp.inspector(da, mode=mode, dim='zz', operation=operation)
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    fig2d.toolbar['inspect'].value = True
+    tool = fig2d.toolbar['inspect']._tool
+
+    match mode:
+        case 'point':
+            x = [105.0]
+            y = [5.0]
+        case 'rectangle':
+            x = [52.0, 189.0]
+            y = [17.0, 24.0]
+        case 'polygon':
+            x = [105.0, 256.0, 256.0, 105.0, 105.0]
+            y = [5.0, 5.0, 15.0, 15.0, 5.0]
+    for xi, yi in zip(x, y, strict=True):
+        tool.click(x=xi, y=yi)
+
+    assert len(fig1d.artists) == 1

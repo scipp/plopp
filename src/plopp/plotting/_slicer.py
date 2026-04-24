@@ -42,6 +42,7 @@ def _maybe_reduce_dim(da, dims, op):
     if 'nan' in op:
         numerator = da.nansum(to_be_reduced)
         denominator = (~sc.isnan(da)).to(dtype=int).sum(to_be_reduced)
+        denominator.unit = ""
     else:
         numerator = da.sum(to_be_reduced)
         denominator = np.prod([da.sizes[dim] for dim in to_be_reduced])

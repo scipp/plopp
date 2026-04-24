@@ -231,6 +231,15 @@ class TestSlicer1d:
         da = da.assign_coords(x_alt=da.coords['xx'] * 2).drop_coords('xx')
         SlicerPlot(da, keep=['x_alt'], mode='single', coords=['x_alt'])
 
+    @pytest.mark.parametrize(
+        "operation",
+        ["sum", "mean", "min", "max", "nansum", "nanmean", "nanmin", "nanmax"],
+    )
+    @pytest.mark.parametrize("mode", ["single", "range", "combined"])
+    def test_different_operations(self, operation, mode):
+        da = data_array(ndim=2)
+        SlicerPlot(da, keep=['xx'], mode=mode, operation=operation)
+
 
 @pytest.mark.usefixtures("_parametrize_interactive_2d_backends")
 class TestSlicer2d:
@@ -389,3 +398,12 @@ class TestSlicer2d:
         SlicerPlot(
             da, keep=['y_alt', 'x_alt'], mode='single', coords=['x_alt', 'y_alt']
         )
+
+    @pytest.mark.parametrize(
+        "operation",
+        ["sum", "mean", "min", "max", "nansum", "nanmean", "nanmin", "nanmax"],
+    )
+    @pytest.mark.parametrize("mode", ["single", "range", "combined"])
+    def test_different_operations(self, operation, mode):
+        da = data_array(ndim=3)
+        SlicerPlot(da, keep=['xx', 'yy'], mode=mode, operation=operation)
