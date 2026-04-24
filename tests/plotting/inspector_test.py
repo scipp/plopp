@@ -147,9 +147,8 @@ def test_point_mode_line_data_outside_range():
     assert all(np.isnan(line._data.values))
 
 
-@pytest.mark.usefixtures('_use_ipympl')
-def test_polygon_mode_triangle():
-    da = sc.DataArray(
+def _make_test_data():
+    return sc.DataArray(
         data=sc.array(
             dims=["xx", "yy", "zz"],
             values=[
@@ -167,7 +166,12 @@ def test_polygon_mode_triangle():
             "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
             "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
         },
-    )
+    ).transpose(['zz', 'yy', 'xx'])
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_polygon_mode_triangle():
+    da = _make_test_data()
 
     ip = pp.inspector(da, mode='polygon', dim='zz')
     fig2d = ip[0][0]
@@ -177,8 +181,8 @@ def test_polygon_mode_triangle():
 
     # This triangle should select the bottom left corner of the data.
     # Closing the polygon by repeating the first point.
-    x = [-1, 32, -1, -1]
-    y = [-1, -1, 350, -1]
+    x = [-1, -1, 350, -1]
+    y = [-1, 32, -1, -1]
     for xi, yi in zip(x, y, strict=True):
         tool.click(x=xi, y=yi)
 
@@ -190,7 +194,7 @@ def test_polygon_mode_triangle():
             [False, True, True],
             [True, True, True],
         ],
-    )
+    ).transpose(['yy', 'xx'])
 
     expected = da.assign_masks(m=mask).sum(["xx", "yy"])
     line = next(iter(fig1d.artists.values()))
@@ -199,24 +203,7 @@ def test_polygon_mode_triangle():
 
 @pytest.mark.usefixtures('_use_ipympl')
 def test_polygon_mode_square():
-    da = sc.DataArray(
-        data=sc.array(
-            dims=["xx", "yy", "zz"],
-            values=[
-                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
-                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
-                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
-            ],
-        ),
-        coords={
-            "xx": sc.array(
-                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
-            ),
-            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
-            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
-        },
-    )
+    da = _make_test_data()
 
     ip = pp.inspector(da, mode='polygon', dim='zz')
     fig2d = ip[0][0]
@@ -225,8 +212,8 @@ def test_polygon_mode_square():
     tool = fig2d.toolbar['inspect']._tool
 
     # This square should select the top right corner of the data.
-    x = [11, 32, 32, 11, 11]
-    y = [101, 101, 410, 410, 101]
+    x = [101, 101, 410, 410, 101]
+    y = [11, 32, 32, 11, 11]
     for xi, yi in zip(x, y, strict=True):
         tool.click(x=xi, y=yi)
 
@@ -238,7 +225,7 @@ def test_polygon_mode_square():
             [True, False, False],
             [True, False, False],
         ],
-    )
+    ).transpose(['yy', 'xx'])
 
     expected = da.assign_masks(m=mask).sum(["xx", "yy"])
     line = next(iter(fig1d.artists.values()))
@@ -247,26 +234,7 @@ def test_polygon_mode_square():
 
 @pytest.mark.usefixtures('_use_ipympl')
 def test_polygon_mode_triangle_with_mask_in_third_dimension():
-    da = sc.DataArray(
-        data=sc.array(
-            dims=["xx", "yy", "zz"],
-            values=[
-                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
-                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
-                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
-            ],
-            dtype=float,
-        ),
-        coords={
-            "xx": sc.array(
-                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
-            ),
-            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
-            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
-        },
-        masks={'mask': sc.array(dims=['zz'], values=[False, True, False])},
-    )
+    da = _make_test_data()
 
     ip = pp.inspector(da, mode='polygon', dim='zz')
     fig2d = ip[0][0]
@@ -276,8 +244,8 @@ def test_polygon_mode_triangle_with_mask_in_third_dimension():
 
     # This triangle should select the bottom left corner of the data.
     # Closing the polygon by repeating the first point.
-    x = [-1, 32, -1, -1]
-    y = [-1, -1, 350, -1]
+    x = [-1, -1, 350, -1]
+    y = [-1, 32, -1, -1]
     for xi, yi in zip(x, y, strict=True):
         tool.click(x=xi, y=yi)
 
@@ -289,7 +257,7 @@ def test_polygon_mode_triangle_with_mask_in_third_dimension():
             [False, True, True],
             [True, True, True],
         ],
-    )
+    ).transpose(['yy', 'xx'])
 
     expected = da.assign_masks(m=mask).sum(["xx", "yy"])
     line = next(iter(fig1d.artists.values()))
@@ -298,25 +266,8 @@ def test_polygon_mode_triangle_with_mask_in_third_dimension():
 
 @pytest.mark.usefixtures('_use_ipympl')
 def test_polygon_mode_preserves_keep_dim_binedges():
-    da = sc.DataArray(
-        data=sc.array(
-            dims=["xx", "yy", "zz"],
-            values=[
-                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
-                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
-                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
-            ],
-            dtype=float,
-        ),
-        coords={
-            "xx": sc.array(
-                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
-            ),
-            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
-            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0, 3.0], unit='m'),
-        },
-    )
+    da = _make_test_data()
+    da.coords['zz'] = sc.array(dims=['zz'], values=[0.0, 1.0, 2.0, 3.0], unit='m')
 
     ip = pp.inspector(da, mode='polygon', dim='zz')
     fig2d = ip[0][0]
@@ -326,8 +277,8 @@ def test_polygon_mode_preserves_keep_dim_binedges():
 
     # This triangle should select the bottom left corner of the data.
     # Closing the polygon by repeating the first point.
-    x = [-1, 32, -1, -1]
-    y = [-1, -1, 350, -1]
+    x = [-1, -1, 350, -1]
+    y = [-1, 32, -1, -1]
     for xi, yi in zip(x, y, strict=True):
         tool.click(x=xi, y=yi)
 
@@ -339,7 +290,7 @@ def test_polygon_mode_preserves_keep_dim_binedges():
             [False, True, True],
             [True, True, True],
         ],
-    )
+    ).transpose(['yy', 'xx'])
 
     expected = da.assign_masks(m=mask).sum(["xx", "yy"])
     line = next(iter(fig1d.artists.values()))
@@ -349,25 +300,7 @@ def test_polygon_mode_preserves_keep_dim_binedges():
 
 @pytest.mark.usefixtures('_use_ipympl')
 def test_polygon_mode_contains_nothing():
-    da = sc.DataArray(
-        data=sc.array(
-            dims=["xx", "yy", "zz"],
-            values=[
-                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
-                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
-                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
-            ],
-            dtype=float,
-        ),
-        coords={
-            "xx": sc.array(
-                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
-            ),
-            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
-            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
-        },
-    )
+    da = _make_test_data()
 
     ip = pp.inspector(da, mode='polygon', dim='zz')
     fig2d = ip[0][0]
@@ -377,8 +310,8 @@ def test_polygon_mode_contains_nothing():
 
     # This triangle should select the bottom left corner of the data.
     # Closing the polygon by repeating the first point.
-    x = [-100, -1, -100, -100]
-    y = [-1, -1, 350, -1]
+    x = [-1, -1, 350, -1]
+    y = [-100, -1, -100, -100]
     for xi, yi in zip(x, y, strict=True):
         tool.click(x=xi, y=yi)
 
@@ -392,25 +325,7 @@ def test_polygon_mode_contains_nothing():
 
 @pytest.mark.usefixtures('_use_ipympl')
 def test_rectangle_mode():
-    da = sc.DataArray(
-        data=sc.array(
-            dims=["xx", "yy", "zz"],
-            values=[
-                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
-                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
-                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
-            ],
-            dtype=float,
-        ),
-        coords={
-            "xx": sc.array(
-                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
-            ),
-            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
-            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
-        },
-    )
+    da = _make_test_data()
 
     ip = pp.inspector(da, mode='rectangle', dim='zz')
     fig2d = ip[0][0]
@@ -419,9 +334,8 @@ def test_rectangle_mode():
     tool = fig2d.toolbar['inspect']._tool
 
     # This rectangle should select the bottom left corner of the data.
-    # Closing the rectangle by repeating the first point.
-    x = [-1, 19]
-    y = [-1, 290]
+    x = [-1, 290]
+    y = [-1, 19]
     for xi, yi in zip(x, y, strict=True):
         tool.click(x=xi, y=yi)
 
@@ -433,7 +347,7 @@ def test_rectangle_mode():
             [False, False, True],
             [True, True, True],
         ],
-    )
+    ).transpose(['yy', 'xx'])
 
     expected = da.assign_masks(m=mask).sum(["xx", "yy"])
     line = next(iter(fig1d.artists.values()))
@@ -442,25 +356,7 @@ def test_rectangle_mode():
 
 @pytest.mark.usefixtures('_use_ipympl')
 def test_rectangle_mode_contains_nothing():
-    da = sc.DataArray(
-        data=sc.array(
-            dims=["xx", "yy", "zz"],
-            values=[
-                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
-                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
-                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
-            ],
-            dtype=float,
-        ),
-        coords={
-            "xx": sc.array(
-                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
-            ),
-            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
-            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
-        },
-    )
+    da = _make_test_data()
 
     ip = pp.inspector(da, mode='rectangle', dim='zz')
     fig2d = ip[0][0]
@@ -468,10 +364,8 @@ def test_rectangle_mode_contains_nothing():
     fig2d.toolbar['inspect'].value = True
     tool = fig2d.toolbar['inspect']._tool
 
-    # This rectangle should select the bottom left corner of the data.
-    # Closing the rectangle by repeating the first point.
-    x = [-100, -1]
-    y = [-1, -1]
+    x = [-1, -1]
+    y = [-100, -1]
     for xi, yi in zip(x, y, strict=True):
         tool.click(x=xi, y=yi)
 
@@ -498,25 +392,7 @@ def test_creation_with_non_dimension_coord():
 )
 @pytest.mark.parametrize("mode", ["point", "polygon", "rectangle"])
 def test_different_operations(operation, mode):
-    da = sc.DataArray(
-        data=sc.array(
-            dims=["xx", "yy", "zz"],
-            values=[
-                [[0, 1, 2], [3, 4, 5], [6, 7, 8]],
-                [[9, 10, 11], [12, 13, 14], [15, 16, 17]],
-                [[18, 19, 20], [21, 22, 23], [24, 25, 26]],
-                [[27, 28, 29], [30, 31, 32], [33, 34, 35]],
-            ],
-            dtype=float,
-        ),
-        coords={
-            "xx": sc.array(
-                dims=['xx'], values=[0.0, 100.0, 200.0, 300.0, 400.0], unit='m'
-            ),
-            "yy": sc.array(dims=['yy'], values=[0.0, 10.0, 20.0, 30.0], unit='m'),
-            "zz": sc.array(dims=['zz'], values=[0.0, 1.0, 2.0], unit='m'),
-        },
-    ).transpose(['zz', 'yy', 'xx'])
+    da = _make_test_data()
 
     ip = pp.inspector(da, mode=mode, dim='zz', operation=operation)
     fig2d = ip[0][0]
