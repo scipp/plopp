@@ -210,6 +210,7 @@ class Canvas:
         """
         Update the legend on the canvas.
         """
+        return
         if self._legend:
             handles, labels = self.ax.get_legend_handles_labels()
             if len(handles) > 1:
