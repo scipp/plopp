@@ -100,34 +100,38 @@ class Line:
                 line_data['values']['y'],
                 label=self.label,
                 **{**default_step_style, **line_args},
-            )
+            )[0]
 
-            # self._mask = self._ax.step(line_data['mask']['x'], line_data['mask']['y'])[
-            #     0
-            # ]
+            self._mask = self._ax.step(
+                line_data['mask']['x'],
+                line_data['mask']['y'],
+                **{**default_step_style, **line_args},
+            )[0]
         else:
             self._line = self._ax.plot(
                 line_data['values']['x'],
                 line_data['values']['y'],
                 label=self.label,
                 **{**default_plot_style, **line_args},
-            )
-            # self._mask = self._ax.plot(line_data['mask']['x'], line_data['mask']['y'])[
-            #     0
-            # ]
+            )[0]
+            self._mask = self._ax.plot(
+                line_data['mask']['x'],
+                line_data['mask']['y'],
+                **{**default_plot_style, **line_args},
+            )[0]
 
         # self._mask.update_from(self._line)
-        # self._mask.set_color(mask_color)
+        self._mask.set_color(mask_color)
         # self._mask.set_label(None)
-        # self._mask.set_visible(line_data['mask']['visible'])
-        # if self._line.get_marker().lower() != 'none':
-        #     self._mask.set(
-        #         mec=mask_color, mfc='None', mew=3.0, zorder=self._line.get_zorder() + 1
-        #     )
-        # if self._line.get_linestyle().lower() != 'none':
-        #     self._mask.set(
-        #         lw=self._line.get_linewidth() * 3, zorder=self._line.get_zorder() - 1
-        #     )
+        self._mask.set_visible(line_data['mask']['visible'])
+        if self._line.get_marker().lower() != 'none':
+            self._mask.set(
+                mec=mask_color, mfc='None', mew=3.0, zorder=self._line.get_zorder() + 1
+            )
+        if self._line.get_linestyle().lower() != 'none':
+            self._mask.set(
+                lw=self._line.get_linewidth() * 3, zorder=self._line.get_zorder() - 1
+            )
 
         # # Add error bars
         # if errorbars and (line_data['stddevs'] is not None):
@@ -154,8 +158,8 @@ class Line:
         line_data = make_line_data(data=self._data, dim=self._dim)
 
         self._line.set_data(line_data['values']['x'], line_data['values']['y'])
-        # self._mask.set_data(line_data['mask']['x'], line_data['mask']['y'])
-        # self._mask.set_visible(line_data['mask']['visible'])
+        self._mask.set_data(line_data['mask']['x'], line_data['mask']['y'])
+        self._mask.set_visible(line_data['mask']['visible'])
 
         # if (self._error is not None) and (line_data['stddevs'] is not None):
         #     coll = self._error.get_children()[0]
