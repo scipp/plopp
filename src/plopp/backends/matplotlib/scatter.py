@@ -153,12 +153,19 @@ class Scatter:
         """
         check_ndim(new_values, ndim=1, origin='Scatter')
         self._data = new_values
-        self._scatter.set_offsets(
-            np.stack(
-                [self._data.coords[self._x].values, self._data.coords[self._y].values],
-                axis=1,
-            )
+        offsets = np.stack(
+            [self._data.coords[self._x].values, self._data.coords[self._y].values],
+            axis=1,
         )
+        self._scatter.set_offsets(offsets)
+        if self._data.masks:
+            not_one_mask = ~merge_masks(self._data.masks).values
+            offsets[not_one_mask, :] = np.nan
+            self._mask.set_offsets(offsets)
+            self._mask.set_visible(True)
+        else:
+            self._mask.set_visible(False)
+
         if isinstance(self._size, str):
             self._scatter.set_sizes(self._data.coords[self._size].values)
         if self._colormapper is not None:
