@@ -531,12 +531,6 @@ class ClippingManager(ipw.HBox):
         selected operation.
         """
         selections = []
-        # npoints = 0
-        # for cut in cuts:
-        #     xmin, xmax = cut.range
-        #     selection = (da.coords[cut.dim] >= xmin) & (da.coords[cut.dim] < xmax)
-        #     npoints += selection.sum().value
-        #     selections.append(selection)
         selections = [cut.make_selection(da) for cut in cuts]
         # If no points are selected, return a dummy selection to avoid issues with
         # empty selections.
@@ -551,38 +545,3 @@ class ClippingManager(ipw.HBox):
         provides the list of visible cuts.
         """
         self._cut_info_node.notify_children("")
-
-    # def update_state(self):
-    #     """
-    #     Update the state, combining all the active cuts, using the selected binary
-    #     operation. The resulting selection is then used to either create or update a
-    #     second point cloud which is included in the scene.
-    #     The original point cloud is then set to be semi-transparent.
-    #     When the position/range of a cut is changed, this function is called via a
-    #     debounce mechanism to avoid updating the cloud too often. Only the outlines of
-    #     the cuts are moved in real time, which is cheap.
-    #     """
-    #     for nodes in self._nodes.values():
-    #         self._view.remove(nodes['slice'].id)
-    #         nodes['slice'].remove()
-    #     self._nodes.clear()
-
-    #     visible_cuts = [cut for cut in self.cuts if cut.visible]
-    #     if not visible_cuts:
-    #         return
-
-    #     for n in self._original_nodes:
-    #         da = n.request_data()
-    #         selections = [cut.make_selection(da) for cut in visible_cuts]
-    #         selection = OPERATIONS[self._operation](selections)
-    #         if selection.sum().value > 0:
-    #             if n.id not in self._nodes:
-    #                 select_node = Node(selection)
-    #                 self._nodes[n.id] = {
-    #                     'select': select_node,
-    #                     'slice': Node(lambda da, s: da[s], da=n, s=select_node),
-    #                 }
-    #                 self._nodes[n.id]['slice'].add_view(self._view)
-    #             else:
-    #                 self._nodes[n.id]['select'].func = lambda: selection  # noqa: B023
-    #             self._nodes[n.id]['select'].notify_children("")
