@@ -167,11 +167,11 @@ def scatter3d(
         vmin=vmin,
         **kwargs,
     )
-    clip_manager = ClippingManager(fig)
-    fig.toolbar['cut3d'] = ToggleTool(
-        callback=clip_manager.toggle_visibility,
-        icon='crop',
-        tooltip='Hide/show spatial cutting tool',
-    )
-    fig.bottom_bar.add(clip_manager)
+    # clip_manager = ClippingManager(fig)
+    # fig.toolbar['cut3d'] = ToggleTool(
+    #     callback=clip_manager.toggle_visibility,
+    #     icon='crop',
+    #     tooltip='Hide/show spatial cutting tool',
+    # )
+    # fig.bottom_bar.add(clip_manager)
     return fig

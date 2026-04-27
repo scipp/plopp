@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import time
 import uuid
 from typing import Literal
 
@@ -219,6 +220,7 @@ class Scatter3d:
         new_values:
             New data to update the point cloud values from.
         """
+        start = time.time()
         check_ndim(new_values, ndim=1, origin='Scatter3d')
         needs_redraw = new_values.shape != self._data.shape
         self._data = new_values
@@ -245,11 +247,16 @@ class Scatter3d:
             self._canvas.add(self.points)
 
         else:
+            here = time.time()
             if not self._static_positions:
                 self.position = self._make_positions()
+            print(f'Updating positions took {(time.time() - here) * 1000:.3f} ms')
+            here = time.time()
             if not self._static_colors and self._colormapper is not None:
                 self.color = self._make_colors()
+            print(f'Updating colors took {(time.time() - here) * 1000:.3f} ms')
 
+        print(f'Updating the scatter artist took {(time.time() - start) * 1000:.3f} ms')
         # if not self._static_positions:
         #     self.p
 
