@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import time
 import uuid
 from typing import Literal
 
@@ -66,8 +65,6 @@ class Scatter3d:
         artist_number: int = 0,
         opacity: float = 1.0,
         pixel_size: sc.Variable | float | None = None,
-        static_positions: bool = False,
-        static_colors: bool = False,
         mask_color: str | None = None,
     ):
         check_ndim(data, ndim=1, origin='Scatter3d')
@@ -78,8 +75,6 @@ class Scatter3d:
         self._x = x
         self._y = y
         self._z = z
-        self._static_positions = static_positions
-        self._static_colors = static_colors
         self._color = color
         self._artist_number = artist_number
         # self._opacity = opacity
@@ -100,41 +95,15 @@ class Scatter3d:
 
         if self._colormapper is not None:
             self._colormapper.add_artist(self.uid, self)
-        #     self._colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
-        # else:
-        #     self._colors = np.broadcast_to(
-        #         np.array(to_rgb(f'C{artist_number}' if color is None else color)),
-        #         (self._data.coords[self._x].shape[0], 3),
-        #     ).astype('float32')
 
-        # self._colors = self._make_colors()
-
-        # self.geometry = p3.BufferGeometry(
-        #     attributes={
-        #         'position': p3.BufferAttribute(
-        #             array=np.array(
-        #                 [
-        #                     self._data.coords[self._x].values.astype('float32'),
-        #                     self._data.coords[self._y].values.astype('float32'),
-        #                     self._data.coords[self._z].values.astype('float32'),
-        #                 ]
-        #             ).T
-        #         ),
-        #         'color': p3.BufferAttribute(array=colors),
-        #     }
-        # )
-
-        # # TODO: a device pixel_ratio should probably be read from a config file
-        # pixel_ratio = 1.0
-        # # Note that an additional factor of 2.5 (obtained from trial and error) seems to
-        # # be required to get the sizes right in the scene.
+        # Note that an additional factor of 2.5 (obtained from trial and error) seems to
+        # be required to get the sizes right in the scene.
         material = p3.PointsMaterial(
             vertexColors='VertexColors',
-            size=2.5 * self._size,  # * pixel_ratio,
+            size=2.5 * self._size,
             transparent=True,
             opacity=opacity,
         )
-        # self.points = p3.Points(geometry=self.geometry, material=self.material)
         self.points = p3.Points(
             geometry=self._make_geometry(
                 positions=self._make_positions(), colors=self._make_colors()
@@ -176,18 +145,6 @@ class Scatter3d:
             }
         )
 
-        # # # TODO: a device pixel_ratio should probably be read from a config file
-        # # pixel_ratio = 1.0
-        # # Note that an additional factor of 2.5 (obtained from trial and error) seems to
-        # # be required to get the sizes right in the scene.
-        # self.material = p3.PointsMaterial(
-        #     vertexColors='VertexColors',
-        #     size=2.5 * self._size,  # * pixel_ratio,
-        #     transparent=True,
-        #     opacity=self._opacity,
-        # )
-        return p3.Points(geometry=self.geometry, material=self.material)
-
     def notify_artist(self, message: str) -> None:
         """
         Receive notification from the colormapper that its state has changed.
@@ -198,18 +155,7 @@ class Scatter3d:
         message:
             The message from the colormapper.
         """
-        # self._update_colors()
         self.color = self._make_colors()
-
-    # def _update_positions(self):
-
-    # def _update_colors(self):
-    #     """
-    #     Set the point cloud's rgba colors:
-    #     """
-    #     self.color = self._colormapper.rgba(self.data)[
-    #         ..., :3
-    #     ].astype('float32')
 
     def update(self, new_values):
         """
@@ -220,20 +166,11 @@ class Scatter3d:
         new_values:
             New data to update the point cloud values from.
         """
-        start = time.time()
         check_ndim(new_values, ndim=1, origin='Scatter3d')
         needs_redraw = new_values.shape != self._data.shape
         self._data = new_values
 
         if needs_redraw:
-            if self._static_positions:
-                raise ValueError(
-                    'The shape of the new data is different from the old data, '
-                    'but static_positions is True, and the positions cannot be '
-                    'updated. Please set static_positions to False or ensure that the '
-                    'new data has the same shape as the old data.'
-                )
-
             new_points = p3.Points(
                 geometry=self._make_geometry(
                     positions=self._make_positions(), colors=self._make_colors()
@@ -247,21 +184,9 @@ class Scatter3d:
             self._canvas.add(self.points)
 
         else:
-            here = time.time()
-            if not self._static_positions:
-                self.position = self._make_positions()
-            print(f'Updating positions took {(time.time() - here) * 1000:.3f} ms')
-            here = time.time()
-            if not self._static_colors and self._colormapper is not None:
+            self.position = self._make_positions()
+            if self._colormapper is not None:
                 self.color = self._make_colors()
-            print(f'Updating colors took {(time.time() - here) * 1000:.3f} ms')
-
-        print(f'Updating the scatter artist took {(time.time() - start) * 1000:.3f} ms')
-        # if not self._static_positions:
-        #     self.p
-
-        # if self._colormapper is not None:
-        #     self._update_colors()
 
     @property
     def position(self) -> np.ndarray:
