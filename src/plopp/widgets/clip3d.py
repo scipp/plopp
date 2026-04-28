@@ -327,7 +327,7 @@ class ClippingManager(ipw.HBox):
 
         self.tabs = ipw.Tab(layout={'width': '41.6em'})
         self._original_nodes = list(self._view.graph_nodes.values())
-        self._nodes = {}
+        # self._nodes = {}
 
         self._value_limits = sc.concat(
             [
@@ -408,6 +408,9 @@ class ClippingManager(ipw.HBox):
         )
         self.delete_cut.on_click(self._remove_cut)
 
+        self._nodes = {}
+        self._cut_info_node = Node(self._get_visible_cuts)
+
         super().__init__(
             [
                 self.tabs,
@@ -454,14 +457,12 @@ class ClippingManager(ipw.HBox):
         self.tabs.children = [*self.tabs.children, cut]
         self.tabs.selected_index = len(self.cuts) - 1
         self.update_controls()
-        self.update_state()
 
     def _remove_cut(self, _):
         cut = self.cuts.pop(self.tabs.selected_index)
         if cut.kind != 'v':
             self._view.canvas.remove(cut.outlines)
         self.tabs.children = self.cuts
-        self.update_state()
         self.update_controls()
 
     def update_controls(self):
@@ -478,6 +479,23 @@ class ClippingManager(ipw.HBox):
         self.opacity.disabled = not at_least_one_cut
         opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
+
+        if (not self._nodes) and at_least_one_cut:
+            for n in self._original_nodes:
+                self._nodes[n.id] = Node(
+                    self._select_subset, da=n, cuts=self._cut_info_node
+                )
+                self._nodes[n.id].add_view(self._view)
+
+        if self._nodes and (not at_least_one_cut):
+            for n in self._nodes.values():
+                # Remove the view from the node (also removes the node from the view)
+                n.remove_view(self._view)
+                # Remove the node from the graph
+                n.remove()
+            self._nodes.clear()
+
+        self.update_state()
 
     def _set_opacity(self, change: dict[str, Any]):
         """
@@ -506,37 +524,29 @@ class ClippingManager(ipw.HBox):
         self._operation = change['new'].lower()
         self.update_state()
 
+    def _get_visible_cuts(self) -> list[Clip3dTool]:
+        """
+        Return the list of visible cuts.
+        """
+        return [cut for cut in self.cuts if cut.visible]
+
+    def _select_subset(self, da: sc.DataArray, cuts: list[Clip3dTool]) -> sc.DataArray:
+        """
+        Return the subset of the data array selected by the cuts, combined using the
+        selected operation.
+        """
+        selections = []
+        selections = [cut.make_selection(da) for cut in cuts]
+        # If no points are selected, return a dummy selection to avoid issues with
+        # empty selections.
+        if sum(selection.sum().value for selection in selections) == 0:
+            return da[0:1]
+        sel = OPERATIONS[self._operation](selections)
+        return da[sel]
+
     def update_state(self):
         """
-        Update the state, combining all the active cuts, using the selected binary
-        operation. The resulting selection is then used to either create or update a
-        second point cloud which is included in the scene.
-        The original point cloud is then set to be semi-transparent.
-        When the position/range of a cut is changed, this function is called via a
-        debounce mechanism to avoid updating the cloud too often. Only the outlines of
-        the cuts are moved in real time, which is cheap.
+        Update the state of the cuts in the figure by triggering the node that
+        provides the list of visible cuts.
         """
-        for nodes in self._nodes.values():
-            self._view.remove(nodes['slice'].id)
-            nodes['slice'].remove()
-        self._nodes.clear()
-
-        visible_cuts = [cut for cut in self.cuts if cut.visible]
-        if not visible_cuts:
-            return
-
-        for n in self._original_nodes:
-            da = n.request_data()
-            selections = [cut.make_selection(da) for cut in visible_cuts]
-            selection = OPERATIONS[self._operation](selections)
-            if selection.sum().value > 0:
-                if n.id not in self._nodes:
-                    select_node = Node(selection)
-                    self._nodes[n.id] = {
-                        'select': select_node,
-                        'slice': Node(lambda da, s: da[s], da=n, s=select_node),
-                    }
-                    self._nodes[n.id]['slice'].add_view(self._view)
-                else:
-                    self._nodes[n.id]['select'].func = lambda: selection  # noqa: B023
-                self._nodes[n.id]['select'].notify_children("")
+        self._cut_info_node.notify_children("")
