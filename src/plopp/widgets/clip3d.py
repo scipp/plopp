@@ -327,7 +327,7 @@ class ClippingManager(ipw.HBox):
 
         self.tabs = ipw.Tab(layout={'width': '41.6em'})
         self._original_nodes = list(self._view.graph_nodes.values())
-        self._nodes = {}
+        # self._nodes = {}
 
         self._value_limits = sc.concat(
             [
@@ -410,12 +410,12 @@ class ClippingManager(ipw.HBox):
 
         self._nodes = {}
         self._cut_info_node = Node(self._get_visible_cuts)
-        for n in self._original_nodes:
-            self._nodes[n.id] = Node(
-                self._select_subset, da=n, cuts=self._cut_info_node
-            )
-            self._nodes[n.id].add_view(self._view)
-        self.update_state()
+        # for n in self._original_nodes:
+        #     self._nodes[n.id] = Node(
+        #         self._select_subset, da=n, cuts=self._cut_info_node
+        #     )
+        #     self._nodes[n.id].add_view(self._view)
+        # self.update_state()
 
         super().__init__(
             [
@@ -463,14 +463,12 @@ class ClippingManager(ipw.HBox):
         self.tabs.children = [*self.tabs.children, cut]
         self.tabs.selected_index = len(self.cuts) - 1
         self.update_controls()
-        self.update_state()
 
     def _remove_cut(self, _):
         cut = self.cuts.pop(self.tabs.selected_index)
         if cut.kind != 'v':
             self._view.canvas.remove(cut.outlines)
         self.tabs.children = self.cuts
-        self.update_state()
         self.update_controls()
 
     def update_controls(self):
@@ -488,9 +486,20 @@ class ClippingManager(ipw.HBox):
         opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
 
-        for n in self._original_nodes:
-            nid = self._nodes[n.id].id
-            self._view.artists[nid].visible = at_least_one_cut
+        if (not self._nodes) and at_least_one_cut:
+            for n in self._original_nodes:
+                self._nodes[n.id] = Node(
+                    self._select_subset, da=n, cuts=self._cut_info_node
+                )
+                self._nodes[n.id].add_view(self._view)
+
+        if self._nodes and (not at_least_one_cut):
+            for n in self._nodes.values():
+                n.remove_view(self._view)
+                n.remove()
+            self._nodes.clear()
+
+        self.update_state()
 
     def _set_opacity(self, change: dict[str, Any]):
         """
