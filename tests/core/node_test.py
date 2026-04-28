@@ -427,3 +427,16 @@ def test_adding_same_view_twice_raises():
     av = SimpleView(a)
     with pytest.raises(ValueError, match=r"View .* is already a view in"):
         a.add_view(av)
+
+
+def test_node_remove_view():
+    a = Node(lambda: 15.0)
+    av = SimpleView()
+    assert av not in a.views
+    assert a.id not in av.graph_nodes
+    a.add_view(av)
+    assert av in a.views
+    assert a.id in av.graph_nodes
+    a.remove_view(av)
+    assert av not in a.views
+    assert a.id not in av.graph_nodes

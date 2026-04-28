@@ -495,7 +495,9 @@ class ClippingManager(ipw.HBox):
 
         if self._nodes and (not at_least_one_cut):
             for n in self._nodes.values():
+                # Remove the view from the node (also removes the node from the view)
                 n.remove_view(self._view)
+                # Remove the node from the graph
                 n.remove()
             self._nodes.clear()
 
