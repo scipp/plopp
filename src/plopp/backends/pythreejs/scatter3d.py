@@ -132,7 +132,7 @@ class Scatter3d:
                         if self._color is None
                         else self._color
                     ),
-                    dtype='float32'
+                    dtype='float32',
                 ),
                 (self._data.coords[self._x].shape[0], 3),
             )
