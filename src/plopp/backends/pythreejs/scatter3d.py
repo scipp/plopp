@@ -131,10 +131,11 @@ class Scatter3d:
                         f'C{self._artist_number}'
                         if self._color is None
                         else self._color
-                    )
+                    ),
+                    dtype='float32'
                 ),
                 (self._data.coords[self._x].shape[0], 3),
-            ).astype('float32')
+            )
 
     def _make_geometry(
         self, positions: np.ndarray, colors: np.ndarray

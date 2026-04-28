@@ -327,7 +327,6 @@ class ClippingManager(ipw.HBox):
 
         self.tabs = ipw.Tab(layout={'width': '41.6em'})
         self._original_nodes = list(self._view.graph_nodes.values())
-        # self._nodes = {}
 
         self._value_limits = sc.concat(
             [
