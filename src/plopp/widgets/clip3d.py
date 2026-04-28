@@ -410,12 +410,6 @@ class ClippingManager(ipw.HBox):
 
         self._nodes = {}
         self._cut_info_node = Node(self._get_visible_cuts)
-        # for n in self._original_nodes:
-        #     self._nodes[n.id] = Node(
-        #         self._select_subset, da=n, cuts=self._cut_info_node
-        #     )
-        #     self._nodes[n.id].add_view(self._view)
-        # self.update_state()
 
         super().__init__(
             [

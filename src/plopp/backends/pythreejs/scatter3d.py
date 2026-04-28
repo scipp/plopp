@@ -77,7 +77,6 @@ class Scatter3d:
         self._z = z
         self._color = color
         self._artist_number = artist_number
-        # self._opacity = opacity
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -112,7 +111,7 @@ class Scatter3d:
         )
         self._canvas.add(self.points)
 
-    def _make_positions(self):
+    def _make_positions(self) -> np.ndarray:
         return np.stack(
             [
                 self._data.coords[self._x].values.astype('float32'),
@@ -122,7 +121,7 @@ class Scatter3d:
             axis=1,
         )
 
-    def _make_colors(self):
+    def _make_colors(self) -> np.ndarray:
         if self._colormapper is not None:
             return self._colormapper.rgba(self._data)[..., :3].astype('float32')
         else:
@@ -137,7 +136,9 @@ class Scatter3d:
                 (self._data.coords[self._x].shape[0], 3),
             ).astype('float32')
 
-    def _make_geometry(self, positions, colors):
+    def _make_geometry(
+        self, positions: np.ndarray, colors: np.ndarray
+    ) -> p3.BufferGeometry:
         return p3.BufferGeometry(
             attributes={
                 'position': p3.BufferAttribute(array=positions),
@@ -157,7 +158,7 @@ class Scatter3d:
         """
         self.color = self._make_colors()
 
-    def update(self, new_values):
+    def update(self, new_values: sc.DataArray) -> None:
         """
         Update point cloud array with new values.
 
@@ -233,7 +234,6 @@ class Scatter3d:
 
     @opacity.setter
     def opacity(self, val: float):
-        self._opacity = val
         self.material.opacity = val
         self.material.depthTest = val > 0.5
 
