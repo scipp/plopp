@@ -28,7 +28,7 @@ def Image(
     """
     if (canvas.ax.name != 'polar') and all(
         (data.coords[dim].ndim < 2)
-        and ((data.coords[dim].dtype == str) or (sc.islinspace(data.coords[dim])))
+        and ((data.coords[dim].dtype == str) or sc.islinspace(data.coords[dim]).value)
         for dim in data.dims
     ):
         return FastImage(canvas=canvas, data=data, **kwargs)
