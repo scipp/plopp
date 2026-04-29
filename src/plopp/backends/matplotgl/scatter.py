@@ -117,7 +117,7 @@ class Scatter:
             ymask,
             s=marker_size,
             marker=merged_kwargs['marker'],
-            edgecolors=mask_color or 'black',
+            color=mask_color or 'black',
             facecolor="None",
             linewidth=3.0,
             zorder=self._scatter.get_zorder() + 1,
