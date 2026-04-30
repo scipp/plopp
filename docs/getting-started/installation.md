@@ -3,13 +3,6 @@
 `````{tab-set}
 ````{tab-item} pip
 ```sh
-pip install plopp[scipp]
-```
-
-This will install both `plopp` and `scipp` which is required to use `plopp`.
-If you already have `scipp` installed, you can leave the `[scipp]` part out:
-
-```sh
 pip install plopp
 ```
 
