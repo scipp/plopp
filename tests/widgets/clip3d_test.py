@@ -144,7 +144,7 @@ def test_operation_or():
 
     clip.add_x_cut.click()
     xcut = clip.cuts[-1]
-    data_in_xcut = list(clip._nodes.values())[-1]['slice']()
+    data_in_xcut = list(clip._nodes.values())[-1]()
     xrange = xcut.slider.value
     xsel = (da.coords['xx'] >= sc.scalar(xrange[0], unit='m')) & (
         da.coords['xx'] < sc.scalar(xrange[1], unit='m')
@@ -154,7 +154,7 @@ def test_operation_or():
 
     clip.add_y_cut.click()
     ycut = clip.cuts[-1]
-    data_in_xycut = list(clip._nodes.values())[-1]['slice']()
+    data_in_xycut = list(clip._nodes.values())[-1]()
     yrange = ycut.slider.value
     ysel = (da.coords['yy'] >= sc.scalar(yrange[0], unit='m')) & (
         da.coords['yy'] < sc.scalar(yrange[1], unit='m')
@@ -164,7 +164,7 @@ def test_operation_or():
 
     clip.add_z_cut.click()
     zcut = clip.cuts[-1]
-    data_in_xyzcut = list(clip._nodes.values())[-1]['slice']()
+    data_in_xyzcut = list(clip._nodes.values())[-1]()
     zrange = zcut.slider.value
     zsel = (da.coords['zz'] >= sc.scalar(zrange[0], unit='m')) & (
         da.coords['zz'] < sc.scalar(zrange[1], unit='m')
@@ -189,7 +189,7 @@ def test_operation_and():
 
     clip.add_y_cut.click()
     ycut = clip.cuts[-1]
-    data_in_xycut = list(clip._nodes.values())[-1]['slice']()
+    data_in_xycut = list(clip._nodes.values())[-1]()
     yrange = ycut.slider.value
     ysel = (da.coords['yy'] >= sc.scalar(yrange[0], unit='m')) & (
         da.coords['yy'] < sc.scalar(yrange[1], unit='m')
@@ -199,7 +199,7 @@ def test_operation_and():
 
     clip.add_z_cut.click()
     zcut = clip.cuts[-1]
-    data_in_xyzcut = list(clip._nodes.values())[-1]['slice']()
+    data_in_xyzcut = list(clip._nodes.values())[-1]()
     zrange = zcut.slider.value
     zsel = (da.coords['zz'] >= sc.scalar(zrange[0], unit='m')) & (
         da.coords['zz'] < sc.scalar(zrange[1], unit='m')
@@ -224,7 +224,7 @@ def test_operation_xor():
 
     clip.add_y_cut.click()
     ycut = clip.cuts[-1]
-    data_in_xycut = list(clip._nodes.values())[-1]['slice']()
+    data_in_xycut = list(clip._nodes.values())[-1]()
     yrange = ycut.slider.value
     ysel = (da.coords['yy'] >= sc.scalar(yrange[0], unit='m')) & (
         da.coords['yy'] < sc.scalar(yrange[1], unit='m')
@@ -234,7 +234,7 @@ def test_operation_xor():
 
     clip.add_z_cut.click()
     zcut = clip.cuts[-1]
-    data_in_xyzcut = list(clip._nodes.values())[-1]['slice']()
+    data_in_xyzcut = list(clip._nodes.values())[-1]()
     zrange = zcut.slider.value
     zsel = (da.coords['zz'] >= sc.scalar(zrange[0], unit='m')) & (
         da.coords['zz'] < sc.scalar(zrange[1], unit='m')
