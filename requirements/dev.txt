@@ -26,13 +26,13 @@ async-lru==2.3.0
     # via jupyterlab
 cffi==2.0.0
     # via argon2-cffi-bindings
-click==8.3.1
+click==8.3.3
     # via
     #   pip-compile-multi
     #   pip-tools
-copier==9.14.0
+copier==9.14.3
     # via -r dev.in
-dunamai==1.26.0
+dunamai==1.26.1
     # via copier
 fqdn==1.5.1
     # via jsonschema
@@ -48,7 +48,7 @@ isoduration==20.11.0
     # via jsonschema
 jinja2-ansible-filters==1.3.2
     # via copier
-json5==0.13.0
+json5==0.14.0
     # via jupyterlab-server
 jsonpointer==3.1.1
     # via jsonschema
@@ -57,9 +57,9 @@ jsonschema[format-nongpl]==4.26.0
     #   jupyter-events
     #   jupyterlab-server
     #   nbformat
-jupyter-events==0.12.0
+jupyter-events==0.12.1
     # via jupyter-server
-jupyter-lsp==2.3.0
+jupyter-lsp==2.3.1
     # via jupyterlab
 jupyter-server==2.17.0
     # via
@@ -69,7 +69,7 @@ jupyter-server==2.17.0
     #   notebook-shim
 jupyter-server-terminals==0.5.4
     # via jupyter-server
-jupyterlab==4.5.6
+jupyterlab==4.5.7
     # via -r dev.in
 jupyterlab-server==2.28.0
     # via jupyterlab
@@ -79,17 +79,17 @@ notebook-shim==0.2.4
     # via jupyterlab
 overrides==7.7.0
     # via jupyter-server
-pip-compile-multi==3.2.2
+pip-compile-multi==3.3.1
     # via -r dev.in
 pip-tools==7.5.3
     # via pip-compile-multi
 plumbum==1.10.0
     # via copier
-prometheus-client==0.24.1
+prometheus-client==0.25.0
     # via jupyter-server
 pycparser==3.0
     # via cffi
-python-json-logger==4.0.0
+python-json-logger==4.1.0
     # via jupyter-events
 questionary==2.1.1
     # via copier
@@ -111,7 +111,7 @@ terminado==0.18.1
     #   jupyter-server-terminals
 toposort==1.10
     # via pip-compile-multi
-tzdata==2025.3
+tzdata==2026.2
     # via arrow
 uri-template==1.3.0
     # via jsonschema
@@ -119,7 +119,7 @@ webcolors==25.10.0
     # via jsonschema
 websocket-client==1.9.0
     # via jupyter-server
-wheel==0.46.3
+wheel==0.47.0
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:

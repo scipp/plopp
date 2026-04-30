@@ -5,9 +5,9 @@
 #
 #    requirements upgrade
 #
-build==1.4.0
+build==1.5.0
     # via -r wheels.in
-packaging==26.0
+packaging==26.2
     # via build
 pyproject-hooks==1.2.0
     # via build
