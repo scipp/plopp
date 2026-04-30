@@ -41,7 +41,7 @@ fastjsonschema==2.21.2
     # via nbformat
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.46
+gitpython==3.1.49
     # via -r docs.in
 imagesize==2.0.0
     # via sphinx
@@ -75,7 +75,7 @@ myst-parser==5.0.0
     # via -r docs.in
 nbclient==0.10.4
     # via nbconvert
-nbconvert==7.17.0
+nbconvert==7.17.1
     # via nbsphinx
 nbformat==5.10.4
     # via
@@ -86,15 +86,15 @@ nbsphinx==0.9.8
     # via -r docs.in
 pandocfilters==1.5.1
     # via nbconvert
-pydantic==2.12.5
+pydantic==2.13.3
     # via
     #   autodoc-pydantic
     #   pydantic-settings
-pydantic-core==2.41.5
+pydantic-core==2.46.3
     # via pydantic
-pydantic-settings==2.13.1
+pydantic-settings==2.14.0
     # via autodoc-pydantic
-pydata-sphinx-theme==0.16.1
+pydata-sphinx-theme==0.17.1
     # via -r docs.in
 python-dotenv==1.2.2
     # via pydantic-settings
@@ -133,7 +133,7 @@ sphinx-copybutton==0.5.2
     # via -r docs.in
 sphinx-design==0.7.0
     # via -r docs.in
-sphinx-gallery==0.20.0
+sphinx-gallery==0.21.0
     # via -r docs.in
 sphinxcontrib-applehelp==2.0.0
     # via sphinx

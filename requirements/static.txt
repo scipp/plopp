@@ -9,23 +9,23 @@ cfgv==3.5.0
     # via pre-commit
 distlib==0.4.0
     # via virtualenv
-filelock==3.25.2
+filelock==3.29.0
     # via
     #   python-discovery
     #   virtualenv
-identify==2.6.18
+identify==2.6.19
     # via pre-commit
 nodeenv==1.10.0
     # via pre-commit
-platformdirs==4.9.4
+platformdirs==4.9.6
     # via
     #   python-discovery
     #   virtualenv
-pre-commit==4.5.1
+pre-commit==4.6.0
     # via -r static.in
-python-discovery==1.2.0
+python-discovery==1.2.2
     # via virtualenv
 pyyaml==6.0.3
     # via pre-commit
-virtualenv==21.2.0
+virtualenv==21.3.0
     # via pre-commit
