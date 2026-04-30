@@ -170,7 +170,14 @@ class Node:
         Add a view to the node.
         """
         _no_replace_append(self.views, view, 'view')
-        view.graph_nodes[self.id] = self
+        view.add(self)
+
+    def remove_view(self, view: View) -> None:
+        """
+        Remove a view from the node.
+        """
+        self.views.remove(view)
+        view.remove(self.id)
 
     def is_leaf(self) -> bool:
         """

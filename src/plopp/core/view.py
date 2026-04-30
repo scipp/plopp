@@ -36,6 +36,28 @@ class View:
         """
         return self._id
 
+    def add(self, node: Node) -> None:
+        """
+        Add a node to the view.
+
+        Parameters
+        ----------
+        node:
+            The node to be added to the view.
+        """
+        self.graph_nodes[node.id] = node
+
+    def remove(self, nid: str) -> None:
+        """
+        Remove a node from the view.
+
+        Parameters
+        ----------
+        nid:
+            The id of the node to be removed from the view.
+        """
+        del self.graph_nodes[nid]
+
     def notify_view(self, message: dict[str, Any]) -> None:
         """
         When a notification is received, request data from the corresponding parent node

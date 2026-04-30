@@ -75,6 +75,8 @@ class Scatter3d:
         self._x = x
         self._y = y
         self._z = z
+        self._color = color
+        self._artist_number = artist_number
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -92,40 +94,58 @@ class Scatter3d:
 
         if self._colormapper is not None:
             self._colormapper.add_artist(self.uid, self)
-            colors = self._colormapper.rgba(self.data)[..., :3].astype('float32')
-        else:
-            colors = np.broadcast_to(
-                np.array(to_rgb(f'C{artist_number}' if color is None else color)),
-                (self._data.coords[self._x].shape[0], 3),
-            ).astype('float32')
 
-        self.geometry = p3.BufferGeometry(
-            attributes={
-                'position': p3.BufferAttribute(
-                    array=np.array(
-                        [
-                            self._data.coords[self._x].values.astype('float32'),
-                            self._data.coords[self._y].values.astype('float32'),
-                            self._data.coords[self._z].values.astype('float32'),
-                        ]
-                    ).T
-                ),
-                'color': p3.BufferAttribute(array=colors),
-            }
-        )
-
-        # TODO: a device pixel_ratio should probably be read from a config file
-        pixel_ratio = 1.0
         # Note that an additional factor of 2.5 (obtained from trial and error) seems to
         # be required to get the sizes right in the scene.
-        self.material = p3.PointsMaterial(
+        material = p3.PointsMaterial(
             vertexColors='VertexColors',
-            size=2.5 * self._size * pixel_ratio,
+            size=2.5 * self._size,
             transparent=True,
             opacity=opacity,
         )
-        self.points = p3.Points(geometry=self.geometry, material=self.material)
+        self.points = p3.Points(
+            geometry=self._make_geometry(
+                positions=self._make_positions(), colors=self._make_colors()
+            ),
+            material=material,
+        )
         self._canvas.add(self.points)
+
+    def _make_positions(self) -> np.ndarray:
+        return np.stack(
+            [
+                self._data.coords[self._x].values.astype('float32'),
+                self._data.coords[self._y].values.astype('float32'),
+                self._data.coords[self._z].values.astype('float32'),
+            ],
+            axis=1,
+        )
+
+    def _make_colors(self) -> np.ndarray:
+        if self._colormapper is not None:
+            return self._colormapper.rgba(self._data)[..., :3].astype('float32')
+        else:
+            return np.broadcast_to(
+                np.array(
+                    to_rgb(
+                        f'C{self._artist_number}'
+                        if self._color is None
+                        else self._color
+                    ),
+                    dtype='float32',
+                ),
+                (self._data.coords[self._x].shape[0], 3),
+            )
+
+    def _make_geometry(
+        self, positions: np.ndarray, colors: np.ndarray
+    ) -> p3.BufferGeometry:
+        return p3.BufferGeometry(
+            attributes={
+                'position': p3.BufferAttribute(array=positions),
+                'color': p3.BufferAttribute(array=colors),
+            }
+        )
 
     def notify_artist(self, message: str) -> None:
         """
@@ -137,17 +157,9 @@ class Scatter3d:
         message:
             The message from the colormapper.
         """
-        self._update_colors()
+        self.color = self._make_colors()
 
-    def _update_colors(self):
-        """
-        Set the point cloud's rgba colors:
-        """
-        self.geometry.attributes["color"].array = self._colormapper.rgba(self.data)[
-            ..., :3
-        ].astype('float32')
-
-    def update(self, new_values):
+    def update(self, new_values: sc.DataArray) -> None:
         """
         Update point cloud array with new values.
 
@@ -157,9 +169,62 @@ class Scatter3d:
             New data to update the point cloud values from.
         """
         check_ndim(new_values, ndim=1, origin='Scatter3d')
+        needs_redraw = new_values.shape != self._data.shape
         self._data = new_values
-        if self._colormapper is not None:
-            self._update_colors()
+
+        if needs_redraw:
+            new_points = p3.Points(
+                geometry=self._make_geometry(
+                    positions=self._make_positions(), colors=self._make_colors()
+                ),
+                material=self.material,
+            )
+            # Delay the removal of the old points until after the new points have been
+            # created, to minimize a flickering effect in the plot.
+            self._canvas.remove(self.points)
+            self.points = new_points
+            self._canvas.add(self.points)
+
+        else:
+            self.position = self._make_positions()
+            if self._colormapper is not None:
+                self.color = self._make_colors()
+
+    @property
+    def position(self) -> np.ndarray:
+        """
+        The scatter points positions as a (N, 3) numpy array.
+        """
+        return self.geometry.attributes['position'].array
+
+    @position.setter
+    def position(self, val: np.ndarray):
+        self.geometry.attributes['position'].array = val
+
+    @property
+    def color(self) -> np.ndarray:
+        """
+        The scatter points colors as a (N, 3) numpy array.
+        """
+        return self.geometry.attributes['color'].array
+
+    @color.setter
+    def color(self, val: np.ndarray):
+        self.geometry.attributes['color'].array = val
+
+    @property
+    def geometry(self) -> p3.BufferGeometry:
+        """
+        The scatter points geometry.
+        """
+        return self.points.geometry
+
+    @property
+    def material(self) -> p3.PointsMaterial:
+        """
+        The scatter points material.
+        """
+        return self.points.material
 
     @property
     def opacity(self) -> float:

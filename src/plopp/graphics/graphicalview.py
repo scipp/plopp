@@ -311,6 +311,7 @@ class GraphicalView(View):
         key:
             The id of the object to be removed.
         """
+        super().remove(key)
         self.artists[key].remove()
         del self.artists[key]
         self.canvas.update_legend()
