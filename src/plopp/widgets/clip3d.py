@@ -479,6 +479,20 @@ class ClippingManager(ipw.HBox):
         opacity = self.opacity.value if at_least_one_cut else 1.0
         self._set_opacity({'new': opacity})
 
+        # The logic for handling the nodes is the following:
+        #
+        # To start with, we have just the original data nodes (let's assume one of them
+        # for simplicity, which is the most common case).
+        # When a button is clicked to create a new cut, we add a node which selects a
+        # subset of data points from the original node.
+        #
+        # After that, no matter how many new cuts we add on top, we are still using that
+        # same node, which performs a selection from the original node, combining all
+        # selection criteria from the different cuts. There are at most only 2 nodes in
+        # play at any time: the original node and the node that does the selection.
+        #
+        # Once the last cut gets deleted, that is when we need to remove the additional
+        # ('selection') node. So this happens when the final cut has been deleted.
         if (not self._nodes) and at_least_one_cut:
             for n in self._original_nodes:
                 self._nodes[n.id] = Node(
