@@ -77,11 +77,16 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
         view.colormapper.autoscale()
         view.canvas.draw()
 
+    def grid() -> None:
+        view.canvas.toggle_grid()
+        view.canvas.draw()
+
     tool_list = {
         "home": tools.HomeTool(autoscale_axes, tooltip="Autoscale axes range"),
         "panzoom": tools.PanZoomTool(view.canvas.panzoom),
         "logx": tools.LogxTool(logx, value=view.canvas.xscale == "log"),
         "logy": tools.LogyTool(logy, value=view.canvas.yscale == "log"),
+        "grid": tools.GridTool(grid, value=view.canvas.grid),
         "save": tools.SaveTool(view.canvas.download_figure),
     }
     if view.colormapper is not None:
@@ -93,7 +98,7 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
                 "autoscale": tools.AutoscaleTool(autoscale_colors),
             }
         )
-    order = ["home", "autoscale", "panzoom", "logx", "logy", "lognorm", "save"]
+    order = ["home", "autoscale", "panzoom", "logx", "logy", "grid", "lognorm", "save"]
     return Toolbar(tools={key: tool_list[key] for key in order if key in tool_list})
 
 
