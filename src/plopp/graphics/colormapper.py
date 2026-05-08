@@ -57,9 +57,11 @@ def _get_cmap(colormap: str | Colormap, nan_color: str | None = None) -> Colorma
     except (KeyError, ValueError):
         # Case where we have just a single color
         cmap = LinearSegmentedColormap.from_list('tmp', [colormap, colormap])
-        cmap.set_over(colormap)
-        cmap.set_under(colormap)
-        cmap.set_bad(colormap)
+        cmap = cmap.with_extremes(
+            over=colormap,
+            under=colormap,
+            bad=colormap,
+        )
         return cmap
 
     # Add under and over values to the cmap
@@ -68,15 +70,19 @@ def _get_cmap(colormap: str | Colormap, nan_color: str | None = None) -> Colorma
     over = cmap.get_over()
     under = cmap.get_under()
     # Note that we only shift the first 3 RGB values, leaving alpha unchanged.
-    cmap.set_over(
-        [_shift_color(c, delta * (-1 + 2 * (np.mean(over) > 0.5))) for c in over[:3]]
+    cmap = cmap.with_extremes(
+        over=[
+            _shift_color(c, delta * (-1 + 2 * (np.mean(over) > 0.5))) for c in over[:3]
+        ],
+        under=(
+            [
+                _shift_color(c, delta * (-1 + 2 * (np.mean(under) > 0.5)))
+                for c in under[:3]
+            ]
+        ),
     )
-    cmap.set_under(
-        [_shift_color(c, delta * (-1 + 2 * (np.mean(under) > 0.5))) for c in under[:3]]
-    )
-
     if nan_color is not None:
-        cmap.set_bad(color=nan_color)
+        cmap = cmap.with_extremes(bad=nan_color)
     return cmap
 
 
@@ -164,7 +170,7 @@ class ColorMapper:
             # (it only applied to non-masked data), so we still need to set the 'bad'
             # color here. We choose to set it to the 'over' color for a lack of a
             # better idea.
-            self.mask_cmap.set_bad(self.mask_cmap.get_over())
+            self.mask_cmap = self.mask_cmap.with_extremes(bad=self.mask_cmap.get_over())
 
         # Inside the autoscale, we need to distinguish between a min value that was set
         # by the user and one that was found by looping over all the data.
