@@ -32,7 +32,7 @@ requires-python = ">=3.11"
 dependencies = [
   "lazy-loader>=0.4",
   "matplotlib>=3.8",
-  "scipp>=25.8.0",
+  "scipp>=25.11.0",
 ]
 
 dynamic = ["version"]
