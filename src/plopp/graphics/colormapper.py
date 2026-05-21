@@ -66,7 +66,6 @@ def _get_cmap(colormap: str | Colormap, nan_color: str | None = None) -> Colorma
 
     # Add under and over values to the cmap
     delta = 0.15
-    cmap = cmap.copy()
     over = cmap.get_over()
     under = cmap.get_under()
     # Note that we only shift the first 3 RGB values, leaving alpha unchanged.
