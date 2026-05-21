@@ -123,7 +123,7 @@ def check_not_binned(da: sc.DataArray) -> None:
     da:
         The data array to be plotted.
     """
-    if da.bins is not None:
+    if da.is_binned:
         params = ', '.join([f'{dim}=100' for dim in da.dims])
         raise ValueError(
             "Cannot plot binned data, it must be histogrammed first, "
