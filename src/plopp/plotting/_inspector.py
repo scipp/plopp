@@ -349,6 +349,7 @@ def inspector(
 
     f2d_args = dict(
         aspect=aspect,
+        autoscale=autoscale,
         cbar=cbar,
         clabel=clabel,
         cmax=cmax,
