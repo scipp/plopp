@@ -21,6 +21,8 @@ def _to_bin_edges(da: sc.DataArray, dim: str) -> sc.DataArray:
     """
     Convert dimension coords to bin edges.
     """
+    if dim not in da.dims:
+        da = da.rename_dims({da.coords[dim].dims[0]: dim})
     for d in set(da.dims) - {dim}:
         da.coords[d] = coord_as_bin_edges(da, d)
     return da
@@ -323,6 +325,15 @@ def inspector(
         ymin=ymin,
     )
     require_interactive_figure(f1d, 'inspector')
+
+    if isinstance(coords, str):
+        coords = (coords,)
+    if dim is not None:
+        if coords is not None:
+            if dim not in coords:
+                coords = (*coords, dim)
+        else:
+            coords = (dim,)
 
     in_node = Node(preprocess, obj, ignore_size=True, coords=coords)
     data = in_node()
