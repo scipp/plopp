@@ -414,3 +414,17 @@ def test_different_operations(operation, mode):
         tool.click(x=xi, y=yi)
 
     assert len(fig1d.artists) == 1
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_use_non_dimension_coord_as_slice_dim():
+    tof = sc.arange('t', 0, 10, 1, unit='s')
+    wavelengths = sc.arange('t', 0, 200, 20, unit='nm')
+    x = sc.arange('x', 0, 7, 1, unit='m')
+    y = sc.arange('y', 0, 7, 1, unit='m')
+    data = sc.ones(dims=['t', 'y', 'x'], shape=[10, 6, 6])
+    array = sc.DataArray(
+        data=data,
+        coords={'tof': tof, 'y': y, 'x': x, 'wavelengths': wavelengths},
+    )
+    pp.inspector(array, dim='tof')
