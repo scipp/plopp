@@ -88,11 +88,11 @@ def _slice_rectangular_region(da: sc.DataArray, rect: dict, op: str) -> sc.DataA
             return getattr(out, op)(dims)
         if 'nan' in op:
             numerator = out.nansum(dims)
-            denominator = (~sc.isnan(out.data)).sum()
+            denominator = (~sc.isnan(out.data)).sum(dims)
             denominator.unit = ""
         else:
             numerator = out.sum(dims)
-            denominator = out.size
+            denominator = out.sizes[x['dim']] * out.sizes[y['dim']]
         return numerator / denominator
     except IndexError:
         # If the index is out of bounds, return an empty DataArray
