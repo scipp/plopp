@@ -251,7 +251,7 @@ class TestSlicer2d:
             da.coords['zz'] = sc.arange(
                 'zz',
                 sc.datetime('2022-02-20T04:32:00'),
-                sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"]}'),
+                sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"] + binedges}'),
             )
         sl = DimensionSlicer(da, keep=['xx', 'yy'], mode='single')
         assert sl.slider.value == {'zz': 14}
@@ -275,7 +275,7 @@ class TestSlicer2d:
             da.coords['zz'] = sc.arange(
                 'zz',
                 sc.datetime('2022-02-20T04:32:00'),
-                sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"]}'),
+                sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"] + binedges}'),
             )
         sl = DimensionSlicer(da, keep=['xx', 'yy'], mode='range')
         assert sl.slider.value == {'zz': (0, 29)}
@@ -307,7 +307,7 @@ class TestSlicer2d:
             da.coords['zz'] = sc.arange(
                 'zz',
                 sc.datetime('2022-02-20T04:32:00'),
-                sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"]}'),
+                sc.datetime(f'2022-02-20T04:32:{da.sizes["zz"] + binedges}'),
             )
         sl = DimensionSlicer(da, keep=['xx', 'yy'], mode='combined')
         assert sl.slider.value == {'zz': (0, 29)}

@@ -33,13 +33,13 @@ class BoundedText(ipw.HBox, ipw.ValueWidget):
     ):
         self._lock = False
         self._coord = coord.values
-        if self._coord.dtype not in (sc.DType.datetime64, sc.DType.string):
+        if coord.dtype not in (sc.DType.datetime64, sc.DType.string):
             self._underlying = self._coord
             self._fmt = ".3E"
             if layout is None:
                 layout = {"width": "11.5ch"}
         else:
-            if self._coord.dtype == sc.DType.datetime64:
+            if coord.dtype == sc.DType.datetime64:
                 self._underlying = coord.to(unit="ns").values.astype(int)
             else:
                 self._underlying = self._coord
@@ -94,13 +94,13 @@ class BoundedBinEdgeText(ipw.HBox, ipw.ValueWidget):
     ):
         self._lock = False
         self._coord = coord.values
-        if self._coord.dtype not in (sc.DType.datetime64, sc.DType.string):
+        if coord.dtype not in (sc.DType.datetime64, sc.DType.string):
             self._underlying = self._coord
             self._fmt = ".3E"
             if layout is None:
                 layout = {"width": "22.5ch"}
         else:
-            if self._coord.dtype == sc.DType.datetime64:
+            if coord.dtype == sc.DType.datetime64:
                 self._underlying = coord.to(unit="ns").values.astype(int)
             else:
                 self._underlying = self._coord
