@@ -227,6 +227,11 @@ class Canvas:
                 va="bottom",
                 visible=False,
                 fontsize=fontsize,
+                bbox={
+                    "boxstyle": "round,pad=0.3",
+                    "facecolor": "0.9",
+                    "edgecolor": "0.5",
+                },
             )
         else:
             self._logc_button = None
@@ -241,7 +246,7 @@ class Canvas:
         if ylabel is not None:
             self.ylabel = ylabel
 
-        self._update_log_buttons()
+        # self._update_log_buttons()
         self.fig.canvas.mpl_connect("axes_enter_event", self.on_axes_enter)
         self.fig.canvas.mpl_connect("axes_leave_event", self.on_axes_leave)
         self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
@@ -310,15 +315,7 @@ class Canvas:
             self._logc_button.set_bbox(
                 {
                     "boxstyle": "round,pad=0.3",
-                    "facecolor": "0.65",  # if self.xscale == "log" else "0.9",
-                    "edgecolor": "0.5",
-                }
-            )
-        if self._fitc_button is not None:
-            self._fitc_button.set_bbox(
-                {
-                    "boxstyle": "round,pad=0.3",
-                    "facecolor": "0.65",  # if self.xscale == "log" else "0.9",
+                    "facecolor": "0.65" if self.cax.get_yscale() == "log" else "0.9",
                     "edgecolor": "0.5",
                 }
             )
@@ -339,6 +336,7 @@ class Canvas:
         elif event.inaxes is self.cax:
             if self._logc_button.contains(event)[0]:
                 self._toggle_color_norm()
+                self._update_log_buttons()
             elif self._fitc_button.contains(event)[0]:
                 self._autoscale_colors()
                 self.draw()
