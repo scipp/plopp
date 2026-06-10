@@ -1,8 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-from importlib import util
-
 import matplotlib
 import matplotlib.pyplot as plt
 import pytest

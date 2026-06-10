@@ -2,7 +2,6 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
-from importlib import util
 
 import pytest
 
