@@ -205,6 +205,21 @@ class ColorMapper:
             if self._clabel is not None:
                 self.cax.set_ylabel(self._clabel)
 
+            self._canvas._toggle_color_norm = self.toggle_norm
+            self._canvas._autoscale_colors = self.autoscale
+
+            # # For matplotlib backend
+            # self._logc_button = self.cax.text(
+            #     0.5,
+            #     1.02,
+            #     "LogC",
+            #     transform=self.cax.transAxes,
+            #     ha="center",
+            #     va="bottom",
+            #     visible=False,
+            #     fontsize=8,
+            # )
+
     def add_artist(self, key: str, artist: Any):
         self.artists[key] = artist
 
