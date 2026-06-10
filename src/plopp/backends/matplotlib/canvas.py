@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 from matplotlib import dates as mdates
+from matplotlib.backend_bases import MouseEvent
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
@@ -272,7 +273,7 @@ class Canvas:
             }
         )
 
-    def _on_log_button_click(self, event):
+    def _on_log_button_click(self, event: MouseEvent):
         if event.inaxes is not self.ax:
             return
 
@@ -282,7 +283,6 @@ class Canvas:
             self.toggle_logy()
 
         self._call_autoscale()
-        self._update_log_buttons()
         self.draw()
 
     def draw(self):
@@ -449,6 +449,7 @@ class Canvas:
     @xscale.setter
     def xscale(self, scale: Literal['linear', 'log']):
         self.ax.set_xscale(scale)
+        self._update_log_buttons()
 
     @property
     def yscale(self) -> Literal['linear', 'log']:
@@ -460,6 +461,7 @@ class Canvas:
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):
         self.ax.set_yscale(scale)
+        self._update_log_buttons()
 
     @property
     def xmin(self) -> float:
