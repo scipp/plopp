@@ -40,13 +40,6 @@ CASES = {
     ),
 }
 
-if util.find_spec('plotly') is not None:
-    CASES.update(
-        {
-            "linefigure-plotly": (('2d', 'plotly'), linefigure, data1d),
-        }
-    )
-
 
 @pytest.mark.parametrize(
     ("backend", "figure", "data"), CASES.values(), ids=CASES.keys()

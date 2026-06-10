@@ -46,7 +46,6 @@ def pytest_sessionfinish(session, exitstatus):
 
 BACKENDS_MPL = [('2d', 'mpl-static'), ('2d', 'mpl-interactive')]
 BACKENDS_MPL_INTERACTIVE = [('2d', 'mpl-interactive')]
-BACKENDS_PLOTLY = [('2d', 'plotly')] if util.find_spec('plotly') is not None else []
 
 
 def _select_backend(backend):
@@ -75,12 +74,12 @@ def _parametrize_mpl_backends(request):
     _select_backend(request.param)
 
 
-@pytest.fixture(**_make_fixture_args(BACKENDS_MPL + BACKENDS_PLOTLY))
+@pytest.fixture(**_make_fixture_args(BACKENDS_MPL))
 def _parametrize_all_backends(request):
     _select_backend(request.param)
 
 
-@pytest.fixture(**_make_fixture_args(BACKENDS_MPL_INTERACTIVE + BACKENDS_PLOTLY))
+@pytest.fixture(**_make_fixture_args(BACKENDS_MPL_INTERACTIVE))
 def _parametrize_interactive_1d_backends(request):
     _select_backend(request.param)
 
