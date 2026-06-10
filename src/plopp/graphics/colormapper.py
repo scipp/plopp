@@ -222,19 +222,20 @@ class ColorMapper:
         """
         Convert the colorbar into a widget for use with other ``ipywidgets``.
         """
-        # import ipywidgets as ipw
 
-        # self.widget = ipw.HTML()
-        # self._update_colorbar_widget()
-        # return self.widget
-
-        self.widget = HoverButtonWidget(button_text='log')
+        self.widget = HoverButtonWidget()
         self._update_colorbar_widget()
-        self.widget.on_log_button_click(self.toggle_norm)
+        # TODO: this doesn't seem to work on widget creation
+        self.widget.log_toggle_value = self._logc
+
+        def toggle_log_button():
+            self.toggle_norm()
+            self.widget.log_toggle_value = self._logc
+
+        self.widget.on_log_button_click(toggle_log_button)
 
         def fit():
             self.autoscale()
-            # if self._canvas is not None:
             self._canvas.draw()
 
         self.widget.on_fit_button_click(fit)
@@ -245,7 +246,6 @@ class ColorMapper:
         Upon an updated colorscale range, we need to update the image inside the widget.
         """
         if self.widget is not None:
-            # self.widget.value = fig_to_bytes(self.cax.get_figure(), form='svg').decode()
             self.widget.set_svg(fig_to_bytes(self.cax.get_figure(), form='svg'))
 
     def rgba(self, data: sc.DataArray) -> np.ndarray:
@@ -473,7 +473,7 @@ class HoverButtonWidget(anywidget.AnyWidget):
       log_button.style.fontSize = '0.8em';
       log_button.style.cursor = 'pointer';
       log_button.style.opacity = '0';
-      log_button.style.backgroundColor = 'gray';
+      log_button.style.backgroundColor = 'lightgray';
       log_button.style.color = 'black';
       log_button.style.border = 'none';
       log_button.style.borderRadius = '5px';
@@ -489,10 +489,10 @@ class HoverButtonWidget(anywidget.AnyWidget):
       fit_button.style.fontSize = '0.8em';
       fit_button.style.cursor = 'pointer';
       fit_button.style.opacity = '0';
-      fit_button.style.backgroundColor = 'gray';
+      fit_button.style.backgroundColor = 'lightgray';
       fit_button.style.color = 'black';
       fit_button.style.border = 'none';
-      log_button.style.borderRadius = '5px';
+      fit_button.style.borderRadius = '5px';
 
       // Function to update SVG
       function updateSVG() {
@@ -533,6 +533,12 @@ class HoverButtonWidget(anywidget.AnyWidget):
       // Listen for SVG changes
       model.on('change:svg_data', updateSVG);
 
+      // Listen for toggle state changes
+      model.on('change:log_toggle_value', () => {
+          const toggleValue = model.get('log_toggle_value');
+          log_button.style.backgroundColor = toggleValue ? 'gray' : 'lightgray';
+      });
+
       // Assemble widget
       container.appendChild(svgContainer);
       container.appendChild(log_button);
@@ -544,6 +550,7 @@ class HoverButtonWidget(anywidget.AnyWidget):
 
     # Traitlets
     svg_data = traitlets.Unicode('').tag(sync=True)
+    log_toggle_value = traitlets.Bool(False).tag(sync=True)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

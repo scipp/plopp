@@ -246,10 +246,13 @@ class Canvas:
         if ylabel is not None:
             self.ylabel = ylabel
 
-        # self._update_log_buttons()
+        # self.update_log_buttons()
         self.fig.canvas.mpl_connect("axes_enter_event", self.on_axes_enter)
         self.fig.canvas.mpl_connect("axes_leave_event", self.on_axes_leave)
         self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
+
+    def before_render(self):
+        self.update_log_buttons()
 
     def on_axes_enter(self, event):
         if event.inaxes is self.ax:
@@ -294,7 +297,7 @@ class Canvas:
             return VBox([self.fig.canvas])
         return self.to_image()
 
-    def _update_log_buttons(self):
+    def update_log_buttons(self):
         self._logx_button.set_bbox(
             {
                 "boxstyle": "round,pad=0.3",
@@ -336,7 +339,7 @@ class Canvas:
         elif event.inaxes is self.cax:
             if self._logc_button.contains(event)[0]:
                 self._toggle_color_norm()
-                self._update_log_buttons()
+                self.update_log_buttons()
             elif self._fitc_button.contains(event)[0]:
                 self._autoscale_colors()
                 self.draw()
@@ -505,7 +508,7 @@ class Canvas:
     @xscale.setter
     def xscale(self, scale: Literal['linear', 'log']):
         self.ax.set_xscale(scale)
-        self._update_log_buttons()
+        self.update_log_buttons()
 
     @property
     def yscale(self) -> Literal['linear', 'log']:
@@ -517,7 +520,7 @@ class Canvas:
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):
         self.ax.set_yscale(scale)
-        self._update_log_buttons()
+        self.update_log_buttons()
 
     @property
     def xmin(self) -> float:
