@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
+from collections.abc import Callable
 from typing import Literal
 
 import matplotlib.pyplot as plt
@@ -124,6 +125,7 @@ class Canvas:
         xlabel: str | None = None,
         ylabel: str | None = None,
         norm: Literal['linear', 'log'] | None = None,
+        autoscale_callback: Callable | None = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -152,6 +154,7 @@ class Canvas:
         self.units = {}
         self.dims = {}
         self._legend = legend
+        self._call_autoscale = autoscale_callback
 
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
@@ -179,6 +182,28 @@ class Canvas:
             self.ax.set_title(title)
         self._coord_formatters = []
 
+        self._logx_button = self.ax.text(
+            0.98,
+            0.02,
+            "LogX",
+            transform=self.ax.transAxes,
+            ha="right",
+            va="bottom",
+            visible=False,
+            fontsize=8,
+        )
+
+        self._logy_button = self.ax.text(
+            0.02,
+            0.98,
+            "LogY",
+            transform=self.ax.transAxes,
+            ha="left",
+            va="top",
+            visible=False,
+            fontsize=8,
+        )
+
         if logx:
             self.xscale = 'log'
         if logy:
@@ -187,6 +212,21 @@ class Canvas:
             self.xlabel = xlabel
         if ylabel is not None:
             self.ylabel = ylabel
+
+        self._update_log_buttons()
+        self.fig.canvas.mpl_connect("axes_enter_event", self.on_axes_enter)
+        self.fig.canvas.mpl_connect("axes_leave_event", self.on_axes_leave)
+        self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
+
+    def on_axes_enter(self, _):
+        self._logx_button.set_visible(True)
+        self._logy_button.set_visible(True)
+        self.draw()
+
+    def on_axes_leave(self, _):
+        self._logx_button.set_visible(False)
+        self._logy_button.set_visible(False)
+        self.draw()
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
@@ -214,6 +254,36 @@ class Canvas:
             # prevent this, we wrap the canvas in a VBox, which seems to help.
             return VBox([self.fig.canvas])
         return self.to_image()
+
+    def _update_log_buttons(self):
+        self._logx_button.set_bbox(
+            {
+                "boxstyle": "round,pad=0.3",
+                "facecolor": "0.65" if self.xscale == "log" else "0.9",
+                "edgecolor": "0.5",
+            }
+        )
+
+        self._logy_button.set_bbox(
+            {
+                "boxstyle": "round,pad=0.3",
+                "facecolor": "0.65" if self.yscale == "log" else "0.9",
+                "edgecolor": "0.5",
+            }
+        )
+
+    def _on_log_button_click(self, event):
+        if event.inaxes is not self.ax:
+            return
+
+        if self._logx_button.contains(event)[0]:
+            self.toggle_logx()
+        elif self._logy_button.contains(event)[0]:
+            self.toggle_logy()
+
+        self._call_autoscale()
+        self._update_log_buttons()
+        self.draw()
 
     def draw(self):
         """

@@ -59,15 +59,15 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
         The 2D view to operate on.
     """
 
-    def logx() -> None:
-        view.canvas.toggle_logx()
-        view.autoscale()
-        view.canvas.draw()
+    # def logx() -> None:
+    #     view.canvas.toggle_logx()
+    #     view.autoscale()
+    #     view.canvas.draw()
 
-    def logy() -> None:
-        view.canvas.toggle_logy()
-        view.autoscale()
-        view.canvas.draw()
+    # def logy() -> None:
+    #     view.canvas.toggle_logy()
+    #     view.autoscale()
+    #     view.canvas.draw()
 
     def autoscale_axes() -> None:
         view.autoscale()
@@ -80,8 +80,8 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
     tool_list = {
         "home": tools.HomeTool(autoscale_axes, tooltip="Autoscale axes range"),
         "panzoom": tools.PanZoomTool(view.canvas.panzoom),
-        "logx": tools.LogxTool(logx, value=view.canvas.xscale == "log"),
-        "logy": tools.LogyTool(logy, value=view.canvas.yscale == "log"),
+        # "logx": tools.LogxTool(logx, value=view.canvas.xscale == "log"),
+        # "logy": tools.LogyTool(logy, value=view.canvas.yscale == "log"),
         "save": tools.SaveTool(view.canvas.download_figure),
     }
     if view.colormapper is not None:
@@ -93,7 +93,8 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
                 "autoscale": tools.AutoscaleTool(autoscale_colors),
             }
         )
-    order = ["home", "autoscale", "panzoom", "logx", "logy", "lognorm", "save"]
+    # order = ["home", "autoscale", "panzoom", "logx", "logy", "lognorm", "save"]
+    order = ["home", "autoscale", "panzoom", "lognorm", "save"]
     return Toolbar(tools={key: tool_list[key] for key in order if key in tool_list})
 
 
