@@ -92,6 +92,5 @@
    :maxdepth: 1
 
    matplotlib
-   plotly
    pythreejs
 ```
