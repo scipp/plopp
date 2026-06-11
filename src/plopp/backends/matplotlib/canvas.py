@@ -266,8 +266,9 @@ class Canvas:
     def on_axes_leave(self, _):
         self._logx_button.set_visible(False)
         self._logy_button.set_visible(False)
-        self._logc_button.set_visible(False)
-        self._fitc_button.set_visible(False)
+        if self._logc_button is not None:
+            self._logc_button.set_visible(False)
+            self._fitc_button.set_visible(False)
         self.draw()
 
     def is_widget(self):

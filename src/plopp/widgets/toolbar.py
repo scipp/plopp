@@ -73,9 +73,9 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
         view.autoscale()
         view.canvas.draw()
 
-    def autoscale_colors() -> None:
-        view.colormapper.autoscale()
-        view.canvas.draw()
+    # def autoscale_colors() -> None:
+    #     view.colormapper.autoscale()
+    #     view.canvas.draw()
 
     tool_list = {
         "home": tools.HomeTool(autoscale_axes, tooltip="Autoscale axes range"),
@@ -84,15 +84,15 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
         # "logy": tools.LogyTool(logy, value=view.canvas.yscale == "log"),
         "save": tools.SaveTool(view.canvas.download_figure),
     }
-    if view.colormapper is not None:
-        tool_list.update(
-            {
-                "lognorm": tools.LogNormTool(
-                    view.colormapper.toggle_norm, value=view.colormapper.norm == "log"
-                ),
-                "autoscale": tools.AutoscaleTool(autoscale_colors),
-            }
-        )
+    # if view.colormapper is not None:
+    #     tool_list.update(
+    #         {
+    #             "lognorm": tools.LogNormTool(
+    #                 view.colormapper.toggle_norm, value=view.colormapper.norm == "log"
+    #             ),
+    #             "autoscale": tools.AutoscaleTool(autoscale_colors),
+    #         }
+    #     )
     # order = ["home", "autoscale", "panzoom", "logx", "logy", "lognorm", "save"]
     order = ["home", "autoscale", "panzoom", "lognorm", "save"]
     return Toolbar(tools={key: tool_list[key] for key in order if key in tool_list})
@@ -109,13 +109,13 @@ def make_toolbar_canvas3d(view: GraphicalView) -> Toolbar:
         The 3D view to operate on.
     """
 
-    def autoscale_colors() -> None:
-        view.colormapper.autoscale()
-        view.canvas.draw()
+    # def autoscale_colors() -> None:
+    #     view.colormapper.autoscale()
+    #     view.canvas.draw()
 
     tool_list = {
         "home": tools.HomeTool(view.canvas.home, tooltip="Reset camera"),
-        "autoscale": tools.AutoscaleTool(autoscale_colors),
+        # "autoscale": tools.AutoscaleTool(autoscale_colors),
         "camerax": tools.CameraTool(
             view.canvas.camera_x_normal,
             description="X",
@@ -132,10 +132,10 @@ def make_toolbar_canvas3d(view: GraphicalView) -> Toolbar:
             tooltip="Camera to Z normal. Click twice to flip the view direction.",
         ),
     }
-    if view.colormapper is not None:
-        tool_list["lognorm"] = tools.LogNormTool(
-            view.colormapper.toggle_norm, value=view.colormapper.norm == "log"
-        )
+    # if view.colormapper is not None:
+    #     tool_list["lognorm"] = tools.LogNormTool(
+    #         view.colormapper.toggle_norm, value=view.colormapper.norm == "log"
+    #     )
     tool_list.update(
         {
             "box": tools.OutlineTool(view.canvas.toggle_outline),
