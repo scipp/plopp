@@ -10,6 +10,7 @@ import numpy as np
 import scipp as sc
 from matplotlib import dates as mdates
 from matplotlib.backend_bases import MouseEvent
+from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
@@ -183,59 +184,75 @@ class Canvas:
             self.ax.set_title(title)
         self._coord_formatters = []
 
-        fontsize = 9
+        if self.is_widget():
+            fontsize = 9
 
-        self._logx_button = self.ax.text(
-            0.985,
-            0.02,
-            "logX",
-            transform=self.ax.transAxes,
-            ha="right",
-            va="bottom",
-            visible=False,
-            fontsize=fontsize,
-        )
-
-        self._logy_button = self.ax.text(
-            0.015,
-            0.98,
-            "logY",
-            transform=self.ax.transAxes,
-            ha="left",
-            va="top",
-            visible=False,
-            fontsize=fontsize,
-        )
-
-        if self.cax is not None:
-            self._logc_button = self.cax.text(
-                0.5,
-                0.98,
-                "log",
-                transform=self.cax.transAxes,
-                ha="center",
+            self._logx_button = self.ax.text(
+                0.985,
+                -0.02,
+                "logX",
+                transform=self.ax.transAxes,
+                ha="right",
                 va="top",
-                visible=False,
+                # visible=False,
                 fontsize=fontsize,
             )
-            self._fitc_button = self.cax.text(
-                0.5,
-                0.02,
-                "fit",
-                transform=self.cax.transAxes,
-                ha="center",
-                va="bottom",
-                visible=False,
+
+            self._logy_button = self.ax.text(
+                -0.015,
+                0.98,
+                "logY",
+                transform=self.ax.transAxes,
+                ha="right",
+                va="top",
+                # visible=False,
                 fontsize=fontsize,
-                bbox={
-                    "boxstyle": "round,pad=0.3",
-                    "facecolor": "0.9",
-                    "edgecolor": "0.5",
-                },
             )
-        else:
-            self._logc_button = None
-            self._fitc_button = None
+
+            if self.cax is not None:
+                self._logc_button = self.cax.text(
+                    0.5,
+                    0.98,
+                    "log",
+                    transform=self.cax.transAxes,
+                    ha="center",
+                    va="top",
+                    visible=False,
+                    fontsize=fontsize,
+                )
+                self._fitc_button = self.cax.text(
+                    0.5,
+                    0.02,
+                    "fit",
+                    transform=self.cax.transAxes,
+                    ha="center",
+                    va="bottom",
+                    visible=False,
+                    fontsize=fontsize,
+                    bbox={
+                        "boxstyle": "round,pad=0.3",
+                        "facecolor": "0.9",
+                        "edgecolor": "0.5",
+                    },
+                )
+            else:
+                self._logc_button = None
+                self._fitc_button = None
+
+            lx_bbox = self._logx_button.get_tightbbox()
+            ly_bbox = self._logy_button.get_tightbbox()
+            self._canvas_bbox = Bbox(
+                [[ly_bbox.x0, lx_bbox.y0], [lx_bbox.x1, ly_bbox.y1]]
+            )
+            # Need to set to visible after getting the bbox, otherwise the bbox is
+            # empty and the buttons never show up.
+            self._logx_button.set_visible(False)
+            self._logy_button.set_visible(False)
+
+            self.fig.canvas.mpl_connect("axes_enter_event", self._on_cax_enter)
+            self.fig.canvas.mpl_connect("axes_leave_event", self._on_cax_leave)
+            self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
+            self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
 
         if logx:
             self.xscale = 'log'
@@ -246,29 +263,106 @@ class Canvas:
         if ylabel is not None:
             self.ylabel = ylabel
 
-        # self.update_log_buttons()
-        self.fig.canvas.mpl_connect("axes_enter_event", self.on_axes_enter)
-        self.fig.canvas.mpl_connect("axes_leave_event", self.on_axes_leave)
-        self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
+        # # self.update_log_buttons()
+        # if self.is_widget():
+        #     # lx_bbox = self._logx_button.get_tightbbox()
+        #     # ly_bbox = self._logy_button.get_tightbbox()
+        #     # print("Log button bboxes:", lx_bbox, ly_bbox)
+        #     # # inv = self.ax.transAxes.inverted()
+        #     # # lx_disp = self.ax.transAxes.transform(lx_bbox)
+        #     # # ly_disp = self.ax.transAxes.transform(ly_bbox)
+        #     # x0, y0 = self.ax.transAxes.transform((ly_bbox.x0, lx_bbox.y0))
+        #     # x1, y1 = self.ax.transAxes.transform((lx_bbox.x1, ly_bbox.y1))
+        #     # dpi = self.fig.dpi
+        #     # axes_bbox = self.ax.get_position().transformed(self.fig.transFigure)
+        #     # self._canvas_bbox = Bbox(
+        #     #     [
+        #     #         [axes_bbox.x0 - 0.4 * dpi, axes_bbox.y0 - 0.2 * dpi],
+        #     #         [axes_bbox.x1, axes_bbox.y1],
+        #     #     ]
+        #     # )
+        #     # self.
+        #     # print("Canvas bbox:", self._canvas_bbox)
+
+        #     self.fig.canvas.mpl_connect("axes_enter_event", self.on_cax_enter)
+        #     self.fig.canvas.mpl_connect("axes_leave_event", self.on_cax_leave)
+        #     self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
+        #     self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
 
     def before_render(self):
         self.update_log_buttons()
 
-    def on_axes_enter(self, event):
-        if event.inaxes is self.ax:
+    def _on_mouse_move(self, event):
+        need_redraw = False
+
+        # if self._logc_button is not None:
+        #     logc_visible = self._logc_button.get_visible()
+        # else:
+        #     logc_visible = False
+        # if event.inaxes in ({self.cax} - {None}):
+        #     if not logc_visible:
+        #         # need_redraw = True
+        #         self._logc_button.set_visible(True)
+        #         self._fitc_button.set_visible(True)
+        #         self.draw()
+        #         return
+        # elif logc_visible:
+        #     need_redraw = True
+        #     self._logc_button.set_visible(False)
+        #     self._fitc_button.set_visible(False)
+
+        logxy_visible = self._logx_button.get_visible()
+
+        if ((event.x is None) or (event.y is None)) and logxy_visible:
+            need_redraw = True
+            self._logx_button.set_visible(False)
+            self._logy_button.set_visible(False)
+
+        # # inv = self.ax.transAxes.inverted()
+        # ax_x, ax_y = self._ax_inv_transform.transform((event.x, event.y))
+        # pad = 0.08
+        dpi = self.fig.dpi
+        axes_bbox = self.ax.get_position().transformed(self.fig.transFigure)
+        canvas_bbox = Bbox(
+            [
+                [axes_bbox.x0 - 0.45 * dpi, axes_bbox.y0 - 0.25 * dpi],
+                [axes_bbox.x1, axes_bbox.y1],
+            ]
+        )
+        inside = canvas_bbox.contains(event.x, event.y)
+        # print(event.x, event.y, inside, self._canvas_bbox)
+        if inside and not logxy_visible:
+            need_redraw = True
             self._logx_button.set_visible(True)
             self._logy_button.set_visible(True)
-        elif event.inaxes is self.cax:
+        elif not inside and logxy_visible:
+            need_redraw = True
+            self._logx_button.set_visible(False)
+            self._logy_button.set_visible(False)
+
+        if need_redraw:
+            self.draw()
+
+        # return
+        # new_visible = self._canvas_bbox.contains(event.x, event.y)
+
+        # if new_visible != self._logx_button.get_visible():
+        #     self._logx_button.set_visible(new_visible)
+        #     self._logy_button.set_visible(new_visible)
+        #     if self._logc_button is not None:
+        #         self._logc_button.set_visible(new_visible)
+        #         self._fitc_button.set_visible(new_visible)
+        #     self.draw()
+
+    def _on_cax_enter(self, event):
+        if event.inaxes is self.cax:
             self._logc_button.set_visible(True)
             self._fitc_button.set_visible(True)
         self.draw()
 
-    def on_axes_leave(self, _):
-        self._logx_button.set_visible(False)
-        self._logy_button.set_visible(False)
-        if self._logc_button is not None:
-            self._logc_button.set_visible(False)
-            self._fitc_button.set_visible(False)
+    def _on_cax_leave(self, _):
+        self._logc_button.set_visible(False)
+        self._fitc_button.set_visible(False)
         self.draw()
 
     def is_widget(self):
@@ -325,25 +419,33 @@ class Canvas:
             )
 
     def _on_log_button_click(self, event: MouseEvent):
-        if event.inaxes is self.ax:
-            need_redraw = False
-            if self._logx_button.contains(event)[0]:
-                self.toggle_logx()
-                need_redraw = True
-            elif self._logy_button.contains(event)[0]:
-                self.toggle_logy()
-                need_redraw = True
-            if need_redraw:
-                self._autoscale_axes()
-                self.draw()
-
-        elif event.inaxes is self.cax:
+        if event.inaxes in ({self.cax} - {None}):
             if self._logc_button.contains(event)[0]:
                 self._toggle_color_norm()
                 self.update_log_buttons()
             elif self._fitc_button.contains(event)[0]:
                 self._autoscale_colors()
                 self.draw()
+            return
+
+        need_redraw = False
+        if self._logx_button.contains(event)[0]:
+            self.toggle_logx()
+            need_redraw = True
+        elif self._logy_button.contains(event)[0]:
+            self.toggle_logy()
+            need_redraw = True
+        if need_redraw:
+            self._autoscale_axes()
+            self.draw()
+
+        # elif event.inaxes in ({self.cax} - {None}):
+        #     if self._logc_button.contains(event)[0]:
+        #         self._toggle_color_norm()
+        #         self.update_log_buttons()
+        #     elif self._fitc_button.contains(event)[0]:
+        #         self._autoscale_colors()
+        #         self.draw()
 
     def draw(self):
         """
