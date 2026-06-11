@@ -9,8 +9,7 @@ import numpy as np
 from matplotlib import gridspec
 
 from ...core.typing import FigureLike
-from .figure import get_repr_maker
-from .utils import is_interactive_backend, make_figure
+from .utils import make_figure
 
 
 class Tiled:
@@ -84,9 +83,6 @@ class Tiled:
         )
 
         is_widget_backend = hasattr(self.fig.canvas, "on_widget_constructed")
-        print(
-            f"Using {'widget' if is_widget_backend else 'static'} backend for tiled figure."
-        )
         if hspace is None:
             hspace = 0.2 if is_widget_backend else 0.02
         if wspace is None:
