@@ -258,9 +258,15 @@ class Canvas:
             self.ylabel = ylabel
 
     def before_render(self):
+        """
+        Function to be called before rendering the figure.
+        """
         self.update_log_buttons()
 
-    def _on_mouse_move(self, event):
+    def _on_mouse_move(self, event: MouseEvent):
+        """
+        Show log buttons when hovering over the axes or colorbar, and hide them otherwise.
+        """
         need_redraw = False
 
         logxy_visible = self._logx_button.get_visible()
@@ -317,6 +323,10 @@ class Canvas:
         return self.to_image()
 
     def update_log_buttons(self):
+        """
+        Update the background color of the log buttons to indicate whether the
+        corresponding axis is in log scale or not.
+        """
         if not self.is_widget():
             return
         self._logx_button.set_bbox(
@@ -345,6 +355,9 @@ class Canvas:
             )
 
     def _on_log_button_click(self, event: MouseEvent):
+        """
+        Handle clicks on the log buttons.
+        """
         if event.inaxes in ({self.cax} - {None}):
             if self._logc_button.contains(event)[0]:
                 self._toggle_color_norm()
