@@ -255,7 +255,6 @@ class Canvas:
         self.update_log_buttons()
 
     def _on_mouse_move(self, event):
-
         need_redraw = False
 
         logxy_visible = self._logx_button.get_visible()
