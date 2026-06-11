@@ -103,10 +103,13 @@ class Tiled:
     ) -> FigureLike:
         return self.figures[inds]
 
-    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
+    def _repr_mimebundle_(self, *args, **kwargs) -> dict:
         """
         Mimebundle display representation for jupyter notebooks.
         """
+        # self.fig.tight_layout()  # Ensure tight layout for correct representation
+        return self.figures.ravel()[0]._repr_mimebundle_(*args, **kwargs)
+
         if is_interactive_backend():
             return self.fig.canvas._repr_mimebundle_(include=include, exclude=exclude)
         else:

@@ -317,6 +317,8 @@ class Canvas:
         return self.to_image()
 
     def update_log_buttons(self):
+        if not self.is_widget():
+            return
         self._logx_button.set_bbox(
             {
                 "boxstyle": "round,pad=0.3",
