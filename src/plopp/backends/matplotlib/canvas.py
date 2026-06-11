@@ -187,59 +187,40 @@ class Canvas:
             self.fig.canvas.toolbar_visible = False
             self.fig.canvas.header_visible = False
 
-            fontsize = 9
+            # fontsize = 9
 
-            self._logx_button = self.ax.text(
-                0.985,
-                -0.02,
-                "logX",
-                transform=self.ax.transAxes,
-                ha="right",
-                va="top",
-                visible=False,
-                fontsize=fontsize,
-                zorder=np.inf,
-            )
+            args = {
+                "transform": self.ax.transAxes,
+                "ha": "right",
+                "va": "top",
+                "visible": False,
+                "fontsize": 9,
+                "zorder": np.inf,
+            }
 
-            self._logy_button = self.ax.text(
-                -0.015,
-                0.98,
-                "logY",
-                transform=self.ax.transAxes,
-                ha="right",
-                va="top",
-                visible=False,
-                fontsize=fontsize,
-                zorder=np.inf,
-            )
+            self._logx_button = self.ax.text(0.985, -0.02, "logX", **args)
+            self._logy_button = self.ax.text(-0.015, 0.98, "logY", **args)
 
             if self.cax is not None:
-                self._logc_button = self.cax.text(
-                    0.5,
-                    0.98,
-                    "log",
-                    transform=self.cax.transAxes,
-                    ha="center",
-                    va="top",
-                    visible=False,
-                    fontsize=fontsize,
-                    zorder=np.inf,
-                )
+                args = {
+                    "transform": self.cax.transAxes,
+                    "ha": "center",
+                    "visible": False,
+                    "fontsize": 9,
+                    "zorder": np.inf,
+                }
+                self._logc_button = self.cax.text(0.5, 0.98, "log", va="top", **args)
                 self._fitc_button = self.cax.text(
                     0.5,
                     0.02,
                     "fit",
-                    transform=self.cax.transAxes,
-                    ha="center",
                     va="bottom",
-                    visible=False,
-                    fontsize=fontsize,
                     bbox={
                         "boxstyle": "round,pad=0.3",
                         "facecolor": "0.9",
                         "edgecolor": "0.5",
                     },
-                    zorder=np.inf,
+                    **args,
                 )
             else:
                 self._logc_button = None
@@ -329,27 +310,15 @@ class Canvas:
         """
         if not self.is_widget():
             return
-        self._logx_button.set_bbox(
-            {
-                "boxstyle": "round,pad=0.3",
-                "facecolor": "0.65" if self.xscale == "log" else "0.9",
-                "edgecolor": "0.5",
-            }
-        )
 
-        self._logy_button.set_bbox(
-            {
-                "boxstyle": "round,pad=0.3",
-                "facecolor": "0.65" if self.yscale == "log" else "0.9",
-                "edgecolor": "0.5",
-            }
-        )
-
+        buttons = [(self._logx_button, self.xscale), (self._logy_button, self.yscale)]
         if self._logc_button is not None:
-            self._logc_button.set_bbox(
+            buttons.append((self._logc_button, self.cax.get_yscale()))
+        for button, scale in buttons:
+            button.set_bbox(
                 {
                     "boxstyle": "round,pad=0.3",
-                    "facecolor": "0.65" if self.cax.get_yscale() == "log" else "0.9",
+                    "facecolor": "0.65" if scale == "log" else "0.9",
                     "edgecolor": "0.5",
                 }
             )
