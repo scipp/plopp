@@ -161,9 +161,6 @@ class Canvas:
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
-            if self.is_widget():
-                self.fig.canvas.toolbar_visible = False
-                self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
         if aspect is not None:
@@ -185,6 +182,11 @@ class Canvas:
         self._coord_formatters = []
 
         if self.is_widget():
+            # Hide the native toolbar: it will be replaced by our own. Also hide the
+            # (ugly) header in ipympl figures which takes up a lot of vertical space.
+            self.fig.canvas.toolbar_visible = False
+            self.fig.canvas.header_visible = False
+
             fontsize = 9
 
             self._logx_button = self.ax.text(
@@ -196,6 +198,7 @@ class Canvas:
                 va="top",
                 visible=False,
                 fontsize=fontsize,
+                zorder=np.inf,
             )
 
             self._logy_button = self.ax.text(
@@ -207,6 +210,7 @@ class Canvas:
                 va="top",
                 visible=False,
                 fontsize=fontsize,
+                zorder=np.inf,
             )
 
             if self.cax is not None:
@@ -219,6 +223,7 @@ class Canvas:
                     va="top",
                     visible=False,
                     fontsize=fontsize,
+                    zorder=np.inf,
                 )
                 self._fitc_button = self.cax.text(
                     0.5,
@@ -234,6 +239,7 @@ class Canvas:
                         "facecolor": "0.9",
                         "edgecolor": "0.5",
                     },
+                    zorder=np.inf,
                 )
             else:
                 self._logc_button = None
