@@ -5,6 +5,16 @@ import traitlets
 
 
 class HoverButtonWidget(anywidget.AnyWidget):
+    """
+    A custom widget that displays an SVG and shows buttons on hover.
+     - The "log" button sends a message to the backend when clicked.
+     - The "fit" button sends a message to the backend when clicked.
+     - The widget listens for changes to the SVG data and updates the display
+       accordingly.
+     - The "log" button's background color changes based on a toggle value from the
+       backend.
+    """
+
     _esm = """
     function render({ model, el }) {
       // Create container

@@ -194,7 +194,7 @@ class Canvas:
                 transform=self.ax.transAxes,
                 ha="right",
                 va="top",
-                # visible=False,
+                visible=False,
                 fontsize=fontsize,
             )
 
@@ -205,7 +205,7 @@ class Canvas:
                 transform=self.ax.transAxes,
                 ha="right",
                 va="top",
-                # visible=False,
+                visible=False,
                 fontsize=fontsize,
             )
 
@@ -239,18 +239,6 @@ class Canvas:
                 self._logc_button = None
                 self._fitc_button = None
 
-            lx_bbox = self._logx_button.get_tightbbox()
-            ly_bbox = self._logy_button.get_tightbbox()
-            self._canvas_bbox = Bbox(
-                [[ly_bbox.x0, lx_bbox.y0], [lx_bbox.x1, ly_bbox.y1]]
-            )
-            # Need to set to visible after getting the bbox, otherwise the bbox is
-            # empty and the buttons never show up.
-            self._logx_button.set_visible(False)
-            self._logy_button.set_visible(False)
-
-            self.fig.canvas.mpl_connect("axes_enter_event", self._on_cax_enter)
-            self.fig.canvas.mpl_connect("axes_leave_event", self._on_cax_leave)
             self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
             self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
 
@@ -263,107 +251,38 @@ class Canvas:
         if ylabel is not None:
             self.ylabel = ylabel
 
-        # # self.update_log_buttons()
-        # if self.is_widget():
-        #     # lx_bbox = self._logx_button.get_tightbbox()
-        #     # ly_bbox = self._logy_button.get_tightbbox()
-        #     # print("Log button bboxes:", lx_bbox, ly_bbox)
-        #     # # inv = self.ax.transAxes.inverted()
-        #     # # lx_disp = self.ax.transAxes.transform(lx_bbox)
-        #     # # ly_disp = self.ax.transAxes.transform(ly_bbox)
-        #     # x0, y0 = self.ax.transAxes.transform((ly_bbox.x0, lx_bbox.y0))
-        #     # x1, y1 = self.ax.transAxes.transform((lx_bbox.x1, ly_bbox.y1))
-        #     # dpi = self.fig.dpi
-        #     # axes_bbox = self.ax.get_position().transformed(self.fig.transFigure)
-        #     # self._canvas_bbox = Bbox(
-        #     #     [
-        #     #         [axes_bbox.x0 - 0.4 * dpi, axes_bbox.y0 - 0.2 * dpi],
-        #     #         [axes_bbox.x1, axes_bbox.y1],
-        #     #     ]
-        #     # )
-        #     # self.
-        #     # print("Canvas bbox:", self._canvas_bbox)
-
-        #     self.fig.canvas.mpl_connect("axes_enter_event", self.on_cax_enter)
-        #     self.fig.canvas.mpl_connect("axes_leave_event", self.on_cax_leave)
-        #     self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
-        #     self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
-
     def before_render(self):
         self.update_log_buttons()
 
     def _on_mouse_move(self, event):
+
         need_redraw = False
 
-        # if self._logc_button is not None:
-        #     logc_visible = self._logc_button.get_visible()
-        # else:
-        #     logc_visible = False
-        # if event.inaxes in ({self.cax} - {None}):
-        #     if not logc_visible:
-        #         # need_redraw = True
-        #         self._logc_button.set_visible(True)
-        #         self._fitc_button.set_visible(True)
-        #         self.draw()
-        #         return
-        # elif logc_visible:
-        #     need_redraw = True
-        #     self._logc_button.set_visible(False)
-        #     self._fitc_button.set_visible(False)
-
         logxy_visible = self._logx_button.get_visible()
-
-        if ((event.x is None) or (event.y is None)) and logxy_visible:
-            need_redraw = True
-            self._logx_button.set_visible(False)
-            self._logy_button.set_visible(False)
-
-        # # inv = self.ax.transAxes.inverted()
-        # ax_x, ax_y = self._ax_inv_transform.transform((event.x, event.y))
-        # pad = 0.08
-        dpi = self.fig.dpi
-        axes_bbox = self.ax.get_position().transformed(self.fig.transFigure)
-        canvas_bbox = Bbox(
-            [
-                [axes_bbox.x0 - 0.45 * dpi, axes_bbox.y0 - 0.25 * dpi],
-                [axes_bbox.x1, axes_bbox.y1],
-            ]
-        )
-        inside = canvas_bbox.contains(event.x, event.y)
-        # print(event.x, event.y, inside, self._canvas_bbox)
-        if inside and not logxy_visible:
-            need_redraw = True
+        inside = self._axes_bbox.contains(event.x, event.y)
+        if inside and (not logxy_visible):
             self._logx_button.set_visible(True)
             self._logy_button.set_visible(True)
-        elif not inside and logxy_visible:
             need_redraw = True
+        elif (not inside) and logxy_visible:
             self._logx_button.set_visible(False)
             self._logy_button.set_visible(False)
+            need_redraw = True
+
+        if self._logc_button is not None:
+            logc_visible = self._logc_button.get_visible()
+            inside_cax = self._cbar_bbox.contains(event.x, event.y)
+            if inside_cax and (not logc_visible):
+                self._logc_button.set_visible(True)
+                self._fitc_button.set_visible(True)
+                need_redraw = True
+            elif (not inside_cax) and logc_visible:
+                self._logc_button.set_visible(False)
+                self._fitc_button.set_visible(False)
+                need_redraw = True
 
         if need_redraw:
             self.draw()
-
-        # return
-        # new_visible = self._canvas_bbox.contains(event.x, event.y)
-
-        # if new_visible != self._logx_button.get_visible():
-        #     self._logx_button.set_visible(new_visible)
-        #     self._logy_button.set_visible(new_visible)
-        #     if self._logc_button is not None:
-        #         self._logc_button.set_visible(new_visible)
-        #         self._fitc_button.set_visible(new_visible)
-        #     self.draw()
-
-    def _on_cax_enter(self, event):
-        if event.inaxes is self.cax:
-            self._logc_button.set_visible(True)
-            self._fitc_button.set_visible(True)
-        self.draw()
-
-    def _on_cax_leave(self, _):
-        self._logc_button.set_visible(False)
-        self._fitc_button.set_visible(False)
-        self.draw()
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
@@ -439,19 +358,30 @@ class Canvas:
             self._autoscale_axes()
             self.draw()
 
-        # elif event.inaxes in ({self.cax} - {None}):
-        #     if self._logc_button.contains(event)[0]:
-        #         self._toggle_color_norm()
-        #         self.update_log_buttons()
-        #     elif self._fitc_button.contains(event)[0]:
-        #         self._autoscale_colors()
-        #         self.draw()
-
     def draw(self):
         """
         Make a draw call to the underlying figure.
+
+        We also update the bounding box of the canvas, which is used to determine when
+        to show the log buttons.
         """
         self.fig.canvas.draw_idle()
+        dpi = self.fig.dpi
+        axes_bbox = self.ax.get_position().transformed(self.fig.transFigure)
+        self._axes_bbox = Bbox(
+            [
+                [axes_bbox.x0 - 0.45 * dpi, axes_bbox.y0 - 0.25 * dpi],
+                [axes_bbox.x1, axes_bbox.y1],
+            ]
+        )
+        if self.cax is not None:
+            cbar_bbox = self.cax.get_position().transformed(self.fig.transFigure)
+            self._cbar_bbox = Bbox(
+                [
+                    [cbar_bbox.x0 - 0.2 * dpi, cbar_bbox.y0 - 0.1 * dpi],
+                    [cbar_bbox.x1 + 0.2 * dpi, cbar_bbox.y1 + 0.1 * dpi],
+                ]
+            )
 
     def update_legend(self):
         """
