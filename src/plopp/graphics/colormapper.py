@@ -205,6 +205,10 @@ class ColorMapper:
             if self._clabel is not None:
                 self.cax.set_ylabel(self._clabel)
 
+            # Disable zoom and pan on colorbar as this feature is not handled in the
+            # current implementation.
+            self.cax.set_navigate(False)
+
             self._canvas._toggle_color_norm = self.toggle_norm
             self._canvas._autoscale_colors = self.autoscale
 
