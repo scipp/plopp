@@ -68,8 +68,8 @@ class Tiled:
         nrows: int,
         ncols: int,
         figsize: tuple[float, float] | None = None,
-        hspace: float = 0.05,
-        wspace: float = 0.1,
+        hspace: float | None = None,
+        wspace: float | None = None,
         **kwargs: Any,
     ) -> None:
         self.nrows = nrows
@@ -82,6 +82,15 @@ class Tiled:
             ),
             layout='constrained',
         )
+
+        is_widget_backend = hasattr(self.fig.canvas, "on_widget_constructed")
+        print(
+            f"Using {'widget' if is_widget_backend else 'static'} backend for tiled figure."
+        )
+        if hspace is None:
+            hspace = 0.2 if is_widget_backend else 0.02
+        if wspace is None:
+            wspace = 0.2 if is_widget_backend else 0.05
 
         self.gs = gridspec.GridSpec(
             nrows, ncols, figure=self.fig, wspace=wspace, hspace=hspace, **kwargs
@@ -107,18 +116,7 @@ class Tiled:
         """
         Mimebundle display representation for jupyter notebooks.
         """
-        # self.fig.tight_layout()  # Ensure tight layout for correct representation
         return self.figures.ravel()[0]._repr_mimebundle_(*args, **kwargs)
-
-        if is_interactive_backend():
-            return self.fig.canvas._repr_mimebundle_(include=include, exclude=exclude)
-        else:
-            out = {'text/plain': f'TiledFigure(nrows={self.nrows}, ncols={self.ncols})'}
-            npoints = sum(
-                len(line.get_xdata()) for ax in self.fig.get_axes() for line in ax.lines
-            )
-            out.update(get_repr_maker(npoints=npoints)(self.fig))
-            return out
 
     def save(self, filename: str, **kwargs: Any) -> None:
         """
