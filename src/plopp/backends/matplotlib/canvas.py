@@ -246,7 +246,8 @@ class Canvas:
 
     def _on_mouse_move(self, event: MouseEvent):
         """
-        Show log buttons when hovering over the axes or colorbar, and hide them otherwise.
+        Show log buttons when hovering over the axes or colorbar, and hide them
+        otherwise.
         """
         need_redraw = False
 
