@@ -134,10 +134,10 @@ def test_clicking_logc_button_toggles_colormapper_norm():
     but.visible = True
     fig.canvas.fig.canvas.draw()
     x, y = fig.canvas.cax.transAxes.transform(but.position)
-    fig.canvas._on_log_button_click(MouseEvent(x, y - 5, None))
+    fig.canvas._on_log_button_click(MouseEvent(x, y - 5, fig.canvas.cax))
     assert fig.view.colormapper.norm == 'log'
     assert but.value
 
-    fig.canvas._on_log_button_click(MouseEvent(x, y - 5, None))
+    fig.canvas._on_log_button_click(MouseEvent(x, y - 5, fig.canvas.cax))
     assert fig.view.colormapper.norm == 'linear'
     assert not but.value
