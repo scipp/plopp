@@ -226,7 +226,10 @@ class ColorMapper:
 
         self.widget = HoverButtonWidget()
         self._update_colorbar_widget()
-        # TODO: this doesn't seem to work on widget creation
+
+        # TODO: When the widget is created, if logc=True as passed in the arguments,
+        # we need to set the button state according to the value of logc.
+        # For some reason, setting `log_toggle_value` here does not seem to work.
         self.widget.log_toggle_value = self._logc
 
         def toggle_log_button():
