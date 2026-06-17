@@ -1,12 +1,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import matplotlib.pyplot as plt
-import numpy as np
 import pytest
-import scipp as sc
 
-import plopp as pp
 from plopp.data.testing import data_array
 
 pytestmark = pytest.mark.usefixtures("_parametrize_interactive_1d_backends")
@@ -45,13 +41,14 @@ def test_clicking_logx_button_toggles_xscale(ndim):
     assert canvas.xscale == 'linear'
 
     but = canvas._logx_button
-    # Convert axes coordinates to display coordinates
-    x, y = canvas.ax.transAxes.transform(but.position)
     # Need to make buttons visible before we click them,
     # otherwise the contains() method returns False
     but.visible = True
     # Need to draw so that the contains() on the Text works
     canvas.fig.canvas.draw()
+
+    # Convert axes coordinates to display coordinates
+    x, y = canvas.ax.transAxes.transform(but.position)
     canvas._on_log_button_click(MouseEvent(x - 5, y - 5, None))
     assert canvas.xscale == 'log'
     assert but.value
@@ -87,13 +84,14 @@ def test_clicking_logy_button_toggles_yscale(ndim):
     assert canvas.yscale == 'linear'
 
     but = canvas._logy_button
-    # Convert axes coordinates to display coordinates
-    x, y = canvas.ax.transAxes.transform(but.position)
     # Need to make buttons visible before we click them,
     # otherwise the contains() method returns False
     but.visible = True
     # Need to draw so that the contains() on the Text works
     canvas.fig.canvas.draw()
+
+    # Convert axes coordinates to display coordinates
+    x, y = canvas.ax.transAxes.transform(but.position)
     canvas._on_log_button_click(MouseEvent(x - 5, y - 5, None))
     assert canvas.yscale == 'log'
     assert but.value
