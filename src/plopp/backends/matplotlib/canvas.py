@@ -305,6 +305,14 @@ class Canvas:
             logc_visible = self._logc_button.visible
             inside_cax = self._cbar_bbox.contains(event.x, event.y)
             if inside_cax and (not logc_visible):
+                # We may need to update the button toggle state as the canvas is created
+                # before the colormapper, but the latter sets the cbar state. We sync
+                # the button state when we hover over the axes just before making them
+                # visible
+                log_state = self.cax.get_yscale() == "log"
+                if self._logc_button.value != log_state:
+                    self._logc_button.value = log_state
+
                 self._logc_button.visible = True
                 self._fitc_button.visible = True
                 need_redraw = True

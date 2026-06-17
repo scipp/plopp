@@ -99,3 +99,45 @@ def test_clicking_logy_button_toggles_yscale(ndim):
     canvas._on_log_button_click(MouseEvent(x - 5, y - 5, None))
     assert canvas.yscale == 'linear'
     assert not but.value
+
+
+def test_logc_button_state_agrees_with_kwarg():
+    da = data_array(ndim=2)
+    canvas = da.plot(logc=True).canvas
+    # Need to make a mouse move event to trigger the button update state, as it is
+    # update only when mouse hovers over the cbar
+    canvas.fig.canvas.draw()
+    x, y = canvas.cax.transAxes.transform((0.5, 0.5))
+    canvas._on_mouse_move(MouseEvent(x, y - 5, None))
+    assert canvas._logc_button.value
+
+
+def test_logc_button_state_agrees_with_colormapper_norm():
+    da = data_array(ndim=2)
+    fig = da.plot()
+    but = fig.canvas._logc_button
+    assert not but.value
+    assert fig.view.colormapper.norm == 'linear'
+    fig.view.colormapper.norm = 'log'
+    fig.canvas.fig.canvas.draw()
+    x, y = fig.canvas.cax.transAxes.transform((0.5, 0.5))
+    fig.canvas._on_mouse_move(MouseEvent(x, y - 5, None))
+    assert but.value
+
+
+def test_clicking_logc_button_toggles_colormapper_norm():
+    da = data_array(ndim=2)
+    fig = da.plot()
+    assert fig.view.colormapper.norm == 'linear'
+
+    but = fig.canvas._logc_button
+    but.visible = True
+    fig.canvas.fig.canvas.draw()
+    x, y = fig.canvas.cax.transAxes.transform(but.position)
+    fig.canvas._on_log_button_click(MouseEvent(x, y - 5, None))
+    assert fig.view.colormapper.norm == 'log'
+    assert but.value
+
+    fig.canvas._on_log_button_click(MouseEvent(x, y - 5, None))
+    assert fig.view.colormapper.norm == 'linear'
+    assert not but.value
