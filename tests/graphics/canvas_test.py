@@ -2,7 +2,6 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
-from importlib import util
 
 import pytest
 
@@ -39,13 +38,6 @@ CASES = {
         scatter,
     ),
 }
-
-if util.find_spec('plotly') is not None:
-    CASES.update(
-        {
-            "linefigure-plotly": (('2d', 'plotly'), linefigure, data1d),
-        }
-    )
 
 
 @pytest.mark.parametrize(

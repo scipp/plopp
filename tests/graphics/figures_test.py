@@ -2,7 +2,6 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 from functools import partial
-from importlib import util
 
 import pytest
 import scipp as sc
@@ -25,13 +24,6 @@ PLOTCASES = {
         data2d,
     ),
 }
-
-if util.find_spec('plotly') is not None:
-    PLOTCASES.update(
-        {
-            "linefigure-plotly": (('2d', 'plotly'), linefigure, data1d),
-        }
-    )
 
 
 SCATTERCASES = {
