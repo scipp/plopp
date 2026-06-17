@@ -80,9 +80,6 @@ class Canvas:
             height=height,
         )
 
-    def before_render(self):
-        return
-
     def to_widget(self):
         # The max_width is set to prevent overflow, see
         # https://github.com/scipp/plopp/issues/169.

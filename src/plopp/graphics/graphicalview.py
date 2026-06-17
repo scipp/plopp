@@ -153,7 +153,6 @@ class GraphicalView(View):
             # artist maker.
             self._kwargs['mask_color'] = mask_color
 
-        self.canvas.before_render()
         self.render()
 
     def autoscale(self):
