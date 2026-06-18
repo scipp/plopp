@@ -271,9 +271,6 @@ class Canvas:
                 self._fitc_button = CanvasToggleButton(
                     ax=self.cax, label="fit", position=(0.5, 0.02), va="bottom", **args
                 )
-            else:
-                self._logc_button = None
-                self._fitc_button = None
 
             self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
             self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
