@@ -6,6 +6,7 @@ from typing import Literal
 
 import numpy as np
 import scipp as sc
+from matplotlib import colors as cm
 from matplotlib.dates import date2num
 from matplotlib.lines import Line2D
 from numpy.typing import ArrayLike
@@ -13,7 +14,8 @@ from numpy.typing import ArrayLike
 from ...graphics.bbox import BoundingBox
 from ..common import check_ndim, make_line_bbox, make_line_data
 from .canvas import Canvas
-from .utils import parse_dicts_in_kwargs
+
+# from .utils import parse_dicts_in_kwargs
 
 
 class Line:
@@ -65,14 +67,19 @@ class Line:
 
         markers = list(Line2D.markers.keys())
 
+        line_color = cm.to_hex(color or f"C{artist_number}")
+
+        x = line_data['values']['x'].tolist()
+        y = line_data['values']['y'].tolist()
+
         if line_data["hist"]:
             self._line = {
                 "kind": "step",
-                "x": line_data['values']['x'],
-                "y": line_data['values']['y'],
+                "x": x,
+                "y": y,
                 "label": self.label,
                 "linestyle": linestyle or "solid",
-                "color": color or f"C{artist_number}",
+                "color": line_color,
                 "zorder": zorder or 2,
                 "visible": visible,
                 "opacity": opacity,
@@ -90,12 +97,12 @@ class Line:
         else:
             self._line = {
                 "kind": "line",
-                "x": line_data['values']['x'],
-                "y": line_data['values']['y'],
+                "x": x,
+                "y": y,
                 "label": self.label,
                 "linestyle": linestyle or "none",
                 "marker": marker or markers[(artist_number + 2) % len(markers)],
-                "color": color or f"C{artist_number}",
+                "color": line_color,
                 "zorder": zorder or 2,
                 "visible": visible,
                 "opacity": opacity,
@@ -114,7 +121,7 @@ class Line:
 
         # Add error bars
         if errorbars and (line_data['stddevs'] is not None):
-            self._line["e"] = line_data['stddevs']['e']
+            self._line["e"] = line_data['stddevs']['e'].tolist()
 
     def update(self, new_values: sc.DataArray):
         """
@@ -129,11 +136,13 @@ class Line:
         self._data = new_values
         line_data = make_line_data(data=self._data, dim=self._dim)
 
-        self._line.update(x=line_data['values']['x'], y=line_data['values']['y'])
+        self._line.update(
+            x=line_data['values']['x'].tolist(), y=line_data['values']['y'].tolist()
+        )
         # self._mask.update(x=line_data['mask']['x'], y=line_data['mask']['y'])
 
         if ("e" in self._line) and (line_data['stddevs'] is not None):
-            self._line["e"] = line_data['stddevs']['e']
+            self._line["e"] = line_data['stddevs']['e'].tolist()
 
     def remove(self):
         """
@@ -150,7 +159,7 @@ class Line:
 
     @color.setter
     def color(self, val: str):
-        self._line["color"] = val
+        self._line["color"] = cm.to_hex(val)
 
     @property
     def style(self) -> str:
@@ -207,7 +216,7 @@ class Line:
 
     @opacity.setter
     def opacity(self, val: float):
-        self._line["opacity"] = val
+        self._line["opacity"] = float(val)
 
     def bbox(
         self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']
@@ -230,3 +239,9 @@ class Line:
             xscale=xscale,
             yscale=yscale,
         )
+
+    def as_json(self):
+        """
+        Convert the line to a JSON serializable format.
+        """
+        return self._line.copy()

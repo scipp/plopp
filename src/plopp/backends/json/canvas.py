@@ -123,3 +123,21 @@ class Canvas:
         Return ``True`` if the user has set a y-axis label.
         """
         return self.ylabel is not None
+
+    def as_json(self):
+        """
+        Convert the canvas to a JSON serializable format.
+        """
+        return {
+            "figsize": self.figsize,
+            "title": self.title,
+            "grid": self.grid,
+            "aspect": self.aspect,
+            "cbar": self.cbar,
+            "xrange": self.xrange,
+            "yrange": self.yrange,
+            "xlabel": self.xlabel,
+            "ylabel": self.ylabel,
+            "xscale": self.xscale,
+            "yscale": self.yscale,
+        }
