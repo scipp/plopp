@@ -358,7 +358,7 @@ class Canvas:
         """
         Handle clicks on the log buttons.
         """
-        if event.inaxes in ({self.cax} - {None}):
+        if (self.cax is not None) and (event.inaxes is self.cax):
             if self._logc_button.contains(event):
                 self._logc_button.toggle()
                 self._toggle_color_norm()
