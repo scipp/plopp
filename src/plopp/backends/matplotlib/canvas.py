@@ -384,6 +384,10 @@ class Canvas:
         to show the log buttons.
         """
         self.fig.canvas.draw_idle()
+
+        if not self.is_widget():
+            return
+
         dpi = self.fig.dpi
         axes_bbox = self.ax.get_position().transformed(self.fig.transFigure)
         self._axes_bbox = Bbox(
