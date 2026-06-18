@@ -6,7 +6,7 @@ from functools import partial
 import pytest
 
 from plopp import Node
-from plopp.data import data1d, data2d, data_array, scatter
+from plopp.data import data1d, data2d, scatter
 from plopp.graphics import imagefigure, linefigure, scatter3dfigure, scatterfigure
 
 CASES = {
