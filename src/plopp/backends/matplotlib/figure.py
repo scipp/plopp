@@ -165,19 +165,23 @@ class InteractiveFigure(MplBaseFig, VBox):
         that belong to the same figure, e.g. subplots.
         """
         if not hasattr(self.fig, '_plopp_home_data'):
-            self.fig._plopp_home_data = {'callbacks': [], 'toolbars': []}
+            self.fig._plopp_home_data = {'callbacks': {}, 'toolbars': {}}
         data = self.fig._plopp_home_data
-        # Store the original callback
-        data['callbacks'].append(self.toolbar['home'].callback)
-        data['toolbars'].append(self.toolbar)
+        axes_id = id(self.ax)
+        # Store the original callback.
+        # We use a dict to make sure that for repeated use of the same axes via
+        # successive figure creations, we do not grow the list of callbacks
+        # indefinitely.
+        data['callbacks'][axes_id] = self.toolbar['home'].callback
+        data['toolbars'][axes_id] = self.toolbar
 
         # Create a linked callback that calls ALL original callbacks
         def linked_home():
-            for callback in data['callbacks']:
+            for callback in data['callbacks'].values():
                 callback()
 
         # Update all toolbars (including this one) to use the linked callback
-        for toolbar in data['toolbars']:
+        for toolbar in data['toolbars'].values():
             toolbar['home'].callback = linked_home
 
 
