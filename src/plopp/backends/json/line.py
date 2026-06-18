@@ -27,15 +27,23 @@ class Line:
         artist_number: int = 0,
         errorbars: bool = True,
         mask_color: str | None = None,
-        **kwargs,
+        color: str | None = None,
+        linestyle: str | None = None,
+        marker: str | None = None,
+        markerfacecolor: str | None = None,
+        markeredgecolor: str | None = None,
+        markersize: float | None = None,
+        markeredgewidth: float | None = None,
+        zorder: int | None = None,
+        visible: bool = True,
+        opacity: float = 1.0,
     ):
         check_ndim(data, ndim=1, origin='Line')
         self.uid = uid if uid is not None else uuid.uuid4().hex
         self._canvas = canvas
-        self._ax = self._canvas.ax
         self._data = data
 
-        line_args = parse_dicts_in_kwargs(kwargs, name=data.name)
+        # line_args = parse_dicts_in_kwargs(kwargs, name=data.name)
 
         self._line = None
         self._mask = None
@@ -48,73 +56,65 @@ class Line:
         if mask_color is None:
             mask_color = 'black'
 
-        aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
-        for key, alias in aliases.items():
-            if key in line_args:
-                line_args[alias] = line_args.pop(key)
+        # aliases = {'ls': 'linestyle', 'lw': 'linewidth', 'c': 'color'}
+        # for key, alias in aliases.items():
+        #     if key in line_args:
+        #         line_args[alias] = line_args.pop(key)
 
         line_data = make_line_data(data=self._data, dim=self._dim)
 
-        default_step_style = {
-            'linestyle': 'solid',
-            'linewidth': 1.5,
-            'color': f'C{artist_number}',
-            'zorder': 2,
-        }
         markers = list(Line2D.markers.keys())
-        default_plot_style = {
-            'linestyle': 'none',
-            'linewidth': 1.5,
-            'marker': markers[(artist_number + 2) % len(markers)],
-            'color': f'C{artist_number}',
-            'zorder': 2,
-        }
 
         if line_data["hist"]:
-            self._line = self._ax.step(
-                line_data['values']['x'],
-                line_data['values']['y'],
-                label=self.label,
-                **{**default_step_style, **line_args},
-            )[0]
-
-            self._mask = self._ax.step(line_data['mask']['x'], line_data['mask']['y'])[
-                0
-            ]
+            self._line = {
+                "kind": "step",
+                "x": line_data['values']['x'],
+                "y": line_data['values']['y'],
+                "label": self.label,
+                "linestyle": linestyle or "solid",
+                "color": color or f"C{artist_number}",
+                "zorder": zorder or 2,
+                "visible": visible,
+                "opacity": opacity,
+            }
+            # self._mask = {
+            #     "kind": "step",
+            #     "x": line_data['mask']['x'],
+            #     "y": line_data['mask']['y'],
+            #     "linestyle": linestyle or "solid",
+            #     "color": mask_color,
+            #     "zorder": (zorder or 2) - 1,
+            #     "visible": visible,
+            #     "opacity": opacity,
+            # }
         else:
-            self._line = self._ax.plot(
-                line_data['values']['x'],
-                line_data['values']['y'],
-                label=self.label,
-                **{**default_plot_style, **line_args},
-            )[0]
-            self._mask = self._ax.plot(line_data['mask']['x'], line_data['mask']['y'])[
-                0
-            ]
-
-        self._mask.update_from(self._line)
-        self._mask.set_color(mask_color)
-        self._mask.set_label(None)
-        self._mask.set_visible(line_data['mask']['visible'])
-        if self._line.get_marker().lower() != 'none':
-            self._mask.set(
-                mec=mask_color, mfc='None', mew=3.0, zorder=self._line.get_zorder() + 1
-            )
-        if self._line.get_linestyle().lower() != 'none':
-            self._mask.set(
-                lw=self._line.get_linewidth() * 3, zorder=self._line.get_zorder() - 1
-            )
+            self._line = {
+                "kind": "line",
+                "x": line_data['values']['x'],
+                "y": line_data['values']['y'],
+                "label": self.label,
+                "linestyle": linestyle or "none",
+                "marker": marker or markers[(artist_number + 2) % len(markers)],
+                "color": color or f"C{artist_number}",
+                "zorder": zorder or 2,
+                "visible": visible,
+                "opacity": opacity,
+            }
+            # self._mask = {
+            #     "kind": "line",
+            #     "x": line_data['mask']['x'],
+            #     "y": line_data['mask']['y'],
+            #     "linestyle": linestyle or "none",
+            #     "marker": marker or markers[(artist_number + 2) % len(markers)],
+            #     "color": mask_color,
+            #     "zorder": (zorder or 2) + 1,
+            #     "visible": visible,
+            #     "opacity": opacity,
+            # }
 
         # Add error bars
         if errorbars and (line_data['stddevs'] is not None):
-            self._error = self._ax.errorbar(
-                line_data['stddevs']['x'],
-                line_data['stddevs']['y'],
-                yerr=line_data['stddevs']['e'],
-                color=self._line.get_color(),
-                zorder=self._line.get_zorder(),
-                fmt="none",
-            )
+            self._line["e"] = line_data['stddevs']['e']
 
     def update(self, new_values: sc.DataArray):
         """
@@ -129,121 +129,85 @@ class Line:
         self._data = new_values
         line_data = make_line_data(data=self._data, dim=self._dim)
 
-        self._line.set_data(line_data['values']['x'], line_data['values']['y'])
-        self._mask.set_data(line_data['mask']['x'], line_data['mask']['y'])
-        self._mask.set_visible(line_data['mask']['visible'])
+        self._line.update(x=line_data['values']['x'], y=line_data['values']['y'])
+        # self._mask.update(x=line_data['mask']['x'], y=line_data['mask']['y'])
 
-        if (self._error is not None) and (line_data['stddevs'] is not None):
-            coll = self._error.get_children()[0]
-            coll.set_segments(
-                self._change_segments_y(
-                    _to_float(line_data['stddevs']['x']),
-                    _to_float(line_data['stddevs']['y']),
-                    _to_float(line_data['stddevs']['e']),
-                )
-            )
-
-    def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
-        """
-        Update the positions of the errorbars when `update_data` is called.
-        """
-        arr1 = np.repeat(x, 2)
-        arr2 = np.array([y - e, y + e]).T.flatten()
-        return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
+        if ("e" in self._line) and (line_data['stddevs'] is not None):
+            self._line["e"] = line_data['stddevs']['e']
 
     def remove(self):
         """
         Remove the line, masks and errorbar artists from the canvas.
         """
-        self._line.remove()
-        self._mask.remove()
-        if self._error is not None:
-            self._error.remove()
-        self._canvas.draw()
+        pass
 
     @property
     def color(self) -> str:
         """
         The line color.
         """
-        return self._line.get_color()
+        return self._line.get("color", None)
 
     @color.setter
     def color(self, val: str):
-        self._line.set_color(val)
-        if self._error is not None:
-            for artist in self._error.get_children():
-                artist.set_color(val)
-        self._canvas.draw()
+        self._line["color"] = val
 
     @property
     def style(self) -> str:
         """
         The line style.
         """
-        return self._line.get_linestyle()
+        return self._line.get("linestyle", None)
 
     @style.setter
     def style(self, val: str):
-        self._line.set_linestyle(val)
-        self._canvas.draw()
+        self._line["linestyle"] = val
 
     @property
     def width(self) -> float:
         """
         The line width.
         """
-        return self._line.get_linewidth()
+        return self._line.get("linewidth", None)
 
     @width.setter
     def width(self, val: float):
-        self._line.set_linewidth(val)
-        self._canvas.draw()
+        self._line["linewidth"] = val
 
     @property
     def marker(self) -> str:
         """
         The line marker.
         """
-        return self._line.get_marker()
+        return self._line.get("marker", None)
 
     @marker.setter
     def marker(self, val: str):
-        self._line.set_marker(val)
-        self._mask.set_marker(val)
-        self._canvas.draw()
+        self._line["marker"] = val
+        # self._mask["marker"] = val
 
     @property
     def visible(self) -> bool:
         """
         Whether the line is visible.
         """
-        return self._line.get_visible()
+        return self._line.get("visible", None)
 
     @visible.setter
     def visible(self, val: bool):
-        self._line.set_visible(val)
-        self._mask.set_visible(val)
-        if self._error is not None:
-            for artist in self._error.get_children():
-                artist.set_visible(val)
-        self._canvas.draw()
+        self._line["visible"] = val
+        # self._mask["visible"] = val
 
     @property
     def opacity(self) -> float:
         """
         The line opacity.
         """
-        return self._line.get_alpha()
+        return self._line.get("opacity", None)
 
     @opacity.setter
     def opacity(self, val: float):
-        self._line.set_alpha(val)
-        self._mask.set_alpha(val)
-        if self._error is not None:
-            for artist in self._error.get_children():
-                artist.set_alpha(val)
-        self._canvas.draw()
+        self._line["opacity"] = val
 
     def bbox(
         self, xscale: Literal['linear', 'log'], yscale: Literal['linear', 'log']
@@ -262,7 +226,7 @@ class Line:
         return make_line_bbox(
             data=self._data,
             dim=self._dim,
-            errorbars=self._error is not None,
+            errorbars="e" in self._line,
             xscale=xscale,
             yscale=yscale,
         )
