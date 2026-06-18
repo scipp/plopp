@@ -72,8 +72,16 @@ class HoverButtonWidget(anywidget.AnyWidget):
         }
       }
 
+      function updateLogButton() {
+        const toggleValue = model.get('log_toggle_value');
+        log_button.style.backgroundColor = toggleValue ? 'gray' : 'lightgray';
+      }
+
       // Initial SVG
       updateSVG();
+
+      // Initial state
+      updateLogButton();
 
       // Show button on hover
       container.addEventListener('mouseenter', () => {
@@ -99,11 +107,8 @@ class HoverButtonWidget(anywidget.AnyWidget):
       // Listen for SVG changes
       model.on('change:svg_data', updateSVG);
 
-      // Listen for toggle state changes
-      model.on('change:log_toggle_value', () => {
-          const toggleValue = model.get('log_toggle_value');
-          log_button.style.backgroundColor = toggleValue ? 'gray' : 'lightgray';
-      });
+      // Future changes
+      model.on('change:log_toggle_value', updateLogButton);
 
       // Assemble widget
       container.appendChild(svgContainer);
@@ -118,8 +123,9 @@ class HoverButtonWidget(anywidget.AnyWidget):
     svg_data = traitlets.Bytes(b'').tag(sync=True)
     log_toggle_value = traitlets.Bool(False).tag(sync=True)
 
-    def __init__(self, **kwargs):
+    def __init__(self, log_value: bool = False, **kwargs):
         super().__init__(**kwargs)
+        self.log_toggle_value = log_value
         self.on_msg(self._handle_custom_msg)
 
     def _handle_custom_msg(self, content, buffers):
