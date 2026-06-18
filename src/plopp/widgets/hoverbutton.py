@@ -62,7 +62,7 @@ class HoverButtonWidget(anywidget.AnyWidget):
 
       // Function to update SVG
       function updateSVG() {
-        const svgData = model.get('svg_data');
+        const svgData = new TextDecoder().decode(model.get('svg_data'));
         svgContainer.innerHTML = svgData;
         const svg = svgContainer.querySelector('svg');
         if (svg) {
@@ -115,7 +115,7 @@ class HoverButtonWidget(anywidget.AnyWidget):
     """
 
     # Traitlets
-    svg_data = traitlets.Unicode('').tag(sync=True)
+    svg_data = traitlets.Bytes(b'').tag(sync=True)
     log_toggle_value = traitlets.Bool(False).tag(sync=True)
 
     def __init__(self, **kwargs):

@@ -239,23 +239,22 @@ def test_colorbar_updated_on_rescale():
 
     mapper.autoscale()
     _ = mapper.to_widget()
-    old_image = mapper.widget.value
-    old_image_array = old_image
+    old_image = mapper.widget.svg_data
 
     # Update with the same values should not make a new colorbar image
     artist.update(da)
     mapper.autoscale()
-    assert string_similarity(old_image_array, mapper.widget.value) > 0.9
+    assert string_similarity(old_image, mapper.widget.svg_data) > 0.9
 
     # Update with a smaller range should make a new colorbar image
     artist.update(da * 0.6)
     mapper.autoscale()
-    assert string_similarity(old_image_array, mapper.widget.value) < 0.9
+    assert string_similarity(old_image, mapper.widget.svg_data) < 0.9
 
     # Update with larger range should make a new colorbar image
     artist.update(da * 3.1)
     mapper.autoscale()
-    assert string_similarity(old_image_array, mapper.widget.value) < 0.9
+    assert string_similarity(old_image, mapper.widget.svg_data) < 0.9
 
 
 def test_colorbar_does_not_update_if_no_autoscale():
@@ -266,20 +265,19 @@ def test_colorbar_does_not_update_if_no_autoscale():
 
     mapper.autoscale()
     _ = mapper.to_widget()
-    old_image = mapper.widget.value
-    old_image_array = old_image
+    old_image = mapper.widget.svg_data
 
     # Update with the same values
     artist.update(da)
-    assert old_image is mapper.widget.value
+    assert old_image is mapper.widget.svg_data
 
     # Update with a smaller range
     artist.update(da * 0.8)
-    assert old_image is mapper.widget.value
+    assert old_image is mapper.widget.svg_data
 
     # Update with larger range
     artist.update(da * 2.3)
-    assert old_image_array is mapper.widget.value
+    assert old_image is mapper.widget.svg_data
 
 
 def test_colorbar_is_not_created_if_cbar_false():

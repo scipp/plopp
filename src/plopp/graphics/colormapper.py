@@ -209,8 +209,9 @@ class ColorMapper:
             # current implementation.
             self.cax.set_navigate(False)
 
-            self._canvas._toggle_color_norm = self.toggle_norm
-            self._canvas._autoscale_colors = self.autoscale
+            if self._canvas is not None:
+                self._canvas._toggle_color_norm = self.toggle_norm
+                self._canvas._autoscale_colors = self.autoscale
 
     def add_artist(self, key: str, artist: Any):
         self.artists[key] = artist

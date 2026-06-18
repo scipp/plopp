@@ -245,6 +245,10 @@ class Canvas:
             self.ax.set_title(title)
         self._coord_formatters = []
 
+        self._logx_button = None
+        self._logy_button = None
+        self._logc_button = None
+        self._fitc_button = None
         if self.is_widget():
             # Hide the native toolbar: it will be replaced by our own. Also hide the
             # header in ipympl figures which takes up a lot of vertical space.
@@ -558,7 +562,8 @@ class Canvas:
     @xscale.setter
     def xscale(self, scale: Literal['linear', 'log']):
         self.ax.set_xscale(scale)
-        self._logx_button.value = scale == 'log'
+        if self._logx_button is not None:
+            self._logx_button.value = scale == 'log'
 
     @property
     def yscale(self) -> Literal['linear', 'log']:
@@ -570,7 +575,8 @@ class Canvas:
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):
         self.ax.set_yscale(scale)
-        self._logy_button.value = scale == 'log'
+        if self._logy_button is not None:
+            self._logy_button.value = scale == 'log'
 
     @property
     def xmin(self) -> float:
