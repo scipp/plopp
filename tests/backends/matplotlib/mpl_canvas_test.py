@@ -18,6 +18,11 @@ class MouseEvent:
 @pytest.mark.parametrize("ndim", [1, 2])
 def test_logx_button_state_agrees_with_kwarg(ndim):
     da = data_array(ndim=ndim)
+
+    canvas = da.plot(logx=False).canvas
+    assert not canvas._logx_button.value
+    assert not canvas._logy_button.value
+
     canvas = da.plot(logx=True).canvas
     assert canvas._logx_button.value
     assert not canvas._logy_button.value
@@ -61,6 +66,11 @@ def test_clicking_logx_button_toggles_xscale(ndim):
 @pytest.mark.parametrize("ndim", [1, 2])
 def test_logy_button_state_agrees_with_kwarg(ndim):
     da = data_array(ndim=ndim)
+
+    canvas = da.plot(logy=False).canvas
+    assert not canvas._logy_button.value
+    assert not canvas._logx_button.value
+
     canvas = da.plot(logy=True).canvas
     assert canvas._logy_button.value
     assert not canvas._logx_button.value

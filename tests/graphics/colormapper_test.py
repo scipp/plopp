@@ -372,31 +372,48 @@ class TestColormapperAllCases:
         assert fig.view.colormapper.ylabel == '[K]'
 
 
-CASESINTERACTIVE = {k: c for k, c in CASES.items() if c[0][1] != 'mpl-static'}
+def test_toolbar_3d_log_norm_button_state_agrees_with_kwarg():
+    da = scatter()
+    fig = scatter3dfigure(Node(da), cbar=True, logc=False)
+    cmapper = fig.view.colormapper
+    cbar = cmapper.to_widget()
+    assert not cbar.log_toggle_value
+    assert cmapper.norm == 'linear'
+
+    fig = scatter3dfigure(Node(da), cbar=True, logc=True)
+    cmapper = fig.view.colormapper
+    cbar = cmapper.to_widget()
+    assert cbar.log_toggle_value
+    assert cmapper.norm == 'log'
 
 
-@pytest.mark.parametrize(
-    ("backend", "figure", "data"),
-    CASESINTERACTIVE.values(),
-    ids=CASESINTERACTIVE.keys(),
-)
-class TestColormapperInteractiveCases:
-    def test_toolbar_log_norm_button_state_agrees_with_kwarg(
-        self, set_backend, backend, figure, data
-    ):
-        da = data()
-        fig = figure(Node(da))
-        assert not fig.toolbar['lognorm'].value
-        assert fig.view.colormapper.norm == 'linear'
-        fig = figure(Node(da), norm='log')
-        assert fig.toolbar['lognorm'].value
-        assert fig.view.colormapper.norm == 'log'
+def test_toolbar_3d_log_norm_button_state_agrees_with_colormapper_norm():
+    da = scatter()
+    fig = scatter3dfigure(Node(da), cbar=True, logc=False)
+    cmapper = fig.view.colormapper
+    cbar = cmapper.to_widget()
+    assert not cbar.log_toggle_value
+    assert cmapper.norm == 'linear'
 
-    def test_toolbar_log_norm_button_toggles_colormapper_norm(
-        self, set_backend, backend, figure, data
-    ):
-        da = data()
-        fig = figure(Node(da))
-        assert fig.view.colormapper.norm == 'linear'
-        fig.toolbar['lognorm'].value = True
-        assert fig.view.colormapper.norm == 'log'
+    cmapper.norm = 'log'
+    assert cbar.log_toggle_value
+
+
+def test_toolbar_3d_log_norm_button_toggles_colormapper_norm():
+    da = scatter()
+    fig = scatter3dfigure(Node(da), cbar=True, logc=False)
+    cmapper = fig.view.colormapper
+    cbar = cmapper.to_widget()
+    assert cmapper.norm == 'linear'
+
+    # 'click' the log norm button
+    cbar._log_button_click_handler()
+
+    assert cbar.log_toggle_value
+    assert cmapper.norm == 'log'
+
+    # 'click' the log norm button again to go back to linear
+    cbar._log_button_click_handler()
+
+    assert not cbar.log_toggle_value
+    assert cmapper.norm == 'linear'

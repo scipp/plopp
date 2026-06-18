@@ -227,12 +227,7 @@ class ColorMapper:
 
         self.widget = HoverButtonWidget(log_value=self._logc)
         self._update_colorbar_widget()
-
-        def toggle_log_button():
-            self.toggle_norm()
-            self.widget.log_toggle_value = self._logc
-
-        self.widget.on_log_button_click(toggle_log_button)
+        self.widget.on_log_button_click(self.toggle_norm)
 
         def fit():
             self.autoscale()
@@ -423,6 +418,8 @@ class ColorMapper:
         self._cmax["data"] = -np.inf
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
+        if self.widget is not None:
+            self.widget.log_toggle_value = self._logc
         self.autoscale()
         if self._canvas is not None:
             self._canvas.draw()
