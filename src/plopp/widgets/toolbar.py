@@ -71,7 +71,7 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
         tools={
             "home": tools.HomeTool(autoscale_axes, tooltip="Autoscale axes range"),
             "panzoom": tools.PanZoomTool(view.canvas.panzoom),
-            "grid": tools.GridTool(grid),
+            "grid": tools.GridTool(grid, value=view.canvas.grid),
             "save": tools.SaveTool(view.canvas.download_figure),
         }
     )
