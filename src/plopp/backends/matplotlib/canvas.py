@@ -221,6 +221,8 @@ class Canvas:
         self.dims = {}
         self._legend = legend
         self._autoscale_axes = autoscale_axes
+        self._toggle_color_norm = None
+        self._autoscale_colors = None
 
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
