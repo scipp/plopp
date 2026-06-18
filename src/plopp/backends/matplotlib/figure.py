@@ -2,6 +2,8 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 from __future__ import annotations
 
+from functools import partial
+
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure as MplFigure
 
@@ -137,7 +139,7 @@ class InteractiveFigure(MplBaseFig, VBox):
         self.interactive = True
         self.toolbar = make_toolbar_canvas2d(view=self.view)
 
-        self._setup_linked_home_buttons()
+        self._setup_linked_buttons()
 
         self.left_bar = VBar([self.toolbar])
         self.right_bar = VBar()
@@ -158,27 +160,34 @@ class InteractiveFigure(MplBaseFig, VBox):
             self.bottom_bar,
         ]
 
-    def _setup_linked_home_buttons(self):
+    def _setup_linked_buttons(self):
         """
-        Link home buttons across all Plopp figures sharing this matplotlib figure.
+        Link some buttons buttons across all Plopp figures sharing this matplotlib
+        figure (e.g. the 'home' or 'grid' buttons).
         This is needed when multiple Plopp figures are created from matplotlib axes
         that belong to the same figure, e.g. subplots.
         """
-        if not hasattr(self.fig, '_plopp_home_data'):
-            self.fig._plopp_home_data = {'callbacks': [], 'toolbars': []}
-        data = self.fig._plopp_home_data
-        # Store the original callback
-        data['callbacks'].append(self.toolbar['home'].callback)
+        keys = ('home', 'grid')
+        if not hasattr(self.fig, '_plopp_buttons_data'):
+            self.fig._plopp_buttons_data = {
+                'callbacks': {key: [] for key in keys},
+                'toolbars': [],
+            }
+        data = self.fig._plopp_buttons_data
+        # Store the original callbacks
+        for key in keys:
+            data['callbacks'][key].append(self.toolbar[key].callback)
         data['toolbars'].append(self.toolbar)
 
         # Create a linked callback that calls ALL original callbacks
-        def linked_home():
-            for callback in data['callbacks']:
+        def linked_home(key):
+            for callback in data['callbacks'][key]:
                 callback()
 
         # Update all toolbars (including this one) to use the linked callback
         for toolbar in data['toolbars']:
-            toolbar['home'].callback = linked_home
+            for key in keys:
+                toolbar[key].callback = partial(linked_home, key)
 
 
 class StaticFigure(MplBaseFig):
