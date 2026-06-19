@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026 Scipp contributors (https://github.com/scipp)
 
+import matplotlib.pyplot as plt
 import pytest
 
 from plopp.data.testing import data_array
@@ -151,3 +152,20 @@ def test_clicking_logc_button_toggles_colormapper_norm():
     fig.canvas._on_log_button_click(MouseEvent(x, y - 5, fig.canvas.cax))
     assert fig.view.colormapper.norm == 'linear'
     assert not but.value
+
+
+def test_home_button_rescales_all_axes_sharing_a_figure():
+    da = data_array(ndim=1)
+    _, (ax0, ax1) = plt.subplots(2, 1)
+    p0 = da.plot(ax=ax0)
+    p1 = (da * 10.0).plot(ax=ax1)
+
+    expected = p1.canvas.yrange
+    # Perturb only the second figure.
+    p1.canvas.yrange = (-100.0, 100.0)
+
+    # Clicking Home on the first figure must also rescale the second one, since they
+    # share the same Matplotlib figure (e.g. subplots).
+    p0.toolbar['home'].callback()
+
+    assert p1.canvas.yrange == pytest.approx(expected)
