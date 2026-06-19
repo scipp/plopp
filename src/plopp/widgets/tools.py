@@ -152,20 +152,6 @@ class MultiToggleTool(ipw.VBox):
 HomeTool = partial(ButtonTool, icon='home')
 """Return home tool."""
 
-AutoscaleTool = partial(ButtonTool, icon='arrows-v', tooltip='Autoscale colorbar range')
-"""Autoscale the colorbar to fit the data."""
-
-LogxTool = partial(ToggleTool, description='logx', tooltip='Toggle X axis scale')
-"""Toggle horizontal axis scale tool."""
-
-LogyTool = partial(ToggleTool, description='logy', tooltip='Toggle Y axis scale')
-"""Toggle vertical axis scale tool."""
-
-LogNormTool = partial(
-    ToggleTool, description='log', tooltip='Toggle colorscale normalization'
-)
-"""Toggle normalization scale tool."""
-
 GridTool = partial(ToggleTool, icon='th', tooltip='Toggle grid visibility')
 """Toggle grid visibility tool."""
 

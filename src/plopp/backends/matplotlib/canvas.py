@@ -221,6 +221,8 @@ class Canvas:
         self.dims = {}
         self._legend = legend
         self._autoscale_axes = autoscale_axes
+        self._toggle_color_norm = None
+        self._autoscale_colors = None
 
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
@@ -271,9 +273,6 @@ class Canvas:
                 self._fitc_button = CanvasToggleButton(
                     ax=self.cax, label="fit", position=(0.5, 0.02), va="bottom", **args
                 )
-            else:
-                self._logc_button = None
-                self._fitc_button = None
 
             self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
             self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
@@ -359,7 +358,7 @@ class Canvas:
         """
         Handle clicks on the log buttons.
         """
-        if event.inaxes in ({self.cax} - {None}):
+        if (self.cax is not None) and (event.inaxes is self.cax):
             if self._logc_button.contains(event):
                 self._logc_button.toggle()
                 self._toggle_color_norm()
@@ -387,8 +386,20 @@ class Canvas:
         to show the log buttons.
         """
         self.fig.canvas.draw_idle()
+
+        if not self.is_widget():
+            return
+
         dpi = self.fig.dpi
         axes_bbox = self.ax.get_position().transformed(self.fig.transFigure)
+        # The region where the log buttons are shown is slightly larger than the axes:
+        # the logx button is in the lower right corner just below the x axis, and the
+        # logy button is in the upper left corner just to the left of the y axis.
+        # We add corresponding padding to the bbox in pixels that depends on the dpi.
+        # We need to add at least the width of the logy button to the left of the y
+        # axis, and the height of the logx button below the x axis. Trial and error
+        # shows that 0.45 inch of padding is enough for the logy button, and 0.25 inch
+        # is enough for the logx button.
         self._axes_bbox = Bbox(
             [
                 [axes_bbox.x0 - 0.45 * dpi, axes_bbox.y0 - 0.25 * dpi],
@@ -396,6 +407,10 @@ class Canvas:
             ]
         )
         if self.cax is not None:
+            # For the colorbar, we want to show the log button above the colorbar when
+            # we hover over it. We add some padding around the colorbar to make it
+            # easier to trigger the button display, which is for example when hovering
+            # over the colorbar label and not just the coloured bar itself.
             cbar_bbox = self.cax.get_position().transformed(self.fig.transFigure)
             self._cbar_bbox = Bbox(
                 [

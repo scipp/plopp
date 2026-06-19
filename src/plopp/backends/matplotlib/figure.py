@@ -170,22 +170,26 @@ class InteractiveFigure(MplBaseFig, VBox):
         keys = ('home', 'grid')
         if not hasattr(self.fig, '_plopp_buttons_data'):
             self.fig._plopp_buttons_data = {
-                'callbacks': {key: [] for key in keys},
-                'toolbars': [],
+                'callbacks': {key: {} for key in keys},
+                'toolbars': {},
             }
         data = self.fig._plopp_buttons_data
+        axes_id = id(self.ax)
         # Store the original callbacks
+        # We use a dict to make sure that for repeated use of the same axes via
+        # successive figure creations, we do not grow the list of callbacks
+        # indefinitely.
         for key in keys:
-            data['callbacks'][key].append(self.toolbar[key].callback)
-        data['toolbars'].append(self.toolbar)
+            data['callbacks'][key][axes_id] = self.toolbar[key].callback
+        data['toolbars'][axes_id] = self.toolbar
 
         # Create a linked callback that calls ALL original callbacks
         def linked_home(key):
-            for callback in data['callbacks'][key]:
+            for callback in data['callbacks'][key].values():
                 callback()
 
         # Update all toolbars (including this one) to use the linked callback
-        for toolbar in data['toolbars']:
+        for toolbar in data['toolbars'].values():
             for key in keys:
                 toolbar[key].callback = partial(linked_home, key)
 

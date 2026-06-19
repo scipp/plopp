@@ -33,7 +33,7 @@ class HoverButtonWidget(anywidget.AnyWidget):
       log_button.textContent = 'log';
       log_button.style.position = 'absolute';
       log_button.style.top = '5%';
-      log_button.style.left = '20px';
+      log_button.style.left = '30px';
       log_button.style.transform = 'translate(-50%, -50%)';
       log_button.style.padding = '4px 4px';
       log_button.style.fontSize = '1em';
@@ -49,7 +49,7 @@ class HoverButtonWidget(anywidget.AnyWidget):
       fit_button.textContent = 'fit';
       fit_button.style.position = 'absolute';
       fit_button.style.bottom = '5%';
-      fit_button.style.left = '20px';
+      fit_button.style.left = '30px';
       fit_button.style.transform = 'translate(-50%, 50%)';
       fit_button.style.padding = '4px 4px';
       fit_button.style.fontSize = '1em';
