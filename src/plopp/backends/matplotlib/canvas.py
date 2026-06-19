@@ -2,12 +2,15 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import warnings
+from collections.abc import Callable
 from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipp as sc
 from matplotlib import dates as mdates
+from matplotlib.backend_bases import MouseEvent
+from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
@@ -50,6 +53,70 @@ def _maybe_trim_polar_limits(
     if axis_type != 'polar':
         return limits
     return tuple(np.clip(limits, 0, 2 * np.pi))
+
+
+class CanvasToggleButton:
+    _value: bool
+
+    def __init__(
+        self,
+        ax: plt.Axes,
+        label: str,
+        position: tuple[float, float],
+        value: bool = False,
+        **kwargs,
+    ):
+        default_style = {"visible": False, "fontsize": 9, "zorder": np.inf}
+        self._text = ax.text(*position, label, **{**default_style, **kwargs})
+        self.value = value
+
+    def contains(self, event: MouseEvent) -> bool:
+        return self._text.contains(event)[0]
+
+    @property
+    def visible(self) -> bool:
+        return self._text.get_visible()
+
+    @visible.setter
+    def visible(self, visible: bool):
+        self._text.set_visible(visible)
+
+    def toggle(self):
+        self.value = not self.value
+
+    @property
+    def value(self) -> bool:
+        return self._value
+
+    @value.setter
+    def value(self, val: bool):
+        self._value = val
+        self._text.set_bbox(
+            {
+                "boxstyle": "round,pad=0.3",
+                "facecolor": "0.65" if val else "0.9",
+                "edgecolor": "0.5",
+            }
+        )
+
+    @property
+    def label(self) -> str:
+        return self._text.get_text()
+
+    @label.setter
+    def label(self, text: str):
+        self._text.set_text(text)
+
+    @property
+    def position(self) -> tuple[float, float]:
+        """
+        The position of the button in display coordinates.
+        """
+        return self._text.get_position()
+
+    @position.setter
+    def position(self, pos: tuple[float, float]):
+        self._text.set_position(pos)
 
 
 class Canvas:
@@ -124,6 +191,7 @@ class Canvas:
         xlabel: str | None = None,
         ylabel: str | None = None,
         norm: Literal['linear', 'log'] | None = None,
+        autoscale_axes: Callable | None = None,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -152,13 +220,13 @@ class Canvas:
         self.units = {}
         self.dims = {}
         self._legend = legend
+        self._autoscale_axes = autoscale_axes
+        self._toggle_color_norm = None
+        self._autoscale_colors = None
 
         if self.ax is None:
             self.fig = make_figure(figsize=(6.0, 4.0) if figsize is None else figsize)
             self.ax = self.fig.add_subplot()
-            if self.is_widget():
-                self.fig.canvas.toolbar_visible = False
-                self.fig.canvas.header_visible = False
         else:
             self.fig = self.ax.get_figure()
         if aspect is not None:
@@ -179,6 +247,36 @@ class Canvas:
             self.ax.set_title(title)
         self._coord_formatters = []
 
+        self._logx_button = None
+        self._logy_button = None
+        self._logc_button = None
+        self._fitc_button = None
+        if self.is_widget():
+            # Hide the native toolbar: it will be replaced by our own. Also hide the
+            # header in ipympl figures which takes up a lot of vertical space.
+            self.fig.canvas.toolbar_visible = False
+            self.fig.canvas.header_visible = False
+
+            args = {"transform": self.ax.transAxes, "ha": "right", "va": "top"}
+            self._logx_button = CanvasToggleButton(
+                ax=self.ax, label="logX", position=(0.985, -0.02), **args
+            )
+            self._logy_button = CanvasToggleButton(
+                ax=self.ax, label="logY", position=(-0.015, 0.98), **args
+            )
+
+            if self.cax is not None:
+                args = {"transform": self.cax.transAxes, "ha": "center"}
+                self._logc_button = CanvasToggleButton(
+                    ax=self.cax, label="log", position=(0.5, 0.98), va="top", **args
+                )
+                self._fitc_button = CanvasToggleButton(
+                    ax=self.cax, label="fit", position=(0.5, 0.02), va="bottom", **args
+                )
+
+            self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
+            self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
+
         if logx:
             self.xscale = 'log'
         if logy:
@@ -187,6 +285,47 @@ class Canvas:
             self.xlabel = xlabel
         if ylabel is not None:
             self.ylabel = ylabel
+
+    def _on_mouse_move(self, event: MouseEvent):
+        """
+        Show log buttons when hovering over the axes or colorbar, and hide them
+        otherwise.
+        """
+        need_redraw = False
+
+        logxy_visible = self._logx_button.visible
+        inside = self._axes_bbox.contains(event.x, event.y)
+        if inside and (not logxy_visible):
+            self._logx_button.visible = True
+            self._logy_button.visible = True
+            need_redraw = True
+        elif (not inside) and logxy_visible:
+            self._logx_button.visible = False
+            self._logy_button.visible = False
+            need_redraw = True
+
+        if self._logc_button is not None:
+            logc_visible = self._logc_button.visible
+            inside_cax = self._cbar_bbox.contains(event.x, event.y)
+            if inside_cax and (not logc_visible):
+                # We may need to update the button toggle state as the canvas is created
+                # before the colormapper, but the latter sets the cbar state. We sync
+                # the button state when we hover over the axes just before making them
+                # visible
+                log_state = self.cax.get_yscale() == "log"
+                if self._logc_button.value != log_state:
+                    self._logc_button.value = log_state
+
+                self._logc_button.visible = True
+                self._fitc_button.visible = True
+                need_redraw = True
+            elif (not inside_cax) and logc_visible:
+                self._logc_button.visible = False
+                self._fitc_button.visible = False
+                need_redraw = True
+
+        if need_redraw:
+            self.draw()
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
@@ -215,11 +354,70 @@ class Canvas:
             return VBox([self.fig.canvas])
         return self.to_image()
 
+    def _on_log_button_click(self, event: MouseEvent):
+        """
+        Handle clicks on the log buttons.
+        """
+        if (self.cax is not None) and (event.inaxes is self.cax):
+            if self._logc_button.contains(event):
+                self._logc_button.toggle()
+                self._toggle_color_norm()
+            elif self._fitc_button.contains(event):
+                self._autoscale_colors()
+                self.draw()
+            return
+
+        need_redraw = False
+        if self._logx_button.contains(event):
+            self.toggle_logx()
+            need_redraw = True
+        elif self._logy_button.contains(event):
+            self.toggle_logy()
+            need_redraw = True
+        if need_redraw:
+            self._autoscale_axes()
+            self.draw()
+
     def draw(self):
         """
         Make a draw call to the underlying figure.
+
+        We also update the bounding box of the canvas, which is used to determine when
+        to show the log buttons.
         """
         self.fig.canvas.draw_idle()
+
+        if not self.is_widget():
+            return
+
+        dpi = self.fig.dpi
+        axes_bbox = self.ax.get_position().transformed(self.fig.transFigure)
+        # The region where the log buttons are shown is slightly larger than the axes:
+        # the logx button is in the lower right corner just below the x axis, and the
+        # logy button is in the upper left corner just to the left of the y axis.
+        # We add corresponding padding to the bbox in pixels that depends on the dpi.
+        # We need to add at least the width of the logy button to the left of the y
+        # axis, and the height of the logx button below the x axis. Trial and error
+        # shows that 0.45 inch of padding is enough for the logy button, and 0.25 inch
+        # is enough for the logx button.
+        self._axes_bbox = Bbox(
+            [
+                [axes_bbox.x0 - 0.45 * dpi, axes_bbox.y0 - 0.25 * dpi],
+                [axes_bbox.x1, axes_bbox.y1],
+            ]
+        )
+        if self.cax is not None:
+            # For the colorbar, we want to show the log button above the colorbar when
+            # we hover over it. We add some padding around the colorbar to make it
+            # easier to trigger the button display, which is for example when hovering
+            # over the colorbar label and not just the coloured bar itself.
+            cbar_bbox = self.cax.get_position().transformed(self.fig.transFigure)
+            self._cbar_bbox = Bbox(
+                [
+                    [cbar_bbox.x0 - 0.2 * dpi, cbar_bbox.y0 - 0.1 * dpi],
+                    [cbar_bbox.x1 + 0.2 * dpi, cbar_bbox.y1 + 0.1 * dpi],
+                ]
+            )
 
     def update_legend(self):
         """
@@ -379,6 +577,8 @@ class Canvas:
     @xscale.setter
     def xscale(self, scale: Literal['linear', 'log']):
         self.ax.set_xscale(scale)
+        if self._logx_button is not None:
+            self._logx_button.value = scale == 'log'
 
     @property
     def yscale(self) -> Literal['linear', 'log']:
@@ -390,6 +590,8 @@ class Canvas:
     @yscale.setter
     def yscale(self, scale: Literal['linear', 'log']):
         self.ax.set_yscale(scale)
+        if self._logy_button is not None:
+            self._logy_button.value = scale == 'log'
 
     @property
     def xmin(self) -> float:

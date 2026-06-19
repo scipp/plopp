@@ -9,8 +9,7 @@ import numpy as np
 from matplotlib import gridspec
 
 from ...core.typing import FigureLike
-from .figure import get_repr_maker
-from .utils import is_interactive_backend, make_figure
+from .utils import make_figure
 
 
 class Tiled:
@@ -68,8 +67,8 @@ class Tiled:
         nrows: int,
         ncols: int,
         figsize: tuple[float, float] | None = None,
-        hspace: float = 0.05,
-        wspace: float = 0.1,
+        hspace: float | None = None,
+        wspace: float | None = None,
         **kwargs: Any,
     ) -> None:
         self.nrows = nrows
@@ -82,6 +81,12 @@ class Tiled:
             ),
             layout='constrained',
         )
+
+        is_widget_backend = hasattr(self.fig.canvas, "on_widget_constructed")
+        if hspace is None:
+            hspace = 0.2 if is_widget_backend else 0.02
+        if wspace is None:
+            wspace = 0.2 if is_widget_backend else 0.05
 
         self.gs = gridspec.GridSpec(
             nrows, ncols, figure=self.fig, wspace=wspace, hspace=hspace, **kwargs
@@ -103,19 +108,11 @@ class Tiled:
     ) -> FigureLike:
         return self.figures[inds]
 
-    def _repr_mimebundle_(self, include=None, exclude=None) -> dict:
+    def _repr_mimebundle_(self, *args, **kwargs) -> dict:
         """
         Mimebundle display representation for jupyter notebooks.
         """
-        if is_interactive_backend():
-            return self.fig.canvas._repr_mimebundle_(include=include, exclude=exclude)
-        else:
-            out = {'text/plain': f'TiledFigure(nrows={self.nrows}, ncols={self.ncols})'}
-            npoints = sum(
-                len(line.get_xdata()) for ax in self.fig.get_axes() for line in ax.lines
-            )
-            out.update(get_repr_maker(npoints=npoints)(self.fig))
-            return out
+        return self.figures.ravel()[0]._repr_mimebundle_(*args, **kwargs)
 
     def save(self, filename: str, **kwargs: Any) -> None:
         """

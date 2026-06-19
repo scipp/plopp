@@ -205,6 +205,14 @@ class ColorMapper:
             if self._clabel is not None:
                 self.cax.set_ylabel(self._clabel)
 
+            # Disable zoom and pan on colorbar as this feature is not handled in the
+            # current implementation.
+            self.cax.set_navigate(False)
+
+            if self._canvas is not None:
+                self._canvas._toggle_color_norm = self.toggle_norm
+                self._canvas._autoscale_colors = self.autoscale
+
     def add_artist(self, key: str, artist: Any):
         self.artists[key] = artist
 
@@ -215,10 +223,17 @@ class ColorMapper:
         """
         Convert the colorbar into a widget for use with other ``ipywidgets``.
         """
-        import ipywidgets as ipw
+        from ..widgets.hoverbutton import HoverButtonWidget
 
-        self.widget = ipw.HTML()
+        self.widget = HoverButtonWidget(log_value=self._logc)
         self._update_colorbar_widget()
+        self.widget.on_log_button_click(self.toggle_norm)
+
+        def fit():
+            self.autoscale()
+            self._canvas.draw()
+
+        self.widget.on_fit_button_click(fit)
         return self.widget
 
     def _update_colorbar_widget(self):
@@ -226,7 +241,7 @@ class ColorMapper:
         Upon an updated colorscale range, we need to update the image inside the widget.
         """
         if self.widget is not None:
-            self.widget.value = fig_to_bytes(self.cax.get_figure(), form='svg').decode()
+            self.widget.set_svg(fig_to_bytes(self.cax.get_figure(), form='svg'))
 
     def rgba(self, data: sc.DataArray) -> np.ndarray:
         """
@@ -403,6 +418,8 @@ class ColorMapper:
         self._cmax["data"] = -np.inf
         if self.colorbar is not None:
             self.colorbar.mappable.norm = self.normalizer
+        if self.widget is not None:
+            self.widget.log_toggle_value = self._logc
         self.autoscale()
         if self._canvas is not None:
             self._canvas.draw()

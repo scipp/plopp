@@ -122,6 +122,7 @@ class GraphicalView(View):
             ylabel=ylabel,
             zlabel=zlabel,
             norm=norm if len(dims) == 1 else None,
+            autoscale_axes=self.autoscale,
         )
 
         if colormapper:

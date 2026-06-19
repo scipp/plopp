@@ -68,9 +68,6 @@
    widgets.tools.CameraTool
    widgets.tools.ColorTool
    widgets.tools.HomeTool
-   widgets.tools.LogNormTool
-   widgets.tools.LogxTool
-   widgets.tools.LogyTool
    widgets.tools.MultiToggleTool
    widgets.tools.OutlineTool
    widgets.tools.PanZoomTool
