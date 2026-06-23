@@ -274,7 +274,8 @@ class Canvas:
                     ax=self.cax, label="fit", position=(0.5, 0.02), va="bottom", **args
                 )
 
-            self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
+            self.fig.canvas.mpl_connect("figure_enter_event", self._on_figure_enter)
+            self.fig.canvas.mpl_connect("figure_leave_event", self._on_figure_leave)
             self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
 
         if logx:
@@ -286,46 +287,39 @@ class Canvas:
         if ylabel is not None:
             self.ylabel = ylabel
 
-    def _on_mouse_move(self, event: MouseEvent):
+    def _on_figure_enter(self, _):
         """
         Show log buttons when hovering over the axes or colorbar, and hide them
         otherwise.
         """
-        need_redraw = False
 
-        logxy_visible = self._logx_button.visible
-        inside = self._axes_bbox.contains(event.x, event.y)
-        if inside and (not logxy_visible):
+        if self._logx_button is not None:
             self._logx_button.visible = True
             self._logy_button.visible = True
-            need_redraw = True
-        elif (not inside) and logxy_visible:
+
+        # We may need to update the button toggle state as the canvas is created
+        # before the colormapper, but the latter sets the cbar state. We sync
+        # the button state when we hover over the axes just before making them
+        # visible
+        if self._logc_button is not None:
+            log_state = self.cax.get_yscale() == "log"
+            if self._logc_button.value != log_state:
+                self._logc_button.value = log_state
+            self._logc_button.visible = True
+            self._fitc_button.visible = True
+
+        self.draw()
+
+    def _on_figure_leave(self, _):
+        """ """
+        if self._logx_button is not None:
             self._logx_button.visible = False
             self._logy_button.visible = False
-            need_redraw = True
-
         if self._logc_button is not None:
-            logc_visible = self._logc_button.visible
-            inside_cax = self._cbar_bbox.contains(event.x, event.y)
-            if inside_cax and (not logc_visible):
-                # We may need to update the button toggle state as the canvas is created
-                # before the colormapper, but the latter sets the cbar state. We sync
-                # the button state when we hover over the axes just before making them
-                # visible
-                log_state = self.cax.get_yscale() == "log"
-                if self._logc_button.value != log_state:
-                    self._logc_button.value = log_state
+            self._logc_button.visible = False
+            self._fitc_button.visible = False
 
-                self._logc_button.visible = True
-                self._fitc_button.visible = True
-                need_redraw = True
-            elif (not inside_cax) and logc_visible:
-                self._logc_button.visible = False
-                self._fitc_button.visible = False
-                need_redraw = True
-
-        if need_redraw:
-            self.draw()
+        self.draw()
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
