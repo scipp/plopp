@@ -120,7 +120,8 @@ class Line:
         The canvas keeps track of how many lines have been added to it. This number is
         used to set the color and marker parameters of the line.
     errorbars:
-        Whether to add error bars to the line.
+        Whether to add error bars to the line. Optionally, this can be a string to
+        specify the error bar style. Valid values are 'band' and 'bar'.
     mask_color:
         The color of the masked points.
     """
@@ -131,7 +132,7 @@ class Line:
         data: sc.DataArray,
         uid: str | None = None,
         artist_number: int = 0,
-        errorbars: bool = True,
+        errorbars: Literal['band', 'bar', True, False] = True,
         mask_color: str | None = None,
         **kwargs,
     ):
