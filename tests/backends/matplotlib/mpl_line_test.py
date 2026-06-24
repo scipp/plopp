@@ -30,25 +30,22 @@ def test_line_creation_bin_edges():
     assert len(line._line.get_xdata()) == da.sizes['xx'] + 1
 
 
-def test_line_with_errorbars():
+@pytest.mark.parametrize("mode", ['band', 'bar', True])
+def test_line_with_errorbars(mode):
     da = data_array(ndim=1, variances=True)
-    line = Line(canvas=Canvas(), data=da)
-    assert line._error.has_yerr
-    coll = line._error.get_children()[0]
-    x = np.array(coll.get_segments())[:, 0, 0]
-    y1 = np.array(coll.get_segments())[:, 0, 1]
-    y2 = np.array(coll.get_segments())[:, 1, 1]
-    assert np.allclose(x, da.coords['xx'].values)
-    assert np.allclose(y1, (da.data - sc.stddevs(da.data)).values)
-    assert np.allclose(y2, (da.data + sc.stddevs(da.data)).values)
+    line = Line(canvas=Canvas(), data=da, errorbars=mode)
+    assert np.allclose(line._error.x, da.coords['xx'].values)
+    assert np.allclose(line._error.ylower, (da.data - sc.stddevs(da.data)).values)
+    assert np.allclose(line._error.yupper, (da.data + sc.stddevs(da.data)).values)
 
 
-def test_line_with_bin_edges_and_errorbars():
+@pytest.mark.parametrize("mode", ['band', 'bar', True])
+def test_line_with_bin_edges_and_errorbars(mode):
     da = data_array(ndim=1, binedges=True, variances=True)
-    line = Line(canvas=Canvas(), data=da)
-    coll = line._error.get_children()[0]
-    x = np.array(coll.get_segments())[:, 0, 0]
-    assert np.allclose(x, sc.midpoints(da.coords['xx']).values)
+    line = Line(canvas=Canvas(), data=da, errorbars=mode)
+    assert np.allclose(line._error.x, sc.midpoints(da.coords['xx']).values)
+    assert np.allclose(line._error.ylower, (da.data - sc.stddevs(da.data)).values)
+    assert np.allclose(line._error.yupper, (da.data + sc.stddevs(da.data)).values)
 
 
 def test_line_hide_errorbars():
@@ -88,27 +85,23 @@ def test_line_update():
     assert np.allclose(line._line.get_ydata(), da.values * 2.5)
 
 
-def test_line_update_with_errorbars():
+@pytest.mark.parametrize("mode", ['band', 'bar', True])
+def test_line_update_with_errorbars(mode):
     da = data_array(ndim=1, variances=True)
-    line = Line(canvas=Canvas(), data=da)
-    coll = line._error.get_children()[0]
-    x = np.array(coll.get_segments())[:, 0, 0]
-    y1 = np.array(coll.get_segments())[:, 0, 1]
-    y2 = np.array(coll.get_segments())[:, 1, 1]
-    assert np.allclose(x, da.coords['xx'].values)
-    assert np.allclose(y1, (da.data - sc.stddevs(da.data)).values)
-    assert np.allclose(y2, (da.data + sc.stddevs(da.data)).values)
+    line = Line(canvas=Canvas(), data=da, errorbars=mode)
+    assert np.allclose(line._error.x, da.coords['xx'].values)
+    assert np.allclose(line._error.ylower, (da.data - sc.stddevs(da.data)).values)
+    assert np.allclose(line._error.yupper, (da.data + sc.stddevs(da.data)).values)
     new_values = da * 2.5
     new_values.variances = da.variances
     line.update(new_values)
-    coll = line._error.get_children()[0]
-    y1 = np.array(coll.get_segments())[:, 0, 1]
-    y2 = np.array(coll.get_segments())[:, 1, 1]
-    assert np.allclose(y1, (da.data * 2.5 - sc.stddevs(da.data)).values)
-    assert np.allclose(y2, (da.data * 2.5 + sc.stddevs(da.data)).values)
+    assert np.allclose(line._error.x, da.coords['xx'].values)
+    assert np.allclose(line._error.ylower, (da.data * 2.5 - sc.stddevs(da.data)).values)
+    assert np.allclose(line._error.yupper, (da.data * 2.5 + sc.stddevs(da.data)).values)
 
 
-def test_line_datetime_binedges_with_errorbars():
+@pytest.mark.parametrize("mode", ['band', 'bar', True])
+def test_line_datetime_binedges_with_errorbars(mode):
     t = np.arange(
         np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
     )
@@ -157,18 +150,19 @@ def test_kwarg_marker():
     assert line._line.get_marker() == '+'
 
 
-def test_line_color_with_errorbars():
+@pytest.mark.parametrize("mode", ['band', 'bar', True])
+def test_line_color_with_errorbars(mode):
     from matplotlib.colors import to_hex
 
     da = data_array(ndim=1, variances=True)
-    line = Line(canvas=Canvas(), data=da, color='C0')
+    line = Line(canvas=Canvas(), data=da, color='C0', errorbars=mode)
     assert line.color == 'C0'
     assert line._line.get_color() == 'C0'
-    assert to_hex(line._error.get_children()[0].get_color()) == to_hex('C0')
+    assert to_hex(line._error.get_color()) == to_hex('C0')
     line.color = 'C1'
     assert line.color == 'C1'
     assert line._line.get_color() == 'C1'
-    assert to_hex(line._error.get_children()[0].get_color()) == to_hex('C1')
+    assert to_hex(line._error.get_color()) == to_hex('C1')
 
 
 def test_kwarg_zorder():
@@ -198,8 +192,18 @@ def test_kwarg_zorder_binedges_masks():
 def test_kwarg_zorder_errorbars():
     line = Line(canvas=Canvas(), data=data_array(ndim=1, variances=True), zorder=12)
     assert line._line.get_zorder() == 12
-    for artist in line._error.get_children():
-        assert artist.get_zorder() == 12
+    assert line._error.get_zorder() == 12
+
+
+def test_kwarg_zorder_errorbars_band_mode():
+    line = Line(
+        canvas=Canvas(),
+        data=data_array(ndim=1, variances=True),
+        zorder=13,
+        errorbars='band',
+    )
+    assert line._line.get_zorder() == 13
+    assert line._error.get_zorder() == 12  # band is below the line
 
 
 def test_kwarg_zorder_binedges_errorbars():
@@ -209,5 +213,15 @@ def test_kwarg_zorder_binedges_errorbars():
         zorder=14,
     )
     assert line._line.get_zorder() == 14
-    for artist in line._error.get_children():
-        assert artist.get_zorder() == 14
+    assert line._error.get_zorder() == 14
+
+
+def test_kwarg_zorder_binedges_errorbars_band_mode():
+    line = Line(
+        canvas=Canvas(),
+        data=data_array(ndim=1, binedges=True, variances=True),
+        zorder=15,
+        errorbars='band',
+    )
+    assert line._line.get_zorder() == 15
+    assert line._error.get_zorder() == 14  # band is below the line

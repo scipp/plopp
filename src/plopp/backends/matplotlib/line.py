@@ -80,12 +80,24 @@ class Errorbars:
     def remove(self):
         self._artist.remove()
 
+    def get_color(self) -> str:
+        if self._mode == ErrorbarMode.band:
+            return self._artist.get_facecolor()[0]
+        else:
+            return self._artist.get_children()[0].get_color()
+
     def set_color(self, color):
         if self._mode == ErrorbarMode.band:
             self._artist.set_facecolor(color)
         else:
             for artist in self._artist.get_children():
                 artist.set_color(color)
+
+    def get_visible(self) -> bool:
+        if self._mode == ErrorbarMode.band:
+            return self._artist.get_visible()
+        else:
+            return self._artist.get_children()[0].get_visible()
 
     def set_visible(self, visible):
         if self._mode == ErrorbarMode.band:
@@ -94,12 +106,58 @@ class Errorbars:
             for artist in self._artist.get_children():
                 artist.set_visible(visible)
 
+    def get_alpha(self) -> float:
+        if self._mode == ErrorbarMode.band:
+            return self._artist.get_alpha()
+        else:
+            return self._artist.get_children()[0].get_alpha()
+
     def set_alpha(self, alpha):
         if self._mode == ErrorbarMode.band:
             self._artist.set_alpha(alpha)
         else:
             for artist in self._artist.get_children():
                 artist.set_alpha(alpha)
+
+    def get_zorder(self) -> float:
+        if self._mode == ErrorbarMode.band:
+            return self._artist.get_zorder()
+        else:
+            return self._artist.get_children()[0].get_zorder()
+
+    def set_zorder(self, zorder):
+        if self._mode == ErrorbarMode.band:
+            self._artist.set_zorder(zorder)
+        else:
+            for artist in self._artist.get_children():
+                artist.set_zorder(zorder)
+
+    @property
+    def x(self):
+        if self._mode == ErrorbarMode.band:
+            verts = self._artist.get_paths()[0].vertices
+            return verts[1 : (len(verts) - 3) // 2 + 1, 0]
+        else:
+            coll = self._artist.get_children()[0]
+            return np.array(coll.get_segments())[:, 0, 0]
+
+    @property
+    def ylower(self):
+        if self._mode == ErrorbarMode.band:
+            verts = self._artist.get_paths()[0].vertices
+            return verts[1 : (len(verts) - 3) // 2 + 1, 1]
+        else:
+            coll = self._artist.get_children()[0]
+            return np.array(coll.get_segments())[:, 0, 1]
+
+    @property
+    def yupper(self):
+        if self._mode == ErrorbarMode.band:
+            verts = self._artist.get_paths()[0].vertices
+            return verts[(len(verts) - 3) // 2 + 2 : -1, 1][::-1]
+        else:
+            coll = self._artist.get_children()[0]
+            return np.array(coll.get_segments())[:, 1, 1]
 
 
 class Line:
