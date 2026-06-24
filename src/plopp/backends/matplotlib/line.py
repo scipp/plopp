@@ -36,41 +36,50 @@ class Errorbars:
         x: np.ndarray,
         y: np.ndarray,
         e: np.ndarray,
-        color,
-        zorder,
+        color: str,
+        zorder: float,
+        hist: bool,
     ):
         self._mode = ErrorbarMode[mode]
+        self._ax = ax
         if self._mode == ErrorbarMode.band:
+            yme, ype = y - e, y + e
+            extra_arg = {}
+            if hist:
+                yme = np.concatenate([yme[0:1], yme])
+                ype = np.concatenate([ype[0:1], ype])
+                extra_arg = {"step": "pre"}
             self._artist = ax.fill_between(
-                x, y - e, y + e, color=color, alpha=0.3, zorder=zorder - 1
+                x, yme, ype, color=color, alpha=0.3, zorder=zorder - 1, **extra_arg
             )
         elif self._mode == ErrorbarMode.bar:
+            if hist:
+                x = 0.5 * (x[1:] + x[:-1])  # Use bin centers for error bars
             self._artist = ax.errorbar(
                 x, y, yerr=e, color=color, zorder=zorder, fmt="none"
             )
         else:
             raise ValueError(f"Invalid errorbar mode: {mode}")
 
-    def update(self, x: np.ndarray, y: np.ndarray, e: np.ndarray) -> None:
+    def update(self, x: np.ndarray, y: np.ndarray, e: np.ndarray, hist: bool) -> None:
         if self._mode == ErrorbarMode.band:
-            verts = self._artist.get_paths()[0].vertices
-            if len(x) != (len(verts) - 3) // 2:
-                # We need to recreate the artist if the number of points has changed
-                color = self._artist.get_facecolor()[0]
-                alpha = self._artist.get_alpha()
-                zorder = self._artist.get_zorder()
-                self._artist.remove()
-                self._artist = self._artist.axes.fill_between(
-                    x, y - e, y + e, color=color, alpha=alpha, zorder=zorder
-                )
-            else:
-                yme = y - e
-                ype = y + e
-                verts[:, 0] = np.concatenate([x[0:1], x, [x[-1]], x[::-1], x[0:1]])
-                verts[:, 1] = np.concatenate(
-                    [ype[0:1], yme, [ype[-1]], ype[::-1], yme[0:1]]
-                )
+            yme = y - e
+            ype = y + e
+            extra_arg = {}
+            if hist:
+                yme = np.concatenate([yme[0:1], yme])
+                ype = np.concatenate([ype[0:1], ype])
+                extra_arg = {"step": "pre"}
+            color = self._artist.get_facecolor()[0]
+            alpha = self._artist.get_alpha()
+            zorder = self._artist.get_zorder()
+            self._artist.remove()
+            self._artist = self._ax.fill_between(
+                x, yme, ype, color=color, alpha=alpha, zorder=zorder, **extra_arg
+            )
         else:
+            if hist:
+                x = 0.5 * (x[1:] + x[:-1])  # Use bin centers for bars
             coll = self._artist.get_children()[0]
             x, y, e = (_to_float(z) for z in (x, y, e))
             arr1 = np.repeat(x, 2)
@@ -282,6 +291,7 @@ class Line:
                 e=line_data['stddevs']['e'],
                 color=self._line.get_color(),
                 zorder=self._line.get_zorder(),
+                hist=line_data['hist'],
             )
 
     def update(self, new_values: sc.DataArray):
@@ -303,9 +313,10 @@ class Line:
 
         if (self._error is not None) and (line_data['stddevs'] is not None):
             self._error.update(
-                line_data['stddevs']['x'],
-                line_data['stddevs']['y'],
-                line_data['stddevs']['e'],
+                x=line_data['stddevs']['x'],
+                y=line_data['stddevs']['y'],
+                e=line_data['stddevs']['e'],
+                hist=line_data['hist'],
             )
 
     def remove(self):
