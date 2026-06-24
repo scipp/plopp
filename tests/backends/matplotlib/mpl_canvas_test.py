@@ -119,7 +119,7 @@ def test_logc_button_state_agrees_with_kwarg():
     # update only when mouse hovers over the cbar
     canvas.fig.canvas.draw()
     x, y = canvas.cax.transAxes.transform((0.5, 0.5))
-    canvas._on_mouse_move(MouseEvent(x, y - 5, None))
+    canvas._on_mouse_enter(None)
     assert canvas._logc_button.value
 
 
@@ -132,7 +132,7 @@ def test_logc_button_state_agrees_with_colormapper_norm():
     fig.view.colormapper.norm = 'log'
     fig.canvas.fig.canvas.draw()
     x, y = fig.canvas.cax.transAxes.transform((0.5, 0.5))
-    fig.canvas._on_mouse_move(MouseEvent(x, y - 5, None))
+    fig.canvas._on_mouse_enter(None)
     assert but.value
 
 

@@ -273,8 +273,8 @@ class Canvas:
                     ax=self.cax, label="fit", position=(0.5, 0.02), va="bottom", **args
                 )
 
-            self.fig.canvas.mpl_connect("figure_enter_event", self._on_figure_enter)
-            self.fig.canvas.mpl_connect("figure_leave_event", self._on_figure_leave)
+            self.fig.canvas.mpl_connect("figure_enter_event", self._on_mouse_enter)
+            self.fig.canvas.mpl_connect("figure_leave_event", self._on_mouse_leave)
             self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
 
         if logx:
@@ -286,10 +286,9 @@ class Canvas:
         if ylabel is not None:
             self.ylabel = ylabel
 
-    def _on_figure_enter(self, _):
+    def _on_mouse_enter(self, _) -> None:
         """
-        Show log buttons when hovering over the axes or colorbar, and hide them
-        otherwise.
+        Show log buttons when hovering over the figure.
         """
 
         if self._logx_button is not None:
@@ -309,8 +308,10 @@ class Canvas:
 
         self.draw()
 
-    def _on_figure_leave(self, _):
-        """ """
+    def _on_mouse_leave(self, _) -> None:
+        """
+        Hide log buttons when the mouse leaves the figure.
+        """
         if self._logx_button is not None:
             self._logx_button.visible = False
             self._logy_button.visible = False
