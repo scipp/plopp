@@ -115,10 +115,8 @@ def test_clicking_logy_button_toggles_yscale(ndim):
 def test_logc_button_state_agrees_with_kwarg():
     da = data_array(ndim=2)
     canvas = da.plot(logc=True).canvas
-    # Need to make a mouse move event to trigger the button update state, as it is
-    # update only when mouse hovers over the cbar
-    canvas.fig.canvas.draw()
-    x, y = canvas.cax.transAxes.transform((0.5, 0.5))
+    # Need to make a mouse enter event to trigger the button update state, as it is
+    # updated only when mouse hovers over the figure
     canvas._on_mouse_enter(None)
     assert canvas._logc_button.value
 
@@ -130,8 +128,8 @@ def test_logc_button_state_agrees_with_colormapper_norm():
     assert not but.value
     assert fig.view.colormapper.norm == 'linear'
     fig.view.colormapper.norm = 'log'
-    fig.canvas.fig.canvas.draw()
-    x, y = fig.canvas.cax.transAxes.transform((0.5, 0.5))
+    # Need to make a mouse enter event to trigger the button update state, as it is
+    # updated only when mouse hovers over the figure
     fig.canvas._on_mouse_enter(None)
     assert but.value
 
