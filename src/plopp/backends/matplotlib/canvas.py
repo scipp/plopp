@@ -10,7 +10,6 @@ import numpy as np
 import scipp as sc
 from matplotlib import dates as mdates
 from matplotlib.backend_bases import MouseEvent
-from matplotlib.transforms import Bbox
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ...core.utils import maybe_variable_to_number, scalar_to_string
@@ -274,7 +273,8 @@ class Canvas:
                     ax=self.cax, label="fit", position=(0.5, 0.02), va="bottom", **args
                 )
 
-            self.fig.canvas.mpl_connect("motion_notify_event", self._on_mouse_move)
+            self.fig.canvas.mpl_connect("figure_enter_event", self._on_mouse_enter)
+            self.fig.canvas.mpl_connect("figure_leave_event", self._on_mouse_leave)
             self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
 
         if logx:
@@ -286,46 +286,40 @@ class Canvas:
         if ylabel is not None:
             self.ylabel = ylabel
 
-    def _on_mouse_move(self, event: MouseEvent):
+    def _on_mouse_enter(self, _) -> None:
         """
-        Show log buttons when hovering over the axes or colorbar, and hide them
-        otherwise.
+        Show log buttons when hovering over the figure.
         """
-        need_redraw = False
 
-        logxy_visible = self._logx_button.visible
-        inside = self._axes_bbox.contains(event.x, event.y)
-        if inside and (not logxy_visible):
+        if self._logx_button is not None:
             self._logx_button.visible = True
             self._logy_button.visible = True
-            need_redraw = True
-        elif (not inside) and logxy_visible:
+
+        # We may need to update the button toggle state as the canvas is created
+        # before the colormapper, but the latter sets the cbar state. We sync
+        # the button state when we hover over the axes just before making them
+        # visible
+        if self._logc_button is not None:
+            log_state = self.cax.get_yscale() == "log"
+            if self._logc_button.value != log_state:
+                self._logc_button.value = log_state
+            self._logc_button.visible = True
+            self._fitc_button.visible = True
+
+        self.draw()
+
+    def _on_mouse_leave(self, _) -> None:
+        """
+        Hide log buttons when the mouse leaves the figure.
+        """
+        if self._logx_button is not None:
             self._logx_button.visible = False
             self._logy_button.visible = False
-            need_redraw = True
-
         if self._logc_button is not None:
-            logc_visible = self._logc_button.visible
-            inside_cax = self._cbar_bbox.contains(event.x, event.y)
-            if inside_cax and (not logc_visible):
-                # We may need to update the button toggle state as the canvas is created
-                # before the colormapper, but the latter sets the cbar state. We sync
-                # the button state when we hover over the axes just before making them
-                # visible
-                log_state = self.cax.get_yscale() == "log"
-                if self._logc_button.value != log_state:
-                    self._logc_button.value = log_state
+            self._logc_button.visible = False
+            self._fitc_button.visible = False
 
-                self._logc_button.visible = True
-                self._fitc_button.visible = True
-                need_redraw = True
-            elif (not inside_cax) and logc_visible:
-                self._logc_button.visible = False
-                self._fitc_button.visible = False
-                need_redraw = True
-
-        if need_redraw:
-            self.draw()
+        self.draw()
 
     def is_widget(self):
         return hasattr(self.fig.canvas, "on_widget_constructed")
@@ -386,38 +380,6 @@ class Canvas:
         to show the log buttons.
         """
         self.fig.canvas.draw_idle()
-
-        if not self.is_widget():
-            return
-
-        dpi = self.fig.dpi
-        axes_bbox = self.ax.get_position().transformed(self.fig.transFigure)
-        # The region where the log buttons are shown is slightly larger than the axes:
-        # the logx button is in the lower right corner just below the x axis, and the
-        # logy button is in the upper left corner just to the left of the y axis.
-        # We add corresponding padding to the bbox in pixels that depends on the dpi.
-        # We need to add at least the width of the logy button to the left of the y
-        # axis, and the height of the logx button below the x axis. Trial and error
-        # shows that 0.45 inch of padding is enough for the logy button, and 0.25 inch
-        # is enough for the logx button.
-        self._axes_bbox = Bbox(
-            [
-                [axes_bbox.x0 - 0.45 * dpi, axes_bbox.y0 - 0.25 * dpi],
-                [axes_bbox.x1, axes_bbox.y1],
-            ]
-        )
-        if self.cax is not None:
-            # For the colorbar, we want to show the log button above the colorbar when
-            # we hover over it. We add some padding around the colorbar to make it
-            # easier to trigger the button display, which is for example when hovering
-            # over the colorbar label and not just the coloured bar itself.
-            cbar_bbox = self.cax.get_position().transformed(self.fig.transFigure)
-            self._cbar_bbox = Bbox(
-                [
-                    [cbar_bbox.x0 - 0.2 * dpi, cbar_bbox.y0 - 0.1 * dpi],
-                    [cbar_bbox.x1 + 0.2 * dpi, cbar_bbox.y1 + 0.1 * dpi],
-                ]
-            )
 
     def update_legend(self):
         """
