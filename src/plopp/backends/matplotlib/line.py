@@ -2,13 +2,14 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
+from enum import Enum
 from typing import Literal
 
 import numpy as np
 import scipp as sc
+from matplotlib.axes import Axes
 from matplotlib.dates import date2num
 from matplotlib.lines import Line2D
-from numpy.typing import ArrayLike
 
 from ...graphics.bbox import BoundingBox
 from ..common import check_ndim, make_line_bbox, make_line_data
@@ -18,6 +19,87 @@ from .utils import parse_dicts_in_kwargs
 
 def _to_float(x):
     return date2num(x) if np.issubdtype(x.dtype, np.datetime64) else x
+
+
+ErrorbarMode = Enum("ErrorbarMode", [("band", 1), ("bar", 2)])
+
+
+class Errorbars:
+    """
+    Artist to represent error bars for one-dimensional data.
+    """
+
+    def __init__(
+        self,
+        mode: Literal["band", "bar"],
+        ax: Axes,
+        x: np.ndarray,
+        y: np.ndarray,
+        e: np.ndarray,
+        color,
+        zorder,
+    ):
+        self._mode = ErrorbarMode[mode]
+        if self._mode == ErrorbarMode.band:
+            self._artist = ax.fill_between(
+                x, y - e, y + e, color=color, alpha=0.3, zorder=zorder - 1
+            )
+        elif self._mode == ErrorbarMode.bar:
+            self._artist = ax.errorbar(
+                x, y, yerr=e, color=color, zorder=zorder, fmt="none"
+            )
+        else:
+            raise ValueError(f"Invalid errorbar mode: {mode}")
+
+    def update(self, x: np.ndarray, y: np.ndarray, e: np.ndarray) -> None:
+        if self._mode == ErrorbarMode.band:
+            verts = self._artist.get_paths()[0].vertices
+            if len(x) != (len(verts) - 3) // 2:
+                # We need to recreate the artist if the number of points has changed
+                color = self._artist.get_facecolor()[0]
+                alpha = self._artist.get_alpha()
+                zorder = self._artist.get_zorder()
+                self._artist.remove()
+                self._artist = self._artist.axes.fill_between(
+                    x, y - e, y + e, color=color, alpha=alpha, zorder=zorder
+                )
+            else:
+                yme = y - e
+                ype = y + e
+                verts[:, 0] = np.concatenate([x[0:1], x, [x[-1]], x[::-1], x[0:1]])
+                verts[:, 1] = np.concatenate(
+                    [ype[0:1], yme, [ype[-1]], ype[::-1], yme[0:1]]
+                )
+        else:
+            coll = self._artist.get_children()[0]
+            x, y, e = (_to_float(z) for z in (x, y, e))
+            arr1 = np.repeat(x, 2)
+            arr2 = np.array([y - e, y + e]).T.flatten()
+            coll.set_segments(np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2))
+
+    def remove(self):
+        self._artist.remove()
+
+    def set_color(self, color):
+        if self._mode == ErrorbarMode.band:
+            self._artist.set_facecolor(color)
+        else:
+            for artist in self._artist.get_children():
+                artist.set_color(color)
+
+    def set_visible(self, visible):
+        if self._mode == ErrorbarMode.band:
+            self._artist.set_visible(visible)
+        else:
+            for artist in self._artist.get_children():
+                artist.set_visible(visible)
+
+    def set_alpha(self, alpha):
+        if self._mode == ErrorbarMode.band:
+            self._artist.set_alpha(alpha)
+        else:
+            for artist in self._artist.get_children():
+                artist.set_alpha(alpha)
 
 
 class Line:
@@ -58,6 +140,8 @@ class Line:
         self._canvas = canvas
         self._ax = self._canvas.ax
         self._data = data
+        if errorbars is True:
+            errorbars = 'bar'
 
         line_args = parse_dicts_in_kwargs(kwargs, name=data.name)
 
@@ -131,13 +215,14 @@ class Line:
 
         # Add error bars
         if errorbars and (line_data['stddevs'] is not None):
-            self._error = self._ax.errorbar(
-                line_data['stddevs']['x'],
-                line_data['stddevs']['y'],
-                yerr=line_data['stddevs']['e'],
+            self._error = Errorbars(
+                mode=errorbars,
+                ax=self._ax,
+                x=line_data['stddevs']['x'],
+                y=line_data['stddevs']['y'],
+                e=line_data['stddevs']['e'],
                 color=self._line.get_color(),
                 zorder=self._line.get_zorder(),
-                fmt="none",
             )
 
     def update(self, new_values: sc.DataArray):
@@ -158,22 +243,11 @@ class Line:
         self._mask.set_visible(line_data['mask']['visible'])
 
         if (self._error is not None) and (line_data['stddevs'] is not None):
-            coll = self._error.get_children()[0]
-            coll.set_segments(
-                self._change_segments_y(
-                    _to_float(line_data['stddevs']['x']),
-                    _to_float(line_data['stddevs']['y']),
-                    _to_float(line_data['stddevs']['e']),
-                )
+            self._error.update(
+                line_data['stddevs']['x'],
+                line_data['stddevs']['y'],
+                line_data['stddevs']['e'],
             )
-
-    def _change_segments_y(self, x: ArrayLike, y: ArrayLike, e: ArrayLike) -> ArrayLike:
-        """
-        Update the positions of the errorbars when `update_data` is called.
-        """
-        arr1 = np.repeat(x, 2)
-        arr2 = np.array([y - e, y + e]).T.flatten()
-        return np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2)
 
     def remove(self):
         """
@@ -196,8 +270,7 @@ class Line:
     def color(self, val: str):
         self._line.set_color(val)
         if self._error is not None:
-            for artist in self._error.get_children():
-                artist.set_color(val)
+            self._error.set_color(val)
         self._canvas.draw()
 
     @property
@@ -249,8 +322,7 @@ class Line:
         self._line.set_visible(val)
         self._mask.set_visible(val)
         if self._error is not None:
-            for artist in self._error.get_children():
-                artist.set_visible(val)
+            self._error.set_visible(val)
         self._canvas.draw()
 
     @property
@@ -265,8 +337,7 @@ class Line:
         self._line.set_alpha(val)
         self._mask.set_alpha(val)
         if self._error is not None:
-            for artist in self._error.get_children():
-                artist.set_alpha(val)
+            self._error.set_alpha(val)
         self._canvas.draw()
 
     def bbox(
