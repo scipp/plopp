@@ -103,7 +103,7 @@ def make_line_bbox(
         # Note: [str(data.dims)] is used to make a unique dim name.
         line_y = sc.DataArray(
             data=sc.concat(
-                [data.data - stddevs, data.data + stddevs], dim=[str(data.dims)]
+                [data.data - stddevs, data.data + stddevs], dim=str(data.dims)
             ),
             masks=data.masks,
         )
