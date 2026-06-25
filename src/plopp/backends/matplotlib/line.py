@@ -24,6 +24,18 @@ def _to_float(x):
 ErrorbarMode = Enum("ErrorbarMode", [("band", 1), ("bar", 2)])
 
 
+def _fill_between(ax, x, y, e, color, zorder, alpha, hist):
+    yme, ype = y - e, y + e
+    extra_arg = {}
+    if hist:
+        yme = np.concatenate([yme[0:1], yme])
+        ype = np.concatenate([ype[0:1], ype])
+        extra_arg = {"step": "pre"}
+    return ax.fill_between(
+        x, yme, ype, color=color, alpha=alpha, zorder=zorder - 1, **extra_arg
+    )
+
+
 class Errorbars:
     """
     Artist to represent error bars for one-dimensional data.
@@ -43,14 +55,8 @@ class Errorbars:
         self._mode = ErrorbarMode[mode]
         self._ax = ax
         if self._mode == ErrorbarMode.band:
-            yme, ype = y - e, y + e
-            extra_arg = {}
-            if hist:
-                yme = np.concatenate([yme[0:1], yme])
-                ype = np.concatenate([ype[0:1], ype])
-                extra_arg = {"step": "pre"}
-            self._artist = ax.fill_between(
-                x, yme, ype, color=color, alpha=0.3, zorder=zorder - 1, **extra_arg
+            self._artist = _fill_between(
+                ax, x, y, e, color=color, zorder=zorder, alpha=0.3, hist=hist
             )
         elif self._mode == ErrorbarMode.bar:
             if hist:
@@ -65,18 +71,37 @@ class Errorbars:
         if self._mode == ErrorbarMode.band:
             yme = y - e
             ype = y + e
-            extra_arg = {}
-            if hist:
-                yme = np.concatenate([yme[0:1], yme])
-                ype = np.concatenate([ype[0:1], ype])
-                extra_arg = {"step": "pre"}
-            color = self._artist.get_facecolor()[0]
-            alpha = self._artist.get_alpha()
-            zorder = self._artist.get_zorder()
-            self._artist.remove()
-            self._artist = self._ax.fill_between(
-                x, yme, ype, color=color, alpha=alpha, zorder=zorder, **extra_arg
-            )
+            verts = self._artist.get_paths()[0].vertices
+            # In the case of bin-edge histogram, we have more vertices in the step
+            # function: 4 * len(y) + 4. In the case of bin centers, the fill using lines
+            # has 2 * len(y) + 3 vertices.
+            if len(verts) != (len(y) * 2 * (1 + hist) + 3 + hist):
+                # We need to recreate the artist if the number of points has changed
+                self._artist.remove()
+                self._artist = _fill_between(
+                    self._ax,
+                    x,
+                    y,
+                    e,
+                    color=self._artist.get_facecolor()[0],
+                    zorder=self._artist.get_zorder(),
+                    alpha=self._artist.get_alpha(),
+                    hist=hist,
+                )
+            else:
+                if hist:
+                    x2 = np.repeat(x, 2)
+                    xverts = np.concatenate([x[0:1], x2, x2[::-1][1:], x[0:1]])
+                    a = np.repeat(yme, 2)
+                    b = np.repeat(ype, 2)[::-1]
+                    yverts = np.concatenate([[b[-1]], a[0:1], a, b[0:1], b, b[-2:]])
+                else:
+                    xverts = np.concatenate([x[0:1], x, [x[-1]], x[::-1], x[0:1]])
+                    yverts = np.concatenate(
+                        [ype[0:1], yme, [ype[-1]], ype[::-1], yme[0:1]]
+                    )
+                verts[:, 0] = _to_float(xverts)
+                verts[:, 1] = _to_float(yverts)
         else:
             if hist:
                 x = 0.5 * (x[1:] + x[:-1])  # Use bin centers for bars
