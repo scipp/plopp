@@ -55,11 +55,7 @@ def make_line_data(data: sc.DataArray, dim: str) -> dict:
     values = {'x': xvalues, 'y': yvalues}
     mask = {'x': xvalues, 'y': np.full(y.shape, np.nan), 'visible': False}
     if data.variances is not None:
-        error = {
-            'x': xvalues,  # np.asarray(sc.midpoints(x).values) if hist else xvalues,
-            'y': yvalues,
-            'e': np.asarray(sc.stddevs(y).values),
-        }
+        error = {'x': xvalues, 'y': yvalues, 'e': np.asarray(sc.stddevs(y).values)}
     if len(data.masks):
         one_mask = np.asarray(merge_masks(data.masks).values)
         mask = {
