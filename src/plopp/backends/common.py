@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import uuid
 from typing import Literal
 
 import numpy as np
@@ -56,11 +55,7 @@ def make_line_data(data: sc.DataArray, dim: str) -> dict:
     values = {'x': xvalues, 'y': yvalues}
     mask = {'x': xvalues, 'y': np.full(y.shape, np.nan), 'visible': False}
     if data.variances is not None:
-        error = {
-            'x': np.asarray(sc.midpoints(x).values) if hist else xvalues,
-            'y': yvalues,
-            'e': np.asarray(sc.stddevs(y).values),
-        }
+        error = {'x': xvalues, 'y': yvalues, 'e': np.asarray(sc.stddevs(y).values)}
     if len(data.masks):
         one_mask = np.asarray(merge_masks(data.masks).values)
         mask = {
@@ -101,9 +96,10 @@ def make_line_bbox(
     line_x = data.coords[dim]
     if errorbars:
         stddevs = sc.stddevs(data.data)
+        # Note: [str(data.dims)] is used to make a unique dim name.
         line_y = sc.DataArray(
             data=sc.concat(
-                [data.data - stddevs, data.data + stddevs], dim=uuid.uuid4().hex
+                [data.data - stddevs, data.data + stddevs], dim=str(data.dims)
             ),
             masks=data.masks,
         )
