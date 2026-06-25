@@ -50,13 +50,14 @@ class Errorbars:
         e: np.ndarray,
         color: str,
         zorder: float,
+        alpha: float,
         hist: bool,
     ):
         self._mode = ErrorbarMode[mode]
         self._ax = ax
         if self._mode == ErrorbarMode.band:
             self._artist = _fill_between(
-                ax, x, y, e, color=color, zorder=zorder, alpha=0.3, hist=hist
+                ax, x, y, e, color=color, zorder=zorder, alpha=alpha, hist=hist
             )
         elif self._mode == ErrorbarMode.bar:
             if hist:
@@ -308,6 +309,7 @@ class Line:
                 e=line_data['stddevs']['e'],
                 color=self._line.get_color(),
                 zorder=self._line.get_zorder(),
+                alpha=(({self._line.get_alpha()} - {None}) or {1.0}).pop() * 0.3,
                 hist=line_data['hist'],
             )
 
