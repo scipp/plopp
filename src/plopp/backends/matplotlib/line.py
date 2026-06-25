@@ -60,7 +60,9 @@ class Errorbars:
             )
         elif self._mode == ErrorbarMode.bar:
             if hist:
-                x = 0.5 * (x[1:] + x[:-1])  # Use bin centers for error bars
+                # Use bin centers for bars; We go via sc.midpoints as it handles
+                # datetime coordinates correctly.
+                x = np.asarray(sc.midpoints(sc.array(dims='x', values=x)).values)
             self._artist = ax.errorbar(
                 x, y, yerr=e, color=color, zorder=zorder, fmt="none"
             )
@@ -68,9 +70,9 @@ class Errorbars:
             raise ValueError(f"Invalid errorbar mode: {mode}")
 
     def update(self, x: np.ndarray, y: np.ndarray, e: np.ndarray, hist: bool) -> None:
+        yme = y - e
+        ype = y + e
         if self._mode == ErrorbarMode.band:
-            yme = y - e
-            ype = y + e
             verts = self._artist.get_paths()[0].vertices
             # In the case of bin-edge histogram, we have more vertices in the step
             # function: 4 * len(y) + 4. In the case of bin centers, the fill using lines
@@ -101,14 +103,17 @@ class Errorbars:
                         [ype[0:1], yme, [ype[-1]], ype[::-1], yme[0:1]]
                     )
                 verts[:, 0] = _to_float(xverts)
-                verts[:, 1] = _to_float(yverts)
+                verts[:, 1] = yverts
         else:
+            # Note that we only need to convert the x values to float if they are
+            # datetime, as the y values are always floats (variances on data with
+            # datetime dtype is not supported in scipp).
+            x = _to_float(x)
             if hist:
                 x = 0.5 * (x[1:] + x[:-1])  # Use bin centers for bars
             coll = self._artist.get_children()[0]
-            x, y, e = (_to_float(z) for z in (x, y, e))
             arr1 = np.repeat(x, 2)
-            arr2 = np.array([y - e, y + e]).T.flatten()
+            arr2 = np.array([yme, ype]).T.flatten()
             coll.set_segments(np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2))
 
     def remove(self):
@@ -166,32 +171,19 @@ class Errorbars:
             for artist in self._artist.get_children():
                 artist.set_zorder(zorder)
 
-    @property
-    def x(self):
+    def get_xdata(self) -> np.ndarray:
         if self._mode == ErrorbarMode.band:
-            verts = self._artist.get_paths()[0].vertices
-            return verts[1 : (len(verts) - 3) // 2 + 1, 0]
+            return self._artist.get_paths()[0].vertices[:, 0]
         else:
             coll = self._artist.get_children()[0]
-            return np.array(coll.get_segments())[:, 0, 0]
+            return np.array(coll.get_segments())[:, :, 0]
 
-    @property
-    def ylower(self):
+    def get_ydata(self) -> np.ndarray:
         if self._mode == ErrorbarMode.band:
-            verts = self._artist.get_paths()[0].vertices
-            return verts[1 : (len(verts) - 3) // 2 + 1, 1]
+            return self._artist.get_paths()[0].vertices[:, 1]
         else:
             coll = self._artist.get_children()[0]
-            return np.array(coll.get_segments())[:, 0, 1]
-
-    @property
-    def yupper(self):
-        if self._mode == ErrorbarMode.band:
-            verts = self._artist.get_paths()[0].vertices
-            return verts[(len(verts) - 3) // 2 + 2 : -1, 1][::-1]
-        else:
-            coll = self._artist.get_children()[0]
-            return np.array(coll.get_segments())[:, 1, 1]
+            return np.array(coll.get_segments())[:, :, 1]
 
 
 class Line:

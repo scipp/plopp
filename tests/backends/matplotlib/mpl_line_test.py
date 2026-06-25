@@ -34,18 +34,34 @@ def test_line_creation_bin_edges():
 def test_line_with_errorbars(mode):
     da = data_array(ndim=1, variances=True)
     line = Line(canvas=Canvas(), data=da, errorbars=mode)
-    assert np.allclose(line._error.x, da.coords['xx'].values)
-    assert np.allclose(line._error.ylower, (da.data - sc.stddevs(da.data)).values)
-    assert np.allclose(line._error.yupper, (da.data + sc.stddevs(da.data)).values)
+
+    xline = line._error.get_xdata()
+    xref = da.coords['xx'].values
+    assert np.allclose([xline.min(), xline.max()], [xref.min(), xref.max()])
+    assert np.allclose(
+        line._error.get_ydata().min(), (da.data - sc.stddevs(da.data)).values.min()
+    )
+    assert np.allclose(
+        line._error.get_ydata().max(), (da.data + sc.stddevs(da.data)).values.max()
+    )
 
 
 @pytest.mark.parametrize("mode", ['band', 'bar', True])
 def test_line_with_bin_edges_and_errorbars(mode):
     da = data_array(ndim=1, binedges=True, variances=True)
     line = Line(canvas=Canvas(), data=da, errorbars=mode)
-    assert np.allclose(line._error.x, sc.midpoints(da.coords['xx']).values)
-    assert np.allclose(line._error.ylower, (da.data - sc.stddevs(da.data)).values)
-    assert np.allclose(line._error.yupper, (da.data + sc.stddevs(da.data)).values)
+
+    xline = line._error.get_xdata()
+    xref = da.coords['xx'].values
+    if mode != "band":
+        xref = 0.5 * (xref[1:] + xref[:-1])  # Use bin centers for bars
+    assert np.allclose([xline.min(), xline.max()], [xref.min(), xref.max()])
+    assert np.allclose(
+        line._error.get_ydata().min(), (da.data - sc.stddevs(da.data)).values.min()
+    )
+    assert np.allclose(
+        line._error.get_ydata().max(), (da.data + sc.stddevs(da.data)).values.max()
+    )
 
 
 def test_line_hide_errorbars():
@@ -89,15 +105,30 @@ def test_line_update():
 def test_line_update_with_errorbars(mode):
     da = data_array(ndim=1, variances=True)
     line = Line(canvas=Canvas(), data=da, errorbars=mode)
-    assert np.allclose(line._error.x, da.coords['xx'].values)
-    assert np.allclose(line._error.ylower, (da.data - sc.stddevs(da.data)).values)
-    assert np.allclose(line._error.yupper, (da.data + sc.stddevs(da.data)).values)
+
+    xline = line._error.get_xdata()
+    xref = da.coords['xx'].values
+    assert np.allclose([xline.min(), xline.max()], [xref.min(), xref.max()])
+    assert np.allclose(
+        line._error.get_ydata().min(), (da.data - sc.stddevs(da.data)).values.min()
+    )
+    assert np.allclose(
+        line._error.get_ydata().max(), (da.data + sc.stddevs(da.data)).values.max()
+    )
     new_values = da * 2.5
     new_values.variances = da.variances
     line.update(new_values)
-    assert np.allclose(line._error.x, da.coords['xx'].values)
-    assert np.allclose(line._error.ylower, (da.data * 2.5 - sc.stddevs(da.data)).values)
-    assert np.allclose(line._error.yupper, (da.data * 2.5 + sc.stddevs(da.data)).values)
+    xline = line._error.get_xdata()
+    xref = da.coords['xx'].values
+    assert np.allclose([xline.min(), xline.max()], [xref.min(), xref.max()])
+    assert np.allclose(
+        line._error.get_ydata().min(),
+        (da.data * 2.5 - sc.stddevs(da.data)).values.min(),
+    )
+    assert np.allclose(
+        line._error.get_ydata().max(),
+        (da.data * 2.5 + sc.stddevs(da.data)).values.max(),
+    )
 
 
 @pytest.mark.parametrize("mode", ['band', 'bar', True])
