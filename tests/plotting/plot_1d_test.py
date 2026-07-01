@@ -703,3 +703,9 @@ def test_plot_multiple_inputs_custom_type_keys():
 
     fig = pp.plot({A: a, B: b})
     assert len(fig.view.artists) == 2
+
+
+def test_plot_data_with_all_nans_does_not_raise():
+    da = data_array(ndim=1)
+    da.values[...] = np.nan
+    _ = da.plot()

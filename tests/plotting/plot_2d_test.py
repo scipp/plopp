@@ -516,3 +516,9 @@ def test_clabel():
     da = data_array(ndim=2)
     fig = da.plot(clabel='MyColorLabel')
     assert fig.view.colormapper.clabel == 'MyColorLabel'
+
+
+def test_plot_data_with_all_nans_does_not_raise():
+    da = data_array(ndim=2)
+    da.values[...] = np.nan
+    _ = da.plot()
