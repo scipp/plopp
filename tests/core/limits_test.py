@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
-import pytest
 import scipp as sc
 
 from plopp.core.limits import find_limits, fix_empty_range

@@ -6,7 +6,6 @@ from functools import partial
 import numpy as np
 import pytest
 import scipp as sc
-from scipp.testing import assert_allclose
 
 import plopp as pp
 from plopp.data import examples
