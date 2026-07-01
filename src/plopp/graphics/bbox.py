@@ -7,6 +7,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
 
+import numpy as np
 import scipp as sc
 
 from ..core.limits import find_limits, fix_empty_range
@@ -108,7 +109,11 @@ def axis_bounds(
         Whether to pad the limits.
     """
     try:
-        values = fix_empty_range(find_limits(x, scale=scale, pad=pad))
+        values = find_limits(x, scale=scale, pad=pad)
+        if np.isnan(values[0].value) or np.isnan(values[1].value):
+            return dict.fromkeys(keys, None)
+        else:
+            values = fix_empty_range(values)
     except ValueError:
         return dict.fromkeys(keys, None)
     bounds = dict(zip(keys, (val.value for val in values), strict=True))

@@ -2,7 +2,6 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
-import pytest
 import scipp as sc
 
 from plopp.core.limits import find_limits, fix_empty_range
@@ -53,12 +52,15 @@ def test_find_limits_with_ninf():
     assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
 
 
-def test_find_limits_no_finite_values_raises():
+def test_find_limits_no_finite_values_returns_nan_range():
     da = sc.DataArray(
         data=sc.array(dims=['x'], values=[np.nan, np.inf, -np.inf, np.nan], unit='m')
     )
-    with pytest.raises(ValueError, match="No finite values were found in array"):
-        _ = find_limits(da)
+    lims = find_limits(da)
+    assert np.isnan(lims[0].value)
+    assert np.isnan(lims[1].value)
+    assert lims[0].unit == 'm'
+    assert lims[1].unit == 'm'
 
 
 def test_find_limits_all_zeros():
