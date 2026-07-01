@@ -59,7 +59,7 @@ def find_limits(
     v = x.values
     finite_inds = np.isfinite(v)
     if np.sum(finite_inds) == 0:
-        raise ValueError("No finite values were found in array. Cannot compute limits.")
+        return (sc.scalar(np.nan, unit=x.unit), sc.scalar(np.nan, unit=x.unit))
     finite_vals = v[finite_inds]
     finite_max = None
     if scale == "log":
@@ -98,6 +98,8 @@ def fix_empty_range(
     """
     Range correction in case xmin == xmax
     """
+    if np.isnan(lims[0].value) or np.isnan(lims[1].value):
+        lims = (sc.scalar(0.0, unit=lims[0].unit), sc.scalar(0.0, unit=lims[1].unit))
     if lims[0].value != lims[1].value:
         return lims
     if lims[0].value == 0.0:

@@ -3,7 +3,10 @@
 
 from functools import partial
 
+import numpy as np
 import pytest
+import scipp as sc
+from scipp.testing import assert_allclose
 
 import plopp as pp
 from plopp.data import examples
@@ -84,3 +87,50 @@ class TestArtists:
         assert artist.opacity in (None, 1.0)
         artist.opacity = 0.5
         assert artist.opacity == 0.5
+
+
+LINE_CASES = {k: v for k, v in CASES.items() if k.startswith("line")}
+
+
+@pytest.mark.parametrize(
+    ("backend", "func", "data"), LINE_CASES.values(), ids=LINE_CASES.keys()
+)
+class TestLineBBox:
+    def test_line_bbox(self, set_backend, backend, func, data):
+        fig = func(**data)
+        [artist] = fig.artists.values()
+        bbox = artist.bbox(xscale='linear', yscale='linear')
+        # Tolerance of 3 because there is padding around the line
+        assert np.isclose(bbox.xmin, data['obj'].coords['x'].min().value, atol=3.0)
+        assert np.isclose(bbox.xmax, data['obj'].coords['x'].max().value, atol=3.0)
+
+        if data['obj'].variances is not None:
+            ymin = (data['obj'] - sc.stddevs(data['obj'])).min()
+        else:
+            ymin = data['obj'].min()
+        # Tolerance of 0.2 because there is padding below the line
+        assert np.isclose(bbox.ymin, ymin.value, atol=0.2)
+
+        if data['obj'].variances is not None:
+            ymax = (data['obj'] + sc.stddevs(data['obj'])).max()
+        else:
+            ymax = data['obj'].max()
+        # Tolerance of 0.2 because there is padding above the line
+        assert np.isclose(bbox.ymax, ymax.value, atol=0.2)
+
+
+LINE_BACKENDS = {k: v[0] for k, v in CASES.items() if k.startswith("line")}
+
+
+@pytest.mark.parametrize(("backend"), LINE_BACKENDS.values(), ids=LINE_BACKENDS.keys())
+class TestLineBBoxAllNan:
+    def test_line_bbox_all_nan(self, set_backend, backend):
+        a = pp.data.data1d()
+        a.values[...] = np.nan
+        fig = pp.plot(obj=a)
+        [artist] = fig.artists.values()
+        bbox = artist.bbox(xscale='linear', yscale='linear')
+        assert bbox.xmin is not None
+        assert bbox.xmax is not None
+        assert bbox.ymin is None
+        assert bbox.ymax is None
