@@ -22,6 +22,11 @@ def test_plot_ndarray_int():
     pp.plot(np.arange(50).reshape(5, 10))
 
 
+@pytest.mark.parametrize("dtype", [np.uint8, np.uint16, np.uint32, np.uint64])
+def test_plot_ndarray_uint(dtype):
+    pp.plot(np.arange(50, dtype=dtype).reshape(5, 10))
+
+
 def test_plot_variable():
     pp.plot(variable(ndim=2))
 
