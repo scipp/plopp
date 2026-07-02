@@ -354,7 +354,7 @@ def categorize_args(
     cmap: str = 'viridis',
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
-    errorbars: bool = True,
+    errorbars: Literal['band', 'bar', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,

@@ -413,17 +413,26 @@ def test_plot_1d_extra_datetime_coord_binedges():
     pp.plot(da)
 
 
-def test_plot_1d_data_with_errorbars():
+@pytest.mark.parametrize("mode", ['band', 'bar', True])
+def test_plot_1d_data_with_errorbars(mode):
+    da = data_array(ndim=1, variances=True)
+    p = da.plot(errorbars=mode)
+    assert p.canvas.ymin < -1.0
+    assert p.canvas.ymax > 1.0
+
+
+def test_plot_1d_data_with_errorbars_auto():
     da = data_array(ndim=1, variances=True)
     p = da.plot()
     assert p.canvas.ymin < -1.0
     assert p.canvas.ymax > 1.0
 
 
-def test_plot_1d_data_with_variances_and_nan_values():
+@pytest.mark.parametrize("mode", ['band', 'bar', True])
+def test_plot_1d_data_with_variances_and_nan_values(mode):
     da = data_array(ndim=1, variances=True)
     da.values[-10:] = np.nan
-    p = da.plot()
+    p = da.plot(errorbars=mode)
     assert p.canvas.ymin < -1.0
     assert p.canvas.ymax > 1.0
 
@@ -570,10 +579,11 @@ def test_plot_1d_all_values_masked():
     _ = da.plot()
 
 
-def test_plot_1d_all_values_masked_with_errorbars():
+@pytest.mark.parametrize("mode", ['band', 'bar', True])
+def test_plot_1d_all_values_masked_with_errorbars(mode):
     da = data_array(ndim=1, variances=True)
     da.masks['m'] = sc.scalar(True)
-    _ = da.plot()
+    _ = da.plot(errorbars=mode)
 
 
 def test_can_plot_dict_with_non_string_keys():

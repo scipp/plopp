@@ -42,7 +42,7 @@ def xyplot(
     y: sc.Variable | ndarray | list | Node,
     aspect: Literal['auto', 'equal'] | None = None,
     autoscale: bool = True,
-    errorbars: bool = True,
+    errorbars: Literal['band', 'bar', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
@@ -78,7 +78,8 @@ def xyplot(
     autoscale:
         Automatically scale the axes on updates if ``True``.
     errorbars:
-        Show errorbars in 1d plots if ``True``.
+        Whether to add error bars to the line. Optionally, this can be a string to
+        specify the error bar style. Valid values are 'band' and 'bar'.
     figsize:
         The width and height of the figure, in inches.
     grid:

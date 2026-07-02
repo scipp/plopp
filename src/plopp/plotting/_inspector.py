@@ -145,7 +145,7 @@ def inspector(
     cmin: sc.Variable | float | None = None,
     continuous_update: bool = True,
     coords: list[str] | None = None,
-    errorbars: bool = True,
+    errorbars: Literal['band', 'bar', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
@@ -246,7 +246,8 @@ def inspector(
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     errorbars:
-        Show errorbars if ``True`` (1d figure).
+        Whether to add error bars to the line. Optionally, this can be a string to
+        specify the error bar style. Valid values are 'band' and 'bar' (1d figure).
     figsize:
         The width and height of the figure, in inches.
     grid:
