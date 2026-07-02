@@ -34,6 +34,11 @@ def test_plot_variable():
     pp.plot(sc.arange('x', 50.0))
 
 
+@pytest.mark.parametrize("dtype", [np.uint8, np.uint16, np.uint32, np.uint64])
+def test_plot_ndarray_uint(dtype):
+    pp.plot(np.arange(50, dtype=dtype))
+
+
 def test_plot_data_array():
     pp.plot(data_array(ndim=1))
 

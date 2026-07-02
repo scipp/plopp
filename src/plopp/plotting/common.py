@@ -56,6 +56,11 @@ def _maybe_to_variable(obj: Plottable | list) -> Plottable:
         out = np.array(out)
     if isinstance(out, np.ndarray):
         dims = [f"axis-{i}" for i in range(len(out.shape))]
+        if np.issubdtype(out.dtype, np.unsignedinteger):
+            # This conversion is not completely without loss in the case of very large
+            # unsigned integers, but it is probably fine in most cases, and better than
+            # not plotting the data at all.
+            out = out.astype('int64')
         out = sc.Variable(dims=dims, values=out)
     return out
 
