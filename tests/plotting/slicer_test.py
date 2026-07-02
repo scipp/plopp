@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import numpy as np
 import pytest
 import scipp as sc
 from scipp.testing import assert_allclose, assert_identical
@@ -240,6 +241,12 @@ class TestSlicer1d:
         da = data_array(ndim=2)
         SlicerPlot(da, keep=['xx'], mode=mode, operation=operation)
 
+    @pytest.mark.parametrize("mode", ["single", "range", "combined"])
+    def test_slicer_with_first_all_nan_slice_does_not_raise(self, mode):
+        da = data_array(ndim=2)
+        da['yy', 0].values[...] = np.nan
+        SlicerPlot(da, keep=['xx'], mode=mode)
+
 
 @pytest.mark.usefixtures("_parametrize_interactive_2d_backends")
 class TestSlicer2d:
@@ -407,3 +414,9 @@ class TestSlicer2d:
     def test_different_operations(self, operation, mode):
         da = data_array(ndim=3)
         SlicerPlot(da, keep=['xx', 'yy'], mode=mode, operation=operation)
+
+    @pytest.mark.parametrize("mode", ["single", "range", "combined"])
+    def test_slicer_with_first_all_nan_slice_does_not_raise(self, mode):
+        da = data_array(ndim=3)
+        da['zz', 0].values[...] = np.nan
+        SlicerPlot(da, keep=['xx'], mode=mode)
