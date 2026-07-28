@@ -4,6 +4,7 @@
 import numpy as np
 import pytest
 import scipp as sc
+from matplotlib.markers import MarkerStyle
 
 from plopp.backends.matplotlib.canvas import Canvas
 from plopp.backends.matplotlib.line import Line
@@ -179,6 +180,14 @@ def test_kwarg_marker():
     da = data_array(ndim=1)
     line = Line(canvas=Canvas(), data=da, marker='+')
     assert line._line.get_marker() == '+'
+
+
+def test_default_marker_is_visible_for_large_artist_number():
+    da = data_array(ndim=1)
+    canvas = Canvas()
+    for artist_number in range(50):
+        line = Line(canvas=canvas, data=da, artist_number=artist_number)
+        assert MarkerStyle(line.marker).is_filled()
 
 
 @pytest.mark.parametrize("mode", ['band', 'bar', True])

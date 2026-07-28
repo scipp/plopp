@@ -6,14 +6,13 @@ from typing import Literal
 
 import numpy as np
 import scipp as sc
-from matplotlib.lines import Line2D
 
 from ...core.utils import merge_masks
 from ...graphics.bbox import BoundingBox, axis_bounds
 from ...graphics.colormapper import ColorMapper
 from ..common import check_ndim
 from .canvas import Canvas
-from .utils import parse_dicts_in_kwargs
+from .utils import default_marker, parse_dicts_in_kwargs
 
 
 class Scatter:
@@ -79,9 +78,8 @@ class Scatter:
         self._unit = self._data.unit
         self._id = uuid.uuid4().hex
 
-        markers = list(Line2D.markers.keys())
         default_plot_style = {
-            'marker': markers[(artist_number + 2) % len(markers)],
+            'marker': default_marker(artist_number),
         }
         if not cbar:
             default_plot_style['color'] = f'C{artist_number}'

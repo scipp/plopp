@@ -9,12 +9,11 @@ import numpy as np
 import scipp as sc
 from matplotlib.axes import Axes
 from matplotlib.dates import date2num
-from matplotlib.lines import Line2D
 
 from ...graphics.bbox import BoundingBox
 from ..common import check_ndim, make_line_bbox, make_line_data
 from .canvas import Canvas
-from .utils import parse_dicts_in_kwargs
+from .utils import default_marker, parse_dicts_in_kwargs
 
 
 def _to_float(x):
@@ -255,11 +254,10 @@ class Line:
             'color': f'C{artist_number}',
             'zorder': 2,
         }
-        markers = list(Line2D.markers.keys())
         default_plot_style = {
             'linestyle': 'none',
             'linewidth': 1.5,
-            'marker': markers[(artist_number + 2) % len(markers)],
+            'marker': default_marker(artist_number),
             'color': f'C{artist_number}',
             'zorder': 2,
         }
