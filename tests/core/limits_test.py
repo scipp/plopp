@@ -121,7 +121,7 @@ def test_find_limits_with_strings():
 
 def test_find_limits_datetime():
     time = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     da = sc.DataArray(data=sc.array(dims=['time'], values=time))
     lims = find_limits(da)

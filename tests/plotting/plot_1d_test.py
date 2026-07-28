@@ -296,7 +296,7 @@ def test_plot_1d_includes_masked_data_in_horizontal_range():
 
 def test_plot_1d_datetime_coord():
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     time = sc.array(dims=['time'], values=t)
     v = np.random.rand(time.sizes['time'])
@@ -309,7 +309,7 @@ def test_plot_1d_datetime_coord():
 
 def test_plot_1d_datetime_coord_binedges():
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     time = sc.array(dims=['time'], values=t)
     v = np.random.rand(time.sizes['time'] - 1)
@@ -322,7 +322,7 @@ def test_plot_1d_datetime_coord_binedges():
 
 def test_plot_1d_datetime_coord_with_mask():
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     time = sc.array(dims=['time'], values=t)
     v = np.random.rand(time.sizes['time'])
@@ -336,7 +336,7 @@ def test_plot_1d_datetime_coord_with_mask():
 
 def test_plot_1d_datetime_coord_with_mask_and_binedges():
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     time = sc.array(dims=['time'], values=t)
     v = np.random.rand(time.sizes['time'] - 1)
@@ -350,7 +350,7 @@ def test_plot_1d_datetime_coord_with_mask_and_binedges():
 
 def test_plot_1d_datetime_coord_log():
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     time = sc.array(dims=['time'], values=t)
     v = np.random.rand(time.sizes['time'])
@@ -363,7 +363,7 @@ def test_plot_1d_datetime_coord_log():
 
 def test_plot_1d_datetime_coord_log_binedges():
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     time = sc.array(dims=['time'], values=t)
     v = np.random.rand(time.sizes['time'] - 1)
@@ -376,7 +376,7 @@ def test_plot_1d_datetime_coord_log_binedges():
 
 def test_plot_1d_datetime_coord_log_with_mask():
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     time = sc.array(dims=['time'], values=t)
     v = np.random.rand(time.sizes['time'])
@@ -390,7 +390,7 @@ def test_plot_1d_datetime_coord_log_with_mask():
 
 def test_plot_1d_datetime_data():
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     time = sc.array(dims=['time'], values=t)
     da = sc.DataArray(

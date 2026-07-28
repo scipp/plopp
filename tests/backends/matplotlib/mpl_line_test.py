@@ -134,7 +134,7 @@ def test_line_update_with_errorbars(mode):
 @pytest.mark.parametrize("mode", ['band', 'bar', True])
 def test_line_datetime_binedges_with_errorbars(mode):
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), 20
+        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
     )
     time = sc.array(dims=['time'], values=t)
     v = np.random.rand(time.sizes['time'] - 1)
