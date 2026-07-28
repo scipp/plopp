@@ -234,7 +234,9 @@ def test_plot_2d_includes_masked_data_in_vertical_range(linspace):
 @pytest.mark.parametrize('linspace', [True, False])
 def test_plot_2d_datetime_coord(linspace):
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
+        np.datetime64('2017-03-16T20:58:17'),
+        np.datetime64('2017-03-16T21:15:17'),
+        np.timedelta64(20, 's'),
     )
     if not linspace:
         t[-1] += np.timedelta64(1, 's')
@@ -251,7 +253,9 @@ def test_plot_2d_datetime_coord(linspace):
 @pytest.mark.parametrize('linspace', [True, False])
 def test_plot_2d_datetime_coord_binedges(linspace):
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
+        np.datetime64('2017-03-16T20:58:17'),
+        np.datetime64('2017-03-16T21:15:17'),
+        np.timedelta64(20, 's'),
     )
     if not linspace:
         t[-1] += np.timedelta64(1, 's')
@@ -317,7 +321,9 @@ def test_plot_1d_data_over_2d_data():
 def test_plot_1d_data_over_2d_data_datetime():
     # 2d data
     t = np.arange(
-        np.datetime64('2017-03-16T20:58:17'), np.datetime64('2017-03-16T21:15:17'), np.timedelta64(20, 's')
+        np.datetime64('2017-03-16T20:58:17'),
+        np.datetime64('2017-03-16T21:15:17'),
+        np.timedelta64(20, 's'),
     )
     time = sc.array(dims=['time'], values=t)
     z = sc.arange('z', 50.0, unit='m')
