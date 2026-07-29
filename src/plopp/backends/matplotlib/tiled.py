@@ -3,13 +3,89 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal, NamedTuple
 
 import numpy as np
 from matplotlib import gridspec
+from matplotlib.gridspec import SubplotSpec
+from matplotlib.layout_engine import ConstrainedLayoutEngine
 
 from ...core.typing import FigureLike
+from .canvas import Canvas
 from .utils import make_figure
+
+ShareMode = bool | Literal['all', 'row', 'col', 'none']
+
+_SHARE_MODES = ('all', 'row', 'col', 'none')
+
+
+class _LabelRule(NamedTuple):
+    """
+    How the redundant tick labels of one axis direction are identified.
+    """
+
+    #: Sharing modes that make the labels of inner tiles redundant.
+    modes: tuple[str, ...]
+    #: Predicate on :class:`matplotlib.gridspec.SubplotSpec` selecting the tiles that
+    #: keep their labels.
+    at_edge: str
+    #: Key of ``Axes.tick_params`` toggling the labels.
+    tick_param: str
+
+
+#: An x-axis label is repeated down a column, so it may only be dropped if the tiles of
+#: a column are shared; likewise a y-axis label is repeated across a row.
+_LABEL_RULES = {
+    'x': _LabelRule(('all', 'col'), 'is_last_row', 'labelbottom'),
+    'y': _LabelRule(('all', 'row'), 'is_first_col', 'labelleft'),
+}
+
+
+def _parse_share(mode: ShareMode, name: str) -> str:
+    """
+    Normalize a sharing mode to one of ``'all'``, ``'row'``, ``'col'``, ``'none'``.
+    """
+    mode = {True: 'all', False: 'none'}.get(mode, mode)
+    if mode not in _SHARE_MODES:
+        raise ValueError(
+            f"Invalid value for {name}: {mode!r}. "
+            f"Expected a bool or one of {_SHARE_MODES}."
+        )
+    return mode
+
+
+def _group_key(mode: str, spec: SubplotSpec) -> int:
+    """
+    Identify the group of tiles a subplot belongs to. Tiles spanning multiple rows or
+    columns are assigned to the group of the first row/column they span.
+    """
+    if mode == 'all':
+        return 0
+    span = spec.rowspan if mode == 'row' else spec.colspan
+    return span.start
+
+
+def _axis_props(canvas: Canvas, direction: str) -> tuple:
+    """
+    The properties that must agree between tiles for their axes to be shared.
+
+    For one-dimensional figures the vertical axis carries the data (not a coordinate),
+    in which case the dimension is ``None`` and the unit is that of the data.
+    """
+    return (
+        canvas.dims.get(direction),
+        canvas.units.get(direction, canvas.units.get('data')),
+        getattr(canvas, f'{direction}scale'),
+    )
+
+
+def _union(a: tuple[float, float], b: tuple[float, float]) -> tuple[float, float]:
+    """
+    Smallest range containing both ``a`` and ``b``, preserving the direction of ``a``.
+    """
+    lo = min(*a, *b)
+    hi = max(*a, *b)
+    return (hi, lo) if a[0] > a[1] else (lo, hi)
 
 
 class Tiled:
@@ -27,6 +103,21 @@ class Tiled:
         Number of columns.
     figsize:
         Figure size (width, height) in inches.
+    hspace:
+        Vertical space between tiles, as a fraction of the tile height. Defaults to
+        zero when x tick labels are dropped from inner tiles.
+    wspace:
+        Horizontal space between tiles, as a fraction of the tile width. Defaults to
+        zero when y tick labels are dropped from inner tiles.
+    sharex:
+        Share the x-axis between tiles: ``'all'`` (or ``True``) for the entire grid,
+        ``'col'`` within each column, ``'row'`` within each row, ``'none'`` (or
+        ``False``) to disable. Tiles sharing an axis are required to have the same
+        dimension, unit and scale, and are given a common range. With ``'all'`` and
+        ``'col'`` the x tick labels are drawn on the bottom row only.
+    sharey:
+        Same as ``sharex``, for the y-axis. With ``'all'`` and ``'row'`` the y tick
+        labels are drawn on the left column only.
     **kwargs:
         Additional arguments passed to :class:`matplotlib.gridspec.GridSpec`.
 
@@ -60,6 +151,10 @@ class Tiled:
       >>> tiled[0, :2] = da1.plot()
       >>> tiled[0, 2] = da2.plot()
 
+    Create a tiled figure where all tiles share the same axes:
+
+      >>> tiled = pp.tiled(2, 2, sharex=True, sharey=True)
+
     """
 
     def __init__(
@@ -69,10 +164,17 @@ class Tiled:
         figsize: tuple[float, float] | None = None,
         hspace: float | None = None,
         wspace: float | None = None,
+        sharex: ShareMode = False,
+        sharey: ShareMode = False,
         **kwargs: Any,
     ) -> None:
         self.nrows = nrows
         self.ncols = ncols
+        self._share = {
+            'x': _parse_share(sharex, 'sharex'),
+            'y': _parse_share(sharey, 'sharey'),
+        }
+        self._share_refs = {'x': {}, 'y': {}}
         self.fig = make_figure(
             figsize=(
                 (min(6.0 * ncols, 15.0), min(4.0 * nrows, 15.0))
@@ -84,9 +186,25 @@ class Tiled:
 
         is_widget_backend = hasattr(self.fig.canvas, "on_widget_constructed")
         if hspace is None:
-            hspace = 0.2 if is_widget_backend else 0.02
+            hspace = (
+                0.0 if self._hides_labels('x') else (0.2 if is_widget_backend else 0.02)
+            )
         if wspace is None:
-            wspace = 0.2 if is_widget_backend else 0.05
+            wspace = (
+                0.0 if self._hides_labels('y') else (0.2 if is_widget_backend else 0.05)
+            )
+
+        # Constrained layout pads every tile by w_pad/h_pad inches, which would keep
+        # the tiles apart even at zero grid spacing. The padding is only dropped in the
+        # direction where tiles are meant to sit flush; the outer margin it also
+        # provides is not needed, as figures are rendered with a tight bounding box.
+        self._pads = self.fig.get_layout_engine().get()
+        pads = {}
+        if self._hides_labels('x'):
+            pads['h_pad'] = 0.0
+        if self._hides_labels('y'):
+            pads['w_pad'] = 0.0
+        self._set_pads(**pads)
 
         self.gs = gridspec.GridSpec(
             nrows, ncols, figure=self.fig, wspace=wspace, hspace=hspace, **kwargs
@@ -100,8 +218,88 @@ class Tiled:
         fig: FigureLike,
     ) -> None:
         new_fig = fig.copy(ax=self.fig.add_subplot(self.gs[inds]))
+        self._share_axes(new_fig)
+        self._make_room_for_decorations(new_fig)
         self.figures[inds] = new_fig
         self._history.append((inds, new_fig))
+
+    def _make_room_for_decorations(self, fig: FigureLike) -> None:
+        """
+        Take back the padding that flush tiles give up, for decorations that end up
+        between two tiles: a title sits above its axes, a colorbar to the right of it.
+        Without padding these touch the frame of the neighbouring tile and read as
+        belonging to it.
+        """
+        pads = {}
+        if fig.canvas.title:
+            pads['h_pad'] = self._pads['h_pad']
+        if fig.canvas.cax is not None:
+            pads['w_pad'] = self._pads['w_pad']
+        self._set_pads(**pads)
+
+    def _set_pads(self, **pads: float) -> None:
+        """
+        Adjust the padding of the constrained layout, if the figure still uses one.
+        Rendering a figure as a widget replaces the layout engine with a placeholder
+        that cannot be configured.
+        """
+        engine = self.fig.get_layout_engine()
+        if pads and isinstance(engine, ConstrainedLayoutEngine):
+            engine.set(**pads)
+
+    def _share_axes(self, fig: FigureLike) -> None:
+        """
+        Join the axes of a newly added tile to those of the other tiles in its group,
+        and strip axis decorations that are now redundant.
+
+        Matplotlib's ``Axes.sharex`` performs no compatibility checks and makes the
+        joined axes adopt the reference's range and scale, so both the validation and
+        the range union have to be done here.
+        """
+        ax = fig.ax
+        spec = ax.get_subplotspec()
+        for direction, mode in self._share.items():
+            if mode == 'none':
+                continue
+            refs = self._share_refs[direction]
+            key = _group_key(mode, spec)
+            if (ref := refs.setdefault(key, fig)) is not fig:
+                self._join(direction, ref=ref, fig=fig)
+        for direction, rule in _LABEL_RULES.items():
+            if not self._hides_labels(direction):
+                continue
+            # Tiles are placed flush against each other, so outward ticks would poke
+            # into the neighbouring tile.
+            ax.tick_params(axis=direction, which='both', direction='in')
+            if not getattr(spec, rule.at_edge)():
+                setattr(fig.canvas, f'{direction}label', '')
+                ax.tick_params(**{rule.tick_param: False})
+
+    def _hides_labels(self, direction: str) -> bool:
+        return self._share[direction] in _LABEL_RULES[direction].modes
+
+    @staticmethod
+    def _join(direction: str, ref: FigureLike, fig: FigureLike) -> None:
+        props = _axis_props(fig.canvas, direction)
+        ref_props = _axis_props(ref.canvas, direction)
+        if props != ref_props:
+            names = ('dim', 'unit', 'scale')
+            diff = ', '.join(
+                f'{n}: {a} != {b}'
+                for n, a, b in zip(names, props, ref_props, strict=True)
+                if a != b
+            )
+            raise ValueError(
+                f'Cannot share the {direction}-axis between tiles: {diff}. '
+                f'Use share{direction}=False, or a mode that does not place these '
+                'tiles in the same group.'
+            )
+        # Joining makes the axes adopt the reference's range, so the tile's own range
+        # has to be read before, and folded back in after.
+        rng = f'{direction}range'
+        limits = getattr(fig.canvas, rng)
+        getattr(fig.ax, f'share{direction}')(ref.ax)
+        setattr(fig.canvas, rng, _union(limits, getattr(ref.canvas, rng)))
 
     def __getitem__(
         self, inds: int | slice | tuple[int, int] | tuple[slice, slice]
