@@ -377,3 +377,68 @@ def test_tiles_without_inner_decorations_are_flush():
     left, right = tiled[0, 0].ax.get_position(), tiled[0, 1].ax.get_position()
     assert top.y0 == pytest.approx(bottom.y1)
     assert left.x1 == pytest.approx(right.x0)
+
+
+def _shared_pair():
+    da = data_array(ndim=1)
+    tiled = Tiled(nrows=1, ncols=2, sharex=True, sharey=True)
+    tiled[0, 0] = da.plot()
+    tiled[0, 1] = (da * 2.0).plot()
+    return tiled
+
+
+def test_operators_do_not_propagate_sharing():
+    combined = _shared_pair() + _shared_pair()
+    assert combined.ncols == 4
+    for j in range(4):
+        assert combined[0, j].canvas.xlabel != ''
+        assert _xticklabels_visible(combined[0, j])
+    assert (
+        not combined[0, 0]
+        .ax.get_shared_x_axes()
+        .joined(combined[0, 0].ax, combined[0, 1].ax)
+    )
+
+
+def test_divide_does_not_propagate_sharing():
+    combined = _shared_pair() / _shared_pair()
+    assert (combined.nrows, combined.ncols) == (2, 2)
+    for i in range(2):
+        assert combined[i, 0].canvas.ylabel != ''
+        assert _yticklabels_visible(combined[i, 0])
+
+
+def test_operators_can_combine_shared_tiles_with_incompatible_ones():
+    da = data_array(ndim=1)
+    other = Tiled(nrows=1, ncols=1)
+    other[0, 0] = (da * sc.scalar(1.0, unit='K')).plot()
+    combined = _shared_pair() + other
+    assert combined.ncols == 3
+
+
+def test_sharing_applies_to_tiles_spanning_several_cells():
+    da = data_array(ndim=1)
+    tiled = Tiled(nrows=2, ncols=2, sharex=True, sharey=True)
+    tiled[0, :] = da.plot()
+    tiled[1, 0] = (da * 2.0).plot()
+    tiled[1, 1] = da.plot()
+    assert tiled[0, 0].canvas.xlabel == ''
+    assert not _xticklabels_visible(tiled[0, 0])
+    assert tiled[1, 0].canvas.xlabel != ''
+    assert tiled[0, 0].canvas.yrange == tiled[1, 0].canvas.yrange
+
+
+def test_replacing_a_tile_raises_when_axes_are_shared():
+    da = data_array(ndim=1)
+    tiled = Tiled(nrows=1, ncols=2, sharey=True)
+    tiled[0, 0] = da.plot()
+    with pytest.raises(ValueError, match='un-share'):
+        tiled[0, 0] = da.plot()
+
+
+def test_replacing_a_tile_is_allowed_without_sharing():
+    da = data_array(ndim=1)
+    tiled = Tiled(nrows=1, ncols=2)
+    tiled[0, 0] = da.plot()
+    tiled[0, 0] = (da * 2.0).plot()
+    assert tiled[0, 0].canvas.yrange[1] > da.max().value

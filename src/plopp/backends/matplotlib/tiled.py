@@ -121,6 +121,13 @@ class Tiled:
     **kwargs:
         Additional arguments passed to :class:`matplotlib.gridspec.GridSpec`.
 
+    Notes
+    -----
+    Sharing is not propagated by the ``+`` and ``/`` operators: combining two tiled
+    figures yields an unshared figure, as their sharing modes may disagree and their
+    axes need not be compatible. A tile of a figure with shared axes also cannot be
+    replaced, since Matplotlib provides no way to un-share axes.
+
     Examples
     --------
     Create a tiled figure with two plots stacked vertically:
@@ -217,6 +224,14 @@ class Tiled:
         inds: int | slice | tuple[int, int] | tuple[slice, slice],
         fig: FigureLike,
     ) -> None:
+        if any(m != 'none' for m in self._share.values()) and any(
+            f is not None for f in np.atleast_1d(self.figures[inds]).ravel()
+        ):
+            raise ValueError(
+                'Cannot replace a tile of a figure with shared axes: Matplotlib '
+                'cannot un-share axes, so the replaced tile would stay joined to '
+                'its neighbours. Build a new tiled figure instead.'
+            )
         new_fig = fig.copy(ax=self.fig.add_subplot(self.gs[inds]))
         self._share_axes(new_fig)
         self._make_room_for_decorations(new_fig)
