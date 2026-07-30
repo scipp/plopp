@@ -50,6 +50,17 @@ def is_interactive_backend() -> bool:
     )
 
 
+def is_widget_backend() -> bool:
+    """
+    Return ``True`` if the current backend used by Matplotlib renders figures as
+    Jupyter widgets (e.g. ipympl). Note that this is different from
+    :func:`is_interactive_backend`: GUI backends such as Qt or Tk are interactive
+    but do not render figures as Jupyter widgets.
+    """
+    backend = mpl.get_backend().lower()
+    return any(b in backend for b in ('ipympl', 'nbagg', 'notebook', 'widget'))
+
+
 def make_figure(*args, **kwargs) -> plt.Figure:
     """
     Create a new figure.

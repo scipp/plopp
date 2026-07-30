@@ -7,7 +7,7 @@ from matplotlib.figure import Figure as MplFigure
 
 from ...graphics import BaseFig
 from .canvas import Canvas
-from .utils import fig_to_bytes, is_interactive_backend
+from .utils import fig_to_bytes, is_widget_backend
 
 try:
     from ipywidgets import VBox
@@ -218,7 +218,7 @@ class StaticFigure(MplBaseFig):
 
 
 def Figure(*args, **kwargs):
-    if is_interactive_backend():
+    if is_widget_backend():
         return InteractiveFigure(*args, **kwargs)
     else:
         return StaticFigure(*args, **kwargs)
