@@ -66,6 +66,8 @@ try:
             return _original_mathtext_parse(self, *args, **kwargs)
 
     _MathTextInternalParser.parse = _thread_safe_mathtext_parse
+
+    del functools, Lock
 except Exception:
     pass
 
