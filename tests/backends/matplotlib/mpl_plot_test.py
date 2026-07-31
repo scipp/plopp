@@ -202,3 +202,9 @@ def test_aspect_ratio():
     da = data_array(ndim=2)
     fig = da.plot(aspect='equal')
     assert fig.canvas.ax.get_aspect() == 1.0
+
+
+def test_plot_many_lines():
+    da = data_array(ndim=1)
+    fig = pp.plot({str(i): da for i in range(50)})
+    assert len(fig.artists) == 50
