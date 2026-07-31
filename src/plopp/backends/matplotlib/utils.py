@@ -6,6 +6,7 @@ from typing import Literal
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 
 
 def fig_to_bytes(fig: plt.Figure, form: Literal['png', 'svg'] = 'png') -> bytes:
@@ -70,6 +71,18 @@ def make_figure(*args, **kwargs) -> plt.Figure:
         # making it possible to show the figure from the terminal.
         plt._backend_mod.new_figure_manager_given_figure(1, fig)
     return fig
+
+
+def default_marker(artist_number: int) -> str:
+    """
+    Return a marker from a cycle of markers, based on the artist number.
+
+    Only filled markers are used, as ``Line2D.markers`` also contains integer markers
+    and markers that draw nothing (e.g. ``'none'`` and ``''``).
+    """
+    markers = Line2D.filled_markers
+    # Start the cycle at 'o' instead of the barely visible '.'.
+    return markers[(artist_number + 1) % len(markers)]
 
 
 def make_legend(leg: bool | tuple[float, float] | str) -> dict:
