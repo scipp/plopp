@@ -19,3 +19,19 @@ conda install -c conda-forge plopp
 ```
 ````
 `````
+
+## Interactive figures in JupyterLab
+
+Interactive figures (`%matplotlib widget`) can fail to render in JupyterLab 4.4 and later,
+with math text parse errors, blank figures, or kernel crashes.
+JupyterLab routes widget messages over kernel subshells, which ipykernel 7 and later
+service on their own threads.
+Drawing a live canvas then races with figure creation during cell execution,
+and Matplotlib is not thread-safe
+(see [ipympl#610](https://github.com/matplotlib/ipympl/issues/610)).
+
+Until this is fixed upstream, either
+
+- set `commsOverSubshells` to `disabled` in the JupyterLab settings editor and restart
+  JupyterLab (the setting only applies to newly connected kernels), or
+- install `ipykernel<7`.

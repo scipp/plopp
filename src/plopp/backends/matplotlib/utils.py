@@ -125,6 +125,45 @@ def is_sphinx_build() -> bool:
     return meta.get("scipp_sphinx_build", False)
 
 
+SUBSHELL_CONCURRENCY_MESSAGE = """Failed to render the figure because Matplotlib \
+state was modified concurrently from another thread.
+
+JupyterLab >= 4.4 routes widget messages over kernel subshells, which ipykernel >= 7 \
+services on their own threads. Drawing a live canvas thus races with figure creation \
+during cell execution, and Matplotlib is not thread-safe. Symptoms include math text \
+parse errors (as chained above), blank figures, and kernel crashes.
+
+Workarounds:
+- In the JupyterLab settings editor, set 'commsOverSubshells' to 'disabled' and \
+restart JupyterLab (the setting only applies to newly connected kernels), or
+- install ipykernel < 7.
+
+See https://github.com/matplotlib/ipympl/issues/610 for details."""
+
+
+def subshells_in_use() -> bool:
+    """
+    Return ``True`` if the Jupyter kernel is servicing messages on subshell threads.
+
+    Subshells run concurrently with cell execution, which is unsafe for Matplotlib
+    figures that are alive in the notebook (see ``SUBSHELL_CONCURRENCY_MESSAGE``).
+    This is a best-effort diagnostic used to explain rendering failures, hence any
+    error while inspecting the kernel means we simply cannot tell.
+    """
+    try:
+        from ipykernel.kernelapp import IPKernelApp
+
+        if not IPKernelApp.initialized():
+            return False
+        kernel = IPKernelApp.instance().kernel
+        # ipykernel exposes no public API to ask whether subshells are supported.
+        if not getattr(kernel, '_supports_kernel_subshells', False):
+            return False
+        return bool(kernel.shell_channel_thread.manager.list_subshell())
+    except Exception:
+        return False
+
+
 def parse_dicts_in_kwargs(kwargs, name):
     out = {}
     for key, value in kwargs.items():
