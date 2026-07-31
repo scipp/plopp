@@ -68,7 +68,7 @@ try:
     _MathTextInternalParser.parse = _thread_safe_mathtext_parse
 
     del functools, Lock
-except Exception:
+except Exception:  # noqa: S110
     pass
 
 del importlib
