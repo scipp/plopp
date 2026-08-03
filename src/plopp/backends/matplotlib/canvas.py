@@ -15,14 +15,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from ...core.utils import maybe_variable_to_number, scalar_to_string
 from ...graphics.bbox import BoundingBox
 from ...utils import parse_mutually_exclusive
-from .utils import (
-    SUBSHELL_CONCURRENCY_MESSAGE,
-    fig_to_bytes,
-    is_sphinx_build,
-    make_figure,
-    make_legend,
-    subshells_in_use,
-)
+from .utils import fig_to_bytes, is_sphinx_build, make_figure, make_legend
 
 
 def _cursor_value_to_variable(x: float, dtype: sc.DType, unit: str) -> sc.Variable:
@@ -349,10 +342,6 @@ class Canvas:
                     self.fig.tight_layout()
             except RuntimeError:
                 pass
-            except Exception as e:
-                if not subshells_in_use():
-                    raise
-                raise RuntimeError(SUBSHELL_CONCURRENCY_MESSAGE) from e
             # The Matplotlib canvas tries to fill the entire width of the output cell,
             # which can add unnecessary whitespace between it and other widgets. To
             # prevent this, we wrap the canvas in a VBox, which seems to help.

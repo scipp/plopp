@@ -30,7 +30,10 @@ Drawing a live canvas then races with figure creation during cell execution,
 and Matplotlib is not thread-safe
 (see [ipympl#610](https://github.com/matplotlib/ipympl/issues/610)).
 
-Until this is fixed upstream, either
+A lock added in ipympl removes the math text parse errors, but the blank figures and
+crashes remain, since the canvas frame and resize handlers still run concurrently with
+drawing.
+Until that is addressed, either
 
 - set `commsOverSubshells` to `disabled` in the JupyterLab settings editor and restart
   JupyterLab (the setting only applies to newly connected kernels), or
