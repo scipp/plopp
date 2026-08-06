@@ -80,7 +80,7 @@ def make_figure(*args, **kwargs) -> plt.Figure:
     if is_interactive_backend():
         # Create a manager for the figure, which makes it interactive, as well as
         # making it possible to show the figure from the terminal.
-        plt._backend_mod.new_figure_manager_given_figure(1, fig)
+        plt._get_backend_mod().new_figure_manager_given_figure(1, fig)
     return fig
 
 
