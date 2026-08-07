@@ -167,3 +167,22 @@ def test_home_button_rescales_all_axes_sharing_a_figure():
     p0.toolbar['home'].callback()
 
     assert p1.canvas.yrange == pytest.approx(expected)
+
+
+@pytest.mark.parametrize("ndim", [1, 2])
+def test_back_and_forward_buttons_navigate_view_history(ndim):
+    da = data_array(ndim=ndim)
+    p = da.plot()
+    toolbar = p.canvas.fig.canvas.toolbar
+
+    original_range = p.canvas.xrange
+    toolbar.push_current()
+    zoomed_range = (10.0, 20.0)
+    p.canvas.xrange = zoomed_range
+    toolbar.push_current()
+
+    p.toolbar['back'].click()
+    assert p.canvas.xrange == pytest.approx(original_range)
+
+    p.toolbar['forward'].click()
+    assert p.canvas.xrange == pytest.approx(zoomed_range)
