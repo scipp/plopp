@@ -74,6 +74,7 @@ class Clip3dTool(ipw.HBox):
         self._unit = self._limits[axis].unit
         self.visible = True
         self._update = update
+        self._throttled_update = debounce(update, wait=0.3)
         self._border_visible = border_visible
 
         w_axis = 2 if self.kind == 'x' else 0
@@ -189,10 +190,6 @@ class Clip3dTool(ipw.HBox):
         xmin, xmax = self.range
         return (da.coords[self.dim] >= xmin) & (da.coords[self.dim] < xmax)
 
-    @debounce(0.3)
-    def _throttled_update(self):
-        self._update()
-
 
 class ClipValueTool(ipw.HBox):
     """
@@ -215,6 +212,7 @@ class ClipValueTool(ipw.HBox):
         self._unit = self._limits.unit
         self.visible = True
         self._update = update
+        self._throttled_update = debounce(update, wait=0.3)
         self.kind = 'v'
 
         center = self._limits.mean().value
@@ -279,10 +277,6 @@ class ClipValueTool(ipw.HBox):
         ):
             return
         self._throttled_update()
-
-    @debounce(0.3)
-    def _throttled_update(self):
-        self._update()
 
 
 class ClippingManager(ipw.HBox):
