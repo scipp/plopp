@@ -37,7 +37,11 @@ def test_preprocess_warns_when_coordinate_is_not_sorted():
     da = data_array(ndim=1)
     unsorted = sc.concat([da['xx', 20:], da['xx', :20]], dim='xx')
     with pytest.warns(
-        RuntimeWarning, match='The input contains a coordinate with unsorted values'
+        RuntimeWarning,
+        match=(
+            r'The input contains a coordinate with unsorted values.*'
+            r'scipp\.sort\(data, key="to_be_sorted", order="ascending"\)'
+        ),
     ):
         preprocess(unsorted)
 
