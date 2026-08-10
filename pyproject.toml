@@ -84,6 +84,9 @@ filterwarnings = [
   'ignore:Parsing dates involving a day of month without a year:DeprecationWarning',
   # Should be removed once we lower pin a matplotlib version that respects the deprecation
   'ignore:.*parameter is deprecated and will be removed in Pillow 13.*:DeprecationWarning',
+  # Matplotlib <= 3.10 uses a generic-unit NaT, which is deprecated in NumPy 2.5.
+  # Remove once the minimum supported Matplotlib version is >= 3.11.
+  "ignore:The 'generic' unit for NumPy timedelta is deprecated:DeprecationWarning:matplotlib[.]dates",
   # Warnings related to pyparsing deprecations: this is fixed in mpl==3.10.8 onwards
   "ignore:'parseString' deprecated:DeprecationWarning",
   "ignore:'resetCache' deprecated:DeprecationWarning",
