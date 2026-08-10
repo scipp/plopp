@@ -212,7 +212,7 @@ class ClipValueTool(ipw.HBox):
         self._unit = self._limits.unit
         self.visible = True
         self._update = update
-        self._throttled_update = debounce(update, wait=0.3)
+        self._throttled_update = debounce(update, wait=0.2)
         self.kind = 'v'
 
         center = self._limits.mean().value
