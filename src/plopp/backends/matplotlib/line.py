@@ -119,6 +119,8 @@ class Errorbars:
                 x = np.asarray(self._ax.convert_xunits(x))
                 y = np.asarray(self._ax.convert_yunits(y))
             else:
+                # For vertical errors, y is always numeric because Scipp only supports
+                # variances for numeric data. Only datetime x values need conversion.
                 x = _to_float(x)
             if hist and self._axis == 'y':
                 x = 0.5 * (x[1:] + x[:-1])  # Use bin centers for bars
