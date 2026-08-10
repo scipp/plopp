@@ -31,7 +31,7 @@ def check_ndim(data: sc.DataArray, ndim: int, origin: str) -> None:
         )
 
 
-def make_line_data(data: sc.DataArray, dim: str, errorbars_x: bool = False) -> dict:
+def make_line_data(data: sc.DataArray, dim: str) -> dict:
     """
     Prepare data for plotting a line.
     This includes extracting the x and y values, and optionally the error bars and masks
@@ -45,8 +45,6 @@ def make_line_data(data: sc.DataArray, dim: str, errorbars_x: bool = False) -> d
         The data array to extract values from.
     dim:
         The dimension along which to extract values.
-    errorbars_x:
-        Whether to extract coordinate standard deviations.
     """
     x = data.coords[dim]
     y = data.data
@@ -69,7 +67,7 @@ def make_line_data(data: sc.DataArray, dim: str, errorbars_x: bool = False) -> d
     if hist:
         for array in (values, mask):
             array['y'] = np.concatenate([array['y'][0:1], array['y']])
-    if errorbars_x and x.variances is not None:
+    if x.variances is not None:
         error_x = {
             'x': xvalues,
             'y': values['y'],

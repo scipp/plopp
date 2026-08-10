@@ -275,9 +275,7 @@ class Line:
             if key in line_args:
                 line_args[alias] = line_args.pop(key)
 
-        line_data = make_line_data(
-            data=self._data, dim=self._dim, errorbars_x=self._errorbars_x
-        )
+        line_data = make_line_data(data=self._data, dim=self._dim)
 
         default_step_style = {
             'linestyle': 'solid',
@@ -353,7 +351,7 @@ class Line:
 
     def _sync_errorbars_x(self, line_data):
         data = line_data['stddevs_x']
-        if data is None:
+        if not self._errorbars_x or data is None:
             if self._error_x is not None:
                 self._error_x.remove()
             self._error_x = None
@@ -378,9 +376,7 @@ class Line:
         """
         check_ndim(new_values, ndim=1, origin='Line')
         self._data = new_values
-        line_data = make_line_data(
-            data=self._data, dim=self._dim, errorbars_x=self._errorbars_x
-        )
+        line_data = make_line_data(data=self._data, dim=self._dim)
 
         self._line.set_data(line_data['values']['x'], line_data['values']['y'])
         self._mask.set_data(line_data['mask']['x'], line_data['mask']['y'])
