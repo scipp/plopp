@@ -74,7 +74,7 @@ class Clip3dTool(ipw.HBox):
         self._unit = self._limits[axis].unit
         self.visible = True
         self._update = update
-        self._throttled_update = debounce(update, wait=0.3)
+        self._throttled_update = debounce(update, wait=0.2)
         self._border_visible = border_visible
 
         w_axis = 2 if self.kind == 'x' else 0
