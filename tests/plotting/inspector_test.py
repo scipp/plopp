@@ -65,6 +65,20 @@ def test_line_creation():
 
 
 @pytest.mark.usefixtures('_use_ipympl')
+def test_line_with_coordinate_errorbars():
+    da = pp.data.data3d()
+    dim = da.dims[-1]
+    da.coords[dim].variances = np.full(da.sizes[dim], 0.25)
+    ip = pp.inspector(da, dim=dim, errorbars_x=True)
+    fig2d = ip[0][0]
+    fig1d = ip[0][1]
+    fig2d.toolbar['inspect'].value = True
+    fig2d.toolbar['inspect']._tool.click(10, 10)
+    [line] = fig1d.artists.values()
+    assert line._error_x is not None
+
+
+@pytest.mark.usefixtures('_use_ipympl')
 def test_line_removal():
     da = pp.data.data3d()
     ip = pp.inspector(da)

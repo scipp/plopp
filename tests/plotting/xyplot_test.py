@@ -27,6 +27,15 @@ def test_xyplot_woth_variances():
     assert line._error is not None
 
 
+def test_xyplot_with_x_variances():
+    x = sc.arange('time', 20.0, unit='s')
+    x.variances = np.full(x.sizes['time'], 0.25)
+    y = sc.arange('time', 100.0, 120.0, unit='K')
+    fig = pp.xyplot(x, y, errorbars_x=True)
+    [line] = fig.artists.values()
+    assert line._error_x is not None
+
+
 def test_xyplot_ndarray():
     N = 50
     x = np.arange(float(N))

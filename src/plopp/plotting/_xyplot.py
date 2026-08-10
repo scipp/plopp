@@ -43,6 +43,7 @@ def xyplot(
     aspect: Literal['auto', 'equal'] | None = None,
     autoscale: bool = True,
     errorbars: Literal['band', 'bar', True, False] = True,
+    errorbars_x: bool = False,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
@@ -80,6 +81,8 @@ def xyplot(
     errorbars:
         Whether to add error bars to the line. Optionally, this can be a string to
         specify the error bar style. Valid values are 'band' and 'bar'.
+    errorbars_x:
+        Whether to add error bars from ``x`` variances to the line.
     figsize:
         The width and height of the figure, in inches.
     grid:
@@ -125,6 +128,7 @@ def xyplot(
         aspect=aspect,
         autoscale=autoscale,
         errorbars=errorbars,
+        errorbars_x=errorbars_x,
         figsize=figsize,
         grid=grid,
         legend=legend,

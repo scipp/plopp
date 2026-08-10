@@ -146,6 +146,7 @@ def inspector(
     continuous_update: bool = True,
     coords: list[str] | None = None,
     errorbars: Literal['band', 'bar', True, False] = True,
+    errorbars_x: bool = False,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
@@ -248,6 +249,8 @@ def inspector(
     errorbars:
         Whether to add error bars to the line. Optionally, this can be a string to
         specify the error bar style. Valid values are 'band' and 'bar' (1d figure).
+    errorbars_x:
+        Whether to add error bars from coordinate variances to the line (1d figure).
     figsize:
         The width and height of the figure, in inches.
     grid:
@@ -317,6 +320,7 @@ def inspector(
     f1d = linefigure(
         autoscale=autoscale,
         errorbars=errorbars,
+        errorbars_x=errorbars_x,
         grid=grid,
         legend=legend,
         mask_color=mask_color,

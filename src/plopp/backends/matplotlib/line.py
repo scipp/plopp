@@ -43,6 +43,7 @@ class Errorbars:
     def __init__(
         self,
         mode: Literal["band", "bar"],
+        axis: Literal['x', 'y'],
         ax: Axes,
         x: np.ndarray,
         y: np.ndarray,
@@ -53,26 +54,35 @@ class Errorbars:
         hist: bool,
     ):
         self._mode = ErrorbarMode[mode]
+        self._axis = axis
         self._ax = ax
         if self._mode == ErrorbarMode.band:
+            if self._axis != 'y':
+                raise ValueError("Error bands are only supported along the y-axis")
             self._artist = _fill_between(
                 ax, x, y, e, color=color, zorder=zorder, alpha=alpha, hist=hist
             )
         elif self._mode == ErrorbarMode.bar:
-            if hist:
+            if hist and self._axis == 'y':
                 # Use bin centers for bars; We go via sc.midpoints as it handles
                 # datetime coordinates correctly.
                 x = np.asarray(sc.midpoints(sc.array(dims='x', values=x)).values)
             self._artist = ax.errorbar(
-                x, y, yerr=e, color=color, zorder=zorder, fmt="none"
+                x,
+                y,
+                xerr=e if self._axis == 'x' else None,
+                yerr=e if self._axis == 'y' else None,
+                color=color,
+                zorder=zorder,
+                fmt="none",
             )
         else:
             raise ValueError(f"Invalid errorbar mode: {mode}")
 
     def update(self, x: np.ndarray, y: np.ndarray, e: np.ndarray, hist: bool) -> None:
-        yme = y - e
-        ype = y + e
         if self._mode == ErrorbarMode.band:
+            yme = y - e
+            ype = y + e
             verts = self._artist.get_paths()[0].vertices
             # In the case of bin-edge histogram, we have more vertices in the step
             # function: 4 * len(y) + 4. In the case of bin centers, the fill using lines
@@ -105,16 +115,28 @@ class Errorbars:
                 verts[:, 0] = _to_float(xverts)
                 verts[:, 1] = yverts
         else:
-            # Note that we only need to convert the x values to float if they are
-            # datetime, as the y values are always floats (variances on data with
-            # datetime dtype is not supported in scipp).
-            x = _to_float(x)
-            if hist:
+            if self._axis == 'x':
+                x = np.asarray(self._ax.convert_xunits(x))
+                y = np.asarray(self._ax.convert_yunits(y))
+            else:
+                x = _to_float(x)
+            if hist and self._axis == 'y':
                 x = 0.5 * (x[1:] + x[:-1])  # Use bin centers for bars
-            coll = self._artist.get_children()[0]
-            arr1 = np.repeat(x, 2)
-            arr2 = np.array([yme, ype]).T.flatten()
-            coll.set_segments(np.array([arr1, arr2]).T.flatten().reshape(len(y), 2, 2))
+            if self._axis == 'x':
+                lower = np.column_stack((x - e, y))
+                upper = np.column_stack((x + e, y))
+            else:
+                lower = np.column_stack((x, y - e))
+                upper = np.column_stack((x, y + e))
+            self._barline_collection.set_segments(np.stack((lower, upper), axis=1))
+            caps = self._artist.lines[1]
+            if caps:
+                for cap, endpoints in zip(caps, (lower, upper), strict=True):
+                    cap.set_data(endpoints[:, 0], endpoints[:, 1])
+
+    @property
+    def _barline_collection(self):
+        return self._artist.lines[2][0]
 
     def remove(self):
         self._artist.remove()
@@ -123,7 +145,7 @@ class Errorbars:
         if self._mode == ErrorbarMode.band:
             return self._artist.get_facecolor()[0]
         else:
-            return self._artist.get_children()[0].get_color()
+            return self._barline_collection.get_color()
 
     def set_color(self, color):
         if self._mode == ErrorbarMode.band:
@@ -136,7 +158,7 @@ class Errorbars:
         if self._mode == ErrorbarMode.band:
             return self._artist.get_visible()
         else:
-            return self._artist.get_children()[0].get_visible()
+            return self._barline_collection.get_visible()
 
     def set_visible(self, visible):
         if self._mode == ErrorbarMode.band:
@@ -149,7 +171,7 @@ class Errorbars:
         if self._mode == ErrorbarMode.band:
             return self._artist.get_alpha()
         else:
-            return self._artist.get_children()[0].get_alpha()
+            return self._barline_collection.get_alpha()
 
     def set_alpha(self, alpha):
         if self._mode == ErrorbarMode.band:
@@ -162,7 +184,7 @@ class Errorbars:
         if self._mode == ErrorbarMode.band:
             return self._artist.get_zorder()
         else:
-            return self._artist.get_children()[0].get_zorder()
+            return self._barline_collection.get_zorder()
 
     def set_zorder(self, zorder):
         if self._mode == ErrorbarMode.band:
@@ -175,15 +197,13 @@ class Errorbars:
         if self._mode == ErrorbarMode.band:
             return self._artist.get_paths()[0].vertices[:, 0]
         else:
-            coll = self._artist.get_children()[0]
-            return np.array(coll.get_segments())[:, :, 0]
+            return np.array(self._barline_collection.get_segments())[:, :, 0]
 
     def get_ydata(self) -> np.ndarray:
         if self._mode == ErrorbarMode.band:
             return self._artist.get_paths()[0].vertices[:, 1]
         else:
-            coll = self._artist.get_children()[0]
-            return np.array(coll.get_segments())[:, :, 1]
+            return np.array(self._barline_collection.get_segments())[:, :, 1]
 
 
 class Line:
@@ -206,6 +226,8 @@ class Line:
     errorbars:
         Whether to add error bars to the line. Optionally, this can be a string to
         specify the error bar style. Valid values are 'band' and 'bar'.
+    errorbars_x:
+        Whether to add error bars from coordinate variances to the line.
     mask_color:
         The color of the masked points.
     """
@@ -217,6 +239,7 @@ class Line:
         uid: str | None = None,
         artist_number: int = 0,
         errorbars: Literal['band', 'bar', True, False] = True,
+        errorbars_x: bool = False,
         mask_color: str | None = None,
         **kwargs,
     ):
@@ -227,12 +250,16 @@ class Line:
         self._data = data
         if errorbars is True:
             errorbars = 'bar'
+        if not isinstance(errorbars_x, bool):
+            raise TypeError("errorbars_x must be True or False")
+        self._errorbars_x = errorbars_x
 
         line_args = parse_dicts_in_kwargs(kwargs, name=data.name)
 
         self._line = None
         self._mask = None
         self._error = None
+        self._error_x = None
         self._unit = None
         self.label = data.name
         self._dim = self._data.dim
@@ -246,7 +273,9 @@ class Line:
             if key in line_args:
                 line_args[alias] = line_args.pop(key)
 
-        line_data = make_line_data(data=self._data, dim=self._dim)
+        line_data = make_line_data(
+            data=self._data, dim=self._dim, errorbars_x=self._errorbars_x
+        )
 
         default_step_style = {
             'linestyle': 'solid',
@@ -297,18 +326,43 @@ class Line:
                 lw=self._line.get_linewidth() * 3, zorder=self._line.get_zorder() - 1
             )
 
-        # Add error bars
         if errorbars and (line_data['stddevs'] is not None):
-            self._error = Errorbars(
+            self._error = self._make_errorbar(
                 mode=errorbars,
-                ax=self._ax,
-                x=line_data['stddevs']['x'],
-                y=line_data['stddevs']['y'],
-                e=line_data['stddevs']['e'],
-                color=self._line.get_color(),
-                zorder=self._line.get_zorder(),
-                alpha=(({self._line.get_alpha()} - {None}) or {1.0}).pop() * 0.3,
+                axis='y',
+                data=line_data['stddevs'],
                 hist=line_data['hist'],
+            )
+        self._sync_errorbars_x(line_data)
+
+    def _make_errorbar(self, *, mode, axis, data, hist):
+        return Errorbars(
+            mode=mode,
+            axis=axis,
+            ax=self._ax,
+            x=data['x'],
+            y=data['y'],
+            e=data['e'],
+            color=self._line.get_color(),
+            zorder=self._line.get_zorder(),
+            alpha=(({self._line.get_alpha()} - {None}) or {1.0}).pop() * 0.3,
+            hist=hist,
+        )
+
+    def _sync_errorbars_x(self, line_data):
+        data = line_data['stddevs_x']
+        if data is None:
+            if self._error_x is not None:
+                self._error_x.remove()
+            self._error_x = None
+        elif self._error_x is None:
+            self._error_x = self._make_errorbar(
+                mode='bar', axis='x', data=data, hist=line_data['hist']
+            )
+            self._error_x.set_visible(self.visible)
+        else:
+            self._error_x.update(
+                x=data['x'], y=data['y'], e=data['e'], hist=line_data['hist']
             )
 
     def update(self, new_values: sc.DataArray):
@@ -322,7 +376,9 @@ class Line:
         """
         check_ndim(new_values, ndim=1, origin='Line')
         self._data = new_values
-        line_data = make_line_data(data=self._data, dim=self._dim)
+        line_data = make_line_data(
+            data=self._data, dim=self._dim, errorbars_x=self._errorbars_x
+        )
 
         self._line.set_data(line_data['values']['x'], line_data['values']['y'])
         self._mask.set_data(line_data['mask']['x'], line_data['mask']['y'])
@@ -335,6 +391,7 @@ class Line:
                 e=line_data['stddevs']['e'],
                 hist=line_data['hist'],
             )
+        self._sync_errorbars_x(line_data)
 
     def remove(self):
         """
@@ -342,8 +399,9 @@ class Line:
         """
         self._line.remove()
         self._mask.remove()
-        if self._error is not None:
-            self._error.remove()
+        for error in (self._error, self._error_x):
+            if error is not None:
+                error.remove()
         self._canvas.draw()
 
     @property
@@ -356,8 +414,9 @@ class Line:
     @color.setter
     def color(self, val: str):
         self._line.set_color(val)
-        if self._error is not None:
-            self._error.set_color(val)
+        for error in (self._error, self._error_x):
+            if error is not None:
+                error.set_color(val)
         self._canvas.draw()
 
     @property
@@ -408,8 +467,9 @@ class Line:
     def visible(self, val: bool):
         self._line.set_visible(val)
         self._mask.set_visible(val)
-        if self._error is not None:
-            self._error.set_visible(val)
+        for error in (self._error, self._error_x):
+            if error is not None:
+                error.set_visible(val)
         self._canvas.draw()
 
     @property
@@ -423,8 +483,9 @@ class Line:
     def opacity(self, val: float):
         self._line.set_alpha(val)
         self._mask.set_alpha(val)
-        if self._error is not None:
-            self._error.set_alpha(val)
+        for error in (self._error, self._error_x):
+            if error is not None:
+                error.set_alpha(val)
         self._canvas.draw()
 
     def bbox(
@@ -445,6 +506,7 @@ class Line:
             data=self._data,
             dim=self._dim,
             errorbars=self._error is not None,
+            errorbars_x=self._error_x is not None,
             xscale=xscale,
             yscale=yscale,
         )

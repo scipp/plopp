@@ -4,6 +4,7 @@
 import numpy as np
 import pytest
 import scipp as sc
+from matplotlib import rc_context
 from matplotlib.markers import MarkerStyle
 
 from plopp.backends.matplotlib.canvas import Canvas
@@ -11,6 +12,12 @@ from plopp.backends.matplotlib.line import Line
 from plopp.data.testing import data_array
 
 pytestmark = pytest.mark.usefixtures("_parametrize_mpl_backends")
+
+
+def _with_coord_variances(da):
+    coord = da.coords[da.dim]
+    coord.variances = np.linspace(0.1, 0.5, len(coord)) ** 2
+    return da
 
 
 def test_line_creation():
@@ -69,6 +76,85 @@ def test_line_hide_errorbars():
     da = data_array(ndim=1, variances=True)
     line = Line(canvas=Canvas(), data=da, errorbars=False)
     assert line._error is None
+
+
+def test_coordinate_errorbars_are_disabled_by_default():
+    da = _with_coord_variances(data_array(ndim=1))
+    line = Line(canvas=Canvas(), data=da)
+    assert line._error_x is None
+
+
+def test_coordinate_errorbars_reject_non_boolean_mode():
+    da = _with_coord_variances(data_array(ndim=1))
+    with pytest.raises(TypeError, match="errorbars_x must be True or False"):
+        Line(canvas=Canvas(), data=da, errorbars_x='band')
+
+
+def test_line_with_coordinate_errorbars():
+    da = _with_coord_variances(data_array(ndim=1))
+    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+
+    coord = da.coords[da.dim]
+    assert np.allclose(
+        line._error_x.get_xdata().min(), (coord - sc.stddevs(coord)).values.min()
+    )
+    assert np.allclose(
+        line._error_x.get_xdata().max(), (coord + sc.stddevs(coord)).values.max()
+    )
+
+
+def test_line_with_bin_edges_and_coordinate_errorbars():
+    da = _with_coord_variances(data_array(ndim=1, binedges=True))
+    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+
+    coord = da.coords[da.dim]
+    assert np.allclose(
+        line._error_x.get_xdata().min(), (coord - sc.stddevs(coord)).values.min()
+    )
+    assert np.allclose(
+        line._error_x.get_xdata().max(), (coord + sc.stddevs(coord)).values.max()
+    )
+
+
+@pytest.mark.parametrize('mode', ['bar', 'band'])
+def test_line_with_data_and_coordinate_errorbars(mode):
+    da = _with_coord_variances(data_array(ndim=1, variances=True))
+    line = Line(canvas=Canvas(), data=da, errorbars=mode, errorbars_x=True)
+    assert line._error is not None
+    assert line._error_x is not None
+
+
+def test_line_update_coordinate_errorbars_with_string_data():
+    coord = sc.array(dims=['x'], values=[1.0, 2.0], variances=[0.1, 0.2])
+    da = sc.DataArray(sc.array(dims=['x'], values=['a', 'b']), coords={'x': coord})
+    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+    line.update(da)
+    assert np.array_equal(line._error_x.get_ydata(), [[0.0, 0.0], [1.0, 1.0]])
+
+
+def test_line_update_coordinate_errorbars_with_caps():
+    da = _with_coord_variances(data_array(ndim=1))
+    updated = da.copy(deep=True)
+    updated.coords[updated.dim] += sc.scalar(2.0, unit=updated.coords[updated.dim].unit)
+    updated.values += 1.0
+    with rc_context({'errorbar.capsize': 3.0}):
+        line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+        line.update(updated)
+    coord = updated.coords[updated.dim]
+    lower_x, upper_x = line._error_x._artist.lines[1]
+    assert np.allclose(lower_x.get_xdata(), (coord - sc.stddevs(coord)).values)
+    assert np.allclose(upper_x.get_xdata(), (coord + sc.stddevs(coord)).values)
+    assert np.allclose(lower_x.get_ydata(), updated.values)
+    assert np.allclose(upper_x.get_ydata(), updated.values)
+
+
+def test_line_bbox_includes_coordinate_errorbars():
+    coord = sc.array(dims=['x'], values=[0.0, 1.0], variances=[4.0, 4.0])
+    da = sc.DataArray(sc.arange('x', 2.0), coords={'x': coord})
+    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+    bbox = line.bbox(xscale='linear', yscale='linear')
+    assert bbox.xmin < -2.0
+    assert bbox.xmax > 3.0
 
 
 def test_line_with_mask():
@@ -130,6 +216,22 @@ def test_line_update_with_errorbars(mode):
         line._error.get_ydata().max(),
         (da.data * 2.5 + sc.stddevs(da.data)).values.max(),
     )
+
+
+def test_line_update_adds_and_removes_coordinate_errorbars():
+    da = data_array(ndim=1)
+    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+    assert line._error_x is None
+
+    line.visible = False
+    with_variances = _with_coord_variances(da.copy(deep=True))
+    line.update(with_variances)
+    assert line._error_x is not None
+    assert not line._error_x.get_visible()
+
+    line.update(da)
+    assert line._error_x is None
+    line.bbox(xscale='linear', yscale='linear')
 
 
 @pytest.mark.parametrize("mode", ['band', 'bar', True])
