@@ -249,7 +249,7 @@ def _check_coord_sanity(da: sc.DataArray) -> None:
                     'The input contains a coordinate with unsorted values '
                     f'({name}). The results may be unpredictable. '
                     'Coordinates can be sorted using '
-                    '`scipp.sort(data, dim="to_be_sorted", order="ascending")`.',
+                    '`scipp.sort(data, key="to_be_sorted", order="ascending")`.',
                     RuntimeWarning,
                     stacklevel=2,
                 )
