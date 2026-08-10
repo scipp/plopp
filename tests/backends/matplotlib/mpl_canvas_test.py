@@ -173,13 +173,13 @@ def test_home_button_rescales_all_axes_sharing_a_figure():
 def test_back_and_forward_buttons_navigate_view_history(ndim):
     da = data_array(ndim=ndim)
     p = da.plot()
-    toolbar = p.canvas.fig.canvas.toolbar
+    mpl_toolbar = p.canvas.fig.canvas.toolbar
 
     original_range = p.canvas.xrange
-    toolbar.push_current()
+    mpl_toolbar.push_current()
     zoomed_range = (10.0, 20.0)
     p.canvas.xrange = zoomed_range
-    toolbar.push_current()
+    mpl_toolbar.push_current()
 
     p.toolbar['back'].click()
     assert p.canvas.xrange == pytest.approx(original_range)
