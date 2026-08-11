@@ -2,10 +2,15 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import matplotlib
+import matplotlib.pyplot as plt
 import pytest
 
 from plopp.backends.matplotlib.figure import StaticFigure
-from plopp.backends.matplotlib.utils import is_interactive_backend, is_widget_backend
+from plopp.backends.matplotlib.utils import (
+    is_interactive_backend,
+    is_widget_backend,
+    make_figure,
+)
 from plopp.data.testing import data_array
 
 
@@ -32,6 +37,15 @@ def test_static_backends_are_neither_interactive_nor_widget(monkeypatch, backend
     monkeypatch.setattr(matplotlib, 'get_backend', lambda: backend)
     assert not is_interactive_backend()
     assert not is_widget_backend()
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_make_figure_initializes_pyplot_backend(monkeypatch):
+    monkeypatch.setattr(plt, '_backend_mod', None)
+
+    fig = make_figure()
+
+    assert fig.canvas.manager is not None
 
 
 @pytest.mark.parametrize('backend', ['qtagg', 'tkagg', 'macosx'])
