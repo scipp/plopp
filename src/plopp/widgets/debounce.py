@@ -3,53 +3,36 @@
 
 import asyncio
 from collections.abc import Callable
+from functools import wraps
 
 
-class Timer:
+def debounce(fn: Callable, *, wait: float):
     """
-    From:
-    https://ipywidgets.readthedocs.io/en/8.0.2/examples/Widget%20Events.html#Debouncing
+    Wrap a function so that its execution is postponed until `wait` seconds have
+    elapsed since the last time it was invoked.
+
+    If there is no running event loop, the function is called immediately. This is
+    useful in synchronous contexts such as tests and scripts, where delayed execution
+    cannot be scheduled without blocking or using another thread.
     """
+    handle: asyncio.TimerHandle | None = None
 
-    def __init__(self, timeout: float, callback: Callable):
-        self._timeout = timeout
-        self._callback = callback
+    @wraps(fn)
+    def debounced(*args, **kwargs):
+        nonlocal handle
 
-    async def _job(self):
-        await asyncio.sleep(self._timeout)
-        self._callback()
+        def call_it():
+            nonlocal handle
+            handle = None
+            fn(*args, **kwargs)
 
-    def start(self):
-        self._task = asyncio.ensure_future(self._job())
+        if handle is not None:
+            handle.cancel()
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            call_it()
+        else:
+            handle = loop.call_later(wait, call_it)
 
-    def cancel(self):
-        self._task.cancel()
-
-
-def debounce(wait: float):
-    """
-    Decorator that will postpone a function's
-    execution until after `wait` seconds
-    have elapsed since the last time it was invoked.
-
-    From:
-    https://ipywidgets.readthedocs.io/en/8.0.2/examples/Widget%20Events.html#Debouncing
-    """
-
-    def decorator(fn: Callable):
-        timer = None
-
-        def debounced(*args, **kwargs):
-            nonlocal timer
-
-            def call_it():
-                fn(*args, **kwargs)
-
-            if timer is not None:
-                timer.cancel()
-            timer = Timer(wait, call_it)
-            timer.start()
-
-        return debounced
-
-    return decorator
+    return debounced

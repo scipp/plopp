@@ -690,6 +690,14 @@ class Canvas:
         elif value is None:
             self.reset_mode()
 
+    def back(self):
+        """Navigate to the previous view in the pan and zoom history."""
+        self.fig.canvas.toolbar.back()
+
+    def forward(self):
+        """Navigate to the next view in the pan and zoom history."""
+        self.fig.canvas.toolbar.forward()
+
     def download_figure(self):
         """
         Save the figure to a PNG file via a pop-up dialog.
