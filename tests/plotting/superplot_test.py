@@ -15,10 +15,10 @@ def test_creation():
     assert len(sp.right_bar[0]._lines) == 0
 
 
-def test_coordinate_errorbars():
+def test_coordinate_errorbars_by_default():
     da = data_array(ndim=2)
     da.coords['xx'].variances = da.coords['xx'].values * 0.0 + 0.25
-    sp = superplot(da, keep='xx', errorbars_x=True)
+    sp = superplot(da, keep='xx')
     [line] = sp.artists.values()
     assert line._error_x is not None
 

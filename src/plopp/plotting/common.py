@@ -362,7 +362,7 @@ def categorize_args(
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
     errorbars: Literal['band', 'bar', True, False] = True,
-    errorbars_x: bool = False,
+    errorbars_x: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,

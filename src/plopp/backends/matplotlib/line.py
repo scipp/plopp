@@ -63,7 +63,7 @@ class Errorbars:
                 ax, x, y, e, color=color, zorder=zorder, alpha=alpha, hist=hist
             )
         elif self._mode == ErrorbarMode.bar:
-            if hist and self._axis == 'y':
+            if hist:
                 # Use bin centers for bars; We go via sc.midpoints as it handles
                 # datetime coordinates correctly.
                 x = np.asarray(sc.midpoints(sc.array(dims='x', values=x)).values)
@@ -122,7 +122,7 @@ class Errorbars:
                 # For vertical errors, y is always numeric because Scipp only supports
                 # variances for numeric data. Only datetime x values need conversion.
                 x = _to_float(x)
-            if hist and self._axis == 'y':
+            if hist:
                 x = 0.5 * (x[1:] + x[:-1])  # Use bin centers for bars
             if self._axis == 'x':
                 lower = np.column_stack((x - e, y))
@@ -229,7 +229,8 @@ class Line:
         Whether to add error bars to the line. Optionally, this can be a string to
         specify the error bar style. Valid values are 'band' and 'bar'.
     errorbars_x:
-        Whether to add error bars from coordinate variances to the line.
+        Whether to add error bars from coordinate variances to the line. Ignored for
+        bin-edge coordinates.
     mask_color:
         The color of the masked points.
     """
@@ -241,7 +242,7 @@ class Line:
         uid: str | None = None,
         artist_number: int = 0,
         errorbars: Literal['band', 'bar', True, False] = True,
-        errorbars_x: bool = False,
+        errorbars_x: bool = True,
         mask_color: str | None = None,
         **kwargs,
     ):
@@ -258,15 +259,11 @@ class Line:
 
         line_args = parse_dicts_in_kwargs(kwargs, name=data.name)
 
-        self._line = None
-        self._mask = None
         self._error = None
         self._error_x = None
-        self._unit = None
         self.label = data.name
         self._dim = self._data.dim
         self._unit = self._data.unit
-        self._coord = self._data.coords[self._dim]
         if mask_color is None:
             mask_color = 'black'
 

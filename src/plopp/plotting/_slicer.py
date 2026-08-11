@@ -258,7 +258,7 @@ def slicer(
     coords: list[str] | None = None,
     enable_player: bool = False,
     errorbars: Literal['band', 'bar', True, False] = True,
-    errorbars_x: bool = False,
+    errorbars_x: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
@@ -320,7 +320,8 @@ def slicer(
         Whether to add error bars to the line. Optionally, this can be a string to
         specify the error bar style. Valid values are 'band' and 'bar'.
     errorbars_x:
-        Whether to add error bars from coordinate variances to the line.
+        Whether to add error bars from coordinate variances to the line. Ignored for
+        bin-edge coordinates.
     figsize:
         The width and height of the figure, in inches.
     grid:

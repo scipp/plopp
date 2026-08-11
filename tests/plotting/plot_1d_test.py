@@ -458,6 +458,14 @@ def test_plot_1d_data_with_coordinate_errorbars(enabled):
     assert (line._error_x is not None) is enabled
 
 
+def test_plot_1d_data_with_coordinate_errorbars_by_default():
+    da = data_array(ndim=1)
+    da.coords[da.dim].variances = np.full(da.sizes[da.dim], 0.25)
+    p = da.plot()
+    [line] = p.artists.values()
+    assert line._error_x is not None
+
+
 @pytest.mark.parametrize("mode", ['band', 'bar', True])
 def test_plot_1d_data_with_variances_and_nan_values(mode):
     da = data_array(ndim=1, variances=True)

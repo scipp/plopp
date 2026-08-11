@@ -67,10 +67,10 @@ def make_line_data(data: sc.DataArray, dim: str) -> dict:
     if hist:
         for array in (values, mask):
             array['y'] = np.concatenate([array['y'][0:1], array['y']])
-    if x.variances is not None:
+    if not hist and x.variances is not None:
         error_x = {
             'x': xvalues,
-            'y': values['y'],
+            'y': yvalues,
             'e': np.asarray(sc.stddevs(x).values),
         }
     return {

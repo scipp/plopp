@@ -28,7 +28,7 @@ def plot(
     cmin: sc.Variable | float | None = None,
     coords: list[str] | None = None,
     errorbars: Literal['band', 'bar', True, False] = True,
-    errorbars_x: bool = False,
+    errorbars_x: bool = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     ignore_size: bool = False,
@@ -78,7 +78,8 @@ def plot(
         Whether to add error bars to the line. Optionally, this can be a string to
         specify the error bar style. Valid values are 'band' and 'bar'.
     errorbars_x:
-        Whether to add error bars from coordinate variances to the line.
+        Whether to add error bars from coordinate variances to the line. Ignored for
+        bin-edge coordinates.
     figsize:
         The width and height of the figure, in inches.
     grid:

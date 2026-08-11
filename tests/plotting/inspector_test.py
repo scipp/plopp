@@ -65,11 +65,11 @@ def test_line_creation():
 
 
 @pytest.mark.usefixtures('_use_ipympl')
-def test_line_with_coordinate_errorbars():
+def test_line_with_coordinate_errorbars_by_default():
     da = pp.data.data3d()
     dim = da.dims[-1]
     da.coords[dim].variances = np.full(da.sizes[dim], 0.25)
-    ip = pp.inspector(da, dim=dim, errorbars_x=True)
+    ip = pp.inspector(da, dim=dim)
     fig2d = ip[0][0]
     fig1d = ip[0][1]
     fig2d.toolbar['inspect'].value = True
