@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: BSD-3-Clause
+# Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+
+import matplotlib
+import matplotlib.pyplot as plt
+import pytest
+
+from plopp.backends.matplotlib.figure import StaticFigure
+from plopp.backends.matplotlib.utils import (
+    is_interactive_backend,
+    is_widget_backend,
+    make_figure,
+)
+from plopp.data.testing import data_array
+
+
+@pytest.mark.parametrize(
+    'backend', ['qtagg', 'tkagg', 'macosx', 'gtk4agg', 'wxagg', 'webagg']
+)
+def test_gui_backends_are_interactive_but_not_widget(monkeypatch, backend):
+    monkeypatch.setattr(matplotlib, 'get_backend', lambda: backend)
+    assert is_interactive_backend()
+    assert not is_widget_backend()
+
+
+@pytest.mark.parametrize('backend', ['module://ipympl.backend_nbagg', 'nbagg'])
+def test_widget_backends_are_interactive_and_widget(monkeypatch, backend):
+    monkeypatch.setattr(matplotlib, 'get_backend', lambda: backend)
+    assert is_interactive_backend()
+    assert is_widget_backend()
+
+
+@pytest.mark.parametrize(
+    'backend', ['agg', 'module://matplotlib_inline.backend_inline', 'pdf', 'svg']
+)
+def test_static_backends_are_neither_interactive_nor_widget(monkeypatch, backend):
+    monkeypatch.setattr(matplotlib, 'get_backend', lambda: backend)
+    assert not is_interactive_backend()
+    assert not is_widget_backend()
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+def test_make_figure_initializes_pyplot_backend(monkeypatch):
+    monkeypatch.setattr(plt, '_backend_mod', None)
+
+    fig = make_figure()
+
+    assert fig.canvas.manager is not None
+
+
+@pytest.mark.parametrize('backend', ['qtagg', 'tkagg', 'macosx'])
+def test_gui_backend_makes_static_figure(monkeypatch, backend):
+    # GUI backends are used when plotting from a terminal, where ipywidgets-based
+    # interactive figures cannot be displayed. See issue #589.
+    monkeypatch.setattr(matplotlib, 'get_backend', lambda: backend)
+    fig = data_array(ndim=1).plot()
+    assert isinstance(fig, StaticFigure)
+    assert not fig.interactive
