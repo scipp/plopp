@@ -66,6 +66,8 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
     return Toolbar(
         tools={
             "home": tools.HomeTool(autoscale_axes, tooltip="Autoscale axes range"),
+            "back": tools.BackTool(view.canvas.back),
+            "forward": tools.ForwardTool(view.canvas.forward),
             "panzoom": tools.PanZoomTool(view.canvas.panzoom),
             "save": tools.SaveTool(view.canvas.download_figure),
         }
