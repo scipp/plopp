@@ -44,6 +44,7 @@ def pytest_sessionfinish(session, exitstatus):
 
 BACKENDS_MPL = [('2d', 'mpl-static'), ('2d', 'mpl-interactive')]
 BACKENDS_MPL_INTERACTIVE = [('2d', 'mpl-interactive')]
+BACKENDS_MPL_STATIC = [('2d', 'mpl-static')]
 
 
 def _select_backend(backend):
@@ -84,4 +85,9 @@ def _parametrize_interactive_1d_backends(request):
 
 @pytest.fixture(**_make_fixture_args(BACKENDS_MPL_INTERACTIVE))
 def _parametrize_interactive_2d_backends(request):
+    _select_backend(request.param)
+
+
+@pytest.fixture(**_make_fixture_args(BACKENDS_MPL_STATIC))
+def _parametrize_static_mpl_backend(request):
     _select_backend(request.param)
