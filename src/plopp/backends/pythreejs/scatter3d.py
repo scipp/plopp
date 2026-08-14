@@ -212,6 +212,11 @@ class Scatter3d:
     def color(self, val: np.ndarray):
         self.geometry.attributes['color'].array = val
 
+    def _copy_color_from(self, other: 'Scatter3d') -> None:
+        self._color = other._color
+        self._artist_number = other._artist_number
+        self.color = self._make_colors()
+
     @property
     def geometry(self) -> p3.BufferGeometry:
         """

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+import numpy as np
 import pytest
 import scipp as sc
 
@@ -7,6 +8,31 @@ from plopp import Node
 from plopp.data.testing import data_array, scatter
 from plopp.graphics import scatter3dfigure
 from plopp.widgets import ClippingManager
+
+
+def test_cut_colors_match_original_artists():
+    a = scatter(seed=1)
+    b = scatter(seed=2)
+    b.coords['x'] += sc.scalar(60, unit='m')
+    nodes = [Node(a), Node(b)]
+    fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=False)
+    clip = ClippingManager(fig)
+
+    clip.add_y_cut.click()
+
+    for source in nodes:
+        cut = clip._nodes[source.id]
+        assert np.array_equal(
+            fig.artists[cut.id].color[0], fig.artists[source.id].color[0]
+        )
+
+    ycut = clip.cuts[-1]
+    ycut.slider.value = [ycut.slider.min, ycut.slider.value[1]]
+    for source in nodes:
+        cut = clip._nodes[source.id]
+        assert np.array_equal(
+            fig.artists[cut.id].color[0], fig.artists[source.id].color[0]
+        )
 
 
 @pytest.mark.parametrize('multiple_nodes', [False, True])
