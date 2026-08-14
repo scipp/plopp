@@ -94,7 +94,6 @@ def test_value_cuts(multiple_nodes):
     vcut = clip.cuts[-1]
     npoints = list(fig.artists.values())[-1]._data.shape[0]
     vcut.slider.value = [vcut.slider.min, vcut.slider.value[1]]
-    clip.update_state()  # Need to manually update state due to debounce mechanism
     # We should now have more points in the cut than before because the range is wider
     npoints2 = list(fig.artists.values())[-1]._data.shape[0]
     assert npoints2 > npoints
@@ -107,7 +106,6 @@ def test_value_cuts(multiple_nodes):
         0.5 * (vcut2.slider.value[1] + vcut2.slider.max),
         vcut2.slider.max,
     ]
-    clip.update_state()  # Need to manually update state due to debounce mechanism
     # We should now have more points in the cut than before because the range is wider
     npoints3 = list(fig.artists.values())[-1]._data.shape[0]
     assert npoints3 > npoints2
@@ -164,7 +162,6 @@ def test_move_cut():
     xcut.slider.value = [xcut.slider.min, xcut.slider.value[1]]
     assert xcut.outlines[0].position[0] == xcut.slider.value[0]
     assert xcut.outlines[1].position[0] == xcut.slider.value[1]
-    clip.update_state()  # Need to manually update state due to debounce mechanism
     new_pts = list(fig.artists.values())[-1]
     assert npoints < new_pts._data.shape[0]
 
