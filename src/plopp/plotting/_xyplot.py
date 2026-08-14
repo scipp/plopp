@@ -42,8 +42,7 @@ def xyplot(
     y: sc.Variable | ndarray | list | Node,
     aspect: Literal['auto', 'equal'] | None = None,
     autoscale: bool = True,
-    errorbars: Literal['band', 'bar', True, False] = True,
-    errorbars_x: bool = True,
+    errorbars: Literal['band', 'bar', 'xonly', 'yonly', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
@@ -79,10 +78,10 @@ def xyplot(
     autoscale:
         Automatically scale the axes on updates if ``True``.
     errorbars:
-        Whether to add error bars to the line. Optionally, this can be a string to
-        specify the error bar style. Valid values are 'band' and 'bar'.
-    errorbars_x:
-        Whether to add error bars from ``x`` variances to the line. Ignored when ``x``
+        Which error bars to add to the line. ``True`` displays both ``x`` and ``y``
+        error bars. ``False`` hides all error bars. ``'xonly'`` and ``'yonly'`` display
+        bars only for the selected axis, while ``'bar'`` and ``'band'`` display ``y``
+        error bars using the requested style. ``x`` error bars are ignored when ``x``
         contains bin edges.
     figsize:
         The width and height of the figure, in inches.
@@ -129,7 +128,6 @@ def xyplot(
         aspect=aspect,
         autoscale=autoscale,
         errorbars=errorbars,
-        errorbars_x=errorbars_x,
         figsize=figsize,
         grid=grid,
         legend=legend,

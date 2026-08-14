@@ -361,8 +361,7 @@ def categorize_args(
     cmap: str = 'viridis',
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
-    errorbars: Literal['band', 'bar', True, False] = True,
-    errorbars_x: bool = True,
+    errorbars: Literal['band', 'bar', 'xonly', 'yonly', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
@@ -407,12 +406,7 @@ def categorize_args(
         **kwargs,
     }
     return {
-        "1d": {
-            'errorbars': errorbars,
-            'errorbars_x': errorbars_x,
-            'legend': legend,
-            **common_args,
-        },
+        "1d": {'errorbars': errorbars, 'legend': legend, **common_args},
         "2d": {
             'cbar': cbar,
             'cmap': cmap,

@@ -449,11 +449,21 @@ def test_plot_1d_data_with_errorbars_auto():
     assert p.canvas.ymax > 1.0
 
 
-@pytest.mark.parametrize('enabled', [False, True])
-def test_plot_1d_data_with_coordinate_errorbars(enabled):
+@pytest.mark.parametrize(
+    ('setting', 'enabled'),
+    [
+        (True, True),
+        (False, False),
+        ('xonly', True),
+        ('yonly', False),
+        ('bar', False),
+        ('band', False),
+    ],
+)
+def test_plot_1d_data_with_coordinate_errorbars(setting, enabled):
     da = data_array(ndim=1)
     da.coords[da.dim].variances = np.full(da.sizes[da.dim], 0.25)
-    p = da.plot(errorbars_x=enabled)
+    p = da.plot(errorbars=setting)
     [line] = p.artists.values()
     assert (line._error_x is not None) is enabled
 

@@ -21,9 +21,8 @@ def _with_coord_variances(da):
 
 
 def test_line_creation():
-    da = data_array(ndim=1, unit='K')
+    da = data_array(ndim=1)
     line = Line(canvas=Canvas(), data=da)
-    assert line._unit == 'K'
     assert line._dim == 'xx'
     assert len(line._line.get_xdata()) == da.sizes['xx']
     assert np.allclose(line._line.get_xdata(), da.coords['xx'].values)
@@ -84,15 +83,15 @@ def test_coordinate_errorbars_are_enabled_by_default():
     assert line._error_x is not None
 
 
-def test_coordinate_errorbars_reject_non_boolean_mode():
+def test_invalid_errorbar_setting_raises():
     da = _with_coord_variances(data_array(ndim=1))
-    with pytest.raises(TypeError, match="errorbars_x must be True or False"):
-        Line(canvas=Canvas(), data=da, errorbars_x='band')
+    with pytest.raises(ValueError, match="Invalid errorbars setting"):
+        Line(canvas=Canvas(), data=da, errorbars='invalid')
 
 
 def test_line_with_coordinate_errorbars():
     da = _with_coord_variances(data_array(ndim=1))
-    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+    line = Line(canvas=Canvas(), data=da, errorbars='xonly')
 
     coord = da.coords[da.dim]
     assert np.allclose(
@@ -105,22 +104,36 @@ def test_line_with_coordinate_errorbars():
 
 def test_line_skips_coordinate_errorbars_for_bin_edges():
     da = _with_coord_variances(data_array(ndim=1, binedges=True))
-    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+    line = Line(canvas=Canvas(), data=da, errorbars='xonly')
     assert line._error_x is None
 
 
-@pytest.mark.parametrize('mode', ['bar', 'band'])
-def test_line_with_data_and_coordinate_errorbars(mode):
+@pytest.mark.parametrize(
+    ('setting', 'has_x', 'y_style'),
+    [
+        (True, True, 'bar'),
+        (False, False, None),
+        ('xonly', True, None),
+        ('yonly', False, 'bar'),
+        ('bar', False, 'bar'),
+        ('band', False, 'band'),
+    ],
+)
+def test_errorbar_setting_selects_axes_and_style(setting, has_x, y_style):
     da = _with_coord_variances(data_array(ndim=1, variances=True))
-    line = Line(canvas=Canvas(), data=da, errorbars=mode, errorbars_x=True)
-    assert line._error is not None
-    assert line._error_x is not None
+    line = Line(canvas=Canvas(), data=da, errorbars=setting)
+    assert (line._error_x is not None) is has_x
+    if line._error_x is not None:
+        assert line._error_x._mode == 'bar'
+    assert (line._error is not None) is (y_style is not None)
+    if line._error is not None:
+        assert line._error._mode == y_style
 
 
 def test_line_update_coordinate_errorbars_with_string_data():
     coord = sc.array(dims=['x'], values=[1.0, 2.0], variances=[0.1, 0.2])
     da = sc.DataArray(sc.array(dims=['x'], values=['a', 'b']), coords={'x': coord})
-    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+    line = Line(canvas=Canvas(), data=da, errorbars='xonly')
     line.update(da)
     assert np.array_equal(line._error_x.get_ydata(), [[0.0, 0.0], [1.0, 1.0]])
 
@@ -131,7 +144,7 @@ def test_line_update_coordinate_errorbars_with_caps():
     updated.coords[updated.dim] += sc.scalar(2.0, unit=updated.coords[updated.dim].unit)
     updated.values += 1.0
     with rc_context({'errorbar.capsize': 3.0}):
-        line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+        line = Line(canvas=Canvas(), data=da, errorbars='xonly')
         line.update(updated)
     coord = updated.coords[updated.dim]
     lower_x, upper_x = line._error_x._artist.lines[1]
@@ -141,10 +154,26 @@ def test_line_update_coordinate_errorbars_with_caps():
     assert np.allclose(upper_x.get_ydata(), updated.values)
 
 
+def test_line_update_data_errorbars_with_caps():
+    da = data_array(ndim=1, variances=True)
+    updated = da.copy(deep=True)
+    updated.coords[updated.dim] += sc.scalar(2.0, unit=updated.coords[updated.dim].unit)
+    updated.values += 1.0
+    with rc_context({'errorbar.capsize': 3.0}):
+        line = Line(canvas=Canvas(), data=da, errorbars='yonly')
+        line.update(updated)
+    coord = updated.coords[updated.dim]
+    lower_y, upper_y = line._error._artist.lines[1]
+    assert np.allclose(lower_y.get_xdata(), coord.values)
+    assert np.allclose(upper_y.get_xdata(), coord.values)
+    assert np.allclose(lower_y.get_ydata(), (updated - sc.stddevs(updated)).values)
+    assert np.allclose(upper_y.get_ydata(), (updated + sc.stddevs(updated)).values)
+
+
 def test_line_bbox_includes_coordinate_errorbars():
     coord = sc.array(dims=['x'], values=[0.0, 1.0], variances=[4.0, 4.0])
     da = sc.DataArray(sc.arange('x', 2.0), coords={'x': coord})
-    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+    line = Line(canvas=Canvas(), data=da, errorbars='xonly')
     bbox = line.bbox(xscale='linear', yscale='linear')
     assert bbox.xmin < -2.0
     assert bbox.xmax > 3.0
@@ -221,27 +250,37 @@ def test_line_update_with_bin_edges_and_errorbars():
     assert np.allclose(line._error.get_xdata().max(), x.max())
 
 
-def test_line_update_adds_and_removes_coordinate_errorbars():
+@pytest.mark.parametrize(('setting', 'has_x'), [(True, True), ('band', False)])
+def test_line_update_adds_and_removes_errorbars(setting, has_x):
     da = data_array(ndim=1)
-    line = Line(canvas=Canvas(), data=da, errorbars_x=True)
+    line = Line(canvas=Canvas(), data=da, errorbars=setting)
+    assert line._error is None
     assert line._error_x is None
 
     line.visible = False
-    with_variances = _with_coord_variances(da.copy(deep=True))
+    with_variances = _with_coord_variances(data_array(ndim=1, variances=True))
     line.update(with_variances)
-    assert line._error_x is not None
-    assert not line._error_x.get_visible()
+    assert line._error is not None
+    assert not line._error.get_visible()
+    assert (line._error_x is not None) is has_x
+    if line._error_x is not None:
+        assert not line._error_x.get_visible()
 
     line.update(da)
+    assert line._error is None
     assert line._error_x is None
     line.bbox(xscale='linear', yscale='linear')
 
+    line.update(with_variances)
+    assert line._error is not None
+    assert (line._error_x is not None) is has_x
 
-def test_line_update_does_not_add_coordinate_errorbars_when_disabled():
-    da = data_array(ndim=1)
-    line = Line(canvas=Canvas(), data=da, errorbars_x=False)
-    line.update(_with_coord_variances(da.copy(deep=True)))
-    assert line._error_x is None
+
+def test_initial_errorbars_follow_line_visibility():
+    da = _with_coord_variances(data_array(ndim=1, variances=True))
+    line = Line(canvas=Canvas(), data=da, visible=False)
+    assert not line._error.get_visible()
+    assert not line._error_x.get_visible()
 
 
 def test_line_update_removes_coordinate_errorbars_for_bin_edges():
