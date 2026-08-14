@@ -3,6 +3,7 @@
 import numpy as np
 import pytest
 import scipp as sc
+from matplotlib import cycler, rc_context
 
 from plopp import Node
 from plopp.data.testing import data_array, scatter
@@ -15,10 +16,12 @@ def test_cut_colors_match_original_artists():
     b = scatter(seed=2)
     b.coords['x'] += sc.scalar(60, unit='m')
     nodes = [Node(a), Node(b)]
-    fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=False)
+    with rc_context({'axes.prop_cycle': cycler(color=['#102030', '#405060'])}):
+        fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=False)
     clip = ClippingManager(fig)
 
-    clip.add_y_cut.click()
+    with rc_context({'axes.prop_cycle': cycler(color=['#708090', '#a0b0c0'])}):
+        clip.add_y_cut.click()
 
     for source in nodes:
         cut = clip._nodes[source.id]
@@ -26,8 +29,13 @@ def test_cut_colors_match_original_artists():
             fig.artists[cut.id].color[0], fig.artists[source.id].color[0]
         )
 
+    npoints = [fig.artists[node.id].data.shape[0] for node in clip._nodes.values()]
     ycut = clip.cuts[-1]
     ycut.slider.value = [ycut.slider.min, ycut.slider.value[1]]
+    clip.update_state()
+    assert [
+        fig.artists[node.id].data.shape[0] for node in clip._nodes.values()
+    ] != npoints
     for source in nodes:
         cut = clip._nodes[source.id]
         assert np.array_equal(

@@ -4,6 +4,7 @@
 import numpy as np
 import pytest
 import scipp as sc
+from matplotlib import cycler, rc_context
 
 from plopp.backends.pythreejs.canvas import Canvas
 from plopp.backends.pythreejs.scatter3d import Scatter3d
@@ -28,6 +29,17 @@ def test_update():
     assert sc.identical(scat._data, da)
     scat.update(da * 2.5)
     assert sc.identical(scat._data, da * 2.5)
+
+
+def test_update_with_different_number_of_points_preserves_default_color():
+    with rc_context({'axes.prop_cycle': cycler(color=['#102030'])}):
+        scat = Scatter3d(canvas=Canvas(), data=scatter(20), x='x', y='y', z='z')
+    color = scat.color[0].copy()
+
+    with rc_context({'axes.prop_cycle': cycler(color=['#708090'])}):
+        scat.update(scatter(30))
+
+    np.testing.assert_array_equal(scat.color, np.broadcast_to(color, (30, 3)))
 
 
 def test_bounding_box():
