@@ -90,7 +90,8 @@ def make_figure(*args, **kwargs) -> plt.Figure:
             _next_free_figure_num(), fig
         )
         # Register with pyplot global figure manager registry so plt.show() sees it.
-        Gcf.set_active(manager)
+        if not is_widget_backend():
+            Gcf.set_active(manager)
     return fig
 
 
