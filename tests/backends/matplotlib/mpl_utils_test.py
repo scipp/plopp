@@ -5,7 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pytest
 
-from plopp.backends.matplotlib.figure import StaticFigure
+from plopp.backends.matplotlib.figure import MplFigure
 from plopp.backends.matplotlib.utils import (
     is_interactive_backend,
     is_widget_backend,
@@ -49,10 +49,11 @@ def test_make_figure_initializes_pyplot_backend(monkeypatch):
 
 
 @pytest.mark.parametrize('backend', ['qtagg', 'tkagg', 'macosx'])
-def test_gui_backend_makes_static_figure(monkeypatch, backend):
+def test_gui_backend_makes_default_figure(monkeypatch, backend):
     # GUI backends are used when plotting from a terminal, where ipywidgets-based
     # interactive figures cannot be displayed. See issue #589.
     monkeypatch.setattr(matplotlib, 'get_backend', lambda: backend)
     fig = data_array(ndim=1).plot()
-    assert isinstance(fig, StaticFigure)
+
+    assert isinstance(fig, MplFigure)
     assert not fig.interactive
