@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 import scipp as sc
 from matplotlib import cycler, rc_context
+from matplotlib.colors import to_rgb
 
 from plopp.backends.pythreejs.canvas import Canvas
 from plopp.backends.pythreejs.scatter3d import Scatter3d
@@ -40,6 +41,55 @@ def test_update_with_different_number_of_points_preserves_default_color():
         scat.update(scatter(30))
 
     np.testing.assert_array_equal(scat.color, np.broadcast_to(color, (30, 3)))
+
+
+@pytest.mark.parametrize(
+    'color',
+    [
+        'red',
+        (0.1, 0.2, 0.3),
+        (0.1, 0.2, 0.3, 0.4),
+        np.array([0.1, 0.2, 0.3]),
+        np.array([0.1, 0.2, 0.3, 0.4]),
+    ],
+)
+def test_set_single_color(color):
+    scat = Scatter3d(canvas=Canvas(), data=scatter(20), x='x', y='y', z='z')
+
+    scat.color = color
+
+    expected = np.array(to_rgb(color), dtype='float32')
+    np.testing.assert_array_equal(scat.single_color, expected)
+    np.testing.assert_array_equal(scat.color, np.broadcast_to(expected, (20, 3)))
+
+
+def test_set_single_color_is_preserved_when_number_of_points_changes():
+    scat = Scatter3d(canvas=Canvas(), data=scatter(20), x='x', y='y', z='z')
+    scat.color = 'red'
+
+    scat.update(scatter(30))
+
+    expected = np.array(to_rgb('red'), dtype='float32')
+    np.testing.assert_array_equal(scat.single_color, expected)
+    np.testing.assert_array_equal(scat.color, np.broadcast_to(expected, (30, 3)))
+
+
+def test_single_color_is_none_with_colormapper():
+    canvas = Canvas()
+    scat = Scatter3d(
+        canvas=canvas,
+        data=scatter(20),
+        x='x',
+        y='y',
+        z='z',
+        colormapper=ColorMapper(canvas=canvas),
+    )
+    colors = scat.color.copy()
+
+    scat.color = 'red'
+
+    assert scat.single_color is None
+    np.testing.assert_array_equal(scat.color, colors)
 
 
 def test_bounding_box():

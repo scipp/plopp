@@ -25,9 +25,10 @@ def test_cut_colors_match_original_artists():
 
     for source in nodes:
         cut = clip._nodes[source.id]
-        assert np.array_equal(
-            fig.artists[cut.id].color[0], fig.artists[source.id].color[0]
-        )
+        source_artist = fig.artists[source.id]
+        cut_artist = fig.artists[cut.id]
+        assert np.array_equal(cut_artist.single_color, source_artist.single_color)
+        assert np.array_equal(cut_artist.color[0], source_artist.color[0])
 
     npoints = [fig.artists[node.id].data.shape[0] for node in clip._nodes.values()]
     ycut = clip.cuts[-1]
@@ -38,9 +39,10 @@ def test_cut_colors_match_original_artists():
     ] != npoints
     for source in nodes:
         cut = clip._nodes[source.id]
-        assert np.array_equal(
-            fig.artists[cut.id].color[0], fig.artists[source.id].color[0]
-        )
+        source_artist = fig.artists[source.id]
+        cut_artist = fig.artists[cut.id]
+        assert np.array_equal(cut_artist.single_color, source_artist.single_color)
+        assert np.array_equal(cut_artist.color[0], source_artist.color[0])
 
 
 @pytest.mark.parametrize('multiple_nodes', [False, True])

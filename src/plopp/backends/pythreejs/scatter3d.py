@@ -203,12 +203,24 @@ class Scatter3d:
         return self.geometry.attributes['color'].array
 
     @color.setter
-    def color(self, val: np.ndarray):
+    def color(
+        self,
+        val: str
+        | tuple[float, float, float]
+        | tuple[float, float, float, float]
+        | np.ndarray,
+    ) -> None:
+        if isinstance(val, (str, tuple)) or val.ndim == 1:
+            color = val.tolist() if isinstance(val, np.ndarray) else val
+            if self._colormapper is None:
+                self._color = np.array(to_rgb(color), dtype='float32')
+            val = self._make_colors()
         self.geometry.attributes['color'].array = val
 
-    def _copy_color_from(self, other: 'Scatter3d') -> None:
-        self._color = other.color[0].copy()
-        self.color = self._make_colors()
+    @property
+    def single_color(self) -> np.ndarray | None:
+        """The single RGB color, or ``None`` if a colormapper is in use."""
+        return self._color
 
     @property
     def geometry(self) -> p3.BufferGeometry:
