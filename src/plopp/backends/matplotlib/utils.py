@@ -90,6 +90,9 @@ def make_figure(*args, **kwargs) -> plt.Figure:
             _next_free_figure_num(), fig
         )
         # Register with pyplot global figure manager registry so plt.show() sees it.
+        # Note that we do not want to do this for interactive jupyter backends as it
+        # will cause the figure to be automatically displayed in the notebook,
+        # which we do not want.
         if not is_widget_backend():
             Gcf.set_active(manager)
     return fig
