@@ -6,6 +6,7 @@ from typing import Literal
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.lines import Line2D
 
 
@@ -62,6 +63,11 @@ def is_widget_backend() -> bool:
     return any(b in backend for b in ('ipympl', 'nbagg', 'notebook', 'widget'))
 
 
+def _next_free_figure_num() -> int:
+    used = Gcf.figs
+    return 1 if not used else max(used) + 1
+
+
 def make_figure(*args, **kwargs) -> plt.Figure:
     """
     Create a new figure.
@@ -80,7 +86,15 @@ def make_figure(*args, **kwargs) -> plt.Figure:
     if is_interactive_backend():
         # Create a manager for the figure, which makes it interactive, as well as
         # making it possible to show the figure from the terminal.
-        plt._get_backend_mod().new_figure_manager_given_figure(1, fig)
+        manager = plt._get_backend_mod().new_figure_manager_given_figure(
+            _next_free_figure_num(), fig
+        )
+        # Register with pyplot global figure manager registry so plt.show() sees it.
+        # Note that we do not want to do this for interactive jupyter backends as it
+        # will cause the figure to be automatically displayed in the notebook,
+        # which we do not want.
+        if not is_widget_backend():
+            Gcf.set_active(manager)
     return fig
 
 
