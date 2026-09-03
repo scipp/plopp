@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import uuid
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 import pythreejs as p3
@@ -75,8 +75,12 @@ class Scatter3d:
         self._x = x
         self._y = y
         self._z = z
-        self._color = color
-        self._artist_number = artist_number
+        self._color = None
+        if colormapper is None:
+            self._color = np.array(
+                to_rgb(f'C{artist_number}' if color is None else color),
+                dtype='float32',
+            )
 
         # TODO: remove pixel_size in the next release
         self._size = size if pixel_size is None else pixel_size
@@ -124,18 +128,8 @@ class Scatter3d:
     def _make_colors(self) -> np.ndarray:
         if self._colormapper is not None:
             return self._colormapper.rgba(self._data)[..., :3].astype('float32')
-        else:
-            return np.broadcast_to(
-                np.array(
-                    to_rgb(
-                        f'C{self._artist_number}'
-                        if self._color is None
-                        else self._color
-                    ),
-                    dtype='float32',
-                ),
-                (self._data.coords[self._x].shape[0], 3),
-            )
+        color = cast(np.ndarray, self._color)
+        return np.broadcast_to(color, (self._data.coords[self._x].shape[0], 3))
 
     def _make_geometry(
         self, positions: np.ndarray, colors: np.ndarray
@@ -209,8 +203,24 @@ class Scatter3d:
         return self.geometry.attributes['color'].array
 
     @color.setter
-    def color(self, val: np.ndarray):
+    def color(
+        self,
+        val: str
+        | tuple[float, float, float]
+        | tuple[float, float, float, float]
+        | np.ndarray,
+    ) -> None:
+        if isinstance(val, (str, tuple)) or val.ndim == 1:
+            color = val.tolist() if isinstance(val, np.ndarray) else val
+            if self._colormapper is None:
+                self._color = np.array(to_rgb(color), dtype='float32')
+            val = self._make_colors()
         self.geometry.attributes['color'].array = val
+
+    @property
+    def single_color(self) -> np.ndarray | None:
+        """The single RGB color, or ``None`` if a colormapper is in use."""
+        return self._color
 
     @property
     def geometry(self) -> p3.BufferGeometry:
