@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from matplotlib.axes import Axes
-from matplotlib.figure import Figure as MplFigure
+from matplotlib.figure import Figure as MplFig
 
 from ...graphics import BaseFig
 from .canvas import Canvas
@@ -28,7 +28,7 @@ class MplBaseFig(BaseFig):
         self._kwargs = kwargs
 
     @property
-    def fig(self) -> MplFigure:
+    def fig(self) -> MplFig:
         """
         Get the underlying Matplotlib figure.
         """
@@ -125,7 +125,7 @@ def get_repr_maker(form=None, npoints=0):
     return REPR_MAP[form.lower()]
 
 
-class InteractiveFigure(MplBaseFig, VBox):
+class WidgetFigure(MplBaseFig, VBox):
     """
     Create an interactive Matplotlib figure.
     """
@@ -185,9 +185,9 @@ class InteractiveFigure(MplBaseFig, VBox):
             toolbar['home'].callback = linked_home
 
 
-class StaticFigure(MplBaseFig):
+class MplFigure(MplBaseFig):
     """
-    Create a static Matplotlib figure.
+    Create a default Matplotlib figure.
     The output will be either svg or png, depending on the number of drawn onto the
     canvas.
     """
@@ -219,6 +219,6 @@ class StaticFigure(MplBaseFig):
 
 def Figure(*args, **kwargs):
     if is_widget_backend():
-        return InteractiveFigure(*args, **kwargs)
+        return WidgetFigure(*args, **kwargs)
     else:
-        return StaticFigure(*args, **kwargs)
+        return MplFigure(*args, **kwargs)
