@@ -79,8 +79,12 @@ def make_figure(*args, **kwargs) -> plt.Figure:
     if not is_interactive_backend():
         return plt.Figure(*args, **kwargs)
     if not is_widget_backend():
+        # In this case, we are using an interactive backend outside of a notebook:
+        # the safest thing to do so that `plt.show()` and `plt.close()` work correctly
+        # is to use `plt.figure()`.
         return plt.figure(*args, **kwargs)
     fig = plt.Figure(*args, **kwargs)
+    # Create a manager for the figure, which makes it interactive
     plt._get_backend_mod().new_figure_manager_given_figure(1, fig)
     return fig
 
