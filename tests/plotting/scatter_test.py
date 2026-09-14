@@ -263,3 +263,9 @@ def test_clabel():
     da = scatter_data()
     fig = pp.scatter(da, cbar=True, clabel='MyColorLabel')
     assert fig.view.colormapper.clabel == 'MyColorLabel'
+
+
+@pytest.mark.parametrize("hide_log_buttons", [True, False])
+def test_hide_log_buttons(hide_log_buttons):
+    da = scatter_data()
+    pp.scatter(da, hide_log_buttons=hide_log_buttons)

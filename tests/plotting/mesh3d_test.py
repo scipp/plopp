@@ -2,6 +2,7 @@
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
+import pytest
 
 import plopp as pp
 from plopp.data import examples
@@ -61,3 +62,13 @@ def test_mesh3d_cmap():
         cmap='magma',
     )
     assert fig.view.colormapper.cmap.name == 'magma'
+
+
+@pytest.mark.parametrize("hide_log_buttons", [True, False])
+def test_mesh3d_hide_log_buttons(hide_log_buttons):
+    teapot_data = examples.teapot()
+    pp.mesh3d(
+        vertices=teapot_data["vertices"],
+        faces=teapot_data["faces"],
+        hide_log_buttons=hide_log_buttons,
+    )

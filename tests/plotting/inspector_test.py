@@ -428,3 +428,10 @@ def test_use_non_dimension_coord_as_slice_dim():
         coords={'tof': tof, 'y': y, 'x': x, 'wavelengths': wavelengths},
     )
     pp.inspector(array, dim='tof')
+
+
+@pytest.mark.usefixtures('_use_ipympl')
+@pytest.mark.parametrize("hide_log_buttons", [True, False])
+def test_hide_log_buttons(hide_log_buttons):
+    da = pp.data.data3d()
+    pp.inspector(da, hide_log_buttons=hide_log_buttons)
