@@ -56,6 +56,7 @@ def scatter(
     cmin: sc.Variable | float | None = None,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
+    hide_log_buttons: bool = False,
     ignore_size: bool = False,
     legend: bool | tuple[float, float] = True,
     logc: bool | None = None,
@@ -126,6 +127,8 @@ def scatter(
         If ``True``, use logarithmic scale for y-axis.
     mask_color:
         Color of markers for masked data.
+    hide_log_buttons:
+        If ``True``, the interactive log buttons will be hidden.
     nan_color:
         Color to use for NaN values in color mapping (only applicable if ``cbar`` is
         ``True``).
@@ -182,6 +185,7 @@ def scatter(
         logx=logx,
         logy=logy,
         mask_color=mask_color,
+        hide_log_buttons=hide_log_buttons,
         nan_color=nan_color,
         norm=norm,
         scale=scale,

@@ -136,6 +136,8 @@ class ColorMapper:
         The maximum value for the colorscale range. If a number (without a unit) is
         supplied, it is assumed that the unit is the same as the data unit.
         This is an old parameter name. Prefer using ``cmax`` instead.
+    hide_log_buttons:
+        If ``True``, the interactive log buttons will be hidden.
     """
 
     def __init__(
@@ -154,6 +156,7 @@ class ColorMapper:
         norm: Literal['linear', 'log'] | None = None,
         vmin: sc.Variable | float | None = None,
         vmax: sc.Variable | float | None = None,
+        hide_log_buttons: bool = False,
     ):
         cmin = parse_mutually_exclusive(vmin=vmin, cmin=cmin)
         cmax = parse_mutually_exclusive(vmax=vmax, cmax=cmax)
@@ -193,6 +196,7 @@ class ColorMapper:
         self.changed = False
         self.artists = {}
         self.widget = None
+        self._hide_log_buttons = hide_log_buttons
 
         if cbar:
             if self.cax is None:
@@ -223,11 +227,16 @@ class ColorMapper:
         """
         Convert the colorbar into a widget for use with other ``ipywidgets``.
         """
-        from ..widgets.hoverbutton import HoverButtonWidget
+        from ..widgets.hoverbutton import HoverButtonWidget, PlainImageWidget
+
+        if self._hide_log_buttons:
+            self.widget = PlainImageWidget()
+            self._update_colorbar_widget()
+            return self.widget
 
         self.widget = HoverButtonWidget(log_value=self._logc)
-        self._update_colorbar_widget()
         self.widget.on_log_button_click(self.toggle_norm)
+        self._update_colorbar_widget()
 
         def fit():
             self.autoscale()

@@ -167,6 +167,8 @@ class Canvas:
         The label for the y axis.
     norm:
         Set to ``'log'`` for a logarithmic y-axis (legacy, prefer ``logy`` instead).
+    hide_log_buttons:
+        If ``True``, hide the buttons for toggling logarithmic scales on the axes.
     """
 
     def __init__(
@@ -191,6 +193,7 @@ class Canvas:
         ylabel: str | None = None,
         norm: Literal['linear', 'log'] | None = None,
         autoscale_axes: Callable | None = None,
+        hide_log_buttons: bool = False,
         **ignored,
     ):
         # Note on the `**ignored`` keyword arguments: the figure which owns the canvas
@@ -256,26 +259,33 @@ class Canvas:
             self.fig.canvas.toolbar_visible = False
             self.fig.canvas.header_visible = False
 
-            args = {"transform": self.ax.transAxes, "ha": "right", "va": "top"}
-            self._logx_button = CanvasToggleButton(
-                ax=self.ax, label="logX", position=(0.985, -0.02), **args
-            )
-            self._logy_button = CanvasToggleButton(
-                ax=self.ax, label="logY", position=(-0.015, 0.98), **args
-            )
-
-            if self.cax is not None:
-                args = {"transform": self.cax.transAxes, "ha": "center"}
-                self._logc_button = CanvasToggleButton(
-                    ax=self.cax, label="log", position=(0.5, 0.98), va="top", **args
+            if not hide_log_buttons:
+                args = {"transform": self.ax.transAxes, "ha": "right", "va": "top"}
+                self._logx_button = CanvasToggleButton(
+                    ax=self.ax, label="logX", position=(0.985, -0.02), **args
                 )
-                self._fitc_button = CanvasToggleButton(
-                    ax=self.cax, label="fit", position=(0.5, 0.02), va="bottom", **args
+                self._logy_button = CanvasToggleButton(
+                    ax=self.ax, label="logY", position=(-0.015, 0.98), **args
                 )
 
-            self.fig.canvas.mpl_connect("figure_enter_event", self._on_mouse_enter)
-            self.fig.canvas.mpl_connect("figure_leave_event", self._on_mouse_leave)
-            self.fig.canvas.mpl_connect("button_press_event", self._on_log_button_click)
+                if self.cax is not None:
+                    args = {"transform": self.cax.transAxes, "ha": "center"}
+                    self._logc_button = CanvasToggleButton(
+                        ax=self.cax, label="log", position=(0.5, 0.98), va="top", **args
+                    )
+                    self._fitc_button = CanvasToggleButton(
+                        ax=self.cax,
+                        label="fit",
+                        position=(0.5, 0.02),
+                        va="bottom",
+                        **args,
+                    )
+
+                self.fig.canvas.mpl_connect("figure_enter_event", self._on_mouse_enter)
+                self.fig.canvas.mpl_connect("figure_leave_event", self._on_mouse_leave)
+                self.fig.canvas.mpl_connect(
+                    "button_press_event", self._on_log_button_click
+                )
 
         if logx:
             self.xscale = 'log'

@@ -730,3 +730,9 @@ def test_plot_data_with_all_nans_does_not_raise():
     da = data_array(ndim=1)
     da.values[...] = np.nan
     _ = da.plot()
+
+
+@pytest.mark.parametrize("hide_log_buttons", [True, False])
+def test_hide_log_buttons(hide_log_buttons):
+    da = data_array(ndim=1)
+    da.plot(hide_log_buttons=hide_log_buttons)

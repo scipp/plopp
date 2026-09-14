@@ -83,6 +83,7 @@ class GraphicalView(View):
         zlabel: str | None = None,
         clabel: str | None = None,
         nan_color: str | None = None,
+        hide_log_buttons: bool = False,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -123,6 +124,7 @@ class GraphicalView(View):
             zlabel=zlabel,
             norm=norm if len(dims) == 1 else None,
             autoscale_axes=self.autoscale,
+            hide_log_buttons=hide_log_buttons,
         )
 
         if colormapper:
@@ -141,6 +143,7 @@ class GraphicalView(View):
                 canvas=self.canvas,
                 figsize=getattr(self.canvas, "figsize", None),
                 nan_color=nan_color,
+                hide_log_buttons=hide_log_buttons,
             )
             self._kwargs['colormapper'] = self.colormapper
             if self._autoscale:

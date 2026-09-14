@@ -81,3 +81,9 @@ def test_raises_ValueError_when_given_binned_data():
     da = sc.data.table_xyz(100).bin(x=10, y=20)
     with pytest.raises(ValueError, match='Cannot plot binned data'):
         superplot(da, keep='x')
+
+
+@pytest.mark.parametrize("hide_log_buttons", [True, False])
+def test_superplot_hide_log_buttons(hide_log_buttons):
+    da = data_array(ndim=2)
+    superplot(da, keep='xx', hide_log_buttons=hide_log_buttons)

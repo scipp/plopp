@@ -88,3 +88,10 @@ def test_xyplot_from_nodes():
     pp.xyplot(pp.Node(x), y)
     pp.xyplot(x, pp.Node(y))
     pp.xyplot(pp.Node(x), pp.Node(y))
+
+
+@pytest.mark.parametrize("hide_log_buttons", [True, False])
+def test_xyplot_hide_log_buttons(hide_log_buttons):
+    x = sc.arange('time', 20.0, unit='s')
+    y = sc.arange('time', 100.0, 120.0, unit='K')
+    pp.xyplot(x, y, hide_log_buttons=hide_log_buttons)

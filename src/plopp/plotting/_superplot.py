@@ -21,6 +21,7 @@ def superplot(
     errorbars: Literal['band', 'bar', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
+    hide_log_buttons: bool = False,
     legend: bool | tuple[float, float] = True,
     logx: bool | None = None,
     logy: bool | None = None,
@@ -68,6 +69,8 @@ def superplot(
         The width and height of the figure, in inches.
     grid:
         Show grid if ``True``.
+    hide_log_buttons:
+        If ``True``, the interactive log buttons will be hidden.
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
@@ -124,6 +127,7 @@ def superplot(
         legend=legend,
         logx=logx,
         logy=logy,
+        hide_log_buttons=hide_log_buttons,
         mask_color=mask_color,
         norm=norm,
         scale=scale,

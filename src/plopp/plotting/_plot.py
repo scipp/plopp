@@ -32,6 +32,7 @@ def plot(
     grid: bool = False,
     ignore_size: bool = False,
     legend: bool | tuple[float, float] = True,
+    hide_log_buttons: bool = False,
     logc: bool | None = None,
     logx: bool | None = None,
     logy: bool | None = None,
@@ -80,6 +81,8 @@ def plot(
         The width and height of the figure, in inches.
     grid:
         Show grid if ``True``.
+    hide_log_buttons:
+        If ``True``, the interactive log buttons will be hidden.
     ignore_size:
         If ``True``, skip the check that prevents the rendering of very large data.
     legend:
@@ -144,6 +147,7 @@ def plot(
         errorbars=errorbars,
         figsize=figsize,
         grid=grid,
+        hide_log_buttons=hide_log_buttons,
         legend=legend,
         logc=logc,
         logx=logx,

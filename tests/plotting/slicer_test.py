@@ -247,6 +247,11 @@ class TestSlicer1d:
         da['yy', 0].values[...] = np.nan
         SlicerPlot(da, keep=['xx'], mode=mode)
 
+    @pytest.mark.parametrize("hide_log_buttons", [True, False])
+    def test_slicer_hide_log_buttons(self, hide_log_buttons):
+        da = data_array(ndim=3)
+        SlicerPlot(da, keep=['xx', 'yy'], hide_log_buttons=hide_log_buttons)
+
 
 @pytest.mark.usefixtures("_parametrize_interactive_2d_backends")
 class TestSlicer2d:
@@ -420,3 +425,8 @@ class TestSlicer2d:
         da = data_array(ndim=3)
         da['zz', 0].values[...] = np.nan
         SlicerPlot(da, keep=['xx'], mode=mode)
+
+    @pytest.mark.parametrize("hide_log_buttons", [True, False])
+    def test_slicer_hide_log_buttons(self, hide_log_buttons):
+        da = data_array(ndim=3)
+        SlicerPlot(da, keep=['xx', 'yy'], hide_log_buttons=hide_log_buttons)
