@@ -52,6 +52,7 @@ def scatter3d(
     cmax: sc.Variable | float = None,
     cmin: sc.Variable | float = None,
     figsize: tuple[int, int] = (600, 400),
+    hide_log_buttons: bool = False,
     logc: bool | None = None,
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
@@ -117,6 +118,8 @@ def scatter3d(
     perspective:
         Set to ``True`` for a perspective camera. ``False`` will give an orthographic
         (flat) camera.
+    hide_log_buttons:
+        If ``True``, the interactive log buttons will be hidden.
     title:
         The figure title.
     vmin:
@@ -161,6 +164,7 @@ def scatter3d(
         nan_color=nan_color,
         norm=norm,
         opacity=opacity,
+        hide_log_buttons=hide_log_buttons,
         perspective=perspective,
         title=title,
         vmax=vmax,

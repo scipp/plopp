@@ -148,6 +148,7 @@ def inspector(
     errorbars: Literal['band', 'bar', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
+    hide_log_buttons: bool = False,
     legend: bool | tuple[float, float] = True,
     logc: bool | None = None,
     mask_cmap: str = 'gray',
@@ -252,6 +253,8 @@ def inspector(
         The width and height of the figure, in inches.
     grid:
         Show grid if ``True``.
+    hide_log_buttons:
+        If ``True``, the interactive log buttons will be hidden.
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates
@@ -318,6 +321,7 @@ def inspector(
         autoscale=autoscale,
         errorbars=errorbars,
         grid=grid,
+        hide_log_buttons=hide_log_buttons,
         legend=legend,
         mask_color=mask_color,
         xmax=xmax,
@@ -357,6 +361,7 @@ def inspector(
         cmin=cmin,
         figsize=figsize,
         grid=grid,
+        hide_log_buttons=hide_log_buttons,
         logc=logc,
         mask_cmap=mask_cmap,
         mask_color=mask_color,

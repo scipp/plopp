@@ -148,3 +148,57 @@ class HoverButtonWidget(anywidget.AnyWidget):
     def set_svg(self, svg_string):
         """Set SVG from a string"""
         self.svg_data = svg_string
+
+
+class PlainImageWidget(anywidget.AnyWidget):
+    """
+    A custom widget that displays an SVG.
+    """
+
+    _esm = """
+    function render({ model, el }) {
+      // Create container
+      const container = document.createElement('div');
+      container.style.position = 'relative';
+      container.style.display = 'inline-block';
+      container.style.height = '98%';
+
+      // Create SVG container
+      const svgContainer = document.createElement('div');
+      svgContainer.style.width = '100%';
+      svgContainer.style.lineHeight = '0';
+
+      // Function to update SVG
+      function updateSVG() {
+        const svgData = new TextDecoder().decode(model.get('svg_data'));
+        svgContainer.innerHTML = svgData;
+        const svg = svgContainer.querySelector('svg');
+        if (svg) {
+          svg.style.width = '100%';
+          svg.style.height = 'auto';
+          svg.style.display = 'block';
+        }
+      }
+
+      // Initial SVG
+      updateSVG();
+
+      // Listen for SVG changes
+      model.on('change:svg_data', updateSVG);
+
+      // Assemble widget
+      container.appendChild(svgContainer);
+      el.appendChild(container);
+    }
+    export default { render };
+    """
+
+    # Traitlets
+    svg_data = traitlets.Bytes(b'').tag(sync=True)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def set_svg(self, svg_string):
+        """Set SVG from a string"""
+        self.svg_data = svg_string
