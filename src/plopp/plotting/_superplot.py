@@ -18,7 +18,7 @@ def superplot(
     autoscale: bool = True,
     coords: list[str] | None = None,
     enable_player: bool = False,
-    errorbars: Literal['band', 'bar', True, False] = True,
+    errorbars: Literal['band', 'bar', 'xonly', 'yonly', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
@@ -62,8 +62,11 @@ def superplot(
         If ``True``, add a play button to the sliders to automatically step through
         the slices.
     errorbars:
-        Whether to add error bars to the line. Optionally, this can be a string to
-        specify the error bar style. Valid values are 'band' and 'bar'.
+        Which error bars to add to the line. ``True`` displays both coordinate and data
+        error bars. ``False`` hides all error bars. ``'xonly'`` and ``'yonly'`` display
+        bars only for the selected axis, while ``'bar'`` and ``'band'`` display data
+        error bars using the requested style. Coordinate error bars are ignored for
+        bin-edge coordinates.
     figsize:
         The width and height of the figure, in inches.
     grid:

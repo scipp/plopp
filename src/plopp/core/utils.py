@@ -31,6 +31,8 @@ def coord_as_bin_edges(
         x = sc.arange(dim, float(x.shape[0]), unit=x.unit)
     if da.coords.is_edges(key, dim=dim):
         return x
+    if x.variances is not None:
+        x = sc.values(x)
     if x.dtype in ('int32', 'int64'):
         x = x.to(dtype='float64')
     if x.sizes[dim] < 2:

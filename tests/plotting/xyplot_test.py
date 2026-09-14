@@ -27,6 +27,15 @@ def test_xyplot_woth_variances():
     assert line._error is not None
 
 
+def test_xyplot_with_x_variances_uses_errorbars_by_default():
+    x = sc.arange('time', 20.0, unit='s')
+    x.variances = np.full(x.sizes['time'], 0.25)
+    y = sc.arange('time', 100.0, 120.0, unit='K')
+    fig = pp.xyplot(x, y)
+    [line] = fig.artists.values()
+    assert line._error_x is not None
+
+
 def test_xyplot_ndarray():
     N = 50
     x = np.arange(float(N))
@@ -75,11 +84,13 @@ def test_xyplot_variable_kwargs():
 
 def test_xyplot_bin_edges():
     x = sc.arange('time', 21.0, unit='s')
+    x.variances = np.full(x.sizes['time'], 0.25)
     y = sc.arange('time', 100.0, 120.0, unit='K')
     fig = pp.xyplot(x, y)
     [line] = fig.artists.values()
     ldata = line._data
     assert len(ldata.coords[ldata.dim]) == len(ldata.data) + 1
+    assert line._error_x is None
 
 
 def test_xyplot_from_nodes():

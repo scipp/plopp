@@ -27,7 +27,7 @@ def plot(
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
     coords: list[str] | None = None,
-    errorbars: Literal['band', 'bar', True, False] = True,
+    errorbars: Literal['band', 'bar', 'xonly', 'yonly', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     ignore_size: bool = False,
@@ -74,8 +74,11 @@ def plot(
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     errorbars:
-        Whether to add error bars to the line. Optionally, this can be a string to
-        specify the error bar style. Valid values are 'band' and 'bar'.
+        Which error bars to add to the line. ``True`` displays both coordinate and data
+        error bars. ``False`` hides all error bars. ``'xonly'`` and ``'yonly'`` display
+        bars only for the selected axis, while ``'bar'`` and ``'band'`` display data
+        error bars using the requested style. Coordinate error bars are ignored for
+        bin-edge coordinates.
     figsize:
         The width and height of the figure, in inches.
     grid:

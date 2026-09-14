@@ -165,6 +165,8 @@ def _all_dims_sorted(var, order='ascending') -> bool:
     Check if all dimensions of a variable are sorted in the specified order.
     This is used to ensure that the coordinates are sorted before plotting.
     """
+    if var.variances is not None:
+        var = sc.values(var)
     return all(sc.allsorted(var, dim, order=order) for dim in var.dims)
 
 
@@ -359,7 +361,7 @@ def categorize_args(
     cmap: str = 'viridis',
     cmax: sc.Variable | float | None = None,
     cmin: sc.Variable | float | None = None,
-    errorbars: Literal['band', 'bar', True, False] = True,
+    errorbars: Literal['band', 'bar', 'xonly', 'yonly', True, False] = True,
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     legend: bool | tuple[float, float] = True,
