@@ -1,12 +1,48 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
+import numpy as np
 import pytest
 import scipp as sc
+from matplotlib import cycler, rc_context
 
 from plopp import Node
 from plopp.data.testing import data_array, scatter
 from plopp.graphics import scatter3dfigure
 from plopp.widgets import ClippingManager
+
+
+def test_cut_colors_match_original_artists():
+    a = scatter(seed=1)
+    b = scatter(seed=2)
+    b.coords['x'] += sc.scalar(60, unit='m')
+    nodes = [Node(a), Node(b)]
+    with rc_context({'axes.prop_cycle': cycler(color=['#102030', '#405060'])}):
+        fig = scatter3dfigure(*nodes, x='x', y='y', z='z', cbar=False)
+    clip = ClippingManager(fig)
+
+    with rc_context({'axes.prop_cycle': cycler(color=['#708090', '#a0b0c0'])}):
+        clip.add_y_cut.click()
+
+    for source in nodes:
+        cut = clip._nodes[source.id]
+        source_artist = fig.artists[source.id]
+        cut_artist = fig.artists[cut.id]
+        assert np.array_equal(cut_artist.single_color, source_artist.single_color)
+        assert np.array_equal(cut_artist.color[0], source_artist.color[0])
+
+    npoints = [fig.artists[node.id].data.shape[0] for node in clip._nodes.values()]
+    ycut = clip.cuts[-1]
+    ycut.slider.value = [ycut.slider.min, ycut.slider.value[1]]
+    clip.update_state()
+    assert [
+        fig.artists[node.id].data.shape[0] for node in clip._nodes.values()
+    ] != npoints
+    for source in nodes:
+        cut = clip._nodes[source.id]
+        source_artist = fig.artists[source.id]
+        cut_artist = fig.artists[cut.id]
+        assert np.array_equal(cut_artist.single_color, source_artist.single_color)
+        assert np.array_equal(cut_artist.color[0], source_artist.color[0])
 
 
 @pytest.mark.parametrize('multiple_nodes', [False, True])

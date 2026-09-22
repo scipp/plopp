@@ -503,6 +503,11 @@ class ClippingManager(ipw.HBox):
             self._nodes.clear()
 
         self.update_state()
+        if self._view.colormapper is None:
+            for source_id, node in self._nodes.items():
+                color = self._view.artists[source_id].single_color
+                if color is not None:
+                    self._view.artists[node.id].color = color
 
     def _set_opacity(self, change: dict[str, Any]):
         """
