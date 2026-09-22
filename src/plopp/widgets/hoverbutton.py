@@ -62,14 +62,10 @@ class HoverButtonWidget(anywidget.AnyWidget):
 
       // Function to update SVG
       function updateSVG() {
-        const svgData = new TextDecoder().decode(model.get('svg_data'));
-        svgContainer.innerHTML = svgData;
-        const svg = svgContainer.querySelector('svg');
-        if (svg) {
-          svg.style.width = '100%';
-          svg.style.height = 'auto';
-          svg.style.display = 'block';
-        }
+        const svgData = model.get('svg_data');
+        const dataUri = `data:image/svg+xml,${encodeURIComponent(svgData)}`;
+        svgContainer.innerHTML = `<img src="${dataUri}"
+                                  style="width: 100%; height: auto; display: block;">`;
       }
 
       function updateLogButton() {
@@ -120,7 +116,7 @@ class HoverButtonWidget(anywidget.AnyWidget):
     """
 
     # Traitlets
-    svg_data = traitlets.Bytes(b'').tag(sync=True)
+    svg_data = traitlets.Unicode('').tag(sync=True)
     log_toggle_value = traitlets.Bool(False).tag(sync=True)
 
     def __init__(self, log_value: bool = False, **kwargs):
@@ -146,8 +142,11 @@ class HoverButtonWidget(anywidget.AnyWidget):
         self._fit_button_click_handler = handler
 
     def set_svg(self, svg_string):
-        """Set SVG from a string"""
-        self.svg_data = svg_string
+        """Set SVG from a string or bytes"""
+        if isinstance(svg_string, bytes):
+            self.svg_data = svg_string.decode('utf-8')
+        else:
+            self.svg_data = svg_string
 
 
 class PlainImageWidget(anywidget.AnyWidget):
@@ -170,14 +169,10 @@ class PlainImageWidget(anywidget.AnyWidget):
 
       // Function to update SVG
       function updateSVG() {
-        const svgData = new TextDecoder().decode(model.get('svg_data'));
-        svgContainer.innerHTML = svgData;
-        const svg = svgContainer.querySelector('svg');
-        if (svg) {
-          svg.style.width = '100%';
-          svg.style.height = 'auto';
-          svg.style.display = 'block';
-        }
+        const svgData = model.get('svg_data');
+        const dataUri = `data:image/svg+xml,${encodeURIComponent(svgData)}`;
+        svgContainer.innerHTML = `<img src="${dataUri}"
+                                  style="width: 100%; height: auto; display: block;">`;
       }
 
       // Initial SVG
@@ -194,11 +189,14 @@ class PlainImageWidget(anywidget.AnyWidget):
     """
 
     # Traitlets
-    svg_data = traitlets.Bytes(b'').tag(sync=True)
+    svg_data = traitlets.Unicode('').tag(sync=True)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def set_svg(self, svg_string):
-        """Set SVG from a string"""
-        self.svg_data = svg_string
+        """Set SVG from a string or bytes"""
+        if isinstance(svg_string, bytes):
+            self.svg_data = svg_string.decode('utf-8')
+        else:
+            self.svg_data = svg_string
