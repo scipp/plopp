@@ -166,3 +166,9 @@ def test_figure_has_only_unit_on_colorbar_for_multiple_sets_of_scatter_points():
 def test_scatter3d_no_perspective():
     da = scatter()
     pp.scatter3d(da, perspective=False)
+
+
+@pytest.mark.parametrize("hide_log_buttons", [True, False])
+def test_scatter3d_hide_log_buttons(hide_log_buttons):
+    da = scatter()
+    pp.scatter3d(da, hide_log_buttons=hide_log_buttons)

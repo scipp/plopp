@@ -51,6 +51,7 @@ def mesh3d(
     cmin: sc.Variable | float = None,
     edgecolor: str | None = None,
     figsize: tuple[int, int] = (600, 400),
+    hide_log_buttons: bool = False,
     logc: bool | None = None,
     nan_color: str | None = None,
     norm: Literal['linear', 'log'] | None = None,
@@ -90,6 +91,8 @@ def mesh3d(
         The color of the edges. If None, no edges are drawn.
     figsize:
         The size of the 3d rendering area, in pixels: ``(width, height)``.
+    hide_log_buttons:
+        If ``True``, the interactive log buttons will be hidden.
     logc:
         Set to ``True`` for a logarithmic colorscale (only applicable if ``cbar`` is
         ``True``).
@@ -128,6 +131,7 @@ def mesh3d(
         cmap=cmap,
         edgecolor=edgecolor,
         figsize=figsize,
+        hide_log_buttons=hide_log_buttons,
         logc=logc,
         nan_color=nan_color,
         norm=norm,
