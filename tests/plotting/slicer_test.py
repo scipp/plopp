@@ -113,6 +113,13 @@ class TestSlicer1d:
         sp = SlicerPlot(da)
         assert 'yy' in sp.slicer.slider.controls
 
+    def test_with_coordinate_errorbars_by_default(self):
+        da = data_array(ndim=2)
+        da.coords['xx'].variances = np.full(da.sizes['xx'], 0.25)
+        sp = SlicerPlot(da, keep=['xx'], mode='single')
+        [line] = sp.figure.artists.values()
+        assert line._error_x is not None
+
     def test_with_dataset(self):
         ds = dataset(ndim=2)
         sl = DimensionSlicer(ds, keep=['xx'], mode='single')
