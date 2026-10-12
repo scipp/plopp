@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
 import numpy as np
+import pytest
 import scipp as sc
 
 from plopp.core.limits import find_limits, fix_empty_range
@@ -131,26 +132,55 @@ def test_find_limits_datetime():
     assert sc.identical(lims[1], sc.scalar(time[-1], unit='s'))
 
 
-def test_fix_empty_range():
+@pytest.mark.parametrize("scale", ["linear", "log"])
+def test_fix_empty_range(scale):
     a = sc.scalar(5.0, unit='m')
     b = sc.scalar(10.0, unit='m')
-    lims = fix_empty_range((a, b))
+    lims = fix_empty_range((a, b), scale=scale)
     assert sc.identical(lims[0], a)
     assert sc.identical(lims[1], b)
 
 
 def test_fix_empty_range_same_values():
     a = sc.scalar(5.0, unit='m')
-    lims = fix_empty_range((a, a))
+    lims = fix_empty_range((a, a), scale='linear')
     assert sc.identical(lims[0], sc.scalar(2.5, unit='m'))
     assert sc.identical(lims[1], sc.scalar(7.5, unit='m'))
-    lims = fix_empty_range((-a, -a))
+    lims = fix_empty_range((-a, -a), scale='linear')
     assert sc.identical(lims[0], sc.scalar(-7.5, unit='m'))
     assert sc.identical(lims[1], sc.scalar(-2.5, unit='m'))
 
 
 def test_fix_empty_range_zeros_values():
     a = sc.scalar(0.0, unit='m')
-    lims = fix_empty_range((a, a))
+    lims = fix_empty_range((a, a), scale='linear')
     assert sc.identical(lims[0], sc.scalar(-0.5, unit='m'))
     assert sc.identical(lims[1], sc.scalar(0.5, unit='m'))
+
+
+def test_fix_empty_range_all_nans():
+    a = sc.scalar(np.nan, unit='m')
+    lims = fix_empty_range((a, a), scale='linear')
+    assert sc.identical(lims[0], sc.scalar(-0.5, unit='m'))
+    assert sc.identical(lims[1], sc.scalar(0.5, unit='m'))
+
+
+def test_fix_empty_range_same_values_log():
+    a = sc.scalar(5.0, unit='m')
+    lims = fix_empty_range((a, a), scale='log')
+    assert sc.identical(lims[0], sc.scalar(0.5, unit='m'))
+    assert sc.identical(lims[1], sc.scalar(50.0, unit='m'))
+
+
+def test_fix_empty_range_zeros_values_log():
+    a = sc.scalar(0.0, unit='m')
+    lims = fix_empty_range((a, a), scale='log')
+    assert sc.identical(lims[0], sc.scalar(0.1, unit='m'))
+    assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
+
+
+def test_fix_empty_range_all_nans_log():
+    a = sc.scalar(np.nan, unit='m')
+    lims = fix_empty_range((a, a), scale='log')
+    assert sc.identical(lims[0], sc.scalar(0.1, unit='m'))
+    assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))

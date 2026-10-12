@@ -529,10 +529,11 @@ def test_clabel():
     assert fig.view.colormapper.clabel == 'MyColorLabel'
 
 
-def test_plot_data_with_all_nans_does_not_raise():
+@pytest.mark.parametrize("logc", [False, True])
+def test_plot_data_with_all_nans_does_not_raise(logc):
     da = data_array(ndim=2)
     da.values[...] = np.nan
-    _ = da.plot()
+    _ = da.plot(logc=logc)
 
 
 @pytest.mark.parametrize("hide_log_buttons", [True, False])

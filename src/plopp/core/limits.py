@@ -93,21 +93,32 @@ def find_limits(
 
 
 def fix_empty_range(
-    lims: tuple[sc.Variable, sc.Variable],
+    lims: tuple[sc.Variable, sc.Variable], scale: Literal['linear', 'log']
 ) -> tuple[sc.Variable, sc.Variable]:
     """
     Range correction in case xmin == xmax
     """
+    if scale not in ('linear', 'log'):
+        raise ValueError(f"Unsupported scale: {scale}")
+    # We decompose value and unit to avoid operation exceptions when unit=None.
+    unit = lims[0].unit
     if np.isnan(lims[0].value) or np.isnan(lims[1].value):
-        lims = (sc.scalar(0.0, unit=lims[0].unit), sc.scalar(0.0, unit=lims[1].unit))
+        lims = (sc.scalar(0.0, unit=unit), sc.scalar(0.0, unit=unit))
     if lims[0].value != lims[1].value:
         return lims
     if lims[0].value == 0.0:
-        dx = sc.scalar(0.5, unit=lims[0].unit)
+        if scale == "linear":
+            return (sc.scalar(-0.5, unit=unit), sc.scalar(0.5, unit=unit))
+        else:
+            return (sc.scalar(0.1, unit=unit), sc.scalar(10.0, unit=unit))
     else:
         if is_datetime(lims[0]):
-            dx = sc.scalar(1, unit=lims[0].unit, dtype=int)
+            dx = sc.scalar(1, unit=unit, dtype=int)
+            return (lims[0] - dx, lims[1] + dx)
         else:
-            # We decompose value and unit to avoid operation exceptions when unit=None.
-            dx = sc.scalar(0.5 * abs(lims[0].value), unit=lims[0].unit)
-    return (lims[0] - dx, lims[1] + dx)
+            if scale == "linear":
+                dx = sc.scalar(0.5 * abs(lims[0].value), unit=unit)
+                return (lims[0] - dx, lims[1] + dx)
+            else:
+                dx = sc.scalar(10.0, unit="")
+                return (lims[0] / dx, lims[1] * dx)
