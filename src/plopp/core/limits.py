@@ -100,6 +100,7 @@ def fix_empty_range(
     """
     if scale not in ('linear', 'log'):
         raise ValueError(f"fix_empty_range: Unsupported scale: {scale}")
+    is_linear = scale == 'linear'
     lower, upper = lims
     if lower.unit != upper.unit:
         raise ValueError("fix_empty_range: Lower and upper have different units")
@@ -110,7 +111,7 @@ def fix_empty_range(
     if lower.value != upper.value:
         return (lower, upper)
     if lower.value == 0.0:
-        if scale == "linear":
+        if is_linear:
             return (sc.scalar(-0.5, unit=unit), sc.scalar(0.5, unit=unit))
         else:
             return (sc.scalar(0.1, unit=unit), sc.scalar(10.0, unit=unit))
@@ -119,7 +120,7 @@ def fix_empty_range(
             dx = sc.scalar(1, unit=unit, dtype=int)
             return (lower - dx, upper + dx)
         else:
-            if scale == "linear":
+            if is_linear:
                 dx = sc.scalar(0.5 * abs(lower.value), unit=unit)
                 return (lower - dx, upper + dx)
             else:
