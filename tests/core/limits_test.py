@@ -184,3 +184,17 @@ def test_fix_empty_range_all_nans_log():
     lims = fix_empty_range((a, a), scale='log')
     assert sc.identical(lims[0], sc.scalar(0.1, unit='m'))
     assert sc.identical(lims[1], sc.scalar(10.0, unit='m'))
+
+
+def test_fix_empty_range_raises_with_different_units():
+    a = sc.scalar(5.0, unit='m')
+    b = sc.scalar(10.0, unit='s')
+    with pytest.raises(ValueError, match="different units"):
+        fix_empty_range((a, b), scale='linear')
+
+
+def test_fix_empty_range_raises_with_unsupported_scale():
+    a = sc.scalar(5.0, unit='m')
+    b = sc.scalar(10.0, unit='m')
+    with pytest.raises(ValueError, match="fix_empty_range: Unsupported scale"):
+        fix_empty_range((a, b), scale='unsupported')

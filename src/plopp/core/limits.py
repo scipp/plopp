@@ -99,26 +99,29 @@ def fix_empty_range(
     Range correction in case xmin == xmax
     """
     if scale not in ('linear', 'log'):
-        raise ValueError(f"Unsupported scale: {scale}")
+        raise ValueError(f"fix_empty_range: Unsupported scale: {scale}")
+    lower, upper = lims
+    if lower.unit != upper.unit:
+        raise ValueError("fix_empty_range: Lower and upper have different units")
     # We decompose value and unit to avoid operation exceptions when unit=None.
-    unit = lims[0].unit
-    if np.isnan(lims[0].value) or np.isnan(lims[1].value):
-        lims = (sc.scalar(0.0, unit=unit), sc.scalar(0.0, unit=unit))
-    if lims[0].value != lims[1].value:
-        return lims
-    if lims[0].value == 0.0:
+    unit = lower.unit
+    if np.isnan(lower.value) or np.isnan(upper.value):
+        lower, upper = (sc.scalar(0.0, unit=unit), sc.scalar(0.0, unit=unit))
+    if lower.value != upper.value:
+        return (lower, upper)
+    if lower.value == 0.0:
         if scale == "linear":
             return (sc.scalar(-0.5, unit=unit), sc.scalar(0.5, unit=unit))
         else:
             return (sc.scalar(0.1, unit=unit), sc.scalar(10.0, unit=unit))
     else:
-        if is_datetime(lims[0]):
+        if is_datetime(lower):
             dx = sc.scalar(1, unit=unit, dtype=int)
-            return (lims[0] - dx, lims[1] + dx)
+            return (lower - dx, upper + dx)
         else:
             if scale == "linear":
-                dx = sc.scalar(0.5 * abs(lims[0].value), unit=unit)
-                return (lims[0] - dx, lims[1] + dx)
+                dx = sc.scalar(0.5 * abs(lower.value), unit=unit)
+                return (lower - dx, upper + dx)
             else:
                 dx = sc.scalar(10.0, unit="")
-                return (lims[0] / dx, lims[1] * dx)
+                return (lower / dx, upper * dx)
