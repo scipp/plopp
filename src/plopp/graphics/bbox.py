@@ -113,7 +113,7 @@ def axis_bounds(
         if np.isnan(values[0].value) or np.isnan(values[1].value):
             return dict.fromkeys(keys, None)
         else:
-            values = fix_empty_range(values)
+            values = fix_empty_range(values, scale=scale)
     except ValueError:
         return dict.fromkeys(keys, None)
     bounds = dict(zip(keys, (val.value for val in values), strict=True))

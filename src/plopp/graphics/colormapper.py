@@ -280,10 +280,9 @@ class ColorMapper:
             self.apply_limits()
             return
 
+        scale = 'log' if self._logc else 'linear'
         limits = [
-            fix_empty_range(
-                find_limits(artist._data, scale='log' if self._logc else 'linear')
-            )
+            fix_empty_range(find_limits(artist._data, scale=scale), scale=scale)
             for artist in self.artists.values()
         ]
         if "user" not in self._cmin:

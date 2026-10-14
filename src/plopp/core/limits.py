@@ -93,21 +93,36 @@ def find_limits(
 
 
 def fix_empty_range(
-    lims: tuple[sc.Variable, sc.Variable],
+    lims: tuple[sc.Variable, sc.Variable], scale: Literal['linear', 'log']
 ) -> tuple[sc.Variable, sc.Variable]:
     """
     Range correction in case xmin == xmax
     """
-    if np.isnan(lims[0].value) or np.isnan(lims[1].value):
-        lims = (sc.scalar(0.0, unit=lims[0].unit), sc.scalar(0.0, unit=lims[1].unit))
-    if lims[0].value != lims[1].value:
-        return lims
-    if lims[0].value == 0.0:
-        dx = sc.scalar(0.5, unit=lims[0].unit)
-    else:
-        if is_datetime(lims[0]):
-            dx = sc.scalar(1, unit=lims[0].unit, dtype=int)
+    if scale not in ('linear', 'log'):
+        raise ValueError(f"fix_empty_range: Unsupported scale: {scale}")
+    is_linear = scale == 'linear'
+    lower, upper = lims
+    if lower.unit != upper.unit:
+        raise ValueError("fix_empty_range: Lower and upper have different units")
+    # We decompose value and unit to avoid operation exceptions when unit=None.
+    unit = lower.unit
+    if np.isnan(lower.value) or np.isnan(upper.value):
+        lower, upper = (sc.scalar(0.0, unit=unit), sc.scalar(0.0, unit=unit))
+    if lower.value != upper.value:
+        return (lower, upper)
+    if lower.value == 0.0:
+        if is_linear:
+            return (sc.scalar(-0.5, unit=unit), sc.scalar(0.5, unit=unit))
         else:
-            # We decompose value and unit to avoid operation exceptions when unit=None.
-            dx = sc.scalar(0.5 * abs(lims[0].value), unit=lims[0].unit)
-    return (lims[0] - dx, lims[1] + dx)
+            return (sc.scalar(0.1, unit=unit), sc.scalar(10.0, unit=unit))
+    else:
+        if is_datetime(lower):
+            dx = sc.scalar(1, unit=unit, dtype=int)
+            return (lower - dx, upper + dx)
+        else:
+            if is_linear:
+                dx = sc.scalar(0.5 * abs(lower.value), unit=unit)
+                return (lower - dx, upper + dx)
+            else:
+                dx = sc.scalar(10.0, unit="")
+                return (lower / dx, upper * dx)

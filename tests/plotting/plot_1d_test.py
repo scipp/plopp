@@ -726,10 +726,11 @@ def test_plot_multiple_inputs_custom_type_keys():
     assert len(fig.view.artists) == 2
 
 
-def test_plot_data_with_all_nans_does_not_raise():
+@pytest.mark.parametrize("logy", [False, True])
+def test_plot_data_with_all_nans_does_not_raise(logy):
     da = data_array(ndim=1)
     da.values[...] = np.nan
-    _ = da.plot()
+    _ = da.plot(logy=logy)
 
 
 @pytest.mark.parametrize("hide_log_buttons", [True, False])
