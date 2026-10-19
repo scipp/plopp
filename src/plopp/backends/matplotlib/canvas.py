@@ -435,7 +435,6 @@ class Canvas:
         bytes_fig = fig_to_bytes(self.fig, form="png")
         png_b64 = base64.b64encode(bytes_fig).decode("ascii")
 
-        display(Javascript("console.log('JavaScript executed');"))
 
         js = f"""
         (async () => {{
