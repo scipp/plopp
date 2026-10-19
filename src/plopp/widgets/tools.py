@@ -243,6 +243,9 @@ class CopyTool(ipw.HBox):
         self.button = ipw.Button(
             icon='copy', tooltip='Copy figure to clipboard', **BUTTON_LAYOUT
         )
+        # We need to display an Output widget for the JavaScript to make it all the way
+        # to the browser clipboard. We do not actually want to see the Output widget, so
+        # we set its display style to "none".
         self.out = ipw.Output(layout={"display": "none"})
         self.callback = partial(callback, out=self.out)
         self.button.on_click(lambda _: self.callback())

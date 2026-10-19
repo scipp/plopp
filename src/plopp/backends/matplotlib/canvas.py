@@ -419,6 +419,17 @@ class Canvas:
         self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
 
     def copy_to_clipboard(self, out: AbstractContextManager):
+        """
+        Copy the current figure to the clipboard as a PNG image.
+
+        Parameters
+        ----------
+        out:
+            The context manager to capture the output of the JavaScript execution.
+            This should be an ipywidgets.Output instance, to enable the javascript
+            communication with the browser clipboard.
+            Used a generic type hint to avoid have ipywidgets as a hard dependency.
+        """
         from IPython.display import Javascript, display
 
         bytes_fig = fig_to_bytes(self.fig, form="png")
