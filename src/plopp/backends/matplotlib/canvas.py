@@ -4,6 +4,7 @@
 import base64
 import warnings
 from collections.abc import Callable
+from contextlib import AbstractContextManager
 from typing import Literal
 
 import matplotlib.pyplot as plt
@@ -417,11 +418,13 @@ class Canvas:
         """
         self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
 
-    def copy_to_clipboard(self):
+    def copy_to_clipboard(self, out: AbstractContextManager):
         from IPython.display import Javascript, display
 
         bytes_fig = fig_to_bytes(self.fig, form="png")
         png_b64 = base64.b64encode(bytes_fig).decode("ascii")
+
+        display(Javascript("console.log('JavaScript executed');"))
 
         js = f"""
         (async () => {{
@@ -434,7 +437,8 @@ class Canvas:
             ]);
         }})().catch(err => console.error("Clipboard copy failed:", err));
         """
-        display(Javascript(js))
+        with out:
+            display(Javascript(js))
 
     def set_axes(self, dims, units, dtypes):
         """

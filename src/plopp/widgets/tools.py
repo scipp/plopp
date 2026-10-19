@@ -158,9 +158,6 @@ BackTool = partial(ButtonTool, icon='arrow-left', tooltip='Back to previous view
 ForwardTool = partial(ButtonTool, icon='arrow-right', tooltip='Forward to next view')
 """Return tool for navigating to the next view."""
 
-CopyTool = partial(ButtonTool, icon='copy', tooltip='Copy figure to clipboard')
-"""Copy figure to clipboard tool."""
-
 SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
 """Save figure to png tool."""
 
@@ -230,3 +227,26 @@ class ColorTool(ipw.HBox):
         )
         self.button = ipw.Button(icon='times', **BUTTON_LAYOUT)
         super().__init__([self.text, self.color, self.button])
+
+
+class CopyTool(ipw.HBox):
+    """
+    Tool for copying the figure to the clipboard.
+
+    Parameters
+    ----------
+    callback:
+        Function to call when the copy button is clicked.
+    """
+
+    def __init__(self, callback: Callable):
+        self.button = ipw.Button(
+            icon='copy', tooltip='Copy figure to clipboard', **BUTTON_LAYOUT
+        )
+        self.out = ipw.Output(layout={"display": "none"})
+        self.callback = partial(callback, out=self.out)
+        self.button.on_click(lambda _: self.callback())
+        super().__init__([self.button, self.out])
+
+    def __call__(self, *ignored):
+        self.callback()
