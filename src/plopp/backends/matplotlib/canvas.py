@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import base64
 import warnings
 from collections.abc import Callable
 from typing import Literal
@@ -415,6 +416,25 @@ class Canvas:
             ``.svg``, and ``.pdf``.
         """
         self.fig.savefig(filename, **{**{'bbox_inches': 'tight'}, **kwargs})
+
+    def copy_to_clipboard(self):
+        from IPython.display import Javascript, display
+
+        bytes_fig = fig_to_bytes(self.fig, form="png")
+        png_b64 = base64.b64encode(bytes_fig).decode("ascii")
+
+        js = f"""
+        (async () => {{
+            const bytes = Uint8Array.from(
+                atob("{png_b64}"), c => c.charCodeAt(0)
+            );
+            const blob = new Blob([bytes], {{type: "image/png"}});
+            await navigator.clipboard.write([
+                new ClipboardItem({{"image/png": blob}})
+            ]);
+        }})().catch(err => console.error("Clipboard copy failed:", err));
+        """
+        display(Javascript(js))
 
     def set_axes(self, dims, units, dtypes):
         """

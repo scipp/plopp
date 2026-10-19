@@ -158,6 +158,9 @@ BackTool = partial(ButtonTool, icon='arrow-left', tooltip='Back to previous view
 ForwardTool = partial(ButtonTool, icon='arrow-right', tooltip='Forward to next view')
 """Return tool for navigating to the next view."""
 
+CopyTool = partial(ButtonTool, icon='copy', tooltip='Copy figure to clipboard')
+"""Copy figure to clipboard tool."""
+
 SaveTool = partial(ButtonTool, icon='save', tooltip='Save figure')
 """Save figure to png tool."""
 
