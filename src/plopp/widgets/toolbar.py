@@ -69,6 +69,7 @@ def make_toolbar_canvas2d(view: GraphicalView) -> Toolbar:
             "back": tools.BackTool(view.canvas.back),
             "forward": tools.ForwardTool(view.canvas.forward),
             "panzoom": tools.PanZoomTool(view.canvas.panzoom),
+            "copy": tools.CopyTool(view.canvas.copy_to_clipboard),
             "save": tools.SaveTool(view.canvas.download_figure),
         }
     )

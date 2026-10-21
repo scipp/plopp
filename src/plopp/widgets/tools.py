@@ -227,3 +227,29 @@ class ColorTool(ipw.HBox):
         )
         self.button = ipw.Button(icon='times', **BUTTON_LAYOUT)
         super().__init__([self.text, self.color, self.button])
+
+
+class CopyTool(ipw.HBox):
+    """
+    Tool for copying the figure to the clipboard.
+
+    Parameters
+    ----------
+    callback:
+        Function to call when the copy button is clicked.
+    """
+
+    def __init__(self, callback: Callable):
+        self.button = ipw.Button(
+            icon='copy', tooltip='Copy figure to clipboard', **BUTTON_LAYOUT
+        )
+        # We need to display an Output widget for the JavaScript to make it all the way
+        # to the browser clipboard. We do not actually want to see the Output widget, so
+        # we set its display style to "none".
+        self.out = ipw.Output(layout={"display": "none"})
+        self.callback = partial(callback, out=self.out)
+        self.button.on_click(lambda _: self.callback())
+        super().__init__([self.button, self.out])
+
+    def __call__(self, *ignored):
+        self.callback()
