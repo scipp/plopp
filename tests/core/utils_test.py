@@ -15,6 +15,14 @@ def test_coord_as_bin_edges_midpoints_input():
     assert sc.identical(result, sc.linspace('x', -0.5, 4.5, num=6, unit='m'))
 
 
+def test_coord_as_bin_edges_midpoints_with_variances_uses_values():
+    coord = sc.array(dims=['x'], values=[1.0, 2.0, 4.0], variances=[0.1, 0.2, 0.3])
+    da = sc.DataArray(sc.ones(dims=['x'], shape=[3]), coords={'x': coord})
+    result = coord_as_bin_edges(da, key='x')
+    expected = sc.array(dims=['x'], values=[0.5, 1.5, 3.0, 5.0])
+    assert sc.identical(result, expected)
+
+
 def test_coord_as_bin_edges_edges_input():
     x = sc.arange('x', 6.0, unit='m')
     da = sc.DataArray(data=sc.arange('x', 5.0, unit='K'), coords={'x': x})
