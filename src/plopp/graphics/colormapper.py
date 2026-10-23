@@ -164,7 +164,8 @@ class ColorMapper:
 
         self._canvas = canvas
         self.cax = self._canvas.cax if hasattr(self._canvas, 'cax') else None
-        self.cmap = _get_cmap(cmap, nan_color=nan_color)
+        self._nan_color = nan_color
+        self._cmap = _get_cmap(cmap, nan_color=self._nan_color)
         self.mask_cmap = _get_cmap(mask_cmap if mask_color is None else mask_color)
         if mask_color is None:
             # If no single color was used for masks, it means a colormap was used
@@ -323,6 +324,27 @@ class ColorMapper:
         """
         for artist in self.artists.values():
             artist.notify_artist('colormap changed')
+
+    @property
+    def cmap(self) -> Colormap:
+        """Get or set the colormap used for unmasked data.
+
+        Accepts a colormap name, a single HTML color, or a Matplotlib colormap.
+        Setting this property updates the artists and colorbar without changing
+        the color limits. Named colormaps use the configured ``nan_color`` and
+        Plopp's under and over colors. Colormap objects are used as supplied.
+        """
+        return self._cmap
+
+    @cmap.setter
+    def cmap(self, value: str | Colormap):
+        self._cmap = _get_cmap(value, nan_color=self._nan_color)
+        if self.colorbar is not None:
+            self.colorbar.mappable.set_cmap(self._cmap)
+            self._update_colorbar_widget()
+        self.notify_artists()
+        if self._canvas is not None:
+            self._canvas.draw()
 
     @property
     def vmin(self) -> float:

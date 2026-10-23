@@ -89,3 +89,21 @@ def test_pass_mpl_cmap_object():
     da = data_array(ndim=2)
     cmap = mpl.colormaps['plasma']
     imagefigure(Node(da), cmap=cmap)
+
+
+@pytest.mark.parametrize('linspace', [True, False])
+@pytest.mark.parametrize('cbar', [True, False])
+def test_change_cmap_updates_existing_image(linspace, cbar):
+    da = data_array(ndim=2, linspace=linspace)
+    fig = imagefigure(Node(da), cbar=cbar)
+    [artist] = fig.artists.values()
+
+    fig.view.colormapper.cmap = 'hot'
+
+    expected = fig.view.colormapper.rgba(da)
+    if linspace:
+        np.testing.assert_allclose(artist._image.get_array(), expected)
+    else:
+        np.testing.assert_allclose(
+            artist._mesh.get_facecolors(), expected.reshape(-1, 4)
+        )
