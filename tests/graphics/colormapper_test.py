@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
+import re
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from functools import partial
@@ -8,6 +9,7 @@ from functools import partial
 import numpy as np
 import pytest
 import scipp as sc
+from matplotlib import colormaps
 from matplotlib.colors import LogNorm, Normalize
 
 from plopp import Node, imagefigure, scatter3dfigure
@@ -49,6 +51,63 @@ def test_creation():
     assert mapper.cmap.name == 'magma'
     assert mapper.mask_cmap.name == 'jet'
     assert mapper.norm == 'linear'
+
+
+@pytest.mark.parametrize('cbar', [True, False])
+@pytest.mark.parametrize('cmap', ['hot', 'red', colormaps['plasma']])
+def test_change_cmap_updates_artists_and_preserves_limits(cbar, cmap):
+    da = data_array(ndim=2, unit='K')
+    mapper = ColorMapper(cbar=cbar)
+    artist = DummyChild(data=da, colormapper=mapper)
+    mapper.add_artist('data', artist)
+    mapper.autoscale()
+    old_colors = artist._colors.copy()
+    limits = mapper.cmin, mapper.cmax
+
+    mapper.cmap = cmap
+
+    assert not np.allclose(artist._colors, old_colors)
+    np.testing.assert_allclose(artist._colors, mapper.rgba(da))
+    assert (mapper.cmin, mapper.cmax) == limits
+    if cbar:
+        assert mapper.colorbar.cmap is mapper.cmap
+    # The autoscale call from issue #613 must still work after changing the cmap.
+    mapper.autoscale()
+
+
+@pytest.mark.parametrize('nan_color', [None, 'pink'])
+def test_change_cmap_applies_extreme_colors(nan_color):
+    mapper = ColorMapper(nan_color=nan_color)
+
+    mapper.cmap = 'hot'
+
+    expected = ColorMapper(cmap='hot', nan_color=nan_color).cmap
+    np.testing.assert_allclose(mapper.cmap.get_bad(), expected.get_bad())
+    np.testing.assert_allclose(mapper.cmap.get_under(), expected.get_under())
+    np.testing.assert_allclose(mapper.cmap.get_over(), expected.get_over())
+
+
+def test_change_cmap_preserves_custom_colormap():
+    cmap = colormaps['plasma'].with_extremes(bad='red', under='blue', over='green')
+    mapper = ColorMapper(nan_color='pink')
+
+    mapper.cmap = cmap
+
+    assert mapper.cmap is cmap
+
+
+def test_change_cmap_updates_colorbar_widget():
+    mapper = ColorMapper()
+    widget = mapper.to_widget()
+
+    def colorbar_image():
+        return re.search(r'data:image/png;base64,[^"]+', widget.svg_data).group()
+
+    old_image = colorbar_image()
+
+    mapper.cmap = 'hot'
+
+    assert colorbar_image() != old_image
 
 
 def test_norm():
