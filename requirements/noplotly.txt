@@ -8,29 +8,27 @@
 -r base.txt
 anywidget==0.11.0
     # via -r noplotly.in
-asttokens==3.0.1
+asttokens==3.0.2
     # via stack-data
-certifi==2026.6.17
+certifi==2026.10.23
     # via requests
-charset-normalizer==3.4.7
+charset-normalizer==3.5.2
     # via requests
 comm==0.2.3
     # via
     #   ipykernel
     #   ipywidgets
-debugpy==1.8.21
+debugpy==1.8.22
     # via ipykernel
-decorator==5.3.1
-    # via ipython
-executing==2.2.1
+executing==2.3.0
     # via stack-data
 graphviz==0.21
     # via -r noplotly.in
 h5py==3.16.0
     # via -r noplotly.in
-idna==3.18
+idna==3.20
     # via requests
-iniconfig==2.3.0
+iniconfig==2.3.1
     # via pytest
 ipydatawidgets==4.3.5
     # via pythreejs
@@ -38,29 +36,29 @@ ipykernel==6.31.0
     # via -r noplotly.in
 ipympl==0.10.0
     # via -r noplotly.in
-ipython==9.15.0
+ipython==9.18.1
     # via
     #   ipykernel
     #   ipympl
     #   ipywidgets
 ipython-pygments-lexers==1.1.1
     # via ipython
-ipywidgets==8.1.8
+ipywidgets==8.1.9
     # via
     #   -r noplotly.in
     #   anywidget
     #   ipydatawidgets
     #   ipympl
     #   pythreejs
-jedi==0.20.0
+jedi==0.20.1
     # via ipython
-jupyter-client==8.9.1
+jupyter-client==8.10.0
     # via ipykernel
 jupyter-core==5.9.1
     # via
     #   ipykernel
     #   jupyter-client
-jupyterlab-widgets==3.0.16
+jupyterlab-widgets==3.0.17
     # via ipywidgets
 matplotlib-inline==0.2.2
     # via
@@ -70,7 +68,7 @@ mpltoolbox==26.2.0
     # via -r noplotly.in
 nest-asyncio==1.6.0
     # via ipykernel
-pandas==3.0.3
+pandas==3.1.1
     # via
     #   -r noplotly.in
     #   xarray
@@ -78,38 +76,38 @@ parso==0.8.7
     # via jedi
 pexpect==4.9.0
     # via ipython
-platformdirs==4.10.0
+platformdirs==4.14.5
     # via
     #   jupyter-core
     #   pooch
-pluggy==1.6.0
+pluggy==1.7.0
     # via pytest
 pooch==1.9.0
     # via -r noplotly.in
-prompt-toolkit==3.0.52
+prompt-toolkit==3.0.53
     # via ipython
 psutil==7.2.2
     # via
     #   ipykernel
     #   ipython
-psygnal==0.15.1
+psygnal==0.16.1
     # via anywidget
 ptyprocess==0.7.0
     # via pexpect
-pure-eval==0.2.3
+pure-eval==0.2.4
     # via stack-data
-pyarrow==24.0.0
+pyarrow==26.0.1
     # via -r noplotly.in
-pygments==2.20.0
+pygments==2.21.0
     # via
     #   ipython
     #   ipython-pygments-lexers
     #   pytest
-pytest==9.1.1
+pytest==9.2.0
     # via -r noplotly.in
 pythreejs==2.4.2
     # via -r noplotly.in
-pyzmq==27.1.0
+pyzmq==27.3.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -119,11 +117,11 @@ scipy==1.17.1
     # via -r noplotly.in
 stack-data==0.6.3
     # via ipython
-tornado==6.5.7
+tornado==6.6.1
     # via
     #   ipykernel
     #   jupyter-client
-traitlets==5.15.1
+traitlets==5.16.1
     # via
     #   ipykernel
     #   ipympl
@@ -136,16 +134,16 @@ traitlets==5.15.1
     #   traittypes
 traittypes==0.2.3
     # via ipydatawidgets
-typing-extensions==4.15.0
+typing-extensions==4.16.0
     # via
     #   anywidget
     #   ipython
     #   jupyter-client
-urllib3==2.7.0
+urllib3==2.8.0
     # via requests
-wcwidth==0.8.2
+wcwidth==0.9.4
     # via prompt-toolkit
-widgetsnbextension==4.0.15
+widgetsnbextension==4.0.16
     # via ipywidgets
-xarray==2026.4.0
+xarray==2026.9.0
     # via -r noplotly.in

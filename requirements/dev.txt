@@ -12,31 +12,31 @@
 -r static.txt
 -r test.txt
 -r wheels.txt
-anyio==4.14.1
+anyio==4.16.0
     # via
     #   httpx
     #   jupyter-server
 argon2-cffi==25.1.0
     # via jupyter-server
-argon2-cffi-bindings==25.1.0
+argon2-cffi-bindings==26.1.0
     # via argon2-cffi
 arrow==1.4.0
     # via isoduration
-async-lru==2.3.0
+async-lru==2.4.0
     # via jupyterlab
-cffi==2.0.0
+cffi==2.1.1
     # via argon2-cffi-bindings
-click==8.4.2
+click==8.5.1
     # via
     #   pip-compile-multi
     #   pip-tools
-copier==9.16.0
+copier==9.19.1
     # via -r dev.in
-dunamai==1.26.1
+dunamai==1.26.5
     # via copier
-fqdn==1.5.1
+fqdn==1.6.0
     # via jsonschema
-funcy==2.0
+funcy==2.1
     # via copier
 h11==0.16.0
     # via httpcore
@@ -48,22 +48,22 @@ isoduration==20.11.0
     # via jsonschema
 jinja2-ansible-filters==1.3.2
     # via copier
-json5==0.15.0
+json5==0.17.3
     # via jupyterlab-server
-jsonpointer==3.1.1
+jsonpointer==3.10
     # via jsonschema
 jsonschema[format-nongpl]==4.26.0
     # via
     #   jupyter-events
     #   jupyterlab-server
     #   nbformat
-jupyter-builder==1.0.2
+jupyter-builder==1.2.4
     # via jupyterlab
 jupyter-events==0.12.1
     # via jupyter-server
 jupyter-lsp==2.3.1
     # via jupyterlab
-jupyter-server==2.20.0
+jupyter-server==2.21.1
     # via
     #   jupyter-lsp
     #   jupyterlab
@@ -71,9 +71,9 @@ jupyter-server==2.20.0
     #   notebook-shim
 jupyter-server-terminals==0.5.4
     # via jupyter-server
-jupyterlab==4.6.1
+jupyterlab==4.6.6
     # via -r dev.in
-jupyterlab-server==2.28.0
+jupyterlab-server==2.28.1
     # via jupyterlab
 lark==1.3.1
     # via rfc3987-syntax
@@ -81,17 +81,17 @@ notebook-shim==0.2.4
     # via jupyterlab
 overrides==7.7.0
     # via jupyter-server
-pip-compile-multi==3.3.1
+pip-compile-multi==3.3.2
     # via -r dev.in
-pip-tools==7.5.3
+pip-tools==7.6.2
     # via pip-compile-multi
-plumbum==2.0.1
+plumbum==2.0.2
     # via copier
-prometheus-client==0.25.0
+prometheus-client==0.26.0
     # via jupyter-server
-pycparser==3.0
+pycparser==3.12
     # via cffi
-python-json-logger==4.1.0
+python-json-logger==4.2.0
     # via jupyter-events
 questionary==2.1.1
     # via copier
@@ -107,21 +107,21 @@ rfc3987-syntax==1.1.0
     # via jsonschema
 send2trash==2.1.0
     # via jupyter-server
+six==1.17.0
+    # via rfc3339-validator
 terminado==0.18.1
     # via
     #   jupyter-server
     #   jupyter-server-terminals
 toposort==1.10
     # via pip-compile-multi
-tzdata==2026.2
-    # via arrow
 uri-template==1.3.0
     # via jsonschema
 webcolors==25.10.0
     # via jsonschema
-websocket-client==1.9.0
+websocket-client==1.9.2
     # via jupyter-server
-wheel==0.47.0
+wheel==0.48.0
     # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
