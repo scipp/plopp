@@ -18,6 +18,7 @@ def marginals(
     *,
     side: Literal["left", "right"] = "left",
     title: str = "",
+    cbar: bool = True,
     ax: plt.Axes | None = None,
     **plot_kwargs: Any,
 ) -> FigureLike:
@@ -39,6 +40,8 @@ def marginals(
         i.e., it increases from right to left.
     title:
         Title of the plot.
+    cbar:
+        Whether to use a colorbar.
     ax:
         Optional axes to plot into. If None, ``marginals_plot`` creates new Axes.
     **plot_kwargs:
@@ -58,10 +61,10 @@ def marginals(
     divider = make_axes_locatable(ax_2d)
     ax_top = divider.append_axes("top", 1.2, pad=0.1, sharex=ax_2d)
     ax_side = divider.append_axes(side, 1.2, pad=0.1, sharey=ax_2d)
-    cax = divider.append_axes("right", "4%", pad="5%")
+    cax = divider.append_axes("right", "4%", pad="5%") if cbar else None
 
     main_data_node = data if isinstance(data, Node) else Node(data)
-    fig = imagefigure(main_data_node, ax=ax_2d, cax=cax, cbar=True, **plot_kwargs)
+    fig = imagefigure(main_data_node, ax=ax_2d, cax=cax, cbar=cbar, **plot_kwargs)
 
     # Main plot (2D)
     y_label = ax_2d.get_ylabel()
