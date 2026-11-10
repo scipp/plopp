@@ -29,7 +29,6 @@
   </br></br>
 </div>
 
-
 ## Getting started
 
 ::::{grid} 2
@@ -117,6 +116,12 @@
 :::{grid-item-card} Mesh 3D plot
 :link: plotting/mesh3d-plot.ipynb
 :img-bottom: _static/plotting/mesh3d-plot.png
+
+:::
+
+:::{grid-item-card} Marginals plot
+:link: plotting/marginals.ipynb
+:img-bottom: _static/plotting/marginals-plot.png
 
 :::
 
