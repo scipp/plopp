@@ -2,6 +2,7 @@
 # Copyright (c) 2025 Scipp contributors (https://github.com/scipp)
 
 from ._inspector import inspector
+from ._marginals import marginals_plot
 from ._mesh3d import mesh3d
 from ._plot import plot
 from ._scatter import scatter
@@ -13,6 +14,7 @@ from ._xyplot import xyplot
 __all__ = [
     'DimensionSlicer',
     'inspector',
+    'marginals_plot',
     'mesh3d',
     'plot',
     'scatter',

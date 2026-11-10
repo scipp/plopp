@@ -28,6 +28,7 @@ __getattr__, __dir__, __all__ = lazy.attach(
         'plotting': [
             'DimensionSlicer',
             'inspector',
+            'marginals_plot',
             'mesh3d',
             'plot',
             'scatter',
