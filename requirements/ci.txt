@@ -5,42 +5,42 @@
 #
 #    requirements upgrade
 #
-cachetools==7.1.4
+cachetools==8.0.0
     # via tox
-certifi==2026.6.17
+certifi==2026.10.23
     # via requests
-charset-normalizer==3.4.7
+charset-normalizer==3.5.2
     # via requests
 colorama==0.4.6
     # via tox
-distlib==0.4.3
+distlib==0.4.4
     # via virtualenv
-filelock==3.29.4
+filelock==4.2.10
     # via
     #   python-discovery
     #   tox
     #   virtualenv
 gitdb==4.0.12
     # via gitpython
-gitpython==3.1.50
+gitpython==3.2.1
     # via -r ci.in
-idna==3.18
+idna==3.20
     # via requests
-packaging==26.2
+packaging==26.3
     # via
     #   -r ci.in
     #   pyproject-api
     #   tox
-platformdirs==4.10.0
+    #   virtualenv
+platformdirs==4.14.5
     # via
-    #   python-discovery
     #   tox
     #   virtualenv
-pluggy==1.6.0
+pluggy==1.7.0
     # via tox
-pyproject-api==1.10.1
+pyproject-api==1.12.5
     # via tox
-python-discovery==1.4.2
+python-discovery==1.9.5
     # via
     #   tox
     #   virtualenv
@@ -50,9 +50,11 @@ smmap==5.0.3
     # via gitdb
 tomli-w==1.2.0
     # via tox
-tox==4.56.1
+tox==4.67.13
     # via -r ci.in
-urllib3==2.7.0
+typing-extensions==4.16.0
+    # via tox
+urllib3==2.8.0
     # via requests
-virtualenv==21.5.1
+virtualenv==21.15.6
     # via tox
