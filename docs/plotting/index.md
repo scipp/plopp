@@ -59,7 +59,7 @@
 :::
 
 :::{grid-item-card} Marginals plot
-:link: marginals-plot.ipynb
+:link: marginals.ipynb
 :img-bottom: ../_static/plotting/marginals-plot.png
 
 :::
@@ -79,5 +79,5 @@ super-plot
 scatter-plot
 scatter3d-plot
 mesh3d-plot
-marginals-plot
+marginals
 ```

@@ -13,7 +13,7 @@ from ..core.typing import FigureLike
 from ..graphics import imagefigure, linefigure
 
 
-def marginals_plot(
+def marginals(
     data: sc.DataArray | Node,
     *,
     side: Literal["left", "right"] = "left",
