@@ -9,7 +9,7 @@ myst-parser
 nbsphinx
 pydata-sphinx-theme>=0.14
 requests
-sphinx<9.0.0
+sphinx
 sphinx-autodoc-typehints
 sphinx-copybutton
 sphinx-design
