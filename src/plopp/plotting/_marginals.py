@@ -80,6 +80,10 @@ def marginals(
 
     # Side plot
     def make_side_data(da: sc.DataArray) -> sc.DataArray:
+        if da.coords.is_edges(da.dims[0]):
+            raise sc.DimensionError(
+                "marginals() does not support bin edges along the y-axis."
+            )
         summed = da.sum(da.dims[1])
         return sc.DataArray(
             data=summed.coords[summed.dim],

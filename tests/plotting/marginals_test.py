@@ -38,6 +38,27 @@ def test_marginals_marginal_values():
     np.testing.assert_allclose(side_line.get_ydata(), da.coords[ydim].values)
 
 
+def test_marginals_bin_edges_x():
+    da = data_array(ndim=2)
+    da = da.hist({da.dims[1]: 10})
+    fig = pp.marginals(da)
+    _, top, side, _ = fig.canvas.fig.axes
+    top_line = top.lines[0]
+    side_line = side.lines[0]
+    xdim, ydim = da.dims[1], da.dims[0]
+    np.testing.assert_allclose(top_line.get_xdata(), da.coords[xdim].values)
+    np.testing.assert_allclose(top_line.get_ydata()[1:], da.sum(ydim).values)
+    np.testing.assert_allclose(side_line.get_xdata(), da.sum(xdim).values)
+    np.testing.assert_allclose(side_line.get_ydata(), da.coords[ydim].values)
+
+
+def test_marginals_bin_edges_y_not_supported():
+    da = data_array(ndim=2)
+    da = da.hist({da.dims[0]: 10}).transpose(da.dims)  # bin in the first dim
+    with pytest.raises(sc.DimensionError):
+        pp.marginals(da)
+
+
 def test_marginals_updates_when_node_changes():
     da = data_array(ndim=2)
     node = pp.Node(da)
