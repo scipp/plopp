@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2026 Scipp contributors (https://github.com/scipp)
 
+from functools import partial
 from typing import Any, Literal
 
 import matplotlib.pyplot as plt
@@ -11,6 +12,7 @@ from ..backends.matplotlib.utils import make_figure
 from ..core import Node
 from ..core.typing import FigureLike
 from ..graphics import imagefigure, linefigure
+from .common import input_to_nodes, preprocess
 
 
 def marginals(
@@ -20,6 +22,9 @@ def marginals(
     title: str = "",
     cbar: bool = True,
     ax: plt.Axes | None = None,
+    ignore_size: bool = False,
+    ignore_sorted: bool = False,
+    coords=None,
     **plot_kwargs: Any,
 ) -> FigureLike:
     """Plot 2D data and the sums over each dim as a 1D plot.
@@ -44,6 +49,12 @@ def marginals(
         Whether to use a colorbar.
     ax:
         Optional axes to plot into. If None, ``marginals_plot`` creates new Axes.
+    ignore_size:
+            If ``True``, skip the check that prevents the rendering of very large data.
+    ignore_sorted:
+        Do not check if the coordinates are sorted before plotting.
+    coords:
+        If supplied, use these coords instead of the input's dimension coordinates.
     **plot_kwargs:
         Forwarded to *all* subplots :func:`plopp.graphics.linefigure`,
         and :func:`plopp.graphics.imagefigure`.
@@ -63,7 +74,20 @@ def marginals(
     ax_side = divider.append_axes(side, 1.2, pad=0.1, sharey=ax_2d)
     cax = divider.append_axes("right", "4%", pad="5%") if cbar else None
 
-    main_data_node = data if isinstance(data, Node) else Node(data)
+    main_data_node = input_to_nodes(
+        data,
+        processor=partial(
+            preprocess,
+            ignore_size=ignore_size,
+            ignore_sorted=ignore_sorted,
+            coords=coords,
+        ),
+    )
+
+    if len(main_data_node) > 1:
+        raise ValueError("The marginals plot accepts only a single data input.")
+    main_data_node = main_data_node[0]
+
     fig = imagefigure(main_data_node, ax=ax_2d, cax=cax, cbar=cbar, **plot_kwargs)
 
     # Main plot (2D)
@@ -85,12 +109,8 @@ def marginals(
                 "marginals() does not support bin edges along the y-axis."
             )
         summed = da.sum(da.dims[1])
-        if (coord := summed.coords.get(summed.dim)) is not None:
-            side_data = coord
-        else:
-            side_data = sc.arange(summed.dim, summed.sizes[summed.dim], unit=None)
         return sc.DataArray(
-            data=side_data,
+            data=summed.coords[summed.dim],
             # rename to work around https://github.com/scipp/plopp/issues/616.
             coords={summed.dim: summed.data},
         ).rename({summed.dim: " "})

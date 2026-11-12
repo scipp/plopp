@@ -145,3 +145,14 @@ def test_marginals_small_known_values():
     _, top, side, _ = fig.canvas.fig.axes
     np.testing.assert_allclose(top.lines[0].get_ydata(), [12.0, 15.0, 18.0, 21.0])
     np.testing.assert_allclose(side.lines[0].get_xdata(), [6.0, 22.0, 38.0])
+
+
+def test_marginals_missing_coords():
+    da = data_array(ndim=2)
+    da.coords.clear()
+    pp.marginals(da)
+
+
+def test_marginals_numpy_array():
+    da = data_array(ndim=2)
+    pp.marginals(da.values)
