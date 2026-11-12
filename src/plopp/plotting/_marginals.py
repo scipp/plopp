@@ -85,8 +85,12 @@ def marginals(
                 "marginals() does not support bin edges along the y-axis."
             )
         summed = da.sum(da.dims[1])
+        if (coord := summed.coords.get(summed.dim)) is not None:
+            side_data = coord
+        else:
+            side_data = sc.arange(summed.dim, summed.sizes[summed.dim], unit=None)
         return sc.DataArray(
-            data=summed.coords[summed.dim],
+            data=side_data,
             # rename to work around https://github.com/scipp/plopp/issues/616.
             coords={summed.dim: summed.data},
         ).rename({summed.dim: " "})
