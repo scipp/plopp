@@ -58,6 +58,12 @@
 
 :::
 
+:::{grid-item-card} Marginals plot
+:link: marginals.ipynb
+:img-bottom: ../_static/plotting/marginals-plot.png
+
+:::
+
 ::::
 
 ```{toctree}
@@ -73,4 +79,5 @@ super-plot
 scatter-plot
 scatter3d-plot
 mesh3d-plot
+marginals
 ```

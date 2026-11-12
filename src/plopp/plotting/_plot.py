@@ -31,6 +31,7 @@ def plot(
     figsize: tuple[float, float] | None = None,
     grid: bool = False,
     ignore_size: bool = False,
+    ignore_sorted: bool = False,
     legend: bool | tuple[float, float] = True,
     hide_log_buttons: bool = False,
     logc: bool | None = None,
@@ -85,6 +86,8 @@ def plot(
         If ``True``, the interactive log buttons will be hidden.
     ignore_size:
         If ``True``, skip the check that prevents the rendering of very large data.
+    ignore_sorted:
+        Do not check if the coordinates are sorted before plotting.
     legend:
         Show legend if ``True``. If ``legend`` is a tuple, it should contain the
         ``(x, y)`` coordinates of the legend's anchor point in axes coordinates.
@@ -170,7 +173,13 @@ def plot(
     )
 
     nodes = input_to_nodes(
-        obj, processor=partial(preprocess, ignore_size=ignore_size, coords=coords)
+        obj,
+        processor=partial(
+            preprocess,
+            ignore_size=ignore_size,
+            ignore_sorted=ignore_sorted,
+            coords=coords,
+        ),
     )
 
     ndims = set()

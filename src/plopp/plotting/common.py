@@ -231,28 +231,29 @@ def _handle_coords_with_left_over_dimensions(da: sc.DataArray) -> sc.DataArray:
     )
 
 
-def _check_coord_sanity(da: sc.DataArray) -> None:
+def _check_coord_sanity(da: sc.DataArray, ignore_sorted: bool = False) -> None:
     """
     Warn if any coordinate is not sorted. This can lead to unpredictable results
     when plotting.
     Also, raise an error if any coordinate is scalar.
     """
     for name, coord in da.coords.items():
-        try:
-            if not (
-                _all_dims_sorted(coord, order='ascending')
-                or _all_dims_sorted(coord, order='descending')
-            ):
-                warnings.warn(
-                    'The input contains a coordinate with unsorted values '
-                    f'({name}). The results may be unpredictable. '
-                    'Coordinates can be sorted using '
-                    '`scipp.sort(data, key="to_be_sorted", order="ascending")`.',
-                    RuntimeWarning,
-                    stacklevel=2,
-                )
-        except sc.DTypeError:
-            pass
+        if not ignore_sorted:
+            try:
+                if not (
+                    _all_dims_sorted(coord, order='ascending')
+                    or _all_dims_sorted(coord, order='descending')
+                ):
+                    warnings.warn(
+                        'The input contains a coordinate with unsorted values '
+                        f'({name}). The results may be unpredictable. '
+                        'Coordinates can be sorted using '
+                        '`scipp.sort(data, key="to_be_sorted", order="ascending")`.',
+                        RuntimeWarning,
+                        stacklevel=2,
+                    )
+            except sc.DTypeError:
+                pass
 
         if not coord.dims:
             raise ValueError(
@@ -266,6 +267,7 @@ def preprocess(
     obj: Plottable | list,
     name: str | None = None,
     ignore_size: bool = False,
+    ignore_sorted: bool = False,
     coords: Iterable[str] | str | None = None,
 ) -> sc.DataArray:
     """
@@ -284,6 +286,8 @@ def preprocess(
         Override the input's name (when a dict-like structure is to be plotted).
     ignore_size:
         Do not perform a size check on the object before plotting it.
+    ignore_sorted:
+        Do not check if the coordinates are sorted before plotting.
     coords:
         If supplied, use these coords instead of the input's dimension coordinates.
     """
@@ -304,7 +308,7 @@ def preprocess(
     out = _add_missing_dimension_coords(out)
     out = _drop_non_dimension_coords(out)
     out = _handle_coords_with_left_over_dimensions(out)
-    _check_coord_sanity(out)
+    _check_coord_sanity(out, ignore_sorted=ignore_sorted)
     return out
 
 
