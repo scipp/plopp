@@ -58,7 +58,7 @@ jsonschema-specifications==2025.9.1
     # via jsonschema
 jupyterlab-pygments==0.3.0
     # via nbconvert
-markdown-it-py==4.2.0
+markdown-it-py==4.3.0
     # via
     #   mdit-py-plugins
     #   myst-parser
@@ -66,13 +66,13 @@ markupsafe==3.0.4
     # via
     #   jinja2
     #   nbconvert
-mdit-py-plugins==0.6.1
+mdit-py-plugins==0.7.0
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
 mistune==3.4.0
     # via nbconvert
-myst-parser==5.1.0
+myst-parser==5.2.0
     # via -r docs.in
 nbclient==0.11.0
     # via nbconvert
@@ -117,7 +117,7 @@ snowballstemmer==3.1.1
     # via sphinx
 soupsieve==4.1
     # via beautifulsoup4
-sphinx==9.0.4
+sphinx==9.1.1
     # via
     #   -r docs.in
     #   autodoc-pydantic
@@ -128,11 +128,11 @@ sphinx==9.0.4
     #   sphinx-copybutton
     #   sphinx-design
     #   sphinx-gallery
-sphinx-autodoc-typehints==3.6.1
+sphinx-autodoc-typehints==3.17.5
     # via -r docs.in
 sphinx-copybutton==0.5.2
     # via -r docs.in
-sphinx-design==0.7.0
+sphinx-design==0.8.0
     # via -r docs.in
 sphinx-gallery==0.22.1
     # via -r docs.in
