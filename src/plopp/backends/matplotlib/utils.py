@@ -76,11 +76,16 @@ def make_figure(*args, **kwargs) -> plt.Figure:
     ``plt.figure`` returns. To fix this, we need to create a manager for the figure
     (see https://stackoverflow.com/a/75477367).
     """
+    if not is_interactive_backend():
+        return plt.Figure(*args, **kwargs)
+    if not is_widget_backend():
+        # In this case, we are using an interactive backend outside of a notebook:
+        # the safest thing to do so that `plt.show()` and `plt.close()` work correctly
+        # is to use `plt.figure()`.
+        return plt.figure(*args, **kwargs)
     fig = plt.Figure(*args, **kwargs)
-    if is_interactive_backend():
-        # Create a manager for the figure, which makes it interactive, as well as
-        # making it possible to show the figure from the terminal.
-        plt._get_backend_mod().new_figure_manager_given_figure(1, fig)
+    # Create a manager for the figure, which makes it interactive
+    plt._get_backend_mod().new_figure_manager_given_figure(1, fig)
     return fig
 
 
