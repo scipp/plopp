@@ -103,6 +103,35 @@ class TestSlicer1d:
         assert sl.slider.value == {'zz': (11, 11), 'yy': (4, 4)}
         assert_identical(sl.slice_nodes[0](), da['yy', 4:5]['zz', 11:12])
 
+    @pytest.mark.parametrize(("selection", "index"), [((0, 1), 0), ((1, 3), 2)])
+    def test_combined_mode_uses_single_index(self, selection, index):
+        da = sc.DataArray(
+            sc.array(dims=['frame', 'x'], values=[[1, 2], [3, 4], [5, 6], [7, 8]]),
+            coords={'frame': sc.arange('frame', 4), 'x': sc.arange('x', 2)},
+        )
+        sp = SlicerPlot(da, keep=['x'], mode='combined')
+        combined = sp.slicer.slider
+        control = combined.controls['frame']
+        control.value = selection
+        line = sp.figure.ax.lines[0]
+        start, stop = selection
+        np.testing.assert_array_equal(
+            line.get_ydata(), da['frame', start : stop + 1].sum('frame').values
+        )
+        changes = []
+        combined.observe(lambda change: changes.append(change['new']), names='value')
+
+        control.slider_toggler.value = '-o-'
+
+        assert control.int_slicer.value == index
+        assert combined.value == {'frame': (index, index)}
+        assert changes == [{'frame': (index, index)}]
+        np.testing.assert_array_equal(line.get_ydata(), da['frame', index].values)
+
+        control.slider_toggler.value = 'o-o'
+        assert control.value == (index, index)
+        assert changes == [{'frame': (index, index)}]
+
     def test_no_keep(self):
         da = data_array(ndim=2)
         sl = DimensionSlicer(da)

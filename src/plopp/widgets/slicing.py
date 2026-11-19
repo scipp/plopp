@@ -420,9 +420,11 @@ class CombinedSlicer(ipw.HBox):
         if change["new"] == "o-o":
             self.children = [self.slider_toggler, self.range_slicer]
         else:
-            self.int_slicer.slider.value = int(
-                0.5 * sum(self.range_slicer.slider.value)
-            )
+            start, stop = self.range_slicer.slider.value
+            index = (start + stop) // 2
+            self.int_slicer.slider.value = index
+            # An unchanged single-slider value does not notify its observers.
+            self.range_slicer.slider.value = (index, index)
             self.children = [self.slider_toggler, self.int_slicer]
 
     @property
