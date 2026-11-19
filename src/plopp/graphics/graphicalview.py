@@ -84,6 +84,7 @@ class GraphicalView(View):
         clabel: str | None = None,
         nan_color: str | None = None,
         hide_log_buttons: bool = False,
+        show_dim_labels: bool = True,
         **kwargs,
     ):
         super().__init__(*nodes)
@@ -98,6 +99,7 @@ class GraphicalView(View):
         self._data_name = None
         self._data_axis = None
         self._autoscale = autoscale
+        self._show_dim_labels = show_dim_labels
 
         self.canvas = canvas_maker(
             cbar=cbar,
@@ -226,7 +228,10 @@ class GraphicalView(View):
                         setattr(
                             self.canvas,
                             f'{xyz}label',
-                            name_with_unit(var=coords[xyz], name=dim),
+                            name_with_unit(
+                                var=coords[xyz],
+                                name=dim if self._show_dim_labels else '',
+                            ),
                         )
                     # Note that setting the scale is handled here as well as in the
                     # canvas for historical purposes. We kept the scale argument for

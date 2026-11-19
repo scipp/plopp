@@ -10,12 +10,34 @@ import plopp as pp
 pytestmark = pytest.mark.usefixtures("_parametrize_all_backends")
 
 
-def test_xyplot_variable():
+@pytest.mark.parametrize('swap', [False, True])
+def test_xyplot_variable_axes_show_only_units(swap):
     x = sc.arange('time', 20.0, unit='s')
     y = sc.arange('time', 100.0, 120.0, unit='K')
+    if swap:
+        x, y = y, x
+
     fig = pp.xyplot(x, y)
-    assert fig.canvas.xlabel == 'time [s]'
-    assert fig.canvas.ylabel == '[K]'
+    assert fig.canvas.xlabel == f'[{x.unit}]'
+    assert fig.canvas.ylabel == f'[{y.unit}]'
+
+
+def test_xyplot_variable_with_no_units():
+    x = sc.arange('point', 5.0, unit=None)
+    y = sc.arange('point', 10.0, 15.0, unit=None)
+
+    fig = pp.xyplot(x, y)
+    assert fig.canvas.xlabel == ''
+    assert fig.canvas.ylabel == ''
+
+
+def test_xyplot_explicit_labels():
+    x = sc.arange('point', 20.0, unit='s')
+    y = sc.arange('point', 100.0, 120.0, unit='K')
+
+    fig = pp.xyplot(x, y, xlabel='Elapsed time', ylabel='Temperature')
+    assert fig.canvas.xlabel == 'Elapsed time'
+    assert fig.canvas.ylabel == 'Temperature'
 
 
 def test_xyplot_woth_variances():

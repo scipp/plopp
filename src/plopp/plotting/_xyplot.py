@@ -65,6 +65,9 @@ def xyplot(
     """
     Make a one-dimensional plot of one variable ``y`` as a function of another ``x``.
 
+    Axis labels show the units by default. Use ``xlabel`` and ``ylabel`` to name
+    the quantities being plotted.
+
     .. versionadded:: 23.10.0
 
     Parameters
@@ -131,6 +134,7 @@ def xyplot(
         figsize=figsize,
         grid=grid,
         hide_log_buttons=hide_log_buttons,
+        show_dim_labels=False,
         legend=legend,
         logx=logx,
         logy=logy,
