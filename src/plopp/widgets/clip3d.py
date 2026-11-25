@@ -18,7 +18,7 @@ from .utils import RUNNING_IN_VSCODE
 
 
 def _xor(x: list[sc.Variable]) -> sc.Variable:
-    dim = str(x.dims)
+    dim = str([v.dims for v in x])
     return sc.concat(x, dim).sum(dim) == sc.scalar(1, unit=None)
 
 
