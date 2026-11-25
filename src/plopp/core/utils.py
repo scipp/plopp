@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2023 Scipp contributors (https://github.com/scipp)
 
-import uuid
 from functools import reduce
 
 import scipp as sc
@@ -60,7 +59,7 @@ def repeat(x: sc.Variable, dim: str, n: int) -> sc.Variable:
         The number of times to repeat.
     """
     index = x.dims.index(dim) + 1
-    dummy_dim = uuid.uuid4().hex
+    dummy_dim = str(x.dims)
     new_dims = list(x.dims)
     new_dims.insert(index, dummy_dim)
     new_shape = list(x.shape)
