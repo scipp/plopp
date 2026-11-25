@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # Copyright (c) 2024 Scipp contributors (https://github.com/scipp)
 
-import uuid
 from functools import partial
 from typing import Literal
 
@@ -33,7 +32,7 @@ def _preprocess_scatter(
         coords[size] = da.coords[size]
     out = sc.DataArray(data=da.data, masks=da.masks, coords=coords)
     if out.ndim != 1:
-        out = out.flatten(to=uuid.uuid4().hex)
+        out = out.flatten(to=str(out.dims))
     if not ignore_size:
         check_size(out)
     if name is not None:
