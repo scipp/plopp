@@ -119,6 +119,18 @@ class CanvasToggleButton:
     def position(self, pos: tuple[float, float]):
         self._text.set_position(pos)
 
+    @property
+    def alpha(self) -> float:
+        return self._text.get_alpha()
+
+    @alpha.setter
+    def alpha(self, value: float):
+        self._text.set_alpha(value)
+        # also set alpha for the bbox
+        bbox = self._text.get_bbox_patch()
+        if bbox is not None:
+            bbox.set_alpha(value)
+
 
 class Canvas:
     """

@@ -31,6 +31,7 @@ __getattr__, __dir__, __all__ = lazy.attach(
             'marginals',
             'mesh3d',
             'plot',
+            'residuals',
             'scatter',
             'scatter3d',
             'slicer',

@@ -5,6 +5,7 @@ from ._inspector import inspector
 from ._marginals import marginals
 from ._mesh3d import mesh3d
 from ._plot import plot
+from ._residuals import residuals
 from ._scatter import scatter
 from ._scatter3d import scatter3d
 from ._slicer import DimensionSlicer, slicer
@@ -17,6 +18,7 @@ __all__ = [
     'marginals',
     'mesh3d',
     'plot',
+    'residuals',
     'scatter',
     'scatter3d',
     'slicer',

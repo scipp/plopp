@@ -5,13 +5,11 @@ from functools import partial
 from typing import Any, Literal
 
 import matplotlib.pyplot as plt
-import scipp as sc
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from ..backends.matplotlib.utils import make_figure
-from ..core import Node
 from ..core.typing import FigureLike, Plottable, PlottableMulti
-from ..graphics import imagefigure, linefigure
+from ..graphics import linefigure
 from .common import input_to_nodes, preprocess
 
 
@@ -19,7 +17,7 @@ def residuals(
     obj: PlottableMulti,
     *,
     reference: Plottable,
-    title: str = "",
+    mode: Literal["absolute", "relative", "abs", "rel"] = "absolute",
     ax: plt.Axes | None = None,
     rax: plt.Axes | None = None,
     ignore_size: bool = False,
@@ -28,6 +26,10 @@ def residuals(
     **plot_kwargs: Any,
 ) -> FigureLike:
     """ """
+
+    if "abs" not in mode and "rel" not in mode:
+        raise ValueError(f"Invalid mode: {mode}")
+
     if ax is None:
         main_ax = make_figure().subplots()
     else:
@@ -35,12 +37,34 @@ def residuals(
 
     divider = make_axes_locatable(main_ax)
     res_ax = (
-        divider.append_axes("bottom", "10%", pad=0, sharex=main_ax)
+        divider.append_axes("bottom", "20%", pad="3%", sharex=main_ax)
         if rax is None
         else rax
     )
 
-    main_data_node = input_to_nodes(
+    main_ax.tick_params(
+        axis='x',
+        which='both',
+        bottom=True,
+        top=False,
+        labelbottom=False,
+        direction='in',
+    )
+    main_ax_top = main_ax.secondary_xaxis('top')
+    main_ax_top.tick_params(axis='x', which='both', direction='out', labeltop=True)
+
+    res_ax.tick_params(
+        axis='x',
+        which='both',
+        bottom=True,
+        top=False,
+        labelbottom=True,
+        direction='out',
+    )
+    res_ax_top = res_ax.secondary_xaxis('top')
+    res_ax_top.tick_params(axis='x', which='both', direction='in', labeltop=False)
+
+    main_data_nodes = input_to_nodes(
         obj,
         processor=partial(
             preprocess,
@@ -62,41 +86,19 @@ def residuals(
         raise ValueError("The residuals plot accepts only a single reference input.")
     reference_node = reference_node[0]
 
-    fig = imagefigure(main_data_node, ax=ax_2d, cax=cax, cbar=cbar, **plot_kwargs)
+    diff_nodes = [
+        a - reference_node
+        if mode in ("absolute", "abs")
+        else (a - reference_node) / reference_node
+        for a in main_data_nodes
+    ]
 
-    # Main plot (2D)
-    y_label = ax_2d.get_ylabel()
-    if side == "left":
-        ax_2d.yaxis.set_tick_params(labelleft=False)
-        ax_2d.set_ylabel("")
+    main_fig = linefigure(
+        *[*main_data_nodes, reference_node], ax=main_ax, **plot_kwargs
+    )
+    main_fig.canvas._logx_button.alpha = 0.0
+    linefigure(*diff_nodes, ax=res_ax, **plot_kwargs)
+    res_ax.axhline(0, color='gray', linestyle='--', linewidth=1)
+    main_ax.set_xlabel('')
 
-    # Top Plot
-    top_node = Node(lambda da: da.sum(da.dims[0]), main_data_node)
-    linefigure(top_node, ax=ax_top, title=title, **plot_kwargs)
-    ax_top.xaxis.set_tick_params(labelbottom=False)
-    ax_top.set_xlabel("")
-
-    # Side plot
-    def make_side_data(da: sc.DataArray) -> sc.DataArray:
-        if da.coords.is_edges(da.dims[0]):
-            raise sc.DimensionError(
-                "marginals() does not support bin edges along the y-axis."
-            )
-        summed = da.sum(da.dims[1])
-        return sc.DataArray(
-            data=summed.coords[summed.dim],
-            # rename to work around https://github.com/scipp/plopp/issues/616.
-            coords={summed.dim: summed.data},
-        ).rename({summed.dim: " "})
-
-    side_node = Node(make_side_data, main_data_node)
-    linefigure(side_node, ax=ax_side, **plot_kwargs)
-    ax_side.set_xlabel(ax_top.get_ylabel())
-    if side == "left":
-        ax_side.set_ylabel(y_label)
-        ax_side.invert_xaxis()
-    else:
-        ax_side.yaxis.set_tick_params(labelleft=False)
-        ax_side.set_ylabel("")
-
-    return fig
+    return main_fig
