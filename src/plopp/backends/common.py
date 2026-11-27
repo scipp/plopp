@@ -50,6 +50,7 @@ def make_line_data(data: sc.DataArray, dim: str) -> dict:
     y = data.data
     hist = len(x) != len(y)
     error = None
+    error_x = None
     xvalues = np.asarray(x.values)
     yvalues = np.asarray(y.values)
     values = {'x': xvalues, 'y': yvalues}
@@ -66,13 +67,26 @@ def make_line_data(data: sc.DataArray, dim: str) -> dict:
     if hist:
         for array in (values, mask):
             array['y'] = np.concatenate([array['y'][0:1], array['y']])
-    return {'values': values, 'stddevs': error, 'mask': mask, 'hist': hist}
+    if not hist and x.variances is not None:
+        error_x = {
+            'x': xvalues,
+            'y': yvalues,
+            'e': np.asarray(sc.stddevs(x).values),
+        }
+    return {
+        'values': values,
+        'stddevs': error,
+        'stddevs_x': error_x,
+        'mask': mask,
+        'hist': hist,
+    }
 
 
 def make_line_bbox(
     data: sc.DataArray,
     dim: str,
     errorbars: bool,
+    errorbars_x: bool,
     xscale: Literal['linear', 'log'],
     yscale: Literal['linear', 'log'],
 ) -> BoundingBox:
@@ -88,12 +102,20 @@ def make_line_bbox(
         The dimension along which to extract values.
     errorbars:
         Whether to include error bars in the bounding box.
+    errorbars_x:
+        Whether to include coordinate error bars in the bounding box.
     xscale:
         The scale of the x-axis.
     yscale:
         The scale of the y-axis.
     """
     line_x = data.coords[dim]
+    if errorbars_x:
+        stddevs = sc.stddevs(line_x)
+        line_x = sc.concat(
+            [line_x - stddevs, line_x + stddevs],
+            dim=str(data.dims),
+        )
     if errorbars:
         stddevs = sc.stddevs(data.data)
         # Note: [str(data.dims)] is used to make a unique dim name.
