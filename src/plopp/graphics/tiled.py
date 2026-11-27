@@ -51,5 +51,11 @@ def tiled(nrows: int, ncols: int, **kwargs):
       >>> tiled[0, :2] = da1.plot()
       >>> tiled[0, 2] = da2.plot()
 
+    Create a tiled figure where all tiles share the same axes. Tick labels are then
+    only drawn on the bottom row and the left column, and the tiles are placed flush
+    against each other:
+
+      >>> tiled = pp.tiled(2, 2, sharex=True, sharey=True)
+
     """
     return backends.get(group='2d', name='tiled')(nrows=nrows, ncols=ncols, **kwargs)
